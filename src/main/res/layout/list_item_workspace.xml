@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="workspace"
+            type="com.pydio.android.cells.db.accounts.RWorkspace" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_padding_x_small">
+
+        <ImageView
+            android:id="@+id/workspace_icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/margin_small"
+
+            tools:srcCompat="@drawable/ic_baseline_folder_24"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:wsThumb="@{workspace}"/>
+<!--        app:tint="@color/colorAvatarDefault"-->
+
+        <TextView
+            android:id="@+id/workspace_title"
+            style="@style/text_list_primary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/workspace_desc"
+            app:layout_constraintBottom_toTopOf="@+id/workspace_desc"
+            app:wsTitle="@{workspace}"
+
+            tools:text="My Files" />
+
+        <TextView
+            android:id="@+id/workspace_desc"
+            style="@style/text_list_secondary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+
+            app:layout_constraintBottom_toBottomOf="@id/workspace_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/workspace_icon"
+
+            app:wsDesc="@{workspace}"
+
+            tools:text="Your personal files" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

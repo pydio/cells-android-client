@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.CellsCompat" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <!--        <item name="colorInversePrimary">@color/md_theme_light_inversePrimary</item>-->
+        <!--        <item name="colorShadow">@color/md_theme_light_shadow</item>-->
+        <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
+
+        <!-- Custom styles -->
+        <!-- Fonts -->
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Cells.TitleSmall</item>
+
+        <!-- In action mode, we want to hide the default app bar -->
+        <item name="windowActionModeOverlay">true</item>
+
+    </style>
+
+    <style name="Theme.Md3.SplashScreen" parent="Theme.CellsCompat">
+<!--
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+-->
+        <item name="windowSplashScreenBackground">@color/md_theme_light_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
+        <item name="postSplashScreenTheme">@style/Theme.CellsCompat</item>
+        <item name="windowSplashScreenAnimationDuration">2000</item>
+    </style>
+
+<!--    <style name="Theme.CellsSplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/md_theme_light_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
+        <item name="postSplashScreenTheme">@style/Theme.CellsCompat</item>
+        <item name="windowSplashScreenAnimationDuration">2000</item>
+    </style>-->
+
+    <!-- Overlays -->
+
+    <style name="ThemeOverlay.Cells.Appbar" parent="ThemeOverlay.Material3.Toolbar.Surface">
+        <item name="searchViewStyle">@style/Cells.SearchView</item>
+        <!--<item name="colorPrimary">@color/colorMain</item>-->
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <!-- <item name="colorPrimaryVariant">?attr/colorOnPrimary</item>
+        <item name="colorOnPrimary">?attr/colorOnPrimary</item> -->
+    </style>
+
+</resources>

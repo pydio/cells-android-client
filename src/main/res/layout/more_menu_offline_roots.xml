@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String" />
+
+        <variable
+            name="node"
+            type="com.pydio.android.cells.db.nodes.RTreeNode" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/more_menu_offline_roots"
+        style="?attr/bottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- TODO add open with (for files only) and open in ws -->
+
+        <!-- Header -->
+        <include
+            android:id="@+id/included_header"
+            layout="@layout/more_menu_header"
+            app:node="@{node}"
+            app:thumbDirPath="@{thumbDirPath}" />
+
+        <!-- Force resync -->
+        <LinearLayout
+            android:id="@+id/force_resync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/force_resync_desc"
+                android:src="@drawable/ic_baseline_sync_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/force_resync" />
+        </LinearLayout>
+
+        <!-- Toggle Offline -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/flag_offline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:id="@+id/offline_icon"
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/keep_offline"
+                android:src="@drawable/ic_baseline_offline_pin_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/offline_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/menu_margin"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/keep_offline"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/offline_icon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/offline_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/keep_offline_content_desc"
+                app:isOfflineRoot="@{node}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Open Parent in app -->
+        <LinearLayout
+            android:id="@+id/open_parent_in_workspace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/open_parent_in_workspaces"
+                android:src="@drawable/ic_baseline_open_in_new_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/open_parent_in_workspaces" />
+        </LinearLayout>
+
+        <!-- Download to device -->
+        <LinearLayout
+            android:id="@+id/download"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding"
+            app:showForFileOnly="@{node}">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/download_to_device"
+                android:src="@drawable/ic_baseline_cloud_download_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/download_to_device" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
+    </LinearLayout>
+</layout>

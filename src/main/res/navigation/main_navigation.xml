@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/main_nav"
+    app:startDestination="@id/account_home_destination">
+
+    <!-- GLOBAL ACTIONS -->
+    <action
+        android:id="@+id/open_account_list"
+        app:destination="@id/account_list_destination" />
+
+    <action
+        android:id="@+id/open_workspaces"
+        app:destination="@id/account_home_destination" />
+
+    <action
+        android:id="@+id/open_folder"
+        app:destination="@id/browse_folder_destination" />
+
+    <action
+        android:id="@+id/open_bookmarks"
+        app:destination="@id/bookmark_list_destination" />
+
+    <action
+        android:id="@+id/open_offline_roots"
+        app:destination="@id/offline_root_list_destination" />
+
+    <action
+        android:id="@+id/open_transfers"
+        app:destination="@id/transfer_list_destination" />
+
+    <action
+        android:id="@+id/search_edit_view"
+        app:destination="@id/search_destination" />
+
+    <action
+        android:id="@+id/open_settings"
+        app:destination="@id/settings_destination" />
+
+    <action
+        android:id="@+id/open_sort_by"
+        app:destination="@id/sort_by_more_menu" />
+
+    <action
+        android:id="@+id/open_manage_connection"
+        app:destination="@id/manage_connection_more_menu" />
+
+    <action
+        android:id="@+id/open_about"
+        app:destination="@id/about_destination" />
+
+    <action
+        android:id="@+id/open_sample"
+        app:destination="@id/sample_destination" />
+
+    <!-- BROWSE -->
+
+    <fragment
+        android:id="@+id/search_destination"
+        android:name="com.pydio.android.cells.ui.search.SearchFragment"
+        android:label="@string/action_search"
+        tools:layout="@layout/fragment_search">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <argument
+            android:name="context"
+            app:argType="string" />
+        <argument
+            android:name="query"
+            app:argType="string" />
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/account_home_destination"
+        android:name="com.pydio.android.cells.ui.browse.AccountHomeFragment"
+        tools:layout="@layout/fragment_account_home">
+        <argument
+            android:name="state"
+            app:argType="string" />
+    </fragment>
+
+    <!-- We cannot also statically give a label or it overwrites any dynamic title
+     we set in the "onResume" callback typically when the more dialog opens and closes -->
+    <!--    android:label="@string/action_browse"-->
+
+    <fragment
+        android:id="@+id/browse_folder_destination"
+        android:name="com.pydio.android.cells.ui.browse.BrowseFolderFragment"
+        tools:layout="@layout/fragment_browse_folder">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+<!--        <action-->
+<!--            android:id="@+id/open_multi_more_menu"-->
+<!--            app:destination="@id/multi_node_more_menu" />-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookmark_list_destination"
+        android:name="com.pydio.android.cells.ui.browse.BookmarksFragment"
+        android:label="@string/action_open_bookmarks"
+        tools:layout="@layout/fragment_bookmark_list">
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/offline_root_list_destination"
+        android:name="com.pydio.android.cells.ui.browse.OfflineRootsFragment"
+        android:label="@string/action_open_offline_roots"
+        tools:layout="@layout/fragment_offine_root_list">
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <!-- ACCOUNT MANAGEMENT -->
+
+    <fragment
+        android:id="@+id/account_list_destination"
+        android:name="com.pydio.android.cells.ui.account.AccountListFragment"
+        android:label="@string/account_list_title"
+        tools:layout="@layout/fragment_account_list" />
+
+    <!-- VARIOUS -->
+
+    <fragment
+        android:id="@+id/home_destination"
+        android:name="com.pydio.android.cells.ui.home.LandingFragment"
+        android:label="@string/welcome_title"
+        tools:layout="@layout/fragment_landing" />
+
+    <fragment
+        android:id="@+id/transfer_list_destination"
+        android:name="com.pydio.android.cells.ui.transfer.TransferListFragment"
+        android:label="@string/transfer_list_title"
+        tools:layout="@layout/fragment_transfer_list" >
+        <action
+            android:id="@+id/open_transfer_menu"
+            app:destination="@id/transfer_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/about_destination"
+        android:name="com.pydio.android.cells.ui.home.AboutFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/sample_destination"
+        android:name="com.pydio.android.cells.ui.home.SampleFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/settings_destination"
+        android:name="com.pydio.android.cells.ui.home.SettingsFragment"
+        android:label="@string/action_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- MENUS -->
+
+    <dialog
+        android:id="@+id/tree_node_more_menu"
+        android:name="com.pydio.android.cells.ui.menus.TreeNodeMenuFragment"
+        android:label="TreeNodeMoreMenu">
+        <argument
+            android:name="selected"
+            app:argType="string[]" />
+        <argument
+            android:name="contextType"
+            app:argType="string" />
+    </dialog>
+
+<!--    <dialog-->
+<!--        android:id="@+id/multi_node_more_menu"-->
+<!--        android:name="com.pydio.android.cells.ui.menus.MultiNodeMenuFragment">-->
+<!--        <argument-->
+<!--            android:name="state"-->
+<!--            app:argType="com.pydio.cells.api.ui.Message" />-->
+<!--        <argument-->
+<!--            android:name="contextType"-->
+<!--            app:argType="string" />-->
+<!--    </dialog>-->
+
+    <dialog
+        android:id="@+id/sort_by_more_menu"
+        android:name="com.pydio.android.cells.ui.menus.SortMenuFragment"
+        android:label="Sort By" />
+
+    <dialog
+        android:id="@+id/manage_connection_more_menu"
+        android:name="com.pydio.android.cells.ui.menus.ConnectionMenuFragment"
+        android:label="Manage connection">
+        <argument
+            android:name="state"
+            app:argType="string" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/transfer_more_menu"
+        android:name="com.pydio.android.cells.ui.menus.TransferMenuFragment">
+        <argument
+            android:name="transferUid"
+            app:argType="long" />
+    </dialog>
+
+</navigation>

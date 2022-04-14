@@ -1,0 +1,92 @@
+plugins {
+
+    // This is an Android application
+    id 'com.android.application'
+
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+
+    // Generate helper classes to pass data between fragments
+    id 'androidx.navigation.safeargs.kotlin'
+}
+
+android {
+
+    compileSdkVersion ownVersions['android.sdk.compile'] as int
+    buildToolsVersion ownVersions['android.build.tools']
+
+    // Gather overrides in a distinct folder for easier maintenance
+    sourceSets.main.res.srcDir 'src/main/res-overrides'
+
+    defaultConfig {
+
+        applicationId "com.pydio.android.Client"
+
+        versionCode ownVersions['cells-app.code'] as int
+        versionName ownVersions['cells-app.name']
+
+        minSdkVersion ownVersions['android.sdk.min'] as int
+        targetSdkVersion ownVersions['android.sdk.target'] as int
+
+        consumerProguardFiles 'consumer-rules.pro'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(configs['keystore.path'])
+            storePassword configs['keystore.pwd']
+            keyAlias configs['signkey.alias']
+            keyPassword configs['signkey.pwd']
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            resValue "string", "app_version",
+                    "${defaultConfig.versionName}"
+            minifyEnabled false
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            // versionName ownVersions['sdk-android.version.dev']
+            // versionName = ownVersions['sdk-android.future.name']
+            versionNameSuffix = '-dev'
+            resValue "string", "app_version",
+                    "${defaultConfig.versionName}${versionNameSuffix}"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        dataBinding = true
+    }
+}
+
+dependencies {
+
+    if (useLocalSdkJava) {
+        api project(":sdk-java")
+        println "[DEBUG] Using local java SDK"
+    } else {
+        println "[WARNING] **Not** using local SDK "
+        api "com.pydio.cells:cells-sdk-java:${ownVersions['java.sdk']}"
+        println "[DEBUG] Retrieve java sdk from maven repo"
+    }
+
+    // dependencies are defined in root build.gradle file.
+    implementation libraries
+    kapt librariesKapt
+
+    testImplementation testLibraries
+    androidTestImplementation androidTestLibraries
+}

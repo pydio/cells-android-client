@@ -1,0 +1,18 @@
+<?xml version= "1.0" encoding= "utf-8" ?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- we rather use the default appbar's back button -->
+    <!--    <item-->
+    <!--        android:id="@+id/cancel"-->
+    <!--        android:icon="@drawable/ic_baseline_close_24"-->
+    <!--        android:title="@string/button_cancel"-->
+    <!--        app:showAsAction="always" />-->
+
+    <item
+        android:id="@+id/open_menu"
+        android:icon="@drawable/ic_baseline_more_vert_24"
+        android:title="@string/open_more_menu"
+        app:showAsAction="always" />
+</menu>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/auth_navigation"
+    app:startDestination="@id/server_url_destination">
+
+    <fragment
+        android:id="@+id/server_url_destination"
+        android:name="com.pydio.android.cells.ui.auth.ServerUrlFragment"
+        android:label="@string/ask_url_title"
+        tools:layout="@layout/fragment_server_url">
+        <action
+            android:id="@+id/action_confirm_skip_verify"
+            app:destination="@id/confirm_skip_tls_verify" />
+        <action
+            android:id="@+id/action_server_url_to_p8_creds"
+            app:destination="@id/p8_credentials_destination" />
+        <action
+            android:id="@+id/action_server_url_to_oauth_flow"
+            app:destination="@id/oauth_flow_destination" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/confirm_skip_tls_verify"
+        android:name="com.pydio.android.cells.ui.auth.ConfirmSkipTlsVerificationDialog"
+        android:label="@string/invalid_tls_certificate"/>
+
+    <fragment
+        android:id="@+id/p8_credentials_destination"
+        android:name="com.pydio.android.cells.ui.auth.P8CredentialsFragment"
+        android:label="@string/p8_credentials_title"
+        tools:layout="@layout/fragment_p8_credentials">
+        <argument
+            android:name="serverUrlString"
+            app:argType="string" />
+        <argument
+            android:name="nextAction"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/oauth_flow_destination"
+        android:name="com.pydio.android.cells.ui.auth.OAuthFlowFragment"
+        android:label="@string/oauth_code_flow_title"
+        tools:layout="@layout/fragment_p8_credentials">
+        <argument
+            android:name="serverUrlString"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+</navigation>

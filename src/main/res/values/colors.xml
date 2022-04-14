@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- Dynamically generated colors for Material Design 3 -->
+    <color name="md_theme_light_primary">#00668B</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#C3E7FF</color>
+    <color name="md_theme_light_onPrimaryContainer">#001E2D</color>
+    <color name="md_theme_light_secondary">#4E616D</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#D1E5F4</color>
+    <color name="md_theme_light_onSecondaryContainer">#0A1E28</color>
+    <color name="md_theme_light_tertiary">#615A7C</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#E7DDFF</color>
+    <color name="md_theme_light_onTertiaryContainer">#1D1735</color>
+    <color name="md_theme_light_error">#BA1B1B</color>
+    <color name="md_theme_light_errorContainer">#FFDAD4</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_onErrorContainer">#410001</color>
+    <color name="md_theme_light_background">#FBFCFF</color>
+    <color name="md_theme_light_onBackground">#191C1E</color>
+    <color name="md_theme_light_surface">#FBFCFF</color>
+    <color name="md_theme_light_onSurface">#191C1E</color>
+    <color name="md_theme_light_surfaceVariant">#DDE3EA</color>
+    <color name="md_theme_light_onSurfaceVariant">#41484D</color>
+    <color name="md_theme_light_outline">#71787E</color>
+    <color name="md_theme_light_inverseOnSurface">#F0F1F4</color>
+    <color name="md_theme_light_inverseSurface">#2E3133</color>
+    <color name="md_theme_light_inversePrimary">#79D0FF</color>
+    <color name="md_theme_light_shadow">#000000</color>
+    <color name="md_theme_light_primaryInverse">#79D0FF</color>
+    <color name="md_theme_dark_primary">#79D0FF</color>
+    <color name="md_theme_dark_onPrimary">#00344A</color>
+    <color name="md_theme_dark_primaryContainer">#004C6A</color>
+    <color name="md_theme_dark_onPrimaryContainer">#C3E7FF</color>
+    <color name="md_theme_dark_secondary">#B6C9D7</color>
+    <color name="md_theme_dark_onSecondary">#20333E</color>
+    <color name="md_theme_dark_secondaryContainer">#374955</color>
+    <color name="md_theme_dark_onSecondaryContainer">#D1E5F4</color>
+    <color name="md_theme_dark_tertiary">#CAC1E9</color>
+    <color name="md_theme_dark_onTertiary">#322C4B</color>
+    <color name="md_theme_dark_tertiaryContainer">#494264</color>
+    <color name="md_theme_dark_onTertiaryContainer">#E7DDFF</color>
+    <color name="md_theme_dark_error">#FFB4A9</color>
+    <color name="md_theme_dark_errorContainer">#930006</color>
+    <color name="md_theme_dark_onError">#680003</color>
+    <color name="md_theme_dark_onErrorContainer">#FFDAD4</color>
+    <color name="md_theme_dark_background">#191C1E</color>
+    <color name="md_theme_dark_onBackground">#E1E2E5</color>
+    <color name="md_theme_dark_surface">#191C1E</color>
+    <color name="md_theme_dark_onSurface">#E1E2E5</color>
+    <color name="md_theme_dark_surfaceVariant">#41484D</color>
+    <color name="md_theme_dark_onSurfaceVariant">#C0C7CD</color>
+    <color name="md_theme_dark_outline">#8B9298</color>
+    <color name="md_theme_dark_inverseOnSurface">#191C1E</color>
+    <color name="md_theme_dark_inverseSurface">#E1E2E5</color>
+    <color name="md_theme_dark_inversePrimary">#00668B</color>
+    <color name="md_theme_dark_shadow">#000000</color>
+    <color name="md_theme_dark_primaryInverse">#00668B</color>
+    <color name="seed">#067098</color>
+    <color name="error">#BA1B1B</color>
+
+    <!-- A few hard-coded colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="flag_bookmark">#FF9800</color>
+    <color name="flag_offline">#03DAC5</color>
+    <color name="flag_share">#219600</color>
+    <color name="searchStatusBarColor">@color/cells_secondary</color>
+
+    <color name="colorAccent">#FF9800</color>
+    <color name="ok">#219600</color>
+    <color name="warning">#FF9800</color>
+    <color name="danger">#BA1B1B</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- App specific indirection TODO clean and finalize-->
+    <color name="cells_on_primary_container">#001D35</color>
+    <color name="cells_main_surface_light">#F6F7F8</color>
+
+    <color name="colorAvatarDefault">@color/cells_on_primary_container</color> -->
+    <color name="iconTint">@color/cells_on_primary_container</color>
+    <color name="iconBackground">@color/cells_main_surface_light</color>
+    <color name="selected_background">@color/md_theme_light_surfaceVariant</color>
+    <color name="not_selected_background">@color/md_theme_light_surface</color>
+
+    <color name="cells_divider_light">#EDF0F2</color>
+    <color name="cells_xlight_status_bar">@android:color/white</color>
+
+    <color name="cells_secondary">#FB725C</color>
+    <color name="cells_primary_inverse">#CFDBE1</color>
+    <color name="cells_main_surface_extra_light">#F9FAFB</color>
+
+</resources>
+
+
+    <!-- Percent to hex conversion table -->
+    <!-- Kept here for easy later reference -->
+
+    <!--%  0  1  2  3  4  5  6  7  8  9-->
+    <!--0 00 03 05 08 0A 0D 0F 12 14 17-->
+    <!--1 19 1C 1F 21 24 26 29 2B 2E 30-->
+    <!--2 33 36 38 3B 3D 40 42 45 47 4A-->
+    <!--3 4D 4F 52 54 57 59 5C 5E 61 63-->
+    <!--4 66 69 6B 6E 70 73 75 78 7A 7D-->
+    <!--5 80 82 85 87 8A 8C 8F 91 94 96-->
+    <!--6 99 9C 9E A1 A3 A6 A8 AB AD B0-->
+    <!--7 B3 B5 B8 BA BD BF C2 C4 C7 C9-->
+    <!--8 CC CF D1 D4 D6 D9 DB DE E0 E3-->
+    <!--9 E6 E8 EB ED F0 F2 F5 F7 FA FC-->

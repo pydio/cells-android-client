@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:width="@dimen/list_icon_size"
+            android:height="@dimen/list_icon_size"
+            android:shape="rectangle">
+            <solid android:color="@color/iconBackground" />
+            <corners android:radius="@dimen/list_icon_corner_radius" />
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/margin_small"
+        android:drawable="@drawable/ic_baseline_delete_24"
+        android:end="@dimen/margin_small"
+        android:gravity="center"
+        android:left="@dimen/margin_small"
+        android:right="@dimen/margin_small"
+        android:start="@dimen/margin_small"
+        android:tint="@color/iconTint"
+        android:top="@dimen/margin_small" />
+</layer-list>

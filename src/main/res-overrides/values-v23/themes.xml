@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Md3" parent="Theme.CellsCompat">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+    </style>
+
+    <style name="Theme.Md3.SplashScreen" >
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+</resources>

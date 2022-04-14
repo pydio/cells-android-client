@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String" />
+
+        <variable
+            name="node"
+            type="com.pydio.android.cells.db.nodes.RTreeNode" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/more_menu_add"
+        style="?attr/bottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Header -->
+        <include
+            android:id="@+id/included_header"
+            layout="@layout/more_menu_header"
+            app:node="@{node}"
+            app:thumbDirPath="@{thumbDirPath}" />
+
+        <LinearLayout
+            android:id="@+id/create_folder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/create_folder"
+                android:src="@drawable/ic_baseline_create_new_folder_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/create_folder" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/import_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/restore_content"
+                android:src="@drawable/ic_baseline_cloud_upload_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/import_files" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/import_from_camera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_row_padding">
+
+            <ImageView
+                android:layout_width="@dimen/menu_icon"
+                android:layout_height="@dimen/menu_icon"
+                android:layout_margin="@dimen/menu_margin"
+                android:contentDescription="@string/take_picture"
+                android:src="@drawable/ic_baseline_photo_camera_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/menu_label_padding"
+                android:text="@string/take_picture" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
+    </LinearLayout>
+</layout>

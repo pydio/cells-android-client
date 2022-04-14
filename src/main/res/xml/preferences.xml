@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:key="recycler_category"
+        app:title="Customise lists (when applicable)">
+
+        <DropDownPreference
+            app:entries="@array/list_layout_labels"
+            app:entryValues="@array/list_layout_values"
+            app:key="current_recycler_layout"
+            app:title="Type of layout"
+            app:useSimpleSummaryProvider="true" />
+
+        <DropDownPreference
+            app:entries="@array/order_by_labels"
+            app:entryValues="@array/order_by_values"
+            app:key="current_recycler_order"
+            app:title="Sort order"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        app:key="metered_category"
+        app:title="Limitations on metered network">
+
+        <SwitchPreferenceCompat
+            app:key="on_metered_dl_thumbs"
+            app:summary="Also retrieve thumbnails when on metered network"
+            app:title="Download thumbs" />
+
+        <SwitchPreferenceCompat
+            app:key="on_metered_dl_files"
+            app:summary="Also download offline files when on metered network"
+            app:title="Download offline files" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="offline_category"
+        app:title="Customise offline synchronisation">
+
+        <SwitchPreferenceCompat
+            app:key="sync_on_wifi_only"
+            app:summary="Only launch background synchronisation when on WIFI"
+            app:title="On wifi only" />
+
+        <SwitchPreferenceCompat
+            app:key="sync_on_wifi_charging"
+            app:summary="Only launch sync when the device is charging"
+            app:title="When charging" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="help_category"
+        app:title="Help">
+
+        <Preference
+            app:key="feedback"
+            app:summary="Report technical issues or suggest new features"
+            app:title="Send feedback" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

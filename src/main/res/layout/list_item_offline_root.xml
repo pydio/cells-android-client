@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="offlineRoot"
+            type="com.pydio.android.cells.db.nodes.RLiveOfflineRoot" />
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/row_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_padding_x_small"
+        android:background="@drawable/item_background">
+
+        <ImageView
+            android:id="@+id/node_thumb"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/margin_small"
+            android:contentDescription="@string/thumb_description"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:offlineRootThumb="@{offlineRoot}"
+            app:nodeThumbDirPath="@{thumbDirPath}"
+
+            tools:srcCompat="@drawable/ic_baseline_folder_24" />
+
+        <TextView
+            android:id="@+id/node_label"
+            style="@style/text_list_primary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:singleLine="true"
+            app:layout_constraintBottom_toTopOf="@+id/node_desc"
+            app:layout_constraintEnd_toStartOf="@+id/more_button"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@+id/node_desc"
+            app:offlineRootTitle="@{offlineRoot}"
+            tools:text="Folder 1" />
+
+        <TextView
+            android:id="@+id/node_desc"
+            style="@style/text_list_secondary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+
+            app:layout_constraintBottom_toBottomOf="@id/node_thumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/node_thumb"
+
+            app:offlineRootDesc="@{offlineRoot}"
+            tools:text="Your personal files" />
+
+        <ImageView
+            android:id="@+id/more_button"
+            android:layout_width="@dimen/list_icon_size"
+            android:layout_height="@dimen/list_icon_size"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="@dimen/list_icon_margin"
+
+            android:contentDescription="@string/more_button_description"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/node_label"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

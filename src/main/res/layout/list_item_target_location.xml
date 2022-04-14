@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="node"
+            type="com.pydio.android.cells.db.nodes.RTreeNode" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_padding_x_small">
+
+        <ImageView
+            android:id="@+id/node_thumb"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/margin_small"
+            android:contentDescription="@string/thumb_description"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:folderThumb="@{node}"
+            tools:srcCompat="@drawable/ic_baseline_folder_24" />
+
+        <TextView
+            android:id="@+id/node_label"
+            style="@style/text_list_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:singleLine="true"
+            app:layout_constraintBottom_toTopOf="@+id/node_desc"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@+id/node_desc"
+            app:nodeTitle="@{node}"
+            tools:text="Folder 1" />
+
+        <!--
+             TODO: do we want to keep the flags while browsing for a target location ?
+               Probably, yes.
+        -->
+        <LinearLayout
+            android:id="@+id/flags_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:animateLayoutChanges="true"
+            android:gravity="start"
+            app:layout_constraintStart_toEndOf="@+id/node_label"
+            app:layout_constraintTop_toTopOf="@+id/node_label">
+
+            <ImageView
+                android:id="@+id/flag_offline"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/keep_offline"
+                android:src="@drawable/ic_baseline_offline_pin_24"
+                android:visibility="gone"
+                app:offline="@{node}" />
+
+            <ImageView
+                android:id="@+id/flag_bookmark"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/bookmark"
+                android:src="@drawable/ic_baseline_star_24"
+                android:visibility="gone"
+                app:bookmark="@{node}" />
+
+            <ImageView
+                android:id="@+id/flag_shared"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/public_link"
+                android:src="@drawable/ic_baseline_link_24"
+                android:visibility="gone"
+                app:shared="@{node}" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/node_desc"
+            style="@style/text_list_secondary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+
+            app:layout_constraintBottom_toBottomOf="@id/node_thumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/node_thumb"
+
+            app:nodeDesc="@{node}"
+            tools:text="Your personal files" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

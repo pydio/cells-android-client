@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_id" translatable="false">cells</string>
+    <string name="application_title" translatable="false">Pydio</string>
+    <string name="app_name" translatable="false">AndroidClient</string>
+    <!-- client ID is used during OAuth process and must be authorized and correctly configured in your server instance -->
+    <string name="client_id" translatable="false">cells-mobile</string>
+    <string name="app_persistence_key" translatable="false">cells</string>
+
+    <string name="main_website" translatable="false">https://pydio.com</string>
+    <string name="copyright_string" translatable="false">© 2022 Abstrium</string>
+    <string name="app_info" translatable="false">App instance details: \n\n\tPydio Version #%1$s: %2$s \n\tBuilt on %3$s \n\tAndroid OS: %4$s \n</string>
+    <string name="support_email" translatable="false">contact@pydio.com</string>
+    <string name="support_email_subject" translatable="false">Pydio In-App Support Request</string>
+</resources>

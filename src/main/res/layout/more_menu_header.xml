@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="node"
+            type="com.pydio.android.cells.db.nodes.RTreeNode" />
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String"/>
+    </data>
+
+    <merge>
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginStart="@dimen/margin_xsmall"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="@dimen/menu_padding">
+            <!--            android:backgroundTint="@color/iconBackground"-->
+
+            <ImageView
+                android:layout_width="@dimen/menu_header_icon"
+                android:layout_height="@dimen/menu_header_icon"
+                android:contentDescription="@string/thumb_description"
+                app:nodeThumbItem="@{node}"
+                app:nodeThumbDirPath="@{thumbDirPath}"
+                android:elevation="@dimen/elevation_medium"
+                tools:srcCompat="@drawable/ic_baseline_insert_drive_file_24" />
+
+            <TextView
+                style="@style/text_list_primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/margin_small"
+                android:padding="@dimen/menu_label_padding"
+                app:nodeTitle="@{node}"
+                tools:text="Current File" />
+        </LinearLayout>
+
+    </merge>
+
+</layout>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.Cells.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:opacity">translucent</item>
+        <item name="android:textColor">@color/cells_secondary</item>
+    </style>
+
+    <style name="text_body" parent="TextAppearance.Material3.BodyLarge">
+        <!-- <item name="android:fontFamily">@font/roboto</item> -->
+        <item name="android:textSize">@dimen/text_body_size</item>
+    </style>
+
+    <style name="text_header" parent="text_body">
+        <item name="android:textSize">@dimen/text_header_size</item>
+        <item name="android:alpha">@dimen/alpha_list_primary</item>
+    </style>
+
+    <style name="text_list_primary" parent="text_body">
+        <item name="android:textSize">@dimen/text_list_primary_size</item>
+        <item name="android:alpha">@dimen/alpha_list_primary</item>
+    </style>
+
+    <style name="text_list_secondary" parent="text_body">
+        <item name="android:textSize">@dimen/text_list_secondary_size</item>
+        <item name="android:alpha">@dimen/alpha_list_secondary</item>
+    </style>
+
+    <style name="text_list_error" parent="text_list_secondary">
+        <item name="android:textColor">@color/danger</item>
+    </style>
+
+    <style name="Cells.SearchView" parent="Widget.AppCompat.SearchView.ActionBar">
+        <item name="searchIcon">@drawable/ic_sharp_search_24</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
+
+    <style name="Divider">
+        <item name="android:background">@color/md_theme_light_surfaceVariant</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+    </style>
+
+    <style name="Divider.Horizontal">
+        <item name="android:layout_marginTop">@dimen/margin_small</item>
+        <item name="android:layout_marginBottom">@dimen/margin</item>
+    </style>
+
+    <style name="Divider.Horizontal.List">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+    </style>
+
+    <style name="Divider.Horizontal.Dev">
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:background">@color/danger</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+    </style>
+
+    <!--
+        <style name="Cells.AppBar" parent="Widget.Material3.Light.ActionBar.Solid">
+        </style>
+    -->
+
+    <!--
+        <style name="avatar_icon">
+            <item name="android:layout_marginStart">@dimen/text_padding_medium</item>
+            <item name="android:layout_marginEnd">@dimen/text_padding_medium</item>
+            <item name="android:layout_marginTop">@dimen/text_padding_x_small</item>
+            <item name="android:layout_marginBottom">@dimen/text_padding_x_small</item>
+        </style>
+    -->
+
+    <!-- Widgets -->
+    <!--
+        <style name="Widget.Cells.Toolbar" parent="Widget.Material3.Toolbar">
+            <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.Appbar</item>
+            <item name="titleTextAppearance">@style/TextAppearance.Cells.H5</item>
+        </style>
+    -->
+
+    <!--
+        <style name="Widget.Cells.Button.OutlinedButton.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
+            <item name="iconPadding">0dp</item>
+            <item name="android:insetTop">0dp</item>
+            <item name="android:insetBottom">0dp</item>
+            <item name="android:paddingLeft">12dp</item>
+            <item name="android:paddingRight">12dp</item>
+            <item name="android:minWidth">48dp</item>
+            <item name="android:minHeight">48dp</item>
+        </style>
+    -->
+</resources>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Application wide params -->
+    <dimen name="default_layout_margin">16dp</dimen>
+
+    <dimen name="icon_size">48dp</dimen>
+    <dimen name="grid_icon_inner_margin">20dp</dimen>
+    <dimen name="spinner_size">96</dimen>
+    <dimen name="margin_xsmall">4dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_medium">12dp</dimen>
+    <dimen name="margin">16dp</dimen>
+    <dimen name="margin_header">20dp</dimen>
+    <dimen name="margin_large">32dp</dimen>
+    <dimen name="triple_margin">48dp</dimen>
+
+    <dimen name="elevation_small">2dp</dimen>
+    <dimen name="elevation_medium">4dp</dimen>
+    <dimen name="elevation">8dp</dimen>
+
+    <dimen name="text_body_size">12sp</dimen>
+    <dimen name="text_header_size">14sp</dimen>
+    <dimen name="text_title_size">24sp</dimen>
+    <dimen name="text_accent_size">18sp</dimen>
+    <dimen name="text_padding_x_small">4dp</dimen>
+    <dimen name="text_padding_small">8dp</dimen>
+    <dimen name="text_padding_medium">16dp</dimen>
+    <dimen name="text_padding_large">24dp</dimen>
+
+    <dimen name="text_list_primary_size">16sp</dimen>
+    <dimen name="text_list_secondary_size">12sp</dimen>
+
+    <!-- Alphas -->
+    <dimen name="alpha_list_primary">0.87</dimen>
+    <dimen name="alpha_list_secondary">0.6</dimen>
+
+    <!-- Recycler View -->
+    <!-- So that the last element of the list is not hidden by the fab
+        Goes with the clipToPadding=false prop in the recycler layout -->
+    <dimen name="recycler_bottom_fab_padding">64dp</dimen>
+    <!-- List Items -->
+    <dimen name="list_icon_size">24dp</dimen>
+    <dimen name="grid_icon_size">48dp</dimen>
+    <dimen name="list_icon_inner_size">16dp</dimen>
+    <dimen name="list_icon_corner_radius">6dp</dimen>
+    <dimen name="list_icon_margin">8dp</dimen>
+    <dimen name="list_button_size">24dp</dimen>
+    <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
+    <dimen name="list_button_margin">@dimen/margin_small</dimen>
+    <dimen name="glide_thumb_radius">6</dimen>
+    <!-- Grid Layout with card view-->
+    <integer name="grid_default_column_number">3</integer>
+    <dimen name="grid_layout_card_margin">8dp</dimen>
+    <dimen name="card_padding">4dp</dimen>
+    <dimen name="card_corner_radius">2dp</dimen>
+    <dimen name="card_elevation">10dp</dimen>
+    <dimen name="card_max_elevation">16dp</dimen>
+    <dimen name="grid_layout_card_icon_size">96dp</dimen>
+    <!-- Grid layout for the account home-->
+    <integer name="grid_ws_column_number">2</integer>
+    <dimen name="grid_ws_image_size">144dp</dimen>
+    <dimen name="grid_ws_image_corner_radius">6dp</dimen>
+    <dimen name="grid_ws_icon_size">24dp</dimen>
+    <dimen name="grid_ws_icon_margin">24dp</dimen>
+    <dimen name="grid_ws_icon_inner_size">16dp</dimen>
+    <dimen name="grid_ws_card_elevation">4dp</dimen>
+    <dimen name="grid_ws_card_max_elevation">8dp</dimen>
+
+    <!-- Decorators -->
+    <dimen name="list_item_flag_decorator">18dp</dimen>
+    <dimen name="account_status_decorator">20dp</dimen>
+
+    <!-- Menus -->
+    <dimen name="menu_header_icon">42dp</dimen>
+    <dimen name="header_icon">32dp</dimen>
+    <dimen name="menu_icon">24dp</dimen>
+    <dimen name="menu_margin">8dp</dimen>
+    <dimen name="menu_padding">4dp</dimen>
+    <dimen name="menu_row_padding">0dp</dimen>
+    <dimen name="menu_label_padding">4dp</dimen>
+
+    <!-- Navigation drawer -->
+    <dimen name="drawer_header_height">100dp</dimen>
+    <dimen name="nav_margin">8dp</dimen>
+    <dimen name="nav_padding">24dp</dimen>
+    <dimen name="nav_vertical_margin">8dp</dimen>
+    <dimen name="nav_horizontal_margin">8dp</dimen>
+
+    <!-- FAB -->
+    <dimen name="fab_padding">2dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_inner_image_size">32dp</dimen>
+
+    <!-- Main layout -->
+    <dimen name="offline_status_bar_height">96dp</dimen>
+    <dimen name="action_bar_height">72dp</dimen>
+    <dimen name="action_bar_button_dim">35dp</dimen>
+
+    <!-- Browser -->
+    <dimen name="listNodeRowHeight">64dp</dimen>
+    <dimen name="list_item_margin">8dp</dimen>
+
+    <!-- Accounts -->
+    <dimen name="list_account_item_height">64dp</dimen>
+
+</resources>

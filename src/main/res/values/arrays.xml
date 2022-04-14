@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="order_by_labels">
+        <item>Canonical (A to Z, folders first)</item>
+        <item>File name (A to Z)</item>
+        <item>File name (Z to A)</item>
+        <item>Modified (oldest first)</item>
+        <item>Modified (newest first)</item>
+        <item>Type (A to Z)</item>
+        <item>Type (Z to A)</item>
+        <item>Size (smallest first)</item>
+        <item>Size (largest first)</item>
+    </string-array>
+
+    <string-array name="order_by_values" translatable="false">
+        <item>sort_name||ASC</item>
+        <item>name||ASC</item>
+        <item>name||DESC</item>
+        <item>mime||ASC</item>
+        <item>mime||DESC</item>
+        <item>size||ASC</item>
+        <item>size||DESC</item>
+        <item>remote_mod_ts||ASC</item>
+        <item>remote_mod_ts||DESC</item>
+    </string-array>
+
+    <string-array name="list_layout_labels">
+        <item>List</item>
+        <item>Grid (small)</item>
+        <item>Grid (larger)</item>
+    </string-array>
+
+    <string-array name="list_layout_values" translatable="false">
+        <item>list</item>
+        <item>grid</item>
+        <item>grid_larger</item>
+    </string-array>
+
+</resources>

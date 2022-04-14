@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="offlineRoot"
+            type="com.pydio.android.cells.db.nodes.RLiveOfflineRoot" />
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String"/>
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/node_card"
+        style="?attr/materialCardViewElevatedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/grid_layout_card_margin"
+        app:cardBackgroundColor="?attr/colorOnPrimary"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/grid_ws_card_elevation"
+        app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Media -->
+            <ImageView
+                android:id="@+id/node_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/grid_layout_card_icon_size"
+                android:contentDescription="@string/content_description_media"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@drawable/ic_baseline_folder_24"
+                app:offlineRootCardThumb="@{offlineRoot}"
+                app:nodeThumbDirPath="@{thumbDirPath}"
+                />
+
+            <View
+                style="@style/Divider.Horizontal.List"
+                android:layout_width="match_parent"
+                android:layout_height="1dp" />
+
+            <LinearLayout
+                android:id="@+id/node_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="?android:attr/textColorSecondary"
+                    app:offlineRootTitle="@{offlineRoot}"
+                    tools:text="My Image.jpg" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/more_btn_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginEnd="@dimen/margin_xsmall"
+            android:gravity="end|top">
+
+            <ImageView
+                android:id="@+id/grid_item_more_button"
+                android:layout_width="@dimen/list_icon_size"
+                android:layout_height="@dimen/list_icon_size"
+                android:contentDescription="@string/more_button_description"
+                android:gravity="end|top"
+                android:src="@drawable/ic_baseline_more_vert_24" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>
