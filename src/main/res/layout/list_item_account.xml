@@ -62,7 +62,7 @@
             app:layout_constraintBottom_toTopOf="@+id/account_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/account_description"
-            tools:text="https://demo.pydio.com" />
+            tools:text="Example P8 Server (Legacy)"/>
 
         <TextView
             android:id="@+id/account_description"
@@ -76,7 +76,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/account_avatar"
-            tools:text="admin@https://demo.pydio.com" />
+            tools:text="admin@https://files.example.com" />
 
         <ImageView
             android:id="@+id/account_details_button"

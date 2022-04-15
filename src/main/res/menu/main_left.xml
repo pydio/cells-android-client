@@ -40,10 +40,6 @@
                 android:id="@+id/about_destination"
                 android:icon="@drawable/ic_baseline_info_24"
                 android:title="@string/action_open_about" />
-            <item
-                android:id="@+id/sample_destination"
-                android:icon="@drawable/ic_baseline_favorite_border_24"
-                android:title="@string/action_open_sample" />
         </menu>
     </item>
 

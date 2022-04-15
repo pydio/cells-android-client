@@ -52,10 +52,6 @@
         android:id="@+id/open_about"
         app:destination="@id/about_destination" />
 
-    <action
-        android:id="@+id/open_sample"
-        app:destination="@id/sample_destination" />
-
     <!-- BROWSE -->
 
     <fragment
@@ -88,8 +84,6 @@
 
     <!-- We cannot also statically give a label or it overwrites any dynamic title
      we set in the "onResume" callback typically when the more dialog opens and closes -->
-    <!--    android:label="@string/action_browse"-->
-
     <fragment
         android:id="@+id/browse_folder_destination"
         android:name="com.pydio.android.cells.ui.browse.BrowseFolderFragment"
@@ -100,9 +94,6 @@
         <action
             android:id="@+id/open_more_menu"
             app:destination="@id/tree_node_more_menu" />
-<!--        <action-->
-<!--            android:id="@+id/open_multi_more_menu"-->
-<!--            app:destination="@id/multi_node_more_menu" />-->
     </fragment>
 
     <fragment
@@ -154,12 +145,6 @@
     <fragment
         android:id="@+id/about_destination"
         android:name="com.pydio.android.cells.ui.home.AboutFragment"
-        android:label="@string/action_open_about"
-        tools:layout="@layout/fragment_about" />
-
-    <fragment
-        android:id="@+id/sample_destination"
-        android:name="com.pydio.android.cells.ui.home.SampleFragment"
         android:label="@string/action_open_about"
         tools:layout="@layout/fragment_about" />
 

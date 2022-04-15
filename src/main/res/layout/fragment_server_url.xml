@@ -48,7 +48,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="textUri"
                 android:minHeight="48dp"
-                android:text="https://demo.pydio.com"
                 android:hint="@string/ask_url_help"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
