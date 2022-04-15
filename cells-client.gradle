@@ -1,8 +1,6 @@
 plugins {
 
-    // This is an Android application
     id 'com.android.application'
-
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
