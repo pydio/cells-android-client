@@ -154,7 +154,7 @@
                 android:layout_height="@dimen/list_item_flag_decorator"
                 android:layout_marginStart="@dimen/margin_xsmall"
                 android:contentDescription="@string/keep_offline"
-                android:src="@drawable/outline_offline_pin_24"
+                android:src="@drawable/ic_outline_download_done_24"
                 app:offline="@{node}"
                 app:tint="@color/flag_offline" />
 

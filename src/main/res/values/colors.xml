@@ -66,8 +66,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="flag_bookmark">#FF9800</color>
-    <color name="flag_offline">#03DAC5</color>
-    <color name="flag_share">#219600</color>
+    <color name="flag_offline">#607D8B</color>
+    <color name="flag_share">#009688</color>
     <color name="searchStatusBarColor">@color/cells_secondary</color>
 
     <color name="colorAccent">#FF9800</color>
