@@ -70,7 +70,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.pydio.android.cells.fileprovider"
+            android:authorities="com.pydio.android.Client.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
