@@ -10,11 +10,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.UploadNavigationDirections
@@ -22,6 +17,11 @@ import com.pydio.android.cells.databinding.FragmentPickFolderBinding
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PickFolderFragment : Fragment() {
 
@@ -113,18 +113,17 @@ class PickFolderFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(false)
-            if (pickFolderVM.stateID.fileName == null) {
-                if (Str.notEmpty(pickFolderVM.stateID.workspace)) {
-                    bar.title = pickFolderVM.stateID.workspace
-                } else {
-                    bar.title = pickFolderVM.stateID.username
-                }
-                bar.subtitle = pickFolderVM.stateID.serverHost
+            bar.title = when (chooseTargetVM.actionContext) {
+                AppNames.ACTION_UPLOAD -> resources.getString(R.string.choose_target_for_share_title)
+                AppNames.ACTION_COPY -> resources.getString(R.string.choose_target_for_copy_title)
+                AppNames.ACTION_MOVE -> resources.getString(R.string.choose_target_for_move_title)
+                else -> resources.getString(R.string.choose_target_subtitle)
+            }
+            // TODO configure ellipsize from start (or middle?) rather than from the end
+            bar.subtitle = if (Str.empty(pickFolderVM.stateID.workspace)) {
+                "${pickFolderVM.stateID.username}@${pickFolderVM.stateID.serverHost}"
             } else {
-                bar.title = pickFolderVM.stateID.fileName
-                // Rather display the full path (without WS) ?
-                bar.subtitle = pickFolderVM.stateID.file
-                // TODO configure ellipsize
+                pickFolderVM.stateID.path
             }
         }
     }

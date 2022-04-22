@@ -49,7 +49,6 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
 
         chooseTargetVM.postDone.observe(this) {
             if (it) {
-//                showMessage(this, "And returning")
                 finishAndRemoveTask()
             }
         }
@@ -69,13 +68,13 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
     }
 
     override fun onResume() {
-        Log.i(logTag, "onResume, intent: $intent")
+        Log.d(logTag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
     }
 
     override fun onPause() {
-        Log.i(logTag, "onPause, intent: $intent")
+        Log.d(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 

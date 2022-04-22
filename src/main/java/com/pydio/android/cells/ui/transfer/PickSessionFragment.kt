@@ -1,9 +1,11 @@
 package com.pydio.android.cells.ui.transfer
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -52,5 +54,16 @@ class PickSessionFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         chooseTargetVM.setCurrentState(null)
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
+            bar.setDisplayHomeAsUpEnabled(false)
+            bar.title = when (chooseTargetVM.actionContext){
+                AppNames.ACTION_UPLOAD -> resources.getString(R.string.choose_target_for_share_title)
+                AppNames.ACTION_COPY -> resources.getString(R.string.choose_target_for_copy_title)
+                AppNames.ACTION_MOVE -> resources.getString(R.string.choose_target_for_move_title)
+                else -> resources.getString(R.string.choose_target_subtitle)
+            }
+            bar.subtitle = resources.getString(R.string.choose_target_subtitle)
+        }
     }
 }
