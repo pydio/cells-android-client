@@ -4,7 +4,7 @@
 
     <!-- Main Colors -->
     <color name="iconBackground">#2F3030</color>
-    <color name="cells_on_primary_container">#E1E2E5</color>
+    <color name="cells_on_primary_container">#606162</color>
     <color name="cells_xlight_status_bar">#001520</color>
     <color name="selected_background">@color/md_theme_dark_surfaceVariant</color>
     <color name="not_selected_background">@color/md_theme_dark_surface</color>
