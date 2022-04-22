@@ -2,7 +2,11 @@
 
 <resources>
 
-    <!-- Dynamically generated colors for Material Design 3 -->
+    <!--
+        Default generated colors for Material Design 3:
+        for android version > 12, this will be dynamically generated
+        based on user's background image
+        -->
     <color name="md_theme_light_primary">#00668B</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#C3E7FF</color>
@@ -68,45 +72,26 @@
     <color name="flag_bookmark">#FF9800</color>
     <color name="flag_offline">#607D8B</color>
     <color name="flag_share">#009688</color>
-    <color name="searchStatusBarColor">@color/cells_secondary</color>
 
-    <color name="colorAccent">#FF9800</color>
     <color name="ok">#219600</color>
     <color name="warning">#FF9800</color>
     <color name="danger">#BA1B1B</color>
     <color name="transparent">#00000000</color>
 
-    <!-- App specific indirection TODO clean and finalize-->
-    <color name="cells_on_primary_container">#001D35</color>
-    <color name="cells_main_surface_light">#F6F7F8</color>
-
-    <color name="colorAvatarDefault">@color/cells_on_primary_container</color> -->
-    <color name="iconTint">@color/cells_on_primary_container</color>
-    <color name="iconBackground">@color/cells_main_surface_light</color>
-    <color name="selected_background">@color/md_theme_light_surfaceVariant</color>
+    <!-- App specific indirections: these colors must be overridden for the dark mode -->
+    <color name="cells_on_primary_container">@color/md_theme_light_onPrimaryContainer</color>
     <color name="not_selected_background">@color/md_theme_light_surface</color>
+    <color name="cells_main_surface_light">@color/md_theme_light_surface</color>
+    <color name="selected_background">@color/md_theme_light_surfaceVariant</color>
+    <color name="cells_divider_light">@color/md_theme_light_surfaceVariant</color>
+    <color name="iconBackground">@color/md_theme_light_inverseOnSurface</color>
 
-    <color name="cells_divider_light">#EDF0F2</color>
-    <color name="cells_xlight_status_bar">@android:color/white</color>
+    <!-- More indirection to ease later design improvements -->
+    <color name="colorAvatarDefault">@color/cells_on_primary_container</color>
+    <color name="iconTint">@color/cells_on_primary_container</color>
 
-    <color name="cells_secondary">#FB725C</color>
-    <color name="cells_primary_inverse">#CFDBE1</color>
-    <color name="cells_main_surface_extra_light">#F9FAFB</color>
+    <!-- TODO remove these -->
+    <color name="searchStatusBarColor">#FB725C</color>
+    <color name="colorAccent">#FF9800</color>
 
 </resources>
-
-
-    <!-- Percent to hex conversion table -->
-    <!-- Kept here for easy later reference -->
-
-    <!--%  0  1  2  3  4  5  6  7  8  9-->
-    <!--0 00 03 05 08 0A 0D 0F 12 14 17-->
-    <!--1 19 1C 1F 21 24 26 29 2B 2E 30-->
-    <!--2 33 36 38 3B 3D 40 42 45 47 4A-->
-    <!--3 4D 4F 52 54 57 59 5C 5E 61 63-->
-    <!--4 66 69 6B 6E 70 73 75 78 7A 7D-->
-    <!--5 80 82 85 87 8A 8C 8F 91 94 96-->
-    <!--6 99 9C 9E A1 A3 A6 A8 AB AD B0-->
-    <!--7 B3 B5 B8 BA BD BF C2 C4 C7 C9-->
-    <!--8 CC CF D1 D4 D6 D9 DB DE E0 E3-->
-    <!--9 E6 E8 EB ED F0 F2 F5 F7 FA FC-->

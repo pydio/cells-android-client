@@ -2,11 +2,13 @@
 
 <resources>
 
-    <!-- Main Colors -->
-    <color name="iconBackground">#2F3030</color>
-    <color name="cells_on_primary_container">#606162</color>
-    <color name="cells_xlight_status_bar">#001520</color>
-    <color name="selected_background">@color/md_theme_dark_surfaceVariant</color>
+    <!-- App specific indirections: these colors override a few indirection of the main color
+         to fit dark mode -->
+    <color name="cells_on_primary_container">@color/md_theme_dark_onPrimaryContainer</color>
     <color name="not_selected_background">@color/md_theme_dark_surface</color>
+    <color name="cells_main_surface_light">@color/md_theme_dark_surface</color>
+    <color name="selected_background">@color/md_theme_dark_surfaceVariant</color>
+    <color name="cells_divider_light">@color/md_theme_dark_surfaceVariant</color>
+    <color name="iconBackground">@color/md_theme_dark_inverseOnSurface</color>
 
 </resources>

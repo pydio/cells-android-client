@@ -5,7 +5,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:opacity">translucent</item>
-        <item name="android:textColor">@color/cells_secondary</item>
+<!--        <item name="android:textColor">@color/cells_secondary</item>-->
     </style>
 
     <style name="text_body" parent="TextAppearance.Material3.BodyLarge">
@@ -38,9 +38,8 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
     </style>
 
-
     <style name="Divider">
-        <item name="android:background">@color/md_theme_light_surfaceVariant</item>
+        <item name="android:background">@color/cells_divider_light</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
     </style>
@@ -62,37 +61,4 @@
         <item name="android:layout_marginBottom">0dp</item>
     </style>
 
-    <!--
-        <style name="Cells.AppBar" parent="Widget.Material3.Light.ActionBar.Solid">
-        </style>
-    -->
-
-    <!--
-        <style name="avatar_icon">
-            <item name="android:layout_marginStart">@dimen/text_padding_medium</item>
-            <item name="android:layout_marginEnd">@dimen/text_padding_medium</item>
-            <item name="android:layout_marginTop">@dimen/text_padding_x_small</item>
-            <item name="android:layout_marginBottom">@dimen/text_padding_x_small</item>
-        </style>
-    -->
-
-    <!-- Widgets -->
-    <!--
-        <style name="Widget.Cells.Toolbar" parent="Widget.Material3.Toolbar">
-            <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.Appbar</item>
-            <item name="titleTextAppearance">@style/TextAppearance.Cells.H5</item>
-        </style>
-    -->
-
-    <!--
-        <style name="Widget.Cells.Button.OutlinedButton.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
-            <item name="iconPadding">0dp</item>
-            <item name="android:insetTop">0dp</item>
-            <item name="android:insetBottom">0dp</item>
-            <item name="android:paddingLeft">12dp</item>
-            <item name="android:paddingRight">12dp</item>
-            <item name="android:minWidth">48dp</item>
-            <item name="android:minHeight">48dp</item>
-        </style>
-    -->
 </resources>
