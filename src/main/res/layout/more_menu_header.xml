@@ -9,42 +9,102 @@
         <variable
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
+
         <variable
             name="thumbDirPath"
-            type="java.lang.String"/>
+            type="java.lang.String" />
     </data>
 
     <merge>
-        <LinearLayout
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_xsmall"
-            android:layout_marginStart="@dimen/margin_xsmall"
-            android:background="?android:attr/selectableItemBackground"
-            android:orientation="horizontal"
-            android:padding="@dimen/menu_padding">
-            <!--            android:backgroundTint="@color/iconBackground"-->
+            android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="@dimen/menu_header_icon"
-                android:layout_height="@dimen/menu_header_icon"
+                android:id="@+id/node_thumb"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:layout_margin="@dimen/margin_small"
                 android:contentDescription="@string/thumb_description"
-                app:nodeThumbItem="@{node}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:nodeThumbDirPath="@{thumbDirPath}"
-                android:elevation="@dimen/elevation_medium"
-                tools:srcCompat="@drawable/ic_baseline_insert_drive_file_24" />
+                app:nodeThumbItem="@{node}"
+                tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
             <TextView
+                android:id="@+id/node_label"
                 style="@style/text_list_primary"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/margin_small"
-                android:padding="@dimen/menu_label_padding"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="2dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                app:layout_constraintBottom_toTopOf="@id/node_path"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/node_thumb"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
                 app:nodeTitle="@{node}"
-                tools:text="Current File" />
-        </LinearLayout>
+                tools:text="Folder 1 avec un texte vraiment  " />
+
+            <LinearLayout
+                android:id="@+id/node_path"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/node_label"
+                app:layout_constraintStart_toStartOf="@+id/node_label"
+                app:layout_constraintTop_toBottomOf="@id/node_label"
+                android:padding="0dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/text_list_secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="false"
+                    app:parentPath="@{node}"
+                    tools:text="http://example.com/pydio/personal-files/folder/subfolder/bla/folder2/subfolder2/bla2/more3/folder3/subfolder3/bla3/folder4/subfolder4/bla4/more4" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--
+                <LinearLayout
+                    android:id="@+id/header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_xsmall"
+                    android:layout_marginStart="@dimen/margin_xsmall"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/menu_padding">
+
+                    <ImageView
+                        android:layout_width="@dimen/menu_header_icon"
+                        android:layout_height="@dimen/menu_header_icon"
+                        android:contentDescription="@string/thumb_description"
+                        app:nodeThumbItem="@{node}"
+                        app:nodeThumbDirPath="@{thumbDirPath}"
+                        tools:srcCompat="@drawable/ic_baseline_insert_drive_file_24" />
+                    <TextView
+                        style="@style/text_list_primary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/margin_small"
+                        android:padding="@dimen/menu_label_padding"
+                        app:nodeTitle="@{node}"
+                        tools:text="Current File" />
+                </LinearLayout>
+        -->
 
     </merge>
 

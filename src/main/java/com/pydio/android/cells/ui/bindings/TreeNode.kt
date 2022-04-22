@@ -15,12 +15,12 @@ import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.pydio.cells.api.SdkNames
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import java.io.File
 
 @BindingAdapter("nodeTitle")
@@ -65,6 +65,13 @@ fun TextView.setNodePath(item: RTreeNode?) {
     }
 }
 
+@BindingAdapter("parentPath")
+fun TextView.setParentPath(item: RTreeNode?) {
+    item?.let {
+        text = StateID.fromId(item.encodedState).parentFolder().path
+    }
+}
+
 @BindingAdapter("folderThumb")
 fun ImageView.setFolderThumb(item: RTreeNode?) {
     if (item == null) {
@@ -81,7 +88,7 @@ fun ImageView.showLoadingLayer(item: RTreeNode?) {
     }
 
     visibility = if (item.localModificationTS > item.remoteModificationTS) {
-         View.VISIBLE
+        View.VISIBLE
     } else {
         View.GONE
     }
