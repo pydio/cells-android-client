@@ -136,7 +136,7 @@
         android:id="@+id/transfer_list_destination"
         android:name="com.pydio.android.cells.ui.transfer.TransferListFragment"
         android:label="@string/transfer_list_title"
-        tools:layout="@layout/fragment_transfer_list" >
+        tools:layout="@layout/fragment_transfer_list">
         <action
             android:id="@+id/open_transfer_menu"
             app:destination="@id/transfer_more_menu" />
@@ -168,16 +168,16 @@
             app:argType="string" />
     </dialog>
 
-<!--    <dialog-->
-<!--        android:id="@+id/multi_node_more_menu"-->
-<!--        android:name="com.pydio.android.cells.ui.menus.MultiNodeMenuFragment">-->
-<!--        <argument-->
-<!--            android:name="state"-->
-<!--            app:argType="com.pydio.cells.api.ui.Message" />-->
-<!--        <argument-->
-<!--            android:name="contextType"-->
-<!--            app:argType="string" />-->
-<!--    </dialog>-->
+    <!--    <dialog-->
+    <!--        android:id="@+id/multi_node_more_menu"-->
+    <!--        android:name="com.pydio.android.cells.ui.menus.MultiNodeMenuFragment">-->
+    <!--        <argument-->
+    <!--            android:name="state"-->
+    <!--            app:argType="com.pydio.cells.api.ui.Message" />-->
+    <!--        <argument-->
+    <!--            android:name="contextType"-->
+    <!--            app:argType="string" />-->
+    <!--    </dialog>-->
 
     <dialog
         android:id="@+id/sort_by_more_menu"
@@ -196,6 +196,9 @@
     <dialog
         android:id="@+id/transfer_more_menu"
         android:name="com.pydio.android.cells.ui.menus.TransferMenuFragment">
+        <argument
+            android:name="state"
+            app:argType="string" />
         <argument
             android:name="transferUid"
             app:argType="long" />

@@ -30,7 +30,7 @@ class FileDownloader : KoinComponent {
         val state = StateID.fromId(encodedState)
         val result = transferService.prepareDownload(state, AppNames.LOCAL_FILE_TYPE_OFFLINE)
         if (result.first != null && Str.empty(result.second)) {
-            transferService.downloadFile(result.first!!)
+            transferService.downloadFile(state, result.first!!)
         }
     }
 

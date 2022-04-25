@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import java.util.concurrent.ConcurrentHashMap
 
 @Database(
-    entities = [RTreeNode::class, ROfflineRoot::class],
+    entities = [RTreeNode::class, ROfflineRoot::class, RTransfer::class],
     views = arrayOf(RLiveOfflineRoot::class),
     version = 1,
     exportSchema = false,
@@ -19,6 +19,8 @@ abstract class TreeNodeDB : RoomDatabase() {
     abstract fun offlineRootDao(): OfflineRootDao
 
     abstract fun liveOfflineRootDao(): LiveOfflineRootDao
+
+    abstract fun transferDao(): TransferDao
 
     companion object {
         @Volatile

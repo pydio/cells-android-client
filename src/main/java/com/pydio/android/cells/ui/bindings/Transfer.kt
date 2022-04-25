@@ -14,7 +14,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.runtime.RTransfer
+import com.pydio.android.cells.db.nodes.RTransfer
 
 @BindingAdapter("transferIcon")
 fun ImageView.setTransferIcon(item: RTransfer?) {

@@ -414,7 +414,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         // Log.e(logTag, "All nodes size: " + treeNodeMenuVM.nodes.value?.size)
 
         val node = treeNodeMenuVM.node.value ?: return
-        val parent = StateID.fromId(node.encodedState).parentFolder()
+        val parent = StateID.fromId(node.encodedState).parent()
 
         val moreMenu = this
         lifecycleScope.launch {
@@ -452,7 +452,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private fun onSingleClicked(actionOpenWith: String) {
 
         Log.i(logTag, "in onSingleClicked; one node: ${treeNodeMenuVM.node.value}")
-
 
         val node = treeNodeMenuVM.node.value ?: return
 
@@ -527,7 +526,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
                 }
                 ACTION_OPEN_PARENT_IN_WORKSPACES -> {
-                    val parentState = StateID.fromId(node.encodedState).parentFolder()
+                    val parentState = StateID.fromId(node.encodedState).parent()
                     CellsApp.instance.setCurrentState(parentState)
                     findNavController().navigate(MainNavDirections.openFolder(parentState.id))
                 }

@@ -4,8 +4,11 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
@@ -16,11 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.runtime.RTransfer
-import com.pydio.android.cells.db.runtime.RuntimeDB
-import com.pydio.android.cells.db.runtime.TransferDao
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -33,36 +31,41 @@ class TransferService(
     private val accountService: AccountService,
     private val nodeService: NodeService,
     private val fileService: FileService,
-    private val runtimeDB: RuntimeDB
 ) {
 
     private val logTag = TransferService::class.java.simpleName
-    private val mimeMap = MimeTypeMap.getSingleton()
+//     private val mimeMap = MimeTypeMap.getSingleton()
 
     private val transferServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
 
-    val activeTransfers: LiveData<List<RTransfer>?> = runtimeDB.transferDao().getActiveTransfers()
+    private fun getTransferDao(accountId: StateID): TransferDao {
+        return nodeService.nodeDB(accountId).transferDao()
+    }
+
+    fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
+        return nodeService.nodeDB(stateId).transferDao().getActiveTransfers()
+    }
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
         val cr = CellsApp.instance.contentResolver
         serviceScope.launch {
             copyAndRegister(cr, uri, parentID)?.let {
-                uploadOne(it.id)
+                uploadOne(it)
             }
         }
     }
 
-    fun getLiveRecord(transferUid: Long): LiveData<RTransfer?> {
-        return getTransferDao().getLiveById(transferUid)
+    fun getLiveRecord(accountId: StateID, transferUid: Long): LiveData<RTransfer?> {
+        return getTransferDao(accountId).getLiveById(transferUid)
     }
 
-    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
-        runtimeDB.transferDao().clearTerminatedTransfers()
+    suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
+        nodeService.nodeDB(stateId).transferDao().clearTerminatedTransfers()
     }
 
-    suspend fun deleteRecord(transferUid: Long) = withContext(Dispatchers.IO) {
-        runtimeDB.transferDao().deleteTransfer(transferUid)
+    suspend fun deleteRecord(stateId: StateID, transferUid: Long) = withContext(Dispatchers.IO) {
+        nodeService.nodeDB(stateId).transferDao().deleteTransfer(transferUid)
     }
 
     /** DOWNLOADS **/
@@ -75,11 +78,10 @@ class TransferService(
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
-            var errorMessage: String?
             val rNode = nodeService.getNode(state)
             if (rNode == null) {
                 // No node found, aborting
-                errorMessage = "No node found for $state, aborting file DL"
+                val errorMessage = "No node found for $state, aborting file DL"
                 Log.w(logTag, errorMessage)
                 return@withContext Pair(-1, errorMessage)
             }
@@ -92,101 +94,106 @@ class TransferService(
                 rNode.size,
                 rNode.mime,
             )
-            return@withContext Pair(getTransferDao().insert(rec), null)
+            return@withContext Pair(getTransferDao(state).insert(rec), null)
         }
 
     /**
      * Performs the real download for the pre-registered transfer record and update
      * both the RTreeNode and RTransfer records depending on the output status.
      */
-    suspend fun downloadFile(transferUid: Long): String? = withContext(Dispatchers.IO) {
+    suspend fun downloadFile(accountId: StateID, transferUid: Long): String? =
+        withContext(Dispatchers.IO) {
 
-        var errorMessage: String? = null
+            var errorMessage: String? = null
 
-        // Retrieve data and sanity check
-        val rTransfer = getTransferDao().getById(transferUid) ?: run {
-            val msg = "No record found for $transferUid, aborting file DL"
-            Log.w(logTag, msg)
-            return@withContext msg
-        }
+            val dao = getTransferDao(accountId)
 
-        val state = StateID.fromId(rTransfer.encodedState)
-        val rNode = nodeService.getNode(state)
-        if (rNode == null) {
-            // No node found, aborting
-            errorMessage = "No node found for $state, aborting file DL"
-            Log.w(logTag, errorMessage)
+            // Retrieve data and sanity check
+            val rTransfer = dao.getById(transferUid) ?: run {
+                val msg = "No record found for $transferUid, aborting file DL"
+                Log.w(logTag, msg)
+                return@withContext msg
+            }
+
+            val state = StateID.fromId(rTransfer.encodedState)
+            val rNode = nodeService.getNode(state)
+            if (rNode == null) {
+                // No node found, aborting
+                errorMessage = "No node found for $state, aborting file DL"
+                Log.w(logTag, errorMessage)
+                return@withContext errorMessage
+            }
+
+            var out: FileOutputStream? = null
+            try {
+
+                Log.d(logTag, "About to download file from $state")
+
+                // Prepare target file
+                val targetFile = File(rTransfer.localPath)
+                targetFile.parentFile!!.mkdirs()
+                out = FileOutputStream(targetFile)
+
+                // Mark the upload as started
+                rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                dao.update(rTransfer)
+
+                // Real transfer
+                accountService.getClient(state)
+                    .download(state.workspace, state.file, out) { progressL ->
+                        rTransfer.progress = progressL
+                        dao.update(rTransfer)
+                        false
+                    }
+
+                // Mark the upload as done
+                rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                rTransfer.error = null
+                dao.update(rTransfer)
+
+                // Also stores the target path in the parent node
+                // TODO handle the case where the download duration is long enough to enable
+                //   end-user to modify (or delete) the corresponding node before it is downloaded
+                rNode.localFilePath = rTransfer.localPath
+                nodeService.nodeDB(state).treeNodeDao().update(rNode)
+
+            } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
+                errorMessage = "Could not download file for " + state + ": " + se.message
+            } catch (ioe: IOException) {
+                // TODO Could not write the file in the local fs, we should notify the user
+                errorMessage =
+                    "Could not write file for DL of $state to the local device: ${ioe.message}"
+                ioe.printStackTrace()
+            } finally {
+                IoHelpers.closeQuietly(out)
+            }
+            if (Str.notEmpty(errorMessage)) {
+                rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                rTransfer.error = errorMessage
+                dao.update(rTransfer)
+                Log.e(logTag, errorMessage!!)
+            }
+
             return@withContext errorMessage
         }
 
-        var out: FileOutputStream? = null
-        try {
-
-            Log.d(logTag, "About to download file from $state")
-
-            // Prepare target file
-            val targetFile = File(rTransfer.localPath)
-            targetFile.parentFile!!.mkdirs()
-            out = FileOutputStream(targetFile)
-
-            // Mark the upload as started
-            rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getTransferDao().update(rTransfer)
-
-            // Real transfer
-            accountService.getClient(state)
-                .download(state.workspace, state.file, out) { progressL ->
-                    rTransfer.progress = progressL
-                    getTransferDao().update(rTransfer)
-                    false
-                }
-
-            // Mark the upload as done
-            rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            rTransfer.error = null
-            getTransferDao().update(rTransfer)
-
-            // Also stores the target path in the parent node
-            // TODO handle the case where the download duration is long enough to enable
-            //   end-user to modify (or delete) the corresponding node before it is downloaded
-            rNode.localFilePath = rTransfer.localPath
-            nodeService.nodeDB(state).treeNodeDao().update(rNode)
-
-        } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
-            errorMessage = "Could not download file for " + state + ": " + se.message
-        } catch (ioe: IOException) {
-            // TODO Could not write the file in the local fs, we should notify the user
-            errorMessage =
-                "Could not write file for DL of $state to the local device: ${ioe.message}"
-            ioe.printStackTrace()
-        } finally {
-            IoHelpers.closeQuietly(out)
-        }
-        if (Str.notEmpty(errorMessage)) {
-            rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            rTransfer.error = errorMessage
-            getTransferDao().update(rTransfer)
-            Log.e(logTag, errorMessage!!)
-        }
-
-        return@withContext errorMessage
-    }
-
     /** UPLOADS **/
 
-    private fun uploadOne(id: String) {
-        val uploadRecord = getTransferDao().getByState(id)
-            ?: throw IllegalStateException("No transfer record found for $id, cannot upload")
-        doUpload(uploadRecord)
+    private fun uploadOne(stateID: StateID) {
+        val dao = getTransferDao(stateID)
+        val uploadRecord = dao.getByState(stateID.id)
+            ?: throw IllegalStateException("No transfer record found for $stateID, cannot upload")
+        doUpload(dao, uploadRecord)
     }
 
-    private fun doUpload(transferRecord: RTransfer) {
+    private fun doUpload(dao: TransferDao, transferRecord: RTransfer) {
         // Real upload in single part
         var inputStream: InputStream? = null
         try {
             // Mark the upload as started
             transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getTransferDao().update(transferRecord)
+
+            dao.update(transferRecord)
             val state = transferRecord.getStateId()
             val srcPath = fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
             inputStream = FileInputStream(File(srcPath))
@@ -200,7 +207,7 @@ class TransferService(
                 true
             ) { progressL ->
                 transferRecord.progress = progressL
-                getTransferDao().update(transferRecord)
+                dao.update(transferRecord)
                 false
             }
 
@@ -215,20 +222,20 @@ class TransferService(
         } finally {
             IoHelpers.closeQuietly(inputStream)
             transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getTransferDao().update(transferRecord)
+            dao.update(transferRecord)
         }
     }
 
-    suspend fun uploadAllNew() {
-        serviceScope.launch {
-            val uploads = getTransferDao().getAllNew()
-            for (one in uploads) {
-                serviceScope.launch {
-                    doUpload(one)
-                }
-            }
-        }
-    }
+//    suspend fun uploadAllNew() {
+//        serviceScope.launch {
+//            val uploads = getTransferDao().getAllNew()
+//            for (one in uploads) {
+//                serviceScope.launch {
+//                    doUpload(one)
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Does all the dirty work to copy the file from the device to in-app folder
@@ -297,7 +304,7 @@ class TransferService(
             size,
             mime
         )
-        runtimeDB.transferDao().insert(rec)
+        nodeService.nodeDB(parentID).transferDao().insert(rec)
         return targetStateID
     }
 
@@ -311,7 +318,7 @@ class TransferService(
     }
 
     private fun createLocalState(parentID: StateID, name: String): StateID {
-        var parentPath = fileService.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val parentPath = fileService.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
         var targetFile = File(File(parentPath), name)
         while (targetFile.exists()) {
             val newName = bumpFileVersion(targetFile.name)
@@ -355,7 +362,4 @@ class TransferService(
         }
     }
 
-    private fun getTransferDao(): TransferDao {
-        return runtimeDB.transferDao()
-    }
 }

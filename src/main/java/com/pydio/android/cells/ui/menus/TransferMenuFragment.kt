@@ -19,7 +19,7 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuTransferBinding
-import com.pydio.android.cells.db.runtime.RTransfer
+import com.pydio.android.cells.db.nodes.RTransfer
 
 /**
  * Menu that presents the end user with some further actions
@@ -29,7 +29,7 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = TransferMenuFragment::class.java.simpleName
     private val args: TransferMenuFragmentArgs by navArgs()
-    private val transferMenuVM: TransferMenuViewModel by viewModel { parametersOf(args.transferUid) }
+    private val transferMenuVM: TransferMenuViewModel by viewModel { parametersOf(args.state, args.transferUid) }
     private lateinit var binding: MoreMenuTransferBinding
 
     override fun onCreateView(
@@ -67,14 +67,15 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
             when (action) {
                 // Impact remote server
                 AppNames.ACTION_DELETE_RECORD -> {
-                    transferMenuVM.transferService.deleteRecord(rTransfer.transferId)
+                    transferMenuVM.transferService.deleteRecord(rTransfer.getStateId(), rTransfer.transferId)
                     moreMenu.dismiss()
                 }
                 // In-app navigation
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
-                    val parentState = StateID.fromId(rTransfer.encodedState).parentFolder()
-                    CellsApp.instance.setCurrentState(parentState)
-                    findNavController().navigate(MainNavDirections.openFolder(parentState.id))
+                    val parentState = StateID.fromId(rTransfer.encodedState).parent()
+                    // CellsApp.instance.setCurrentState(parentState)
+                    val action = MainNavDirections.openFolder(parentState.id)
+                    findNavController().navigate(action)
                 }
             }
         }

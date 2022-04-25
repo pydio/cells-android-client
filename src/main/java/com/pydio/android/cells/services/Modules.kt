@@ -51,15 +51,15 @@ val databaseModule = module {
     single { get<AccountDB>().tokenDao() }
     single { get<AccountDB>().workspaceDao() }
 
-    // Runtime DB
-    single {
-        Room.databaseBuilder(
-            androidContext().applicationContext,
-            RuntimeDB::class.java,
-            "runtime_objects"
-        ).build()
-    }
-    single { get<RuntimeDB>().transferDao() }
+//    // Runtime DB
+//    single {
+//        Room.databaseBuilder(
+//            androidContext().applicationContext,
+//            RuntimeDB::class.java,
+//            "runtime_objects"
+//        ).build()
+//    }
+//    single { get<RuntimeDB>().transferDao() }
 
 }
 
@@ -82,7 +82,7 @@ val serviceModule = module {
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
     single { NodeService(get(), get(), get()) }
     single { FileService(get()) }
-    single { TransferService(get(), get(), get(), get()) }
+    single { TransferService(get(), get(), get()) }
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSyncWorker(
@@ -112,8 +112,8 @@ val viewModelModule = module {
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
 
-    viewModel { TransferViewModel(get()) }
-    viewModel { params -> TransferMenuViewModel(params.get(), get()) }
+    viewModel { params -> TransferViewModel(params.get(), get()) }
+    viewModel { params -> TransferMenuViewModel(params.get(),params.get(), get()) }
 
     viewModel { SearchViewModel(get()) }
 

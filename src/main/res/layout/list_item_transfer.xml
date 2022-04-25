@@ -10,7 +10,7 @@
 
         <variable
             name="transfer"
-            type="com.pydio.android.cells.db.runtime.RTransfer" />
+            type="com.pydio.android.cells.db.nodes.RTransfer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

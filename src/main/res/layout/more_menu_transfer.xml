@@ -10,7 +10,7 @@
 
         <variable
             name="rTransfer"
-            type="com.pydio.android.cells.db.runtime.RTransfer" />
+            type="com.pydio.android.cells.db.nodes.RTransfer" />
     </data>
 
     <LinearLayout

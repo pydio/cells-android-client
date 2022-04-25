@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.databinding.ListItemTransferBinding
-import com.pydio.android.cells.db.runtime.RTransfer
+import com.pydio.android.cells.db.nodes.RTransfer
 
 class TransferListAdapter(
     private val onItemClicked: (node: RTransfer, command: String) -> Unit
