@@ -21,6 +21,7 @@ import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.areNodeContentEquals
+import com.pydio.cells.api.ErrorCodes
 import java.io.File
 
 class TreeDiff(
@@ -81,12 +82,33 @@ class TreeDiff(
             Log.d(logTag, "Metered network, DL thumbs: $downloadThumbs, DL files: $downloadFiles")
         }
 
-        val remote = client.nodeInfo(rootId.workspace, rootId.file)
 
+        // First insure node has not been erased on the server since last visit
+        val local = dao.getNode(rootId.id)
+        var remote: FileNode? = null
+        try {
+            remote = client.nodeInfo(rootId.workspace, rootId.file)
+        } catch (e: SDKException) {
+            val msg = "stat failed at ${rootId}: ${e.message}"
+            Log.e(logTag, msg)
+            // Corner case: connection failed, we just return with no change
+            if (e.isConnectionFailedError){
+                throw e
+            }
+        }
+
+        if (remote == null){
+            local?.let {
+                putDeleteChange(it)
+                return@withContext 1
+            }
+            return@withContext 0
+        }
+
+        // Then perform real diff
         if (remote.isFolder) {
             handleFolder()
         } else {
-            val local = dao.getNode(rootId.id)
             when {
                 local == null -> {
                     putAddChange(remote)

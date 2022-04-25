@@ -4,6 +4,19 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.android.cells.db.nodes.ROfflineRoot
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.android.cells.db.nodes.TreeNodeDao
+import com.pydio.android.cells.transfer.FileDownloader
+import com.pydio.android.cells.transfer.ThumbDownloader
+import com.pydio.android.cells.transfer.TreeDiff
+import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.logException
+import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -18,19 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
-import com.pydio.android.cells.db.nodes.ROfflineRoot
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.db.nodes.TreeNodeDB
-import com.pydio.android.cells.db.nodes.TreeNodeDao
-import com.pydio.android.cells.transfer.FileDownloader
-import com.pydio.android.cells.transfer.ThumbDownloader
-import com.pydio.android.cells.transfer.TreeDiff
-import com.pydio.android.cells.utils.currentTimestamp
-import com.pydio.android.cells.utils.logException
-import com.pydio.android.cells.utils.parseOrder
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -46,7 +46,6 @@ class NodeService(
 ) {
 
     private val logTag = NodeService::class.simpleName
-
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
@@ -90,7 +89,7 @@ class NodeService(
                 "unimplemented tweak. Is it OK?  $stateID: parPath: $parPath, mime: $mime"
             )
         }
-        Log.i(logTag, "Listing children of $stateID: parPath: $parPath, mime: $mime")
+        Log.d(logTag, "Listing children of $stateID: parPath: $parPath, mime: $mime")
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
@@ -108,7 +107,6 @@ class NodeService(
     }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
-        // Log.i(tag, "Retrieving node for $stateID")
         return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
     }
 
@@ -275,8 +273,7 @@ class NodeService(
 
             // TODO Rather use DI via a factory?
             val fileDL = FileDownloader()
-            val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
-            val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
+            val thumbDL = ThumbDownloader(client, nodeDB(stateID))
 
             val changeNb = syncNodeAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
 
@@ -439,33 +436,11 @@ class NodeService(
             val client = getClient(stateID)
             val dao = nodeDB(stateID).treeNodeDao()
 
-            // First handle current (parent) node
-            // Still TODO. Rather make this in the folder diff.
-            // beware of the WS root corner case
-//            val node = client.getNodeMeta(stateID.workspace, stateID.file)
-//            Log.e(TAG, "Retrieved parent node: ${node.path}")
-
-            // Then retrieves and compare children
             // WARNING: this browse **all** files that are in the folder
-            val thumbDL =
-                ThumbDownloader(
-                    client,
-                    nodeDB(stateID),
-                    fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
-                )
+            val thumbDL = ThumbDownloader(client, nodeDB(stateID))
             val folderDiff = TreeDiff(stateID, client, dao, null, thumbDL)
             val changeNb = folderDiff.compareWithRemote()
             result = Pair(changeNb, null)
-            /*
-            val childStateID = stateID.child(node.label)
-            val rNode = toRTreeNode(childStateID, node)
-            val old = dao.getSession(childStateID.id)
-            if (old == null){
-                dao.insert(rNode)
-            } else {
-                dao.update(rNode)
-            }
-*/
         } catch (e: SDKException) {
             val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
             handleSdkException(stateID, msg, e)

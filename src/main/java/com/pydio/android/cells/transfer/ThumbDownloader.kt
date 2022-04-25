@@ -2,6 +2,9 @@ package com.pydio.android.cells.transfer
 
 import android.util.Log
 import com.google.gson.Gson
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.android.cells.services.FileService
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -9,9 +12,14 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
-import com.pydio.android.cells.db.nodes.TreeNodeDB
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -21,9 +29,8 @@ import kotlin.coroutines.coroutineContext
 class ThumbDownloader(
     private val client: Client,
     private val nodeDB: TreeNodeDB,
-    private val filesDir: File,
     private val thumbSize: Int = 100,
-) {
+) : KoinComponent {
 
     private val logTag = ThumbDownloader::class.java.simpleName
 
@@ -32,6 +39,9 @@ class ThumbDownloader(
 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
+
+
+    private val fileService: FileService by inject()
 
     private fun download(encodedState: String) {
         val state = StateID.fromId(encodedState)
@@ -67,7 +77,7 @@ class ThumbDownloader(
 
         var out: FileOutputStream? = null
         try {
-            out = FileOutputStream(File(targetPath(targetName!!)))
+            out = FileOutputStream(File(targetPath(state.accountId, targetName!!)))
             client.getPreviewData(node, thumbSize, out)
 
             // Then set the thumb name in current node
@@ -87,8 +97,9 @@ class ThumbDownloader(
         }
     }
 
-    private fun targetPath(targetName: String): String {
-        return filesDir.absolutePath + File.separator + targetName
+    private fun targetPath(accountId: String, targetName: String): String {
+        val thumbParPath = fileService.dataParentPath(accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+        return thumbParPath + File.separator + targetName
     }
 
     private fun targetName(currNode: FileNode): String? {
@@ -119,7 +130,7 @@ class ThumbDownloader(
     }
 
     suspend fun orderThumbDL(url: String) {
-        println("DL Thumb for $url")
+        Log.d(logTag, "DL Thumb for $url")
         queue.send(url)
     }
 
@@ -131,7 +142,7 @@ class ThumbDownloader(
         for (msg in queue) { // iterate over incoming messages
             when (msg) {
                 "done" -> {
-                    println("Received done message, forwarding to done channel.")
+                    Log.d(logTag, "Received done message, forwarding to done channel.")
                     doneChannel.send(true)
                     return
                 }
@@ -147,14 +158,13 @@ class ThumbDownloader(
     }
 
     private fun initialize() {
-        filesDir.mkdirs()
         dlScope.launch { waitForDone() }
         dlScope.launch { processThumbDL() }
     }
 
     private suspend fun waitForDone() {
         for (msg in doneChannel) {
-            println("Finished processing the queue, exiting...")
+            Log.i(logTag, "Finished processing the queue, exiting...")
             queue.close()
             doneChannel.close()
             break

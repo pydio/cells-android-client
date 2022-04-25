@@ -28,26 +28,10 @@ class BrowseFolderViewModel(
 
     val stateId: StateID = StateID.fromId(encodedStateID)
     val currentFolder = nodeService.getLiveNode(stateId)
-//    val children = nodeService.ls(stateId)
-
-//    private lateinit var _stateId: StateID
-//    val stateId: StateID
-//        get() = _stateId
-
-/*
-    private lateinit var _currentFolder: LiveData<RTreeNode>
-    val currentFolder: LiveData<RTreeNode>
-        get() = _currentFolder
-*/
 
     private var _children = nodeService.ls(stateId)
     val children: LiveData<List<RTreeNode>>
         get() = _children
-
-
-//    private var _selected : Selection<String>? = null
-//    val selected : Selection<String>?
-//         get() = _selected
 
     private val backOffTicker = BackOffTicker()
     private var _isActive = false
