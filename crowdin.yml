@@ -1,0 +1,13 @@
+files:
+  - source: /src/main/res/values/strings.xml
+    translation: /src/main/res/values-%locale%/strings.xml
+    languages_mapping:
+      locale:
+        fr: fr
+        de: de
+  - source: /src/main/res/values/arrays.xml
+    translation: /src/main/res/values-%locale%/arrays.xml
+    languages_mapping:
+      locale:
+        fr: fr
+        de: de
