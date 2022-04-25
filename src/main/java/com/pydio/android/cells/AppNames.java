@@ -49,13 +49,18 @@ public interface AppNames {
     String ACTION_LOGOUT = "logout";
     String ACTION_FORGET = "forget";
 
-    /* Supported modification status */
+    /* Flags */
+    int FLAG_BOOKMARK = 1;
+    int FLAG_SHARE = 2;
+    int FLAG_OFFLINE = 4;
+
+    /* Modification status */
     String LOCAL_MODIF_DELETE = "deleting";
     String LOCAL_MODIF_RENAME = "renaming";
     String LOCAL_MODIF_MOVE = "moving";
     String LOCAL_MODIF_RESTORE = "restore";
 
-    /* Known transfer types */
+    /* Transfer types */
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
 

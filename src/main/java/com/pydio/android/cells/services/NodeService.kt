@@ -129,7 +129,7 @@ class NodeService(
 
         if (!currSession.isRemoteLegacy) {
             ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
-                newNode.isOfflineRoot = true
+                newNode.setOfflineRoot(true)
             }
         }
 
@@ -172,10 +172,10 @@ class NodeService(
     suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
-            getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
-            rTreeNode.isBookmarked = !rTreeNode.isBookmarked
-            rTreeNode.localModificationTS = currentTimestamp()
-            nodeDB(stateID).treeNodeDao().update(rTreeNode)
+            getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked())
+            // rTreeNode.isBookmarked = !rTreeNode.isBookmarked
+            // rTreeNode.localModificationTS = currentTimestamp()
+            // nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             return@withContext null
@@ -191,7 +191,7 @@ class NodeService(
         try {
             val client = getClient(stateID)
 
-            if (rTreeNode.isShared) {
+            if (rTreeNode.isShared()) {
                 client.unshare(stateID.workspace, stateID.file)
             } else {
                 // TODO we put default values for the time being
@@ -203,8 +203,8 @@ class NodeService(
                 )
             }
 
-            rTreeNode.isShared = !rTreeNode.isShared
-            persistUpdated(rTreeNode)
+//             rTreeNode.isShared = !rTreeNode.isShared
+//            persistUpdated(rTreeNode)
         } catch (se: SDKException) {
             Log.e(logTag, "could update share link for " + stateID.id)
             se.printStackTrace()
@@ -222,7 +222,7 @@ class NodeService(
             val db = nodeDB(stateID)
             val offlineDao = db.offlineRootDao()
 
-            if (rTreeNode.isOfflineRoot) {
+            if (rTreeNode.isOfflineRoot()) {
                 offlineDao.delete(rTreeNode.encodedState)
             } else {
                 // TODO should we check if this node is already a descendant of
@@ -230,7 +230,8 @@ class NodeService(
                 val newRoot = ROfflineRoot.fromTreeNode(rTreeNode)
                 offlineDao.insert(newRoot)
             }
-            rTreeNode.isOfflineRoot = !rTreeNode.isOfflineRoot
+            // TODO It smells
+            rTreeNode.setOfflineRoot(!rTreeNode.isOfflineRoot())
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
             Log.e(logTag, "could update offline sync status for " + stateID.id)
@@ -411,12 +412,12 @@ class NodeService(
             val dao = nodeDB(stateID).treeNodeDao()
             for (node in nodes) {
                 val currNode = RTreeNode.fromFileNode(stateID, node)
-                currNode.isBookmarked = true
+                currNode.setBookmarked(true)
                 val oldNode = dao.getNode(currNode.encodedState)
                 if (oldNode == null) {
                     dao.insert(currNode)
-                } else if (!oldNode.isBookmarked) {
-                    oldNode.isBookmarked = true
+                } else if (!oldNode.isBookmarked()) {
+                    oldNode.setBookmarked(true)
                     dao.update(oldNode)
                 }
             }

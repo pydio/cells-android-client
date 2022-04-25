@@ -10,7 +10,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -450,13 +449,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     }
 
     private fun onSingleClicked(actionOpenWith: String) {
-
-        Log.i(logTag, "in onSingleClicked; one node: ${treeNodeMenuVM.node.value}")
-
-        val node = treeNodeMenuVM.node.value ?: return
-
-        Log.i("MoreMenu", "${node.name} -> $actionOpenWith")
         val moreMenu = this
+        val node = treeNodeMenuVM.node.value ?: return
+        Log.d(logTag, "${node.getStateID()} -> $actionOpenWith")
         lifecycleScope.launch {
             when (actionOpenWith) {
                 // Impact remote server

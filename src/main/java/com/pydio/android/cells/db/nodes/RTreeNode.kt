@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.AppNames.*
 import com.pydio.android.cells.db.Converters
 import com.pydio.android.cells.utils.getMimeType
 import com.pydio.cells.api.SdkNames
@@ -37,17 +38,24 @@ data class RTreeNode(
 
     @ColumnInfo(name = "remote_mod_ts") var remoteModificationTS: Long,
 
+    @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = 0L,
+
     @ColumnInfo(name = "local_mod_ts") var localModificationTS: Long = 0L,
 
     @ColumnInfo(name = "local_mod_status") var localModificationStatus: String? = null,
 
-    @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = 0L,
+    @ColumnInfo(name = "flags") var flags: Int = 0,
 
+    // TODO
+    // @ColumnInfo(name = "tags") var tags: List<String>,
+
+/*
     @ColumnInfo(name = "is_offline_root") var isOfflineRoot: Boolean = false,
 
     @ColumnInfo(name = "is_bookmarked") var isBookmarked: Boolean = false,
 
     @ColumnInfo(name = "is_shared") var isShared: Boolean = false,
+*/
 
     @ColumnInfo(name = "meta") val meta: Properties,
 
@@ -85,6 +93,25 @@ data class RTreeNode(
         return name == SdkNames.RECYCLE_BIN_NAME
     }
 
+
+    /** Returns the updated flags (why not?) */
+    private fun setFlag(flag: Int, value: Boolean): Int {
+        // TODO smelly code
+        if (isFlag(flag)) {
+            if (!value) {
+                // removeFlag(flag)
+                flags = flags and flag.inv()
+            }
+        } else if (value) {
+            flags = flags or flag
+        }
+        return flags
+    }
+
+    private fun isFlag(flag: Int): Boolean {
+        return flags and flag == flag
+    }
+
     fun toFileNode(): FileNode {
         // TODO double check we might drop some info that we have missed on first draft implementation
         val fn = FileNode()
@@ -105,14 +132,11 @@ data class RTreeNode(
     ): Boolean {
         var same = remoteModificationTS == newItem.remoteModificationTS
                 && localModificationTS == newItem.localModificationTS
+                && flags == newItem.flags
 
         if (same && newItem.thumbFilename != null) {
             same = newItem.thumbFilename.equals(thumbFilename)
         }
-
-        val flagChanged = newItem.isBookmarked == isBookmarked
-                && newItem.isOfflineRoot == isOfflineRoot
-                && newItem.isShared == isShared
 
         // With Room: we should get equality based on equality of each fields (column) for free
         // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
@@ -129,18 +153,22 @@ data class RTreeNode(
                 logTag, "Old thumb: ${thumbFilename}, " +
                         "new thumb: ${newItem.thumbFilename}"
             )
+            Log.d(
+                logTag, "Old flags: ${flags.showFlags()}, " +
+                        "new flags: ${newItem.flags.showFlags()}"
+            )
         }
-        return same && flagChanged
+        return same
     }
 
     companion object {
         private val logTag = RTreeNode::class.simpleName
 
         fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            Log.w(logTag, "... fromFileNode $stateID")
-            Log.w(logTag, "  - WS: ${fileNode.workspace}")
-            Log.w(logTag, "  - Path: ${fileNode.path}")
-            Log.w(logTag, "  - Label: ${fileNode.name}")
+            Log.d(logTag, "... fromFileNode $stateID")
+//            Log.w(logTag, "  - WS: ${fileNode.workspace}")
+//            Log.w(logTag, "  - Path: ${fileNode.path}")
+//            Log.w(logTag, "  - Label: ${fileNode.name}")
             val childStateID = // Retrieve the account from the passed state
                 StateID.fromId(stateID.accountId)
                     // Construct the path from file node info
@@ -157,20 +185,21 @@ data class RTreeNode(
                     etag = fileNode.eTag,
                     mime = fileNode.mimeType,
                     size = fileNode.size,
-                    isBookmarked = fileNode.isBookmark,
-                    isShared = fileNode.isShared,
                     remoteModificationTS = fileNode.lastModified,
                     meta = fileNode.properties,
                     metaHash = fileNode.metaHashCode
                 )
+
+                // TODO handle this nicely
+                node.setBookmarked(fileNode.isBookmark)
+                node.setShared(fileNode.isShared)
 
                 // Use Android library to precise MimeType when possible
                 if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
                     node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
                 }
 
-                // Add a technical name to easily have a canonical sorting by default,
-                // that is: folders, files, recycle bin.
+                // Ease default ordering
                 node.sortName = when (node.mime) {
                     SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
                     SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
@@ -203,8 +232,6 @@ data class RTreeNode(
                     etag = "",
                     mime = SdkNames.NODE_MIME_WS_ROOT,
                     size = 0L,
-                    isBookmarked = false,
-                    isShared = false,
                     remoteModificationTS = 0,
                     meta = node.properties,
                     // TODO manage this
@@ -225,6 +252,40 @@ data class RTreeNode(
                     || mime == SdkNames.NODE_MIME_WS_ROOT
                     || mime == SdkNames.NODE_MIME_RECYCLE
         }
-
     }
+
+    // Boiler plate shortcuts
+
+    fun isBookmarked(): Boolean {
+        return isFlag(FLAG_BOOKMARK)
+    }
+
+    fun setBookmarked(value: Boolean): Int {
+        return setFlag(FLAG_BOOKMARK, value)
+    }
+
+    fun isShared(): Boolean {
+        return isFlag(FLAG_SHARE)
+    }
+
+    fun setShared(value: Boolean): Int {
+        return setFlag(FLAG_SHARE, value)
+    }
+
+    fun isOfflineRoot(): Boolean {
+        return isFlag(FLAG_OFFLINE)
+    }
+
+    fun setOfflineRoot(value: Boolean): Int {
+        return setFlag(FLAG_OFFLINE, value)
+    }
+
 }
+
+// Only 3 flags are defined (TODO use bit shifting and constants)
+fun Int.showFlags(): String =
+    Integer.toBinaryString(this).padStart(3, '0')
+
+// Prints the full range of all possible flags
+fun Int.debugAsString(): String =
+    Integer.toBinaryString(this).padStart(Int.SIZE_BITS, '0')

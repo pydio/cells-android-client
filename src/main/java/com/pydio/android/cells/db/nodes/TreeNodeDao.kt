@@ -1,8 +1,15 @@
 package com.pydio.android.cells.db.nodes
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.TypeConverters
+import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.Converters
 
 @Dao
@@ -34,7 +41,11 @@ interface TreeNodeDao {
     fun getNode(encodedState: String): RTreeNode?
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
-    fun ls(encodedParentStateID: String, parentPath: String, order: String): LiveData<List<RTreeNode>>
+    fun ls(
+        encodedParentStateID: String,
+        parentPath: String,
+        order: String
+    ): LiveData<List<RTreeNode>>
 
     @RawQuery(observedEntities = [RTreeNode::class])
     fun orderedLs(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
@@ -66,6 +77,6 @@ interface TreeNodeDao {
         mime: String
     ): LiveData<List<RTreeNode>>
 
-    @Query("SELECT * FROM tree_nodes WHERE is_bookmarked = 1 ORDER BY sort_name")
-    fun getBookmarked(): LiveData<List<RTreeNode>>
+    @Query("SELECT * FROM tree_nodes WHERE flags & :flag = :flag ORDER BY sort_name")
+    fun getBookmarked(flag: Int = AppNames.FLAG_BOOKMARK): LiveData<List<RTreeNode>>
 }

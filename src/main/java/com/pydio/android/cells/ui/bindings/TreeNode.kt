@@ -165,32 +165,32 @@ fun TextView.setMultiSelectTitle(size: Int) {
 
 @BindingAdapter("offline")
 fun ImageView.isOffline(item: RTreeNode) {
-    visibility = if (item.isOfflineRoot) View.VISIBLE else View.GONE
+    visibility = if (item.isOfflineRoot()) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("bookmark")
 fun ImageView.isBookmark(item: RTreeNode) {
-    visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
+    visibility = if (item.isBookmarked()) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("shared")
 fun ImageView.isShared(item: RTreeNode) {
-    visibility = if (item.isShared) View.VISIBLE else View.GONE
+    visibility = if (item.isShared()) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("hasPublicLink")
 fun SwitchMaterial.setHasPublicLink(item: RTreeNode?) {
-    item?.let { isChecked = it.isShared }
+    item?.let { isChecked = it.isShared() }
 }
 
 @BindingAdapter("isOfflineRoot")
 fun SwitchMaterial.setOfflineRoot(item: RTreeNode?) {
-    item?.let { isChecked = it.isOfflineRoot }
+    item?.let { isChecked = it.isOfflineRoot() }
 }
 
 @BindingAdapter("isBookmarked")
 fun SwitchMaterial.setBookmarked(item: RTreeNode?) {
-    item?.let { isChecked = it.isBookmarked }
+    item?.let { isChecked = it.isBookmarked() }
 }
 
 @BindingAdapter("showForFileOnly")

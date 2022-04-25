@@ -26,5 +26,4 @@ interface OfflineRootDao {
 
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
     fun getAll(): List<ROfflineRoot>
-
 }
