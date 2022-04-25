@@ -10,13 +10,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
@@ -43,6 +38,13 @@ import com.pydio.android.cells.transfer.FileExporter
 import com.pydio.android.cells.transfer.FileImporter
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
+
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions

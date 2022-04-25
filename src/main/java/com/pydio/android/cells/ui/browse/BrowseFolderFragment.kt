@@ -27,11 +27,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CarouselActivity
 import com.pydio.android.cells.CellsApp
@@ -48,14 +43,19 @@ import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.android.cells.utils.resetToHomeStateIfNecessary
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 /**
- * Main fragment when browsing a given account. It displays all content of a workspaces or
- * one of its child folder, providing following features:
+ * Main fragment when browsing a given account. It displays the whole content
+ * of a workspaces or of one of its child folder, providing following features:
  * - action on a given node
  * - multi selection
- * - navigation to another folder, an external viewer for a node or a carousel to display supported
- *   files in the current folder.
+ * - navigation to another folder, an external viewer for a node
+ *   or a carousel to display supported files in the current folder.
  */
 class BrowseFolderFragment : Fragment() {
 

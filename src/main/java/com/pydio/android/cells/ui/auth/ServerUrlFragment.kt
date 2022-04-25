@@ -43,7 +43,7 @@ class ServerUrlFragment : Fragment() {
         binding.actionButton.setOnClickListener { goForPing() }
 
         serverUrlVM.server.observe(viewLifecycleOwner) { server ->
-            Log.i(logTag, "... LaunchingAuth")
+            Log.i(logTag, "... Launching Authentication process")
             server?.let {
                 val urlStr = server.serverURL.toJson()
                 if (it.isLegacy) { // Navigate to in app legacy auth
