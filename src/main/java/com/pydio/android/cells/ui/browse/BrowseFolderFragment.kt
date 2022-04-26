@@ -247,12 +247,14 @@ class BrowseFolderFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(true)
             browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
-
                 it?.let {
                     bar.title = when {
                         it.isRecycle() -> resources.getString(R.string.recycle_bin_label)
                         else -> it.name
                     }
+                } ?: run {
+                    Log.e(logTag, "could not set app bar title, no node is defined")
+                    Log.e(logTag, "Corresponding state: ${browseFolderVM.stateId}")
                 }
             }
         }

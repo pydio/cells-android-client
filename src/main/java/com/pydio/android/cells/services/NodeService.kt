@@ -15,6 +15,8 @@ import com.pydio.android.cells.transfer.FileDownloader
 import com.pydio.android.cells.transfer.ThumbDownloader
 import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.currentTimestampAsString
+import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
@@ -37,7 +39,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.*
 
 class NodeService(
     private val treeNodeRepository: TreeNodeRepository,
@@ -194,17 +195,16 @@ class NodeService(
             if (rTreeNode.isShared()) {
                 client.unshare(stateID.workspace, stateID.file)
             } else {
-                // TODO we put default values for the time being
-                //   But we must handle this better
+                // TODO we still put default values, implement user defined details
                 client.share(
                     stateID.workspace, stateID.file, stateID.fileName,
-                    "Created at ${Calendar.getInstance()}",
+                    "Created on ${currentTimestampAsString()}",
                     null, true, true
                 )
             }
 
-//             rTreeNode.isShared = !rTreeNode.isShared
-//            persistUpdated(rTreeNode)
+            // rTreeNode.isShared = !rTreeNode.isShared
+            // persistUpdated(rTreeNode)
         } catch (se: SDKException) {
             Log.e(logTag, "could update share link for " + stateID.id)
             se.printStackTrace()
@@ -713,8 +713,8 @@ class NodeService(
 
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(logTag, "Error #${se.code}: $msg")
-        accountService.notifyError(stateID, se.code)
         se.printStackTrace()
+        accountService.notifyError(stateID, se.code)
     }
 
     // TODO Trick so that we do not store offline files also in the cache... double check

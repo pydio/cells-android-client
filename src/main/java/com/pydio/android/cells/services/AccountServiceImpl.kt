@@ -217,7 +217,7 @@ class AccountServiceImpl(
 
             val accountID = StateID.fromId(accountIDStr)
             try {
-                val client: Client = getClient(StateID.fromId(accountIDStr))
+                val client: Client = getClient(accountID)
                 val wsDiff = WorkspaceDiff(accountID, client)
                 val changeNb = wsDiff.compareWithRemote()
                 result = Pair(changeNb, null)

@@ -82,7 +82,6 @@ class TreeDiff(
             Log.d(logTag, "Metered network, DL thumbs: $downloadThumbs, DL files: $downloadFiles")
         }
 
-
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(rootId.id)
         var remote: FileNode? = null

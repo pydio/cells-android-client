@@ -15,15 +15,15 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.pydio.android.cells.databinding.ActivityCarouselBinding
+import com.pydio.android.cells.services.FileService
+import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.pydio.android.cells.databinding.ActivityCarouselBinding
-import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import java.io.File
 
 /**
@@ -85,14 +85,14 @@ class CarouselActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        // setTheme(android.R.style.Theme_Black_NoTitleBar)
         supportActionBar?.hide()
-        // binding.invalidateAll()
+//         binding.invalidateAll()
     }
 
     private fun setupCarousel() {
-
         val ml = binding.motionLayout
-        Log.e(logTag, "Motion layout is shown: ${ml.isShown}")
+        Log.d(logTag, "Motion layout is shown: ${ml.isShown}")
 
         binding.carousel.setAdapter(object : Carousel.Adapter {
 
@@ -153,7 +153,7 @@ class CarouselActivity : AppCompatActivity() {
             }
             i++
         }
-        Log.w(logTag, "... Got a carousel, start index: $index")
+        Log.d(logTag, "... Opening carousel at index: $index")
 
         if (index > 0) {
             binding.carousel.jumpToIndex(index)

@@ -121,6 +121,10 @@ fun currentTimestamp() : Long {
     return System.currentTimeMillis() / 1000L
 }
 
+fun currentTimestampAsString() : String {
+    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(System.currentTimeMillis())
+}
+
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
 }
