@@ -3,18 +3,19 @@ package com.pydio.android.cells.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
 import java.util.*
 
 @Entity(tableName = "transfers")
 data class RTransfer(
+
     @PrimaryKey(autoGenerate = true)
     var transferId: Long = 0L,
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    // TODO use an enum
-    // download, upload
+    // Download, upload... see AppNames for updated list of supported values
     @ColumnInfo(name = "type") val type: String,
 
     @ColumnInfo(name = "local_path") val localPath: String,
@@ -56,7 +57,7 @@ data class RTransfer(
                 localPath = path,
                 byteSize = byteSize,
                 mime = mime,
-                creationTimestamp = Calendar.getInstance().timeInMillis / 1000L,
+                creationTimestamp = currentTimestamp(),
             )
         }
     }

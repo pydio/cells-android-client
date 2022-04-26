@@ -431,8 +431,6 @@ class NodeService(
 
     /** Retrieve the meta (and thumbs) of all readable nodes that are at the passed stateID */
     suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
-        var result: Pair<Int, String?>
-
         try {
             val client = getClient(stateID)
             val dao = nodeDB(stateID).treeNodeDao()
@@ -441,13 +439,12 @@ class NodeService(
             val thumbDL = ThumbDownloader(client, nodeDB(stateID))
             val folderDiff = TreeDiff(stateID, client, dao, null, thumbDL)
             val changeNb = folderDiff.compareWithRemote()
-            result = Pair(changeNb, null)
+            return@withContext Pair(changeNb, null)
         } catch (e: SDKException) {
             val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
             handleSdkException(stateID, msg, e)
             return@withContext Pair(0, msg)
         }
-        return@withContext result
     }
 
     private suspend fun statRemoteNode(stateID: StateID): Stats? {
@@ -523,7 +520,7 @@ class NodeService(
                 )
             }
 
-            Log.e(logTag, "... Launching download for ${rTreeNode.name}")
+            Log.i(logTag, "... Launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
             val baseDir =
@@ -541,9 +538,8 @@ class NodeService(
                 // Success persist change
                 rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
                 rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
-                // rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
                 nodeDB(stateID).treeNodeDao().update(rTreeNode)
-                Log.e(logTag, "... download done for ${rTreeNode.name}")
+                Log.i(logTag, "... download done for ${rTreeNode.name}")
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
                 val msg = "could not perform DL for " + stateID.id
@@ -731,5 +727,4 @@ class NodeService(
         }
         return File(fileService.getLocalPath(item, type))
     }
-
 }

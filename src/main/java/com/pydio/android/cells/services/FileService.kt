@@ -1,17 +1,17 @@
 package com.pydio.android.cells.services
 
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.getCurrentDateTime
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
@@ -122,7 +122,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             else -> throw IllegalStateException("Unknown base folder type: $type")
         }
     }
-
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")

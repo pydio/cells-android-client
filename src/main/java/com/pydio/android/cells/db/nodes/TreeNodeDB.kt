@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Database(
     entities = [RTreeNode::class, ROfflineRoot::class, RTransfer::class],
-    views = arrayOf(RLiveOfflineRoot::class),
+    views = [RLiveOfflineRoot::class],
     version = 1,
     exportSchema = false,
 )

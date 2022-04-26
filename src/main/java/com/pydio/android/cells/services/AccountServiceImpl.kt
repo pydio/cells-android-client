@@ -213,7 +213,7 @@ class AccountServiceImpl(
 
     override suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?> =
         withContext(Dispatchers.IO) {
-            var result: Pair<Int, String?>
+            val result: Pair<Int, String?>
 
             val accountID = StateID.fromId(accountIDStr)
             try {
@@ -229,7 +229,6 @@ class AccountServiceImpl(
                 return@withContext Pair(0, msg)
             }
             return@withContext result
-
         }
 
     override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {

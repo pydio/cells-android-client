@@ -93,7 +93,6 @@ data class RTreeNode(
         return name == SdkNames.RECYCLE_BIN_NAME
     }
 
-
     /** Returns the updated flags (why not?) */
     private fun setFlag(flag: Int, value: Boolean): Int {
         // TODO smelly code
@@ -113,7 +112,7 @@ data class RTreeNode(
     }
 
     fun toFileNode(): FileNode {
-        // TODO double check we might drop some info that we have missed on first draft implementation
+        // TODO double check: we might drop some info that we have missed on first draft implementation
         val fn = FileNode()
         fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
         fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
@@ -279,7 +278,6 @@ data class RTreeNode(
     fun setOfflineRoot(value: Boolean): Int {
         return setFlag(FLAG_OFFLINE, value)
     }
-
 }
 
 // Only 3 flags are defined (TODO use bit shifting and constants)

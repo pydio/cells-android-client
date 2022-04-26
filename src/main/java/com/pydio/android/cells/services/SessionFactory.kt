@@ -26,7 +26,7 @@ import com.pydio.android.cells.utils.hasUnMeteredNetwork
 class SessionFactory(
     credentialService: CredentialService,
     serverStore: Store<Server>,
-    val transportStore: Store<Transport>,
+    private val transportStore: Store<Transport>,
     private val liveSessionDao: LiveSessionDao,
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
@@ -64,7 +64,6 @@ class SessionFactory(
         if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
         }
-
         return internalGetClient(accountID)
     }
 
