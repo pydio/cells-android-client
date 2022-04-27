@@ -5,7 +5,7 @@
     <!-- GENERIC MESSAGES -->
 
     <!-- Button Labels -->
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_switch_to_grid_layout">Show as grid</string>
@@ -37,6 +37,9 @@
 
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
+
+    <!-- Various -->
+    <string name="generic_error_message">Unexpected error…</string>
 
     <!-- PAGE SPECIFIC MESSAGES -->
 

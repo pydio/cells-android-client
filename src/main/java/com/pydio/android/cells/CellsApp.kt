@@ -178,7 +178,8 @@ fun setupOfflineWorker(mainApplication: CellsApp) {
  */
 private fun cancelPendingWorkManager(mainApplication: CellsApp) {
     runBlocking {
-        WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
+        WorkManager.getInstance(mainApplication).cancelAllWork()
+        // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
 
         // Test launch with one time worker
 //            OneTimeWorkRequestBuilder<OfflineSyncWorker>()

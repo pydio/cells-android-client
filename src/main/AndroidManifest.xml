@@ -9,7 +9,7 @@
 
     <!-- To be able to take photos -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <!-- WIP: access data usage from within the app 
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />

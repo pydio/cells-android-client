@@ -65,6 +65,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    // We do not want that the linter make builds fail. It is quite extremist by default.
+    lintOptions {
+        abortOnError false
+    }
+
     buildFeatures {
         dataBinding = true
     }
