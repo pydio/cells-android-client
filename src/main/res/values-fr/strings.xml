@@ -2,7 +2,7 @@
 <resources>
     <!-- GENERIC MESSAGES -->
     <!-- Button Labels -->
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_confirm">Confirmer</string>
     <string name="button_cancel">Annuler</string>
     <string name="button_switch_to_grid_layout">Afficher sous forme de grille</string>
@@ -31,6 +31,8 @@
     <string name="quick_access">Raccourcis</string>
     <string name="nav_open">Ouvrir</string>
     <string name="nav_close">Fermer</string>
+    <!-- Various -->
+    <string name="generic_error_message">Unexpected error…</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Bienvenue chez Pydio!</string>
@@ -136,6 +138,11 @@
     <string name="create_folder">Create folder here</string>
     <string name="import_files">Import from device</string>
     <string name="take_picture">Take picture</string>
+    <string name="share_with">Share</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="remove_link">Delete public link</string>
+    <string name="link_copied_to_clip">Link copied to clipboard</string>
+    <string name="link_copy_failed">Failed to copy link</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
     <string name="order_by_canon">Canonical (A to Z, folders first)</string>
