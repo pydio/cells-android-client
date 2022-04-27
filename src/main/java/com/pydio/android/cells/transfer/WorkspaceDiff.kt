@@ -40,6 +40,8 @@ class WorkspaceDiff(
         processChanges(remotes, locals)
         if (changeNumber > 0) {
             Log.d(logTag, "Synced workspace list for $accountId with $changeNumber changes")
+        } else {
+            Log.e(logTag, "Synced workspace list for $accountId, no change detected")
         }
 
         return@withContext changeNumber

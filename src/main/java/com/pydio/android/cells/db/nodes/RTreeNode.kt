@@ -6,7 +6,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.AppNames.*
 import com.pydio.android.cells.db.Converters
 import com.pydio.android.cells.utils.getMimeType
 import com.pydio.cells.api.SdkNames
@@ -44,25 +43,6 @@ data class RTreeNode(
 
     @ColumnInfo(name = "local_mod_status") var localModificationStatus: String? = null,
 
-    @ColumnInfo(name = "flags") var flags: Int = 0,
-
-    // TODO
-    // @ColumnInfo(name = "tags") var tags: List<String>,
-
-/*
-    @ColumnInfo(name = "is_offline_root") var isOfflineRoot: Boolean = false,
-
-    @ColumnInfo(name = "is_bookmarked") var isBookmarked: Boolean = false,
-
-    @ColumnInfo(name = "is_shared") var isShared: Boolean = false,
-*/
-
-    @ColumnInfo(name = "meta") val meta: Properties,
-
-    @ColumnInfo(name = "meta_hash") val metaHash: Int,
-
-    @ColumnInfo(name = "sort_name") var sortName: String? = null,
-
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
 
     // Can be: none, cache, offline, external
@@ -71,7 +51,25 @@ data class RTreeNode(
     // When necessary, we store the full path to the
     // relevant local resource somewhere in the external storage.
     @ColumnInfo(name = "localPath") var localFilePath: String? = null,
-) {
+
+    // We temporary store the all the well known properties that we use in the Java SDK layer
+    @ColumnInfo(name = "properties") val properties: Properties,
+
+    // Arbitrary Key - Values to locally store meta exposed by the remote server
+    // (being Cells or a Legacy P8)
+    @ColumnInfo(name = "meta") val meta: Properties,
+
+    // In the SDK Java layer, we compute a hash of the meta returned by the remote server
+    // to ease later diff processing
+    @ColumnInfo(name = "meta_hash") val metaHash: Int,
+
+    // Default order column to simply display folders before files before the recycle
+    @ColumnInfo(name = "sort_name") var sortName: String? = null,
+
+    // Ease query against a given characteristic of the nodes (bookmarked, shared...)
+    @ColumnInfo(name = "flags") var flags: Int = 0,
+
+    ) {
 
     fun getStateID(): StateID {
         return StateID.fromId(encodedState)
@@ -113,6 +111,7 @@ data class RTreeNode(
 
     fun toFileNode(): FileNode {
         // TODO double check: we might drop some info that we have missed on first draft implementation
+        //   Rather directly use the properties
         val fn = FileNode()
         fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
         fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
@@ -149,6 +148,10 @@ data class RTreeNode(
                         "new TS: ${newItem.remoteModificationTS}"
             )
             Log.d(
+                logTag, "Local Old TS: ${localModificationTS}, " +
+                        "new TS: ${newItem.localModificationTS}"
+            )
+            Log.d(
                 logTag, "Old thumb: ${thumbFilename}, " +
                         "new thumb: ${newItem.thumbFilename}"
             )
@@ -172,33 +175,35 @@ data class RTreeNode(
                 StateID.fromId(stateID.accountId)
                     // Construct the path from file node info
                     .withPath("/${fileNode.workspace}${fileNode.path}")
-            Log.w(logTag, "  - encodesState: ${childStateID.id}")
+            Log.d(logTag, "  - encodesState: ${childStateID.id}")
 
             try {
                 val node = RTreeNode(
                     encodedState = childStateID.id,
                     workspace = childStateID.workspace,
                     parentPath = childStateID.parentFile ?: "",
-                    name = childStateID.fileName ?: childStateID.workspace,
+                    name = childStateID.fileName ?: run {
+                        Log.e(logTag, "Using slug intead of filename")
+                        childStateID.workspace
+                    },
                     uuid = fileNode.id,
                     etag = fileNode.eTag,
                     mime = fileNode.mimeType,
                     size = fileNode.size,
                     remoteModificationTS = fileNode.lastModified,
-                    meta = fileNode.properties,
+                    properties = fileNode.properties,
+                    meta = fileNode.meta ?: Properties(),
                     metaHash = fileNode.metaHashCode
                 )
 
-                // TODO handle this nicely
+                // Share and offline cache values are rather handled in the NodeService directly
                 node.setBookmarked(fileNode.isBookmark)
-                node.setShared(fileNode.isShared)
 
                 // Use Android library to precise MimeType when possible
                 if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
                     node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
                 }
 
-                // Ease default ordering
                 node.sortName = when (node.mime) {
                     SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
                     SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
@@ -232,7 +237,9 @@ data class RTreeNode(
                     mime = SdkNames.NODE_MIME_WS_ROOT,
                     size = 0L,
                     remoteModificationTS = 0,
-                    meta = node.properties,
+                    properties = node.properties,
+                    // FIXME
+                    meta = Properties(),
                     // TODO manage this
                     metaHash = 0,
                     sortName = currSortName,
@@ -256,27 +263,36 @@ data class RTreeNode(
     // Boiler plate shortcuts
 
     fun isBookmarked(): Boolean {
-        return isFlag(FLAG_BOOKMARK)
+        return isFlag(AppNames.FLAG_BOOKMARK)
     }
 
     fun setBookmarked(value: Boolean): Int {
-        return setFlag(FLAG_BOOKMARK, value)
+        return setFlag(AppNames.FLAG_BOOKMARK, value)
     }
 
     fun isShared(): Boolean {
-        return isFlag(FLAG_SHARE)
+        return isFlag(AppNames.FLAG_SHARE)
     }
 
-    fun setShared(value: Boolean): Int {
-        return setFlag(FLAG_SHARE, value)
+    fun getShareAddress(): String? {
+        return properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_LINK, null)
+    }
+
+    fun setShared(isShared: Boolean, linkURL: String?) {
+        setFlag(AppNames.FLAG_SHARE, isShared)
+        if (isShared) {
+            properties.setProperty(SdkNames.NODE_PROPERTY_SHARE_LINK, linkURL)
+        } else {
+            properties.remove(SdkNames.NODE_PROPERTY_SHARE_LINK)
+        }
     }
 
     fun isOfflineRoot(): Boolean {
-        return isFlag(FLAG_OFFLINE)
+        return isFlag(AppNames.FLAG_OFFLINE)
     }
 
     fun setOfflineRoot(value: Boolean): Int {
-        return setFlag(FLAG_OFFLINE, value)
+        return setFlag(AppNames.FLAG_OFFLINE, value)
     }
 }
 

@@ -9,14 +9,6 @@ import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 
-//fun isFolder(treeNode: RTreeNode): Boolean {
-//    return SdkNames.NODE_MIME_FOLDER.equals(treeNode.mime) || isRecycle(treeNode)
-//}
-//
-//fun isRecycle(treeNode: RTreeNode): Boolean {
-//    return SdkNames.NODE_MIME_RECYCLE.equals(treeNode.mime)
-//}
-
 private const val NODE_UTILS = "NodeUtils"
 
 fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): Boolean {
@@ -28,13 +20,19 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
 //                && remote.metaHashCode == local.metaHash
 
     var isEqual: Boolean
-    if (!legacy) { // eTAG is not set on P8 servers
+
+    isEqual = local.remoteModificationTS == remote.getLastModified()
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
+        return false
+    }
+
+    if (!legacy)  { // We can rely on the ETag if remote is a Cells leaf node.
         isEqual = remote.eTag != null
         if (!isEqual) {
             Log.d(NODE_UTILS, "Differ: no remote eTag")
             return false
         }
-
         isEqual = remote.eTag == local.etag
         if (!isEqual) {
             Log.d(NODE_UTILS, "Differ: eTag are different")
@@ -42,20 +40,14 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
         }
     }
 
-    isEqual = local.remoteModificationTS == remote.getLastModified()
-    if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
-        return false
-    }
     // Also compare meta hash: timestamp is not updated when a meta changes
     isEqual = remote.metaHashCode == local.metaHash
     if (!isEqual) {
         Log.d(NODE_UTILS, "Differ: meta hash are not equals")
-        Log.d(NODE_UTILS, "local meta: ${local.meta}")
+        Log.d(NODE_UTILS, "local meta: ${local.properties}")
         Log.d(NODE_UTILS, "remote meta: ${remote.properties}")
         return false
     }
-
     return true
 }
 
@@ -83,11 +75,11 @@ fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
         return false
     }
 
-//    isEqual = local.remoteModificationTS == remote.getLastModified()
-//    if (!isEqual) {
-//        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
-//        return false
-//    }
+    isEqual = local.remoteModificationTS == remote.getLastModified()
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
+        return false
+    }
 //    // Also compare meta hash: timestamp is not updated when a meta changes
 //    isEqual = remote.metaHashCode == local.metaHash
 //    if (!isEqual) {

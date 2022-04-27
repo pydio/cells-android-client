@@ -1,5 +1,9 @@
 package com.pydio.android.cells.ui.menus
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -37,6 +41,7 @@ import com.pydio.android.cells.transfer.FileExporter
 import com.pydio.android.cells.transfer.FileImporter
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -69,8 +74,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_MOVE = "move"
         const val ACTION_DELETE = "delete"
         const val ACTION_TOGGLE_BOOKMARK = "toggle_bookmark"
-        const val ACTION_TOGGLE_SHARED = "toggle_shared"
         const val ACTION_TOGGLE_OFFLINE = "toggle_offline"
+        const val ACTION_TOGGLE_SHARED = "toggle_shared"
+        const val ACTION_PUBLIC_LINK_COPY = "copy_public_link"
+        const val ACTION_PUBLIC_LINK_SHARE = "share_public_link"
         const val ACTION_EMPTY_RECYCLE = "empty_recycle"
         const val ACTION_RESTORE_FROM_RECYCLE = "restore_from_recycle"
         const val ACTION_DELETE_PERMANENTLY = "delete_permanently"
@@ -121,18 +128,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(logTag, "onCreate")
-
-//
-//        val application = requireActivity().application
-//        val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
-//            stateIDs,
-//            contextType,
-//            CellsApp.instance.nodeService,
-//            application,
-//        )
-//        val tmpVM: TreeNodeMenuViewModel by viewModels { factory }
-//         = tmpVM
+        Log.d(logTag, "onCreate")
 
         // Communication with the device to import files / take pictures, video, ...
         fileImporter = FileImporter(
@@ -159,7 +155,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     ): View? {
 
         // TODO we must observe the LiveData or the variables are empty when we want to use them.
-        //    Understand and find a more elegant / standard way to do it.
+        //   Understand and find a more elegant / standard way to do it.
         treeNodeMenuVM.node.observe(viewLifecycleOwner) { it?.let {} }
         treeNodeMenuVM.nodes.observe(viewLifecycleOwner) { it?.let {} }
 
@@ -226,8 +222,19 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.moveTo.setOnClickListener { onClicked(ACTION_MOVE) }
         binding.delete.setOnClickListener { onClicked(ACTION_DELETE) }
         binding.bookmarkSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_BOOKMARK) }
-        binding.sharedSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
-        binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
+
+        if (!node.isShared()) {
+            binding.sharedSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
+            binding.publicLinkOff.visibility = View.VISIBLE
+            binding.publicLinkOn.visibility = View.GONE
+        } else {
+            binding.publicLinkOff.visibility = View.GONE
+            binding.publicLinkOn.visibility = View.VISIBLE
+            binding.publicLinkDelete.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
+            binding.publicLinkShareTo.setOnClickListener { onClicked(ACTION_PUBLIC_LINK_SHARE) }
+            binding.publicLinkCopyToClipboard.setOnClickListener { onClicked(ACTION_PUBLIC_LINK_COPY) }
+        }
+
         // Offline is not supported when remote server is P8
         var legacy = false
         activeSessionVM.liveSession.value?.let {
@@ -238,6 +245,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         } else {
             View.VISIBLE
         }
+        binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
+
 
         binding.executePendingBindings()
     }
@@ -505,6 +514,34 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_TOGGLE_SHARED -> {
                     // TODO ask confirmation
                     nodeService.toggleShared(node)
+                    moreMenu.dismiss()
+                }
+                ACTION_PUBLIC_LINK_COPY -> {
+                    val clipboard =
+                        requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                    val link = node.getShareAddress()
+                    if (clipboard != null && link != null) {
+                        val clip = ClipData.newPlainText(node.name, link)
+                        clipboard.setPrimaryClip(clip)
+                        showMessage(
+                            requireContext(),
+                            resources.getString(R.string.link_copied_to_clip)
+                        )
+                    } else { // Should never happen.
+                        showMessage(
+                            requireContext(),
+                            resources.getString(R.string.link_copy_failed)
+                        )
+                    }
+                    moreMenu.dismiss()
+                }
+                ACTION_PUBLIC_LINK_SHARE -> {
+                    node.getShareAddress()?.let { link ->
+                        val shareIntent = Intent(Intent.ACTION_SEND)
+                            .setType("text/plain")
+                            .putExtra(Intent.EXTRA_TEXT, link)
+                        startActivity(shareIntent)
+                    }
                     moreMenu.dismiss()
                 }
                 ACTION_TOGGLE_OFFLINE -> {

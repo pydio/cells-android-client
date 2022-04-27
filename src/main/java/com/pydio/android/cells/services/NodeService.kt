@@ -16,7 +16,6 @@ import com.pydio.android.cells.transfer.ThumbDownloader
 import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
-import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
@@ -124,15 +123,31 @@ class NodeService(
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode) = withContext(Dispatchers.IO) {
 
+        val state = newNode.getStateID()
         val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
             ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
-        val ndb = nodeDB(newNode.getStateID())
+        val ndb = nodeDB(state)
 
+        // Also cache offline status and public link URL locally
         if (!currSession.isRemoteLegacy) {
             ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
                 newNode.setOfflineRoot(true)
             }
         }
+        var addr: String? = null
+        val isShared =
+            newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
+        if (isShared) {
+            val client = accountService.getClient(state)
+            if (client.isLegacy) {
+                addr = client.getShareAddress(state.workspace, state.file)
+            } else {
+                newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                    addr = client.getShareAddress(state.workspace, it)
+                }
+            }
+        }
+        newNode.setShared(isShared, addr)
 
         newNode.localModificationTS = newNode.remoteModificationTS
         newNode.localModificationStatus = null
@@ -193,7 +208,15 @@ class NodeService(
             val client = getClient(stateID)
 
             if (rTreeNode.isShared()) {
-                client.unshare(stateID.workspace, stateID.file)
+
+                val client = accountService.getClient(stateID)
+                if (client.isLegacy) {
+                    client.unshare(stateID.workspace, stateID.file)
+                } else {
+                    rTreeNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                        client.unshare(stateID.workspace, it)
+                    }
+                }
             } else {
                 // TODO we still put default values, implement user defined details
                 client.share(

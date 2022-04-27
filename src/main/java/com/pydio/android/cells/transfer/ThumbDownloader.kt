@@ -52,22 +52,23 @@ class ThumbDownloader(
             Log.w(logTag, "No node found for $state, aborting thumb DL")
             return
         }
-        // Prepare a "light" FileNode that is used to get the thumbnail
-        // This will be refactored once we have reached MVP
+        // TODO are RTreeNode.properties enough ?
+        //  Prepare a "light" FileNode that is used to get the thumbnail
         val node = FileNode()
+        node.properties = rNode.properties
         node.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, state.workspace)
         node.setProperty(SdkNames.NODE_PROPERTY_PATH, state.file)
 
-        if (!client.isLegacy && rNode.meta.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)) {
-            node.setProperty(
-                SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
-                rNode.meta.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
-            )
-        }
-
+//        if (!client.isLegacy && rNode.properties.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)) {
+//            node.setProperty(
+//                SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
+//                rNode.properties.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
+//            )
+//        }
+//
         val targetName = targetName(node)
         if (Str.empty(targetName)) {
-            Log.e(logTag, "No target file found for $state, aborting...")
+//             Log.e(logTag, "No target file found for $state, aborting...")
 //            Log.d(tag, ".... Listing meta to debug:")
 //            for (meta in rNode.meta) {
 //                Log.d(tag, "- ${meta.key} : ${meta.value}")
@@ -109,11 +110,11 @@ class ThumbDownloader(
             // FIXME this code has been copied from the Cells Client for the MVP
             val remoteThumbsJson = currNode.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
             if (Str.empty(remoteThumbsJson)) {
-                Log.w(logTag, "No JSON thumb metadata found, aborting...")
+                Log.w(logTag, "No JSON thumb metadata found for ${currNode.path}, aborting thumb DL process...")
                 return null
             }
-            val gson = Gson()
 
+            val gson = Gson()
             val thumbs = gson.fromJson(remoteThumbsJson, Map::class.java)
             var thumbPath: String? = null
             for ((key, value) in thumbs) {

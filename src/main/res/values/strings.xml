@@ -155,6 +155,11 @@
     <string name="create_folder">Create folder here</string>
     <string name="import_files">Import from device</string>
     <string name="take_picture">Take picture</string>
+    <string name="share_with">Share</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="remove_link">Delete public link</string>
+    <string name="link_copied_to_clip">Link copied to clipboard</string>
+    <string name="link_copy_failed">Failed to copy link</string>
 
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
