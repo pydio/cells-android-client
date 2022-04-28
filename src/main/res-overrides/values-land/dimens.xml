@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="grid_default_column_number">5</integer>
+    <integer name="grid_default_column_number">6</integer>
+    <integer name="grid_bigger_column_number">4</integer>
     <integer name="grid_ws_column_number">4</integer>
 </resources>

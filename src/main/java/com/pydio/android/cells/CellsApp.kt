@@ -9,9 +9,11 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.await
+import com.pydio.android.cells.services.OfflineSyncWorker
+import com.pydio.android.cells.services.allModules
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
@@ -24,8 +26,6 @@ import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import com.pydio.android.cells.services.OfflineSyncWorker
-import com.pydio.android.cells.services.allModules
 import java.util.concurrent.TimeUnit
 
 /**
@@ -139,46 +139,79 @@ fun setupOfflineWorker(mainApplication: CellsApp) {
     runBlocking {
         val workManager = WorkManager.getInstance(mainApplication)
 
+        val frequency = mainApplication.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
+        val onWifi =
+            mainApplication.sharedPreferences.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
+        val onCharging = mainApplication.sharedPreferences.getBoolean(
+            AppNames.PREF_KEY_OFFLINE_CONST_CHARGING,
+            true
+        )
+
         // Useful worker
-        // TODO make this configurable
-        val constraints = Constraints.Builder()
-//                .setRequiredNetworkType(NetworkType.UNMETERED)
-//                .setRequiresCharging(true)
-            .setRequiresBatteryNotLow(true)
-//            .apply {
+        val builder = Constraints.Builder().setRequiresBatteryNotLow(true)
+
+        // TODO Improve this:
+        //   - on wifi is no equivalent to !onMetered
+        //   - re-add requires device Idle true
+
+        if (onWifi) {
+            builder.setRequiredNetworkType(NetworkType.UNMETERED)
+        }
+        if (onCharging) {
+            builder.setRequiresCharging(true)
+        }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            builder.setRequiresDeviceIdle(true)
+//        }
+// alternative (more elegant?) syntax:
+        //            .apply {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    setRequiresDeviceIdle(true)
 //                }
 //            }
-            .build()
 
 
         // Dev constraints. Do **not** use this in production
-        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-            16,
-            TimeUnit.MINUTES
-        ).setConstraints(constraints)
-            .build()
+//        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+//            16,
+//            TimeUnit.MINUTES
+//        ).setConstraints(builder.build())
+//            .build()
 
-//        val repeatingRequest2 = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-//            1, TimeUnit.DAYS
-//        ).setConstraints(constraints).build()
+        val repeatInterval = fromFreqToMinuteInterval(frequency)
+        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+            repeatInterval, TimeUnit.MINUTES
+        ).setConstraints(builder.build()).build()
 
         workManager.enqueueUniquePeriodicWork(
             OfflineSyncWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
             repeatingRequest
         )
-        Log.e(mainApplication::class.simpleName + ":setup", "Periodic OfflineSyncWorker created")
+        Log.i(
+            mainApplication::class.simpleName + ":SETUP",
+            "... Offline Worker created, interval: $repeatInterval min."
+        )
     }
 }
+
+private fun fromFreqToMinuteInterval(freq: String?): Long {
+    return when (freq) {
+        AppNames.OFFLINE_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
+        AppNames.OFFLINE_FREQ_HOUR -> 60
+        AppNames.OFFLINE_FREQ_DAY -> 60 * 24
+        else -> 60 * 24 * 7
+    }
+}
+
 
 /**
  * If there is a pending work because of previous crash we'd like it to not run.
  */
 private fun cancelPendingWorkManager(mainApplication: CellsApp) {
     runBlocking {
-        WorkManager.getInstance(mainApplication).cancelAllWork()
+//         WorkManager.getInstance(mainApplication).cancelAllWork()
         // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
 
         // Test launch with one time worker

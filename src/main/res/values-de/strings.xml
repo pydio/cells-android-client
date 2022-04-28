@@ -54,7 +54,7 @@
     <!-- Authentication process  -->
     <string name="ask_url_title">Register a new account</string>
     <string name="ask_url_desc">Please, enter your server address</string>
-    <string name="ask_url_help">Provide an URL like https://files.example.com</string>
+    <string name="ask_url_example">Provide an URL like https://files.example.com</string>
     <string name="oauth_callback_waiting">Authentication process has been launched</string>
     <string name="oauth_callback_cancel">Cancel</string>
     <string name="title_activity_list_accounts">ListAccounts</string>

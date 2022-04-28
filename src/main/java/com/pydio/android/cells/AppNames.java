@@ -13,23 +13,31 @@ public interface AppNames {
     String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
     String PREF_KEY_METERED_DL_THUMBS = "on_metered_dl_thumbs";
     String PREF_KEY_METERED_DL_FILES = "on_metered_dl_files";
+    String PREF_KEY_OFFLINE_FREQ = "current_offline_frequency";
+    String PREF_KEY_OFFLINE_CONST_WIFI = "sync_on_wifi_only";
+    String PREF_KEY_OFFLINE_CONST_CHARGING = "sync_on_charging_only";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
-
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
-    String RECYCLER_LAYOUT_GRID_LARGER = "grid_larger";
+
+    String DEFAULT_SORT_BY = "sort_name";
+    String DEFAULT_SORT_BY_DIR = "ASC";
+
+    String OFFLINE_FREQ_QUARTER = "quarter";
+    String OFFLINE_FREQ_HOUR = "hour";
+    String OFFLINE_FREQ_DAY = "day";
+    String OFFLINE_FREQ_WEEK = "week";
+
     int ITEM_TYPE_HEADER = 0;
     int ITEM_TYPE_WS = 1;
     int ITEM_TYPE_NODE = 2;
 
-    String SORT_BY_CANON = "sort_name";
     String SORT_BY_NAME = "name";
     String SORT_BY_MIME = "mime";
     String SORT_BY_SIZE = "size";
     String SORT_BY_REMOTE_TS = "remote_mod_ts";
     String SORT_BY_LAST_CHECK = "last_check_ts";
-    String SORT_BY_ASC = "ASC";
     String SORT_BY_DESC = "DESC";
 
     /* Generic actions */

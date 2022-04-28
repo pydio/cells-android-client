@@ -51,6 +51,7 @@
     <dimen name="glide_thumb_radius">6</dimen>
     <!-- Grid Layout with card view-->
     <integer name="grid_default_column_number">3</integer>
+    <integer name="grid_bigger_column_number">2</integer>
     <dimen name="grid_layout_card_margin">8dp</dimen>
     <dimen name="card_padding">4dp</dimen>
     <dimen name="card_corner_radius">2dp</dimen>

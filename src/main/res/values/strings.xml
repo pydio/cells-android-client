@@ -65,11 +65,10 @@
     <!-- Authentication process  -->
     <string name="ask_url_title">Register a new account</string>
     <string name="ask_url_desc">Please, enter your server address</string>
-    <string name="ask_url_help">Provide an URL like https://files.example.com</string>
+    <string name="ask_url_example">e.g: https://files.example.com</string>
 
     <string name="oauth_callback_waiting">Authentication process has been launched</string>
     <string name="oauth_callback_cancel">Cancel</string>
-    <string name="title_activity_list_accounts">ListAccounts</string>
     <string name="invalid_tls_certificate">Invalid certificate</string>
     <string name="confirm_skip_verify_title">Invalid certificate</string>
     <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
@@ -95,7 +94,7 @@
     <!--    <string name="oauth_code_flow_title">Code flow processor</string>-->
 
     <!-- Browse management -->
-    <string name="ws_list_subtitle">Pickup a workspace to browse</string>
+    <string name="ws_list_subtitle">Choose a workspace to browse</string>
     <string name="browse_list_desc">Browse your remote servers</string>
     <string name="browse_list_none">Empty</string>
     <string name="recycle_bin_label">Recycle Bin</string>
@@ -126,7 +125,7 @@
     <string name="choose_target_for_move_title">Move to…</string>
     <!-- Target choice -->
     <string name="choose_target_subtitle">Select a location</string>
-    <string name="pick_up_session">Pick up an account</string>
+    <string name="pick_up_session">Choose an account</string>
     <string name="pick_up_workspace">Choose a target workspace</string>
     <string name="pick_up_folder">Choose a target folder</string>
     <!--Transfers -->
@@ -179,7 +178,7 @@
     <!-- Dialogs -->
     <string name="choose_external_app_title">Open with…</string>
     <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
-    <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
+    <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete all cached data and files.</string>
     <string name="confirm_account_logout_title">Logout account\n%s ?</string>
     <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
     <string name="my_account">My Account</string>
@@ -212,5 +211,24 @@
     <string name="switch_account">Switch account</string>
     <string name="switch_workspace">Switch workspace</string>
     <string name="parent_folder">Parent folder</string>
+    <string name="order_by_title">Sort order</string>
+    <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
+    <string name="choose_list_layout">Type of layout</string>
+    <string name="use_larger_grid">Use larger grid</string>
+    <string name="pref_category_title_metered">Limitations on metered network</string>
+    <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
+    <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
+    <string name="pref_metered_dl_files_title">Download offline files</string>
+    <string name="pref_metered_dl_files_desc">Also download offline files when on metered network</string>
+    <string name="pref_category_title_offline">Customise offline synchronisation</string>
+    <string name="pref_offline_constraint_wifi_title">On wifi only</string>
+    <string name="pref_offline_constraint_wifi_desc">Only launch background synchronisation when on WIFI</string>
+    <string name="pref_offline_constraint_charging_title">When charging</string>
+    <string name="pref_offline_constraint_charging_desc">Only launch sync when the device is charging</string>
+    <string name="pref_category_title_feedback">Feedback and help</string>
+    <string name="pref_feedback_send_title">Send feedback</string>
+    <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
+    <string name="choose_list_offline_frequency_title">Sync frequency</string>
+    <string name="choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
 
 </resources>

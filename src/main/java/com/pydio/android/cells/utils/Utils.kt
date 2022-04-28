@@ -101,7 +101,7 @@ fun parseOrder(encoded: String): Pair<String, String> {
     val tokens = encoded.split("||")
     if (tokens.size != 2 ){
         Log.e("parseOrder", "could not parse encoded order $encoded")
-        return Pair(AppNames.SORT_BY_CANON, AppNames.SORT_BY_ASC)
+        return Pair(AppNames.DEFAULT_SORT_BY, AppNames.DEFAULT_SORT_BY_DIR)
     }
     return Pair(tokens[0], tokens[1])
 }

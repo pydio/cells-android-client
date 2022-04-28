@@ -54,7 +54,7 @@
     <!-- Authentication process  -->
     <string name="ask_url_title">Enregistrer un nouveau compte</string>
     <string name="ask_url_desc">Veuillez saisir l\'adresse du serveur</string>
-    <string name="ask_url_help">Entrer une URL, par ex.: https://files.example.com</string>
+    <string name="ask_url_example">Entrer une URL, par ex.: https://files.example.com</string>
     <string name="oauth_callback_waiting">Le processus d\'authentification a été lancé</string>
     <string name="oauth_callback_cancel">Annuler</string>
     <string name="title_activity_list_accounts">Liste des comptes</string>

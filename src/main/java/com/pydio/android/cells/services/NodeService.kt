@@ -65,7 +65,7 @@ class NodeService(
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         var encoded = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
         if (Str.empty(encoded)) {
-            encoded = "${AppNames.SORT_BY_CANON}||${AppNames.SORT_BY_ASC}"
+            encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
         }
         val orders = parseOrder(encoded!!)
         val lsQuery = SimpleSQLiteQuery(

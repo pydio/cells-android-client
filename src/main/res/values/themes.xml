@@ -41,32 +41,16 @@
     </style>
 
     <style name="Theme.Md3.SplashScreen" parent="Theme.CellsCompat">
-<!--
-        <item name="colorPrimaryDark">?attr/colorPrimary</item>
-        <item name="android:windowBackground">@drawable/splash_screen</item>
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
--->
         <item name="windowSplashScreenBackground">@color/md_theme_light_primary</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
         <item name="postSplashScreenTheme">@style/Theme.CellsCompat</item>
         <item name="windowSplashScreenAnimationDuration">2000</item>
     </style>
 
-<!--    <style name="Theme.CellsSplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/md_theme_light_primary</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
-        <item name="postSplashScreenTheme">@style/Theme.CellsCompat</item>
-        <item name="windowSplashScreenAnimationDuration">2000</item>
-    </style>-->
-
     <!-- Overlays -->
-
     <style name="ThemeOverlay.Cells.Appbar" parent="ThemeOverlay.Material3.Toolbar.Surface">
         <item name="searchViewStyle">@style/Cells.SearchView</item>
-        <!--<item name="colorPrimary">@color/colorMain</item>-->
         <item name="iconTint">?attr/colorOnPrimary</item>
-        <!-- <item name="colorPrimaryVariant">?attr/colorOnPrimary</item>
-        <item name="colorOnPrimary">?attr/colorOnPrimary</item> -->
     </style>
 
 </resources>

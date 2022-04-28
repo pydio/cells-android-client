@@ -68,7 +68,7 @@ class CarouselActivity : AppCompatActivity() {
             // TODO switch query depending on the context (browse, bookmark, offline...)
             // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
             val state = StateID.fromId(stateStr)
-            carouselVM.afterCreate(state.parentFolder(), state)
+            carouselVM.afterCreate(state.parent(), state)
 
             carouselVM.allChildren.observe(this) {
                 carouselVM.updateElements(it)

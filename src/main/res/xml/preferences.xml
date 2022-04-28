@@ -1,68 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:key="recycler_category"
-        app:title="Customise lists (when applicable)">
-
-        <DropDownPreference
-            app:entries="@array/list_layout_labels"
-            app:entryValues="@array/list_layout_values"
-            app:key="current_recycler_layout"
-            app:title="Type of layout"
-            app:useSimpleSummaryProvider="true" />
+        app:title="@string/pref_category_title_recycler">
 
         <DropDownPreference
             app:entries="@array/order_by_labels"
             app:entryValues="@array/order_by_values"
             app:key="current_recycler_order"
-            app:title="Sort order"
+            app:title="@string/order_by_title"
             app:useSimpleSummaryProvider="true" />
+
+        <DropDownPreference
+            app:entries="@array/list_layout_labels"
+            app:entryValues="@array/list_layout_values"
+            app:key="current_recycler_layout"
+            app:title="@string/choose_list_layout"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="use_larger_grid"
+            app:title="@string/use_larger_grid" />
 
     </PreferenceCategory>
 
-
     <PreferenceCategory
         app:key="metered_category"
-        app:title="Limitations on metered network">
+        app:title="@string/pref_category_title_metered">
 
         <SwitchPreferenceCompat
             app:key="on_metered_dl_thumbs"
-            app:summary="Also retrieve thumbnails when on metered network"
-            app:title="Download thumbs" />
+            app:summary="@string/pref_metered_dl_thumbs_desc"
+            app:title="@string/pref_metered_dl_thumbs_title" />
 
         <SwitchPreferenceCompat
             app:key="on_metered_dl_files"
-            app:summary="Also download offline files when on metered network"
-            app:title="Download offline files" />
+            app:summary="@string/pref_metered_dl_files_desc"
+            app:title="@string/pref_metered_dl_files_title" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:key="offline_category"
-        app:title="Customise offline synchronisation">
+        app:title="@string/pref_category_title_offline">
+
+        <DropDownPreference
+            app:entries="@array/offline_frequency_labels"
+            app:entryValues="@array/offline_frequency_values"
+            app:key="current_offline_frequency"
+            app:summary="@string/choose_list_offline_frequency_desc"
+            app:title="@string/choose_list_offline_frequency_title"
+            app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="true"
             app:key="sync_on_wifi_only"
-            app:summary="Only launch background synchronisation when on WIFI"
-            app:title="On wifi only" />
+            app:summary="@string/pref_offline_constraint_wifi_desc"
+            app:title="@string/pref_offline_constraint_wifi_title" />
 
         <SwitchPreferenceCompat
-            app:key="sync_on_wifi_charging"
-            app:summary="Only launch sync when the device is charging"
-            app:title="When charging" />
+            android:defaultValue="true"
+            app:key="sync_on_charging_only"
+            app:summary="@string/pref_offline_constraint_charging_desc"
+            app:title="@string/pref_offline_constraint_charging_title" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:key="help_category"
-        app:title="Help">
+    <!--    <PreferenceCategory-->
+    <!--        app:key="feedback_category"-->
+    <!--        app:title="@string/pref_category_title_feedback">-->
 
-        <Preference
-            app:key="feedback"
-            app:summary="Report technical issues or suggest new features"
-            app:title="Send feedback" />
+    <!--        <Preference-->
+    <!--            app:key="feedback"-->
+    <!--            app:summary="@string/pref_feedback_send_desc"-->
+    <!--            app:title="@string/pref_feedback_send_title" />-->
 
-    </PreferenceCategory>
+    <!--    </PreferenceCategory>-->
 
 </PreferenceScreen>
