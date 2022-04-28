@@ -54,10 +54,9 @@
     <!-- Authentication process  -->
     <string name="ask_url_title">Enregistrer un nouveau compte</string>
     <string name="ask_url_desc">Veuillez saisir l\'adresse du serveur</string>
-    <string name="ask_url_example">Entrer une URL, par ex.: https://files.example.com</string>
+    <string name="ask_url_example">par ex. : https://files.example.com</string>
     <string name="oauth_callback_waiting">Le processus d\'authentification a été lancé</string>
     <string name="oauth_callback_cancel">Annuler</string>
-    <string name="title_activity_list_accounts">Liste des comptes</string>
     <string name="invalid_tls_certificate">Certificat non valide</string>
     <string name="confirm_skip_verify_title">Certificat non valide</string>
     <string name="confirm_skip_verify_desc">Si vous savez ce que vous faites, vous pouvez choisir d\'ignorer l\'étape de validation du certificat TLS</string>
@@ -189,4 +188,23 @@
     <string name="switch_account">Changer de compte</string>
     <string name="switch_workspace">Changer d\'espace de travail</string>
     <string name="parent_folder">Dossier parent</string>
+    <string name="order_by_title">Ordre de tri</string>
+    <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
+    <string name="choose_list_layout">Type de mise en page</string>
+    <string name="use_larger_grid">Utiliser une grille plus grande</string>
+    <string name="pref_category_title_metered">Limitations sur les réseaux tarifés/limités</string>
+    <string name="pref_metered_dl_thumbs_title">Télécharger les vignettes</string>
+    <string name="pref_metered_dl_thumbs_desc">Récupérer également les vignettes lorsque le réseau est limité</string>
+    <string name="pref_metered_dl_files_title">Télécharger les fichiers hors ligne</string>
+    <string name="pref_metered_dl_files_desc">Télécharger également les fichiers hors ligne lorsque le réseau est limité</string>
+    <string name="pref_category_title_offline">Personnaliser la synchronisation hors ligne</string>
+    <string name="pref_offline_constraint_wifi_title">Seulement lorsqu\'un wifi est disponible</string>
+    <string name="pref_offline_constraint_wifi_desc">Lancer la synchronisation en arrière-plan uniquement en WIFI</string>
+    <string name="pref_offline_constraint_charging_title">Lorsque l\'appareil est en charge</string>
+    <string name="pref_offline_constraint_charging_desc">Lancer la synchronisation uniquement lorsque l\'appareil est en charge</string>
+    <string name="pref_category_title_feedback">Commentaires et aide</string>
+    <string name="pref_feedback_send_title">Envoyer des commentaires</string>
+    <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
+    <string name="choose_list_offline_frequency_title">Fréquence de synchronisation</string>
+    <string name="choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
 </resources>
