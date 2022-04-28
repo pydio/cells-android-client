@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonical (A to Z, folders first)</item>
-        <item>File name (A to Z)</item>
-        <item>File name (Z to A)</item>
-        <item>Modified (oldest first)</item>
-        <item>Modified (newest first)</item>
-        <item>Type (A to Z)</item>
-        <item>Type (Z to A)</item>
-        <item>Size (smallest first)</item>
-        <item>Size (largest first)</item>
+        <item>Canonique (de A à Z, dossiers d\'abord)</item>
+        <item>Par nom (de A à Z)</item>
+        <item>Par nom (de Z à A)</item>
+        <item>Date de modification (les plus anciens d\'abord)</item>
+        <item>Date de modification (les plus récents d\'abord)</item>
+        <item>Par type (de A à Z)</item>
+        <item>Par type (de Z à A)</item>
+        <item>Par taille (les plus petits d\'abord)</item>
+        <item>Par taille (les plus gros d\'abord)</item>
     </string-array>
     <string-array name="list_layout_labels">
-        <item>List</item>
-        <item>Grid (small)</item>
-        <item>Grid (larger)</item>
+        <item>Liste</item>
+        <item>Grille (petite)</item>
+        <item>Grille (plus grande)</item>
     </string-array>
 </resources>
