@@ -13,7 +13,12 @@
     </string-array>
     <string-array name="list_layout_labels">
         <item>List</item>
-        <item>Grid (small)</item>
-        <item>Grid (larger)</item>
+        <item>Grid</item>
+    </string-array>
+    <string-array name="offline_frequency_labels">
+        <item>Every week</item>
+        <item>Every day</item>
+        <item>Every hour</item>
+        <item>Every 15 minutes</item>
     </string-array>
 </resources>

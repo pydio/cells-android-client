@@ -13,7 +13,12 @@
     </string-array>
     <string-array name="list_layout_labels">
         <item>Liste</item>
-        <item>Grille (petite)</item>
-        <item>Grille (plus grande)</item>
+        <item>Grille</item>
+    </string-array>
+    <string-array name="offline_frequency_labels">
+        <item>Toutes les semaines</item>
+        <item>Tous les jours</item>
+        <item>Toutes les heures</item>
+        <item>Tous les quarts d\'heure</item>
     </string-array>
 </resources>
