@@ -40,61 +40,26 @@ class ThumbDownloader(
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
-
     private val fileService: FileService by inject()
 
     private fun download(encodedState: String) {
-        val state = StateID.fromId(encodedState)
 
+        val state = StateID.fromId(encodedState)
         val rNode = nodeDB.treeNodeDao().getNode(encodedState)
         if (rNode == null) {
             // No node found, aborting
             Log.w(logTag, "No node found for $state, aborting thumb DL")
             return
         }
-        // TODO are RTreeNode.properties enough ?
-        //  Prepare a "light" FileNode that is used to get the thumbnail
+
         val node = FileNode()
         node.properties = rNode.properties
-        node.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, state.workspace)
-        node.setProperty(SdkNames.NODE_PROPERTY_PATH, state.file)
+        node.meta = rNode.meta
 
-//        if (!client.isLegacy && rNode.properties.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)) {
-//            node.setProperty(
-//                SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
-//                rNode.properties.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
-//            )
-//        }
-//
-        val targetName = targetName(node)
-        if (Str.empty(targetName)) {
-//             Log.e(logTag, "No target file found for $state, aborting...")
-//            Log.d(tag, ".... Listing meta to debug:")
-//            for (meta in rNode.meta) {
-//                Log.d(tag, "- ${meta.key} : ${meta.value}")
-//            }
-            return
-        }
-
-        var out: FileOutputStream? = null
-        try {
-            out = FileOutputStream(File(targetPath(state.accountId, targetName!!)))
-            client.getPreviewData(node, thumbSize, out)
-
-            // Then set the thumb name in current node
-            rNode.thumbFilename = targetName
+        val parentFolder = fileService.dataParentPath(state.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+        client.getThumbnail(state, node, File(parentFolder),  thumbSize)?. let {
+            rNode.thumbFilename = it
             nodeDB.treeNodeDao().update(rNode)
-        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            Log.e(logTag, "Could not retrieve thumb for " + state + ": " + se.message)
-        } catch (ioe: IOException) {
-            // TODO Could not write the thumb in the local cache, we should notify the user
-            Log.e(
-                logTag,
-                "could not write newly downloaded thumb to the local device for "
-                        + state + ": " + ioe.message
-            )
-        } finally {
-            IoHelpers.closeQuietly(out)
         }
     }
 
@@ -103,32 +68,6 @@ class ThumbDownloader(
         return thumbParPath + File.separator + targetName
     }
 
-    private fun targetName(currNode: FileNode): String? {
-        if (client.isLegacy) {
-            return UUID.randomUUID().toString() + ".jpg"
-        } else {
-            // FIXME this code has been copied from the Cells Client for the MVP
-            val remoteThumbsJson = currNode.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
-            if (Str.empty(remoteThumbsJson)) {
-                Log.w(logTag, "No JSON thumb metadata found for ${currNode.path}, aborting thumb DL process...")
-                return null
-            }
-
-            val gson = Gson()
-            val thumbs = gson.fromJson(remoteThumbsJson, Map::class.java)
-            var thumbPath: String? = null
-            for ((key, value) in thumbs) {
-                if (thumbPath == null) {
-                    thumbPath = value as String
-                }
-                val size = (key as String).toInt()
-                if (size > 0 && size >= thumbSize) {
-                    return value as String
-                }
-            }
-            return thumbPath
-        }
-    }
 
     suspend fun orderThumbDL(url: String) {
         Log.d(logTag, "DL Thumb for $url")
