@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonical (A to Z, folders first)</item>
-        <item>File name (A to Z)</item>
-        <item>File name (Z to A)</item>
-        <item>Modified (oldest first)</item>
-        <item>Modified (newest first)</item>
-        <item>Type (A to Z)</item>
-        <item>Type (Z to A)</item>
-        <item>Size (smallest first)</item>
-        <item>Size (largest first)</item>
+        <item>Kanonisch (A bis Z, zuerst Ordner)</item>
+        <item>Dateiname (A bis Z)</item>
+        <item>Dateiname (Z bis A)</item>
+        <item>Geändert (älteste zuerst)</item>
+        <item>Geändert (neueste zuerst)</item>
+        <item>Typ (A bis Z)</item>
+        <item>Typ (Z bis A)</item>
+        <item>Größe (kleinste zuerst)</item>
+        <item>Größe (größte zuerst)</item>
     </string-array>
     <string-array name="list_layout_labels">
-        <item>List</item>
-        <item>Grid</item>
+        <item>Liste</item>
+        <item>Raster</item>
     </string-array>
     <string-array name="offline_frequency_labels">
-        <item>Every week</item>
-        <item>Every day</item>
-        <item>Every hour</item>
-        <item>Every 15 minutes</item>
+        <item>Jede Woche</item>
+        <item>Jeden Tag</item>
+        <item>Jede Stunde</item>
+        <item>Alle 15 Minuten</item>
     </string-array>
 </resources>
