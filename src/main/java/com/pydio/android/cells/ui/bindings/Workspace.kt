@@ -38,7 +38,7 @@ fun ImageView.setWsThumb(item: RWorkspace) {
 fun getWsIconForMenu(item: RWorkspace) = when (item.type) {
     // TODO we hard code the tint in the XML Layout
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
-    SdkNames.WS_TYPE_CELL -> R.drawable.cells
+    SdkNames.WS_TYPE_CELL -> R.mipmap.cells
     else -> R.drawable.ic_baseline_folder_24
 }
 

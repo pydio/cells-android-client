@@ -14,7 +14,7 @@
         android:gravity="center"
         android:top="@dimen/margin_small">
         <bitmap
-            android:src="@drawable/cells"
+            android:src="@mipmap/cells"
             android:tint="?attr/colorControlNormal" />
     </item>
 </layer-list>
