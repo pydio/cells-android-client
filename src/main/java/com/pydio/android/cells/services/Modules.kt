@@ -2,19 +2,7 @@ package com.pydio.android.cells.services
 
 import androidx.room.Room
 import androidx.work.WorkerParameters
-import com.pydio.cells.api.Server
-import com.pydio.cells.api.Store
-import com.pydio.cells.api.Transport
-import com.pydio.cells.transport.auth.CredentialService
-import com.pydio.cells.transport.auth.Token
-import com.pydio.cells.utils.MemoryStore
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.androidx.workmanager.dsl.worker
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
 import com.pydio.android.cells.db.accounts.AccountDB
-import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.account.AccountListViewModel
 import com.pydio.android.cells.ui.auth.OAuthViewModel
@@ -31,8 +19,19 @@ import com.pydio.android.cells.ui.transfer.PickFolderViewModel
 import com.pydio.android.cells.ui.transfer.PickSessionViewModel
 import com.pydio.android.cells.ui.transfer.TransferViewModel
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
+import com.pydio.cells.api.Server
+import com.pydio.cells.api.Store
+import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.auth.CredentialService
+import com.pydio.cells.transport.auth.Token
+import com.pydio.cells.utils.MemoryStore
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.workmanager.dsl.worker
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
-val databaseModule = module {
+val dbModule = module {
 
     // Account DB and corresponding DAO instances
     single {
@@ -43,13 +42,6 @@ val databaseModule = module {
         )
             .build()
     }
-    single { get<AccountDB>().accountDao() }
-    single { get<AccountDB>().authStateDao() }
-    single { get<AccountDB>().legacyCredentialsDao() }
-    single { get<AccountDB>().liveSessionDao() }
-    single { get<AccountDB>().sessionDao() }
-    single { get<AccountDB>().tokenDao() }
-    single { get<AccountDB>().workspaceDao() }
 
 //    // Runtime DB
 //    single {
@@ -59,8 +51,19 @@ val databaseModule = module {
 //            "runtime_objects"
 //        ).build()
 //    }
-//    single { get<RuntimeDB>().transferDao() }
 
+}
+
+val daoModule = module {
+    single { get<AccountDB>().accountDao() }
+    single { get<AccountDB>().authStateDao() }
+    single { get<AccountDB>().legacyCredentialsDao() }
+    single { get<AccountDB>().liveSessionDao() }
+    single { get<AccountDB>().sessionDao() }
+    single { get<AccountDB>().tokenDao() }
+    single { get<AccountDB>().workspaceDao() }
+
+    //    single { get<RuntimeDB>().transferDao() }
 }
 
 val serviceModule = module {
@@ -71,9 +74,11 @@ val serviceModule = module {
     // Manage accounts and authentication
     single<Store<Server>>(named("ServerStore")) { MemoryStore<Server>() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore<Transport>() }
+
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
     single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
+
     single { AuthService(get()) }
     single { SessionFactory(get(), get(named("ServerStore")), get(named("TransportStore")), get()) }
     single<AccountService> { AccountServiceImpl(get(), get(), get()) }
@@ -113,20 +118,23 @@ val viewModelModule = module {
     viewModel { PickFolderViewModel(get(), get()) }
 
     viewModel { params -> TransferViewModel(params.get(), get()) }
-    viewModel { params -> TransferMenuViewModel(params.get(),params.get(), get()) }
+    viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }
 
     viewModel { SearchViewModel(get()) }
 
     viewModel { CarouselViewModel(get()) }
 }
 
-val dbTestModule = module {
-    single {
-        // In-Memory database config
-        Room.inMemoryDatabaseBuilder(get(), AccountDB::class.java)
-            .allowMainThreadQueries()
-            .build()
-    }
-}
+// val dbTestModule = module {
+//     single {
+//         // In-Memory database config
+//         Room.inMemoryDatabaseBuilder(
+//             androidContext().applicationContext,
+//             AccountDB::class.java
+//         )
+//             .allowMainThreadQueries()
+//             .build()
+//     }
+// }
 
-val allModules = databaseModule + serviceModule + viewModelModule
+val allModules = dbModule + daoModule + serviceModule + viewModelModule

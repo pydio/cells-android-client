@@ -4,52 +4,33 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = arrayOf(
+    entities = [
         RAccount::class,
         RSession::class,
         RWorkspace::class,
-        ROAuthState::class,
         RToken::class,
-        RLegacyCredentials::class
-    ),
-    views = arrayOf(RLiveSession::class),
+        RLegacyCredentials::class,
+        ROAuthState::class,
+    ],
+    views = [RLiveSession::class],
     version = 1,
     exportSchema = false,
 )
+
 abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
 
-    abstract fun authStateDao(): OAuthStateDao
+    abstract fun tokenDao(): TokenDao
 
     abstract fun legacyCredentialsDao(): LegacyCredentialsDao
 
-    abstract fun liveSessionDao(): LiveSessionDao
+    abstract fun authStateDao(): OAuthStateDao
 
     abstract fun sessionDao(): SessionDao
 
-    abstract fun tokenDao(): TokenDao
+    abstract fun liveSessionDao(): LiveSessionDao
 
     abstract fun workspaceDao(): WorkspaceDao
 
-//    companion object {
-//        @Volatile
-//        private var INSTANCE: AccountDB? = null
-//
-//        fun getDatabase(context: Context): AccountDB {
-//            val tempInstance = INSTANCE
-//            if (tempInstance != null) {
-//                return tempInstance
-//            }
-//            synchronized(this) {
-//                val instance = Room.databaseBuilder(
-//                    context.applicationContext,
-//                    AccountDB::class.java,
-//                    "accountdb"
-//                ).build()
-//                INSTANCE = instance
-//                return instance
-//            }
-//        }
-//    }
 }

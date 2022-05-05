@@ -42,7 +42,7 @@ data class RWorkspace(
     }
 
     companion object {
-        private const val TAG = "RWorkspace"
+        private val logTag = RWorkspace::class.simpleName
 
         fun createChild(parentID: StateID, wsNode: WorkspaceNode): RWorkspace {
             val wsState = parentID.withPath("/${wsNode.slug}")
@@ -73,7 +73,7 @@ data class RWorkspace(
                 return node
 
             } catch (e: java.lang.Exception) {
-                Log.w(TAG, "could not create RWorkspace for ${stateID}: ${e.message}")
+                Log.w(logTag, "could not create RWorkspace for ${stateID}: ${e.message}")
                 throw e
             }
         }

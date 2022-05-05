@@ -24,6 +24,7 @@ data class RAccount(
 
     @ColumnInfo(name = "is_legacy") var isLegacy: Boolean = false,
 
+    // TODO Rather use properties to simply be able to enrich model?
     @ColumnInfo(name = "server_label") val serverLabel: String?,
 
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
