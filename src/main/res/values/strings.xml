@@ -195,7 +195,7 @@
     </plurals>
     <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>
     <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
-    <string name="confirm_empty_recycle_message">This will empty the recycle bin for %s, all trashed content will be definitively deleted</string>
+    <string name="confirm_empty_recycle_message">This empties the recycle bin for %s: all trashed content will be definitively deleted.</string>
     <string name="rename_dialog_title">Rename</string>
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
