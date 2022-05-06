@@ -92,7 +92,7 @@ class P8CredViewModel(private val accountService: AccountService) : ViewModel() 
             )
             var id: String? = null
             try {
-                id = accountService.registerAccount(currURL, credentials)
+                id = accountService.signUp(currURL, credentials)
                 accountService.refreshWorkspaceList(id)
             } catch (e: SDKException) {
                 // TODO handle captcha here

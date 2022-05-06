@@ -107,7 +107,7 @@ class AuthService(private val authStateDao: OAuthStateDao) {
         val accountID = StateID(idToken.claims.name, transport.server.url())
         val jwtCredentials = JWTCredentials(accountID.username, token)
 
-        accountService.registerAccount(transport.server.serverURL, jwtCredentials)
+        accountService.signUp(transport.server.serverURL, jwtCredentials)
 
         // TODO: also launch:
         //   - workspace refresh

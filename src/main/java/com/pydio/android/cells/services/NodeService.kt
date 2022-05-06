@@ -242,29 +242,47 @@ class NodeService(
     suspend fun toggleOffline(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
-            val db = nodeDB(stateID)
-            val offlineDao = db.offlineRootDao()
-
             if (rTreeNode.isOfflineRoot()) {
-                offlineDao.delete(rTreeNode.encodedState)
+                removeOfflineRoot(stateID)
             } else {
-                // TODO should we check if this node is already a descendant of
-                //  an existing offline root ?
-                val newRoot = ROfflineRoot.fromTreeNode(rTreeNode)
-                offlineDao.insert(newRoot)
+                updateOfflineRoot(rTreeNode)
             }
-            // TODO It smells
-            rTreeNode.setOfflineRoot(!rTreeNode.isOfflineRoot())
-            persistUpdated(rTreeNode)
-        } catch (se: SDKException) {
-            Log.e(logTag, "could update offline sync status for " + stateID.id)
-            se.printStackTrace()
-            return@withContext null
-        } catch (ioe: IOException) {
-            Log.e(logTag, "could update offline sync status for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
+        } catch (e: Exception) {
+            Log.e(logTag, "could update offline sync status for ${stateID}: ${e.message}")
+            e.printStackTrace()
             return@withContext null
         }
+    }
+
+    suspend fun removeOfflineRoot(stateID: StateID) = withContext(Dispatchers.IO) {
+        val db = nodeDB(stateID)
+        val offlineDao = db.offlineRootDao()
+
+        if (offlineDao.get(stateID.id) == null) { // Nothing to do
+            return@withContext
+        }
+
+        offlineDao.delete(stateID.id)
+        db.treeNodeDao().getNode(stateID.id)?.let {
+            it.setOfflineRoot(false)
+            persistUpdated(it)
+        }
+
+        // TODO also clean file system ?
+    }
+
+    suspend fun updateOfflineRoot(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        val db = nodeDB(stateID)
+        val offlineDao = db.offlineRootDao()
+
+        val newRoot = ROfflineRoot.fromTreeNode(rTreeNode)
+        // TODO should we check if this node is already a descendant of
+        //  an existing offline root ?
+
+        offlineDao.insert(newRoot) // We rely on node UUID and insert REPLACE strategy
+        rTreeNode.setOfflineRoot(true)
+        persistUpdated(rTreeNode)
     }
 
     suspend fun syncAll(stateID: StateID) = withContext(Dispatchers.IO) {
@@ -411,7 +429,7 @@ class NodeService(
             return@withContext null
         }
 
-    /* Handle communication with the remote server to refresh locally stored data */
+/* Handle communication with the remote server to refresh locally stored data */
 
     fun enqueueDownload(stateID: StateID, uri: Uri) {
         serviceScope.launch {

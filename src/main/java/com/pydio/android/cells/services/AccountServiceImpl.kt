@@ -2,17 +2,6 @@ package com.pydio.android.cells.services
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.pydio.cells.api.Client
-import com.pydio.cells.api.Credentials
-import com.pydio.cells.api.ErrorCodes
-import com.pydio.cells.api.SDKException
-import com.pydio.cells.api.Server
-import com.pydio.cells.api.ServerURL
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.AccountDB
@@ -30,6 +19,17 @@ import com.pydio.android.cells.db.accounts.toRAccount
 import com.pydio.android.cells.transfer.WorkspaceDiff
 import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
 import com.pydio.android.cells.utils.logException
+import com.pydio.cells.api.Client
+import com.pydio.cells.api.Credentials
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.Server
+import com.pydio.cells.api.ServerURL
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.net.HttpURLConnection
 
 /**
@@ -52,6 +52,10 @@ class AccountServiceImpl(
     private val tokenDao: TokenDao = accountDB.tokenDao()
     private val legacyCredentialsDao: LegacyCredentialsDao = accountDB.legacyCredentialsDao()
 
+    override suspend fun getSession(stateId: StateID): RLiveSession? {
+        return liveSessionDao.getSession(stateId.accountId)
+    }
+
     override fun getClient(stateId: StateID): Client {
         return sessionFactory.getUnlockedClient(stateId.accountId)
     }
@@ -68,17 +72,21 @@ class AccountServiceImpl(
     override val liveSessions: LiveData<List<RLiveSession>> = liveSessionDao.getLiveSessions()
 
     @Throws(SDKException::class)
-    override suspend fun registerAccount(serverURL: ServerURL, credentials: Credentials): String {
-
-        val state = StateID(credentials.username, serverURL.id)
-        val existingAccount = accountDao.getAccount(state.accountId)
-
+    override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String {
         sessionFactory.registerAccountCredentials(serverURL, credentials)
         val server: Server = sessionFactory.getServer(serverURL.id)
-        val account = toRAccount(credentials.username, server)
-
         // At this point we assume we have been connected or an error has already been thrown
-        account.authStatus = AppNames.AUTH_STATUS_CONNECTED
+        val state = registerAccount(credentials.username, server, AppNames.AUTH_STATUS_CONNECTED)
+        return state.id
+    }
+
+    override suspend fun registerAccount(username: String, server: Server, authStatus: String): StateID {
+
+        val account = toRAccount(username, server)
+        account.authStatus = authStatus
+
+        val state = StateID(username, server.serverURL.id)
+        val existingAccount = accountDao.getAccount(state.accountId)
 
         if (existingAccount == null) { // creation
             accountDao.insert(account)
@@ -87,7 +95,7 @@ class AccountServiceImpl(
             accountDao.update(account)
         }
 
-        return state.id
+        return state
     }
 
     override fun listLiveSessions(includeLegacy: Boolean): List<RLiveSession> {
@@ -137,7 +145,6 @@ class AccountServiceImpl(
 
             val treeNodeRepository: TreeNodeRepository = get()
             treeNodeRepository.closeNodeDb(stateId.accountId)
-
 
             // Update local caches
             treeNodeRepository.refreshSessionCache()

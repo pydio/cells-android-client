@@ -1,16 +1,21 @@
 package com.pydio.android.cells.services
 
 import androidx.lifecycle.LiveData
-import com.pydio.cells.api.Client
-import com.pydio.cells.api.Credentials
-import com.pydio.cells.api.ServerURL
-import com.pydio.cells.transport.StateID
 import com.pydio.android.cells.db.accounts.RLiveSession
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.cells.api.Client
+import com.pydio.cells.api.Credentials
+import com.pydio.cells.api.Server
+import com.pydio.cells.api.ServerURL
+import com.pydio.cells.transport.StateID
 
 interface AccountService {
 
-    suspend fun registerAccount(serverURL: ServerURL, credentials: Credentials): String
+    suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String
+
+    suspend fun registerAccount(username: String, server: Server, authStatus: String): StateID
+
+    suspend fun getSession(stateId: StateID): RLiveSession?
 
     suspend fun openSession(accountID: String)
 

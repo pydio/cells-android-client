@@ -6,7 +6,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 /**
- * In-Memory Room Database definition
+ * In-Memory Room MainDB definition
  */
 val dbTestModule = module {
     single {

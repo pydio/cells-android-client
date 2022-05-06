@@ -40,7 +40,7 @@ public class CellsClientTest {
     public void testBookmark() throws Exception {
 
         if (cellsConf == null) {
-            Log.w("Unsupported conf", "No Pydio Cells configuration found, skipping");
+            Log.w(logTag, "No Pydio Cells configuration found, skipping");
             return;
         }
 
@@ -67,9 +67,9 @@ public class CellsClientTest {
         FileNode node = client.nodeInfo(cellsConf.defaultWS, file);
         String uuid = node.getProperty(SdkNames.NODE_PROPERTY_UID);
         String nodePath = node.getProperty(SdkNames.NODE_PROPERTY_PATH);
-        System.out.println("... Stats request succeeded");
-        System.out.println("UUID: " + uuid);
-        System.out.println("Path: " + nodePath);
+        Log.w(logTag, "... Stats request succeeded");
+        Log.w(logTag, "UUID: " + uuid);
+        Log.w(logTag, "Path: " + nodePath);
 
         // Bookmark file
         Message bookmarkMessage = client.bookmark(cellsConf.defaultWS, file, true);
