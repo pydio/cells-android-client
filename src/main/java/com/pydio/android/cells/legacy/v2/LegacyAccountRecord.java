@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.db.model;
+package com.pydio.android.cells.legacy.v2;
 
 import java.io.Serializable;
 import java.util.Properties;

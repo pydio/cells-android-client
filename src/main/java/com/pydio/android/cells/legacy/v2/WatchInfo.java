@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.db.model;
+package com.pydio.android.cells.legacy.v2;
 
 import com.pydio.cells.api.ui.FileNode;
 
@@ -9,8 +9,8 @@ public class WatchInfo {
     private FileNode node;
     private long addTime;
     private long lastSyncTime;
-    private SyncStats lastSyncStats;
-    private SyncError lastSyncErrorDetails;
+//    private SyncStats lastSyncStats;
+//    private SyncError lastSyncErrorDetails;
 
     private boolean active = true;
 
@@ -76,20 +76,20 @@ public class WatchInfo {
                 node.getPath().equals(((WatchInfo) object).node.getPath());
     }
 
-    public SyncStats getLastSyncStats() {
-        return lastSyncStats;
-    }
-
-    public void setLastSyncStats(SyncStats lastSyncStats) {
-        this.lastSyncStats = lastSyncStats;
-    }
-
-    public SyncError getLastSyncErrorDetails() {
-        return lastSyncErrorDetails;
-    }
-
-    public void setLastSyncErrorDetails(SyncError lastSyncErrorDetails) {
-        this.lastSyncErrorDetails = lastSyncErrorDetails;
-    }
+//    public SyncStats getLastSyncStats() {
+//        return lastSyncStats;
+//    }
+//
+//    public void setLastSyncStats(SyncStats lastSyncStats) {
+//        this.lastSyncStats = lastSyncStats;
+//    }
+//
+//    public SyncError getLastSyncErrorDetails() {
+//        return lastSyncErrorDetails;
+//    }
+//
+//    public void setLastSyncErrorDetails(SyncError lastSyncErrorDetails) {
+//        this.lastSyncErrorDetails = lastSyncErrorDetails;
+//    }
 
 }

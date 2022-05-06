@@ -1,11 +1,9 @@
-package com.pydio.android.cells.legacy.db;
+package com.pydio.android.cells.legacy.v2;
 
 import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.pydio.android.cells.legacy.db.model.AccountRecord;
-import com.pydio.android.cells.legacy.db.model.WatchInfo;
 import com.pydio.cells.transport.auth.Token;
 import com.pydio.cells.utils.Log;
 import com.pydio.cells.utils.tests.RemoteServerConfig;

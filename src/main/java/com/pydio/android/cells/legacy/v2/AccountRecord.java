@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.db.model;
+package com.pydio.android.cells.legacy.v2;
 
 import com.pydio.cells.api.Server;
 import com.pydio.cells.api.ui.WorkspaceNode;
@@ -37,10 +37,6 @@ public class AccountRecord {
         record.serverLabel = server.getLabel();
         record.welcomeMessage = server.getWelcomeMessage();
         return record;
-    }
-
-    public static AccountRecord fromSession(Session session) {
-        return fromServer(session.getUser(), session.getServer());
     }
 
     public String id() {

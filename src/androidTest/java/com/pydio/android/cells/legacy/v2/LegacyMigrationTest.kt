@@ -1,9 +1,8 @@
-package com.pydio.android.cells.legacy.db
+package com.pydio.android.cells.legacy.v2
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.legacy.db.model.AccountRecord
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.SessionFactory
