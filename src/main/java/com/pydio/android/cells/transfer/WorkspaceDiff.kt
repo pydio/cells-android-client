@@ -1,6 +1,13 @@
 package com.pydio.android.cells.transfer
 
 import android.util.Log
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.db.accounts.WorkspaceDao
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.FileService
+import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.utils.areWsNodeContentEquals
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.Node
@@ -10,13 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.accounts.WorkspaceDao
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.utils.areWsNodeContentEquals
 import java.io.File
 
 class WorkspaceDiff(
@@ -40,8 +40,8 @@ class WorkspaceDiff(
         processChanges(remotes, locals)
         if (changeNumber > 0) {
             Log.d(logTag, "Synced workspace list for $accountId with $changeNumber changes")
-        } else {
-            Log.e(logTag, "Synced workspace list for $accountId, no change detected")
+//        } else {
+//            Log.e(logTag, "Synced workspace list for $accountId, no change detected")
         }
 
         return@withContext changeNumber
