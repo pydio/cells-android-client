@@ -99,11 +99,20 @@ public interface AppNames {
     String AUTH_STATUS_EXPIRED = "expired";
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";
-    // Session  Lifecycle States
+    // Session Lifecycle States
     String SESSION_STATE_NEW = "new";
     String LIFECYCLE_STATE_FOREGROUND = "foreground";
     String LIFECYCLE_STATE_BACKGROUND = "background";
     String LIFECYCLE_STATE_PAUSED = "paused";
+    // Offline Lifecycle States
+    String OFFLINE_STATUS_NEW = "new";
+    String OFFLINE_STATUS_ACTIVE = "active";
+    String OFFLINE_STATUS_MIGRATED = "migrated";
+    String OFFLINE_STATUS_LOST = "lost";
+    String OFFLINE_STATUS_DELETED = "deleted";
+
+    String OFFLINE_STORAGE_INTERNAL = "internal";
+
 
     // Local tree:
     // baseDir +--- cache +--- accountID +--- thumbs

@@ -3,8 +3,8 @@ package com.pydio.android.cells.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.pydio.cells.transport.StateID
 import com.pydio.android.cells.AppNames
+import com.pydio.cells.transport.StateID
 
 @Entity(tableName = "offline_roots")
 data class ROfflineRoot(
@@ -25,7 +25,8 @@ data class ROfflineRoot(
     @ColumnInfo(name = "sort_name") var sortName: String? = null,
 
     // Can be: internal or external, optionally with an index
-    @ColumnInfo(name = "storage_key") var localFileType: String = AppNames.LOCAL_FILE_TYPE_NONE,
+    // TODO: we only support storage in the app files dir for the time being.
+    @ColumnInfo(name = "storage") var storage: String = AppNames.OFFLINE_STORAGE_INTERNAL,
 ) {
 
     fun getStateID(): StateID {
@@ -37,13 +38,11 @@ data class ROfflineRoot(
             return ROfflineRoot(
                 encodedState = treeNode.encodedState,
                 uuid = treeNode.uuid,
-                status = "new",
+                status = AppNames.OFFLINE_STATUS_NEW,
                 localModificationTS = 0,
                 lastCheckTS = 0,
                 message = null,
                 sortName = treeNode.sortName,
-                // TODO: we only support storage in the app files dir for the time being.
-                localFileType = "internal",
             )
         }
     }

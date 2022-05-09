@@ -37,11 +37,11 @@ class MigrationServiceV2 : KoinComponent {
         mainDB: MainDB,
         syncDB: SyncDB
     ) {
-        val currState = StateID.fromId(record.id())
-        Log.i(logTag, "About to migrate: $currState")
+        val accountID = StateID.fromId(record.id())
+        Log.i(logTag, "About to migrate: $accountID")
 
         // Main account and credentials
-        val session = accountService.getSession(currState)
+        val session = accountService.getSession(accountID)
         if (session == null) {
             Log.i(logTag, "No session found in room, creating.")
             val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
@@ -63,14 +63,14 @@ class MigrationServiceV2 : KoinComponent {
 
         // Refresh workspace list and check credentials
         var client = try {
-            sessionFactory.getUnlockedClient(currState.accountId)
+            sessionFactory.getUnlockedClient(accountID.accountId)
         } catch (e: Exception) {
             null
         }
 
-        val result = accountService.refreshWorkspaceList(currState.accountId)
+        val result = accountService.refreshWorkspaceList(accountID.accountId)
         if (result.second != null) { // Non-Null response is an error message
-            Log.i(logTag, "could not list workspaces for $currState: ${result.second}")
+            Log.i(logTag, "could not list workspaces for $accountID: ${result.second}")
             client = null
         }
 
@@ -82,7 +82,7 @@ class MigrationServiceV2 : KoinComponent {
 
         for (currRoot in offlineRoots) {
             var storedFileNode = currRoot.node
-            val state = currState.withPath("/" + storedFileNode.workspace + storedFileNode.path)
+            val state = accountID.withPath("/" + storedFileNode.workspace + storedFileNode.path)
             val newNode = if (client == null) {
                 if (Str.empty(storedFileNode.mimeType)) {
                     storedFileNode.setProperty(
@@ -95,8 +95,11 @@ class MigrationServiceV2 : KoinComponent {
                 val fn = client.nodeInfo(storedFileNode.workspace, storedFileNode.path)
                 RTreeNode.fromFileNode(state, fn)
             }
-            nodeService.updateOfflineRoot(newNode)
+            nodeService.updateOfflineRoot(newNode, AppNames.OFFLINE_STATUS_MIGRATED)
         }
+
+        nodeService.syncAll(accountID)
+
     }
 
     suspend fun migrateOneP8Account(record: AccountRecord, mainDB: MainDB) {

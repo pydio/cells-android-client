@@ -22,8 +22,9 @@ interface OfflineRootDao {
     fun getByUuid(uuid: String): ROfflineRoot?
 
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
-    fun getAllLive(): LiveData<List<ROfflineRoot>>
+    fun getAll(): List<ROfflineRoot>
 
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
-    fun getAll(): List<ROfflineRoot>
+    fun getAllLive(): LiveData<List<ROfflineRoot>>
+
 }
