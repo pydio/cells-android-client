@@ -160,7 +160,7 @@
     <string name="confirm_account_logout_title">Se déconnecter de\n%s ?</string>
     <string name="confirm_account_logout_desc">Cela effacera vos identifiants pour ce serveur : vous devrez vous re-identifier pour vous connecter.</string>
     <string name="my_account">Mon Compte</string>
-    <string name="node_add_button">Créer ou importer</string>
+    <string name="node_add_button_description">Créer ou importer</string>
     <string name="create_account">Créer un compte</string>
     <string name="content_description_media">Aperçu du contenu</string>
     <string name="dialog_create_folder_title">Créer un dossier</string>
@@ -181,7 +181,7 @@
     <string name="loading_description">L\'élément courant est en cours d\'actualisation</string>
     <string name="thumb_description">Aperçu du contenu</string>
     <string name="folder_icon_description">Icône de dossier</string>
-    <string name="empty_content_icon_desc">Icône de liste vide</string>
+    <string name="empty_content_icon_description">Icône de liste vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
     <string name="confirm_cache_deletion_title">Vider le cache</string>

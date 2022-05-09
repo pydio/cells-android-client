@@ -160,7 +160,7 @@
     <string name="confirm_account_logout_title">Vom Konto\n%s abmelden?</string>
     <string name="confirm_account_logout_desc">Dadurch werden Ihre Anmeldedaten für diesen Server gelöscht: Sie müssen sich erneut anmelden, um eine Verbindung herzustellen.</string>
     <string name="my_account">Mein Konto</string>
-    <string name="node_add_button">Erstellen oder importieren</string>
+    <string name="node_add_button_description">Erstellen oder importieren</string>
     <string name="create_account">Neues Konto einrichten</string>
     <string name="content_description_media">Vorschau des Inhalts</string>
     <string name="dialog_create_folder_title">Ordner erstellen</string>
@@ -181,7 +181,7 @@
     <string name="loading_description">Aktuelles Element wird aktualisiert</string>
     <string name="thumb_description">Inhaltsvorschau</string>
     <string name="folder_icon_description">Ordnericon</string>
-    <string name="empty_content_icon_desc">Leeres Listensymbol</string>
+    <string name="empty_content_icon_description">Leeres Listensymbol</string>
     <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
     <string name="confirm_cache_deletion_message">Dadurch wird zwar Speicherplatz freigegeben, aber ein erneutes Herunterladen der Miniaturansichten, des Index und des Cache erzwungen.</string>
     <string name="confirm_cache_deletion_title">Cache löschen</string>

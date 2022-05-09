@@ -27,13 +27,10 @@
     <string name="action_clear_cache">Clear Cache</string>
 
     <!-- Main Menu (left drawer) -->
-    <!-- Header -->
-    <string name="exit_description">Exit the application</string>
-    <string name="switch_account_description">Choose another remote server</string>
-    <string name="logo_description">Pydio application logo</string>
     <!-- Section titles -->
     <string name="my_workspaces">My Workspaces</string>
     <string name="quick_access">Quick Access</string>
+    <string name="my_account">My Account</string>
 
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
@@ -98,11 +95,14 @@
     <string name="browse_list_desc">Browse your remote servers</string>
     <string name="browse_list_none">Empty</string>
     <string name="recycle_bin_label">Recycle Bin</string>
-
     <string name="account_server_label">Server: %s</string>
     <string name="account_logged_in_as_label">Logged in as %s</string>
     <string name="category_cells">Cells</string>
     <string name="category_workspaces">Workspaces</string>
+
+    <string name="empty_content_message">No content here yet</string>
+    <string name="empty_folder">This folder is empty</string>
+    <string name="loading_message">Please wait while loading content…</string>
 
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
@@ -181,8 +181,8 @@
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete all cached data and files.</string>
     <string name="confirm_account_logout_title">Logout account\n%s ?</string>
     <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
-    <string name="my_account">My Account</string>
-    <string name="node_add_button">Create or import</string>
+    <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
+    <string name="confirm_cache_deletion_title">Clear cache</string>
     <string name="create_account">Create an account</string>
     <string name="content_description_media">Preview of the content</string>
     <string name="dialog_create_folder_title">Create folder</string>
@@ -200,18 +200,7 @@
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
 
-    <!-- Accessibility various content -->
-    <string name="loading_description">Current item is being refreshed</string>
-    <string name="thumb_description">Small content preview</string>
-    <string name="folder_icon_description">Folder icon</string>
-    <string name="empty_content_icon_desc">Empty list icon</string>
-    <string name="empty_content_message">No content here yet</string>
-    <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
-    <string name="confirm_cache_deletion_title">Clear cache</string>
-    <string name="switch_account">Switch account</string>
-    <string name="switch_workspace">Switch workspace</string>
-    <string name="parent_folder">Parent folder</string>
-    <string name="order_by_title">Sort order</string>
+    <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
     <string name="choose_list_layout">Type of layout</string>
     <string name="use_larger_grid">Use larger grid</string>
@@ -230,5 +219,21 @@
     <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
     <string name="choose_list_offline_frequency_title">Sync frequency</string>
     <string name="choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
+
+    <!-- Accessibility various content -->
+    <string name="node_add_button_description">Create or import</string>
+    <string name="exit_description">Exit the application</string>
+    <string name="switch_account_description">Choose another remote server</string>
+    <string name="logo_description">Pydio application logo</string>
+
+    <string name="loading_description">Current item is being refreshed</string>
+    <string name="thumb_description">Small content preview</string>
+    <string name="folder_icon_description">Folder icon</string>
+    <string name="empty_content_icon_description">Empty list icon</string>
+
+    <string name="switch_account">Switch account</string>
+    <string name="switch_workspace">Switch workspace</string>
+    <string name="parent_folder">Parent folder</string>
+    <string name="order_by_title">Sort order</string>
 
 </resources>
