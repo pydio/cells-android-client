@@ -18,7 +18,7 @@ public class LegacyModelTest {
     private final String logTag = LegacyModelTest.class.getSimpleName();
 
     @Test
-    public void checkModel() throws Exception {
+    public void checkModel() {
 
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 

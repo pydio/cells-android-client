@@ -25,7 +25,8 @@ import java.util.Map;
 public class MainDB extends SQLiteOpenHelper {
 
     public final static int VERSION = 1;
-    public final static String DB_FILE_PATH = "/files/database.sqlite";
+    public final static String DB_FILE_NAME = "database.sqlite";
+    public final static String DB_FILE_PATH = "/files/" + DB_FILE_NAME;
 
     private static final Object lock = new Object();
     private static MainDB instance;

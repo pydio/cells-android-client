@@ -16,7 +16,8 @@ public class SyncDB extends SQLiteOpenHelper {
 
     private final static String logTag = SyncDB.class.getSimpleName();
     private static final int version = 2;
-    public final static String DB_FILE_PATH = "/files/sync.sqlite";
+    public final static String DB_FILE_NAME = "sync.sqlite";
+    public final static String DB_FILE_PATH = "/files/" + DB_FILE_NAME;
 
     private static SyncDB instance;
 

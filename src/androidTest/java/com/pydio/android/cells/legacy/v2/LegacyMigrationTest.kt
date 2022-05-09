@@ -1,32 +1,23 @@
 package com.pydio.android.cells.legacy.v2
 
+import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.SessionFactory
-import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.transport.auth.credentials.JWTCredentials
-import com.pydio.cells.transport.auth.credentials.LegacyPasswordCredentials
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 import org.koin.test.AutoCloseKoinTest
-import org.koin.test.inject
 import java.io.File
 
 class LegacyMigrationTest : AutoCloseKoinTest() {
 
     private val logTag = LegacyMigrationTest::class.simpleName
+    private var doMigrate = false
 
-    private val accountService by inject<AccountService>()
-    private val sessionFactory by inject<SessionFactory>()
-    private val nodeService by inject<NodeService>()
-
-    @Test
-    fun migrateAllAccounts() = runTest {
+    @Before
+    fun setUp() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // Insure we have all legacy DBs and init
@@ -34,16 +25,26 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         val mainDbFile = File(mainDbPath)
         val syncDbPath = context.dataDir.absolutePath + SyncDB.DB_FILE_PATH
         val syncDbFile = File(syncDbPath)
-        if (!mainDbFile.exists()) {
-            Log.i(logTag, "... No Legacy Main DB file found at $mainDbPath")
+
+        doMigrate = if (!mainDbFile.exists() || !syncDbFile.exists()) {
+            provisionWithDummyLegacyData(context)
+        } else {
+            true
+        }
+
+        if (doMigrate) {
+            MainDB.init(context, mainDbPath)
+            SyncDB.init(context, syncDbPath)
+        }
+    }
+
+    @Test
+    fun migrateAllAccounts() = runTest {
+
+        if (!doMigrate) {
+            Log.i(logTag, "... No Legacy data found for migration, aborting")
             return@runTest
         }
-        if (!syncDbFile.exists()) {
-            Log.i(logTag, "... No Legacy Sync DB file found at $syncDbPath")
-            return@runTest
-        }
-        MainDB.init(context, mainDbPath)
-        SyncDB.init(context, syncDbPath)
 
         Log.i(logTag, "... Found legacy db files, about to migrate")
 
@@ -52,91 +53,56 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         val syncDB = SyncDB.getHelper()
         val recs = accDB.listAccountRecords()
         Log.w(logTag, "    Found " + recs.size + " accounts. ")
+        val migrationServiceV2 = MigrationServiceV2()
         for (rec in recs) {
-            if (rec.isLegacy) {
-                migrateOneP8Account(rec, accDB)
-            } else {
-                migrateOneCellsAccount(rec, accDB, syncDB)
+            try {
+                if (rec.isLegacy) {
+                    migrationServiceV2.migrateOneP8Account(rec, accDB)
+                } else {
+                    migrationServiceV2.migrateOneCellsAccount(rec, accDB, syncDB)
+                }
+                Log.w(logTag, "... ${rec.username}@${rec.url()} has been migrated")
+            } catch (e: Exception) {
+                Log.e(logTag, "... could not migrate ${rec.username}@${rec.url()}: ${e.message}")
+                e.printStackTrace()
             }
-            Log.w(logTag, "- " + rec.username + "@" + rec.url())
         }
+
+        // Helper to easily replay the migration: upload necessary files to one of the newly restored account
+        // so that they are available. Put them in resource folder to relaunch the migration on an empty instance.
+//        val context = InstrumentationRegistry.getInstrumentation().targetContext
+//        val targetState = StateID("admin", "https://files.example.com", "/common-files")
+//        backupLegacyFiles(context, migrationServiceV2, targetState)
     }
 
-    private suspend fun migrateOneCellsAccount(
-        record: AccountRecord,
-        mainDB: MainDB,
-        syncDB: SyncDB
+    private fun provisionWithDummyLegacyData(context: Context): Boolean {
+
+        val mainSrcFile =
+            FileLoader.getResourceAsFile("/legacy/basic-setup/" + MainDB.DB_FILE_NAME)
+                ?: return false
+        val syncSrcFile =
+            FileLoader.getResourceAsFile("/legacy/basic-setup/" + SyncDB.DB_FILE_NAME)
+                ?: return false
+
+        val mainDbFile = File(context.dataDir.absolutePath + MainDB.DB_FILE_PATH)
+        mainSrcFile.copyTo(mainDbFile, true)
+        val syncDbFile = File(context.dataDir.absolutePath + SyncDB.DB_FILE_PATH)
+        syncSrcFile.copyTo(syncDbFile, true)
+
+        return true
+    }
+
+    private suspend fun backupLegacyFiles(
+        context: Context,
+        migrationServiceV2: MigrationServiceV2,
+        targetState: StateID
     ) {
-        val currState = StateID.fromId(record.id())
-        Log.i(logTag, "About to migrate: $currState")
+        val mainDbPath = context.dataDir.absolutePath + MainDB.DB_FILE_PATH
+        val mainDbFile = File(mainDbPath)
+        val syncDbPath = context.dataDir.absolutePath + SyncDB.DB_FILE_PATH
+        val syncDbFile = File(syncDbPath)
 
-        val session = accountService.getSession(currState)
-        if (session == null) {
-            Log.i(logTag, "No session found in room, creating.")
-            val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
-
-            val token = mainDB.getToken(record.id())
-            if (token == null) {
-                val server = sessionFactory.registerServer(serverURL)
-                accountService.registerAccount(
-                    record.username,
-                    server,
-                    AppNames.AUTH_STATUS_NO_CREDS
-                )
-            } else {
-                // TODO better handling of expired and error tokens
-                val jwtCredentials = JWTCredentials(record.username, token)
-                accountService.signUp(serverURL, jwtCredentials)
-            }
-        }
-
-        val offlineRoots = syncDB.getWatches(record.id())
-        if (offlineRoots.isEmpty()) {
-            return
-        }
-
-        val client = try {
-            sessionFactory.getUnlockedClient(currState.accountId)
-        } catch (e: Exception) {
-            null
-        } ?: return
-
-        for (currRoot in offlineRoots) {
-            val storedFileNode = currRoot.node
-            val state = currState.withPath("/"+ storedFileNode.workspace + storedFileNode.path)
-            val newNode = if (client == null) {
-                RTreeNode.fromFileNode(state, storedFileNode)
-            } else {
-                val fn = client.nodeInfo(storedFileNode.workspace, storedFileNode.path)
-                RTreeNode.fromFileNode(state, fn)
-            }
-            nodeService.updateOfflineRoot(newNode)
-        }
+        migrationServiceV2.doUpload(targetState, mainDbFile, SdkNames.NODE_MIME_DEFAULT)
+        migrationServiceV2.doUpload(targetState, syncDbFile, SdkNames.NODE_MIME_DEFAULT)
     }
-
-    private suspend fun migrateOneP8Account(record: AccountRecord, mainDB: MainDB) {
-        val currState = StateID.fromId(record.id())
-        Log.i(logTag, "About to migrate: $currState")
-
-        val session = accountService.getSession(currState)
-        if (session == null) {
-            Log.i(logTag, "No session found in room, creating.")
-            val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
-
-            val pwd = mainDB.getPassword(record.id())
-            if (pwd == null) {
-                val server = sessionFactory.registerServer(serverURL)
-                accountService.registerAccount(
-                    record.username,
-                    server,
-                    AppNames.AUTH_STATUS_NO_CREDS
-                )
-            } else {
-                // TODO better handling of expired and error tokens
-                val jwtCredentials = LegacyPasswordCredentials(record.username, pwd)
-                accountService.signUp(serverURL, jwtCredentials)
-            }
-        }
-    }
-
 }
