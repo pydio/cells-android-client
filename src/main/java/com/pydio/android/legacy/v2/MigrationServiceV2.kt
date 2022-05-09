@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.v2
+package com.pydio.android.legacy.v2
 
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode

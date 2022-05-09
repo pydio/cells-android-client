@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.v2
+package com.pydio.android.legacy.v2
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry

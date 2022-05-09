@@ -1,4 +1,4 @@
-package com.pydio.android.cells.legacy.v2;
+package com.pydio.android.legacy.v2;
 
 import com.pydio.cells.api.Server;
 import com.pydio.cells.api.ui.WorkspaceNode;
