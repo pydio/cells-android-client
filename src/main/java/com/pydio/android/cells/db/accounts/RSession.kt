@@ -22,8 +22,7 @@ data class RSession(
 
     @ColumnInfo(name = "db_name") val dbName: String,
 
-    // FIXME with live session it should not be necessary anymore
-    // We duplicate this info to ease implementation
+    // We duplicate this info to ease implementation: we can do this because we won't have tons of accounts.
     @ColumnInfo(name = "is_legacy") val isRemoteLegacy: Boolean,
 ) {
 
