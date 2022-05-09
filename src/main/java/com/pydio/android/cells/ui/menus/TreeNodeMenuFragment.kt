@@ -554,12 +554,12 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 }
                 // In-app navigation
                 ACTION_OPEN_IN_WORKSPACES -> {
-                    CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
+                    // CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
                     findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
                 }
                 ACTION_OPEN_PARENT_IN_WORKSPACES -> {
                     val parentState = StateID.fromId(node.encodedState).parent()
-                    CellsApp.instance.setCurrentState(parentState)
+                    // CellsApp.instance.setCurrentState(parentState)
                     findNavController().navigate(MainNavDirections.openFolder(parentState.id))
                 }
                 // Transfer to and from device

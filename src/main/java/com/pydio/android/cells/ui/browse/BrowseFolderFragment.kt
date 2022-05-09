@@ -266,11 +266,11 @@ class BrowseFolderFragment : Fragment() {
         super.onPause()
     }
 
-    override fun onDetach() {
-        Log.i(logTag, "onDetach")
-        super.onDetach()
-        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
-    }
+//    override fun onDetach() {
+//        Log.i(logTag, "onDetach")
+//        super.onDetach()
+//        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
+//    }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         Log.i(logTag, "onViewStateRestored")
@@ -307,7 +307,7 @@ class BrowseFolderFragment : Fragment() {
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
         if (node.isFolder()) {
-            CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
+            // CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }

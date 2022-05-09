@@ -80,6 +80,7 @@ fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
     return false
 }
 
+@Deprecated("Does not do anything anymore")
 fun resetToHomeStateIfNecessary(manager: FragmentManager, currentState: StateID) {
     // We manually set the current to be at root of the workspace to handle certain corner cases,
     // typically when app has been restored with an empty back stack deep in a workspace or
@@ -88,10 +89,11 @@ fun resetToHomeStateIfNecessary(manager: FragmentManager, currentState: StateID)
     if (count == 0 && currentState.path?.length ?: 0 > 0
         || currentState.path == "/${currentState.workspace}"
     ) {
-        CellsApp.instance.setCurrentState(StateID.fromId(currentState.accountId))
+//        CellsApp.instance.setCurrentState(StateID.fromId(currentState.accountId))
     }
 }
 
+@Deprecated("Should probably be useless alo now.")
 fun dumpBackStack(caller: String?, manager: FragmentManager) {
     val count = manager.backStackEntryCount
     val entry = if (count > 0) manager.getBackStackEntryAt(count - 1) else null

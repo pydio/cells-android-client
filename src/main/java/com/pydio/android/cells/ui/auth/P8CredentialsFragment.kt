@@ -57,7 +57,7 @@ class P8CredentialsFragment : Fragment() {
                     AuthService.NEXT_ACTION_BROWSE -> {
                         // We have registered a new account and want to browse to it
                         val nextState = StateID.fromId(it)
-                        CellsApp.instance.setCurrentState(nextState)
+//                        CellsApp.instance.setCurrentState(nextState)
                         val intent = Intent(requireActivity(), MainActivity::class.java)
                         intent.putExtra(AppNames.EXTRA_STATE, it)
                         Log.i(logTag, "Auth success, about to browse to $nextState")

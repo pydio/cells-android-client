@@ -112,7 +112,7 @@ class AccountListFragment : Fragment() {
             }
             AppNames.ACTION_OPEN -> lifecycleScope.launch {
                 accountService.openSession(accountID)
-                CellsApp.instance.setCurrentState(StateID.fromId(accountID))
+//                CellsApp.instance.setCurrentState(StateID.fromId(accountID))
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.putExtra(AppNames.EXTRA_STATE, accountID)
                 startActivity(intent)

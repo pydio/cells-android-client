@@ -99,7 +99,7 @@ class BookmarksFragment : Fragment() {
             bookmarksVM.triggerRefresh()
 
             val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
-            CellsApp.instance.setCurrentState(currentState)
+//            CellsApp.instance.setCurrentState(currentState)
             val backPressedCallback = BackStackAdapter.initialised(
                 parentFragmentManager,
                 findNavController(),
@@ -133,15 +133,15 @@ class BookmarksFragment : Fragment() {
         }
     }
 
-    override fun onDetach() {
-        bookmarksVM.stateID?.let {
-            resetToHomeStateIfNecessary(
-                parentFragmentManager,
-                it.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
-            )
-        }
-        super.onDetach()
-    }
+//    override fun onDetach() {
+//        bookmarksVM.stateID?.let {
+//            resetToHomeStateIfNecessary(
+//                parentFragmentManager,
+//                it.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
+//            )
+//        }
+//        super.onDetach()
+//    }
 
     private fun navigateTo(node: RTreeNode) =
         lifecycleScope.launch {

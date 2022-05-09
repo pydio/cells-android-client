@@ -118,7 +118,7 @@ class SearchFragment : Fragment() {
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
         if (node.isFolder()) {
-            CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
+//            CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }

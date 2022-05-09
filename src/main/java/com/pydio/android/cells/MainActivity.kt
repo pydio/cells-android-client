@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                     wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
                     wsItem.setOnMenuItemClickListener {
                         val state = StateID.fromId(accId).withPath("/${ws.slug}")
-                        CellsApp.instance.setCurrentState(state)
+//                        CellsApp.instance.setCurrentState(state)
                         navController.navigate(MainNavDirections.openFolder(state.id))
                         closeDrawer()
                         true

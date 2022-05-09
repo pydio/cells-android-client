@@ -106,13 +106,13 @@ class CellsApp : Application(), KoinComponent {
         }
     }
 
-    fun getCurrentState(): StateID? {
-        return getPreference(AppNames.PREF_KEY_CURRENT_STATE)?.let { StateID.fromId(it) }
-    }
+//    fun getCurrentState(): StateID? {
+//        return getPreference(AppNames.PREF_KEY_CURRENT_STATE)?.let { StateID.fromId(it) }
+//    }
 
-    fun setCurrentState(state: StateID) {
-        setPreference(AppNames.PREF_KEY_CURRENT_STATE, state.id)
-    }
+//    fun setCurrentState(state: StateID) {
+//        setPreference(AppNames.PREF_KEY_CURRENT_STATE, state.id)
+//    }
 
     // TODO implement background cleaning, typically:
     //  - states

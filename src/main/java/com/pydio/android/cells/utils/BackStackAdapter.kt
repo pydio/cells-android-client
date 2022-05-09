@@ -35,7 +35,7 @@ class BackStackAdapter(enabled: Boolean = false) : OnBackPressedCallback(enabled
     override fun handleOnBackPressed() {
         accountID?.let {
             Log.i("BackStackAdapter", "Setting custom state before navigating back")
-            CellsApp.instance.setCurrentState(it)
+//            CellsApp.instance.setCurrentState(it)
             navController.navigateUp()
         }
     }

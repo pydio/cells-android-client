@@ -117,7 +117,7 @@ class AccountHomeFragment : Fragment() {
         when (command) {
             AppNames.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
-                CellsApp.instance.setCurrentState(targetState)
+//                CellsApp.instance.setCurrentState(targetState)
                 findNavController().navigate(MainNavDirections.openFolder(targetState.id))
             }
             else -> return // do nothing
