@@ -1,6 +1,7 @@
 package com.pydio.android.cells
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.PersistableBundle
@@ -12,6 +13,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Carousel
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -80,13 +82,21 @@ class CarouselActivity : AppCompatActivity() {
 
     private fun setupActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_carousel)
-        // TODO rather set a style with no action bar
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            binding.root.windowInsetsController?.hide(WindowInsetsCompat.Type.statusBars())
+            binding.root.windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+
+
         // setTheme(android.R.style.Theme_Black_NoTitleBar)
-        supportActionBar?.hide()
+//         supportActionBar?.hide()
 //         binding.invalidateAll()
     }
 

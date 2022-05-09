@@ -97,18 +97,6 @@ class AccountHomeFragment : Fragment() {
             }
         }
 
-//        CellsApp.instance.getCurrentState()?.let {
-//            if (it.path != null && it.path.length > 1) {
-//                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
-//
-//                val action: NavDirections = when {
-//                    it.path.startsWith(AppNames.CUSTOM_PATH_BOOKMARKS) -> MainNavDirections.openBookmarks()
-//                    it.path.startsWith(AppNames.CUSTOM_PATH_ACCOUNTS) -> MainNavDirections.openAccountList()
-//                    else -> MainNavDirections.openFolder(it.id)
-//                }
-//                findNavController().navigate(action)
-//            }
-//        }
         activeSessionVM.resume()
     }
 
@@ -117,7 +105,6 @@ class AccountHomeFragment : Fragment() {
         when (command) {
             AppNames.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
-//                CellsApp.instance.setCurrentState(targetState)
                 findNavController().navigate(MainNavDirections.openFolder(targetState.id))
             }
             else -> return // do nothing

@@ -41,19 +41,4 @@ class BookmarksViewModel(private val nodeService: NodeService) : ViewModel() {
             }
         }
     }
-
-//    class BookmarksViewModelFactory(
-//        private val nodeService: NodeService,
-//        private val stateID: StateID,
-//        private val application: Application
-//    ) : ViewModelProvider.Factory {
-//        @Suppress("unchecked_cast")
-//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//            if (modelClass.isAssignableFrom(BookmarksViewModel::class.java)) {
-//                return BookmarksViewModel(nodeService, stateID, application) as T
-//            }
-//            throw IllegalArgumentException("Unknown ViewModel class")
-//        }
-//    }
-
 }

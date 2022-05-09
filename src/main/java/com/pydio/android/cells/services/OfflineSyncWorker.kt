@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pydio.cells.utils.Log
-import org.koin.core.component.KoinComponent
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.getCurrentDateTime
+import com.pydio.cells.utils.Log
+import org.koin.core.component.KoinComponent
 
 class OfflineSyncWorker(
     private val accountService: AccountService,

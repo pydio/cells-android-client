@@ -13,10 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
@@ -25,6 +21,10 @@ import com.pydio.android.cells.databinding.FragmentOffineRootListBinding
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class OfflineRootsFragment : Fragment() {
 
@@ -62,17 +62,18 @@ class OfflineRootsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val activeSession = activeSessionVM.liveSession.value
-        Log.i(logTag, "onResume: ${activeSession?.accountID}")
-        activeSession?.let { session ->
-            val accountID = StateID.fromId(session.accountID)
-            offlineVM.afterCreate(accountID)
+        activeSessionVM.liveSession.observe(viewLifecycleOwner) { activeSession ->
+            activeSession?.let { session ->
 
-            configureRecyclerAdapter()
+                val accountID = StateID.fromId(session.accountID)
+                offlineVM.afterCreate(accountID)
 
-            binding.forceRefresh.setOnRefreshListener { offlineVM.forceRefresh() }
-            offlineVM.isLoading.observe(viewLifecycleOwner) {
-                binding.forceRefresh.isRefreshing = it
+                configureRecyclerAdapter()
+
+                binding.forceRefresh.setOnRefreshListener { offlineVM.forceRefresh() }
+                offlineVM.isLoading.observe(viewLifecycleOwner) {
+                    binding.forceRefresh.isRefreshing = it
+                }
             }
         }
     }

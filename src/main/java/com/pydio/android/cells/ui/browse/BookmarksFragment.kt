@@ -15,11 +15,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
@@ -31,7 +26,11 @@ import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.utils.BackStackAdapter
 import com.pydio.android.cells.utils.externallyView
-import com.pydio.android.cells.utils.resetToHomeStateIfNecessary
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BookmarksFragment : Fragment() {
 
@@ -74,38 +73,24 @@ class BookmarksFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-//        dumpBackStack(fTag, parentFragmentManager)
 
-//        (requireActivity() as AppCompatActivity).supportActionBar?.let {
-//            it.title = "Bookmarks" // accountID.toString()
-//        }
+//        val activeSession = activeSessionVM.liveSession.value
+//        Log.i(logTag, "onResume: ${activeSession?.accountID}")
+        activeSessionVM.liveSession.observe(viewLifecycleOwner){ activeSession ->
+            activeSession?.let { session ->
+                val accountID = StateID.fromId(session.accountID)
+                bookmarksVM.afterCreate(accountID)
+                configureRecyclerAdapter(bookmarksVM)
+                bookmarksVM.triggerRefresh()
 
-        val activeSession = activeSessionVM.liveSession.value
-        Log.i(logTag, "onResume: ${activeSession?.accountID}")
-        activeSession?.let { session ->
-            val accountID = StateID.fromId(session.accountID)
-
-//            val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
-//                CellsApp.instance.nodeService,
-//                accountID,
-//                requireActivity().application,
-//            )
-//            val tmp: BookmarksViewModel by viewModels { viewModelFactory }
-//            bookmarksVM = tmp
-
-            bookmarksVM.afterCreate(accountID)
-            configureRecyclerAdapter(bookmarksVM)
-
-            bookmarksVM.triggerRefresh()
-
-            val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
-//            CellsApp.instance.setCurrentState(currentState)
-            val backPressedCallback = BackStackAdapter.initialised(
-                parentFragmentManager,
-                findNavController(),
-                currentState
-            )
-            requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+//                val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
+//                val backPressedCallback = BackStackAdapter.initialised(
+//                    parentFragmentManager,
+//                    findNavController(),
+//                    currentState
+//                )
+//                requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+            }
         }
     }
 
@@ -150,11 +135,11 @@ class BookmarksFragment : Fragment() {
                 findNavController().navigate(action)
             } else {
                 val file = nodeService.getOrDownloadFileToCache(node)
-                file?.let { nfile ->
-                    externallyView(requireContext(), nfile, node)
+                file?.let { localFile ->
+                    externallyView(requireContext(), localFile, node)
 
 /*                    try {
-                        externallyView(requireContext(), nfile, node)?.let {
+                        externallyView(requireContext(), localFile, node)?.let {
                             startActivity(it)
                             if (BuildConfig.DEBUG) {
                                 // TODO Debug only, remove
@@ -171,15 +156,16 @@ class BookmarksFragment : Fragment() {
                 }
             }
         }
-}
 
-private class ChangeListener : NavController.OnDestinationChangedListener {
+    private inner class ChangeListener : NavController.OnDestinationChangedListener {
 
-    override fun onDestinationChanged(
-        controller: NavController,
-        destination: NavDestination,
-        arguments: Bundle?
-    ) {
-        Log.i("ChangeListener", "destination changed")
+        override fun onDestinationChanged(
+            controller: NavController,
+            destination: NavDestination,
+            arguments: Bundle?
+        ) {
+            Log.i(logTag, "Destination changed to ${destination.displayName}")
+        }
     }
 }
+

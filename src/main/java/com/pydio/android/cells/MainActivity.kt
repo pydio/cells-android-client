@@ -51,9 +51,7 @@ class MainActivity : AppCompatActivity() {
     private val nodeService: NodeService by inject()
     private val activeSessionVM: ActiveSessionViewModel by viewModel()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
-//        setTheme(CellsApp.instance.currentTheme)
         super.onCreate(savedInstanceState)
 
         var encodedState = savedInstanceState?.getString(AppNames.EXTRA_STATE)
@@ -78,13 +76,6 @@ class MainActivity : AppCompatActivity() {
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
         configureNavigationDrawer()
-
-// TODO back navigation is still clumsy, the "onBackPress() method from activity
-        //   and thus the custom adapters are not called when back is triggered by clicking
-        //   the app bar arrow...
-//        binding.toolbar.setNavigationOnClickListener {
-//            onBackPressed()
-//        }
 
 //        NetworkStatusHelper(this@MainActivity).observe(this, {
 //            showMessage(
@@ -130,7 +121,6 @@ class MainActivity : AppCompatActivity() {
 //        Log.d(logTag, "#### Calling network usage for: ${activeSessionVM.accountId}")
 //        networkUsage()
         super.onResume()
-//        dumpBackStack(logTag, supportFragmentManager)
     }
 
     private fun handleStateOrIntent(savedInstanceState: Bundle?) {
@@ -149,11 +139,6 @@ class MainActivity : AppCompatActivity() {
                     val action = MainNavDirections.openFolder(it.id)
                     navController.navigate(action)
                 }
-                // this is the default
-//                it.path == null -> {
-//                    val action = MainNavDirections.openWorkspaces(it.id)
-//                    navController.navigate(action)
-//                }
             }
         }
     }
@@ -179,7 +164,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configureNavigationDrawer() {
-
         // Configure navigation View header buttons
         val header = binding.navView.getHeaderView(0)
         val switchAccountBtn = header.findViewById<ImageView>(R.id.nav_header_switch_account)
@@ -235,7 +219,6 @@ class MainActivity : AppCompatActivity() {
                     wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
                     wsItem.setOnMenuItemClickListener {
                         val state = StateID.fromId(accId).withPath("/${ws.slug}")
-//                        CellsApp.instance.setCurrentState(state)
                         navController.navigate(MainNavDirections.openFolder(state.id))
                         closeDrawer()
                         true

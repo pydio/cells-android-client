@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,9 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
 
 /** Holds a folder and all its children */
@@ -84,14 +84,16 @@ class BrowseFolderViewModel(
         }
     }
 
-    fun resume() {
+    fun resume(resetBackOffTicker: Boolean) {
         Log.i(logTag, "resumed")
         resetLiveChildren()
         if (!_isActive) {
             _isActive = true
             currWatcher = watchFolder()
         }
-        backOffTicker.resetIndex()
+        if (resetBackOffTicker) {
+            backOffTicker.resetIndex()
+        }
     }
 
     fun pause() {
@@ -103,7 +105,7 @@ class BrowseFolderViewModel(
         setLoading(true)
         pause()
         currWatcher?.cancel()
-        resume()
+        resume(true)
     }
 
     /** Force recreation of the liveData object, typically after sort order modification */

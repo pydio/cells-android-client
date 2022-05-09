@@ -193,11 +193,6 @@ class BrowseFolderFragment : Fragment() {
 
                                         val selected = tracker?.selection?.map { it } ?: return true
 
-                                        // Log.e(fTag, "... Listing selected:")
-                                        // for (curr in selected){
-                                        //     Log.e(fTag, "- $curr")
-                                        // }
-
                                         val action = BrowseFolderFragmentDirections
                                             .openMoreMenu(
                                                 selected.toTypedArray(),
@@ -234,11 +229,11 @@ class BrowseFolderFragment : Fragment() {
     override fun onResume() {
         Log.d(logTag, "onResume")
         super.onResume()
-        dumpBackStack(logTag, parentFragmentManager)
 
         // We must insure the Observed LiveData has been correctly updated
-        // Otherwise we won't see sort order changes directly0
-        browseFolderVM.resume()
+        // Otherwise we won't see sort order changes directly
+        // TODO insure we want to reset backoff ticker index
+        browseFolderVM.resume(true)
         observer.let {
             browseFolderVM.children.removeObserver(it)
         }
@@ -265,12 +260,6 @@ class BrowseFolderFragment : Fragment() {
         browseFolderVM.pause()
         super.onPause()
     }
-
-//    override fun onDetach() {
-//        Log.i(logTag, "onDetach")
-//        super.onDetach()
-//        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
-//    }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         Log.i(logTag, "onViewStateRestored")
