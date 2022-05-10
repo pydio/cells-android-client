@@ -25,6 +25,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.bindings.getWsIconForMenu
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
+    private val prefs: CellsPreferences by inject()
     private val nodeService: NodeService by inject()
     private val activeSessionVM: ActiveSessionViewModel by viewModel()
 
@@ -328,14 +330,14 @@ class MainActivity : AppCompatActivity() {
 
         // The "no internet banner"
         activeSessionVM.networkInfo.observe(this) {
-            Log.e(logTag, "--- observing network info, new event")
+            // Log.e(logTag, "--- observing network info, new event")
             it?.let { networkInfo ->
                 val offlineBannerState = if (networkInfo.isOffline())
                     View.VISIBLE else View.GONE
-                Log.e(
+              /*  Log.e(
                     logTag, "--- current status: ${networkInfo.status} " +
                             "(disconnected: ${networkInfo.isOffline()})"
-                )
+                )*/
                 binding.offlineBanner.visibility = offlineBannerState
                 binding.executePendingBindings()
             }
@@ -364,7 +366,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val oldValue = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val oldValue = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         when (oldValue ?: AppNames.RECYCLER_LAYOUT_LIST) {
             AppNames.RECYCLER_LAYOUT_GRID -> {
                 layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
@@ -377,13 +379,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         layoutSwitcher.setOnMenuItemClickListener {
-            val value = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+            val value = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
             val newValue = if (value != null && AppNames.RECYCLER_LAYOUT_GRID == value) {
                 AppNames.RECYCLER_LAYOUT_LIST
             } else {
                 AppNames.RECYCLER_LAYOUT_GRID
             }
-            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
+            prefs.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
             this.recreate()
             return@setOnMenuItemClickListener true

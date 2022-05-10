@@ -13,6 +13,8 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuSortBinding
+import com.pydio.android.cells.services.CellsPreferences
+import org.koin.android.ext.android.inject
 
 /**
  * Simple bottom menu to manage the application wide sort order for various node lists.
@@ -22,7 +24,8 @@ class SortMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = SortMenuFragment::class.java.simpleName
 
-    private val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
+    private val prefs: CellsPreferences by inject()
+    private val oldOrder = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
     //private val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
 
     private lateinit var sortBinding: MoreMenuSortBinding
@@ -74,7 +77,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     private fun onClicked(order: String) {
         Log.d(tag, "Item clicked: ORDER BY $order ")
         if (oldOrder != order) {
-            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
+            prefs.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
             // CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
             dismiss()
             requireActivity().recreate()

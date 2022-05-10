@@ -12,11 +12,11 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.allModules
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
-import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
@@ -26,6 +26,7 @@ import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.java.KoinJavaComponent.inject
 import java.util.concurrent.TimeUnit
 
 /**
@@ -39,7 +40,8 @@ class CellsApp : Application(), KoinComponent {
     // Typically for actions launched from the "More" menu (copy, move...)
     val appScope = CoroutineScope(SupervisorJob())
 
-    // Shortcut to access preferences, TODO must be a better way to do and let koin handle context injection
+    // Shortcut to access preferences
+    // TODO must be a better way to do and let koin handle context injection
     lateinit var sharedPreferences: SharedPreferences
 
     // var currentTheme = R.style.Theme_Cells
@@ -56,7 +58,9 @@ class CellsApp : Application(), KoinComponent {
         super.onCreate()
         instance = this
 
-        updateClientData()
+        val currClientData = updateClientData()
+        Log.d(logTag, "    Current Client Data: $currClientData")
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         Log.i(logTag, "... Pre-init done")
 
@@ -95,16 +99,6 @@ class CellsApp : Application(), KoinComponent {
         return instance.clientID
     }
 
-    fun getPreference(key: String): String? {
-        return sharedPreferences.getString(key, null)
-    }
-
-    fun setPreference(key: String, value: String) {
-        with(sharedPreferences.edit()) {
-            putString(key, value)
-            apply()
-        }
-    }
 
     // TODO implement background cleaning, typically:
     //  - states
@@ -128,10 +122,14 @@ class CellsApp : Application(), KoinComponent {
 
 fun setupOfflineWorker(mainApplication: CellsApp) {
 
+    val logTag = "CellsApp.WorkerSetUp"
+
     runBlocking {
         val workManager = WorkManager.getInstance(mainApplication)
 
-        val frequency = mainApplication.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
+        val prefs: CellsPreferences by inject(CellsPreferences::class.java)
+        // val frequency = mainApplication.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
+        val frequency = prefs.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
         val onWifi =
             mainApplication.sharedPreferences.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
         val onCharging = mainApplication.sharedPreferences.getBoolean(
@@ -181,10 +179,10 @@ fun setupOfflineWorker(mainApplication: CellsApp) {
             ExistingPeriodicWorkPolicy.KEEP,
             repeatingRequest
         )
-        Log.i(
-            mainApplication::class.simpleName + ":SETUP",
-            "... Offline Worker created, interval: $repeatInterval min."
-        )
+
+        Log.e(logTag, ".....................")
+        Log.e(logTag, "... Offline Worker created, interval: $repeatInterval min.")
+        Log.e(logTag, ".....................")
     }
 }
 
@@ -203,7 +201,7 @@ private fun fromFreqToMinuteInterval(freq: String?): Long {
  */
 private fun cancelPendingWorkManager(mainApplication: CellsApp) {
     runBlocking {
-//         WorkManager.getInstance(mainApplication).cancelAllWork()
+//        WorkManager.getInstance(mainApplication).cancelAllWork()
         // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
 
         // Test launch with one time worker

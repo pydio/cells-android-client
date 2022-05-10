@@ -40,6 +40,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class NodeService(
+    private val prefs: CellsPreferences,
     private val treeNodeRepository: TreeNodeRepository,
     private val accountService: AccountService,
     private val fileService: FileService,
@@ -63,7 +64,7 @@ class NodeService(
     /* Expose DB content as LiveData for the ViewModels */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
-        var encoded = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
+        var encoded = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
         if (Str.empty(encoded)) {
             encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
         }

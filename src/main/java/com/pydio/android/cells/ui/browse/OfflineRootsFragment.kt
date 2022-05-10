@@ -14,15 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentOffineRootListBinding
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -30,8 +31,10 @@ class OfflineRootsFragment : Fragment() {
 
     private val logTag = OfflineRootsFragment::class.java.simpleName
 
+    private val prefs: CellsPreferences by inject()
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val offlineVM: OfflineRootsViewModel by viewModel()
+
     private lateinit var binding: FragmentOffineRootListBinding
 
     override fun onCreateView(
@@ -79,7 +82,7 @@ class OfflineRootsFragment : Fragment() {
     }
 
     private fun configureRecyclerAdapter() {
-        val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         val adapter: ListAdapter<RLiveOfflineRoot, out RecyclerView.ViewHolder?>
         if (asGrid) {

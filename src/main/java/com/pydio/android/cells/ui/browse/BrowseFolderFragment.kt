@@ -34,6 +34,7 @@ import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBrowseFolderBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.ui.utils.LoadingDialogFragment
@@ -57,6 +58,7 @@ class BrowseFolderFragment : Fragment() {
 
     private val logTag = BrowseFolderFragment::class.java.simpleName
 
+    private val prefs: CellsPreferences by inject()
     private val nodeService: NodeService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
@@ -126,7 +128,7 @@ class BrowseFolderFragment : Fragment() {
     private fun configureRecyclerAdapter() {
 
         // Manage grid or linear layouts
-        val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         val trackerBuilder: SelectionTracker.Builder<String>?
         if (asGrid) {

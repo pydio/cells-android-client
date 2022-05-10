@@ -32,6 +32,10 @@ import org.koin.androidx.workmanager.dsl.worker
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+val appModule = module {
+    single { CellsPreferences(androidContext().applicationContext) }
+}
+
 val dbModule = module {
 
     // Account DB and corresponding DAO instances
@@ -80,12 +84,20 @@ val serviceModule = module {
     single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
 
     single { AuthService(get()) }
-    single { SessionFactory(get(), get(), get(named("ServerStore")), get(named("TransportStore")), get()) }
+    single {
+        SessionFactory(
+            get(),
+            get(),
+            get(named("ServerStore")),
+            get(named("TransportStore")),
+            get()
+        )
+    }
     single<AccountService> { AccountServiceImpl(get(), get(), get()) }
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    single { NodeService(get(), get(), get()) }
+    single { NodeService(get(), get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get()) }
 
@@ -125,16 +137,4 @@ val viewModelModule = module {
     viewModel { CarouselViewModel(get()) }
 }
 
-// val dbTestModule = module {
-//     single {
-//         // In-Memory database config
-//         Room.inMemoryDatabaseBuilder(
-//             androidContext().applicationContext,
-//             AccountDB::class.java
-//         )
-//             .allowMainThreadQueries()
-//             .build()
-//     }
-// }
-
-val allModules = dbModule + daoModule + serviceModule + viewModelModule
+val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

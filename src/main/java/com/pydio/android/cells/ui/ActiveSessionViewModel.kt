@@ -4,18 +4,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.BackOffTicker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -66,6 +66,9 @@ class ActiveSessionViewModel(
             sessionView = accountService.getLiveSession(accountId)
             workspaces = accountService.getLiveWorkspaces(accountId)
         } else {
+            // Awful tweak to insure late init objects have been initialized to avoid crash
+            sessionView = accountService.getLiveSession("none")
+            workspaces = accountService.getLiveWorkspaces("none")
             Log.e(logTag, "Initializing model with no account ID.")
         }
     }

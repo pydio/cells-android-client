@@ -7,24 +7,23 @@ import org.junit.Test
 import org.koin.core.component.inject
 import org.koin.test.AutoCloseKoinTest
 
-/** Simply insure that the Koin configuration is valid by starting the full android test context */
+/** Test that Koin configuration is valid by starting the full android test context */
 class ModuleCheckTest : AutoCloseKoinTest() {
 
     private val logTag = ModuleCheckTest::class.simpleName
 
     private val networkService by inject<NetworkService>()
 
+    // Check is implicitly done: the whole App is started
+    // and to-be-injected objects have already been instantiated.
+    // If there is a problem, an error should be thrown during @Before phase.
     @Test
-    fun doNothing() {
+    fun simplyStartApplicationContext() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         Log.i(logTag, "Got a context: ${context.packageName}")
         Log.i(logTag, "Network status: ${networkService.networkInfo()?.status}")
-//        Log.i(logTag, "Current state: ${CellsApp.instance.getCurrentState()}")
     }
-
-    // Check is implicitly done: the whole App is started
-    // and to-be-injected objects have already been instantiated.
-    // If there is a problem, an error has already been thrown
+}
 
 //    @Test
 //    fun myModuleCheck() = checkModules {
@@ -40,5 +39,3 @@ class ModuleCheckTest : AutoCloseKoinTest() {
 //            modules(dbTestModule)
 //        }.checkModules()
 //    }
-
-}

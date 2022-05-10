@@ -21,6 +21,7 @@ import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBookmarkListBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
@@ -30,11 +31,13 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent
 
 class BookmarksFragment : Fragment() {
 
     private val logTag = BookmarksFragment::class.java.simpleName
 
+    private val prefs: CellsPreferences by inject()
     private val nodeService: NodeService by inject()
 
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
@@ -94,7 +97,7 @@ class BookmarksFragment : Fragment() {
     }
 
     private fun configureRecyclerAdapter(viewModel: BookmarksViewModel) {
-        val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         val adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
         if (asGrid) {
