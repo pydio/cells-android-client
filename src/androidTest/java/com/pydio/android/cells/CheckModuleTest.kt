@@ -1,31 +1,33 @@
-package com.pydio.android.cells.db
+package com.pydio.android.cells
 
-// import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.app.InstrumentationRegistry
-import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.cells.utils.Log
 import org.junit.Test
-import org.junit.experimental.categories.Category
+import org.koin.core.component.inject
 import org.koin.test.AutoCloseKoinTest
-import org.koin.test.category.CheckModuleTest
-import org.koin.test.check.checkModules
 
-
-//@Category(CheckModuleTest::class)
+/** Simply insure that the Koin configuration is valid by starting the full android test context */
 class ModuleCheckTest : AutoCloseKoinTest() {
 
     private val logTag = ModuleCheckTest::class.simpleName
+
+    private val networkService by inject<NetworkService>()
 
     @Test
     fun doNothing() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         Log.i(logTag, "Got a context: ${context.packageName}")
-        Log.i(logTag, "Current state: ${CellsApp.instance.getCurrentState()}")
+        Log.i(logTag, "Network status: ${networkService.networkInfo()?.status}")
+//        Log.i(logTag, "Current state: ${CellsApp.instance.getCurrentState()}")
     }
+
+    // Check is implicitly done: the whole App is started
+    // and to-be-injected objects have already been instantiated.
+    // If there is a problem, an error has already been thrown
 
 //    @Test
 //    fun myModuleCheck() = checkModules {
-////        val context = InstrumentationRegistry.getInstrumentation().targetContext
 //        modules(dbTestModule)
 //    }
 
@@ -40,9 +42,3 @@ class ModuleCheckTest : AutoCloseKoinTest() {
 //    }
 
 }
-
-//@RunWith(AndroidJUnit4::class)
-//class CheckDbTest : AutoCloseKoinTest() {
-//
-//
-//}
