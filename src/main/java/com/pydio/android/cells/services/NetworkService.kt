@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import com.pydio.android.cells.db.runtime.NetworkInfoDao
 import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,6 +20,8 @@ class NetworkService constructor(
     private val context: Context,
     private val networkDao: NetworkInfoDao,
 ) {
+
+    private val logTag = NetworkService::class.simpleName
 
     private val networkServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + networkServiceJob)
@@ -35,7 +38,9 @@ class NetworkService constructor(
 
     fun networkInfo(): RNetworkInfo? = networkDao.get()
 
-    fun updateStatus(newStatus: String) {
+    fun updateStatus(newStatus: String, errorCode: Int) {
+        // Log.e(logTag, "!!!!! Updating status to $newStatus")
+        // Thread.dumpStack()
         val info = networkDao.get() ?: RNetworkInfo()
         info.status = newStatus
         info.lastCheckedTS = currentTimestamp()

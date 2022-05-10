@@ -21,11 +21,11 @@ import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.areNodeContentEquals
-import com.pydio.cells.api.ErrorCodes
+import com.pydio.android.cells.utils.currentTimestamp
 import java.io.File
 
 class TreeDiff(
-    private val rootId: StateID,
+    private val baseFolderStateId: StateID,
     private val client: Client,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
@@ -55,7 +55,7 @@ class TreeDiff(
 
     private val thumbParPath =
         fileService.dataParentPath(
-            rootId.accountId,
+            baseFolderStateId.accountId,
             AppNames.LOCAL_FILE_TYPE_THUMB
         ) + File.separator
 
@@ -67,7 +67,7 @@ class TreeDiff(
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
-        Log.d(logTag, "Launching diff for $rootId")
+        Log.d(logTag, "Launching diff for $baseFolderStateId")
 
         if (networkService.isNetworkMetered()) {
             downloadThumbs = CellsApp.instance.sharedPreferences.getBoolean(
@@ -83,12 +83,12 @@ class TreeDiff(
         }
 
         // First insure node has not been erased on the server since last visit
-        val local = dao.getNode(rootId.id)
+        val local = dao.getNode(baseFolderStateId.id)
         var remote: FileNode? = null
         try {
-            remote = client.nodeInfo(rootId.workspace, rootId.file)
+            remote = client.nodeInfo(baseFolderStateId.workspace, baseFolderStateId.file)
         } catch (e: SDKException) {
-            val msg = "stat failed at ${rootId}: ${e.message}"
+            val msg = "stat failed at ${baseFolderStateId}: ${e.message}"
             Log.e(logTag, msg)
             // Corner case: connection failed, we just return with no change
             if (e.isConnectionFailedError){
@@ -125,16 +125,28 @@ class TreeDiff(
         }
 
         if (changeNumber > 0) {
-            Log.d(logTag, "Synced node at $rootId with $changeNumber changes")
+            Log.d(logTag, "Synced node at $baseFolderStateId with $changeNumber changes")
         }
 
         return@withContext changeNumber
     }
 
     private suspend fun handleFolder() {
-        val remotes = RemoteNodeIterator(rootId)
-        val locals = dao.getNodesForDiff(rootId.id, rootId.file).iterator()
+        val remotes = RemoteNodeIterator(baseFolderStateId)
+        val locals = dao.getNodesForDiff(baseFolderStateId.id, baseFolderStateId.file).iterator()
         processChanges(remotes, locals)
+
+        // Update info for current folder
+        if (baseFolderStateId.file == "/"){
+            nodeService.getNode(baseFolderStateId)?.let {
+                it.lastCheckTS = currentTimestamp()
+                dao.update(it)
+            }
+        } else if (baseFolderStateId.file != null){
+            client.nodeInfo(baseFolderStateId.workspace, baseFolderStateId.file)?.let { parFolder ->
+                nodeService.upsertNode(RTreeNode.fromFileNode(baseFolderStateId, parFolder), true)
+            }
+        }
     }
 
     private suspend fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
@@ -186,7 +198,7 @@ class TreeDiff(
     private suspend fun putAddChange(remote: FileNode) {
         Log.d(logTag, "add for ${remote.name}")
         changeNumber++
-        val childStateID = rootId.child(remote.name)
+        val childStateID = baseFolderStateId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         nodeService.upsertNode(rNode)
         downloadFilesIfNecessary(remote, childStateID)
@@ -198,7 +210,7 @@ class TreeDiff(
         changeNumber++
 
         // TODO: Insure corner cases are correctly handled, typically on type switch
-        val childStateID = rootId.child(remote.name)
+        val childStateID = baseFolderStateId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         if (local.isFolder() && remote.isFile) {
             deleteLocalFolder(local)
@@ -250,7 +262,7 @@ class TreeDiff(
         if (remote.isImage) {
             if (local.thumbFilename == null || !File(thumbParPath + local.thumbFilename).exists()) {
                 diffScope.launch {
-                    val childStateID = rootId.child(remote.name)
+                    val childStateID = baseFolderStateId.child(remote.name)
                     thumbDL.orderThumbDL(childStateID.id)
                 }
             }

@@ -1,17 +1,14 @@
 package com.pydio.android.cells.transfer
 
 import android.util.Log
-import com.google.gson.Gson
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.FileService
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
-import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.IoHelpers
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,9 +18,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.*
 import kotlin.coroutines.coroutineContext
 
 class ThumbDownloader(
@@ -41,8 +35,9 @@ class ThumbDownloader(
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
     private val fileService: FileService by inject()
+    private val accountService: AccountService by inject()
 
-    private fun download(encodedState: String) {
+    private suspend fun download(encodedState: String) {
 
         val state = StateID.fromId(encodedState)
         val rNode = nodeDB.treeNodeDao().getNode(encodedState)
@@ -56,10 +51,16 @@ class ThumbDownloader(
         node.properties = rNode.properties
         node.meta = rNode.meta
 
-        val parentFolder = fileService.dataParentPath(state.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
-        client.getThumbnail(state, node, File(parentFolder),  thumbSize)?. let {
-            rNode.thumbFilename = it
-            nodeDB.treeNodeDao().update(rNode)
+        val parentFolder =
+            fileService.dataParentPath(state.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+        try {
+            client.getThumbnail(state, node, File(parentFolder), thumbSize)?.let {
+                rNode.thumbFilename = it
+                nodeDB.treeNodeDao().update(rNode)
+            }
+        } catch (e: SDKException) {
+            Log.w(logTag, "could not download thumbnail for $state, error #${e.code}: ${e.message}")
+            // accountService.notifyError(state, e.code)
         }
     }
 

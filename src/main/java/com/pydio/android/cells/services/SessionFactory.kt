@@ -68,23 +68,40 @@ class SessionFactory(
     @Throws(SDKException::class)
     fun getUnlockedClient(accountID: String, forceCall: Boolean = false): Client {
 
-        Log.e(
-            logTag,
-            "... Getting unlocked client, network status: ${networkService.networkInfo()?.status}"
-        )
-
-        // FIXME An idea might be to leave a hook here to enable network status refresh
+        // TODO An idea might be to leave a hook here to enable network status refresh
         if (!forceCall && networkService.networkInfo()?.isOnline() != true) {
-            Log.e(logTag, "... Refreshing network status")
+            Log.d(logTag, "... Refreshing network status")
             try {
-                transportStore.get(accountID).server.serverURL.ping()
-                // No exception, network is back
-                networkService.updateStatus(AppNames.NETWORK_STATUS_OK)
-                Log.e(logTag, "    ---> back online")
+                var serverURL = transportStore.get(accountID)?.server?.serverURL
+                if (serverURL == null) {
+                    for (currentSession in liveSessionDao.getSessions()) {
+                        if (currentSession.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                            serverURL = ServerURLImpl.fromAddress(
+                                currentSession.url,
+                                currentSession.skipVerify()
+                            )
+                            break
+                        }
+                    }
+                }
+                if (serverURL != null) {
+                    transportStore.get(accountID).server.serverURL.ping()
+                    // No exception, network is back
+                    networkService.updateStatus(AppNames.NETWORK_STATUS_OK, 200)
+                    Log.d(logTag, "    ---> back online")
+                } else {
+                    throw SDKException(
+                        ErrorCodes.no_internet,
+                        "Could not check if internet is back"
+                    )
+                }
             } catch (e: Exception) {
                 // Expected, we cannot ping server
-                if (!networkService.isNetworkConnected()) {
-                    networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET)
+//                Log.d(logTag, "   Error while pinging server: " + e.message)
+//                e.printStackTrace()
+                val code = if (e is SDKException) e.code else ErrorCodes.no_internet
+                if (networkService.networkInfo()?.isOffline() != true) {
+                    networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
                 }
                 Log.e(logTag, "    ---> still offline")
                 throw SDKException(ErrorCodes.no_internet, "No internet connection is available")

@@ -12,6 +12,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import java.util.*
 
 @Entity(tableName = "tree_nodes")
@@ -175,7 +176,7 @@ data class RTreeNode(
                 StateID.fromId(stateID.accountId)
                     // Construct the path from file node info
                     .withPath("/${fileNode.workspace}${fileNode.path}")
-            Log.d(logTag, "  - encodesState: ${childStateID.id}")
+            Log.d(logTag, "  - encodedState: ${childStateID.id}")
 
             try {
                 val node = RTreeNode(
@@ -183,7 +184,7 @@ data class RTreeNode(
                     workspace = childStateID.workspace,
                     parentPath = childStateID.parentFile ?: "",
                     name = childStateID.fileName ?: run {
-                        Log.e(logTag, "Using slug intead of filename")
+                        Log.e(logTag, "Using slug instead of filename")
                         childStateID.workspace
                     },
                     uuid = fileNode.id,
@@ -226,13 +227,18 @@ data class RTreeNode(
                     else -> "1_5_${node.name}"
                 }
 
+                val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
+
+                // We force the slash at the end of the encoded state to ease later handling
+                val storedID = // Retrieve the account from the passed state
+                    StateID.fromId(stateID.accountId).withPath("/${node.slug}")
+
                 return RTreeNode(
-                    encodedState = stateID.id,
-                    workspace = node.slug,
+                    encodedState = storedID.id,
+                    workspace = storedID.workspace,
                     parentPath = "",
                     name = node.name,
-                    // TODO rather handle the UUID
-                    uuid = node.slug,
+                    uuid = nodeUuid,
                     etag = "",
                     mime = SdkNames.NODE_MIME_WS_ROOT,
                     size = 0L,

@@ -40,7 +40,11 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     fun dataParentPath(accountId: String, type: String): String {
         val dirName = treeNodeRepository.sessions[accountId]?.dirName
             ?: throw IllegalStateException("No record found for $accountId")
-        val middle = sep + dirName + sep
+        return staticDataParentPath(dirName, type)
+    }
+
+    fun staticDataParentPath(currDirName: String, type: String): String {
+        val middle = sep + currDirName + sep
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_THUMB ->
                 appCacheDir + middle + AppNames.THUMB_PARENT_DIR
@@ -58,6 +62,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             else -> throw IllegalStateException("Unknown file type: $type")
         }
     }
+
 
     /**
      * Get the path to a local resource, if it exists:
@@ -139,27 +144,22 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 //        )
     }
 
-    fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
-        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
+    fun cleanFileCacheFor(stateID: StateID, dirName: String) = serviceScope.launch {
 
         val cache = File(CellsApp.instance.cacheDir.absolutePath + sep + dirName)
         if (cache.exists()) {
             cache.deleteRecursively()
         }
 
-        val tmpCache = File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE))
+        val tmpCache = File(staticDataParentPath(dirName, AppNames.LOCAL_FILE_TYPE_CACHE))
         if (tmpCache.exists()) {
             tmpCache.deleteRecursively()
         }
 
     }
 
-    fun cleanAllLocalFiles(stateID: StateID) = serviceScope.launch {
-        cleanFileCacheFor(stateID)
-
-        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
+    fun cleanAllLocalFiles(stateID: StateID, dirName: String) = serviceScope.launch {
+        cleanFileCacheFor(stateID, dirName)
 
         val files = File(CellsApp.instance.filesDir.absolutePath + sep + dirName)
         if (files.exists()) {

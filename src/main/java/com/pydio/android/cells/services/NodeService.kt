@@ -121,46 +121,54 @@ class NodeService(
     /* Communicate with the DB using suspend functions */
 
     /** Single entry point to insert or update a node */
-    suspend fun upsertNode(newNode: RTreeNode) = withContext(Dispatchers.IO) {
+    suspend fun upsertNode(newNode: RTreeNode, isDiffRoot: Boolean = false) =
+        withContext(Dispatchers.IO) {
 
-        val state = newNode.getStateID()
-        val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
-            ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
-        val ndb = nodeDB(state)
+            val state = newNode.getStateID()
+            val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
+                ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
+            val ndb = nodeDB(state)
 
-        // Also cache offline status and public link URL locally
-        if (!currSession.isRemoteLegacy) {
-            ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
-                newNode.setOfflineRoot(true)
-            }
-        }
-        var addr: String? = null
-        val isShared =
-            newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
-        if (isShared) {
-            val client = accountService.getClient(state)
-            if (client.isLegacy) {
-                addr = client.getShareAddress(state.workspace, state.file)
-            } else {
-                newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                    addr = client.getShareAddress(state.workspace, it)
+            // Also cache offline status and public link URL locally
+            if (!currSession.isRemoteLegacy) {
+                ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
+                    newNode.setOfflineRoot(true)
                 }
             }
-        }
-        newNode.setShared(isShared, addr)
+            var addr: String? = null
+            val isShared =
+                newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
+            if (isShared) {
+                val client = accountService.getClient(state)
+                if (client.isLegacy) {
+                    addr = client.getShareAddress(state.workspace, state.file)
+                } else {
+                    newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                        addr = client.getShareAddress(state.workspace, it)
+                    }
+                }
+            }
+            newNode.setShared(isShared, addr)
 
-        newNode.localModificationTS = newNode.remoteModificationTS
-        newNode.localModificationStatus = null
-        newNode.lastCheckTS = currentTimestamp()
+            newNode.localModificationTS = newNode.remoteModificationTS
+            newNode.localModificationStatus = null
 
-        val old = ndb.treeNodeDao().getNode(newNode.encodedState)
-        if (old == null) {
-            ndb.treeNodeDao().insert(newNode)
-        } else {
-            // FIXME double check that we do not loose any info
-            ndb.treeNodeDao().update(newNode)
+            if (newNode.isFile() || isDiffRoot) {
+                // We only update last check TS on folder if explicitly required by param,
+                // after checking the full content of a folder, in order to differentiate
+                // not-yet loaded folders from empty ones.
+                newNode.lastCheckTS = currentTimestamp()
+            }
+
+            val old = ndb.treeNodeDao().getNode(newNode.encodedState)
+            if (old == null) {
+                ndb.treeNodeDao().insert(newNode)
+            } else {
+                // FIXME double check that we do not loose any info
+                //    Typically we force re-download of thumbs at each update
+                ndb.treeNodeDao().update(newNode)
+            }
         }
-    }
 
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
         nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -208,8 +216,7 @@ class NodeService(
             val client = getClient(stateID)
 
             if (rTreeNode.isShared()) {
-
-                val client = accountService.getClient(stateID)
+//                val client = accountService.getClient(stateID)
                 if (client.isLegacy) {
                     client.unshare(stateID.workspace, stateID.file)
                 } else {
@@ -303,9 +310,9 @@ class NodeService(
     suspend fun launchSync(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         val dao = nodeDB(stateID).offlineRootDao()
-        dao.get(rTreeNode.encodedState)?.let{
+        dao.get(rTreeNode.encodedState)?.let {
             launchSync(it)
-        } ?: let{
+        } ?: let {
             Log.w(logTag, "Could not find offline root for $stateID, aborting")
         }
 
@@ -501,7 +508,7 @@ class NodeService(
             val changeNb = folderDiff.compareWithRemote()
             return@withContext Pair(changeNb, null)
         } catch (e: SDKException) {
-            val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
+            val msg = "could not perform ls for ${stateID.id}"
             handleSdkException(stateID, msg, e)
             return@withContext Pair(0, msg)
         }
@@ -523,7 +530,9 @@ class NodeService(
             //  Should we use 2 distinct tables for cache and offline ?
 
             // Delete  files:
-            fileService.cleanFileCacheFor(account)
+            val dirName = treeNodeRepository.sessions[account.id]?.dirName
+                ?: throw IllegalStateException("Cannot clean cache: no record found for $stateID")
+            fileService.cleanFileCacheFor(account, dirName)
             return@withContext null
         } catch (e: Exception) {
             val msg = "Could not delete account $account"

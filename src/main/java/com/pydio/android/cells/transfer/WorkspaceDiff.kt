@@ -94,17 +94,22 @@ class WorkspaceDiff(
         // We add this both on the ws and on the node table
         val rNode = RWorkspace.createChild(accountId, remote)
         wsDao.insert(rNode)
-        nodeDB.treeNodeDao()
-            .insert(RTreeNode.fromWorkspaceNode(StateID.fromId(rNode.encodedState), remote))
+
+        // Also handle workspace as a RTreeNode to ease browsing and others action on cache
+        val wsState = StateID.fromId(rNode.encodedState)
+        val wsTreeNode = RTreeNode.fromWorkspaceNode(wsState, remote)
+        nodeDB.treeNodeDao().insert(wsTreeNode)
     }
 
     private fun putUpdateChange(remote: WorkspaceNode) {
         Log.d(logTag, "update for ${remote.name}")
         changeNumber++
         val childStateID = accountId.child(remote.slug)
+
+        val wsNode = RWorkspace.createChild(accountId, remote)
+        wsDao.update(wsNode)
+
         val rNode = RTreeNode.fromWorkspaceNode(childStateID, remote)
-        // TODO handle bookmarks
-        // TODO also update the workspace cache?
         nodeDB.treeNodeDao().update(rNode)
     }
 

@@ -3,9 +3,9 @@ package com.pydio.android.cells.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.pydio.android.cells.AppNames
 import com.pydio.cells.api.Server
 import com.pydio.cells.transport.StateID
-import com.pydio.android.cells.AppNames
 
 @Entity(tableName = "accounts")
 data class RAccount(
@@ -28,7 +28,9 @@ data class RAccount(
     @ColumnInfo(name = "server_label") val serverLabel: String?,
 
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
-)
+) {
+    fun skipVerify() = tlsMode != 0
+}
 
 fun toRAccount(username: String, server: Server): RAccount {
     return RAccount(

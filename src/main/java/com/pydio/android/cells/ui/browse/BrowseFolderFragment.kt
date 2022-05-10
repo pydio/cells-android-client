@@ -37,13 +37,9 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.ui.utils.LoadingDialogFragment
-import com.pydio.android.cells.utils.BackStackAdapter
-import com.pydio.android.cells.utils.dumpBackStack
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
-import com.pydio.android.cells.utils.resetToHomeStateIfNecessary
 import com.pydio.android.cells.utils.showLongMessage
-import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -85,19 +81,17 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-//        browseFolderVM.afterCreate(StateID.fromId(args.state))
-
         configureRecyclerAdapter()
 
-        val backPressedCallback = BackStackAdapter.initialised(
-            parentFragmentManager,
-            findNavController(),
-            StateID.fromId(args.state)
-        )
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            backPressedCallback
-        )
+//        val backPressedCallback = BackStackAdapter.initialised(
+//            parentFragmentManager,
+//            findNavController(),
+//            StateID.fromId(args.state)
+//        )
+//        requireActivity().onBackPressedDispatcher.addCallback(
+//            viewLifecycleOwner,
+//            backPressedCallback
+//        )
 
         setHasOptionsMenu(true)
 
@@ -107,16 +101,16 @@ class BrowseFolderFragment : Fragment() {
                     binding.addNodeFab.visibility = View.GONE
                 } else {
                     binding.addNodeFab.visibility = View.VISIBLE
-//                    binding.addNodeFab.setOnClickListener { onFabClicked() }
+                    binding.addNodeFab.setOnClickListener { onFabClicked() }
                 }
             }
         }
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
-        if (browseFolderVM.stateId.isWorkspaceRoot) {
-            binding.addNodeFab.visibility = View.VISIBLE
-        }
-        // Put this also in observer when the above has been fixed
-        binding.addNodeFab.setOnClickListener { onFabClicked() }
+//        if (browseFolderVM.stateId.isWorkspaceRoot) {
+//            binding.addNodeFab.visibility = View.VISIBLE
+//        }
+//        // Put this also in observer when the above has been fixed
+//        binding.addNodeFab.setOnClickListener { onFabClicked() }
 
         binding.forceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
 
@@ -415,10 +409,16 @@ class BrowseFolderFragment : Fragment() {
         override fun onChanged(it: List<RTreeNode>?) {
             it?.let {
                 if (it.isEmpty()) {
-                    binding.emptyContent.visibility = View.VISIBLE
+                    binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
+                    if (browseFolderVM.isLoading?.value == true) {
+                        binding.emptyContentDesc = resources.getString(R.string.loading_message)
+                    } else {
+                        binding.emptyContentDesc = resources.getString(R.string.empty_folder)
+                    }
+
                     adapter.submitList(listOf())
                 } else {
-                    binding.emptyContent.visibility = View.GONE
+                    binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
                     adapter.submitList(it)
                 }
             }

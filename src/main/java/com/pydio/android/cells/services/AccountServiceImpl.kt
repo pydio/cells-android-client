@@ -132,6 +132,9 @@ class AccountServiceImpl(
             val oldAccount = accountDao.getAccount(accountId)
                 ?: return@withContext null // nothing to forget
 
+            val dirName = treeNodeRepository.sessions[accountId]?.dirName
+                ?: throw IllegalStateException("No record found for $stateId")
+
             // Credentials
             if (oldAccount.isLegacy) {
                 legacyCredentialsDao.forgetPassword(accountId)
@@ -140,7 +143,7 @@ class AccountServiceImpl(
             }
 
             val fileService: FileService = get()
-            fileService.cleanAllLocalFiles(stateId)
+            fileService.cleanAllLocalFiles(stateId, dirName)
 
             // Remove rows in the account tables
             sessionDao.forgetSession(accountId)
@@ -249,33 +252,34 @@ class AccountServiceImpl(
                     logTag,
                     "Received error $code for $stateID, old status: ${currAccount.authStatus}"
                 )
-                when {
-                    code == HttpURLConnection.HTTP_UNAUTHORIZED ||
-                            code == ErrorCodes.authentication_required -> {
+                when (code) {
+                    ErrorCodes.unreachable_host,
+                    ErrorCodes.no_internet,
+                    ErrorCodes.con_failed,
+                    ErrorCodes.con_closed,
+                    ErrorCodes.con_read_failed,
+                    ErrorCodes.con_write_failed -> {
+                        Log.e(logTag, "##### Unreachable host")
+
+                        val networkService: NetworkService = get()
+                        if (networkService.networkInfo()?.isOffline() != true) {
+                            networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
+                        }
+                        return@withContext
+                    }
+                    HttpURLConnection.HTTP_UNAUTHORIZED,
+                    ErrorCodes.authentication_required -> {
                         if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
                             currAccount.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
                             accountDao.update(currAccount)
                         }
                         return@withContext
                     }
-                    code == ErrorCodes.no_token_available -> {
+                    ErrorCodes.no_token_available,
+                    ErrorCodes.refresh_token_expired -> {
                         if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
                             currAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                             accountDao.update(currAccount)
-                        }
-                        return@withContext
-                    }
-                    code == ErrorCodes.unreachable_host ||
-                            code == ErrorCodes.no_internet ||
-                            code == ErrorCodes.con_failed ||
-                            code == ErrorCodes.con_closed ||
-                            code == ErrorCodes.con_read_failed ||
-                            code == ErrorCodes.con_write_failed -> {
-                        Log.e(logTag, "##### Unreachable host")
-
-                        val networkService: NetworkService = get()
-                        if (!networkService.isNetworkConnected()){
-                            networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET)
                         }
                         return@withContext
                     }

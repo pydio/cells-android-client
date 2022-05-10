@@ -43,6 +43,8 @@ data class RLiveSession(
     //    - lifecycle state
     //    - auth status
 ) {
+    fun skipVerify() = tlsMode != 0
+
     fun getStateID(): StateID {
         return StateID.fromId(accountID)
     }
