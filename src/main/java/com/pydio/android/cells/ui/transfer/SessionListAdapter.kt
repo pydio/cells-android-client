@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.databinding.ListItemAccountBinding
-import com.pydio.android.cells.db.accounts.RLiveSession
+import com.pydio.android.cells.db.accounts.RSessionView
 
 class SessionListAdapter(
     private val onItemClicked: (stateID: StateID, command: String) -> Unit
-) : ListAdapter<RLiveSession, SessionListAdapter.ViewHolder>(SessionsDiffCallback()) {
+) : ListAdapter<RSessionView, SessionListAdapter.ViewHolder>(SessionsDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -26,7 +26,7 @@ class SessionListAdapter(
     class ViewHolder private constructor(val binding: ListItemAccountBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RLiveSession) {
+        fun bind(item: RSessionView) {
             binding.session = item
             binding.executePendingBindings()
         }
@@ -52,13 +52,13 @@ class SessionListAdapter(
     }
 }
 
-class SessionsDiffCallback : DiffUtil.ItemCallback<RLiveSession>() {
+class SessionsDiffCallback : DiffUtil.ItemCallback<RSessionView>() {
 
-    override fun areItemsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
+    override fun areItemsTheSame(oldItem: RSessionView, newItem: RSessionView): Boolean {
         return oldItem.accountID == newItem.accountID
     }
 
-    override fun areContentsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
+    override fun areContentsTheSame(oldItem: RSessionView, newItem: RSessionView): Boolean {
         return oldItem.authStatus == newItem.authStatus
     }
 }

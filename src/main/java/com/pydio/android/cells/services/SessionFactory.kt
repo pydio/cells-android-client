@@ -3,8 +3,8 @@ package com.pydio.android.cells.services
 import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.accounts.LiveSessionDao
-import com.pydio.android.cells.db.accounts.RLiveSession
+import com.pydio.android.cells.db.accounts.SessionViewDao
+import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
 import com.pydio.android.cells.utils.hasUnMeteredNetwork
 import com.pydio.cells.api.Client
@@ -33,7 +33,7 @@ class SessionFactory(
     credentialService: CredentialService,
     serverStore: Store<Server>,
     private val transportStore: Store<Transport>,
-    private val liveSessionDao: LiveSessionDao,
+    private val sessionViewDao: SessionViewDao,
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
     private val logTag = SessionFactory::class.java.simpleName
@@ -44,7 +44,7 @@ class SessionFactory(
 
     init {
         sessionFactoryScope.launch(Dispatchers.IO) {
-            val sessions = liveSessionDao.getSessions()
+            val sessions = sessionViewDao.getSessions()
             // val accounts = accountService.accountDB.accountDao().getAccounts()
             Log.i(logTag, "... Initialise SessionFactory")
             for (rLiveSession in sessions) {
@@ -74,7 +74,7 @@ class SessionFactory(
             try {
                 var serverURL = transportStore.get(accountID)?.server?.serverURL
                 if (serverURL == null) {
-                    for (currentSession in liveSessionDao.getSessions()) {
+                    for (currentSession in sessionViewDao.getSessions()) {
                         if (currentSession.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
                             serverURL = ServerURLImpl.fromAddress(
                                 currentSession.url,
@@ -85,7 +85,7 @@ class SessionFactory(
                     }
                 }
                 if (serverURL != null) {
-                    transportStore.get(accountID).server.serverURL.ping()
+                    serverURL.ping()
                     // No exception, network is back
                     networkService.updateStatus(AppNames.NETWORK_STATUS_OK, 200)
                     Log.d(logTag, "    ---> back online")
@@ -130,37 +130,37 @@ class SessionFactory(
 
         // At this point we are quite sure we have a connection to the internet...
         // Yet we still code defensively afterwards and correctly handle errors
-        val session: RLiveSession = liveSessionDao.getSession(accountID)
+        val sessionView: RSessionView = sessionViewDao.getSession(accountID)
             ?: run {
                 throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountID")
             }
 
-        if (session.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+        if (sessionView.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
             var currTransport = transportStore.get(accountID)
             if (currTransport == null) {
-                currTransport = prepareTransport(session)
+                currTransport = prepareTransport(sessionView)
             }
             return getClient(currTransport)
         } else {
 
             Log.d(logTag, "... Required session is not connected, listing known sessions:")
-            for (currentSession in liveSessionDao.getSessions()) {
+            for (currentSession in sessionViewDao.getSessions()) {
                 Log.d(logTag, "$currentSession.dbName} / ${currentSession.authStatus}")
             }
 
             throw SDKException(
                 ErrorCodes.authentication_required,
-                "cannot unlock session for $accountID, auth status: " + session.authStatus
+                "cannot unlock session for $accountID, auth status: " + sessionView.authStatus
             )
         }
     }
 
     @Throws(SDKException::class)
-    private fun prepareTransport(session: RLiveSession): Transport {
+    private fun prepareTransport(sessionView: RSessionView): Transport {
         try {
-            val skipVerify = session.tlsMode == 1
-            val serverURL = ServerURLImpl.fromAddress(session.url, skipVerify)
-            return restoreAccount(serverURL, session.username)
+            val skipVerify = sessionView.tlsMode == 1
+            val serverURL = ServerURLImpl.fromAddress(sessionView.url, skipVerify)
+            return restoreAccount(serverURL, sessionView.username)
 
         } catch (se: SDKException) {
 //            Log.e(logTag, "could not resurrect session: " + se.message)

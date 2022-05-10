@@ -10,7 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.db.accounts.RLiveSession
+import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.services.AccountService
@@ -41,7 +41,7 @@ class ActiveSessionViewModel(
     val accountId: String?
         get() = _accountId
 
-    lateinit var liveSession: LiveData<RLiveSession?>
+    lateinit var sessionView: LiveData<RSessionView?>
     lateinit var workspaces: LiveData<List<RWorkspace>>
 
     // Watcher states
@@ -62,11 +62,11 @@ class ActiveSessionViewModel(
     fun afterCreate(accountId: String?) {
         if (accountId != null) {
             _accountId = accountId
-            Log.i(logTag, "Initialising active session for $accountId")
-            liveSession = accountService.getLiveSession(accountId)
+            Log.i(logTag, "Initializing active session for $accountId")
+            sessionView = accountService.getLiveSession(accountId)
             workspaces = accountService.getLiveWorkspaces(accountId)
         } else {
-            Log.e(logTag, "Initialising model with no account ID.")
+            Log.e(logTag, "Initializing model with no account ID.")
         }
     }
 
@@ -85,8 +85,7 @@ class ActiveSessionViewModel(
     }
 
     private suspend fun doPull() {
-
-        if (accountId == null || liveSession.value == null) {
+        if (accountId == null || sessionView.value == null) {
             Log.w(logTag, "No live session for $accountId ")
             return
         }

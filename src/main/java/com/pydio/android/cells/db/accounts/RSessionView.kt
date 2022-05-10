@@ -22,7 +22,7 @@ import com.pydio.android.cells.db.Converters
             "ON sessions.account_id = accounts.account_id"
 )
 @TypeConverters(Converters::class)
-data class RLiveSession(
+data class RSessionView(
     @ColumnInfo(name = "account_id") val accountID: String,
     @ColumnInfo(name = "lifecycle_state") val lifecycleState: String,
     @ColumnInfo(name = "dir_name") var dirName: String,

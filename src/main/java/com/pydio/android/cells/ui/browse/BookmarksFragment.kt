@@ -24,7 +24,6 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
-import com.pydio.android.cells.utils.BackStackAdapter
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -76,7 +75,7 @@ class BookmarksFragment : Fragment() {
 
 //        val activeSession = activeSessionVM.liveSession.value
 //        Log.i(logTag, "onResume: ${activeSession?.accountID}")
-        activeSessionVM.liveSession.observe(viewLifecycleOwner){ activeSession ->
+        activeSessionVM.sessionView.observe(viewLifecycleOwner){ activeSession ->
             activeSession?.let { session ->
                 val accountID = StateID.fromId(session.accountID)
                 bookmarksVM.afterCreate(accountID)

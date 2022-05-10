@@ -62,7 +62,7 @@ class OfflineRootsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        activeSessionVM.liveSession.observe(viewLifecycleOwner) { activeSession ->
+        activeSessionVM.sessionView.observe(viewLifecycleOwner) { activeSession ->
             activeSession?.let { session ->
 
                 val accountID = StateID.fromId(session.accountID)

@@ -7,12 +7,12 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.LegacyCredentialsDao
-import com.pydio.android.cells.db.accounts.LiveSessionDao
 import com.pydio.android.cells.db.accounts.RAccount
-import com.pydio.android.cells.db.accounts.RLiveSession
 import com.pydio.android.cells.db.accounts.RSession
+import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.accounts.SessionDao
+import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.db.accounts.TokenDao
 import com.pydio.android.cells.db.accounts.WorkspaceDao
 import com.pydio.android.cells.db.accounts.toRAccount
@@ -47,29 +47,31 @@ class AccountServiceImpl(
 
     private val accountDao: AccountDao = accountDB.accountDao()
     private val sessionDao: SessionDao = accountDB.sessionDao()
-    private val liveSessionDao: LiveSessionDao = accountDB.liveSessionDao()
+    private val sessionViewDao: SessionViewDao = accountDB.liveSessionDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
     private val tokenDao: TokenDao = accountDB.tokenDao()
     private val legacyCredentialsDao: LegacyCredentialsDao = accountDB.legacyCredentialsDao()
 
-    override suspend fun getSession(stateId: StateID): RLiveSession? {
-        return liveSessionDao.getSession(stateId.accountId)
+    override suspend fun getSession(stateId: StateID): RSessionView? {
+        return sessionViewDao.getSession(stateId.accountId)
     }
 
     override fun getClient(stateId: StateID): Client {
         return sessionFactory.getUnlockedClient(stateId.accountId)
     }
 
-    override fun getLiveSession(accountID: String): LiveData<RLiveSession?> =
-        liveSessionDao.getLiveSession(accountID)
+    override fun getLiveSessions() = sessionViewDao.getLiveSessions()
+
+    override fun getLiveSession(accountID: String): LiveData<RSessionView?> =
+        sessionViewDao.getLiveSession(accountID)
 
     override fun getLiveWorkspaces(accountID: String): LiveData<List<RWorkspace>> =
         workspaceDao.getLiveWorkspaces(accountID)
 
-    override val activeSessionLive: LiveData<RLiveSession?> =
-        liveSessionDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
+    override val liveActiveSessionView: LiveData<RSessionView?> =
+        sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
-    override val liveSessions: LiveData<List<RLiveSession>> = liveSessionDao.getLiveSessions()
+    override val liveSessionViews: LiveData<List<RSessionView>> = sessionViewDao.getLiveSessions()
 
     @Throws(SDKException::class)
     override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String {
@@ -102,13 +104,60 @@ class AccountServiceImpl(
         return state
     }
 
-    override fun listLiveSessions(includeLegacy: Boolean): List<RLiveSession> {
+    override fun listSessionViews(includeLegacy: Boolean): List<RSessionView> {
         return if (includeLegacy) {
-            liveSessionDao.getSessions()
+            sessionViewDao.getSessions()
         } else {
-            liveSessionDao.getCellsSessions()
+            sessionViewDao.getCellsSessions()
         }
     }
+
+    /**
+     * Performs a check on all accounts that are listed as connected
+     * to insure we are still correctly logged in.
+     */
+    override suspend fun checkRegisteredAccounts(): Pair<Int, String?> =
+        withContext(Dispatchers.IO) {
+            try {
+                var changes = 0
+                val accounts = accountDao.getAccounts()
+                for (account in accounts) {
+                    try {
+                        if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                            continue;
+                        }
+                        // TODO rather use an API healthcheck
+                        val currClient = sessionFactory.getUnlockedClient(account.accountID)
+                        if (!currClient.stillAuthenticated()) {
+                            account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+                            accountDao.update(account)
+                            changes++
+                        }
+                    } catch (e: SDKException) {
+                        // First handle network issue
+                        if (isNetworkDownError(e.code)) {
+                            Log.e(logTag, "##### Unreachable host")
+                            val networkService: NetworkService = get()
+                            if (networkService.networkInfo()?.isOffline() != true) {
+                                networkService.updateStatus(
+                                    AppNames.NETWORK_STATUS_NO_INTERNET,
+                                    e.code
+                                )
+                            }
+                            return@withContext Pair(0, "Network down")
+                        }
+                        // TODO insure we do not miss anything
+                        Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
+                        e.printStackTrace()
+                    }
+                }
+                return@withContext Pair(changes, null)
+            } catch (e: SDKException) {
+                val msg = "could not refresh account list"
+                return@withContext Pair(0, msg)
+            }
+        }
+
 
     private suspend fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
@@ -245,28 +294,37 @@ class AccountServiceImpl(
             return@withContext result
         }
 
+
+    private fun isNetworkDownError(code: Int): Boolean {
+        return when (code) {
+            ErrorCodes.unreachable_host,
+            ErrorCodes.no_internet,
+            ErrorCodes.con_failed,
+            ErrorCodes.con_closed,
+            ErrorCodes.con_read_failed,
+            ErrorCodes.con_write_failed -> true
+            else -> false
+        }
+    }
+
     override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
-                Log.i(
-                    logTag,
-                    "Received error $code for $stateID, old status: ${currAccount.authStatus}"
-                )
-                when (code) {
-                    ErrorCodes.unreachable_host,
-                    ErrorCodes.no_internet,
-                    ErrorCodes.con_failed,
-                    ErrorCodes.con_closed,
-                    ErrorCodes.con_read_failed,
-                    ErrorCodes.con_write_failed -> {
-                        Log.e(logTag, "##### Unreachable host")
+                val msg = "Received error $code for $stateID, old status: ${currAccount.authStatus}"
+                Log.i(logTag, msg)
 
-                        val networkService: NetworkService = get()
-                        if (networkService.networkInfo()?.isOffline() != true) {
-                            networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
-                        }
-                        return@withContext
+                // First handle network issue
+                if (isNetworkDownError(code)) {
+                    Log.e(logTag, "##### Unreachable host")
+                    val networkService: NetworkService = get()
+                    if (networkService.networkInfo()?.isOffline() != true) {
+                        networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
                     }
+                    return@withContext
+                }
+
+                // Handle Auth Issue
+                when (code) {
                     HttpURLConnection.HTTP_UNAUTHORIZED,
                     ErrorCodes.authentication_required -> {
                         if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {

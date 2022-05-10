@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
         RLegacyCredentials::class,
         ROAuthState::class,
     ],
-    views = [RLiveSession::class],
+    views = [RSessionView::class],
     version = 1,
     exportSchema = false,
 )
@@ -29,7 +29,7 @@ abstract class AccountDB : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
 
-    abstract fun liveSessionDao(): LiveSessionDao
+    abstract fun liveSessionDao(): SessionViewDao
 
     abstract fun workspaceDao(): WorkspaceDao
 

@@ -28,7 +28,7 @@ class OfflineSyncWorker(
         val startTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
         Log.i(logTag, "... Launching full re-sync in background at $startTS")
 
-        for (session in accountService.listLiveSessions(false)) {
+        for (session in accountService.listSessionViews(false)) {
             if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
                 && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
             ) {

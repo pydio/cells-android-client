@@ -9,15 +9,15 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
-import com.pydio.cells.transport.ServerURLImpl
-import com.pydio.cells.transport.StateID
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainActivity
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentP8CredentialsBinding
 import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /** Handle user filled credentials for P8 remote servers */
 class P8CredentialsFragment : Fragment() {
@@ -72,13 +72,17 @@ class P8CredentialsFragment : Fragment() {
         }
         p8CredVM.isProcessing.observe(viewLifecycleOwner) {
             binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
-
             binding.actionButton.isEnabled = !it
             binding.loginEditText.isEnabled = !it
             binding.passwordEditText.isEnabled = !it
             binding.captchaEditText.isEnabled = !it
-
             binding.executePendingBindings()
+        }
+
+        p8CredVM.errorMessage.observe(viewLifecycleOwner) {
+            it?.let {
+                showLongMessage(requireContext(), it)
+            }
         }
 
         // TODO handle captcha

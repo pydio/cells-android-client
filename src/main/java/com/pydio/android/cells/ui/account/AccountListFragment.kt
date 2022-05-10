@@ -9,13 +9,11 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.AuthActivity
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainActivity
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAccountListBinding
@@ -41,31 +39,23 @@ class AccountListFragment : Fragment() {
     private val sessionFactory: SessionFactory by inject()
     private val accountService: AccountService by inject()
 
-    private val accountListViewModel: AccountListViewModel by viewModel()
+    private val accountListVM: AccountListViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e(logTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
+        Log.d(logTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )
-
-//        val application = requireNotNull(this.activity).application
-//        val viewModelFactory = AccountListViewModel.AccountListViewModelFactory(
-//            CellsApp.instance.accountService,
-//            application
-//        )
-//        val tmp: AccountListViewModel by viewModels { viewModelFactory }
-//        accountListViewModel = tmp
 
         val adapter = AccountListAdapter { accountID, action ->
             onAccountClicked(accountID, action)
         }
         binding.accountList.adapter = adapter
 
-        accountListViewModel.sessions.observe(viewLifecycleOwner) {
+        accountListVM.sessions.observe(viewLifecycleOwner) {
             if (it.isEmpty()) {
                 binding.emptyContent.visibility = View.VISIBLE
                 binding.accountList.visibility = View.GONE
@@ -89,7 +79,7 @@ class AccountListFragment : Fragment() {
         Log.i(logTag, "ID: $accountID, do $action")
         when (action) {
             AppNames.ACTION_LOGIN -> {
-                val currSession = accountListViewModel.sessions.value
+                val currSession = accountListVM.sessions.value
                     ?.filter { it.accountID == accountID }
                     ?.get(0)
                 if (currSession == null) {
@@ -112,12 +102,21 @@ class AccountListFragment : Fragment() {
             }
             AppNames.ACTION_OPEN -> lifecycleScope.launch {
                 accountService.openSession(accountID)
-//                CellsApp.instance.setCurrentState(StateID.fromId(accountID))
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.putExtra(AppNames.EXTRA_STATE, accountID)
                 startActivity(intent)
             }
             else -> return // do nothing
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        accountListVM.resume(true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        accountListVM.pause()
     }
 }

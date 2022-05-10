@@ -44,9 +44,9 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
             inflater, R.layout.more_menu_manage_connection, container, false
         )
 
-        connectionBinding.session = activeSessionVM.liveSession.value
+        connectionBinding.session = activeSessionVM.sessionView.value
         connectionBinding.launchAuth.setOnClickListener {
-            activeSessionVM.liveSession.value?.let {
+            activeSessionVM.sessionView.value?.let {
                 loginAccount(
                     requireActivity(),
                     authService,

@@ -10,7 +10,7 @@
 
         <variable
             name="session"
-            type="com.pydio.android.cells.db.accounts.RLiveSession" />
+            type="com.pydio.android.cells.db.accounts.RSessionView" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

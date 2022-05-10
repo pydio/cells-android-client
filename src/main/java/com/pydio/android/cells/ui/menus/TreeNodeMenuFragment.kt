@@ -16,7 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuAddBinding
@@ -237,7 +236,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
         // Offline is not supported when remote server is P8
         var legacy = false
-        activeSessionVM.liveSession.value?.let {
+        activeSessionVM.sessionView.value?.let {
             legacy = it.isLegacy
         }
         binding.offlineRoot.visibility = if (legacy) {

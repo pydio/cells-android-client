@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAccountHomeBinding
@@ -87,7 +86,7 @@ class AccountHomeFragment : Fragment() {
             }
         }
 
-        activeSessionVM.liveSession.observe(viewLifecycleOwner) {
+        activeSessionVM.sessionView.observe(viewLifecycleOwner) {
             it?.let { liveSession ->
                 (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
                     bar.title = liveSession.serverLabel ?: liveSession.url
@@ -101,7 +100,7 @@ class AccountHomeFragment : Fragment() {
     }
 
     private fun onWsClicked(slug: String, command: String) {
-        val activeSession = activeSessionVM.liveSession.value ?: return
+        val activeSession = activeSessionVM.sessionView.value ?: return
         when (command) {
             AppNames.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
@@ -112,7 +111,7 @@ class AccountHomeFragment : Fragment() {
     }
 
     override fun onPause() {
-        val idStr = activeSessionVM.liveSession.value?.accountID ?: "No active session"
+        val idStr = activeSessionVM.sessionView.value?.accountID ?: "No active session"
         Log.d(logTag, "Pausing: $idStr")
         super.onPause()
         activeSessionVM.pause()

@@ -10,10 +10,10 @@ import androidx.databinding.BindingAdapter
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.AppNames.*
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.accounts.RLiveSession
+import com.pydio.android.cells.db.accounts.RSessionView
 
 @BindingAdapter("accountStatus")
-fun ImageView.setAccountImage(item: RLiveSession?) {
+fun ImageView.setAccountImage(item: RSessionView?) {
     item?.let {
         setImageResource(
             when (item.authStatus) {
@@ -42,7 +42,7 @@ fun ImageView.setAccountImage(item: RLiveSession?) {
 }
 
 @BindingAdapter("authAction")
-fun ImageView.setAuthAction(item: RLiveSession?) {
+fun ImageView.setAuthAction(item: RSessionView?) {
     item?.let {
         setImageResource(
             when (item.authStatus) {
@@ -59,7 +59,7 @@ fun ImageView.setAuthAction(item: RLiveSession?) {
 }
 
 @BindingAdapter("account_primary_text")
-fun TextView.setAccountPrimaryText(item: RLiveSession?) {
+fun TextView.setAccountPrimaryText(item: RSessionView?) {
     item?.let {
         var legacy = ""
         if (item.isLegacy) {
@@ -71,14 +71,14 @@ fun TextView.setAccountPrimaryText(item: RLiveSession?) {
 
 @SuppressLint("SetTextI18n")
 @BindingAdapter("account_secondary_text")
-fun TextView.setAccountSecondaryText(item: RLiveSession?) {
+fun TextView.setAccountSecondaryText(item: RSessionView?) {
     item?.let {
         text = "${item.username}@${item.url}"
     }
 }
 
 @BindingAdapter("session_status_desc")
-fun TextView.setSessionStatusDesc(item: RLiveSession?) {
+fun TextView.setSessionStatusDesc(item: RSessionView?) {
     item?.let {
         val errorMsg = this.resources.getString(
             when (item.authStatus) {
@@ -99,7 +99,7 @@ fun TextView.setSessionStatusDesc(item: RLiveSession?) {
 }
 
 @BindingAdapter("accountHomePrimary")
-fun TextView.setAccountHomePrimary(item: RLiveSession?) {
+fun TextView.setAccountHomePrimary(item: RSessionView?) {
     item?.let {
         // text = this.resources.getString(R.string.account_server_label, item.url)
         //text = it.username.uppercase(Locale.getDefault())
@@ -108,7 +108,7 @@ fun TextView.setAccountHomePrimary(item: RLiveSession?) {
 }
 
 @BindingAdapter("accountHomeSecondary")
-fun TextView.setAccountHomeSecondary(item: RLiveSession?) {
+fun TextView.setAccountHomeSecondary(item: RSessionView?) {
     item?.let {
 //        text = this.resources.getString(R.string.account_logged_in_as_label, item.username)
         text = it.url
@@ -116,7 +116,7 @@ fun TextView.setAccountHomeSecondary(item: RLiveSession?) {
 }
 
 @BindingAdapter("decorateWithStateColor")
-fun View.setStateColor(item: RLiveSession?) {
+fun View.setStateColor(item: RSessionView?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         // Do nothing for the time being
         return

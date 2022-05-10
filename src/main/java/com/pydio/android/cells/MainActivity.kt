@@ -6,6 +6,7 @@ import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +15,6 @@ import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         val accId = activeSessionVM.accountId
 
         // Observe current live session to update the UI
-        activeSessionVM.liveSession.observe(this) {
+        activeSessionVM.sessionView.observe(this) {
             it?.let { liveSession ->
 
                 // Change default theme based on current session status
@@ -235,19 +235,19 @@ class MainActivity : AppCompatActivity() {
         var done = false
         when (it.itemId) {
             R.id.offline_root_list_destination -> {
-                activeSessionVM.liveSession.value?.let { _ ->
+                activeSessionVM.sessionView.value?.let { _ ->
                     navController.navigate(MainNavDirections.openOfflineRoots())
                     done = true
                 }
             }
             R.id.bookmark_list_destination -> {
-                activeSessionVM.liveSession.value?.let { _ ->
+                activeSessionVM.sessionView.value?.let { _ ->
                     navController.navigate(MainNavDirections.openBookmarks())
                     done = true
                 }
             }
             R.id.clear_cache -> {
-                activeSessionVM.liveSession.value?.let { session ->
+                activeSessionVM.sessionView.value?.let { session ->
                     clearCache(binding.root.context, session.accountID, nodeService)
                     done = true
                 }
@@ -312,14 +312,14 @@ class MainActivity : AppCompatActivity() {
             // no accountID => we are on the account page and the re-log button is not shown
             return
         }
-        activeSessionVM.liveSession.observe(this) {
+        activeSessionVM.sessionView.observe(this) {
             it?.let { liveSession ->
                 val isDisconnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
                 connexionAlarmBtn.isVisible = isDisconnected
             }
         }
         connexionAlarmBtn.setOnMenuItemClickListener {
-            activeSessionVM.liveSession.value?.let {
+            activeSessionVM.sessionView.value?.let {
                 val action = MainNavDirections.openManageConnection(it.accountID)
                 navController.navigate(action)
             }
@@ -330,9 +330,13 @@ class MainActivity : AppCompatActivity() {
         activeSessionVM.networkInfo.observe(this) {
             Log.e(logTag, "--- observing network info, new event")
             it?.let { networkInfo ->
-                val isDisconnected = networkInfo.isOffline()
-                Log.e(logTag, "--- current status: ${networkInfo.status} (disconnected: $isDisconnected)")
-                binding.offlineBanner.isVisible = isDisconnected
+                val offlineBannerState = if (networkInfo.isOffline())
+                    View.VISIBLE else View.GONE
+                Log.e(
+                    logTag, "--- current status: ${networkInfo.status} " +
+                            "(disconnected: ${networkInfo.isOffline()})"
+                )
+                binding.offlineBanner.visibility = offlineBannerState
                 binding.executePendingBindings()
             }
         }
@@ -447,13 +451,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun retrieveCurrentContext() {
-            if (activeSessionVM.liveSession.value == null) {
+            if (activeSessionVM.sessionView.value == null) {
                 showMessage(baseContext, "Cannot search with no active session")
                 return
             }
             // showMessage(baseContext, "About to navigate")
 
-            stateId = StateID.fromId(activeSessionVM.liveSession.value!!.accountID)
+            stateId = StateID.fromId(activeSessionVM.sessionView.value!!.accountID)
             uiContext = when (navController.currentDestination!!.id) {
                 R.id.bookmark_list_destination -> AppNames.CUSTOM_PATH_BOOKMARKS
                 else -> ""
