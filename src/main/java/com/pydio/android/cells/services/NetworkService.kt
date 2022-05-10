@@ -6,8 +6,41 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.lifecycle.LiveData
+import com.pydio.android.cells.db.runtime.NetworkInfoDao
+import com.pydio.android.cells.db.runtime.RNetworkInfo
+import com.pydio.android.cells.utils.currentTimestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-class NetworkService constructor(private val context: Context) {
+class NetworkService constructor(
+    private val context: Context,
+    private val networkDao: NetworkInfoDao,
+) {
+
+    private val networkServiceJob = Job()
+    private val serviceScope = CoroutineScope(Dispatchers.IO + networkServiceJob)
+
+    init {
+        serviceScope.launch {
+            networkDao.get() ?: let {
+                networkDao.insert(RNetworkInfo())
+            }
+        }
+    }
+
+    fun getLiveStatus(): LiveData<RNetworkInfo> = networkDao.getLive()
+
+    fun networkInfo(): RNetworkInfo? = networkDao.get()
+
+    fun updateStatus(newStatus: String) {
+        val info = networkDao.get() ?: RNetworkInfo()
+        info.status = newStatus
+        info.lastCheckedTS = currentTimestamp()
+        networkDao.update(info)
+    }
 
     fun isNetworkConnected(): Boolean {
         var result = false

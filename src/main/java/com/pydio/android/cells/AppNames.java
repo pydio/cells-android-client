@@ -91,8 +91,13 @@ public interface AppNames {
     String CUSTOM_PATH_OFFLINE = "/__offline__";
     String CUSTOM_PATH_SHARES = "/__shares__";
 
-    // TODO finalize auth state management
+    // Network status
+    String NETWORK_STATUS_UNKNOWN = "unknown";
+    String NETWORK_STATUS_NO_INTERNET = "no_internet";
+    String NETWORK_STATUS_METERED = "metered";
+    String NETWORK_STATUS_OK = "ok";
     // Account Authentication States
+    // TODO finalize auth state management
     String AUTH_STATUS_NEW = "new";
     String AUTH_STATUS_NO_CREDS = "no-credentials";
     String AUTH_STATUS_UNAUTHORIZED = "unauthorized";

@@ -1,7 +1,18 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import com.pydio.cells.api.*
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.db.accounts.LiveSessionDao
+import com.pydio.android.cells.db.accounts.RLiveSession
+import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
+import com.pydio.android.cells.utils.hasUnMeteredNetwork
+import com.pydio.cells.api.Client
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.Server
+import com.pydio.cells.api.Store
+import com.pydio.cells.api.Transport
 import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
@@ -11,12 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.accounts.LiveSessionDao
-import com.pydio.android.cells.db.accounts.RLiveSession
-import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
-import com.pydio.android.cells.utils.hasUnMeteredNetwork
 
 /**
  * The android specific session factory wraps the Java SDK Server and Client Factories,
@@ -24,6 +29,7 @@ import com.pydio.android.cells.utils.hasUnMeteredNetwork
  * It also holds server and transport memory stores that are used by the SDK to manage clients.
  */
 class SessionFactory(
+    private val networkService: NetworkService,
     credentialService: CredentialService,
     serverStore: Store<Server>,
     private val transportStore: Store<Transport>,
@@ -60,7 +66,31 @@ class SessionFactory(
     }
 
     @Throws(SDKException::class)
-    fun getUnlockedClient(accountID: String): Client {
+    fun getUnlockedClient(accountID: String, forceCall: Boolean = false): Client {
+
+        Log.e(
+            logTag,
+            "... Getting unlocked client, network status: ${networkService.networkInfo()?.status}"
+        )
+
+        // FIXME An idea might be to leave a hook here to enable network status refresh
+        if (!forceCall && networkService.networkInfo()?.isOnline() != true) {
+            Log.e(logTag, "... Refreshing network status")
+            try {
+                transportStore.get(accountID).server.serverURL.ping()
+                // No exception, network is back
+                networkService.updateStatus(AppNames.NETWORK_STATUS_OK)
+                Log.e(logTag, "    ---> back online")
+            } catch (e: Exception) {
+                // Expected, we cannot ping server
+                if (!networkService.isNetworkConnected()) {
+                    networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET)
+                }
+                Log.e(logTag, "    ---> still offline")
+                throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
+            }
+        }
+
         if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
         }

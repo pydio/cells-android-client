@@ -12,7 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.pydio.android.cells.db.accounts.RLiveSession
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.BackOffTicker
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit
  */
 class ActiveSessionViewModel(
     private val accountService: AccountService,
+    private val networkService: NetworkService,
     id: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
@@ -31,6 +34,9 @@ class ActiveSessionViewModel(
     private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // Business objects
+    val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
+    val isOnline = networkService.isNetworkConnected()
+
     private var _accountId: String? = null
     val accountId: String?
         get() = _accountId

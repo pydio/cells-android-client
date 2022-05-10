@@ -14,6 +14,7 @@ import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -23,10 +24,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.databinding.ActivityMainBinding
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
@@ -34,6 +31,10 @@ import com.pydio.android.cells.ui.bindings.getWsIconForMenu
 import com.pydio.android.cells.ui.home.clearCache
 import com.pydio.android.cells.ui.search.SearchFragment
 import com.pydio.android.cells.utils.showMessage
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
 /**
@@ -303,27 +304,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configureConnexionAlarm(menu: Menu) {
+
+        // The connection alarm button
         val connexionAlarmBtn = menu.findItem(R.id.open_connexion_dialog)
         connexionAlarmBtn.isVisible = false
-
         if (activeSessionVM.accountId == null) {
             // no accountID => we are on the account page and the re-log button is not shown
             return
         }
-
         activeSessionVM.liveSession.observe(this) {
             it?.let { liveSession ->
                 val isDisconnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
                 connexionAlarmBtn.isVisible = isDisconnected
             }
         }
-
         connexionAlarmBtn.setOnMenuItemClickListener {
             activeSessionVM.liveSession.value?.let {
                 val action = MainNavDirections.openManageConnection(it.accountID)
                 navController.navigate(action)
             }
             return@setOnMenuItemClickListener true
+        }
+
+        // The "no internet banner"
+        activeSessionVM.networkInfo.observe(this) {
+            Log.e(logTag, "--- observing network info, new event")
+            it?.let { networkInfo ->
+                val isDisconnected = networkInfo.isOffline()
+                Log.e(logTag, "--- current status: ${networkInfo.status} (disconnected: $isDisconnected)")
+                binding.offlineBanner.isVisible = isDisconnected
+                binding.executePendingBindings()
+            }
         }
     }
 

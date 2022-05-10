@@ -23,7 +23,7 @@ interface AccountService {
 
     suspend fun isClientConnected(stateID: String): Boolean
 
-    suspend fun notifyError(stateID: StateID, code: Int): Unit?
+    suspend fun notifyError(stateID: StateID, code: Int)
 
     fun getLiveSession(accountID: String): LiveData<RLiveSession?>
 

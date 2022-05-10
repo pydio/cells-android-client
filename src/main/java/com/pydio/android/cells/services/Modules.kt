@@ -3,6 +3,7 @@ package com.pydio.android.cells.services
 import androidx.room.Room
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.db.accounts.AccountDB
+import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.account.AccountListViewModel
 import com.pydio.android.cells.ui.auth.OAuthViewModel
@@ -43,15 +44,14 @@ val dbModule = module {
             .build()
     }
 
-//    // Runtime DB
-//    single {
-//        Room.databaseBuilder(
-//            androidContext().applicationContext,
-//            RuntimeDB::class.java,
-//            "runtime_objects"
-//        ).build()
-//    }
-
+    // Runtime DB
+    single {
+        Room.databaseBuilder(
+            androidContext().applicationContext,
+            RuntimeDB::class.java,
+            "runtimedb"
+        ).build()
+    }
 }
 
 val daoModule = module {
@@ -63,13 +63,13 @@ val daoModule = module {
     single { get<AccountDB>().tokenDao() }
     single { get<AccountDB>().workspaceDao() }
 
-    //    single { get<RuntimeDB>().transferDao() }
+    single { get<RuntimeDB>().networkInfoDao() }
 }
 
 val serviceModule = module {
 
     // Manage network state
-    single { NetworkService(androidContext()) }
+    single { NetworkService(androidContext(), get()) }
 
     // Manage accounts and authentication
     single<Store<Server>>(named("ServerStore")) { MemoryStore<Server>() }
@@ -80,7 +80,7 @@ val serviceModule = module {
     single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
 
     single { AuthService(get()) }
-    single { SessionFactory(get(), get(named("ServerStore")), get(named("TransportStore")), get()) }
+    single { SessionFactory(get(), get(), get(named("ServerStore")), get(named("TransportStore")), get()) }
     single<AccountService> { AccountServiceImpl(get(), get(), get()) }
 
     // Business services
@@ -106,7 +106,7 @@ val viewModelModule = module {
     viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
-    viewModel { ActiveSessionViewModel(get()) }
+    viewModel { ActiveSessionViewModel(get(), get()) }
     viewModel { params -> BrowseFolderViewModel(params.get(), get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
 

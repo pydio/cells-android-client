@@ -80,7 +80,11 @@ class AccountServiceImpl(
         return state.id
     }
 
-    override suspend fun registerAccount(username: String, server: Server, authStatus: String): StateID {
+    override suspend fun registerAccount(
+        username: String,
+        server: Server,
+        authStatus: String
+    ): StateID {
 
         val account = toRAccount(username, server)
         account.authStatus = authStatus
@@ -239,34 +243,51 @@ class AccountServiceImpl(
         }
 
     override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
-        Log.i(logTag, "Received error $code for $stateID")
         try {
-            accountDao.getAccount(stateID.accountId)?.let {
-                when (code) {
-                    HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                            it.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-                            accountDao.update(it)
+            accountDao.getAccount(stateID.accountId)?.let { currAccount ->
+                Log.i(
+                    logTag,
+                    "Received error $code for $stateID, old status: ${currAccount.authStatus}"
+                )
+                when {
+                    code == HttpURLConnection.HTTP_UNAUTHORIZED ||
+                            code == ErrorCodes.authentication_required -> {
+                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                            currAccount.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+                            accountDao.update(currAccount)
                         }
+                        return@withContext
                     }
-                    ErrorCodes.no_token_available -> {
-                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                            accountDao.update(it)
+                    code == ErrorCodes.no_token_available -> {
+                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                            currAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                            accountDao.update(currAccount)
                         }
+                        return@withContext
                     }
-                    // TODO unreachable host: pause session
-//                    ErrorCodes.unreachable_host -> {
-//                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-//                            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-//                            accountDao.update(it)
-//                        }
-//                    }
+                    code == ErrorCodes.unreachable_host ||
+                            code == ErrorCodes.no_internet ||
+                            code == ErrorCodes.con_failed ||
+                            code == ErrorCodes.con_closed ||
+                            code == ErrorCodes.con_read_failed ||
+                            code == ErrorCodes.con_write_failed -> {
+                        Log.e(logTag, "##### Unreachable host")
+
+                        val networkService: NetworkService = get()
+                        if (!networkService.isNetworkConnected()){
+                            networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET)
+                        }
+                        return@withContext
+                    }
+                    else -> {
+                        Log.e(logTag, "##### unexpected error $code")
+                    }
                 }
             }
         } catch (e: Exception) {
             val msg = "Could not update account for $stateID after error $code"
             logException(logTag, msg, e)
         }
+        return@withContext
     }
 }
