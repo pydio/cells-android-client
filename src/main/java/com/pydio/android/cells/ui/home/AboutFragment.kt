@@ -13,13 +13,18 @@ import com.pydio.cells.transport.ClientData
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAboutBinding
+import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.android.cells.utils.getTimestampAsString
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class AboutFragment : Fragment() {
 
     private val logTag = AboutFragment::class.simpleName
+
+    // We inject this to trigger state saving so that we stay on this page upon screen rotation.
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +47,6 @@ class AboutFragment : Fragment() {
         binding.aboutVersionDate.text =
             resources.getString(R.string.version_date_display, dateString)
 
-
         binding.mainWebsiteButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(resources.getString(R.string.main_website))
@@ -58,7 +62,7 @@ class AboutFragment : Fragment() {
                 getTimestampAsENString(data.buildTimestamp),
                 getOSCurrentVersion(),
             )
-            val summary = "\n\nPlease describe your problem: \n"
+            val summary = "\n\nPlease describe your problem (in English): \n"
 
             val intent = Intent(Intent.ACTION_SEND)
                 .setType("text/plain")
@@ -71,16 +75,6 @@ class AboutFragment : Fragment() {
                 Log.e(logTag, "Could not trigger email for: $appInfo")
             }
         }
-
-//        val networkStatsManager = getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
-//        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-//        val manager = DataUsageManager(networkStatsManager, telephonyManager.subscriberId)
-//        // Monitor single interval
-//        manager.getUsage(Interval.today, NetworkType.METERED)
-//        // Monitor multiple interval
-//        manager.getMultiUsage(listOf(Interval.month, Interval.last30days), NetworkType.WIFI)
-//        // Observe realtime usage
-//        manager.getRealtimeUsage(NetworkType.UNMETERED).subscribe()
 
         return binding.root
     }
