@@ -13,7 +13,7 @@ interface SessionViewDao {
     @Query("SELECT * FROM RSessionView")
     fun getSessions(): List<RSessionView>
 
-    @Query("SELECT * FROM RSessionView where is_legacy = 'false'")
+    @Query("SELECT * FROM RSessionView where is_legacy = 0")
     fun getCellsSessions(): List<RSessionView>
 
     @Query("SELECT * FROM RSessionView where account_id = :accountID")

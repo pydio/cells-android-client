@@ -176,7 +176,7 @@ fun setupOfflineWorker(mainApplication: CellsApp) {
 
         workManager.enqueueUniquePeriodicWork(
             OfflineSyncWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.REPLACE,
             repeatingRequest
         )
 
@@ -201,7 +201,7 @@ private fun fromFreqToMinuteInterval(freq: String?): Long {
  */
 private fun cancelPendingWorkManager(mainApplication: CellsApp) {
     runBlocking {
-//        WorkManager.getInstance(mainApplication).cancelAllWork()
+        WorkManager.getInstance(mainApplication).cancelAllWork()
         // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
 
         // Test launch with one time worker

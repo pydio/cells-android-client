@@ -29,11 +29,14 @@ class OfflineSyncWorker(
         Log.i(logTag, "... Launching full re-sync in background at $startTS")
 
         for (session in accountService.listSessionViews(false)) {
+
             if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
                 && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
             ) {
-                Log.i(logTag, "... Launching sync for ${session.getStateID()}")
+                Log.d(logTag, "... Launching sync for ${session.getStateID()}")
                 nodeService.syncAll(session.getStateID())
+//            } else {
+//                Log.e(logTag, "   state: ${session.lifecycleState}, authStatus ${session.authStatus}")
             }
         }
         val endTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
