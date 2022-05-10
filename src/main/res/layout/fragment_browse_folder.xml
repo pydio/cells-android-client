@@ -3,6 +3,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="emptyContentDesc"
+            type="String" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/browse_folder_fragment"
         android:layout_width="match_parent"
@@ -10,11 +17,12 @@
 
         <include
             android:id="@+id/empty_content"
-            layout="@layout/list_empty_background"
+            layout="@layout/list_empty_background_dynamic"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:emptyContentDesc="@{emptyContentDesc}" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/force_refresh"
@@ -27,8 +35,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="@dimen/margin_small"
-                android:paddingBottom="@dimen/recycler_bottom_fab_padding"/>
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+                android:paddingBottom="@dimen/recycler_bottom_fab_padding" />
+            <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:contentDescription="@string/node_add_button"
+            android:contentDescription="@string/node_add_button_description"
             android:padding="@dimen/fab_padding"
             android:visibility="gone"
             app:maxImageSize="@dimen/fab_inner_image_size"

@@ -64,6 +64,7 @@ class BrowseFolderViewModel(
             Log.d(logTag, "... Next delay: $nd - $stateId")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
+        Log.i(logTag, "paused")
     }
 
     private suspend fun doPull() {
@@ -97,7 +98,6 @@ class BrowseFolderViewModel(
     }
 
     fun pause() {
-        Log.i(logTag, "paused")
         _isActive = false
     }
 

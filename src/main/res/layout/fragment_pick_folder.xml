@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:contentDescription="@string/node_add_button"
+            android:contentDescription="@string/node_add_button_description"
             android:padding="@dimen/fab_padding"
             android:visibility="visible"
             app:maxImageSize="@dimen/fab_inner_image_size"
