@@ -13,10 +13,10 @@ import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.pydio.cells.api.SdkNames
-import com.pydio.cells.utils.Str
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.cells.api.SdkNames
+import com.pydio.cells.utils.Str
 import java.io.File
 
 @BindingAdapter("offlineRootTitle")
@@ -38,13 +38,20 @@ fun TextView.setOfflineRootDesc(item: RLiveOfflineRoot?) {
         return
     }
 
-    val mTimeValue = DateUtils.formatDateTime(
-        this.context,
-        item.lastCheckTs * 1000L,
-        FORMAT_ABBREV_RELATIVE
-    )
+    val prefix = resources.getString(R.string.last_check)
+
+    val mTimeValue = if (item.lastCheckTs > 1) {
+        DateUtils.formatDateTime(
+            this.context,
+            item.lastCheckTs * 1000L,
+            FORMAT_ABBREV_RELATIVE
+        )
+    } else {
+        resources.getString(R.string.last_check_never)
+    }
+
     val sizeValue = formatShortFileSize(this.context, item.size)
-    text = "$mTimeValue • $sizeValue"
+    text = "$prefix: $mTimeValue • $sizeValue"
 }
 
 @BindingAdapter("isOffline")
@@ -90,7 +97,8 @@ fun ImageView.setOfflineRootThumb(item: RLiveOfflineRoot?, thumbDirPath: String?
             .into(this)
     } else {
         // Log.d("offlineRootThumb", "no thumb found for ${item.name} @ $thumbPath")
-        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+//        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
     }
 }
 
@@ -118,7 +126,8 @@ fun ImageView.setOfflineRootCardThumb(item: RLiveOfflineRoot?, thumbDirPath: Str
             .transform(CenterCrop())
             .into(this)
     } else {
-        // Log.d("offlineRootCardThumb", "no thumb found for ${item.name} @ $thumbPath")
-        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
     }
 }
+
+

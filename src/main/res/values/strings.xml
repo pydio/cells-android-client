@@ -98,6 +98,8 @@
     <string name="account_logged_in_as_label">Logged in as %s</string>
     <string name="category_cells">Cells</string>
     <string name="category_workspaces">Workspaces</string>
+    <string name="last_check">Last check</string>
+    <string name="last_check_never">never</string>
 
     <string name="no_internet">No internet connection</string>
     <string name="empty_content_message">No content here yet</string>
