@@ -22,13 +22,10 @@
     <string name="action_settings">Einstellungen</string>
     <string name="action_clear_cache">Cache löschen</string>
     <!-- Main Menu (left drawer) -->
-    <!-- Header -->
-    <string name="exit_description">Die Anwendung beenden</string>
-    <string name="switch_account_description">Einen anderen Remote-Server wählen</string>
-    <string name="logo_description">Pydio Anwendungslogo</string>
     <!-- Section titles -->
     <string name="my_workspaces">Meine Arbeitsumgebungen</string>
     <string name="quick_access">Schnellzugriff</string>
+    <string name="my_account">Mein Konto</string>
     <string name="nav_open">Öffnen</string>
     <string name="nav_close">Schließen</string>
     <!-- Various -->
@@ -77,7 +74,6 @@
     <string name="account_list_none">Noch kein Konto wurde konfiguriert…</string>
     <string name="account_details_title">Kontodetailstitel</string>
     <string name="account_details_desc">Konto-Beschreibung</string>
-    <!--    <string name="oauth_code_flow_title">Code flow processor</string>-->
     <!-- Browse management -->
     <string name="ws_list_subtitle">Wählen Sie eine Arbeitsumgebung zum Durchsuchen</string>
     <string name="browse_list_desc">Durchsuchen Sie Ihre Remote-Server</string>
@@ -87,6 +83,10 @@
     <string name="account_logged_in_as_label">Eingeloggt als %s</string>
     <string name="category_cells">Zellen</string>
     <string name="category_workspaces">Arbeitsumgebungen</string>
+    <string name="no_internet">Keine Internetverbindung</string>
+    <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
+    <string name="empty_folder">Dieser Ordner ist leer</string>
+    <string name="loading_message">Bitte warten Sie, während der Inhalt geladen wird…</string>
     <plurals name="selected_count">
         <item quantity="one">%d Element ausgewählt</item>
         <item quantity="other">%d Elemente ausgewählt</item>
@@ -159,8 +159,8 @@
     <string name="confirm_account_deletion_desc">Die Verbindungsinformationen für Ihren Remote-Server werden vergessen und alle zwischengespeicherten Daten und Dateien werden gelöscht.</string>
     <string name="confirm_account_logout_title">Vom Konto\n%s abmelden?</string>
     <string name="confirm_account_logout_desc">Dadurch werden Ihre Anmeldedaten für diesen Server gelöscht: Sie müssen sich erneut anmelden, um eine Verbindung herzustellen.</string>
-    <string name="my_account">Mein Konto</string>
-    <string name="node_add_button_description">Erstellen oder importieren</string>
+    <string name="confirm_cache_deletion_message">Dadurch wird zwar Speicherplatz freigegeben, aber ein erneutes Herunterladen der Miniaturansichten, des Index und des Cache erzwungen.</string>
+    <string name="confirm_cache_deletion_title">Cache löschen</string>
     <string name="create_account">Neues Konto einrichten</string>
     <string name="content_description_media">Vorschau des Inhalts</string>
     <string name="dialog_create_folder_title">Ordner erstellen</string>
@@ -173,22 +173,11 @@
     </plurals>
     <string name="confirm_permanent_deletion_title">Dauerhafte Löschung bestätigen</string>
     <string name="confirm_permanent_deletion_desc">%s wird endgültig gelöscht</string>
-    <string name="confirm_empty_recycle_message">Damit wird der Papierkorb für %s geleert, alle geleerten Inhalte werden endgültig gelöscht</string>
+    <string name="confirm_empty_recycle_message">Damit wird der Papierkorb für %s geleert, alle Inhalte werden endgültig gelöscht.</string>
     <string name="rename_dialog_title">Umbenennen</string>
     <string name="rename_dialog_message">Bitte geben Sie einen neuen Namen für: \n%s ein</string>
     <string name="rename_dialog_confirm_button">Umbenennen</string>
-    <!-- Accessibility various content -->
-    <string name="loading_description">Aktuelles Element wird aktualisiert</string>
-    <string name="thumb_description">Inhaltsvorschau</string>
-    <string name="folder_icon_description">Ordnericon</string>
-    <string name="empty_content_icon_description">Leeres Listensymbol</string>
-    <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
-    <string name="confirm_cache_deletion_message">Dadurch wird zwar Speicherplatz freigegeben, aber ein erneutes Herunterladen der Miniaturansichten, des Index und des Cache erzwungen.</string>
-    <string name="confirm_cache_deletion_title">Cache löschen</string>
-    <string name="switch_account">Konto wechseln</string>
-    <string name="switch_workspace">Arbeitsumgebung wechseln</string>
-    <string name="parent_folder">Übergeordneter Ordner</string>
-    <string name="order_by_title">Sortierreihenfolge</string>
+    <!-- Settings -->
     <string name="pref_category_title_recycler">Listen anpassen (falls zutreffend)</string>
     <string name="choose_list_layout">Layout-Typ</string>
     <string name="use_larger_grid">Größeres Raster verwenden</string>
@@ -207,4 +196,17 @@
     <string name="pref_feedback_send_desc">Technische Probleme melden oder neue Funktionen vorschlagen</string>
     <string name="choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
     <string name="choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
+    <!-- Accessibility various content -->
+    <string name="node_add_button_description">Erstellen oder importieren</string>
+    <string name="exit_description">Die Anwendung beenden</string>
+    <string name="switch_account_description">Einen anderen Remote-Server wählen</string>
+    <string name="logo_description">Pydio Anwendungslogo</string>
+    <string name="loading_description">Aktuelles Element wird aktualisiert</string>
+    <string name="thumb_description">Inhaltsvorschau</string>
+    <string name="folder_icon_description">Ordnericon</string>
+    <string name="empty_content_icon_description">Leeres Listensymbol</string>
+    <string name="switch_account">Konto wechseln</string>
+    <string name="switch_workspace">Arbeitsumgebung wechseln</string>
+    <string name="parent_folder">Übergeordneter Ordner</string>
+    <string name="order_by_title">Sortierreihenfolge</string>
 </resources>
