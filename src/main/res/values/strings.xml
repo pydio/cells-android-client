@@ -88,7 +88,6 @@
     <string name="account_list_none">No account has been configured yet…</string>
     <string name="account_details_title">Account detail title</string>
     <string name="account_details_desc">Account details description</string>
-    <!--    <string name="oauth_code_flow_title">Code flow processor</string>-->
 
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choose a workspace to browse</string>
@@ -100,6 +99,7 @@
     <string name="category_cells">Cells</string>
     <string name="category_workspaces">Workspaces</string>
 
+    <string name="no_internet">No internet connection</string>
     <string name="empty_content_message">No content here yet</string>
     <string name="empty_folder">This folder is empty</string>
     <string name="loading_message">Please wait while loading content…</string>
