@@ -22,13 +22,10 @@
     <string name="action_settings">Paramètres</string>
     <string name="action_clear_cache">Vider le cache</string>
     <!-- Main Menu (left drawer) -->
-    <!-- Header -->
-    <string name="exit_description">Quitter l\'application</string>
-    <string name="switch_account_description">Choisir un autre serveur distant</string>
-    <string name="logo_description">Logo de l\'application Pydio</string>
     <!-- Section titles -->
     <string name="my_workspaces">Mes espaces de travail</string>
     <string name="quick_access">Raccourcis</string>
+    <string name="my_account">Mon Compte</string>
     <string name="nav_open">Ouvrir</string>
     <string name="nav_close">Fermer</string>
     <!-- Various -->
@@ -77,7 +74,6 @@
     <string name="account_list_none">Aucun compte n\'a encore été configuré…</string>
     <string name="account_details_title">Détails du compte</string>
     <string name="account_details_desc">Description du compte</string>
-    <!--    <string name="oauth_code_flow_title">Code flow processor</string>-->
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choisir un espace de travail à parcourir</string>
     <string name="browse_list_desc">Parcourir les serveurs distants</string>
@@ -87,6 +83,10 @@
     <string name="account_logged_in_as_label">Connecté en tant que %s</string>
     <string name="category_cells">Cellules</string>
     <string name="category_workspaces">Espaces de travail</string>
+    <string name="no_internet">Aucune connexion internet</string>
+    <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
+    <string name="empty_folder">Ce dossier est vide</string>
+    <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
@@ -159,8 +159,8 @@
     <string name="confirm_account_deletion_desc">Cela effacera les informations de connexion de votre serveur distant et supprimera également toutes les données et fichiers relatifs à ce compte du cache.</string>
     <string name="confirm_account_logout_title">Se déconnecter de\n%s ?</string>
     <string name="confirm_account_logout_desc">Cela effacera vos identifiants pour ce serveur : vous devrez vous re-identifier pour vous connecter.</string>
-    <string name="my_account">Mon Compte</string>
-    <string name="node_add_button_description">Créer ou importer</string>
+    <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
+    <string name="confirm_cache_deletion_title">Vider le cache</string>
     <string name="create_account">Créer un compte</string>
     <string name="content_description_media">Aperçu du contenu</string>
     <string name="dialog_create_folder_title">Créer un dossier</string>
@@ -173,22 +173,11 @@
     </plurals>
     <string name="confirm_permanent_deletion_title">Confirmer la suppression définitive</string>
     <string name="confirm_permanent_deletion_desc">%s sera supprimé définitivement</string>
-    <string name="confirm_empty_recycle_message">Cela va vider la corbeille pour %s, tout le contenu mis à la corbeille sera définitivement supprimé</string>
+    <string name="confirm_empty_recycle_message">Cela va vider la corbeille pour %s, tout le contenu mis à la corbeille sera définitivement supprimé.</string>
     <string name="rename_dialog_title">Renommer</string>
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
-    <!-- Accessibility various content -->
-    <string name="loading_description">L\'élément courant est en cours d\'actualisation</string>
-    <string name="thumb_description">Aperçu du contenu</string>
-    <string name="folder_icon_description">Icône de dossier</string>
-    <string name="empty_content_icon_description">Icône de liste vide</string>
-    <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
-    <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
-    <string name="confirm_cache_deletion_title">Vider le cache</string>
-    <string name="switch_account">Changer de compte</string>
-    <string name="switch_workspace">Changer d\'espace de travail</string>
-    <string name="parent_folder">Dossier parent</string>
-    <string name="order_by_title">Ordre de tri</string>
+    <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="choose_list_layout">Type de mise en page</string>
     <string name="use_larger_grid">Utiliser une grille plus grande</string>
@@ -207,4 +196,17 @@
     <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
     <string name="choose_list_offline_frequency_title">Fréquence de synchronisation</string>
     <string name="choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
+    <!-- Accessibility various content -->
+    <string name="node_add_button_description">Créer ou importer</string>
+    <string name="exit_description">Quitter l\'application</string>
+    <string name="switch_account_description">Choisir un autre serveur distant</string>
+    <string name="logo_description">Logo de l\'application Pydio</string>
+    <string name="loading_description">L\'élément courant est en cours d\'actualisation</string>
+    <string name="thumb_description">Aperçu du contenu</string>
+    <string name="folder_icon_description">Icône de dossier</string>
+    <string name="empty_content_icon_description">Icône de liste vide</string>
+    <string name="switch_account">Changer de compte</string>
+    <string name="switch_workspace">Changer d\'espace de travail</string>
+    <string name="parent_folder">Dossier parent</string>
+    <string name="order_by_title">Ordre de tri</string>
 </resources>
