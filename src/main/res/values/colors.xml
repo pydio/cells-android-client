@@ -78,6 +78,15 @@
     <color name="danger">#BA1B1B</color>
     <color name="transparent">#00000000</color>
 
+    <!-- Document icon colors -->
+    <color name="material_orange">#FF9800</color>
+    <color name="material_deep_orange">#FF5722</color>
+    <color name="material_red">#F44336</color>
+    <color name="material_green">#4CAF50</color>
+    <color name="material_blue">#2196F3</color>
+    <color name="material_indigo">#3F51B5</color>
+    <color name="material_neutral">#5C5F61</color>
+
     <!-- App specific indirections: these colors must be overridden for the dark mode -->
     <color name="cells_on_primary_container">@color/md_theme_light_onPrimaryContainer</color>
     <color name="not_selected_background">@color/md_theme_light_surface</color>
