@@ -7,10 +7,11 @@ public interface AppNames {
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 
     /* SHARED PREFERENCE KEYS */
-    String PREF_KEY_CURRENT_STATE = "current_state";
+    String PREF_KEY_INSTALLED_VERSION_CODE = "installed_version_code";
+    // String PREF_KEY_CURRENT_STATE = "current_state";
     String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
     String PREF_KEY_CURR_RECYCLER_ORDER = "current_recycler_order";
-    String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
+    // String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
     String PREF_KEY_METERED_DL_THUMBS = "on_metered_dl_thumbs";
     String PREF_KEY_METERED_DL_FILES = "on_metered_dl_files";
     String PREF_KEY_OFFLINE_FREQ = "current_offline_frequency";

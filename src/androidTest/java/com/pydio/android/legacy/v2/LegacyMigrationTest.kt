@@ -92,6 +92,17 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         return true
     }
 
+    private suspend fun uploadFiles(
+        context: Context,
+        migrationServiceV2: MigrationServiceV2
+    ) {
+        // Helper to easily replay the migration: upload necessary files to one of the newly restored account
+        // so that they are available. Put them in resource folder to relaunch the migration on an empty instance.
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val targetState = StateID("admin", "https://files.example.com", "/common-files")
+        backupLegacyFiles(context, migrationServiceV2, targetState)
+    }
+
     private suspend fun backupLegacyFiles(
         context: Context,
         migrationServiceV2: MigrationServiceV2,

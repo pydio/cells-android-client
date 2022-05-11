@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -34,7 +35,7 @@ class TransferService(
 ) {
 
     private val logTag = TransferService::class.java.simpleName
-//     private val mimeMap = MimeTypeMap.getSingleton()
+    private val mimeMap = MimeTypeMap.getSingleton()
 
     private val transferServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
