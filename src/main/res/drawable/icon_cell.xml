@@ -9,7 +9,7 @@
         </shape>
     </item>
     <item
-        android:drawable="@drawable/cells_icon"
+        android:drawable="@drawable/file_cells"
         android:gravity="center"
         android:top="@dimen/grid_ws_icon_margin"
         android:bottom="@dimen/grid_ws_icon_margin"

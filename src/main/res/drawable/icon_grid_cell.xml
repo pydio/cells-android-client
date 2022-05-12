@@ -12,7 +12,7 @@
     </item>
     <item
         android:bottom="@dimen/grid_icon_inner_margin"
-        android:drawable="@drawable/cells_icon"
+        android:drawable="@drawable/file_cells"
         android:end="@dimen/grid_icon_inner_margin"
         android:gravity="center"
         android:left="@dimen/grid_icon_inner_margin"

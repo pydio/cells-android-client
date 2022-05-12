@@ -238,7 +238,7 @@ fun getComposedDrawable(context: Context, mime: String, sortName: String?): Laye
 fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?): LayerDrawable {
     val background = ResourcesCompat.getDrawable(
         context.resources,
-        R.drawable.grid_icon_background,
+        R.drawable.item_background,
         context.theme
     )
     val foreground =
@@ -269,7 +269,7 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
             val prefix = sortName ?: ""
             when {
                 prefix.startsWith("1_2") -> R.drawable.file_folder_shared_outline
-                prefix.startsWith("1_8") -> R.drawable.cells_icon
+                prefix.startsWith("1_8") -> R.drawable.file_cells
                 else -> R.drawable.file_folder_outline
             }
         }
