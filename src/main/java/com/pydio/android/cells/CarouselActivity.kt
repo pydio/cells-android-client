@@ -65,18 +65,26 @@ class CarouselActivity : AppCompatActivity() {
         Log.e(logTag, "handleIntent, bundle: $savedInstanceState")
         Log.e(logTag, "has extra: ${intent.hasExtra(AppNames.EXTRA_STATE)}")
 
-        if (intent.hasExtra(AppNames.EXTRA_STATE)) {
+        var state: StateID? = null
+        if (savedInstanceState != null) {
+            val stateStr = savedInstanceState.getString(AppNames.EXTRA_STATE)
+            // TODO switch query depending on the context (browse, bookmark, offline...)
+            // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
+            state = StateID.fromId(stateStr)
+        } else if (intent.hasExtra(AppNames.EXTRA_STATE)) {
             val stateStr: String = intent.getStringExtra(AppNames.EXTRA_STATE)!!
             // TODO switch query depending on the context (browse, bookmark, offline...)
             // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
-            val state = StateID.fromId(stateStr)
-            carouselVM.afterCreate(state.parent(), state)
+            state = StateID.fromId(stateStr)
+        }
 
+        state?.let {
+            carouselVM.afterCreate(state.parent(), state)
             carouselVM.allChildren.observe(this) {
                 carouselVM.updateElements(it)
             }
-
         }
+
         // TODO handle errors
     }
 
@@ -93,17 +101,10 @@ class CarouselActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
-
-
-        // setTheme(android.R.style.Theme_Black_NoTitleBar)
-//         supportActionBar?.hide()
-//         binding.invalidateAll()
     }
 
     private fun setupCarousel() {
-        val ml = binding.motionLayout
-        Log.d(logTag, "Motion layout is shown: ${ml.isShown}")
-
+//        val ml = binding.motionLayout
         binding.carousel.setAdapter(object : Carousel.Adapter {
 
             override fun count(): Int {
@@ -123,17 +124,18 @@ class CarouselActivity : AppCompatActivity() {
                         Glide.with(this@CarouselActivity)
                             .load(R.drawable.loading_animation2)
                             .into(view)
-
                     }
                 }
             }
 
             override fun onNewItem(index: Int) {
+                //Log.e(logTag, "on new Item")
                 // Retrieve the encoded state of the current item and store it in the view model
                 // to stay at the same index upon restart / configuration change.
                 carouselVM.elements.value?.let {
                     val currItem = it[index]
                     carouselVM.setActive(currItem.getStateID())
+                    //Log.e(logTag, "set active: ${currItem.getStateID()}")
                 }
             }
         })
@@ -153,7 +155,12 @@ class CarouselActivity : AppCompatActivity() {
     }
 
     private fun jumpToIndex() {
-        val currItems = carouselVM.elements.value!!
+
+        val currItems = carouselVM.elements.value ?: run {
+            Log.e(logTag, "Could not jump to index, carousel has no elements")
+            return
+        }
+
         var index: Int = -1
         var i = 0
         for (currNode in currItems) {
@@ -163,7 +170,9 @@ class CarouselActivity : AppCompatActivity() {
             }
             i++
         }
-        Log.d(logTag, "... Opening carousel at index: $index")
+
+        val msg = "... Open for ${StateID.fromId(carouselVM.currActive.id)} at index: $index"
+        Log.d(logTag, msg)
 
         if (index > 0) {
             binding.carousel.jumpToIndex(index)
