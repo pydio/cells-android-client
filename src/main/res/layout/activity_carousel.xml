@@ -77,12 +77,12 @@
             android:orientation="vertical"
             app:layout_constraintGuide_end="0dp" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="0dp" />
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/guideline3"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintGuide_end="0dp" />-->
 
         <androidx.constraintlayout.helper.widget.Carousel
             android:id="@+id/carousel"
@@ -93,9 +93,13 @@
             app:carousel_forwardTransition="@+id/forward"
             app:carousel_nextState="@+id/next"
             app:carousel_previousState="@+id/previous"
+            app:carousel_infinite="true"
             app:carousel_touchUpMode="carryVelocity"
-            app:carousel_touchUp_dampeningFactor="0.8"
+            app:carousel_touchUp_dampeningFactor="0.7"
             app:constraint_referenced_ids="imageView0,imageView1,imageView2,imageView3,imageView4" />
+
+<!--        app:carousel_touchUpMode="immediateStop"-->
+<!--        app:carousel_touchUp_dampeningFactor="0.5"-->
 
     </com.pydio.android.cells.SavingMotionLayout>
 </layout>
