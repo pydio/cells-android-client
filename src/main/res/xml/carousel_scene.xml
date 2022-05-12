@@ -15,7 +15,8 @@
     <Transition
         android:id="@+id/backward"
         motion:constraintSetEnd="@+id/previous"
-        motion:constraintSetStart="@+id/start">
+        motion:constraintSetStart="@+id/start"
+        motion:duration="1000">
         <OnSwipe
             motion:dragDirection="dragRight"
             motion:touchAnchorSide="right" />
