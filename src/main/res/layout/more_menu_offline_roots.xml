@@ -72,7 +72,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/keep_offline"
-                android:src="@drawable/ic_baseline_offline_pin_24"
+                android:src="@drawable/ic_outline_download_done_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
