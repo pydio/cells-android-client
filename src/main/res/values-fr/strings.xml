@@ -83,9 +83,12 @@
     <string name="account_logged_in_as_label">Connecté en tant que %s</string>
     <string name="category_cells">Cellules</string>
     <string name="category_workspaces">Espaces de travail</string>
+    <string name="last_check">Dernière vérif.</string>
+    <string name="last_check_never">jamais</string>
     <string name="no_internet">Aucune connexion internet</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="empty_folder">Ce dossier est vide</string>
+    <string name="empty_cache_and_server_unreachable">Impossible de lister le contenu du dossier :\nAucune connexion au serveur distant…</string>
     <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
