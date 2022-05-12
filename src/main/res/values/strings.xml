@@ -104,6 +104,7 @@
     <string name="no_internet">No internet connection</string>
     <string name="empty_content_message">No content here yet</string>
     <string name="empty_folder">This folder is empty</string>
+    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>
     <string name="loading_message">Please wait while loading content…</string>
 
     <plurals name="selected_count">

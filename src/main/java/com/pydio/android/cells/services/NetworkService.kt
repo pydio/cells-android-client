@@ -2,19 +2,22 @@
 
 package com.pydio.android.cells.services
 
+import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.TrafficStats
 import android.os.Build
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.db.runtime.NetworkInfoDao
 import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.utils.currentTimestamp
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.*
 
 class NetworkService constructor(
     private val context: Context,
@@ -122,6 +125,42 @@ class NetworkService constructor(
         }
 
         return result
+    }
+
+// FIXME moved here from main activity.
+        // Not sure if it still works
+        
+// This was in MainActivity.OnCreate method
+//        NetworkStatusHelper(this@MainActivity).observe(this, {
+//            showMessage(
+//                this@MainActivity,
+//                when (it) {
+//                    NetworkStatus.Available -> "Network Connection Established"
+//                    NetworkStatus.Unavailable -> "No Internet"
+//                }
+//            )
+//        })
+
+    private fun networkUsage(context: Context) {
+        // Get running processes
+        // val manager = getSystemService(AppCompatActivity.ACTIVITY_SERVICE) as ActivityManager
+        val manager = getSystemService(context, ActivityManager::class.java) as ActivityManager
+
+        val runningApps = manager.runningAppProcesses
+        for (runningApp in runningApps) {
+            val received = TrafficStats.getUidRxBytes(runningApp.uid)
+            val sent = TrafficStats.getUidTxBytes(runningApp.uid)
+            android.util.Log.d(
+                logTag, java.lang.String.format(
+                    Locale.getDefault(),
+                    "uid: %1d - name: %s: Sent = %1d, Received = %1d",
+                    runningApp.uid,
+                    runningApp.processName,
+                    sent,
+                    received
+                )
+            )
+        }
     }
 
 }

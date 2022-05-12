@@ -3,9 +3,9 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/main_nav"
     app:startDestination="@id/account_home_destination">
+    <!--    app:startDestination="@id/account_list_destination">-->
 
     <!-- GLOBAL ACTIONS -->
     <action
@@ -13,7 +13,7 @@
         app:destination="@id/account_list_destination" />
 
     <action
-        android:id="@+id/open_workspaces"
+        android:id="@+id/open_account_home"
         app:destination="@id/account_home_destination" />
 
     <action
@@ -31,6 +31,11 @@
     <action
         android:id="@+id/open_transfers"
         app:destination="@id/transfer_list_destination" />
+
+    <!-- TODO implement this -->
+    <!--    <action-->
+    <!--        android:id="@+id/open_pick_folder"-->
+    <!--        app:destination="@id/pick_folder_destination" />-->
 
     <action
         android:id="@+id/search_edit_view"
@@ -116,6 +121,16 @@
             app:destination="@id/tree_node_more_menu" />
     </fragment>
 
+    <!-- TODO stay in the same navigation graph when choosing a target location.-->
+    <!--    <fragment-->
+    <!--        android:id="@+id/pick_folder_destination"-->
+    <!--        android:name="com.pydio.android.cells.ui.transfer.PickFolderFragment"-->
+    <!--        tools:layout="@layout/fragment_pick_folder">-->
+    <!--        <argument-->
+    <!--            android:name="state"-->
+    <!--            app:argType="string" />-->
+    <!--    </fragment>-->
+
     <!-- ACCOUNT MANAGEMENT -->
 
     <fragment
@@ -167,17 +182,6 @@
             android:name="contextType"
             app:argType="string" />
     </dialog>
-
-    <!--    <dialog-->
-    <!--        android:id="@+id/multi_node_more_menu"-->
-    <!--        android:name="com.pydio.android.cells.ui.menus.MultiNodeMenuFragment">-->
-    <!--        <argument-->
-    <!--            android:name="state"-->
-    <!--            app:argType="com.pydio.cells.api.ui.Message" />-->
-    <!--        <argument-->
-    <!--            android:name="contextType"-->
-    <!--            app:argType="string" />-->
-    <!--    </dialog>-->
 
     <dialog
         android:id="@+id/sort_by_more_menu"

@@ -245,7 +245,7 @@ class AccountServiceImpl(
         return withContext(Dispatchers.IO) {
 
             // First put other opened sessions in the background
-            val tmpSessions = sessionDao.foregroundSessions()
+            val tmpSessions = sessionDao.listAllForegroundSessions()
             for (currSession in tmpSessions) {
                 currSession.lifecycleState = AppNames.LIFECYCLE_STATE_BACKGROUND
                 sessionDao.update(currSession)

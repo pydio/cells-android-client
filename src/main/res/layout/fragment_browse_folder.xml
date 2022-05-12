@@ -19,10 +19,14 @@
             android:id="@+id/empty_content"
             layout="@layout/list_empty_background_dynamic"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:visibility="gone"
             app:emptyContentDesc="@{emptyContentDesc}" />
+
+        <!--        android:layout_marginTop="@dimen/margin_large"-->
+        <!--        android:paddingTop="@dimen/margin_large"-->
+        <!--        android:layout_gravity="top"-->
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/force_refresh"

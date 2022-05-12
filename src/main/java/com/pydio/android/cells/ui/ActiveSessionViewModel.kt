@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.runtime.RNetworkInfo
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
  */
 class ActiveSessionViewModel(
     private val accountService: AccountService,
-    private val networkService: NetworkService,
+    networkService: NetworkService,
     id: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
@@ -35,7 +36,7 @@ class ActiveSessionViewModel(
 
     // Business objects
     val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
-    val isOnline = networkService.isNetworkConnected()
+    private val isOnline = networkService.isNetworkConnected()
 
     private var _accountId: String? = null
     val accountId: String?
@@ -44,10 +45,17 @@ class ActiveSessionViewModel(
     lateinit var sessionView: LiveData<RSessionView?>
     lateinit var workspaces: LiveData<List<RWorkspace>>
 
+    fun isServerReachable():Boolean {
+        if (sessionView.value == null){
+            return false
+        }
+        return isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+    }
+
     // Watcher states
     private var _isRunning = false
-    val isRunning: Boolean
-        get() = _isRunning
+//    val isRunning: Boolean
+//        get() = _isRunning
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
 

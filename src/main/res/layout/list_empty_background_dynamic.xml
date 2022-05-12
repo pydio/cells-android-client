@@ -10,7 +10,6 @@
     </data>
 
     <LinearLayout
-
         android:id="@+id/view_empty_content_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -29,8 +28,6 @@
             android:id="@+id/empty_content_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:singleLine="true"
             android:text="@{emptyContentDesc}" />
 
     </LinearLayout>

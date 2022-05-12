@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.databinding.ActivityLandBinding
 import com.pydio.android.cells.db.accounts.AccountDao
+import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.legacy.v2.MainDB
@@ -31,6 +32,7 @@ class LandActivity : AppCompatActivity() {
     private val logTag = LandActivity::class.simpleName
     private val accountService: AccountService by inject()
     private val accountDao: AccountDao by inject()
+    private val sessionDao: SessionDao by inject()
     private val prefs: CellsPreferences by inject()
 
     private lateinit var binding: ActivityLandBinding
@@ -70,6 +72,11 @@ class LandActivity : AppCompatActivity() {
             }
             1 -> { // Only one: force state to its root
                 stateID = StateID.fromId(accounts[0].accountID)
+            }
+            else -> {
+                // If a session is listed as in foreground, we open this one
+                val currSession = withContext(Dispatchers.IO) { sessionDao.getForegroundSession() }
+                stateID = StateID.fromId(currSession?.accountID)
             }
             // else we navigate to the MainActivity with no state,
             //  that should led us to the account list

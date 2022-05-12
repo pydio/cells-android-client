@@ -9,9 +9,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.AuthActivity
 import com.pydio.android.cells.MainActivity
@@ -23,6 +20,9 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.tasks.loginAccount
 import com.pydio.android.cells.ui.common.deleteAccount
 import com.pydio.android.cells.ui.common.logoutAccount
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * Holds a list with the defined accounts and their status to switch between accounts
@@ -105,6 +105,8 @@ class AccountListFragment : Fragment() {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.putExtra(AppNames.EXTRA_STATE, accountID)
                 startActivity(intent)
+//                val action = MainNavDirections.openFolder(accountID)
+//                findNavController().navigate(action)
             }
             else -> return // do nothing
         }

@@ -30,19 +30,22 @@ interface SessionDao {
     @Query("SELECT * FROM sessions")
     fun getLiveSessions(): LiveData<List<RSession>>
 
-    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
-    fun getForegroundSession(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): LiveData<RSession?>
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState LIMIT 1")
+    fun getForegroundSession(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): RSession?
+
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState")
+    fun getLiveForegroundSession(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): LiveData<RSession?>
 
     /**
      * Convenience method to insure we reset all sessions to be in the background before
      * putting one live.
      * // TODO rather return not paused sessions
      */
-    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
-    fun foregroundSessions(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): List<RSession>
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState")
+    fun listAllForegroundSessions(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): List<RSession>
 
-    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
-    fun getBackgroundSessions(state: String = AppNames.LIFECYCLE_STATE_BACKGROUND): List<RSession>
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState")
+    fun listAllBackgroundSessions(lifecycleState: String = AppNames.LIFECYCLE_STATE_BACKGROUND): List<RSession>
 
     @Query("SELECT * FROM sessions WHERE dir_name = :dirName")
     fun getWithDirName(dirName: String): List<RSession>

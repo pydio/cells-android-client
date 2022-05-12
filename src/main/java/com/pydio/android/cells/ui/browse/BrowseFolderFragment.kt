@@ -29,13 +29,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CarouselActivity
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBrowseFolderBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.ui.utils.LoadingDialogFragment
 import com.pydio.android.cells.utils.externallyView
@@ -43,6 +43,7 @@ import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.android.cells.utils.showLongMessage
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -62,6 +63,7 @@ class BrowseFolderFragment : Fragment() {
     private val nodeService: NodeService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val browseFolderVM: BrowseFolderViewModel by viewModel { parametersOf(args.state) }
     private lateinit var binding: FragmentBrowseFolderBinding
 
@@ -84,17 +86,6 @@ class BrowseFolderFragment : Fragment() {
         )
 
         configureRecyclerAdapter()
-
-//        val backPressedCallback = BackStackAdapter.initialised(
-//            parentFragmentManager,
-//            findNavController(),
-//            StateID.fromId(args.state)
-//        )
-//        requireActivity().onBackPressedDispatcher.addCallback(
-//            viewLifecycleOwner,
-//            backPressedCallback
-//        )
-
         setHasOptionsMenu(true)
 
         browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
@@ -107,12 +98,6 @@ class BrowseFolderFragment : Fragment() {
                 }
             }
         }
-        // TODO workspace root is not a RTreeNode => we must handle it explicitly.
-//        if (browseFolderVM.stateId.isWorkspaceRoot) {
-//            binding.addNodeFab.visibility = View.VISIBLE
-//        }
-//        // Put this also in observer when the above has been fixed
-//        binding.addNodeFab.setOnClickListener { onFabClicked() }
 
         binding.forceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
 
@@ -412,7 +397,10 @@ class BrowseFolderFragment : Fragment() {
             it?.let {
                 if (it.isEmpty()) {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
-                    if (browseFolderVM.isLoading?.value == true) {
+                    if (!activeSessionVM.isServerReachable()) {
+                        binding.emptyContentDesc =
+                            resources.getString(R.string.empty_cache_and_server_unreachable)
+                    } else if (browseFolderVM.isLoading.value == true) {
                         binding.emptyContentDesc = resources.getString(R.string.loading_message)
                     } else {
                         binding.emptyContentDesc = resources.getString(R.string.empty_folder)

@@ -1,8 +1,6 @@
 package com.pydio.android.cells
 
-import android.app.ActivityManager
 import android.graphics.drawable.Drawable
-import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -36,7 +34,6 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.*
 
 /**
  * Central activity for browsing, managing accounts and settings.
@@ -57,14 +54,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var encodedState = savedInstanceState?.getString(AppNames.EXTRA_STATE)
-        if (Str.empty(encodedState)) {
-            encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
-        }
-        val accountState = encodedState?.let { StateID.fromId(it).accountId }
-        Log.d(logTag, "onCreate for: ${StateID.fromId(encodedState)}")
-
-        activeSessionVM.afterCreate(accountState)
+        val encodedState = savedInstanceState?.getString(AppNames.EXTRA_STATE)
+            ?: intent.getStringExtra(AppNames.EXTRA_STATE)
+        val stateID = StateID.fromId(encodedState)
+        Log.d(logTag, "onCreate for: $stateID")
+        activeSessionVM.afterCreate(stateID?.accountId)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.mainToolbar)
@@ -80,16 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         configureNavigationDrawer()
 
-//        NetworkStatusHelper(this@MainActivity).observe(this, {
-//            showMessage(
-//                this@MainActivity,
-//                when (it) {
-//                    NetworkStatus.Available -> "Network Connection Established"
-//                    NetworkStatus.Unavailable -> "No Internet"
-//                }
-//            )
-//        })
-        handleStateOrIntent(savedInstanceState)
+        handleCustomNavigation(stateID)
     }
 
 
@@ -121,22 +106,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         Log.d(logTag, "onResume, intent: $intent")
-//        Log.d(logTag, "#### Calling network usage for: ${activeSessionVM.accountId}")
-//        networkUsage()
         super.onResume()
     }
 
-    private fun handleStateOrIntent(savedInstanceState: Bundle?) {
+    private fun handleCustomNavigation(stateID: StateID?) {
 
-        var stateId = savedInstanceState?.getString(AppNames.EXTRA_STATE)
-        if (Str.empty(stateId)) {
-            stateId = intent.getStringExtra(AppNames.EXTRA_STATE)
-        }
-        if (Str.empty(stateId)) {
-            navController.navigate(MainNavDirections.openAccountList())
-            return
-        }
-        StateID.fromId(stateId)?.let {
+        // No use, this is the default
+//        if (stateID == null) {
+//            navController.navigate(MainNavDirections.openAccountList())
+//            return
+//        }
+//        stateID?.let {
+//            val action = when {
+//                Str.notEmpty(it.workspace) ->
+//                    MainNavDirections.openFolder(it.id)
+//                else -> MainNavDirections.openAccountHome(it.id)
+//            }
+//            navController.navigate(action)
+//        }
+
+        stateID?.let {
             when {
                 Str.notEmpty(it.workspace) -> {
                     val action = MainNavDirections.openFolder(it.id)
@@ -144,26 +133,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
 
-    private fun networkUsage() {
-        // Get running processes
-        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val runningApps = manager.runningAppProcesses
-        for (runningApp in runningApps) {
-            val received = TrafficStats.getUidRxBytes(runningApp.uid)
-            val sent = TrafficStats.getUidTxBytes(runningApp.uid)
-            Log.d(
-                logTag, java.lang.String.format(
-                    Locale.getDefault(),
-                    "uid: %1d - name: %s: Sent = %1d, Received = %1d",
-                    runningApp.uid,
-                    runningApp.processName,
-                    sent,
-                    received
-                )
-            )
-        }
     }
 
     private fun configureNavigationDrawer() {
@@ -334,10 +304,10 @@ class MainActivity : AppCompatActivity() {
             it?.let { networkInfo ->
                 val offlineBannerState = if (networkInfo.isOffline())
                     View.VISIBLE else View.GONE
-              /*  Log.e(
-                    logTag, "--- current status: ${networkInfo.status} " +
-                            "(disconnected: ${networkInfo.isOffline()})"
-                )*/
+                /*  Log.e(
+                      logTag, "--- current status: ${networkInfo.status} " +
+                              "(disconnected: ${networkInfo.isOffline()})"
+                  )*/
                 binding.offlineBanner.visibility = offlineBannerState
                 binding.executePendingBindings()
             }
