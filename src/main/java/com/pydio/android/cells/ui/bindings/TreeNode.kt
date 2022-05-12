@@ -12,6 +12,7 @@ import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
@@ -73,7 +74,7 @@ fun TextView.setNodePath(item: RTreeNode?) {
 @BindingAdapter("parentPath")
 fun TextView.setParentPath(item: RTreeNode?) {
     item?.let {
-        text = StateID.fromId(item.encodedState).parentFolder().path
+        text = StateID.fromId(item.encodedState).parentPath
     }
 }
 
@@ -218,18 +219,34 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
 }
 
 fun getComposedDrawable(context: Context, mime: String, sortName: String?): LayerDrawable {
-    val background = context.resources.getDrawable(R.drawable.list_icon_background, context.theme)
+    val background = ResourcesCompat.getDrawable(
+        context.resources,
+        R.drawable.list_icon_background,
+        context.theme
+    )
     val foreground =
-        context.resources.getDrawable(getDrawableFromMime(mime, sortName), context.theme)
+        ResourcesCompat.getDrawable(
+            context.resources,
+            getDrawableFromMime(mime, sortName),
+            context.theme
+        )
     val insetPx = convertDpToPixel(context, 8)
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
 
 fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?): LayerDrawable {
-    val background = context.resources.getDrawable(R.drawable.grid_icon_background, context.theme)
+    val background = ResourcesCompat.getDrawable(
+        context.resources,
+        R.drawable.grid_icon_background,
+        context.theme
+    )
     val foreground =
-        context.resources.getDrawable(getDrawableFromMime(mime, sortName), context.theme)
+        ResourcesCompat.getDrawable(
+            context.resources,
+            getDrawableFromMime(mime, sortName),
+            context.theme
+        )
     val insetPx = convertDpToPixel(context, 20)
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
@@ -238,7 +255,7 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
 fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
     // TODO enrich with more specific icons for files depending on the mime
 
-    var mime = if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
+    val mime = if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
             ?: SdkNames.NODE_MIME_DEFAULT
         // newMime = context.contentResolver.getType(Uri.parse("file://"))
