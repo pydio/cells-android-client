@@ -47,14 +47,6 @@ class SearchFragment : Fragment() {
             inflater, R.layout.fragment_search, container, false
         )
 
-//        val viewModelFactory = SearchViewModel.SearchViewModelFactory(
-//            CellsApp.instance.nodeService,
-//            StateID.fromId(args.state),
-//            requireActivity().application,
-//        )
-//        val tmpVM: SearchViewModel by viewModels { viewModelFactory }
-//        searchVM = tmpVM
-
         searchVM.isLoading.observe(viewLifecycleOwner) {
             binding.swipeRefresh.isRefreshing = it
         }

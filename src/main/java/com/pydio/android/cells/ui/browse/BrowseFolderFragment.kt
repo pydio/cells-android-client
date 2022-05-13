@@ -215,9 +215,7 @@ class BrowseFolderFragment : Fragment() {
         // Otherwise we won't see sort order changes directly
         // TODO insure we want to reset backoff ticker index
         browseFolderVM.resume(true)
-        observer.let {
-            browseFolderVM.children.removeObserver(it)
-        }
+        browseFolderVM.children.removeObserver(observer)
         browseFolderVM.children.observe(viewLifecycleOwner, observer)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
@@ -276,8 +274,8 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
+
         if (node.isFolder()) {
-            // CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
@@ -285,7 +283,6 @@ class BrowseFolderFragment : Fragment() {
         Log.i(logTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
 
         if (isPreViewable(node)) {
-//        if (node.mime.startsWith("image") || node.mime.startsWith("\"image")) {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
             intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
             startActivity(intent)
@@ -405,7 +402,6 @@ class BrowseFolderFragment : Fragment() {
                     } else {
                         binding.emptyContentDesc = resources.getString(R.string.empty_folder)
                     }
-
                     adapter.submitList(listOf())
                 } else {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
