@@ -89,6 +89,7 @@
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_cache_and_server_unreachable">Impossible de lister le contenu du dossier :\nAucune connexion au serveur distant…</string>
+    <string name="no_file_and_server_unreachable">Impossible de télécharger le fichier :\nAucune connexion au serveur distant…</string>
     <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
