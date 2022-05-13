@@ -89,6 +89,7 @@
     <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
     <string name="empty_folder">Dieser Ordner ist leer</string>
     <string name="empty_cache_and_server_unreachable">Ordnerinhalt kann nicht aufgelistet werden:\nKeine Verbindung zum entfernten Server…</string>
+    <string name="no_file_and_server_unreachable">Datei kann nicht heruntergeladen werden:\nKeine Verbindung zum entfernten Server…</string>
     <string name="loading_message">Bitte warten Sie, während der Inhalt geladen wird…</string>
     <plurals name="selected_count">
         <item quantity="one">%d Element ausgewählt</item>
