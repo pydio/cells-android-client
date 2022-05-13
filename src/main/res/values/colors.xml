@@ -79,6 +79,7 @@
     <color name="transparent">#00000000</color>
 
     <!-- Document icon colors -->
+    <color name="material_yellow">#FFE500</color>
     <color name="material_orange">#FF9800</color>
     <color name="material_deep_orange">#FF5722</color>
     <color name="material_red">#F44336</color>

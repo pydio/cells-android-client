@@ -276,6 +276,8 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
         mime.startsWith("image/", true) -> R.drawable.file_image_outline
         mime.startsWith("audio/", true) -> R.drawable.ic_outline_audio_file_24
         mime.startsWith("video/", true) -> R.drawable.ic_outline_video_file_24
+        mime == "application/rtf" || mime == "text/plain"
+        -> R.drawable.file_document_outline
         mime == "application/vnd.oasis.opendocument.text"
                 || mime == "application/msword"
                 || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -294,6 +296,11 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
                 mime == "text/javascript" ||
                 mime == "application/xhtml+xml"
         -> R.drawable.file_code_outline
+        mime == "application/zip" ||
+                mime == "application/x-7z-compressed" ||
+                mime == "application/x-tar" ||
+                mime == "application/java-archive"
+        -> R.drawable.file_zip_outline
         else -> R.drawable.file_outline
     }
 }
