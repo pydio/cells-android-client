@@ -475,7 +475,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_COPY -> {
                     launchCopy.launch(
                         Pair(
-                            StateID.fromId(node.encodedState).parentFolder(),
+                            StateID.fromId(node.encodedState).parent(),
                             AppNames.ACTION_COPY
                         )
                     )
@@ -483,7 +483,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_MOVE -> {
                     launchMove.launch(
                         Pair(
-                            StateID.fromId(node.encodedState).parentFolder(),
+                            StateID.fromId(node.encodedState).parent(),
                             AppNames.ACTION_MOVE
                         )
                     )
@@ -512,7 +512,19 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 }
                 ACTION_TOGGLE_SHARED -> {
                     // TODO ask confirmation
-                    nodeService.toggleShared(node)
+                    nodeService.toggleShared(node)?.let {
+                        // If we created a link we get it as result and put it in the clipboard directly
+                        val clipboard =
+                            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+                        if (clipboard != null) {
+                            val clip = ClipData.newPlainText(node.name, it)
+                            clipboard.setPrimaryClip(clip)
+                            showMessage(
+                                requireContext(),
+                                resources.getString(R.string.link_copied_to_clip)
+                            )
+                        }
+                    }
                     moreMenu.dismiss()
                 }
                 ACTION_PUBLIC_LINK_COPY -> {

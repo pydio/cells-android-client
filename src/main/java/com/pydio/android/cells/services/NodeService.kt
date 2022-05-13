@@ -211,7 +211,7 @@ class NodeService(
         }
     }
 
-    suspend fun toggleShared(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+    suspend fun toggleShared(rTreeNode: RTreeNode): String? = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
             val client = getClient(stateID)
@@ -227,7 +227,7 @@ class NodeService(
                 }
             } else {
                 // TODO we still put default values, implement user defined details
-                client.share(
+                return@withContext client.share(
                     stateID.workspace, stateID.file, stateID.fileName,
                     "Created on ${currentTimestampAsString()}",
                     null, true, true
@@ -245,6 +245,7 @@ class NodeService(
             ioe.printStackTrace()
             return@withContext null
         }
+        return@withContext null
     }
 
     suspend fun toggleOffline(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
