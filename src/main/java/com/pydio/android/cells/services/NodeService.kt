@@ -595,17 +595,23 @@ class NodeService(
             if (!checkUpToDate) {
                 return@withContext file
             }
+            try {
+                // Compare with remote if possible
+                val remote = getNodeInfo(rTreeNode.getStateID())
+                // We cannot stat remote, but we have a file let's open this one FIXME
+                    ?: return@withContext file
 
-            // Compare with remote if possible
-            val remote = getNodeInfo(StateID.fromId(rTreeNode.encodedState))
-            // We cannot stat remote, but we have a file let's open this one FIXME
-                ?: return@withContext file
+                val isUpToDate = rTreeNode.etag == remote.eTag &&
+                        rTreeNode.size == remote.size &&
+                        rTreeNode.remoteModificationTS >= remote.lastModified
 
-            val isUpToDate = rTreeNode.etag == remote.eTag &&
-                    rTreeNode.size == remote.size &&
-                    rTreeNode.remoteModificationTS >= remote.lastModified
-
-            return@withContext if (isUpToDate) file else null
+                return@withContext if (isUpToDate) file else null
+            } catch (se: SDKException) {
+                // Could not retrieve node info to compare. cf above
+                val msg = "could not stat ${rTreeNode.getStateID()}"
+                handleSdkException(rTreeNode.getStateID(), msg, se)
+                return@withContext null
+            }
         }
 
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =

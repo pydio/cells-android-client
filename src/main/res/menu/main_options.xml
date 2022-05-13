@@ -35,6 +35,11 @@
         android:title="@string/button_open_sort_by" />
 
 <!--    <item-->
+<!--        android:id="@+id/open_account_list"-->
+<!--        android:icon="@drawable/ic_baseline_switch_account_24"-->
+<!--        android:title="@string/switch_account" />-->
+
+    <!--    <item-->
 <!--        android:id="@+id/display_type_holder"-->
 <!--        android:title="Display"-->
 <!--        app:showAsAction="never">-->

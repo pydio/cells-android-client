@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBookmarkListBinding
@@ -26,12 +25,12 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.java.KoinJavaComponent
 
 class BookmarksFragment : Fragment() {
 
@@ -76,22 +75,12 @@ class BookmarksFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-//        val activeSession = activeSessionVM.liveSession.value
-//        Log.i(logTag, "onResume: ${activeSession?.accountID}")
-        activeSessionVM.sessionView.observe(viewLifecycleOwner){ activeSession ->
+        activeSessionVM.sessionView.observe(viewLifecycleOwner) { activeSession ->
             activeSession?.let { session ->
                 val accountID = StateID.fromId(session.accountID)
                 bookmarksVM.afterCreate(accountID)
                 configureRecyclerAdapter(bookmarksVM)
                 bookmarksVM.triggerRefresh()
-
-//                val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
-//                val backPressedCallback = BackStackAdapter.initialised(
-//                    parentFragmentManager,
-//                    findNavController(),
-//                    currentState
-//                )
-//                requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
             }
         }
     }
@@ -120,44 +109,41 @@ class BookmarksFragment : Fragment() {
         }
     }
 
-//    override fun onDetach() {
-//        bookmarksVM.stateID?.let {
-//            resetToHomeStateIfNecessary(
-//                parentFragmentManager,
-//                it.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
-//            )
-//        }
-//        super.onDetach()
-//    }
-
-    private fun navigateTo(node: RTreeNode) =
-        lifecycleScope.launch {
-            if (node.isFolder()) {
-                val action = MainNavDirections.openFolder(node.encodedState)
-                findNavController().navigate(action)
-            } else {
-                val file = nodeService.getOrDownloadFileToCache(node)
-                file?.let { localFile ->
-                    externallyView(requireContext(), localFile, node)
-
-/*                    try {
-                        externallyView(requireContext(), localFile, node)?.let {
-                            startActivity(it)
-                            if (BuildConfig.DEBUG) {
-                                // TODO Debug only, remove
-                                val msg = "Opened ${file.name} (${it.type}) with external viewer"
-                                Log.e(tag, "Intent success: $msg")
-                            }
-                        } ?: showMessage(requireContext(), "No app found to open ${file.name}")
-                    } catch (e: Exception) {
-                        val msg = "Cannot open ${file.name} with external viewer"
-                        showMessage(requireContext(), msg)
-                        Log.e(tag, "Call to intent failed: $msg")
-                        e.printStackTrace()
-                    }*/
-                }
-            }
+    private fun navigateTo(node: RTreeNode) {
+        if (node.isFolder()) {
+            val action = MainNavDirections.openFolder(node.encodedState)
+            findNavController().navigate(action)
+            return
         }
+
+        // TODO enable carousel from bookmark
+//        if (isPreViewable(node)) {
+//            val intent = Intent(requireActivity(), CarouselActivity::class.java)
+//            intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
+//            startActivity(intent)
+//            Log.d(logTag, "open carousel for ${node.getStateID()}, mime type: ${node.mime}")
+//            return
+//        }
+
+
+        lifecycleScope.launch {
+            nodeService.getLocalFile(node, activeSessionVM.isServerReachable())?.let {
+                externallyView(requireContext(), it, node)
+                return@launch
+            }
+
+            if (!activeSessionVM.isServerReachable()) {
+                showMessage(
+                    requireContext(),
+                    resources.getString(R.string.no_file_and_server_unreachable)
+                )
+                return@launch
+            }
+
+            val action = MainNavDirections.launchDownload(node.encodedState, true)
+            findNavController().navigate(action)
+        }
+    }
 
     private inner class ChangeListener : NavController.OnDestinationChangedListener {
 

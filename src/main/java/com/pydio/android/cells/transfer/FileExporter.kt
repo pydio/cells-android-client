@@ -7,12 +7,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.pydio.cells.transport.StateID
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
+import com.pydio.cells.transport.StateID
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class FileExporter(
     private val registry: ActivityResultRegistry,
@@ -39,14 +39,16 @@ class FileExporter(
         )
         { uri ->
             stateID?.let {
-                nodeService.enqueueDownload(it, uri!!)
+                if (uri == null) {
+                    Log.e(caller, "Received download intent to null parent path for $it")
+                    return@let
+                }
+                nodeService.enqueueDownload(it, uri)
                 Log.i(caller, "Received download intent to parent path at $uri for $stateID")
                 callingFragment.dismiss()
-                // nodeService.enqueueUpload(it, uri)
             } ?: run {
                 Log.w(caller, "Received file at $uri with **no** parent stateID")
             }
-
         }
     }
 

@@ -10,12 +10,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -295,39 +293,16 @@ class BrowseFolderFragment : Fragment() {
             return@launch
         }
 
-        if (!activeSessionVM.isServerReachable()){
-            showMessage(requireContext(), resources.getString(R.string.no_file_and_server_unreachable))
+        if (!activeSessionVM.isServerReachable()) {
+            showMessage(
+                requireContext(),
+                resources.getString(R.string.no_file_and_server_unreachable)
+            )
+            return@launch
         }
 
         val action = MainNavDirections.launchDownload(node.encodedState, true)
         findNavController().navigate(action)
-
-//        // TODO double check. It smells.
-//        requireActivity().window.setFlags(
-//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-//        )
-//        browseFolderVM.setLoading(true)
-//        showProgressDialog()
-//
-//        val file = nodeService.getOrDownloadFileToCache(node)
-//
-//        browseFolderVM.setLoading(false)
-//        requireActivity().window.setFlags(
-//            0,
-//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-//        )
-//
-//        file?.let {
-//            externallyView(requireContext(), file, node)
-//            loadingDialog?.dismiss()
-//        }
-    }
-
-    private fun showProgressDialog() {
-        val fm: FragmentManager = requireActivity().supportFragmentManager
-        loadingDialog = LoadingDialogFragment.newInstance()
-        loadingDialog?.show(fm, "fragment_edit_name")
     }
 
     override fun onAttach(context: Context) {
