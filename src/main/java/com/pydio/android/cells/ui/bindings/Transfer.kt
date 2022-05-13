@@ -10,11 +10,11 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 
 @BindingAdapter("transferIcon")
 fun ImageView.setTransferIcon(item: RTransfer?) {
@@ -27,6 +27,13 @@ fun ImageView.setTransferIcon(item: RTransfer?) {
             else -> R.drawable.ic_outline_file_upload_24
         }
     )
+}
+
+@BindingAdapter("transferTitle")
+fun TextView.setTransferTitle(item: RTransfer?) {
+    item?.let {
+        text = item.getStateId().fileName
+    }
 }
 
 @SuppressLint("SetTextI18n")
@@ -86,10 +93,10 @@ fun TextView.setTransferStatus(item: RTransfer?) {
 }
 
 @BindingAdapter("updateProgress")
-fun ProgressBar.setUpdateProgress(item: RTransfer?) {
+fun ProgressBar.setProgress(item: RTransfer?) {
     item?.let {
         val percentage = (it.progress * 100) / it.byteSize
-        Log.e("Progress", "${it.progress} - ${it.byteSize} - $percentage")
+        // Log.e("Updating Progress", "New values: ${it.progress} - ${it.byteSize} - $percentage")
         progress = percentage.toInt()
     }
 }

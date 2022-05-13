@@ -100,10 +100,14 @@ class ActiveSessionViewModel(
             Log.w(logTag, "No live session for $accountId ")
             return
         }
+        withContext(Dispatchers.Main) {
+            _errorMessage.value = null
+        }
         val result = accountService.refreshWorkspaceList(accountId!!)
         withContext(Dispatchers.Main) {
             if (result.second != null) { // Non-Null response is an error message
                 if (backOffTicker.getCurrentIndex() > 0) {
+                    Log.e(logTag, "Could not list workspace...")
                     // We do not display the error message if first
                     _errorMessage.value = result.second
                 }

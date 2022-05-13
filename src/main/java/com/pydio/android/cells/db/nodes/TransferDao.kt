@@ -3,6 +3,7 @@ package com.pydio.android.cells.db.nodes
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
@@ -21,11 +22,14 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE encoded_state = :stateId LIMIT 1")
     fun getByState(stateId: String): RTransfer?
 
-    @Query("SELECT * FROM transfers WHERE transferId = :transferUID LIMIT 1")
-    fun getById(transferUID: Long): RTransfer?
+    @Query("SELECT * FROM transfers WHERE transfer_id = :transferId LIMIT 1")
+    fun getById(transferId: Long): RTransfer?
 
-    @Query("SELECT * FROM transfers WHERE transferId = :transferUID LIMIT 1")
-    fun getLiveById(transferUID: Long): LiveData<RTransfer?>
+    @Query("SELECT * FROM transfers WHERE transfer_id = :transferId LIMIT 1")
+    fun getLiveById(transferId: Long): LiveData<RTransfer?>
+
+    @Query("SELECT * FROM transfers WHERE encoded_state = :encodedState LIMIT 1")
+    fun getLiveByState(encodedState: String): LiveData<RTransfer?>
 
     @Query("SELECT * FROM transfers WHERE start_ts = -1")
     fun getAllNew(): List<RTransfer>
@@ -36,6 +40,17 @@ interface TransferDao {
     @Query("DELETE FROM transfers WHERE done_ts > 0")
     fun clearTerminatedTransfers()
 
-    @Query("DELETE FROM transfers WHERE transferId = :transferUID")
-    fun deleteTransfer(transferUID: Long)
+    @Query("DELETE FROM transfers WHERE transfer_id = :transferId")
+    fun deleteTransfer(transferId: Long)
+
+    // TRANSFER CANCELLATION
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(cancellation: RTransferCancellation)
+
+    @Query("SELECT * FROM transfer_cancellation WHERE transfer_id = :transferId LIMIT 1")
+    fun hasBeenCancelled(transferId: Long): RTransferCancellation?
+
+    @Query("DELETE FROM transfer_cancellation WHERE transfer_id = :transferId")
+    fun deleteCancellation(transferId: Long)
+
 }

@@ -516,6 +516,15 @@ class NodeService(
         }
     }
 
+    private suspend fun getNodeInfo(stateID: StateID): FileNode? {
+        try {
+            return getClient(stateID).nodeInfo(stateID.workspace, stateID.file)
+        } catch (e: SDKException) {
+            handleSdkException(stateID, "could not getNodeInfo for $stateID", e)
+            throw e
+        }
+    }
+
     private suspend fun statRemoteNode(stateID: StateID): Stats? {
         try {
             return getClient(stateID).stats(stateID.workspace, stateID.file, true)
@@ -568,6 +577,36 @@ class NodeService(
         }
         return false
     }
+
+    /**
+     * Returns the local file to be opened if it exists, optionally after checking
+     * if it is still up to date based on:
+     * - modif time
+     * - e-tag
+     * - size
+     */
+    suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
+        withContext(Dispatchers.IO) {
+            val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE))
+            if (!file.exists()) {
+                return@withContext null
+            }
+
+            if (!checkUpToDate) {
+                return@withContext file
+            }
+
+            // Compare with remote if possible
+            val remote = getNodeInfo(StateID.fromId(rTreeNode.encodedState))
+            // We cannot stat remote, but we have a file let's open this one FIXME
+                ?: return@withContext file
+
+            val isUpToDate = rTreeNode.etag == remote.eTag &&
+                    rTreeNode.size == remote.size &&
+                    rTreeNode.remoteModificationTS >= remote.lastModified
+
+            return@withContext if (isUpToDate) file else null
+        }
 
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
 

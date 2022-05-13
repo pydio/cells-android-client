@@ -41,6 +41,7 @@ import com.pydio.android.cells.ui.utils.LoadingDialogFragment
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.android.cells.utils.showMessage
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -67,15 +68,15 @@ class BrowseFolderFragment : Fragment() {
     private val browseFolderVM: BrowseFolderViewModel by viewModel { parametersOf(args.state) }
     private lateinit var binding: FragmentBrowseFolderBinding
 
-    // Temp solution to provide a scrim during long running operations
-    private var loadingDialog: LoadingDialogFragment? = null
-
     private var mode: ActionMode? = null
     private var actionModeCallback: PrimaryActionModeCallback? = null
     private var tracker: SelectionTracker<String>? = null
 
     private lateinit var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
     private val observer = ChildObserver()
+
+    // Temp solution to provide a scrim during long running operations
+    private var loadingDialog: LoadingDialogFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -279,8 +280,7 @@ class BrowseFolderFragment : Fragment() {
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
-
-        Log.i(logTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
+        Log.d(logTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
 
         if (isPreViewable(node)) {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
@@ -290,26 +290,38 @@ class BrowseFolderFragment : Fragment() {
             return@launch
         }
 
-        // TODO double check. It smells.
-        requireActivity().window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-        browseFolderVM.setLoading(true)
-        showProgressDialog()
-
-        val file = nodeService.getOrDownloadFileToCache(node)
-
-        browseFolderVM.setLoading(false)
-        requireActivity().window.setFlags(
-            0,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-
-        file?.let {
-            externallyView(requireContext(), file, node)
-            loadingDialog?.dismiss()
+        nodeService.getLocalFile(node, activeSessionVM.isServerReachable())?.let {
+            externallyView(requireContext(), it, node)
+            return@launch
         }
+
+        if (!activeSessionVM.isServerReachable()){
+            showMessage(requireContext(), resources.getString(R.string.no_file_and_server_unreachable))
+        }
+
+        val action = MainNavDirections.launchDownload(node.encodedState, true)
+        findNavController().navigate(action)
+
+//        // TODO double check. It smells.
+//        requireActivity().window.setFlags(
+//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+//        )
+//        browseFolderVM.setLoading(true)
+//        showProgressDialog()
+//
+//        val file = nodeService.getOrDownloadFileToCache(node)
+//
+//        browseFolderVM.setLoading(false)
+//        requireActivity().window.setFlags(
+//            0,
+//            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+//        )
+//
+//        file?.let {
+//            externallyView(requireContext(), file, node)
+//            loadingDialog?.dismiss()
+//        }
     }
 
     private fun showProgressDialog() {

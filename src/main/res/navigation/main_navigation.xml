@@ -32,6 +32,11 @@
         android:id="@+id/open_transfers"
         app:destination="@id/transfer_list_destination" />
 
+    <action
+        android:id="@+id/launch_download"
+        app:destination="@id/download_dialog_destination" />
+
+
     <!-- TODO implement this -->
     <!--    <action-->
     <!--        android:id="@+id/open_pick_folder"-->
@@ -206,6 +211,17 @@
         <argument
             android:name="transferUid"
             app:argType="long" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/download_dialog_destination"
+        android:name="com.pydio.android.cells.ui.utils.DownloadDialog">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <argument
+            android:name="forwardAfterDownload"
+            app:argType="boolean" />
     </dialog>
 
 </navigation>

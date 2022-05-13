@@ -69,9 +69,15 @@ public interface AppNames {
     String LOCAL_MODIF_MOVE = "moving";
     String LOCAL_MODIF_RESTORE = "restore";
 
-    /* Transfer types */
+    /* Transfers */
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
+
+    String TRANSFER_STATUS_NEW = "new";
+    String TRANSFER_STATUS_PROCESSING = "processing";
+    String TRANSFER_STATUS_CANCELED = "canceled";
+    String TRANSFER_STATUS_DONE = "done";
+    String TRANSFER_STATUS_ERROR = "error";
 
     /* Intents extra keys */
     String EXTRA_STATE = KEY_PREFIX_ + "state";

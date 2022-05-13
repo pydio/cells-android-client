@@ -19,6 +19,7 @@ import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transfer.PickFolderViewModel
 import com.pydio.android.cells.ui.transfer.PickSessionViewModel
 import com.pydio.android.cells.ui.transfer.TransferViewModel
+import com.pydio.android.cells.ui.utils.DownloadViewModel
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
@@ -121,6 +122,7 @@ val viewModelModule = module {
     viewModel { ActiveSessionViewModel(get(), get()) }
     viewModel { params -> BrowseFolderViewModel(params.get(), get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
+    viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
 
     viewModel { BookmarksViewModel(get()) }
     viewModel { OfflineRootsViewModel(get()) }
