@@ -36,7 +36,7 @@ class ActiveSessionViewModel(
 
     // Business objects
     val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
-    private val isOnline = networkService.isNetworkConnected()
+    private val isOnline = networkService.hasInternetAccess()
 
     private var _accountId: String? = null
     val accountId: String?
