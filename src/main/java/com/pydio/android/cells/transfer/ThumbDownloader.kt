@@ -1,14 +1,18 @@
 package com.pydio.android.cells.transfer
 
 import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.FileService
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.FileNodeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,12 +59,37 @@ class ThumbDownloader(
             fileService.dataParentPath(state.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         try {
             client.getThumbnail(state, node, File(parentFolder), thumbSize)?.let {
+                if (!client.isLegacy) {
+                    handleOrientation(rNode, parentFolder + File.separator + it)
+                }
+
                 rNode.thumbFilename = it
                 nodeDB.treeNodeDao().update(rNode)
             }
         } catch (e: SDKException) {
             Log.w(logTag, "could not download thumbnail for $state, error #${e.code}: ${e.message}")
             // accountService.notifyError(state, e.code)
+        }
+    }
+
+    /**
+     * Pydio Cells generates thumbnails without including main image EXIF data.
+     * So we must manually get the orientation and add it to the thumb to ease later
+     * manipulation of the images.
+     * Note that we cannot do this in the Java SDK layer to use convenient library
+     * that are provided by the android platform.
+     */
+    private fun handleOrientation(rTreeNode: RTreeNode, absPath: String) {
+        // EXIF DATA must be manually retrieved from main image and applied
+        val exifInterface = ExifInterface(absPath)
+        if (rTreeNode.meta.containsKey(SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION)) {
+            var orientation = rTreeNode.meta[SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION] as String
+            orientation = FileNodeUtils.extractJSONString(orientation)
+            exifInterface.setAttribute(
+                ExifInterface.TAG_ORIENTATION,
+                orientation
+            )
+            exifInterface.saveAttributes()
         }
     }
 

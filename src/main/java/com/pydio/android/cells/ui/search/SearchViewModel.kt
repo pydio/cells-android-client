@@ -16,8 +16,6 @@ import kotlinx.coroutines.launch
 /** Holds data when performing searches on files on a given remote server defined by its accountID */
 class SearchViewModel(
     encodedAccountId: String,
-//    context: String,
-//    query: String?,
     private val nodeService: NodeService
 
 ) : ViewModel() {
@@ -26,11 +24,7 @@ class SearchViewModel(
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    val accountId = StateID.fromId(encodedAccountId)
-
-//    private lateinit var _currentFolder: LiveData<RTreeNode>
-//    val currentFolder: LiveData<RTreeNode>
-//        get() = _currentFolder
+    private val accountId = StateID.fromId(encodedAccountId)
 
     private val _hits = MutableLiveData<List<RTreeNode>>()
     val hits: LiveData<List<RTreeNode>>
