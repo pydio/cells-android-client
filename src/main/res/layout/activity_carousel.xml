@@ -95,7 +95,7 @@
             app:carousel_previousState="@+id/previous"
             app:carousel_infinite="true"
             app:carousel_touchUpMode="carryVelocity"
-            app:carousel_touchUp_dampeningFactor="0.7"
+            app:carousel_touchUp_dampeningFactor="0.5"
             app:constraint_referenced_ids="imageView0,imageView1,imageView2,imageView3,imageView4" />
 
 <!--        app:carousel_touchUpMode="immediateStop"-->

@@ -154,16 +154,6 @@ class MainActivity : AppCompatActivity() {
         activeSessionVM.sessionView.observe(this) {
             it?.let { liveSession ->
 
-                // Change default theme based on current session status
-//                val newTheme = when (it.authStatus) {
-//                    AppNames.AUTH_STATUS_CONNECTED -> R.style.Theme_Cells
-//                    else ->  R.style.Theme_Cells_Offline
-//                }
-//                if (newTheme != CellsApp.instance.currentTheme) {
-//                    CellsApp.instance.currentTheme = newTheme
-//                    recreate()
-//                }
-
                 // Set current session info in the Navigation view header
                 val headerView = binding.navView.getHeaderView(0)
                 val primaryText =
