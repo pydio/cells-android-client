@@ -134,7 +134,7 @@ val viewModelModule = module {
     viewModel { params -> TransferViewModel(params.get(), get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }
 
-    viewModel { SearchViewModel(get()) }
+    viewModel { params -> SearchViewModel(params.get(), get()) }
 
     viewModel { CarouselViewModel(get()) }
 }

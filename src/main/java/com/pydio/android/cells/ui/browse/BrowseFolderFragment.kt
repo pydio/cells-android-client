@@ -35,7 +35,6 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
-import com.pydio.android.cells.ui.utils.LoadingDialogFragment
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.android.cells.utils.showLongMessage
@@ -72,9 +71,6 @@ class BrowseFolderFragment : Fragment() {
 
     private lateinit var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
     private val observer = ChildObserver()
-
-    // Temp solution to provide a scrim during long running operations
-    private var loadingDialog: LoadingDialogFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -296,7 +292,8 @@ class BrowseFolderFragment : Fragment() {
         if (!activeSessionVM.isServerReachable()) {
             showMessage(
                 requireContext(),
-                resources.getString(R.string.no_file_and_server_unreachable)
+                resources.getString(R.string.empty_cache) + "\n" +
+                        resources.getString(R.string.server_unreachable)
             )
             return@launch
         }
@@ -380,16 +377,21 @@ class BrowseFolderFragment : Fragment() {
         override fun onChanged(it: List<RTreeNode>?) {
             it?.let {
                 if (it.isEmpty()) {
-                    binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
-                    if (!activeSessionVM.isServerReachable()) {
-                        binding.emptyContentDesc =
-                            resources.getString(R.string.empty_cache_and_server_unreachable)
-                    } else if (browseFolderVM.isLoading.value == true) {
-                        binding.emptyContentDesc = resources.getString(R.string.loading_message)
-                    } else {
-                        binding.emptyContentDesc = resources.getString(R.string.empty_folder)
+
+                    val msg = when {
+                        !activeSessionVM.isServerReachable()
+                        -> resources.getString(R.string.empty_cache) + "\n" +
+                                resources.getString(R.string.server_unreachable)
+                        browseFolderVM.isLoading.value == true
+                        -> resources.getString(R.string.loading_message)
+                        else
+                        -> resources.getString(R.string.empty_folder)
                     }
+
+                    binding.emptyContentDesc = msg
                     adapter.submitList(listOf())
+                    binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
+
                 } else {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
                     adapter.submitList(it)

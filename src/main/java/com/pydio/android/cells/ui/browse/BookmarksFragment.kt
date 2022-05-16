@@ -135,7 +135,8 @@ class BookmarksFragment : Fragment() {
             if (!activeSessionVM.isServerReachable()) {
                 showMessage(
                     requireContext(),
-                    resources.getString(R.string.no_file_and_server_unreachable)
+                resources.getString(R.string.empty_cache) + "\n" +
+                        resources.getString(R.string.server_unreachable)
                 )
                 return@launch
             }

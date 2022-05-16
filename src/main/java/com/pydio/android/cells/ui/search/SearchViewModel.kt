@@ -7,21 +7,30 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-/** Holds data when performing searches on files */
-class SearchViewModel(private val nodeService: NodeService) : ViewModel() {
+/** Holds data when performing searches on files on a given remote server defined by its accountID */
+class SearchViewModel(
+    encodedAccountId: String,
+//    context: String,
+//    query: String?,
+    private val nodeService: NodeService
+
+) : ViewModel() {
 
     // private val logTag = SearchViewModel::class.simpleName
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private lateinit var _currentFolder: LiveData<RTreeNode>
-    val currentFolder: LiveData<RTreeNode>
-        get() = _currentFolder
+    val accountId = StateID.fromId(encodedAccountId)
+
+//    private lateinit var _currentFolder: LiveData<RTreeNode>
+//    val currentFolder: LiveData<RTreeNode>
+//        get() = _currentFolder
 
     private val _hits = MutableLiveData<List<RTreeNode>>()
     val hits: LiveData<List<RTreeNode>>
@@ -39,10 +48,22 @@ class SearchViewModel(private val nodeService: NodeService) : ViewModel() {
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    fun query(stateId: StateID, query: String) = vmScope.launch {
-        setLoading(true)
+    fun setQuery(query: String){
         _queryString = query
-        _hits.value = nodeService.remoteQuery(stateId, query)
+    }
+
+    fun query(query: String) {
+        setQuery(query)
+        doQuery()
+    }
+
+    fun doQuery() = vmScope.launch {
+        if (Str.empty(queryString)){
+            _errorMessage.value = "Please enter a non empty search query"
+            return@launch
+        }
+        setLoading(true)
+        _hits.value = nodeService.remoteQuery(accountId, queryString!!)
 //         _hits.value = nodeService.queryLocally(query, stateID)
         setLoading(false)
     }

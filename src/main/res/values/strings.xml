@@ -101,12 +101,20 @@
     <string name="last_check">Last check</string>
     <string name="last_check_never">never</string>
 
-    <string name="no_internet">No internet connection</string>
-    <string name="empty_content_message">No content here yet</string>
-    <string name="empty_folder">This folder is empty</string>
-    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>
-    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>
     <string name="loading_message">Please wait while loading content…</string>
+
+    <string name="no_internet">No internet connection</string>
+    <string name="server_unreachable">No connection to remote server…</string>
+    <string name="empty_cache">Cannot list folder content</string>
+    <string name="cannot_download_file">Cannot download file</string>
+    <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="no_result_for_search">No result found for: %s</string>
+
+    <string name="empty_folder">This folder is empty</string>
+    <string name="empty_content_message">No content here yet</string>
+<!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
+<!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
+<!--    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>-->
 
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
