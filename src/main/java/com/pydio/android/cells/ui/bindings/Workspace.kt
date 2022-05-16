@@ -32,7 +32,8 @@ fun TextView.setWsDesc(item: RWorkspace?) {
 
 @BindingAdapter("wsThumb")
 fun ImageView.setWsThumb(item: RWorkspace) {
-    setImageResource(getIconForWorkspace(item))
+    setImageDrawable(getComposedDrawableForGrid(context, item.type, item.sortName))
+    //setImageResource(getIconForWorkspace(item))
 }
 
 fun getWsIconForMenu(item: RWorkspace) = when (item.type) {

@@ -262,8 +262,10 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
     } else passedMime
 
     return when {
-        mime == SdkNames.NODE_MIME_FOLDER -> R.drawable.file_folder_outline
-        mime == SdkNames.NODE_MIME_RECYCLE -> R.drawable.file_trash_outline
+        // WS Types
+        mime == SdkNames.WS_TYPE_PERSONAL -> R.drawable.file_folder_shared_outline
+        mime == SdkNames.WS_TYPE_CELL -> R.drawable.file_cells
+        mime == SdkNames.WS_TYPE_DEFAULT -> R.drawable.file_folder_outline
         mime == SdkNames.NODE_MIME_WS_ROOT -> {
             // Tweak: we deduce type of ws root from the sort name. Not very clean
             val prefix = sortName ?: ""
@@ -273,6 +275,10 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
                 else -> R.drawable.file_folder_outline
             }
         }
+        // Folders
+        mime == SdkNames.NODE_MIME_FOLDER -> R.drawable.file_folder_outline
+        mime == SdkNames.NODE_MIME_RECYCLE -> R.drawable.file_trash_outline
+        // Files
         mime.startsWith("image/", true) -> R.drawable.file_image_outline
         mime.startsWith("audio/", true) -> R.drawable.ic_outline_audio_file_24
         mime.startsWith("video/", true) -> R.drawable.ic_outline_video_file_24
