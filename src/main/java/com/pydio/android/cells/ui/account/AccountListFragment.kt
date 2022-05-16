@@ -105,8 +105,6 @@ class AccountListFragment : Fragment() {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.putExtra(AppNames.EXTRA_STATE, accountID)
                 startActivity(intent)
-//                val action = MainNavDirections.openFolder(accountID)
-//                findNavController().navigate(action)
             }
             else -> return // do nothing
         }

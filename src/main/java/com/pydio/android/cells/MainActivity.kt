@@ -347,6 +347,7 @@ class MainActivity : AppCompatActivity() {
             }
             prefs.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             this.recreate()
             return@setOnMenuItemClickListener true
         }

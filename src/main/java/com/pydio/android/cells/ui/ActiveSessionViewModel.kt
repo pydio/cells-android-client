@@ -32,7 +32,7 @@ class ActiveSessionViewModel(
 
     private val logTag = "${ActiveSessionViewModel::class.simpleName}[$id]"
     private var viewModelJob = Job()
-    private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // Business objects
     val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
@@ -54,8 +54,6 @@ class ActiveSessionViewModel(
 
     // Watcher states
     private var _isRunning = false
-//    val isRunning: Boolean
-//        get() = _isRunning
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
 
@@ -73,6 +71,7 @@ class ActiveSessionViewModel(
             Log.i(logTag, "Initializing active session for $accountId")
             sessionView = accountService.getLiveSession(accountId)
             workspaces = accountService.getLiveWorkspaces(accountId)
+            setLoading(true)
         } else {
             // Awful tweak to insure late init objects have been initialized to avoid crash
             sessionView = accountService.getLiveSession("none")
@@ -82,17 +81,14 @@ class ActiveSessionViewModel(
     }
 
     // TODO handle network status
-    private fun watchSession() = viewModelScope.launch {
+    private fun watchSession() = vmScope.launch {
         while (_isRunning) {
             doPull()
             val nd = backOffTicker.getNextDelay()
-            Log.d(logTag, "... Next delay: $nd - $accountId")
+            Log.d(logTag, "... $accountId - About to sleep $nd s.")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
-    }
-
-    fun setLoading(loading: Boolean) {
-        _isLoading.value = loading
+        Log.i(logTag, "paused")
     }
 
     private suspend fun doPull() {
@@ -123,13 +119,21 @@ class ActiveSessionViewModel(
         }
     }
 
+    fun pause() {
+        _isRunning = false
+    }
+
     fun resume() {
         Log.d(logTag, "resuming...")
+        backOffTicker.resetIndex()
         if (!_isRunning) {
             _isRunning = true
             currWatcher = watchSession()
         }
-        backOffTicker.resetIndex()
+    }
+
+    private fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
     }
 
     fun forceRefresh() {
@@ -139,18 +143,11 @@ class ActiveSessionViewModel(
         resume()
     }
 
-    fun pause() {
-        _isRunning = false
-    }
 
     override fun onCleared() {
         super.onCleared()
         Log.e(logTag, "onCleared for $accountId")
         viewModelJob.cancel()
-    }
-
-    init {
-        setLoading(true)
     }
 
 }
