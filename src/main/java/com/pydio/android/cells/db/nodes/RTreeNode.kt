@@ -13,7 +13,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import java.util.*
+import java.util.Properties
 
 @Entity(tableName = "tree_nodes")
 @TypeConverters(Converters::class)
