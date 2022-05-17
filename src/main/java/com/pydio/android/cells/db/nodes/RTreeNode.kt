@@ -53,7 +53,7 @@ data class RTreeNode(
     // relevant local resource somewhere in the external storage.
     @ColumnInfo(name = "localPath") var localFilePath: String? = null,
 
-    // We temporary store the all the well known properties that we use in the Java SDK layer
+    // We store all the well known properties that we use
     @ColumnInfo(name = "properties") val properties: Properties,
 
     // Arbitrary Key - Values to locally store meta exposed by the remote server

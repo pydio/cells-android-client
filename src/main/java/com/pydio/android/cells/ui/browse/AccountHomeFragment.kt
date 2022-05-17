@@ -117,7 +117,7 @@ class AccountHomeFragment : Fragment() {
             activeSessionVM.sessionView.observe(viewLifecycleOwner) {
                 it?.let { sessionView ->
                     (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
-                        bar.title = sessionView.serverLabel ?: sessionView.url
+                        bar.title = sessionView.serverLabel() ?: sessionView.url
                     }
 
                     binding.session = sessionView

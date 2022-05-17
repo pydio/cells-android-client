@@ -61,7 +61,7 @@ class LandActivity : AppCompatActivity() {
     private suspend fun chooseFirstPage() {
         val landActivity = this
 
-        var stateID: StateID? = null
+        var stateID: StateID?
         // Fallback on defined accounts:
         val accounts = withContext(Dispatchers.IO) { accountDao.getAccounts() }
         when (accounts.size) {

@@ -3,6 +3,7 @@ package com.pydio.android.cells.services
 import androidx.room.Room
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.db.accounts.AccountDB
+import com.pydio.android.cells.db.auth.AuthDB
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.account.AccountListViewModel
@@ -39,7 +40,17 @@ val appModule = module {
 
 val dbModule = module {
 
-    // Account DB and corresponding DAO instances
+    // Auth DB
+    single {
+        Room.databaseBuilder(
+            androidContext().applicationContext,
+            AuthDB::class.java,
+            "authdb"
+        )
+            .build()
+    }
+
+    // Account DB
     single {
         Room.databaseBuilder(
             androidContext().applicationContext,
@@ -60,12 +71,14 @@ val dbModule = module {
 }
 
 val daoModule = module {
+
+    single { get<AuthDB>().tokenDao() }
+    single { get<AuthDB>().legacyCredentialsDao() }
+    single { get<AuthDB>().authStateDao() }
+
     single { get<AccountDB>().accountDao() }
-    single { get<AccountDB>().authStateDao() }
-    single { get<AccountDB>().legacyCredentialsDao() }
     single { get<AccountDB>().liveSessionDao() }
     single { get<AccountDB>().sessionDao() }
-    single { get<AccountDB>().tokenDao() }
     single { get<AccountDB>().workspaceDao() }
 
     single { get<RuntimeDB>().networkInfoDao() }
@@ -77,8 +90,8 @@ val serviceModule = module {
     single { NetworkService(androidContext(), get()) }
 
     // Manage accounts and authentication
-    single<Store<Server>>(named("ServerStore")) { MemoryStore<Server>() }
-    single<Store<Transport>>(named("TransportStore")) { MemoryStore<Transport>() }
+    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
+    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
 
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
@@ -94,7 +107,7 @@ val serviceModule = module {
             get()
         )
     }
-    single<AccountService> { AccountServiceImpl(get(), get(), get()) }
+    single<AccountService> { AccountServiceImpl(get(), get(), get(), get()) }
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }

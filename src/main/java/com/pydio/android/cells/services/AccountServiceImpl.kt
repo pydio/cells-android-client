@@ -6,16 +6,13 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
-import com.pydio.android.cells.db.accounts.LegacyCredentialsDao
 import com.pydio.android.cells.db.accounts.RAccount
 import com.pydio.android.cells.db.accounts.RSession
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
-import com.pydio.android.cells.db.accounts.TokenDao
 import com.pydio.android.cells.db.accounts.WorkspaceDao
-import com.pydio.android.cells.db.accounts.toRAccount
 import com.pydio.android.cells.transfer.WorkspaceDiff
 import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
 import com.pydio.android.cells.utils.logException
@@ -39,6 +36,7 @@ import java.net.HttpURLConnection
  */
 class AccountServiceImpl(
     accountDB: AccountDB,
+    private val authService: AuthService,
     private val sessionFactory: SessionFactory,
     private val treeNodeRepository: TreeNodeRepository
 ) : AccountService, KoinComponent {
@@ -49,8 +47,6 @@ class AccountServiceImpl(
     private val sessionDao: SessionDao = accountDB.sessionDao()
     private val sessionViewDao: SessionViewDao = accountDB.liveSessionDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
-    private val tokenDao: TokenDao = accountDB.tokenDao()
-    private val legacyCredentialsDao: LegacyCredentialsDao = accountDB.legacyCredentialsDao()
 
     override suspend fun getSession(stateId: StateID): RSessionView? {
         return sessionViewDao.getSession(stateId.accountId)
@@ -88,7 +84,7 @@ class AccountServiceImpl(
         authStatus: String
     ): StateID {
 
-        val account = toRAccount(username, server)
+        val account = RAccount.toRAccount(username, server)
         account.authStatus = authStatus
 
         val state = StateID(username, server.serverURL.id)
@@ -124,7 +120,7 @@ class AccountServiceImpl(
                 for (account in accounts) {
                     try {
                         if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-                            continue;
+                            continue
                         }
                         // TODO rather use an API healthcheck
                         val currClient = sessionFactory.getUnlockedClient(account.accountID)
@@ -185,11 +181,7 @@ class AccountServiceImpl(
                 ?: throw IllegalStateException("No record found for $stateId")
 
             // Credentials
-            if (oldAccount.isLegacy) {
-                legacyCredentialsDao.forgetPassword(accountId)
-            } else {
-                tokenDao.deleteToken(accountId)
-            }
+            authService.forgetCredentials(stateId, oldAccount.isLegacy)
 
             val fileService: FileService = get()
             fileService.cleanAllLocalFiles(stateId, dirName)
@@ -222,10 +214,8 @@ class AccountServiceImpl(
                 Thread.dumpStack()
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
-                if (it.isLegacy) {
-                    legacyCredentialsDao.forgetPassword(accountID)
-                }
-                tokenDao.deleteToken(accountID)
+
+                authService.forgetCredentials(StateID.fromId(accountID), it.isLegacy)
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 accountDao.update(it)
                 return@withContext null

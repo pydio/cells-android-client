@@ -3,6 +3,10 @@ package com.pydio.android.cells.services
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import com.pydio.android.cells.db.auth.AuthDB
+import com.pydio.android.cells.db.auth.ROAuthState
+import com.pydio.android.cells.utils.AndroidCustomEncoder
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.CustomEncoder
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ServerURL
@@ -15,13 +19,13 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.db.accounts.OAuthStateDao
-import com.pydio.android.cells.db.accounts.ROAuthState
-import com.pydio.android.cells.utils.AndroidCustomEncoder
-import com.pydio.android.cells.utils.currentTimestamp
 import java.util.*
 
-class AuthService(private val authStateDao: OAuthStateDao) {
+class AuthService(authDB: AuthDB) {
+
+    private val tokenDao = authDB.tokenDao()
+    private val legacyCredentialsDao = authDB.legacyCredentialsDao()
+    private val authStateDao = authDB.authStateDao()
 
     private val logTag = AuthService::class.java.simpleName
     private val encoder: CustomEncoder = AndroidCustomEncoder()
@@ -30,6 +34,13 @@ class AuthService(private val authStateDao: OAuthStateDao) {
         const val NEXT_ACTION_BROWSE = "browse_account"
         const val NEXT_ACTION_ACCOUNTS = "account_list"
         const val NEXT_ACTION_TERMINATE = "terminate"
+    }
+
+    fun forgetCredentials(accountID: StateID, isLegacy: Boolean) {
+        tokenDao.deleteToken(accountID.id)
+        if (isLegacy) {
+            legacyCredentialsDao.forgetPassword(accountID.id)
+        }
     }
 
     /** Cells' Credentials flow management */
@@ -41,7 +52,7 @@ class AuthService(private val authStateDao: OAuthStateDao) {
         withContext(Dispatchers.IO) {
             val serverID = StateID(url.id).id
             val server = sessionFactory.getServer(serverID)
-                // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
+            // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
                 ?: return@withContext null
 
             val oAuthState = generateOAuthState()

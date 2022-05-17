@@ -1,4 +1,4 @@
-package com.pydio.android.cells.db.accounts
+package com.pydio.android.cells.db.auth
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.AppNames.*
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 
@@ -18,11 +17,11 @@ fun ImageView.setAccountImage(item: RSessionView?) {
         setImageResource(
             when (item.authStatus) {
                 //AUTH_STATUS_NEW -> R.drawable.icon_folder
-                AUTH_STATUS_NO_CREDS -> R.drawable.ic_outline_running_with_errors_24
-                AUTH_STATUS_EXPIRED -> R.drawable.ic_outline_running_with_errors_24
-                AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_outline_running_with_errors_24
-                AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_wifi_protected_setup_24
-                AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_check_24
+                AppNames.AUTH_STATUS_NO_CREDS -> R.drawable.ic_outline_running_with_errors_24
+                AppNames.AUTH_STATUS_EXPIRED -> R.drawable.ic_outline_running_with_errors_24
+                AppNames.AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_outline_running_with_errors_24
+                AppNames.AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_wifi_protected_setup_24
+                AppNames.AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_check_24
                 else -> R.drawable.empty
             }
         )
@@ -30,11 +29,11 @@ fun ImageView.setAccountImage(item: RSessionView?) {
         imageTintList = ContextCompat.getColorStateList(
             this.context,
             when (item.authStatus) {
-                AUTH_STATUS_NO_CREDS -> R.color.danger
-                AUTH_STATUS_EXPIRED -> R.color.danger
-                AUTH_STATUS_UNAUTHORIZED -> R.color.danger
-                AUTH_STATUS_REFRESHING -> R.color.warning
-                AUTH_STATUS_CONNECTED -> R.color.ok
+                AppNames.AUTH_STATUS_NO_CREDS -> R.color.danger
+                AppNames.AUTH_STATUS_EXPIRED -> R.color.danger
+                AppNames.AUTH_STATUS_UNAUTHORIZED -> R.color.danger
+                AppNames.AUTH_STATUS_REFRESHING -> R.color.warning
+                AppNames.AUTH_STATUS_CONNECTED -> R.color.ok
                 else -> R.color.transparent
             }
         )
@@ -47,25 +46,27 @@ fun ImageView.setAuthAction(item: RSessionView?) {
         setImageResource(
             when (item.authStatus) {
                 //AUTH_STATUS_NEW -> R.drawable.icon_folder
-                AUTH_STATUS_NO_CREDS -> R.drawable.ic_baseline_login_24
-                AUTH_STATUS_EXPIRED -> R.drawable.ic_baseline_login_24
-                AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_baseline_login_24
-                AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_login_24
-                AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_logout_24
+                AppNames.AUTH_STATUS_NO_CREDS -> R.drawable.ic_baseline_login_24
+                AppNames.AUTH_STATUS_EXPIRED -> R.drawable.ic_baseline_login_24
+                AppNames.AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_baseline_login_24
+                AppNames.AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_login_24
+                AppNames.AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_logout_24
                 else -> R.drawable.empty
             }
         )
     }
 }
 
+@SuppressLint("SetTextI18n")
 @BindingAdapter("account_primary_text")
 fun TextView.setAccountPrimaryText(item: RSessionView?) {
     item?.let {
+
         var legacy = ""
         if (item.isLegacy) {
             legacy = "(Legacy)"
         }
-        text = "${item.serverLabel} ${legacy} "
+        text = "${item.serverLabel()} ${legacy} "
     }
 }
 
@@ -82,8 +83,8 @@ fun TextView.setSessionStatusDesc(item: RSessionView?) {
     item?.let {
         val errorMsg = this.resources.getString(
             when (item.authStatus) {
-                AUTH_STATUS_EXPIRED -> R.string.auth_err_expired
-                AUTH_STATUS_CONNECTED -> R.string.auth_ok
+                AppNames.AUTH_STATUS_EXPIRED -> R.string.auth_err_expired
+                AppNames.AUTH_STATUS_CONNECTED -> R.string.auth_ok
                 else -> R.string.auth_err_no_token
             }
         )

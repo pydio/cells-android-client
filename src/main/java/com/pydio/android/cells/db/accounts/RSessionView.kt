@@ -3,8 +3,9 @@ package com.pydio.android.cells.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
-import com.pydio.cells.transport.StateID
 import com.pydio.android.cells.db.Converters
+import com.pydio.cells.transport.StateID
+import java.util.*
 
 @DatabaseView(
     "SELECT sessions.account_id, " +
@@ -16,8 +17,8 @@ import com.pydio.android.cells.db.Converters
             "accounts.auth_status, " +
             "accounts.tls_mode, " +
             "accounts.is_legacy, " +
-            "accounts.server_label, " +
-            "accounts.welcome_message " +
+            "accounts.properties " +
+//            "accounts.welcome_message " +
             "FROM sessions INNER JOIN accounts " +
             "ON sessions.account_id = accounts.account_id"
 )
@@ -33,17 +34,19 @@ data class RSessionView(
     @ColumnInfo(name = "auth_status") var authStatus: String,
     @ColumnInfo(name = "tls_mode") var tlsMode: Int,
     @ColumnInfo(name = "is_legacy") var isLegacy: Boolean,
-    @ColumnInfo(name = "server_label") val serverLabel: String?,
-    @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
+    @ColumnInfo(name = "properties") var properties: Properties,
 
-    // TODO Add a simple state that stores the current network info and put it in this view
-
-   // TODO implement a helper method that returns current session "mode" depending on:
-    //    - network info
-    //    - lifecycle state
-    //    - auth status
+//    @ColumnInfo(name = "server_label") val serverLabel: String?,
+//    @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
 ) {
     fun skipVerify() = tlsMode != 0
+
+    fun serverLabel(): String? {
+        if (properties.containsKey(RAccount.KEY_SERVER_LABEL)) {
+            return properties[RAccount.KEY_SERVER_LABEL] as String
+        }
+        return null
+    }
 
     fun getStateID(): StateID {
         return StateID.fromId(accountID)

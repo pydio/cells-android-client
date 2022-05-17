@@ -1,11 +1,11 @@
-package com.pydio.android.cells.db.accounts
+package com.pydio.android.cells.db.auth
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.pydio.cells.api.ServerURL
 import com.pydio.android.cells.db.Converters
+import com.pydio.cells.api.ServerURL
 
 /**
  *  Stores a map between the state that are generated during the OAuth process
@@ -25,3 +25,4 @@ data class ROAuthState(
     @ColumnInfo(name = "next") val next: String?,
 
     )
+    

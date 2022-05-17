@@ -1,7 +1,7 @@
 package com.pydio.android.cells.services
 
-import com.pydio.android.cells.db.accounts.LegacyCredentialsDao
-import com.pydio.android.cells.db.accounts.RLegacyCredentials
+import com.pydio.android.cells.db.auth.LegacyCredentialsDao
+import com.pydio.android.cells.db.auth.RLegacyCredentials
 import com.pydio.cells.api.Store
 
 class PasswordStore(private val dao: LegacyCredentialsDao) : Store<String> {

@@ -2,8 +2,8 @@ package com.pydio.android.cells.services
 
 import com.pydio.cells.api.Store
 import com.pydio.cells.transport.auth.Token
-import com.pydio.android.cells.db.accounts.RToken
-import com.pydio.android.cells.db.accounts.TokenDao
+import com.pydio.android.cells.db.auth.RToken
+import com.pydio.android.cells.db.auth.TokenDao
 
 class TokenStore(private val dao: TokenDao) : Store<Token> {
 
