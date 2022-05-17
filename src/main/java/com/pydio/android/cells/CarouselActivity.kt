@@ -1,6 +1,7 @@
 package com.pydio.android.cells
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.pydio.android.cells.databinding.ActivityCarouselBinding
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
@@ -62,9 +64,6 @@ class CarouselActivity : AppCompatActivity() {
 
     private fun handleIntent(savedInstanceState: Bundle?) {
 
-        Log.e(logTag, "handleIntent, bundle: $savedInstanceState")
-        Log.e(logTag, "has extra: ${intent.hasExtra(AppNames.EXTRA_STATE)}")
-
         var state: StateID? = null
         if (savedInstanceState != null) {
             val stateStr = savedInstanceState.getString(AppNames.EXTRA_STATE)
@@ -104,41 +103,137 @@ class CarouselActivity : AppCompatActivity() {
     }
 
     private fun setupCarousel() {
-//        val ml = binding.motionLayout
-        binding.carousel.setAdapter(object : Carousel.Adapter {
+        binding.carousel.setAdapter(MyAdapter())
+    }
 
-            override fun count(): Int {
-                return numImages
+    private inner class MyAdapter : Carousel.Adapter {
+
+        override fun count(): Int {
+            return numImages
+        }
+
+        override fun populate(view: View, index: Int) {
+            if (view !is ImageView) {
+                return
             }
 
-            override fun populate(view: View, index: Int) {
-                if (view is ImageView) {
-                    val currItem = carouselVM.elements.value!![index]
-                    val lf = fileService.getThumbPath(currItem)
+            Log.e(logTag, "Populating #$index")
+            val currItem = carouselVM.elements.value!![index]
+            val lf = fileService.getThumbPath(currItem)
+            val hf = fileService.getLocalPathFromState(
+                currItem.getStateID(),
+                AppNames.LOCAL_FILE_TYPE_OFFLINE
+            )
+
+            // File is already cached
+            if (File(hf).exists()) {
+                Log.e(logTag, "Loading real file")
+                val thumbnailRequest: RequestBuilder<Drawable> =
                     if (Str.notEmpty(lf) && File(lf!!).exists()) {
                         Glide.with(this@CarouselActivity)
                             .load(File(lf))
-                            .into(view)
                     } else {
-                        Log.w("SetNodeThumb", "no thumb found for $index")
                         Glide.with(this@CarouselActivity)
                             .load(R.drawable.loading_animation2)
-                            .into(view)
                     }
-                }
+
+                Glide.with(this@CarouselActivity)
+                    .load(File(hf))
+                    .thumbnail(thumbnailRequest)
+                    .into(view)
+
+            } // We have at least a thumb
+            else if (Str.notEmpty(lf) && File(lf!!).exists()) {
+                Log.e(logTag, "Loading thumb")
+                Glide.with(this@CarouselActivity)
+                    .load(File(lf))
+                    .into(view)
+            } // NO image is available
+            else {
+                Log.e(logTag, "Loading No file")
+                Glide.with(this@CarouselActivity)
+                    .load(R.drawable.file_question_outline)
+                    .into(view)
             }
 
-            override fun onNewItem(index: Int) {
-                //Log.e(logTag, "on new Item")
-                // Retrieve the encoded state of the current item and store it in the view model
-                // to stay at the same index upon restart / configuration change.
-                carouselVM.elements.value?.let {
-                    val currItem = it[index]
-                    carouselVM.setActive(currItem.getStateID())
-                    //Log.e(logTag, "set active: ${currItem.getStateID()}")
-                }
+            //                            .listener(object : RequestListener<Bitmap> {
+//                                override fun onLoadFailed(
+//                                    e: GlideException?,
+//                                    model: Any?,
+//                                    target: Target<Bitmap>?,
+//                                    isFirstResource: Boolean
+//                                ): Boolean {
+//                                    System.out.println("here's your exception")
+//                                    return true
+//                                }
+//
+//                                override fun onResourceReady(
+//                                    resource: Bitmap?,
+//                                    model: Any?,
+//                                    target: Target<Bitmap>?,
+//                                    dataSource: DataSource?,
+//                                    isFirstResource: Boolean
+//                                ): Boolean {
+//                                    System.out.println("here's your bitmap")
+//                                    return true
+//                                }
+//
+//                            }).preload()
+
+//
+//                Glide.with(context)
+//                    .asBitmap()
+//                    .load(imageUrl)
+//                    .thumbnail(0.3f)
+//                    .listener(object : RequestListener<Bitmap> {
+//                        override fun onLoadFailed(
+//                            e: GlideException?,
+//                            model: Any?,
+//                            target: Target<Bitmap>?,
+//                            isFirstResource: Boolean
+//                        ): Boolean {
+//                            System.out.println("here's your exception")
+//                            return true
+//                        }
+//
+//                        override fun onResourceReady(
+//                            resource: Bitmap?,
+//                            model: Any?,
+//                            target: Target<Bitmap>?,
+//                            dataSource: DataSource?,
+//                            isFirstResource: Boolean
+//                        ): Boolean {
+//                            System.out.println("here's your bitmap")
+//                            return true
+//                        }
+//
+//                    })
+//                    .preload()
+
+
+//                if (Str.notEmpty(lf) && File(lf!!).exists()) {
+//                    Glide.with(this@CarouselActivity)
+//
+//                        .load(File(lf))
+//                        .into(view)
+//                } else {
+//                    Log.w("SetNodeThumb", "no thumb found for $index")
+//                    Glide.with(this@CarouselActivity)
+//                        .load(R.drawable.loading_animation2)
+//                        .into(view)
+//                }
+        }
+
+        override fun onNewItem(index: Int) {
+            Log.e(logTag, "on new Item #$index")
+            // Retrieve the encoded state of the current item and store it in the view model
+            // to stay at the same index upon restart / configuration change.
+            carouselVM.elements.value?.let {
+                val currItem = it[index]
+                carouselVM.setActive(currItem.getStateID())
+                //Log.e(logTag, "set active: ${currItem.getStateID()}")
             }
-        })
+        }
     }
 
     private fun observe() {
