@@ -11,6 +11,7 @@ import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.BackOffTicker
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -85,7 +86,7 @@ class ActiveSessionViewModel(
         while (_isRunning) {
             doPull()
             val nd = backOffTicker.getNextDelay()
-            Log.d(logTag, "... $accountId - About to sleep $nd s.")
+            Log.d(logTag, "... ${StateID.fromId(_accountId)} - About to sleep ${nd}s")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
         Log.i(logTag, "paused")
