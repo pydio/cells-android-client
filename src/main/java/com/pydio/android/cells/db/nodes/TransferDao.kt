@@ -13,6 +13,8 @@ import com.pydio.android.cells.db.Converters
 @TypeConverters(Converters::class)
 interface TransferDao {
 
+    // MAIN TRANSFER OBJECT
+
     @Insert
     fun insert(transfer: RTransfer): Long
 

@@ -49,7 +49,7 @@ data class RWorkspace(
             return toRWorkspace(wsState, wsNode)
         }
 
-        fun toRWorkspace(stateID: StateID, wsNode: WorkspaceNode): RWorkspace {
+        private fun toRWorkspace(stateID: StateID, wsNode: WorkspaceNode): RWorkspace {
             try {
                 val node = RWorkspace(
                     encodedState = stateID.id,

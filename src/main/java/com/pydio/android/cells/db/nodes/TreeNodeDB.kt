@@ -7,8 +7,15 @@ import androidx.room.RoomDatabase
 import java.util.concurrent.ConcurrentHashMap
 
 @Database(
-    entities = [RTreeNode::class, ROfflineRoot::class, RTransfer::class, RTransferCancellation::class],
-    views = [RLiveOfflineRoot::class],
+    entities = [
+        RTreeNode::class,
+        ROfflineRoot::class,
+        RTransfer::class,
+        RTransferCancellation::class
+    ],
+    views = [
+        RLiveOfflineRoot::class
+    ],
     version = 1,
     exportSchema = false,
 )

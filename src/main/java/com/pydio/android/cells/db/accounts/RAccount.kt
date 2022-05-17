@@ -31,7 +31,6 @@ data class RAccount(
 
     // We rather use properties to simply be able to enrich model
     @ColumnInfo(name = "properties") val properties: Properties,
-
 //    @ColumnInfo(name = "server_label") val serverLabel: String?,
 //    @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
 ) {
