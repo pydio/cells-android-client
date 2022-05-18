@@ -11,9 +11,6 @@
         <variable
             name="offlineRoot"
             type="com.pydio.android.cells.db.nodes.RLiveOfflineRoot" />
-        <variable
-            name="thumbDirPath"
-            type="java.lang.String"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,8 +30,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:offlineRootThumb="@{offlineRoot}"
-            app:nodeThumbDirPath="@{thumbDirPath}"
-
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
         <TextView

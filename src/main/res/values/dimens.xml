@@ -39,6 +39,8 @@
     <!-- So that the last element of the list is not hidden by the fab
         Goes with the clipToPadding=false prop in the recycler layout -->
     <dimen name="recycler_bottom_fab_padding">64dp</dimen>
+    <!-- For rounded corners (in dp) -->
+    <integer name="glide_thumb_radius">6</integer>
     <!-- List Items -->
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="grid_icon_size">48dp</dimen>
@@ -48,7 +50,6 @@
     <dimen name="list_button_size">24dp</dimen>
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
-    <dimen name="glide_thumb_radius">6</dimen>
     <!-- Grid Layout with card view-->
     <integer name="grid_default_column_number">3</integer>
     <integer name="grid_bigger_column_number">2</integer>

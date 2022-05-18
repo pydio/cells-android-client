@@ -102,6 +102,7 @@ data class RTreeNode(
         return flags and flag == flag
     }
 
+
     fun toFileNode(): FileNode {
         // TODO double check: we might drop some info that we have missed on first draft implementation
         //   Rather directly use the properties
@@ -312,3 +313,7 @@ fun Int.showFlags(): String =
 // Prints the full range of all possible flags
 fun Int.debugAsString(): String =
     Integer.toBinaryString(this).padStart(Int.SIZE_BITS, '0')
+
+fun hasTreeNodeFlag(flags: Int, flag: Int): Boolean {
+    return flags and flag == flag
+}

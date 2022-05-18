@@ -11,9 +11,6 @@
         <variable
             name="offlineRoot"
             type="com.pydio.android.cells.db.nodes.RLiveOfflineRoot" />
-        <variable
-            name="thumbDirPath"
-            type="java.lang.String"/>
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -39,10 +36,8 @@
                 android:layout_height="@dimen/grid_layout_card_icon_size"
                 android:contentDescription="@string/content_description_media"
                 android:scaleType="centerCrop"
-                tools:srcCompat="@drawable/ic_baseline_folder_24"
                 app:offlineRootCardThumb="@{offlineRoot}"
-                app:nodeThumbDirPath="@{thumbDirPath}"
-                />
+                tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
             <View
                 style="@style/Divider.Horizontal.List"

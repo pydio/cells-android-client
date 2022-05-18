@@ -16,6 +16,8 @@ import com.pydio.android.cells.db.Converters
             "tree_nodes.mime, " +
             "tree_nodes.name, " +
             "tree_nodes.size, " +
+            "tree_nodes.etag, " +
+            "tree_nodes.flags, " +
             "offline_roots.sort_name " +
             "FROM offline_roots INNER JOIN tree_nodes " +
             "ON offline_roots.encoded_state = tree_nodes.encoded_state"
@@ -31,17 +33,21 @@ data class RLiveOfflineRoot(
 
     @ColumnInfo(name = "name") val name: String,
 
-    @ColumnInfo(name = "status") var status: String,
+    @ColumnInfo(name = "status") val status: String,
 
     @ColumnInfo(name = "local_mod_ts") val localModTs: Long = 0L,
 
-    @ColumnInfo(name = "last_check_ts") var lastCheckTs: Long = 0L,
+    @ColumnInfo(name = "last_check_ts") val lastCheckTs: Long = 0L,
 
-    @ColumnInfo(name = "message") var message: String?,
+    @ColumnInfo(name = "message") val message: String?,
 
-    @ColumnInfo(name = "sort_name") var sortName: String?,
+    @ColumnInfo(name = "sort_name") val sortName: String?,
 
-    @ColumnInfo(name = "size") var size: Long = -1L,
+    @ColumnInfo(name = "size") val size: Long = -1L,
+
+    @ColumnInfo(name = "etag") val etag: String?,
+
+    @ColumnInfo(name = "flags") val flags: Int,
 
 ) {
 

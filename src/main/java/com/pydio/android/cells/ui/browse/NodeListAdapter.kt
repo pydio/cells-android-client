@@ -10,13 +10,10 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.utils.Log
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.databinding.ListItemNodeBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.FileService
+import com.pydio.cells.utils.Log
 
 /**
  * Custom adapter for browsing folders with a recycler view using a list layout.
@@ -25,21 +22,22 @@ import com.pydio.android.cells.services.FileService
  */
 class NodeListAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
-) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()), KoinComponent {
+) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
-    private val tag = NodeListAdapter::class.simpleName
-    private val fileService: FileService by inject()
+    // private val logTag = NodeListAdapter::class.simpleName
+
+// , KoinComponent
+    // private val fileService: FileService by inject()
 
     private var showPath = false
     var tracker: SelectionTracker<String>? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        val thumbDirPath = fileService.dataParentPath(item.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         tracker?.let {
-            holder.bind(item, thumbDirPath, it.isSelected(item.encodedState))
+            holder.bind(item, it.isSelected(item.encodedState))
         } ?: run {
-            holder.bind(item, thumbDirPath)
+            holder.bind(item)
         }
     }
 
@@ -74,7 +72,8 @@ class NodeListAdapter(
 
         private val tag = ViewHolder::class.simpleName
 
-        fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
+        //         fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
+        fun bind(item: RTreeNode, isSelected: Boolean = false) {
             binding.node = item
 //            binding.thumbDirPath = thumbDirPath
 

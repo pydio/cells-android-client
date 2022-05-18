@@ -29,7 +29,6 @@ import com.pydio.cells.utils.Str
 import java.io.File
 import kotlin.math.roundToInt
 
-
 @BindingAdapter("nodeTitle")
 fun TextView.setNodeTitle(item: RTreeNode?) {
     item?.let {
@@ -110,14 +109,15 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
     }
 
     if (item.hasThumb()) {
+        val corner: Int = resources.getInteger(R.integer.glide_thumb_radius)
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .transform(
                 MultiTransformation(
                     CenterCrop(),
-                    // TODO Directly getting  the radius with R fails => image is a circle
-                    // RoundedCorners(R.dimen.glide_thumb_radius)
-                    RoundedCorners(16)
+                    // TODO this does not work
+                    RoundedCorners(convertDpToPixel(context, corner))
+                    // RoundedCorners(16)
                 )
             )
             .into(this)
@@ -291,84 +291,6 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
     }
 }
 
-//fun getDrawableFromMime(mime: String, sortName: String?): Int {
-//    // TODO enrich with more specific icons for files depending on the mime
-//
-//    // Tweak: we deduce type of ws root from the sort name. Not very clean
-//    val prefix = sortName ?: ""
-//
-//    var drawableId = when (mime) {
-//        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
-//        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
-//        SdkNames.NODE_MIME_WS_ROOT -> {
-//            when {
-//                prefix.startsWith("1_2") -> R.drawable.ic_baseline_folder_shared_24
-//                prefix.startsWith("1_8") -> R.drawable.cells_icon
-//                else -> R.drawable.icon_folder
-//            }
-//        }
-//        else -> -1
-//    }
-//    if (drawableId < 0) {
-//        var newMime: String? = null
-//        if (mime == SdkNames.NODE_MIME_DEFAULT) {
-//            newMime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
-//            // newMime = context.contentResolver.getType(Uri.parse("file://"))
-//        }
-//        if (newMime == null) {
-//            newMime = mime
-//        }
-//        drawableId = getFileDrawableIdFromMime(newMime)
-//    }
-//    return drawableId
-//}
-//
-//fun getFileDrawableIdFromMime(mime: String): Int {
-//// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-//    return when {
-//        mime.startsWith("image/", true) -> R.drawable.file_image_outline
-//        mime.startsWith("audio/", true) -> R.drawable.ic_outline_audio_file_24
-//        mime.startsWith("video/", true) -> R.drawable.ic_outline_video_file_24
-//        mime == "application/vnd.oasis.opendocument.text"
-//                || mime == "application/msword"
-//                || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-//        -> R.drawable.file_word_outline
-//        mime == "text/csv" || mime == "application/vnd.ms-excel"
-//                || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-//        -> R.drawable.file_excel_outline
-//        mime == "application/vnd.oasis.opendocument.presentation"
-//                || mime == "application/vnd.ms-powerpoint"
-//                || mime == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-//        -> R.drawable.file_powerpoint_outline
-//        mime == "application/pdf"
-//        -> R.drawable.file_pdf_box
-//        mime == "application/x-httpd-php" ||
-//                mime == "application/xml" ||
-//                mime == "text/javascript" ||
-//                mime == "application/xhtml+xml"
-//        -> R.drawable.file_code_outline
-//        else -> R.drawable.file_outline
-//    }
-//}
-
-//fun getGridDrawableFromMime(mime: String, sortName: String?): Int {
-//
-//    return when (mime) {
-//        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_grid_folder
-//        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_grid_recycle
-//        SdkNames.NODE_MIME_WS_ROOT -> {
-//            // Tweak: we deduce type of ws root from the sort name. Not very clean
-//            val prefix = sortName ?: ""
-//            when {
-//                prefix.startsWith("1_2") -> R.drawable.icon_grid_personal
-//                prefix.startsWith("1_8") -> R.drawable.icon_grid_cell
-//                else -> R.drawable.icon_grid_folder
-//            }
-//        }
-//        else -> R.drawable.icon_grid_file
-//    }
-//}
-
 fun getMessageFromLocalModifStatus(context: Context, status: String): String? {
     return when (status) {
         AppNames.LOCAL_MODIF_DELETE -> context.getString(R.string.in_progress_deleting)
@@ -378,7 +300,6 @@ fun getMessageFromLocalModifStatus(context: Context, status: String): String? {
         else -> null
     }
 }
-
 
 fun convertDpToPixel(context: Context, dp: Int): Int {
     val res =
