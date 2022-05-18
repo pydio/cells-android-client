@@ -64,14 +64,14 @@ class DownloadViewModel(
     init {
         vmScope.launch {
             // TODO handle case when a download for the same file is already running
-            val res = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+            val res = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
             if (res.second != null) {
                 _errorMessage.value = res.second
             } else {
                 res.first?.let {
                     transfer = transferService.liveTransfer(stateID.account(), it)
                     transferId.value = it
-                    transferService.downloadFile(stateID.account(), it)?.let {
+                    transferService.getOrDownloadFile(stateID.account(), it)?.let {
                         _errorMessage.value = it
                         return@launch
                     }

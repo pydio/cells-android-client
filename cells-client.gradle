@@ -89,6 +89,8 @@ dependencies {
     // dependencies are defined in root build.gradle file.
     implementation libraries
     kapt librariesKapt
+    // Enable custom data loader for glide library (display images)
+    annotationProcessor processors
 
     testImplementation testLibraries
     androidTestImplementation androidTestLibraries

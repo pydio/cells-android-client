@@ -22,6 +22,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -100,27 +101,17 @@ fun ImageView.showLoadingLayer(item: RTreeNode?) {
     }
 }
 
-@BindingAdapter("nodeThumbItem", "nodeThumbDirPath")
-fun ImageView.setNodeThumb(item: RTreeNode?, thumbDirPath: String?) {
+@BindingAdapter("nodeThumbItem")
+fun ImageView.setNodeThumb(item: RTreeNode?) {
 
     if (item == null) {
         setImageResource(R.drawable.icon_file)
         return
     }
 
-//    if (item.localModificationTS > item.remoteModificationTS) {
-//        setImageResource(R.drawable.loading_animation)
-//        return
-//    }
-
-    var thumbPath: String? = null
-    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
-        // TODO make this generic
-        thumbPath = "$thumbDirPath/${item.thumbFilename}"
-    }
-    if (thumbPath != null && File(thumbPath).exists()) {
+    if (item.hasThumb()) {
         Glide.with(context)
-            .load(File(thumbPath))
+            .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .transform(
                 MultiTransformation(
                     CenterCrop(),
@@ -135,31 +126,20 @@ fun ImageView.setNodeThumb(item: RTreeNode?, thumbDirPath: String?) {
     }
 }
 
-@BindingAdapter("cardThumbItem", "cardThumbDirPath")
-fun ImageView.setCardThumb(item: RTreeNode?, thumbDirPath: String?) {
+@BindingAdapter("cardThumbItem")
+fun ImageView.setCardThumb(item: RTreeNode?) {
     if (item == null) {
         setImageResource(R.drawable.icon_grid_file)
         return
     }
 
-    if (item.localModificationTS > item.remoteModificationTS) {
-        setImageResource(R.drawable.loading_animation2)
-        return
-    }
-
-    var thumbPath: String? = null
-    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
-        // TODO make this generic
-        thumbPath = "$thumbDirPath/${item.thumbFilename}"
-    }
-    if (thumbPath != null && File(thumbPath).exists()) {
+    if (item.hasThumb()) {
         Glide.with(context)
-            .load(File(thumbPath))
+            .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .transform(CenterCrop())
             .into(this)
     } else {
         setImageDrawable(getComposedDrawableForGrid(context, item.mime, item.sortName))
-        // setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
     }
 }
 

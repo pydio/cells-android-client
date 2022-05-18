@@ -44,15 +44,6 @@ data class RTreeNode(
 
     @ColumnInfo(name = "local_mod_status") var localModificationStatus: String? = null,
 
-    @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
-
-    // Can be: none, cache, offline, external
-    @ColumnInfo(name = "local_file_type") var localFileType: String = AppNames.LOCAL_FILE_TYPE_NONE,
-
-    // When necessary, we store the full path to the
-    // relevant local resource somewhere in the external storage.
-    @ColumnInfo(name = "localPath") var localFilePath: String? = null,
-
     // We store all the well known properties that we use
     @ColumnInfo(name = "properties") val properties: Properties,
 
@@ -69,6 +60,19 @@ data class RTreeNode(
 
     // Ease query against a given characteristic of the nodes (bookmarked, shared...)
     @ColumnInfo(name = "flags") var flags: Int = 0,
+
+    // Files management: Files are now managed with the RLocalFile object
+
+
+//    @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
+//
+//    // Can be: none, cache, offline, external
+//    @ColumnInfo(name = "local_file_type") var localFileType: String = AppNames.LOCAL_FILE_TYPE_NONE,
+//
+//    // When necessary, we store the full path to the
+//    // relevant local resource somewhere in the external storage.
+//    @ColumnInfo(name = "localPath") var localFilePath: String? = null,
+
 
     ) {
 
@@ -133,9 +137,6 @@ data class RTreeNode(
                 && localModificationTS == newItem.localModificationTS
                 && flags == newItem.flags
 
-        if (same && newItem.thumbFilename != null) {
-            same = newItem.thumbFilename.equals(thumbFilename)
-        }
 
         // With Room: we should get equality based on equality of each fields (column) for free
         // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
@@ -151,10 +152,6 @@ data class RTreeNode(
             Log.d(
                 logTag, "Local Old TS: ${localModificationTS}, " +
                         "new TS: ${newItem.localModificationTS}"
-            )
-            Log.d(
-                logTag, "Old thumb: ${thumbFilename}, " +
-                        "new thumb: ${newItem.thumbFilename}"
             )
             Log.d(
                 logTag, "Old flags: ${flags.showFlags()}, " +
@@ -199,6 +196,8 @@ data class RTreeNode(
 
                 // Share and offline cache values are rather handled in the NodeService directly
                 node.setBookmarked(fileNode.isBookmark)
+                node.setHasThumb(fileNode.hasThumb())
+                node.setPreViewable(fileNode.isPreViewable)
 
                 // Use Android library to precise MimeType when possible
                 if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
@@ -300,11 +299,27 @@ data class RTreeNode(
     fun setOfflineRoot(value: Boolean): Int {
         return setFlag(AppNames.FLAG_OFFLINE, value)
     }
+
+    fun hasThumb(): Boolean {
+        return isFlag(AppNames.FLAG_HAS_THUMB)
+    }
+
+    fun setHasThumb(value: Boolean): Int {
+        return setFlag(AppNames.FLAG_HAS_THUMB, value)
+    }
+
+    fun isPreViewable(): Boolean {
+        return isFlag(AppNames.FLAG_PRE_VIEWABLE)
+    }
+
+    fun setPreViewable(value: Boolean): Int {
+        return setFlag(AppNames.FLAG_PRE_VIEWABLE, value)
+    }
 }
 
-// Only 3 flags are defined (TODO use bit shifting and constants)
+// Only 5 flags are defined (TODO use bit shifting and constants)
 fun Int.showFlags(): String =
-    Integer.toBinaryString(this).padStart(3, '0')
+    Integer.toBinaryString(this).padStart(5, '0')
 
 // Prints the full range of all possible flags
 fun Int.debugAsString(): String =

@@ -76,7 +76,7 @@ class NodeListAdapter(
 
         fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
             binding.node = item
-            binding.thumbDirPath = thumbDirPath
+//            binding.thumbDirPath = thumbDirPath
 
             binding.rowLayout.isActivated = isSelected
             if (showPath) {

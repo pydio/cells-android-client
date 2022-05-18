@@ -20,15 +20,14 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.pydio.android.cells.databinding.ActivityCarouselBinding
-import com.pydio.android.cells.services.FileService
+import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 /**
  * Basic carousel to open the supported files (for the time being only images)
@@ -37,9 +36,11 @@ import java.io.File
 class CarouselActivity : AppCompatActivity() {
 
     private val logTag = CarouselActivity::class.simpleName
-    private val fileService: FileService by inject()
+    private val accountService: AccountService by inject()
 
     private val carouselVM: CarouselViewModel by viewModel()
+// FIXME PASS at least the account ID to the view model
+
     private lateinit var binding: ActivityCarouselBinding
 
     var numImages = 0
@@ -90,6 +91,9 @@ class CarouselActivity : AppCompatActivity() {
     private fun setupActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_carousel)
 
+        // TODO if no better solution is found, open here a simple viewer with glide
+        //   instead of the carousel => we have glitches when we have only one picture
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.windowInsetsController?.hide(WindowInsetsCompat.Type.statusBars())
             binding.root.windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
@@ -119,109 +123,39 @@ class CarouselActivity : AppCompatActivity() {
 
             Log.e(logTag, "Populating #$index")
             val currItem = carouselVM.elements.value!![index]
-            val lf = fileService.getThumbPath(currItem)
-            val hf = fileService.getLocalPathFromState(
-                currItem.getStateID(),
-                AppNames.LOCAL_FILE_TYPE_OFFLINE
-            )
 
-            // File is already cached
-            if (File(hf).exists()) {
-                Log.e(logTag, "Loading real file")
-                val thumbnailRequest: RequestBuilder<Drawable> =
-                    if (Str.notEmpty(lf) && File(lf!!).exists()) {
-                        Glide.with(this@CarouselActivity)
-                            .load(File(lf))
-                    } else {
-                        Glide.with(this@CarouselActivity)
-                            .load(R.drawable.loading_animation2)
-                    }
+            // Adding thumb for quick loading
+            val thumbnailRequest: RequestBuilder<Drawable> = Glide.with(this@CarouselActivity)
+                .load(encodeModel(currItem, AppNames.LOCAL_FILE_TYPE_THUMB))
 
+            // TODO handle here
+            // - using previews rather than full files when remote is cells (and when we are on a metered network? )
+            // - offline / metered strategy
+
+//            if (networkService.isNetworkMetered()) {
+//                downloadThumbs = CellsApp.instance.sharedPreferences.getBoolean(
+//                    AppNames.PREF_KEY_METERED_DL_THUMBS,
+//                    false
+//                )
+//                downloadFiles = CellsApp.instance.sharedPreferences.getBoolean(
+//                    AppNames.PREF_KEY_METERED_DL_FILES,
+//                    false
+//                )
+//
+//                Log.d(logTag, "Metered network, DL thumbs: $downloadThumbs, DL files: $downloadFiles")
+//            }
+
+            if (carouselVM.isRemoteLegacy) {
                 Glide.with(this@CarouselActivity)
-                    .load(File(hf))
+                    .load(encodeModel(currItem, AppNames.LOCAL_FILE_TYPE_FILE))
                     .thumbnail(thumbnailRequest)
                     .into(view)
-
-            } // We have at least a thumb
-            else if (Str.notEmpty(lf) && File(lf!!).exists()) {
-                Log.e(logTag, "Loading thumb")
+            } else {
                 Glide.with(this@CarouselActivity)
-                    .load(File(lf))
-                    .into(view)
-            } // NO image is available
-            else {
-                Log.e(logTag, "Loading No file")
-                Glide.with(this@CarouselActivity)
-                    .load(R.drawable.file_question_outline)
+                    .load(encodeModel(currItem, AppNames.LOCAL_FILE_TYPE_PREVIEW))
+                    .thumbnail(thumbnailRequest)
                     .into(view)
             }
-
-            //                            .listener(object : RequestListener<Bitmap> {
-//                                override fun onLoadFailed(
-//                                    e: GlideException?,
-//                                    model: Any?,
-//                                    target: Target<Bitmap>?,
-//                                    isFirstResource: Boolean
-//                                ): Boolean {
-//                                    System.out.println("here's your exception")
-//                                    return true
-//                                }
-//
-//                                override fun onResourceReady(
-//                                    resource: Bitmap?,
-//                                    model: Any?,
-//                                    target: Target<Bitmap>?,
-//                                    dataSource: DataSource?,
-//                                    isFirstResource: Boolean
-//                                ): Boolean {
-//                                    System.out.println("here's your bitmap")
-//                                    return true
-//                                }
-//
-//                            }).preload()
-
-//
-//                Glide.with(context)
-//                    .asBitmap()
-//                    .load(imageUrl)
-//                    .thumbnail(0.3f)
-//                    .listener(object : RequestListener<Bitmap> {
-//                        override fun onLoadFailed(
-//                            e: GlideException?,
-//                            model: Any?,
-//                            target: Target<Bitmap>?,
-//                            isFirstResource: Boolean
-//                        ): Boolean {
-//                            System.out.println("here's your exception")
-//                            return true
-//                        }
-//
-//                        override fun onResourceReady(
-//                            resource: Bitmap?,
-//                            model: Any?,
-//                            target: Target<Bitmap>?,
-//                            dataSource: DataSource?,
-//                            isFirstResource: Boolean
-//                        ): Boolean {
-//                            System.out.println("here's your bitmap")
-//                            return true
-//                        }
-//
-//                    })
-//                    .preload()
-
-
-//                if (Str.notEmpty(lf) && File(lf!!).exists()) {
-//                    Glide.with(this@CarouselActivity)
-//
-//                        .load(File(lf))
-//                        .into(view)
-//                } else {
-//                    Log.w("SetNodeThumb", "no thumb found for $index")
-//                    Glide.with(this@CarouselActivity)
-//                        .load(R.drawable.loading_animation2)
-//                        .into(view)
-//                }
         }
 
         override fun onNewItem(index: Int) {
@@ -246,6 +180,7 @@ class CarouselActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         Log.i(logTag, "onPostCreate")
         super.onPostCreate(savedInstanceState, persistentState)
+
         jumpToIndex()
     }
 
@@ -255,6 +190,12 @@ class CarouselActivity : AppCompatActivity() {
             Log.e(logTag, "Could not jump to index, carousel has no elements")
             return
         }
+
+// Does not work
+//        // We disable the carousel when we have only one image
+//        if (currItems.size < 2) {
+//            binding.motionLayout.isEnabled = false
+//        }
 
         var index: Int = -1
         var i = 0

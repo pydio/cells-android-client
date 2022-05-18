@@ -2,6 +2,7 @@ package com.pydio.android.cells.services
 
 import android.content.Context
 import android.util.Log
+import com.pydio.android.cells.CellsApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -10,6 +11,7 @@ import kotlinx.coroutines.withContext
 import com.pydio.android.cells.db.accounts.RSession
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.cells.transport.StateID
 
 class TreeNodeRepository(private val applicationContext: Context, private val sessionDao: SessionDao) {
 
@@ -36,6 +38,17 @@ class TreeNodeRepository(private val applicationContext: Context, private val se
             _sessions[rSession.accountID] = rSession
             Log.d(logTag, "   - ${rSession.accountID} at ${rSession.dirName}")
         }
+    }
+
+    fun nodeDB(stateID: StateID): TreeNodeDB {
+        // TODO cache this
+        val accId = sessions[stateID.accountId]
+            ?: throw IllegalStateException("No dir name found for $stateID")
+        return TreeNodeDB.getDatabase(
+            CellsApp.instance.applicationContext,
+            stateID.accountId,
+            accId.dbName,
+        )
     }
 
     fun closeNodeDb(accountId: String) {

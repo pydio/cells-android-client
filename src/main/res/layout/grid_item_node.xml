@@ -11,9 +11,10 @@
         <variable
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
+
         <variable
             name="thumbDirPath"
-            type="java.lang.String"/>
+            type="java.lang.String" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -26,7 +27,7 @@
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/grid_ws_card_elevation"
         app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">
-<!--        android:background="@drawable/item_selectable"-->
+        <!--        android:background="@drawable/item_selectable"-->
         <!--        app:cardBackgroundColor="?attr/colorOnPrimary"-->
 
         <LinearLayout
@@ -42,8 +43,10 @@
                 android:contentDescription="@string/content_description_media"
                 android:scaleType="centerCrop"
                 app:cardThumbItem="@{node}"
-                app:cardThumbDirPath="@{thumbDirPath}"
                 tools:srcCompat="@drawable/icon_grid_folder" />
+
+            <!--app:cardThumbDirPath="@{thumbDirPath}"-->
+
 
             <View
                 style="@style/Divider.Horizontal.List"

@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -49,17 +48,6 @@ class NodeService(
     private val logTag = NodeService::class.simpleName
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
-
-    fun nodeDB(stateID: StateID): TreeNodeDB {
-        // TODO cache this
-        val accId = treeNodeRepository.sessions[stateID.accountId]
-            ?: throw IllegalStateException("No dir name found for $stateID")
-        return TreeNodeDB.getDatabase(
-            CellsApp.instance.applicationContext,
-            stateID.accountId,
-            accId.dbName,
-        )
-    }
 
     /* Expose DB content as LiveData for the ViewModels */
 
@@ -342,8 +330,7 @@ class NodeService(
 
             // TODO Rather use DI via a factory?
             val fileDL = FileDownloader()
-            val thumbDL = ThumbDownloader(client, nodeDB(stateID))
-
+            val thumbDL = ThumbDownloader()
             val changeNb = syncNodeAt(treeNode, client, treeNodeDao, fileDL, thumbDL)
 
             if (changeNb > 0) {
@@ -505,8 +492,8 @@ class NodeService(
             val dao = nodeDB(stateID).treeNodeDao()
 
             // WARNING: this browse **all** files that are in the folder
-            val thumbDL = ThumbDownloader(client, nodeDB(stateID))
-            val folderDiff = TreeDiff(stateID, client, dao, null, thumbDL)
+            // We download files lazily via the Glide library
+            val folderDiff = TreeDiff(stateID, client, dao, null, null)
             val changeNb = folderDiff.compareWithRemote()
             return@withContext Pair(changeNb, null)
         } catch (e: SDKException) {
@@ -561,21 +548,24 @@ class NodeService(
             // return rTreeNode.localFilename != null
         }
 
-        // Compare with remote if possible
-        val remoteStats = statRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
-        if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-            && rTreeNode.localModificationTS >= remoteStats.getmTime()
-        ) {
-            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE).let {
-                val file = File(it)
-                // TODO at this point we are not 100% sure the local file
-                //  is in-line with remote, typically if update is in process
-                if (file.exists()) {
-                    return true
-                }
-            }
-        }
-        return false
+        // FIXME
+        return true
+
+//        // Compare with remote if possible
+//        val remoteStats = statRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
+//        if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
+//            && rTreeNode.localModificationTS >= remoteStats.getmTime()
+//        ) {
+//            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE).let {
+//                val file = File(it)
+//                // TODO at this point we are not 100% sure the local file
+//                //  is in-line with remote, typically if update is in process
+//                if (file.exists()) {
+//                    return true
+//                }
+//            }
+//        }
+//        return false
     }
 
     /**
@@ -587,7 +577,7 @@ class NodeService(
      */
     suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
         withContext(Dispatchers.IO) {
-            val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE))
+            val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
                 return@withContext null
             }
@@ -614,63 +604,63 @@ class NodeService(
             }
         }
 
-    suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
-
-        withContext(Dispatchers.IO) {
-            Log.i(logTag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
-            // TODO improve check to decide whether we should download the full file or not
-            val isOK = isCacheVersionUpToDate(rTreeNode)
-            when {
-                isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-                -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
-                    .let { return@withContext File(it) }
-                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
-                -> {
-                }
-                isOK ?: false
-                -> return@withContext File(
-                    fileService.getLocalPath(
-                        rTreeNode,
-                        AppNames.LOCAL_FILE_TYPE_CACHE
-                    )
-                )
-            }
-
-            Log.i(logTag, "... Launching download for ${rTreeNode.name}")
-
-            val stateID = rTreeNode.getStateID()
-            val baseDir =
-                fileService.dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
-            val targetFile = File(baseDir, stateID.path.substring(1))
-            targetFile.parentFile!!.mkdirs()
-            var out: FileOutputStream? = null
-
-            try {
-                out = FileOutputStream(targetFile)
-
-                // TODO handle progress
-                getClient(stateID).download(stateID.workspace, stateID.file, out, null)
-
-                // Success persist change
-                rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
-                rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
-                nodeDB(stateID).treeNodeDao().update(rTreeNode)
-                Log.i(logTag, "... download done for ${rTreeNode.name}")
-            } catch (se: SDKException) {
-                // Could not retrieve thumb, failing silently for the end user
-                val msg = "could not perform DL for " + stateID.id
-                handleSdkException(stateID, msg, se)
-                return@withContext null
-            } catch (ioe: IOException) {
-                // TODO handle this: what should we do ?
-                Log.e(logTag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
-                ioe.printStackTrace()
-                return@withContext null
-            } finally {
-                IoHelpers.closeQuietly(out)
-            }
-            targetFile
-        }
+//    suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
+//
+//        withContext(Dispatchers.IO) {
+//            Log.i(logTag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
+//            // TODO improve check to decide whether we should download the full file or not
+//            val isOK = isCacheVersionUpToDate(rTreeNode)
+//            when {
+//                isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
+//                -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
+//                    .let { return@withContext File(it) }
+//                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
+//                -> {
+//                }
+//                isOK ?: false
+//                -> return@withContext File(
+//                    fileService.getLocalPath(
+//                        rTreeNode,
+//                        AppNames.LOCAL_FILE_TYPE_CACHE
+//                    )
+//                )
+//            }
+//
+//            Log.i(logTag, "... Launching download for ${rTreeNode.name}")
+//
+//            val stateID = rTreeNode.getStateID()
+//            val baseDir =
+//                fileService.dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
+//            val targetFile = File(baseDir, stateID.path.substring(1))
+//            targetFile.parentFile!!.mkdirs()
+//            var out: FileOutputStream? = null
+//
+//            try {
+//                out = FileOutputStream(targetFile)
+//
+//                // TODO handle progress
+//                getClient(stateID).download(stateID.workspace, stateID.file, out, null)
+//
+//                // Success persist change
+//                rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
+//                rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
+//                nodeDB(stateID).treeNodeDao().update(rTreeNode)
+//                Log.i(logTag, "... download done for ${rTreeNode.name}")
+//            } catch (se: SDKException) {
+//                // Could not retrieve thumb, failing silently for the end user
+//                val msg = "could not perform DL for " + stateID.id
+//                handleSdkException(stateID, msg, se)
+//                return@withContext null
+//            } catch (ioe: IOException) {
+//                // TODO handle this: what should we do ?
+//                Log.e(logTag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
+//                ioe.printStackTrace()
+//                return@withContext null
+//            } finally {
+//                IoHelpers.closeQuietly(out)
+//            }
+//            targetFile
+//        }
 
     private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
@@ -687,7 +677,7 @@ class NodeService(
                         input = FileInputStream(
                             getLocalFile(
                                 rTreeNode,
-                                AppNames.LOCAL_FILE_TYPE_CACHE
+                                AppNames.LOCAL_FILE_TYPE_FILE
                             )
                         )
                         IoHelpers.pipeRead(input, out)
@@ -812,6 +802,10 @@ class NodeService(
     }
 
     /* Constants and helpers */
+    private fun nodeDB(stateID: StateID): TreeNodeDB {
+        return treeNodeRepository.nodeDB(stateID)
+    }
+
     private fun getClient(stateId: StateID): Client {
         return accountService.getClient(stateId)
     }
@@ -836,14 +830,14 @@ class NodeService(
         accountService.notifyError(stateID, se.code)
     }
 
-    // TODO Trick so that we do not store offline files also in the cache... double check
     private fun getLocalFile(item: RTreeNode, type: String): File {
-        if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
-            type == AppNames.LOCAL_FILE_TYPE_CACHE &&
-            item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-        ) {
-            return File(fileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
-        }
+// Trick so that we do not store offline files also in the cache... double check
+//        if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
+//            type == AppNames.LOCAL_FILE_TYPE_CACHE // FIXME &&
+////             item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
+//        ) {
+//            return File(fileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
+//        }
         return File(fileService.getLocalPath(item, type))
     }
 }

@@ -28,8 +28,6 @@ class FileExporter(
     lateinit var createDocument: ActivityResultLauncher<String>
 
     private val nodeService: NodeService by inject()
-    // private val transferService: TransferService by inject()
-
 
     override fun onCreate(owner: LifecycleOwner) {
         createDocument = registry.register(

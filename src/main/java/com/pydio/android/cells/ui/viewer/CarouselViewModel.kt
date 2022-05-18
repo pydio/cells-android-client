@@ -4,18 +4,29 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pydio.cells.transport.StateID
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.isPreViewable
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Holds a list of viewable images for the carousel. It takes care of preloading data in background
  * in advance in order to reduce loading time when the user wants to see a given image.
  */
-class CarouselViewModel(private val nodeService: NodeService) : ViewModel() {
+class CarouselViewModel(
+    private val accountService: AccountService,
+    private val nodeService: NodeService
+) : ViewModel() {
 
     private val logTag = CarouselViewModel::class.simpleName
+    private val viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private lateinit var _allChildren: LiveData<List<RTreeNode>>
     val allChildren: LiveData<List<RTreeNode>>
@@ -29,7 +40,17 @@ class CarouselViewModel(private val nodeService: NodeService) : ViewModel() {
     val currActive: StateID
         get() = _currActive
 
+    private var _isRemoteLegacy = false
+    val isRemoteLegacy: Boolean
+        get() = _isRemoteLegacy
+
+
     fun afterCreate(parentFolder: StateID, startElement: StateID) {
+        vmScope.launch {
+            withContext(Dispatchers.IO) {
+                _isRemoteLegacy = accountService.isLegacy(parentFolder)
+            }
+        }
         _currActive = startElement
         // We cannot rely yet on the mime type that is most of the time not correct
         // elements = nodeService.listViewable(parentFolder, "image/")

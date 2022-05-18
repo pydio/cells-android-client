@@ -12,9 +12,9 @@
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
 
-        <variable
-            name="thumbDirPath"
-            type="java.lang.String" />
+<!--        <variable-->
+<!--            name="thumbDirPath"-->
+<!--            type="java.lang.String" />-->
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,9 +34,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:nodeThumbDirPath="@{thumbDirPath}"
             app:nodeThumbItem="@{node}"
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
+<!--        app:nodeThumbDirPath="@{thumbDirPath}"-->
 
         <ImageView
             android:id="@+id/node_thumb_loading"
@@ -69,9 +69,9 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             app:nodeTitle="@{node}"
-            tools:text="Folder 1 avec un texte vraiment  " />
-        <!--        app:layout_constraintVertical_bias="0.35"-->
+            tools:text="Folder 1 with a very very long text...  " />
 
+        <!--        app:layout_constraintVertical_bias="0.35"-->
         <!--        app:layout_constraintHorizontal_chainStyle="packed"-->
 
         <TextView

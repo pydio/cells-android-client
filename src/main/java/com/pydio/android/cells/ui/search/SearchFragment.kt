@@ -133,7 +133,11 @@ class SearchFragment : Fragment() {
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
-        val file = nodeService.getOrDownloadFileToCache(node)
-        file?.let { externallyView(requireContext(), it, node) }
+
+        // FIXME
+        return@launch
+
+//        val file = nodeService.getOrDownloadFileToCache(node)
+//        file?.let { externallyView(requireContext(), it, node) }
     }
 }

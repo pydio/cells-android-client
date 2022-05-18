@@ -1,6 +1,13 @@
 package com.pydio.android.cells.transfer
 
 import android.util.Log
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.db.nodes.TreeNodeDao
+import com.pydio.android.cells.services.FileService
+import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.utils.areNodeContentEquals
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
@@ -13,15 +20,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.db.nodes.TreeNodeDao
-import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.services.NetworkService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.utils.areNodeContentEquals
-import com.pydio.android.cells.utils.currentTimestamp
 import java.io.File
 
 class TreeDiff(
@@ -29,7 +27,7 @@ class TreeDiff(
     private val client: Client,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
-    private val thumbDL: ThumbDownloader,
+    private val thumbDL: ThumbDownloader?,
 ) : KoinComponent {
 
     companion object {
@@ -51,16 +49,13 @@ class TreeDiff(
 
     private val nodeService: NodeService by inject()
     private val fileService: FileService by inject()
-    private val networkService: NetworkService by inject()
 
-    private val thumbParPath =
-        fileService.dataParentPath(
-            baseFolderStateId.accountId,
-            AppNames.LOCAL_FILE_TYPE_THUMB
-        ) + File.separator
+//    private val thumbParPath =
+//        fileService.dataParentPath(baseFolderStateId.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+//    private val previewParPath =
+//        fileService.dataParentPath(baseFolderStateId.accountId, AppNames.LOCAL_FILE_TYPE_PREVIEW)
 
-    private var downloadThumbs = true
-    private var downloadFiles = true
+    private var downloadFiles = fileDL != null
 
     private var changeNumber = 0
 
@@ -68,19 +63,6 @@ class TreeDiff(
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
         Log.d(logTag, "Launching diff for $baseFolderStateId")
-
-        if (networkService.isNetworkMetered()) {
-            downloadThumbs = CellsApp.instance.sharedPreferences.getBoolean(
-                AppNames.PREF_KEY_METERED_DL_THUMBS,
-                false
-            )
-            downloadFiles = CellsApp.instance.sharedPreferences.getBoolean(
-                AppNames.PREF_KEY_METERED_DL_FILES,
-                false
-            )
-
-            Log.d(logTag, "Metered network, DL thumbs: $downloadThumbs, DL files: $downloadFiles")
-        }
 
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(baseFolderStateId.id)
@@ -91,12 +73,12 @@ class TreeDiff(
             val msg = "stat failed at ${baseFolderStateId}: ${e.message}"
             Log.e(logTag, msg)
             // Corner case: connection failed, we just return with no change
-            if (e.isConnectionFailedError){
+            if (e.isConnectionFailedError) {
                 throw e
             }
         }
 
-        if (remote == null){
+        if (remote == null) {
             local?.let {
                 putDeleteChange(it)
                 return@withContext 1
@@ -137,12 +119,12 @@ class TreeDiff(
         processChanges(remotes, locals)
 
         // Update info for current folder
-        if (baseFolderStateId.file == "/"){
+        if (baseFolderStateId.file == "/") {
             nodeService.getNode(baseFolderStateId)?.let {
                 it.lastCheckTS = currentTimestamp()
                 dao.update(it)
             }
-        } else if (baseFolderStateId.file != null){
+        } else if (baseFolderStateId.file != null) {
             client.nodeInfo(baseFolderStateId.workspace, baseFolderStateId.file)?.let { parFolder ->
                 nodeService.upsertNode(RTreeNode.fromFileNode(baseFolderStateId, parFolder), true)
             }
@@ -234,45 +216,57 @@ class TreeDiff(
     /* LOCAL HELPERS */
 
     private fun alsoCheckFile(local: RTreeNode) {
+        // FIXME
+        return
+//
+//        if (!downloadFiles) {
+//            return
+//        }
+//
+//        fileDL?.let {
+//            diffScope.launch {
+//                if (local.isFolder()) { // we do only files
+//                    return@launch
+//                }
+//                var doIt = local.localFilePath == null
+//                if (!doIt) { // we might have recorded the name but have a missing file
+//                    doIt = !File(local.localFilePath!!).exists()
+//                    // TODO also check if the file has changed.
+//                }
+//                if (doIt) {
+//                    it.orderFileDL(local.encodedState)
+//                }
+//            }
+//        }
+    }
+
+    private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
+        // FIXME
+        return
+//        if (!downloadThumbs) {
+//            return
+//        }
+//        if (remote.isImage) {
+//            if (local.thumbFilename == null || !File(thumbParPath + local.thumbFilename).exists()) {
+//                diffScope.launch {
+//                    val childStateID = baseFolderStateId.child(remote.name)
+//                    thumbDL.orderThumbDL(childStateID.id)
+//                }
+//            }
+//        }
+    }
+
+    private fun downloadFilesIfNecessary(remote: FileNode, stateID: StateID) {
         if (!downloadFiles) {
             return
         }
 
-        fileDL?.let {
+        if (remote.isImage && thumbDL != null) {
             diffScope.launch {
-                if (local.isFolder()) { // we do only files
-                    return@launch
+                thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
+                if (!client.isLegacy){
+                    thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
                 }
-                var doIt = local.localFilePath == null
-                if (!doIt) { // we might have recorded the name but have a missing file
-                    doIt = !File(local.localFilePath!!).exists()
-                    // TODO also check if the file has changed.
-                }
-                if (doIt) {
-                    it.orderFileDL(local.encodedState)
-                }
-            }
-        }
-    }
-
-    private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
-        if (!downloadThumbs) {
-            return
-        }
-        if (remote.isImage) {
-            if (local.thumbFilename == null || !File(thumbParPath + local.thumbFilename).exists()) {
-                diffScope.launch {
-                    val childStateID = baseFolderStateId.child(remote.name)
-                    thumbDL.orderThumbDL(childStateID.id)
-                }
-            }
-        }
-    }
-
-    private fun downloadFilesIfNecessary(remote: FileNode, stateID: StateID) {
-        if (remote.isImage && downloadThumbs) {
-            diffScope.launch {
-                thumbDL.orderThumbDL(stateID.id)
             }
         }
         if (remote.isFile && downloadFiles) {
@@ -286,7 +280,7 @@ class TreeDiff(
 
     private fun deleteLocalFile(local: RTreeNode) {
         // Local cache or offline file
-        val file = File(fileService.getLocalPath(local, getCurrentFileType()))
+        val file = File(fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_FILE))
         if (file.exists()) {
             file.delete()
         }
@@ -302,7 +296,7 @@ class TreeDiff(
 
     private fun deleteLocalFolder(local: RTreeNode) {
 
-        val file = File(fileService.getLocalPath(local, getCurrentFileType()))
+        val file = File(fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_FILE))
         if (file.exists()) {
             file.deleteRecursively()
         }
@@ -314,13 +308,13 @@ class TreeDiff(
     }
 
     /** Detect current context (offline or cache) relying on the presence of a FileDownloader */
-    private fun getCurrentFileType(): String {
-        val isOfflineContext = fileDL != null
-        return if (isOfflineContext)
-            AppNames.LOCAL_FILE_TYPE_CACHE
-        else
-            AppNames.LOCAL_FILE_TYPE_OFFLINE
-    }
+//    private fun getCurrentFileType(): String {
+//        val isOfflineContext = fileDL != null
+//        return if (isOfflineContext)
+//            AppNames.LOCAL_FILE_TYPE_CACHE
+//        else
+//            AppNames.LOCAL_FILE_TYPE_OFFLINE
+//    }
 
     /**
      * Convenience class that iterates on remote pages to list the full content of

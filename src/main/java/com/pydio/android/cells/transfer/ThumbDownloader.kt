@@ -1,18 +1,9 @@
 package com.pydio.android.cells.transfer
 
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.db.nodes.TreeNodeDB
-import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.FileService
-import com.pydio.cells.api.Client
+import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.api.SDKException
-import com.pydio.cells.api.SdkNames
-import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.FileNodeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,15 +12,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.File
 import kotlin.coroutines.coroutineContext
 
-class ThumbDownloader(
-    private val client: Client,
-    private val nodeDB: TreeNodeDB,
-    private val thumbSize: Int = 100,
-) : KoinComponent {
-
+class ThumbDownloader : KoinComponent {
+    //    (
+//     private val client: Client,
+//     private val nodeDB: TreeNodeDB,
+//     private val thumbSize: Int = 100,
+// ) : KoinComponent {
     private val logTag = ThumbDownloader::class.java.simpleName
 
     private val doneChannel = Channel<Boolean>()
@@ -38,70 +28,28 @@ class ThumbDownloader(
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
-    private val fileService: FileService by inject()
-    private val accountService: AccountService by inject()
+    // private val fileService: FileService by inject()
+    private val transferService: TransferService by inject()
+    // private val accountService: AccountService by inject()
 
-    private suspend fun download(encodedState: String) {
+    private suspend fun download(encoded: String) {
 
-        val state = StateID.fromId(encodedState)
-        val rNode = nodeDB.treeNodeDao().getNode(encodedState)
-        if (rNode == null) {
-            // No node found, aborting
-            Log.w(logTag, "No node found for $state, aborting thumb DL")
-            return
-        }
-
-        val node = FileNode()
-        node.properties = rNode.properties
-        node.meta = rNode.meta
-
-        val parentFolder =
-            fileService.dataParentPath(state.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+        val res = decodeModel(encoded)
         try {
-            client.getThumbnail(state, node, File(parentFolder), thumbSize)?.let {
-                if (!client.isLegacy) {
-                    handleOrientation(rNode, parentFolder + File.separator + it)
-                }
-
-                rNode.thumbFilename = it
-                nodeDB.treeNodeDao().update(rNode)
-            }
+            transferService.getOrDownloadFile(res.first, res.second)
         } catch (e: SDKException) {
-            Log.w(logTag, "could not download thumbnail for $state, error #${e.code}: ${e.message}")
+            Log.w(
+                logTag,
+                "could not download ${res.second} for ${res.first}, error #${e.code}: ${e.message}"
+            )
             // accountService.notifyError(state, e.code)
         }
     }
 
-    /**
-     * Pydio Cells generates thumbnails without including main image EXIF data.
-     * So we must manually get the orientation and add it to the thumb to ease later
-     * manipulation of the images.
-     * Note that we cannot do this in the Java SDK layer to use convenient library
-     * that are provided by the android platform.
-     */
-    private fun handleOrientation(rTreeNode: RTreeNode, absPath: String) {
-        // EXIF DATA must be manually retrieved from main image and applied
-        val exifInterface = ExifInterface(absPath)
-        if (rTreeNode.meta.containsKey(SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION)) {
-            var orientation = rTreeNode.meta[SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION] as String
-            orientation = FileNodeUtils.extractJSONString(orientation)
-            exifInterface.setAttribute(
-                ExifInterface.TAG_ORIENTATION,
-                orientation
-            )
-            exifInterface.saveAttributes()
-        }
-    }
-
-    private fun targetPath(accountId: String, targetName: String): String {
-        val thumbParPath = fileService.dataParentPath(accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
-        return thumbParPath + File.separator + targetName
-    }
-
-
-    suspend fun orderThumbDL(url: String) {
+    suspend fun orderThumbDL(url: String, type: String) {
+        val encoded = "$type:$url"
         Log.d(logTag, "DL Thumb for $url")
-        queue.send(url)
+        queue.send(encoded)
     }
 
     suspend fun allDone() {
@@ -140,5 +88,11 @@ class ThumbDownloader(
             break
         }
         coroutineContext.cancelChildren()
+    }
+
+    private fun decodeModel(model: String): Pair<StateID, String> {
+        val type = model.substring(0, model.indexOf(":"))
+        val encoded = model.substring(model.indexOf(":") + 1)
+        return Pair(StateID.fromId(encoded), type)
     }
 }

@@ -33,8 +33,9 @@
             <include
                 android:id="@+id/included_header"
                 layout="@layout/more_menu_header"
-                app:node="@{node}"
-                app:thumbDirPath="@{thumbDirPath}" />
+                app:node="@{node}" />
+
+            <!--            app:thumbDirPath="@{thumbDirPath}"-->
 
             <View style="@style/Divider.Horizontal" />
 
@@ -189,8 +190,8 @@
                     android:layout_marginTop="@dimen/margin_small" />
 
                 <TextView
-                    style="@style/TextAppearance.Cells.TitleSmall"
                     android:id="@+id/share_block_header"
+                    style="@style/TextAppearance.Cells.TitleSmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"

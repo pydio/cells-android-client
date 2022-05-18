@@ -23,6 +23,10 @@ interface AccountService {
 
     suspend fun openSession(accountID: String)
 
+    suspend fun isLegacy(stateId: StateID): Boolean
+
+    suspend fun isRemoteCells(stateId: StateID): Boolean
+
     fun getClient(stateId: StateID): Client
 
     suspend fun isClientConnected(stateID: String): Boolean

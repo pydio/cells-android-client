@@ -62,6 +62,8 @@ public interface AppNames {
     int FLAG_BOOKMARK = 1;
     int FLAG_SHARE = 2;
     int FLAG_OFFLINE = 4;
+    int FLAG_HAS_THUMB = 8;
+    int FLAG_PRE_VIEWABLE = 16;
 
     /* Modification status */
     String LOCAL_MODIF_DELETE = "deleting";
@@ -128,21 +130,25 @@ public interface AppNames {
 
     // Local tree:
     // baseDir +--- cache +--- accountID +--- thumbs
-    //                                   +--- cache
+    //                                   +--- previews
     //         +--- files +--- accountID +--- offline
     String THUMB_PARENT_DIR = "thumbs";
-    String CACHED_FILE_PARENT_DIR = "cache";
+    String PREVIEW_PARENT_DIR = "previews";
+    String LOCAL_FILE_PARENT_DIR = "local";
     String TRANSFER_PARENT_DIR = "transfers";
-    String OFFLINE_FILE_PARENT_DIR = "offline";
+//    String OFFLINE_FILE_PARENT_DIR = "offline";
 
     // Local types
     String LOCAL_DIR_TYPE_CACHE = "cache";
     String LOCAL_DIR_TYPE_FILE = "files";
-    String LOCAL_FILE_TYPE_NONE = "none";
+//    String LOCAL_FILE_TYPE_NONE = "none";
+
     String LOCAL_FILE_TYPE_THUMB = "thumb";
+    String LOCAL_FILE_TYPE_PREVIEW = "preview";
+    String LOCAL_FILE_TYPE_FILE = "file";
     String LOCAL_FILE_TYPE_TRANSFER = "transfer";
-    String LOCAL_FILE_TYPE_CACHE = "cache";
-    String LOCAL_FILE_TYPE_OFFLINE = "offline";
+//    String LOCAL_FILE_TYPE_CACHE = "cache";
+//    String LOCAL_FILE_TYPE_OFFLINE = "offline";
     // TODO
     // String LOCAL_FILE_TYPE_EXTERNAL = "external";
 }

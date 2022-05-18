@@ -7,6 +7,7 @@ import com.pydio.android.cells.db.accounts.WorkspaceDao
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.utils.areWsNodeContentEquals
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
@@ -26,10 +27,10 @@ class WorkspaceDiff(
 
     private val logTag = WorkspaceDiff::class.simpleName
 
-    private val nodeService: NodeService by inject()
+    private val treeNodeRepository: TreeNodeRepository by inject()
     private val fileService: FileService by inject()
     private val wsDao: WorkspaceDao by inject()
-    private val nodeDB = nodeService.nodeDB(accountId)
+    private val nodeDB = treeNodeRepository.nodeDB(accountId)
 
     private var changeNumber = 0
 
@@ -125,7 +126,7 @@ class WorkspaceDiff(
 
         // delete cached files
         val cacheParPath =
-            fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
+            fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_FILE)
         val cache = File(cacheParPath + suffix)
         if (cache.exists()) {
             cache.deleteRecursively()
@@ -134,15 +135,16 @@ class WorkspaceDiff(
         // delete thumbs
         val thumbParPath =
             fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
-        for (node in nodeDB.treeNodeDao().getUnder(local.encodedState)) {
-            node.thumbFilename?.let {
-                Log.i(logTag, "Got a file to delete: $it")
-                val thumb = File("${thumbParPath}/$it")
-                if (thumb.exists()) {
-                    thumb.delete()
-                }
-            }
-        }
+        // FIXME
+//        for (node in nodeDB.treeNodeDao().getUnder(local.encodedState)) {
+//            node.thumbFilename?.let {
+//                Log.i(logTag, "Got a file to delete: $it")
+//                val thumb = File("${thumbParPath}/$it")
+//                if (thumb.exists()) {
+//                    thumb.delete()
+//                }
+//            }
+//        }
 
         // remove corresponding index
         nodeDB.treeNodeDao().deleteUnder(local.encodedState)

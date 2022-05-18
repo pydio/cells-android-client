@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Database(
     entities = [
         RTreeNode::class,
+        RLocalFile::class,
         ROfflineRoot::class,
         RTransfer::class,
         RTransferCancellation::class
@@ -22,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap
 abstract class TreeNodeDB : RoomDatabase() {
 
     abstract fun treeNodeDao(): TreeNodeDao
+
+    abstract fun localFileDao(): LocalFileDao
 
     abstract fun offlineRootDao(): OfflineRootDao
 

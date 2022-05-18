@@ -28,9 +28,8 @@
         <include
             android:id="@+id/included_header"
             layout="@layout/more_menu_header"
-            app:node="@{node}"
-            app:thumbDirPath="@{thumbDirPath}" />
-
+            app:node="@{node}" />
+        <!--        app:thumbDirPath="@{thumbDirPath}"-->
         <!-- We only have one view for the recycle and when we are within,
              useful commands are shown depending on the bound node -->
 

@@ -5,16 +5,22 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTransferCancellation
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
+import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +38,7 @@ import java.util.*
 
 class TransferService(
     private val accountService: AccountService,
+    private val treeNodeRepository: TreeNodeRepository,
     private val nodeService: NodeService,
     private val fileService: FileService,
 ) {
@@ -43,15 +50,15 @@ class TransferService(
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
 
     private fun getTransferDao(accountId: StateID): TransferDao {
-        return nodeService.nodeDB(accountId).transferDao()
+        return nodeDB(accountId).transferDao()
     }
 
     fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
-        return nodeService.nodeDB(stateId).transferDao().getActiveTransfers()
+        return nodeDB(stateId).transferDao().getActiveTransfers()
     }
 
     fun liveTransfer(accountId: StateID, transferId: Long): LiveData<RTransfer?> {
-        return nodeService.nodeDB(accountId).transferDao().getLiveById(transferId)
+        return nodeDB(accountId).transferDao().getLiveById(transferId)
     }
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
@@ -76,19 +83,115 @@ class TransferService(
     }
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
-        nodeService.nodeDB(stateId).transferDao().clearTerminatedTransfers()
+        nodeDB(stateId).transferDao().clearTerminatedTransfers()
     }
 
     suspend fun deleteRecord(stateId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
-        nodeService.nodeDB(stateId).transferDao().deleteTransfer(transferId)
+        nodeDB(stateId).transferDao().deleteTransfer(transferId)
     }
 
     suspend fun cancelTransfer(stateId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
-        val dao = nodeService.nodeDB(stateId).transferDao()
+        val dao = nodeDB(stateId).transferDao()
         dao.insert(RTransferCancellation.cancel(stateId.id, transferId))
     }
 
     /** DOWNLOADS **/
+    suspend fun getOrDownloadFile(state: StateID, type: String): File? =
+        withContext(Dispatchers.IO) {
+
+            val nodeDB = treeNodeRepository.nodeDB(state)
+            val rNode = nodeDB.treeNodeDao().getNode(state.id)
+            if (rNode == null) {
+                // No node found, aborting
+                Log.e(logTag, "No node found for $state, aborting $type DL")
+                return@withContext null
+            }
+
+            // Detect if file is there and still up to date
+            // TODO handle case when we are not connected
+            fileService.getLocalFile(state, rNode, type)?.let {
+                return@withContext it
+            }
+
+            val node = FileNode()
+            node.properties = rNode.properties
+            node.meta = rNode.meta
+
+            val parentFolder = fileService.dataParentPath(state.accountId, type)
+
+            val filename = when (type) {
+                AppNames.LOCAL_FILE_TYPE_THUMB,
+                AppNames.LOCAL_FILE_TYPE_PREVIEW -> dlThumb(state, rNode, parentFolder, type)
+                AppNames.LOCAL_FILE_TYPE_FILE -> {
+                    val rec = RTransfer.fromState(
+                        state.id,
+                        AppNames.TRANSFER_TYPE_DOWNLOAD,
+                        parentFolder + state.path,
+                        rNode.size,
+                        rNode.mime,
+                    )
+                    val recId = nodeDB.transferDao().insert(rec)
+                    getOrDownloadFile(state, recId)
+                }
+                else -> null
+            }
+            return@withContext filename?.let { childFile(parentFolder, filename) }
+        }
+
+    private suspend fun dlThumb(
+        state: StateID,
+        rNode: RTreeNode,
+        parPath: String,
+        type: String
+    ): String? =
+        withContext(Dispatchers.IO) {
+            val node = FileNode()
+            node.properties = rNode.properties
+            node.meta = rNode.meta
+            try {
+                val client = accountService.getClient(state)
+
+                val dim = when (type) {
+                    AppNames.LOCAL_FILE_TYPE_THUMB -> 300
+                    else -> 1024 // AppNames.LOCAL_FILE_TYPE_PREVIEW
+                }
+                val filename = client.getThumbnail(state, node, File(parPath), dim)
+                val targetFile = File(parPath + File.separator + filename)
+                if (!client.isLegacy) {
+                    handleOrientation(rNode, targetFile.absolutePath)
+                }
+
+                fileService.registerLocalFile(state, rNode, type, targetFile)
+                return@withContext filename
+            } catch (e: java.lang.Exception) {
+                Log.e(logTag, "could not get thumb for $state: ${e.message}")
+                // At this point, if we had an error, the target file is most probably corrupted or missing
+                fileService.unregisterLocalFile(state, type)
+                return@withContext null
+            }
+        }
+
+
+    /**
+     * Pydio Cells generates thumbnails without including main image EXIF data.
+     * So we must manually get the orientation and add it to the thumb to ease later
+     * manipulation of the images.
+     * Note that we cannot do this in the Java SDK layer to use convenient library
+     * that are provided by the android platform.
+     */
+    private fun handleOrientation(rTreeNode: RTreeNode, absPath: String) {
+        // EXIF DATA must be manually retrieved from main image and applied
+        val exifInterface = ExifInterface(absPath)
+        if (rTreeNode.meta.containsKey(SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION)) {
+            var orientation = rTreeNode.meta[SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION] as String
+            orientation = FileNodeUtils.extractJSONString(orientation)
+            exifInterface.setAttribute(
+                ExifInterface.TAG_ORIENTATION,
+                orientation
+            )
+            exifInterface.saveAttributes()
+        }
+    }
 
     /**
      * Centralize client specific actions that should be done **before** launching
@@ -121,7 +224,7 @@ class TransferService(
      * Performs the real download for the pre-registered transfer record and update
      * both the RTreeNode and RTransfer records depending on the output status.
      */
-    suspend fun downloadFile(accountId: StateID, transferUid: Long): String? =
+    suspend fun getOrDownloadFile(accountId: StateID, transferUid: Long): String? =
         withContext(Dispatchers.IO) {
 
             var errorMessage: String? = null
@@ -185,15 +288,19 @@ class TransferService(
                     rTransfer.error = null
                     dao.update(rTransfer)
 
-                    // Also stores the target path in the parent node
+                    val type = AppNames.LOCAL_FILE_TYPE_FILE
+                    fileService.registerLocalFile(state, rNode, type, targetFile)
                     // TODO handle the case where the download duration is long enough to enable
-                    //   end-user to modify (or delete) the corresponding node before it is downloaded
-                    rNode.localFilePath = rTransfer.localPath
+//                    //   end-user to modify (or delete) the corresponding node before it is downloaded
+//                    rNode.localFilePath = rTransfer.localPath
                 } else {
-                    rNode.localFilePath = null
+                    // At this point, if we had an error or a cancel, the target file is most probably corrupted.
+                    // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
+                    fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
                 }
 
-                nodeService.nodeDB(state).treeNodeDao().update(rNode)
+                // FIXME do we still need to update the index?
+                nodeDB(state).treeNodeDao().update(rNode)
 
             } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
                 errorMessage = "Could not download file for " + state + ": " + se.message
@@ -241,7 +348,8 @@ class TransferService(
 
             dao.update(transferRecord)
             val state = transferRecord.getStateId()
-            val srcPath = fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
+            val srcPath =
+                fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
             inputStream = FileInputStream(File(srcPath))
 
             Log.d(logTag, "... About to upload file to $state")
@@ -324,7 +432,7 @@ class TransferService(
         //   in Cells app storage
         val fs = fileService
         val targetStateID = createLocalState(parentID, name as String)
-        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
         val localFile = File(localPath)
         localFile.parentFile!!.mkdirs()
 
@@ -350,21 +458,27 @@ class TransferService(
             size,
             mime
         )
-        nodeService.nodeDB(parentID).transferDao().insert(rec)
+        nodeDB(parentID).transferDao().insert(rec)
         return targetStateID
+    }
+
+    /* Constants and helpers */
+    private fun nodeDB(stateID: StateID): TreeNodeDB {
+        return treeNodeRepository.nodeDB(stateID)
     }
 
     private fun createTargetFile(parentID: StateID, name: String): File {
         val targetStateID = createLocalState(parentID, name)
         val localPath =
-            fileService.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+            fileService.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
         val tf = File(localPath)
         tf.parentFile!!.mkdirs()
         return tf
     }
 
     private fun createLocalState(parentID: StateID, name: String): StateID {
-        val parentPath = fileService.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val parentPath =
+            fileService.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_FILE)
         var targetFile = File(File(parentPath), name)
         while (targetFile.exists()) {
             val newName = bumpFileVersion(targetFile.name)
@@ -407,5 +521,4 @@ class TransferService(
             false
         }
     }
-
 }

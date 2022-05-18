@@ -28,15 +28,11 @@ class FileDownloader : KoinComponent {
 
     private suspend fun download(encodedState: String) {
         val state = StateID.fromId(encodedState)
-        val result = transferService.prepareDownload(state, AppNames.LOCAL_FILE_TYPE_OFFLINE)
+        val result = transferService.prepareDownload(state, AppNames.LOCAL_FILE_TYPE_FILE)
         if (result.first != null && Str.empty(result.second)) {
-            transferService.downloadFile(state, result.first!!)
+            transferService.getOrDownloadFile(state, result.first!!)
         }
     }
-
-//    private fun targetPath(state: StateID): String {
-//        return fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_OFFLINE)
-//    }
 
     suspend fun orderFileDL(url: String) {
         Log.d(logTag, "Ordered File DL for $url")

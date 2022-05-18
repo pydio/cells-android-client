@@ -30,9 +30,9 @@
         <include
             android:id="@+id/included_header"
             layout="@layout/more_menu_header"
-            app:node="@{node}"
-            app:thumbDirPath="@{thumbDirPath}" />
+            app:node="@{node}"/>
 
+<!--        app:thumbDirPath="@{thumbDirPath}"-->
         <!-- Force resync -->
         <LinearLayout
             android:id="@+id/force_resync"

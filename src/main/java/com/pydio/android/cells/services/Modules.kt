@@ -113,7 +113,7 @@ val serviceModule = module {
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
     single { NodeService(get(), get(), get(), get()) }
     single { FileService(get()) }
-    single { TransferService(get(), get(), get()) }
+    single { TransferService(get(), get(), get(), get()) }
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSyncWorker(
@@ -149,7 +149,7 @@ val viewModelModule = module {
 
     viewModel { params -> SearchViewModel(params.get(), get()) }
 
-    viewModel { CarouselViewModel(get()) }
+    viewModel { CarouselViewModel(get(), get()) }
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

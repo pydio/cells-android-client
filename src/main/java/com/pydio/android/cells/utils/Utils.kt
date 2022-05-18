@@ -8,13 +8,23 @@ import androidx.fragment.app.Fragment
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
 import com.pydio.android.cells.AppNames
+import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+/* UI */
+
 fun Fragment.hideKeyboard() {
     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(requireView().windowToken, 0)
+}
+
+
+/* VARIOUS */
+
+fun childFile(parPath: String, filename: String): File {
+    return File(parPath + File.separator + filename)
 }
 
 /* CURRENT SYSTEM INFORMATION */
@@ -136,22 +146,3 @@ fun getTimestampAsString(timestamp: Long): String {
 fun getTimestampAsENString(timestamp: Long): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.ENGLISH).format(timestamp)
 }
-
-//@RequiresApi(Build.VERSION_CODES.N)
-//private fun getTimestampAsStringRecent(timestamp: Long): String {
-//    return try {
-//        val netDate = Date(timestamp)
-//        val sdf = android.icu.text.SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-//        sdf.format(netDate)
-//    } catch (e: Exception) {
-//        e.toString()
-//    }
-//}
-
-//private fun getTimestampAsStringOld(timestamp: Long): String {
-//    return try {
-//        val netDate = Date(timestamp)
-//    } catch (e: Exception) {
-//        e.toString()
-//    }
-//}

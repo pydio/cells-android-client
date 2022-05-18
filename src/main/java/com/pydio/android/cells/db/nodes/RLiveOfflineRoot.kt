@@ -13,12 +13,10 @@ import com.pydio.android.cells.db.Converters
             "offline_roots.local_mod_ts, " +
             "offline_roots.last_check_ts, " +
             "offline_roots.message, " +
-            "offline_roots.sort_name, " +
             "tree_nodes.mime, " +
             "tree_nodes.name, " +
             "tree_nodes.size, " +
-            "tree_nodes.thumb, " +
-            "tree_nodes.localPath " +
+            "offline_roots.sort_name " +
             "FROM offline_roots INNER JOIN tree_nodes " +
             "ON offline_roots.encoded_state = tree_nodes.encoded_state"
 )
@@ -45,9 +43,6 @@ data class RLiveOfflineRoot(
 
     @ColumnInfo(name = "size") var size: Long = -1L,
 
-    @ColumnInfo(name = "thumb") val thumbFilename: String?,
-
-    @ColumnInfo(name = "localPath") val localPath: String?,
 ) {
 
     fun getStateID(): StateID {

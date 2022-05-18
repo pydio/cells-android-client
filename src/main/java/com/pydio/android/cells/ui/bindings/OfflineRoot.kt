@@ -68,38 +68,40 @@ fun View.setShowForOfflineFileOnly(item: RLiveOfflineRoot?) {
 @BindingAdapter("offlineRootThumb", "nodeThumbDirPath")
 fun ImageView.setOfflineRootThumb(item: RLiveOfflineRoot?, thumbDirPath: String?) {
 
-    if (item == null) {
-        setImageResource(R.drawable.icon_file)
-        return
-    }
+    // FIXME
 
-//    if (item.localModificationTS > item.remoteModificationTS) {
-//        setImageResource(R.drawable.loading_animation)
+//    if (item == null) {
+//        setImageResource(R.drawable.icon_file)
 //        return
 //    }
-
-    var thumbPath: String? = null
-    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
-        // TODO make this generic
-        thumbPath = "$thumbDirPath/${item.thumbFilename}"
-    }
-    if (thumbPath != null && File(thumbPath).exists()) {
-        Glide.with(context)
-            .load(File(thumbPath))
-            .transform(
-                MultiTransformation(
-                    CenterCrop(),
-                    // TODO Directly getting  the radius with R fails => image is a circle
-                    // RoundedCorners(R.dimen.glide_thumb_radius)
-                    RoundedCorners(16)
-                )
-            )
-            .into(this)
-    } else {
-        // Log.d("offlineRootThumb", "no thumb found for ${item.name} @ $thumbPath")
-//        setImageResource(getDrawableFromMime(item.mime, item.sortName))
-        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
-    }
+//
+////    if (item.localModificationTS > item.remoteModificationTS) {
+////        setImageResource(R.drawable.loading_animation)
+////        return
+////    }
+//
+//    var thumbPath: String? = null
+//    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
+//        // TODO make this generic
+//        thumbPath = "$thumbDirPath/${item.thumbFilename}"
+//    }
+//    if (thumbPath != null && File(thumbPath).exists()) {
+//        Glide.with(context)
+//            .load(File(thumbPath))
+//            .transform(
+//                MultiTransformation(
+//                    CenterCrop(),
+//                    // TODO Directly getting  the radius with R fails => image is a circle
+//                    // RoundedCorners(R.dimen.glide_thumb_radius)
+//                    RoundedCorners(16)
+//                )
+//            )
+//            .into(this)
+//    } else {
+//        // Log.d("offlineRootThumb", "no thumb found for ${item.name} @ $thumbPath")
+////        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+//        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
+//    }
 }
 
 
@@ -115,19 +117,24 @@ fun ImageView.setOfflineRootCardThumb(item: RLiveOfflineRoot?, thumbDirPath: Str
 //        return
 //    }
 
-    var thumbPath: String? = null
-    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
-        // TODO make this generic
-        thumbPath = "$thumbDirPath/${item.thumbFilename}"
-    }
-    if (thumbPath != null && File(thumbPath).exists()) {
-        Glide.with(context)
-            .load(File(thumbPath))
-            .transform(CenterCrop())
-            .into(this)
-    } else {
-        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
-    }
+    // FIXME
+    setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
+
+//
+//
+//    var thumbPath: String? = null
+//    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
+//        // TODO make this generic
+//        thumbPath = "$thumbDirPath/${item.thumbFilename}"
+//    }
+//    if (thumbPath != null && File(thumbPath).exists()) {
+//        Glide.with(context)
+//            .load(File(thumbPath))
+//            .transform(CenterCrop())
+//            .into(this)
+//    } else {
+//        setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
+//    }
 }
 
 

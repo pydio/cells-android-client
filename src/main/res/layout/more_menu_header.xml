@@ -10,9 +10,9 @@
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
 
-        <variable
-            name="thumbDirPath"
-            type="java.lang.String" />
+<!--        <variable-->
+<!--            name="thumbDirPath"-->
+<!--            type="java.lang.String" />-->
     </data>
 
     <merge>
@@ -31,9 +31,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:nodeThumbDirPath="@{thumbDirPath}"
                 app:nodeThumbItem="@{node}"
                 tools:srcCompat="@drawable/ic_baseline_folder_24" />
+<!--            app:nodeThumbDirPath="@{thumbDirPath}"-->
 
             <TextView
                 android:id="@+id/node_label"

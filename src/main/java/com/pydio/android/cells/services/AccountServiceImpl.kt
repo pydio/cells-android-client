@@ -48,12 +48,20 @@ class AccountServiceImpl(
     private val sessionViewDao: SessionViewDao = accountDB.liveSessionDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
-    override suspend fun getSession(stateId: StateID): RSessionView? {
-        return sessionViewDao.getSession(stateId.accountId)
-    }
-
     override fun getClient(stateId: StateID): Client {
         return sessionFactory.getUnlockedClient(stateId.accountId)
+    }
+
+    override suspend fun isLegacy(stateId: StateID): Boolean {
+        return accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
+    }
+
+    override suspend fun isRemoteCells(stateId: StateID): Boolean {
+        return !isLegacy(stateId)
+    }
+
+    override suspend fun getSession(stateId: StateID): RSessionView? {
+        return sessionViewDao.getSession(stateId.accountId)
     }
 
     override fun getLiveSessions() = sessionViewDao.getLiveSessions()
