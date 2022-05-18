@@ -22,9 +22,7 @@ class DownloadDialog : DialogFragment() {
     private val logTag = DownloadDialog::class.java.simpleName
 
     private val args: DownloadDialogArgs by navArgs()
-    private val transferService: TransferService by inject()
 
-    // private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val downloadVM: DownloadViewModel by viewModel {
         parametersOf(args.state, args.forwardAfterDownload)
     }
@@ -41,8 +39,8 @@ class DownloadDialog : DialogFragment() {
             inflater, R.layout.dialog_download, container, false
         )
 
-        downloadVM.transferId.observe(viewLifecycleOwner) {
-            if (it < 1) {
+        downloadVM.transferId.observe(viewLifecycleOwner) { transferId ->
+            if (transferId < 1) {
                 binding.transfer = null
             } else {
                 binding.progress.isIndeterminate = false
@@ -68,6 +66,10 @@ class DownloadDialog : DialogFragment() {
         downloadVM.errorMessage.observe(viewLifecycleOwner) {
             it?.let {
                 binding.loadingMessage.text = it
+                // Sometimes we get an error before starting the effective download
+                // -> we do not want the indeterminate progress when we are in error
+                binding.progress.isIndeterminate = false
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     binding.loadingMessage.setTextColor(
                         resources.getColor(

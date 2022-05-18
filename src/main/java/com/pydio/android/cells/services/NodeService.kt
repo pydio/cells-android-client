@@ -153,8 +153,8 @@ class NodeService(
             if (old == null) {
                 ndb.treeNodeDao().insert(newNode)
             } else {
-                // FIXME double check that we do not loose any info
-                //    Typically we force re-download of thumbs at each update
+                // TODO double check that we do not loose any info
+                //    (not true with RLocalFile object anymore) -> Typically we force re-download of thumbs at each update
                 ndb.treeNodeDao().update(newNode)
             }
         }
@@ -761,8 +761,15 @@ class NodeService(
     suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
         withContext(Dispatchers.IO) {
             try {
-                return@withContext getClient(stateID).search(stateID.path, query, 20)
+                val nodes = getClient(stateID).search(stateID.path, query, 20)
                     .map { RTreeNode.fromFileNode(stateID, it) }
+
+                // We already insert found nodes in the cache to ease following user action
+                for (node in nodes) {
+                    getNode(node.getStateID()) ?: upsertNode(node)
+                }
+
+                return@withContext nodes
             } catch (se: SDKException) {
                 se.printStackTrace()
                 return@withContext listOf()

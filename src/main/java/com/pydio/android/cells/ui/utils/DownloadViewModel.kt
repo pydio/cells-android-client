@@ -66,6 +66,7 @@ class DownloadViewModel(
             // TODO handle case when a download for the same file is already running
             val res = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
             if (res.second != null) {
+                _isProcessing = false
                 _errorMessage.value = res.second
             } else {
                 res.first?.let {
@@ -73,6 +74,7 @@ class DownloadViewModel(
                     transferId.value = it
                     transferService.getOrDownloadFile(stateID.account(), it)?.let {
                         _errorMessage.value = it
+                        _isProcessing = false
                         return@launch
                     }
                     _success.value = nodeService.getNode(stateID)

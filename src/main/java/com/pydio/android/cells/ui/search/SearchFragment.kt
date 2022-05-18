@@ -21,6 +21,7 @@ import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.browse.NodeListAdapter
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -128,16 +129,37 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
+    private fun navigateTo(node: RTreeNode) {
         if (node.isFolder()) {
-            findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
-            return@launch
+            val action = MainNavDirections.openFolder(node.encodedState)
+            findNavController().navigate(action)
+            return
         }
 
-        // FIXME
-        return@launch
+        // TODO enable carousel from search page ?
+//        if (isPreViewable(node)) {
+//            val intent = Intent(requireActivity(), CarouselActivity::class.java)
+//            intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
+//            startActivity(intent)
+//            Log.d(logTag, "open carousel for ${node.getStateID()}, mime type: ${node.mime}")
+//            return
+//        }
 
-//        val file = nodeService.getOrDownloadFileToCache(node)
-//        file?.let { externallyView(requireContext(), it, node) }
+
+        lifecycleScope.launch {
+            // We just retrieved results search, no need to check if the node is up to date
+            nodeService.getLocalFile(node, false)?.let {
+                externallyView(requireContext(), it, node)
+                return@launch
+            }
+
+            if (!activeSessionVM.isServerReachable()) {
+                showMessage( requireContext(), resources.getString(R.string.server_unreachable))
+                return@launch
+            }
+
+            val action = MainNavDirections.launchDownload(node.encodedState, true)
+            findNavController().navigate(action)
+        }
     }
 }

@@ -13,7 +13,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import java.util.Properties
+import java.util.*
 
 @Entity(tableName = "tree_nodes")
 @TypeConverters(Converters::class)
@@ -62,19 +62,7 @@ data class RTreeNode(
     @ColumnInfo(name = "flags") var flags: Int = 0,
 
     // Files management: Files are now managed with the RLocalFile object
-
-
-//    @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
-//
-//    // Can be: none, cache, offline, external
-//    @ColumnInfo(name = "local_file_type") var localFileType: String = AppNames.LOCAL_FILE_TYPE_NONE,
-//
-//    // When necessary, we store the full path to the
-//    // relevant local resource somewhere in the external storage.
-//    @ColumnInfo(name = "localPath") var localFilePath: String? = null,
-
-
-    ) {
+) {
 
     fun getStateID(): StateID {
         return StateID.fromId(encodedState)
@@ -164,16 +152,17 @@ data class RTreeNode(
     companion object {
         private val logTag = RTreeNode::class.simpleName
 
+        /**
+         * @param stateID use to retrieve the account ID, typically with search result,
+         * we do not have the parent ID. But any node with the same accountID is OK.
+         * @param fileNode the newly retrieved node
+         */
         fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            Log.d(logTag, "... fromFileNode $stateID")
-//            Log.w(logTag, "  - WS: ${fileNode.workspace}")
-//            Log.w(logTag, "  - Path: ${fileNode.path}")
-//            Log.w(logTag, "  - Label: ${fileNode.name}")
-            val childStateID = // Retrieve the account from the passed state
-                StateID.fromId(stateID.accountId)
-                    // Construct the path from file node info
-                    .withPath("/${fileNode.workspace}${fileNode.path}")
-            Log.d(logTag, "  - encodedState: ${childStateID.id}")
+
+            // Construct the path from file node info
+            val childStateID = StateID.fromId(stateID.accountId)
+                .withPath("/${fileNode.workspace}${fileNode.path}")
+            Log.d(logTag, "... fromFileNode $childStateID")
 
             try {
                 val node = RTreeNode(
@@ -228,7 +217,6 @@ data class RTreeNode(
 
                 val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
 
-                // We force the slash at the end of the encoded state to ease later handling
                 val storedID = // Retrieve the account from the passed state
                     StateID.fromId(stateID.accountId).withPath("/${node.slug}")
 
