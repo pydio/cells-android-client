@@ -260,7 +260,7 @@ class TransferService(
 
                 // Mark the upload as started
                 rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-                rTransfer.status = AppNames.TRANSFER_STATUS_PROCESSING
+                rTransfer.status = AppNames.JOB_STATUS_PROCESSING
                 dao.update(rTransfer)
 
                 // Real transfer
@@ -270,7 +270,7 @@ class TransferService(
                         val canceled = dao.hasBeenCancelled(rTransfer.transferId) != null
                         if (canceled) {
                             val msg = "Download cancelled by user"
-                            rTransfer.status = AppNames.TRANSFER_STATUS_CANCELED
+                            rTransfer.status = AppNames.JOB_STATUS_CANCELED
                             rTransfer.doneTimestamp = currentTimestamp()
                             rTransfer.error = msg
                             errorMessage = msg
@@ -282,8 +282,8 @@ class TransferService(
                     }
 
                 // Mark the upload as done
-                if (rTransfer.status == AppNames.TRANSFER_STATUS_PROCESSING) {
-                    rTransfer.status = AppNames.TRANSFER_STATUS_DONE
+                if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
+                    rTransfer.status = AppNames.JOB_STATUS_DONE
                     rTransfer.doneTimestamp = currentTimestamp()
                     rTransfer.error = null
                     dao.update(rTransfer)
@@ -304,10 +304,10 @@ class TransferService(
 
             } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
                 errorMessage = "Could not download file for " + state + ": " + se.message
-                rTransfer.status = AppNames.TRANSFER_STATUS_ERROR
+                rTransfer.status = AppNames.JOB_STATUS_ERROR
             } catch (ioe: IOException) {
                 // TODO Could not write the file in the local fs, we should notify the user
-                rTransfer.status = AppNames.TRANSFER_STATUS_ERROR
+                rTransfer.status = AppNames.JOB_STATUS_ERROR
                 errorMessage =
                     "Could not write file for DL of $state to the local device: ${ioe.message}"
                 ioe.printStackTrace()

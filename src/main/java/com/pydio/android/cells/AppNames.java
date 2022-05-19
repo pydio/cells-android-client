@@ -75,11 +75,11 @@ public interface AppNames {
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
 
-    String TRANSFER_STATUS_NEW = "new";
-    String TRANSFER_STATUS_PROCESSING = "processing";
-    String TRANSFER_STATUS_CANCELED = "canceled";
-    String TRANSFER_STATUS_DONE = "done";
-    String TRANSFER_STATUS_ERROR = "error";
+    String JOB_STATUS_NEW = "new";
+    String JOB_STATUS_PROCESSING = "processing";
+    String JOB_STATUS_CANCELED = "canceled";
+    String JOB_STATUS_DONE = "done";
+    String JOB_STATUS_ERROR = "error";
 
     /* Intents extra keys */
     String EXTRA_STATE = KEY_PREFIX_ + "state";

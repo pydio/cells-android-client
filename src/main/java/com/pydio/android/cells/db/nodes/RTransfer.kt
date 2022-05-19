@@ -54,7 +54,7 @@ data class RTransfer(
             path: String,
             byteSize: Long,
             mime: String,
-            status: String? = AppNames.TRANSFER_STATUS_NEW,
+            status: String? = AppNames.JOB_STATUS_NEW,
         ): RTransfer {
             return RTransfer(
                 encodedState = encodedState,
