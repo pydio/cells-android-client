@@ -10,6 +10,8 @@
     <string name="button_open_sort_by">Trier par…</string>
     <string name="button_open_connection_center">Gérer les connexions</string>
     <string name="button_clear_transfer_list">Vider la liste de transferts</string>
+    <string name="button_resync_all">Re-sync</string>
+    <string name="button_skip">Skip</string>
     <!-- Navigation labels -->
     <string name="action_home">Page d\'accueil</string>
     <string name="action_browse">Parcourir</string>
@@ -122,6 +124,9 @@
     <!--Transfers -->
     <string name="relaunch_transfer">Redémarrer le transfert</string>
     <string name="delete_record">Supprimer l\'enregistrement</string>
+    <!-- Migration-->
+    <string name="post_migration_message">All your configuration has been migrated.</string>
+    <string name="post_migration_sync_message">We have detected %s offline objects.\nDo you want to sync them now?\nIf your connection is sparse, skip this step.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choisir une action à appliquer aux éléments sélectionnés</string>
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
