@@ -7,7 +7,7 @@ import com.pydio.cells.transport.StateID;
 import java.util.Map;
 
 /**
- * Additional object that defines what we store in the MainDB
+ * Additional object that defines what we store in the V2MainDB
  * and can be easily serialized back and forth using gson.
  */
 public class AccountRecord {

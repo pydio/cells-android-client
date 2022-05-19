@@ -13,31 +13,40 @@ import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.databinding.ActivityLandBinding
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionDao
+import com.pydio.android.cells.db.runtime.JobDao
+import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.legacy.v2.MainDB
+import com.pydio.android.cells.services.JobService
+import com.pydio.android.cells.services.NodeService
 import com.pydio.android.legacy.v2.MigrationServiceV2
-import com.pydio.android.legacy.v2.SyncDB
-import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
+/**
+ * Launcher activity: it handles necessary migration and then decide which page
+ * to open and transmit an intent to the MainActivity
+ */
 class LandActivity : AppCompatActivity() {
 
     private val logTag = LandActivity::class.simpleName
+
+    private val prefs: CellsPreferences by inject()
+
+    private val jobService by inject<JobService>()
+    private val jobDao by inject<JobDao>()
+    private val migrationService = MigrationServiceV2()
+
     private val accountService: AccountService by inject()
     private val accountDao: AccountDao by inject()
     private val sessionDao: SessionDao by inject()
-    private val prefs: CellsPreferences by inject()
+    private val nodeService: NodeService by inject()
 
     private lateinit var binding: ActivityLandBinding
-
-    private val migrationService = MigrationServiceV2()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +56,7 @@ class LandActivity : AppCompatActivity() {
         if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) == true) {
             lifecycleScope.launch {
                 if (needsMigration(applicationContext)) {
-                    binding.migrationReportPanel.visibility = View.VISIBLE
-                    withContext(Dispatchers.IO) {
-                        migrate(applicationContext)
-                    }
+                    migrate()
                 } else {
                     chooseFirstPage()
                 }
@@ -58,10 +64,51 @@ class LandActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun migrate() {
+
+        binding.migrationReportPanel.visibility = View.VISIBLE
+
+        val migrationJob: RJob? = withContext(Dispatchers.IO) {
+            val job = jobService.createAndLaunch(
+                "Migration from v2 to v3",
+                "migrationV2",
+                maxSteps = 100
+            ) ?: return@withContext null
+            jobService.i(logTag, "Created ${job.label}", "${job.jobId}")
+            job
+        }
+
+        if (migrationJob == null) {
+            jobService.e(logTag, "Could not create migration Job")
+            return
+        }
+        jobDao.getLiveById(migrationJob.jobId).observe(this@LandActivity) {
+            it?.let {
+                val newValue = it.progress * 100 / it.progressMax
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    binding.loadingBar.setProgress(newValue.toInt(), true)
+                } else {
+                    binding.loadingBar.progress = newValue.toInt()
+                }
+                binding.currentStatus = it.progressMessage
+                binding.executePendingBindings()
+            }
+        }
+        val offlineRootsNb = withContext(Dispatchers.IO) {
+            val nb = migrationService.migrate(applicationContext, migrationJob)
+            jobService.i(
+                logTag, "${migrationJob.label} terminated",
+                "${migrationJob.jobId}"
+            )
+            nb
+        }
+        afterMigration(offlineRootsNb)
+    }
+
     private suspend fun chooseFirstPage() {
         val landActivity = this
 
-        var stateID: StateID?
+        val stateID: StateID?
         // Fallback on defined accounts:
         val accounts = withContext(Dispatchers.IO) { accountDao.getAccounts() }
         when (accounts.size) {
@@ -91,42 +138,43 @@ class LandActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private suspend fun migrate(context: Context) {
+    private suspend fun afterMigration(offlineRootsNb: Int) {
 
-        binding.currentStatus = "Preparing migration..."
-        migrationService.prepare(context)
-        delay(200)
-        progress(20)
-        binding.currentStatus = "Migrating accounts and credentials..."
-        var currProg = 20
-        var done = migrationService.migrateAccounts(50) {
-            currProg += it.toInt()
+        val res = this@LandActivity.resources
+
+        // change layout for next step
+        binding.loadingBar.visibility = View.GONE
+        binding.migrationTitle.text = res.getString(R.string.welcome_title)
+        binding.currentStatus = res.getString(R.string.post_migration_message)
+
+        binding.browseBtn.visibility = View.VISIBLE
+        binding.browseBtn.setOnClickListener {
             lifecycleScope.launch {
-                progress(currProg)
+                chooseFirstPage()
             }
-            true
         }
 
-        if (done) {
-            binding.currentStatus = "Cleaning legacy files..."
-            // uploadFiles(context)
-            migrationService.cleanLegacyFiles(context)
-            prefs.setInt(
-                AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
-                ClientData.getInstance().versionCode.toInt()
-            )
-            progress(95)
-            delay(200)
-        }
+        if (offlineRootsNb == 0) {
+            binding.browseBtn.text = res.getText(R.string.action_browse)
+        } else {
+            binding.offlineNotMigratedDesc.visibility = View.VISIBLE
+            binding.offlineNotMigratedDesc.text =
+                String.format(resources.getString(R.string.post_migration_sync_message), offlineRootsNb)
 
-        binding.currentStatus = "You're good to go. Happy file sharing!"
-        withContext(Dispatchers.Main) {
-            chooseFirstPage()
-        }
-        progress(100)
-        delay(3000)
+            binding.launchSyncBtn.text = resources.getText(R.string.button_resync_all)
+            binding.launchSyncBtn.visibility = View.VISIBLE
+            binding.launchSyncBtn.setOnClickListener {
+                // TODO launch this in a wider scope and handle a progress
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        nodeService.runFullSync()
+                    }
+                    chooseFirstPage()
+                }
+            }
 
-        return
+            binding.browseBtn.text = resources.getText(R.string.button_skip)
+        }
     }
 
     private fun needsMigration(context: Context): Boolean {
@@ -152,23 +200,14 @@ class LandActivity : AppCompatActivity() {
         return false
     }
 
-    private suspend fun progress(newValue: Int) {
-        withContext(Dispatchers.Main) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                binding.loadingIndicator.setProgress(newValue, true)
-            } else {
-                binding.loadingIndicator.setProgress(newValue)
-            }
-        }
-    }
+//    private suspend fun progress(newValue: Int) {
+//        withContext(Dispatchers.Main) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                binding.loadingIndicator.setProgress(newValue, true)
+//            } else {
+//                binding.loadingIndicator.progress = newValue
+//            }
+//        }
+//    }
 
-    // Helper to easily replay the migration: upload necessary files to one of the newly restored account
-    // so that they are available. Put them in resource folder to relaunch the migration on an empty instance.
-    private fun uploadFiles(context: Context) {
-        val targetState = StateID("admin", "https://files.example.com", "/common-files")
-        val mainDbFile = migrationService.dbFile(context, MainDB.DB_FILE_NAME)
-        migrationService.doUpload(targetState, mainDbFile, SdkNames.NODE_MIME_DEFAULT)
-        val syncDbFile = migrationService.dbFile(context, SyncDB.DB_FILE_NAME)
-        migrationService.doUpload(targetState, syncDbFile, SdkNames.NODE_MIME_DEFAULT)
-    }
 }

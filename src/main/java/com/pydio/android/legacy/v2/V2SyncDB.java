@@ -12,31 +12,31 @@ import com.pydio.cells.api.ui.FileNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyncDB extends SQLiteOpenHelper {
+public class V2SyncDB extends SQLiteOpenHelper {
 
-    private final static String logTag = SyncDB.class.getSimpleName();
+    private final static String logTag = V2SyncDB.class.getSimpleName();
     private static final int version = 2;
     public final static String DB_FILE_NAME = "sync.sqlite";
     public final static String DB_FILE_PATH = "/files/" + DB_FILE_NAME;
 
-    private static SyncDB instance;
+    private static V2SyncDB instance;
 
     private final static Gson gson = new Gson();
 
     public static void init(Context context, String absPath) {
         if (instance == null) {
-            instance = new SyncDB(context, absPath, version);
+            instance = new V2SyncDB(context, absPath, version);
         }
     }
 
-    public static SyncDB getHelper() {
+    public static V2SyncDB getHelper() {
         if (instance == null) {
             throw new RuntimeException("you must first call init to inject a context");
         }
         return instance;
     }
 
-    private SyncDB(Context context, String filepath, int version) {
+    private V2SyncDB(Context context, String filepath, int version) {
         super(context, filepath, null, version);
     }
 

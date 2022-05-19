@@ -121,7 +121,7 @@ class CarouselActivity : AppCompatActivity() {
                 return
             }
 
-            Log.e(logTag, "Populating #$index")
+            // Log.d(logTag, "Populating #$index")
             val currItem = carouselVM.elements.value!![index]
 
             // Adding thumb for quick loading
@@ -159,7 +159,7 @@ class CarouselActivity : AppCompatActivity() {
         }
 
         override fun onNewItem(index: Int) {
-            Log.e(logTag, "on new Item #$index")
+            // Log.d(logTag, "on new Item #$index")
             // Retrieve the encoded state of the current item and store it in the view model
             // to stay at the same index upon restart / configuration change.
             carouselVM.elements.value?.let {

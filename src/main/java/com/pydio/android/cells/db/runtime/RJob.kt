@@ -8,36 +8,44 @@ import com.pydio.android.cells.utils.currentTimestamp
 
 @Entity(tableName = "jobs")
 data class RJob(
-//    // A more precise reference to the job that has been running
-//    @ColumnInfo(name = "template") val template: String,
 
+    // Main id
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "job_id")
-    var jobId: Long = 0L,
-    // offline, clean, late upload
-    @ColumnInfo(name = "type") val type: String,
+    @ColumnInfo(name = "job_id") var jobId: Long = 0L,
+    // Optional reference to a parent job
+    @ColumnInfo(name = "parent_id") var parentId: Long = 0L,
+    // Human readable label
+    @ColumnInfo(name = "label") val label: String,
+    // the template: offline, clean, late upload, migration
+    @ColumnInfo(name = "template") val template: String,
     // New, processing, canceled, done, error
     @ColumnInfo(name = "status") var status: String? = null,
     // Message: might be an error but also a cancellation reason
     @ColumnInfo(name = "message") var message: String? = null,
+    // Observable value for progress listeners
     @ColumnInfo(name = "progress") var progress: Long = 0,
-    // to compute the progress in pro-cent
-    @ColumnInfo(name = "total_steps") var totalSteps: Long = 0,
-    // this can be observed by the UI via live data together with the progress 
+    // To compute the progress in pro-cent
+    @ColumnInfo(name = "progress_max") var progressMax: Long = -1,
+    // Observable status for the end user
     @ColumnInfo(name = "progress_message") var progressMessage: String? = null,
-
+    // Timestamps
     @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
     @ColumnInfo(name = "done_ts") var doneTimestamp: Long = -1L,
 
-) {
+    ) {
+
     companion object {
         fun create(
-            type: String,
+            label: String,
+            template: String,
+            parentId: Long = 0,
             status: String? = AppNames.JOB_STATUS_NEW,
         ): RJob {
             return RJob(
-                type = type,
+                parentId = parentId,
+                label = label,
+                template = template,
                 status = status,
                 creationTimestamp = currentTimestamp(),
             )

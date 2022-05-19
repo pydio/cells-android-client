@@ -23,12 +23,12 @@ public class LegacyModelTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         // Main DB
-        String mainDbPath = context.getDataDir().getAbsolutePath() + MainDB.DB_FILE_PATH;
+        String mainDbPath = context.getDataDir().getAbsolutePath() + V2MainDB.DB_FILE_PATH;
         File mainDbFile = new File(mainDbPath);
         if (mainDbFile.exists()) {
             Log.i(logTag, "... Found a legacy main DB");
-            MainDB.init(context, mainDbPath);
-            MainDB accDB = MainDB.getHelper();
+            V2MainDB.init(context, mainDbPath);
+            V2MainDB accDB = V2MainDB.getHelper();
             List<AccountRecord> recs = accDB.listAccountRecords();
             Log.w(logTag, "... Found " + recs.size() + " accounts. ");
             for (AccountRecord rec : recs) {
@@ -48,13 +48,13 @@ public class LegacyModelTest {
             }
         }
         // Offline
-        String syncDbPath = context.getDataDir().getAbsolutePath() + SyncDB.DB_FILE_PATH;
+        String syncDbPath = context.getDataDir().getAbsolutePath() + V2SyncDB.DB_FILE_PATH;
         File syncDbFile = new File(syncDbPath);
         if (syncDbFile.exists()) {
             Log.i(logTag, "... Found a legacy sync DB");
-            SyncDB.init(context, syncDbPath);
-            SyncDB syncDB = SyncDB.getHelper();
-            List<WatchInfo> infos = syncDB.getAll();
+            V2SyncDB.init(context, syncDbPath);
+            V2SyncDB v2SyncDB = V2SyncDB.getHelper();
+            List<WatchInfo> infos = v2SyncDB.getAll();
             Log.w(logTag, "... Found " + infos.size() + " offline roots. ");
             for (WatchInfo offlineRoot : infos) {
                 Log.w(logTag, "- " + offlineRoot.getAccountID() + " @ " + offlineRoot.getWorkspaceLabel() + ": " + offlineRoot.getNode().getPath());

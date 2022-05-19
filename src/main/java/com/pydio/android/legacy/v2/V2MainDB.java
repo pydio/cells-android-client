@@ -22,14 +22,14 @@ import java.util.Map;
  * <p>
  * This code will be deleted very soon.
  */
-public class MainDB extends SQLiteOpenHelper {
+public class V2MainDB extends SQLiteOpenHelper {
 
     public final static int VERSION = 1;
     public final static String DB_FILE_NAME = "database.sqlite";
     public final static String DB_FILE_PATH = "/files/" + DB_FILE_NAME;
 
     private static final Object lock = new Object();
-    private static MainDB instance;
+    private static V2MainDB instance;
 
     // SQL Boiler plate
     public static final String sessions = "`sessions`";
@@ -69,18 +69,18 @@ public class MainDB extends SQLiteOpenHelper {
     // DB Lifecycle
     public static void init(Context context, String absPath) {
         if (instance == null) {
-            instance = new MainDB(context.getApplicationContext(), absPath, VERSION);
+            instance = new V2MainDB(context.getApplicationContext(), absPath, VERSION);
         }
     }
 
-    public static MainDB getHelper() {
+    public static V2MainDB getHelper() {
         if (instance == null) {
             throw new RuntimeException("you must first call init to inject a context");
         }
         return instance;
     }
 
-    private MainDB(Context context, String path, int version) {
+    private V2MainDB(Context context, String path, int version) {
         super(context, path, null, version);
     }
 

@@ -11,11 +11,14 @@ import com.pydio.android.cells.db.nodes.ROfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.nodes.TreeNodeDao
+import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.transfer.FileDownloader
 import com.pydio.android.cells.transfer.ThumbDownloader
 import com.pydio.android.cells.transfer.TreeDiff
+import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
+import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
@@ -41,6 +44,7 @@ import java.io.OutputStream
 class NodeService(
     private val prefs: CellsPreferences,
     private val treeNodeRepository: TreeNodeRepository,
+    private val jobService: JobService,
     private val accountService: AccountService,
     private val fileService: FileService,
 ) {
@@ -285,12 +289,41 @@ class NodeService(
             persistUpdated(rTreeNode)
         }
 
-
     suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
 
-    suspend fun syncAll(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun runFullSync(): RJob? {
+
+        val sessions = accountService.listSessionViews(false)
+        // TODO add a filter to get rid of the sessions that have no defined offline roots
+
+        val job = jobService.createAndLaunch("Post Migration Full Re-Sync", "User-FullResync")
+
+        val startTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
+        com.pydio.cells.utils.Log.i(logTag, "... Launching full re-sync in background at $startTS")
+
+        for (session in sessions) {
+
+            if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
+                && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
+            ) {
+                com.pydio.cells.utils.Log.d(
+                    logTag,
+                    "... Launching sync for ${session.getStateID()}"
+                )
+                runAccountSync(session.getStateID())
+//            } else {
+//                Log.e(logTag, "   state: ${session.lifecycleState}, authStatus ${session.authStatus}")
+            }
+        }
+        val endTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
+        com.pydio.cells.utils.Log.i(logTag, "... Full re-sync terminated at $endTS")
+
+        return job
+    }
+
+    suspend fun runAccountSync(stateID: StateID) = withContext(Dispatchers.IO) {
         val offlineDao = nodeDB(stateID).offlineRootDao()
         for (offlineRoot in offlineDao.getAll()) {
             launchSync(offlineRoot)

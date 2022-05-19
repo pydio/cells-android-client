@@ -4,17 +4,25 @@ import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.db.runtime.JobDao
+import com.pydio.android.cells.db.runtime.LogDao
+import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.callbacks.ProgressListener
 import com.pydio.cells.legacy.P8Credentials
+import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.delay
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -24,7 +32,7 @@ import java.io.InputStream
 /**
  * Centralize migration process from v2 to v3.
  * We only migrate accounts, credentials and offline-roots.
- * Everything else must be downloaded again.
+ * Everything else must be downloaded / cached again.
  */
 class MigrationServiceV2 : KoinComponent {
 
@@ -33,6 +41,11 @@ class MigrationServiceV2 : KoinComponent {
     private val accountService by inject<AccountService>()
     private val sessionFactory by inject<SessionFactory>()
     private val nodeService by inject<NodeService>()
+    private val prefs: CellsPreferences by inject()
+
+    private val jobService by inject<JobService>()
+    private val jobDao by inject<JobDao>()
+    private val logDao by inject<LogDao>()
 
     private val oldDbNames = listOf(
         "cache_database.sqlite",
@@ -45,11 +58,104 @@ class MigrationServiceV2 : KoinComponent {
         "thumbs.sqlite",
     )
 
+    /**
+     * Handle the migration from v2 legacy version to the new v3 versions and model.
+     * We add a second of sleep between various steps to be able to see the progress and various
+     * status
+     *
+     * @return the number of offline  roots node that have been migrated */
+    suspend fun migrate(context: Context, migrationJob: RJob): Int {
+
+        jobService.update(migrationJob, 0, "Preparing migration...")
+
+        prepare(context)
+        delay(3000)
+        jobService.update(migrationJob, 20, "Migrating accounts and credentials...")
+
+        val result = migrateAccounts(migrationJob, 50) {
+            jobService.update(migrationJob, it, null)
+            true
+        }
+        delay(3000)
+
+        if (result.first) {
+            jobService.update(migrationJob, 0, "Cleaning legacy files...")
+            cleanLegacyFiles(context)
+            prefs.setInt(
+                AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
+                ClientData.getInstance().versionCode.toInt()
+            )
+        }
+        delay(3000)
+
+        jobService.done(migrationJob, "Migration done.")
+        delay(2000)
+
+        return result.second
+    }
+
+    fun hasLegacyDB(context: Context): Boolean {
+        val mainDbFile = dbFile(context, V2MainDB.DB_FILE_NAME)
+        val syncDbFile = dbFile(context, V2SyncDB.DB_FILE_NAME)
+        return mainDbFile.exists() && syncDbFile.exists()
+    }
+
+    fun prepare(context: Context) {
+        // Insure we have all legacy DBs and init
+        V2MainDB.init(context, dbPath(context, V2MainDB.DB_FILE_NAME))
+        V2SyncDB.init(context, dbPath(context, V2SyncDB.DB_FILE_NAME))
+    }
+
+    // List existing accounts and migrate them one by one
+    private suspend fun migrateAccounts(
+        job: RJob,
+        maxProgress: Int,
+        progressListener: ProgressListener
+    ): Pair<Boolean, Int> {
+        val accDB = V2MainDB.getHelper()
+        val syncDB = V2SyncDB.getHelper()
+        val recs = accDB.listAccountRecords()
+        if (recs.size == 0) {
+            val msg = "No account found. Nothing to migrate..."
+            Log.w(logTag, "    $msg")
+            logDao.insert(RLog.info(logTag, msg, null))
+            return Pair(true, 0)
+        }
+
+        Log.w(logTag, "    Found " + recs.size + " accounts. ")
+        val oneStep = maxProgress / recs.size
+        var offlineRootsNb = 0
+        for (rec in recs) {
+            try {
+                if (rec.isLegacy) {
+                    migrateOneP8Account(job, rec, accDB)
+                } else {
+                    offlineRootsNb += migrateOneCellsAccount(job, rec, accDB, syncDB)
+                }
+                progressListener.onProgress(oneStep.toLong())
+                val msg = "${rec.username}@${rec.url()} has been migrated"
+                logDao.insert(RLog.info(logTag, msg, "${job.jobId}"))
+                Log.i(logTag, "... $msg")
+                delay(2000)
+            } catch (e: Exception) {
+                Log.e(
+                    logTag,
+                    "... could not migrate ${rec.username}@${rec.url()}: ${e.message}"
+                )
+                e.printStackTrace()
+                return Pair(false, 0)
+            }
+        }
+        return Pair(true, offlineRootsNb)
+    }
+
+    /** @return the number of migrated offline roots */
     suspend fun migrateOneCellsAccount(
+        job: RJob,
         record: AccountRecord,
-        mainDB: MainDB,
-        syncDB: SyncDB
-    ) {
+        v2MainDB: V2MainDB,
+        syncDB: V2SyncDB
+    ): Int {
         val accountID = StateID.fromId(record.id())
         Log.i(logTag, "About to migrate: $accountID")
 
@@ -59,7 +165,7 @@ class MigrationServiceV2 : KoinComponent {
             Log.i(logTag, "No session found in room, creating.")
             val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
 
-            val token = mainDB.getToken(record.id())
+            val token = v2MainDB.getToken(record.id())
             if (token == null) {
                 val server = sessionFactory.registerServer(serverURL)
                 accountService.registerAccount(
@@ -90,7 +196,7 @@ class MigrationServiceV2 : KoinComponent {
         // Migrate offline roots
         val offlineRoots = syncDB.getWatches(record.id())
         if (offlineRoots.isEmpty()) {
-            return
+            return 0
         }
 
         for (currRoot in offlineRoots) {
@@ -110,10 +216,12 @@ class MigrationServiceV2 : KoinComponent {
             }
             nodeService.updateOfflineRoot(newNode, AppNames.OFFLINE_STATUS_MIGRATED)
         }
+
+        return offlineRoots.size
         // nodeService.syncAll(accountID)
     }
 
-    suspend fun migrateOneP8Account(record: AccountRecord, mainDB: MainDB) {
+    suspend fun migrateOneP8Account(job: RJob, record: AccountRecord, v2MainDB: V2MainDB) {
         val currState = StateID.fromId(record.id())
         Log.i(logTag, "About to migrate: $currState")
 
@@ -122,7 +230,7 @@ class MigrationServiceV2 : KoinComponent {
             Log.i(logTag, "No session found in room, creating.")
             val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
 
-            val pwd = mainDB.getPassword(record.id())
+            val pwd = v2MainDB.getPassword(record.id())
             if (pwd == null) {
                 val server = sessionFactory.registerServer(serverURL)
                 accountService.registerAccount(
@@ -162,49 +270,7 @@ class MigrationServiceV2 : KoinComponent {
         }
     }
 
-    fun prepare(context: Context) {
-        // Insure we have all legacy DBs and init
-        MainDB.init(context, dbPath(context, MainDB.DB_FILE_NAME))
-        SyncDB.init(context, dbPath(context, SyncDB.DB_FILE_NAME))
-    }
-
-    // List existing accounts and migrate them one by one
-    suspend fun migrateAccounts(maxProgress: Int, progressListener: ProgressListener): Boolean {
-        val accDB = MainDB.getHelper()
-        val syncDB = SyncDB.getHelper()
-        val recs = accDB.listAccountRecords()
-        if (recs.size == 0) {
-            Log.w(logTag, "    No account found. Nothing to migrate...")
-            return true
-        }
-
-        Log.w(logTag, "    Found " + recs.size + " accounts. ")
-        val oneStep = maxProgress / recs.size
-        for (rec in recs) {
-            try {
-                if (rec.isLegacy) {
-                    migrateOneP8Account(rec, accDB)
-                } else {
-                    migrateOneCellsAccount(rec, accDB, syncDB)
-                }
-                progressListener.onProgress(oneStep.toLong())
-                Log.w(
-                    logTag,
-                    "... ${rec.username}@${rec.url()} has been migrated"
-                )
-            } catch (e: Exception) {
-                Log.e(
-                    logTag,
-                    "... could not migrate ${rec.username}@${rec.url()}: ${e.message}"
-                )
-                e.printStackTrace()
-                return false
-            }
-        }
-        return true
-    }
-
-    fun cleanLegacyFiles(context: Context) {
+    private fun cleanLegacyFiles(context: Context) {
         // Deletes all old DB files
         for (name in oldDbNames) {
             rmDB(context, name)
@@ -238,13 +304,8 @@ class MigrationServiceV2 : KoinComponent {
         }
     }
 
-    fun hasLegacyDB(context: Context): Boolean {
-        val mainDbFile = dbFile(context, MainDB.DB_FILE_NAME)
-        val syncDbFile = dbFile(context, SyncDB.DB_FILE_NAME)
-        return mainDbFile.exists() && syncDbFile.exists()
-    }
 
-    fun dbFile(context: Context, name: String): File {
+    private fun dbFile(context: Context, name: String): File {
         return File(dbPath(context, name))
     }
 

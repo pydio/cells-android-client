@@ -13,6 +13,8 @@
     <string name="button_open_sort_by">Sort by…</string>
     <string name="button_open_connection_center">Manage connection</string>
     <string name="button_clear_transfer_list">Clear transfer list</string>
+    <string name="button_resync_all">Re-sync</string>
+    <string name="button_skip">Re-sync</string>
 
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
@@ -112,9 +114,9 @@
 
     <string name="empty_folder">This folder is empty</string>
     <string name="empty_content_message">No content here yet</string>
-<!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-<!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-<!--    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>-->
+    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
+    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
+    <!--    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>-->
 
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
@@ -143,6 +145,9 @@
     <!--Transfers -->
     <string name="relaunch_transfer">Re-launch transfer</string>
     <string name="delete_record">Delete record</string>
+    <!-- Migration-->
+    <string name="post_migration_message">All your configuration has been migrated.</string>
+    <string name="post_migration_sync_message">We have detected %s offline objects.\nDo you want to sync them now?\nIf your connection is sparse, skip this step.</string>
 
     <!-- More menus -->
     <string name="open_more_menu">Choose an action to apply to the selected items</string>

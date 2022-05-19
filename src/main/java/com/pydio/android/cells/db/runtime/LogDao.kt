@@ -11,12 +11,12 @@ interface LogDao {
     fun insert(log: RLog): Long
 
     @Query("SELECT * FROM logs ORDER BY timestamp DESC LIMIT 100")
-    fun getLatest(levelId: Int): List<RJob>
+    fun getLatest(): List<RLog>
 
-    @Query("SELECT * FROM logs WHERE level > :levelId ORDER BY timestamp DESC LIMIT 100")
-    fun getByLevelAtLeast(levelId: Int): List<RJob>
+    @Query("SELECT * FROM logs WHERE level <= :levelId ORDER BY timestamp DESC LIMIT 100")
+    fun getByLevelAtLeast(levelId: Int): List<RLog>
 
     @Query("SELECT * FROM logs WHERE level = :levelId ORDER BY timestamp DESC LIMIT 100")
-    fun getByLevel(levelId: Int): List<RJob>
+    fun getByLevel(levelId: Int): List<RLog>
 
 }

@@ -43,7 +43,7 @@ class OfflineRootsViewModel(
         vmScope.launch {
             withContext(Dispatchers.Main) {
                 // TODO handle errors
-                nodeService.syncAll(stateId)
+                nodeService.runAccountSync(stateId)
                 setLoading(false)
             }
         }

@@ -65,7 +65,7 @@ class P8CredentialsFragment : Fragment() {
             }
         }
         p8CredVM.isProcessing.observe(viewLifecycleOwner) {
-            binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+            binding.loadingBar.visibility = if (it) View.VISIBLE else View.GONE
             binding.actionButton.isEnabled = !it
             binding.loginEditText.isEnabled = !it
             binding.passwordEditText.isEnabled = !it

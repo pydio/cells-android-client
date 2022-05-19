@@ -21,9 +21,9 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // Insure we have all legacy DBs and init
-        val mainDbPath = context.dataDir.absolutePath + MainDB.DB_FILE_PATH
+        val mainDbPath = context.dataDir.absolutePath + V2MainDB.DB_FILE_PATH
         val mainDbFile = File(mainDbPath)
-        val syncDbPath = context.dataDir.absolutePath + SyncDB.DB_FILE_PATH
+        val syncDbPath = context.dataDir.absolutePath + V2SyncDB.DB_FILE_PATH
         val syncDbFile = File(syncDbPath)
 
         doMigrate = if (!mainDbFile.exists() || !syncDbFile.exists()) {
@@ -33,8 +33,8 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         }
 
         if (doMigrate) {
-            MainDB.init(context, mainDbPath)
-            SyncDB.init(context, syncDbPath)
+            V2MainDB.init(context, mainDbPath)
+            V2SyncDB.init(context, syncDbPath)
         }
     }
 
@@ -49,8 +49,8 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         Log.i(logTag, "... Found legacy db files, about to migrate")
 
         // List existing accounts and migrate them one by one
-        val accDB = MainDB.getHelper()
-        val syncDB = SyncDB.getHelper()
+        val accDB = V2MainDB.getHelper()
+        val syncDB = V2SyncDB.getHelper()
         val recs = accDB.listAccountRecords()
         Log.w(logTag, "    Found " + recs.size + " accounts. ")
         val migrationServiceV2 = MigrationServiceV2()
@@ -78,15 +78,15 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
     private fun provisionWithDummyLegacyData(context: Context): Boolean {
 
         val mainSrcFile =
-            FileLoader.getResourceAsFile("/legacy/basic-setup/" + MainDB.DB_FILE_NAME)
+            FileLoader.getResourceAsFile("/legacy/basic-setup/" + V2MainDB.DB_FILE_NAME)
                 ?: return false
         val syncSrcFile =
-            FileLoader.getResourceAsFile("/legacy/basic-setup/" + SyncDB.DB_FILE_NAME)
+            FileLoader.getResourceAsFile("/legacy/basic-setup/" + V2SyncDB.DB_FILE_NAME)
                 ?: return false
 
-        val mainDbFile = File(context.dataDir.absolutePath + MainDB.DB_FILE_PATH)
+        val mainDbFile = File(context.dataDir.absolutePath + V2MainDB.DB_FILE_PATH)
         mainSrcFile.copyTo(mainDbFile, true)
-        val syncDbFile = File(context.dataDir.absolutePath + SyncDB.DB_FILE_PATH)
+        val syncDbFile = File(context.dataDir.absolutePath + V2SyncDB.DB_FILE_PATH)
         syncSrcFile.copyTo(syncDbFile, true)
 
         return true
@@ -108,9 +108,9 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         migrationServiceV2: MigrationServiceV2,
         targetState: StateID
     ) {
-        val mainDbPath = context.dataDir.absolutePath + MainDB.DB_FILE_PATH
+        val mainDbPath = context.dataDir.absolutePath + V2MainDB.DB_FILE_PATH
         val mainDbFile = File(mainDbPath)
-        val syncDbPath = context.dataDir.absolutePath + SyncDB.DB_FILE_PATH
+        val syncDbPath = context.dataDir.absolutePath + V2SyncDB.DB_FILE_PATH
         val syncDbFile = File(syncDbPath)
 
         migrationServiceV2.doUpload(targetState, mainDbFile, SdkNames.NODE_MIME_DEFAULT)

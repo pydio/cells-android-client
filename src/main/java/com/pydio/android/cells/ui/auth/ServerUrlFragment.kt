@@ -73,7 +73,7 @@ class ServerUrlFragment : Fragment() {
         }
 
         serverUrlVM.isLoading.observe(viewLifecycleOwner) {
-            binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+            binding.loadingBar.visibility = if (it) View.VISIBLE else View.GONE
             binding.urlEditText.isEnabled = !it
         }
 

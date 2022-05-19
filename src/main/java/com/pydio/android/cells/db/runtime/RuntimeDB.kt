@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
     entities = [
         RNetworkInfo::class,
         RJob::class,
-        RLog::class
+        RJobCancellation::class,
+        RLog::class,
     ],
     version = 1,
     exportSchema = false

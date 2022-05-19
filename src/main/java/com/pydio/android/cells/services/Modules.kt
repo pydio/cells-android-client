@@ -82,12 +82,17 @@ val daoModule = module {
     single { get<AccountDB>().workspaceDao() }
 
     single { get<RuntimeDB>().networkInfoDao() }
+    single { get<RuntimeDB>().jobDao() }
+    single { get<RuntimeDB>().logDao() }
 }
 
 val serviceModule = module {
 
     // Manage network state
     single { NetworkService(androidContext(), get()) }
+
+    // Manage long running jobs
+    single { JobService(get()) }
 
     // Manage accounts and authentication
     single<Store<Server>>(named("ServerStore")) { MemoryStore() }
@@ -111,7 +116,7 @@ val serviceModule = module {
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    single { NodeService(get(), get(), get(), get()) }
+    single { NodeService(get(), get(), get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get()) }
 

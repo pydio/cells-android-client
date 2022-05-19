@@ -151,4 +151,12 @@ public interface AppNames {
 //    String LOCAL_FILE_TYPE_OFFLINE = "offline";
     // TODO
     // String LOCAL_FILE_TYPE_EXTERNAL = "external";
+
+    // Known log levels
+    String TRACE = "Trace";
+    String DEBUG = "Debug";
+    String INFO = "Info";
+    String WARNING = "Warning";
+    String ERROR = "Error";
+    String FATAL = "Fatal";
 }

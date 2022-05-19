@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -24,20 +25,21 @@
             android:visibility="gone">
 
             <TextView
-                android:id="@+id/form_title"
+                android:id="@+id/migration_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
                 android:text="Migrating legacy data, please wait…"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                app:layout_constraintBottom_toTopOf="@id/form_desc"
+                app:layout_constraintBottom_toTopOf="@id/migration_status"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.2" />
+                app:layout_constraintVertical_bias="0.2"
+                tools:text="Migrating legacy data, please wait…" />
 
             <TextView
-                android:id="@+id/form_desc"
+                android:id="@+id/migration_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
@@ -45,18 +47,54 @@
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/form_title" />
+                app:layout_constraintTop_toBottomOf="@+id/migration_title"
+                tools:text="Migration has been done, you are good to go." />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/loading_indicator"
+                android:id="@+id/loading_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
-                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/form_desc" />
+                app:layout_constraintTop_toBottomOf="@id/migration_status" />
+
+            <TextView
+                android:id="@+id/offline_not_migrated_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/migration_status"
+                tools:text="We found 7 elements that where marked offline, their configuration has been migrated but not the file. Would like to  launch a synchronisation now?" />
+
+            <Button
+                android:id="@+id/launch_sync_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/welcome_add_account_button"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/browse_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/offline_not_migrated_desc" />
+
+            <Button
+                android:id="@+id/browse_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/action_browse"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/launch_sync_btn"
+                app:layout_constraintTop_toBottomOf="@id/offline_not_migrated_desc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
