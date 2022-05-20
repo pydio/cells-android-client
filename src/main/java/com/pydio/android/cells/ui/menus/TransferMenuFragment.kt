@@ -10,16 +10,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuTransferBinding
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * Menu that presents the end user with some further actions
@@ -29,7 +28,12 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = TransferMenuFragment::class.java.simpleName
     private val args: TransferMenuFragmentArgs by navArgs()
-    private val transferMenuVM: TransferMenuViewModel by viewModel { parametersOf(args.state, args.transferUid) }
+    private val transferMenuVM: TransferMenuViewModel by viewModel {
+        parametersOf(
+            args.state,
+            args.transferUid
+        )
+    }
     private lateinit var binding: MoreMenuTransferBinding
 
     override fun onCreateView(
@@ -67,15 +71,18 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
             when (action) {
                 // Impact remote server
                 AppNames.ACTION_DELETE_RECORD -> {
-                    transferMenuVM.transferService.deleteRecord(rTransfer.getStateId(), rTransfer.transferId)
+                    transferMenuVM.transferService.deleteRecord(
+                        rTransfer.getStateId(),
+                        rTransfer.transferId
+                    )
                     moreMenu.dismiss()
                 }
                 // In-app navigation
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
                     val parentState = StateID.fromId(rTransfer.encodedState).parent()
                     // CellsApp.instance.setCurrentState(parentState)
-                    val action = MainNavDirections.openFolder(parentState.id)
-                    findNavController().navigate(action)
+                    val next = MainNavDirections.openFolder(parentState.id)
+                    findNavController().navigate(next)
                 }
             }
         }

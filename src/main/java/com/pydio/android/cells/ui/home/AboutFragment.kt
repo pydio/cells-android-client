@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import com.pydio.cells.transport.ClientData
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAboutBinding
@@ -17,13 +16,16 @@ import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.android.cells.utils.getTimestampAsString
+import com.pydio.cells.transport.ClientData
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
+@Suppress("unused")
 class AboutFragment : Fragment() {
 
     private val logTag = AboutFragment::class.simpleName
 
     // We inject this to trigger state saving so that we stay on this page upon screen rotation.
+    // This is not used in the code, so we add the suppress annotation above
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
 
     override fun onCreateView(

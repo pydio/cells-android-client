@@ -15,12 +15,11 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.transfer.FileDownloader
 import com.pydio.android.cells.transfer.ThumbDownloader
 import com.pydio.android.cells.transfer.TreeDiff
-import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
-import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
+import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -40,6 +39,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 class NodeService(
     private val prefs: CellsPreferences,
@@ -293,96 +294,123 @@ class NodeService(
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
 
-    suspend fun runFullSync(): RJob? {
+    suspend fun runFullSync(caller: String): RJob? {
 
         val sessions = accountService.listSessionViews(false)
         // TODO add a filter to get rid of the sessions that have no defined offline roots
 
-        val job = jobService.createAndLaunch("Post Migration Full Re-Sync", "User-FullResync")
+        val job =
+            jobService.createAndLaunch(
+                "Full sync requested by $caller",
+                "FullResync-$caller",
+                sessions.size.toLong()
+            )
+                ?: return null
 
-        val startTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
-        com.pydio.cells.utils.Log.i(logTag, "... Launching full re-sync in background at $startTS")
-
+        val startTS = timestampForLogMessage()
+        jobService.i(logTag, "Full sync started at $startTS by $caller", "${job.jobId}")
         for (session in sessions) {
-
             if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
                 && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
             ) {
-                com.pydio.cells.utils.Log.d(
-                    logTag,
-                    "... Launching sync for ${session.getStateID()}"
-                )
-                runAccountSync(session.getStateID())
-//            } else {
-//                Log.e(logTag, "   state: ${session.lifecycleState}, authStatus ${session.authStatus}")
+                runAccountSync(session.getStateID(), caller, job.jobId)
+                jobService.update(job, 1, "${session.getStateID()} OK")
             }
         }
-        val endTS = getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
-        com.pydio.cells.utils.Log.i(logTag, "... Full re-sync terminated at $endTS")
+        val msg = "Full sync done at ${timestampForLogMessage()}"
+        jobService.done(job, msg)
+        jobService.i(logTag, msg, "${job.jobId}")
 
         return job
     }
 
-    suspend fun runAccountSync(stateID: StateID) = withContext(Dispatchers.IO) {
-        val offlineDao = nodeDB(stateID).offlineRootDao()
-        for (offlineRoot in offlineDao.getAll()) {
-            launchSync(offlineRoot)
-        }
-    }
+    @OptIn(ExperimentalTime::class)
+    suspend fun runAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L) =
 
-    suspend fun launchSync(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
+            var changeNb = 0
+
+            val roots = nodeDB(stateID).offlineRootDao().getAll()
+            if (roots.isEmpty()) {
+                return@withContext
+            }
+            jobService.d(logTag, "Syncing: $stateID", "$parentJobId")
+
+            val job = jobService.createAndLaunch(
+                "Sync for $stateID launched by $caller",
+                "Resync-$caller-$stateID",
+                parentId = parentJobId,
+                maxSteps = roots.size.toLong()
+            ) ?: let {
+                jobService.e(logTag, "could not create account sync job for $stateID ")
+                return@withContext
+            }
+            val timeToSync = measureTimedValue {
+
+                for (offlineRoot in roots) {
+                    changeNb += syncOfflineRoot(offlineRoot)
+                    jobService.update(job, 1, "Sync done for ${offlineRoot.getStateID()}")
+                }
+            }
+            val msg = "Sync done for ${stateID} with $changeNb changes in ${timeToSync.duration}"
+            jobService.i(logTag, msg, "${parentJobId}")
+            jobService.done(job, msg)
+        }
+
+    suspend fun syncOfflineRoot(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         val dao = nodeDB(stateID).offlineRootDao()
         dao.get(rTreeNode.encodedState)?.let {
-            launchSync(it)
+            syncOfflineRoot(it)
         } ?: let {
             Log.w(logTag, "Could not find offline root for $stateID, aborting")
         }
-
     }
 
-    suspend fun launchSync(offlineRoot: ROfflineRoot) = withContext(Dispatchers.IO) {
-        val stateID = offlineRoot.getStateID()
-        try {
-            val client = getClient(stateID)
-            val db = nodeDB(stateID)
-            val treeNodeDao = db.treeNodeDao()
-            val offlineDao = db.offlineRootDao()
+    private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot): Int =
+        withContext(Dispatchers.IO) {
+            val stateID = offlineRoot.getStateID()
+            try {
+                val client = getClient(stateID)
+                val db = nodeDB(stateID)
+                val treeNodeDao = db.treeNodeDao()
+                val offlineDao = db.offlineRootDao()
 
-            val treeNode = treeNodeDao.getNode(offlineRoot.encodedState)
-                ?: run {
-                    val nodeInfo = client.nodeInfo(stateID.workspace, stateID.file)
-                        ?: run {
-                            // Remote node has also disappeared on server
-                            offlineRoot.status = AppNames.OFFLINE_STATUS_LOST
-                            offlineRoot.lastCheckTS = currentTimestamp()
-                            return@withContext
-                        }
-                    RTreeNode.fromFileNode(stateID, nodeInfo)
+                val treeNode = treeNodeDao.getNode(offlineRoot.encodedState)
+                    ?: run {
+                        val nodeInfo = client.nodeInfo(stateID.workspace, stateID.file)
+                            ?: run {
+                                // Remote node has also disappeared on server
+                                offlineRoot.status = AppNames.OFFLINE_STATUS_LOST
+                                offlineRoot.lastCheckTS = currentTimestamp()
+                                return@withContext 0
+                            }
+                        RTreeNode.fromFileNode(stateID, nodeInfo)
+                    }
+
+                // TODO Rather use DI via a factory?
+                val fileDL = FileDownloader()
+                val thumbDL = ThumbDownloader()
+                val changeNb = syncNodeAt(treeNode, client, treeNodeDao, fileDL, thumbDL)
+
+                if (changeNb > 0) {
+                    offlineRoot.localModificationTS = currentTimestamp()
+                    offlineRoot.message = null // TODO double check
                 }
+                offlineRoot.lastCheckTS = currentTimestamp()
+                offlineRoot.status = AppNames.OFFLINE_STATUS_ACTIVE
+                offlineDao.update(offlineRoot)
 
-            // TODO Rather use DI via a factory?
-            val fileDL = FileDownloader()
-            val thumbDL = ThumbDownloader()
-            val changeNb = syncNodeAt(treeNode, client, treeNodeDao, fileDL, thumbDL)
-
-            if (changeNb > 0) {
-                offlineRoot.localModificationTS = currentTimestamp()
-                offlineRoot.message = null // TODO double check
+                // TODO add more info on the corresponding root RTreeNode ??
+                treeNode.setOfflineRoot(true)
+                persistUpdated(treeNode)
+                return@withContext changeNb
+            } catch (se: SDKException) {
+                Log.e(logTag, "could update offline sync status for " + stateID.id)
+                se.printStackTrace()
+                return@withContext 0
             }
-            offlineRoot.lastCheckTS = currentTimestamp()
-            offlineRoot.status = AppNames.OFFLINE_STATUS_ACTIVE
-            offlineDao.update(offlineRoot)
-
-            // TODO add more info on the corresponding root RTreeNode ??
-            treeNode.setOfflineRoot(true)
-            persistUpdated(treeNode)
-        } catch (se: SDKException) {
-            Log.e(logTag, "could update offline sync status for " + stateID.id)
-            se.printStackTrace()
-            return@withContext
         }
-    }
 
 //    /* Check if the current offline root need re-sync (first flag) or deletion (second flag) */
 //    private suspend fun preSyncCheck(
@@ -423,6 +451,13 @@ class NodeService(
             }
         }
         return changeNb
+    }
+
+
+    fun enqueueDownload(stateID: StateID, uri: Uri) {
+        serviceScope.launch {
+            saveToSharedStorage(stateID, uri)
+        }
     }
 
     suspend fun createFolder(parentId: StateID, folderName: String) =
@@ -479,9 +514,24 @@ class NodeService(
 
 /* Handle communication with the remote server to refresh locally stored data */
 
-    fun enqueueDownload(stateID: StateID, uri: Uri) {
-        serviceScope.launch {
-            saveToSharedStorage(stateID, uri)
+    /**
+     * Retrieve the meta of all readable nodes that are at the passed stateID.
+     * Files and thumbs are lazily retrieved by Glide (for images) or upon user request (for all
+     * other files).
+     */
+    suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
+        try {
+            val client = getClient(stateID)
+            val dao = nodeDB(stateID).treeNodeDao()
+
+            // WARNING: this browse **all** files that are in the folder
+            val folderDiff = TreeDiff(stateID, client, dao, null, null)
+            val changeNb = folderDiff.compareWithRemote()
+            return@withContext Pair(changeNb, null)
+        } catch (e: SDKException) {
+            val msg = "could not perform ls for ${stateID.id}"
+            handleSdkException(stateID, msg, e)
+            return@withContext Pair(0, msg)
         }
     }
 
@@ -516,24 +566,6 @@ class NodeService(
             return@withContext msg
         }
         return@withContext null
-    }
-
-    /** Retrieve the meta (and thumbs) of all readable nodes that are at the passed stateID */
-    suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
-        try {
-            val client = getClient(stateID)
-            val dao = nodeDB(stateID).treeNodeDao()
-
-            // WARNING: this browse **all** files that are in the folder
-            // We download files lazily via the Glide library
-            val folderDiff = TreeDiff(stateID, client, dao, null, null)
-            val changeNb = folderDiff.compareWithRemote()
-            return@withContext Pair(changeNb, null)
-        } catch (e: SDKException) {
-            val msg = "could not perform ls for ${stateID.id}"
-            handleSdkException(stateID, msg, e)
-            return@withContext Pair(0, msg)
-        }
     }
 
     private suspend fun getNodeInfo(stateID: StateID): FileNode? {

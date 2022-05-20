@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         handleCustomNavigation(stateID)
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         Log.d(logTag, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.main_options, menu)
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        Log.d(logTag, "onResume, intent: $intent")
+        Log.e(logTag, "onResume, intent: $intent")
         super.onResume()
     }
 
@@ -132,8 +131,7 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(action)
                 }
             }
-        }
-
+        } ?: let { navController.navigate(MainNavDirections.openAccountList()) }
     }
 
     private fun configureNavigationDrawer() {

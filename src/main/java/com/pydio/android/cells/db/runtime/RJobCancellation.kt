@@ -14,6 +14,8 @@ data class RJobCancellation(
 
     @ColumnInfo(name = "request_ts") val requestTimestamp: Long,
 
+    // FIXME How do we pass "Cancel parent parameter"?
+
     ) {
 
     companion object {

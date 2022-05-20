@@ -560,7 +560,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_FORCE_RESYNC -> {
-                    nodeService.launchSync(node)
+                    nodeService.syncOfflineRoot(node)
                     moreMenu.dismiss()
                 }
                 // In-app navigation

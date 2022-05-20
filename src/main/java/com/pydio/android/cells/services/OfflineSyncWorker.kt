@@ -4,10 +4,6 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.utils.asFormattedString
-import com.pydio.android.cells.utils.getCurrentDateTime
-import com.pydio.cells.utils.Log
 import org.koin.core.component.KoinComponent
 
 class OfflineSyncWorker(
@@ -25,7 +21,8 @@ class OfflineSyncWorker(
 
     override suspend fun doWork(): Result {
 
-      nodeService.runFullSync()
+        // TODO add all possible params
+        nodeService.runFullSync("Worker")
         val d = Data.Builder().putString("yes", "no").build()
         return Result.success(d)
     }

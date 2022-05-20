@@ -27,4 +27,13 @@ interface LocalFileDao {
 
     @Query("SELECT * FROM local_files WHERE encoded_state = :encodedState and type = :type LIMIT 1")
     fun getFile(encodedState: String, type: String): RLocalFile?
+
+    @Query("SELECT * FROM local_files WHERE encoded_state = :encodedState")
+    fun getFiles(encodedState: String): List<RLocalFile>
+
+    @Query("SELECT * FROM local_files WHERE encoded_state like :encodedState || '%'")
+    fun getFilesUnder(encodedState: String): List<RLocalFile>
+
+    @Query("DELETE FROM tree_nodes WHERE encoded_state like :encodedState || '%'")
+    fun deleteUnder(encodedState: String)
 }

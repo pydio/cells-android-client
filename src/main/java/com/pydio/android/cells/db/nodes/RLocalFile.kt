@@ -39,6 +39,14 @@ data class RLocalFile(
     @ColumnInfo(name = "local_mod_ts") var localTS: Long = -1L,
 ) {
 
+    fun getStateID(): StateID {
+        return StateID.fromId(encodedState)
+    }
+
+    fun getAccountID(): StateID {
+        return getStateID().account()
+    }
+
     companion object {
         private val logTag = RLocalFile::class.simpleName
 

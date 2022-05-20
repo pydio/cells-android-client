@@ -6,6 +6,7 @@ import com.pydio.android.cells.db.nodes.RLocalFile
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.getCurrentDateTime
+import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
@@ -27,18 +28,19 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     private val appFilesDir = CellsApp.instance.filesDir.absolutePath
 
     fun prepareTree(stateID: StateID) = serviceScope.launch {
-        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
-        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_PREVIEW)).mkdirs()
-        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_FILE)).mkdirs()
-        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
+        val account = stateID.account()
+        File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
+        File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_PREVIEW)).mkdirs()
+        File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_FILE)).mkdirs()
+        File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
     }
 
 //    fun dataParentFolder(stateID: StateID, type: String): File {
 //        return File(dataParentPath(stateID.accountId, type))
 //    }
 
-    fun dataParentPath(accountId: String, type: String): String {
-        val dirName = treeNodeRepository.sessions[accountId]?.dirName
+    fun dataParentPath(accountId: StateID, type: String): String {
+        val dirName = treeNodeRepository.sessions[accountId.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $accountId")
         return staticDataParentPath(dirName, type)
     }
@@ -78,14 +80,15 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_FILE,
             AppNames.LOCAL_FILE_TYPE_TRANSFER
-            -> "${dataParentPath(stat.accountId, type)}${stat.path}"
+            -> "${dataParentPath(stat.account(), type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_THUMB,
             AppNames.LOCAL_FILE_TYPE_PREVIEW
-            -> "${dataParentPath(stat.accountId, type)}${stat.file}"
+            -> "${dataParentPath(stat.account(), type)}${stat.file}"
             else -> throw IllegalStateException("Cannot create $type path for $stat")
         }
     }
 
+    /* LOCAL FILES (for offline and cache) */
     suspend fun registerLocalFile(
         stateID: StateID,
         rTreeNode: RTreeNode,
@@ -98,9 +101,35 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         dao.insert(rLocalFile)
     }
 
+    fun  needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean{
+        val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
+        val fileRecord = dao.getFile(stateID.id, type) ?: return true
+        return remote.lastModified <= fileRecord.remoteTS &&
+                remote.eTag == fileRecord.etag
+    }
+
     fun unregisterLocalFile(stateID: StateID, type: String) {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
         dao.delete(stateID.id, type)
+    }
+
+    fun deleteCachedFilesFor(rTreeNode: RTreeNode) {
+        val dao = treeNodeRepository.nodeDB(rTreeNode.getAccountID()).localFileDao()
+        val fileRecords = dao.getFiles(rTreeNode.encodedState)
+        for (record in fileRecords) {
+            getFileFromRecord(record)?.delete()
+        }
+        dao.delete(rTreeNode.encodedState)
+    }
+
+    fun deleteCachedFileRecursively(folderId: StateID) {
+
+        val dao = treeNodeRepository.nodeDB(folderId.account()).localFileDao()
+        val fileRecords = dao.getFilesUnder(folderId.id)
+        for (record in fileRecords) {
+            getFileFromRecord(record)?.delete()
+        }
+        dao.deleteUnder(folderId.id)
     }
 
     /** This also checks that the file is in line with the index */
@@ -111,11 +140,10 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             Log.e(tag, "no record for [$type]: $stateID")
             return null
         }
-        val parPath = dataParentPath(stateID.accountId, type)
-
+        val parPath = dataParentPath(stateID.account(), type)
         val file = File(parPath + File.separator + rFile.file)
         if (!file.exists()) {
-            Log.e(tag, "could node find file at ${file.absolutePath}")
+            Log.e(tag, "could not find file at ${file.absolutePath}")
             return null
         }
         if (!isFileInLineWithIndex(rTreeNode, rFile)) {
@@ -175,9 +203,8 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
-        val imgPath = dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_TRANSFER)
-        // TODO do we really want a lazy creation for this base folder? or rather rely on a tree
-        //    initialisation when the account is created
+        val imgPath = dataParentPath(stateID.account(), AppNames.LOCAL_FILE_TYPE_TRANSFER)
+        // Superstition? the tree structure is created at account registration. Is it not enough?
         File(imgPath).mkdirs()
         return File("${imgPath}${sep}IMG_${timestamp}.jpg")
 
@@ -215,4 +242,18 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             files.deleteRecursively()
         }
     }
+
+
+    /** We also check if the file exists and return null otherwise */
+    private fun getFileFromRecord(record: RLocalFile): File? {
+        val parPath = dataParentPath(record.getAccountID(), record.type)
+        val file = File(parPath + File.separator + record.file)
+        if (!file.exists()) {
+            val m = "${record.getStateID()}: Missing ${record.type} record at ${file.absolutePath}"
+            Log.w(tag, m)
+            return null
+        }
+        return file
+    }
+
 }

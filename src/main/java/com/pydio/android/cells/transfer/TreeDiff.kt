@@ -55,7 +55,7 @@ class TreeDiff(
 //    private val previewParPath =
 //        fileService.dataParentPath(baseFolderStateId.accountId, AppNames.LOCAL_FILE_TYPE_PREVIEW)
 
-    private var downloadFiles = fileDL != null
+    private var alsoCheckFiles = fileDL != null
 
     private var changeNumber = 0
 
@@ -95,10 +95,9 @@ class TreeDiff(
                     putAddChange(remote)
                 }
                 areNodeContentEquals(remote, local, client.isLegacy) -> {
-                    // Found a match with no detected change,
-                    // we yet insure necessary files (offline & thumbs for viewable) are present
-                    alsoCheckFile(local)
-                    alsoCheckThumb(remote, local)
+                    if (alsoCheckFiles) {
+                        checkFiles(local.getStateID(), remote)
+                    }
                 }
                 else -> {
                     putUpdateChange(remote, local)
@@ -152,10 +151,7 @@ class TreeDiff(
                     local = null
                 } else if (order == 0) {
                     if (areNodeContentEquals(remote, local!!, client.isLegacy)) {
-                        // Found a match with no detected change,
-                        // we yet insure necessary files (offline & thumbs for viewable) are present
-                        alsoCheckFile(local)
-                        alsoCheckThumb(remote, local)
+                        checkFiles(local.getStateID(), remote)
                     } else {
                         putUpdateChange(remote, local)
                     }
@@ -183,7 +179,7 @@ class TreeDiff(
         val childStateID = baseFolderStateId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         nodeService.upsertNode(rNode)
-        downloadFilesIfNecessary(remote, childStateID)
+        checkFiles(childStateID, remote)
     }
 
     private suspend fun putUpdateChange(remote: FileNode, local: RTreeNode) {
@@ -198,123 +194,73 @@ class TreeDiff(
             deleteLocalFolder(local)
         }
         nodeService.upsertNode(rNode)
-        downloadFilesIfNecessary(remote, childStateID)
+        checkFiles(childStateID, remote)
     }
 
     private fun putDeleteChange(local: RTreeNode) {
         Log.d(logTag, "delete for ${local.name}")
         changeNumber++
-
         when {
-            local.isFolder() -> {
-                deleteLocalFolder(local)
-            }
+            local.isFolder() -> deleteLocalFolder(local)
             else -> deleteLocalFile(local)
         }
     }
 
     /* LOCAL HELPERS */
+    private fun checkFiles(stateID: StateID, remote: FileNode) {
 
-    private fun alsoCheckFile(local: RTreeNode) {
-        // FIXME
-        return
-//
-//        if (!downloadFiles) {
-//            return
-//        }
-//
-//        fileDL?.let {
-//            diffScope.launch {
-//                if (local.isFolder()) { // we do only files
-//                    return@launch
-//                }
-//                var doIt = local.localFilePath == null
-//                if (!doIt) { // we might have recorded the name but have a missing file
-//                    doIt = !File(local.localFilePath!!).exists()
-//                    // TODO also check if the file has changed.
-//                }
-//                if (doIt) {
-//                    it.orderFileDL(local.encodedState)
-//                }
-//            }
-//        }
-    }
-
-    private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
-        // FIXME
-        return
-//        if (!downloadThumbs) {
-//            return
-//        }
-//        if (remote.isImage) {
-//            if (local.thumbFilename == null || !File(thumbParPath + local.thumbFilename).exists()) {
-//                diffScope.launch {
-//                    val childStateID = baseFolderStateId.child(remote.name)
-//                    thumbDL.orderThumbDL(childStateID.id)
-//                }
-//            }
-//        }
-    }
-
-    private fun downloadFilesIfNecessary(remote: FileNode, stateID: StateID) {
-        if (!downloadFiles) {
+        if (!alsoCheckFiles) {
             return
         }
 
-        if (remote.isImage && thumbDL != null) {
+        if (remote.hasThumb() &&
+            thumbDL != null &&
+            fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_THUMB)
+        ) {
             diffScope.launch {
                 thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
-                if (!client.isLegacy){
-                    thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
-                }
             }
         }
-        if (remote.isFile && downloadFiles) {
-            fileDL?.let {
-                diffScope.launch {
-                    it.orderFileDL(stateID.id)
-                }
+
+        if (remote.isPreViewable &&
+            thumbDL != null &&
+            fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_PREVIEW)
+        ) {
+            diffScope.launch {
+                thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
+            }
+        }
+
+        if (remote.isFile &&
+            fileDL != null &&
+            fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_FILE)
+        ) {
+            diffScope.launch {
+                fileDL.orderFileDL(stateID.id)
             }
         }
     }
 
     private fun deleteLocalFile(local: RTreeNode) {
-        // Local cache or offline file
-        val file = File(fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_FILE))
-        if (file.exists()) {
-            file.delete()
-        }
-        // Corresponding thumb
-        fileService.getThumbPath(local)?.let {
-            val tf = File(it)
-            if (tf.exists()) {
-                tf.delete()
-            }
-        }
+        // Local thumbs and cached files
+        fileService.deleteCachedFilesFor(local)
+        // Remove from index.
         dao.delete(local.encodedState)
     }
 
     private fun deleteLocalFolder(local: RTreeNode) {
-
+        // Local file deletion, we must use the index and delete them one by one
+        // because thumb like files are all in a single bucket
+        fileService.deleteCachedFileRecursively(local.getStateID())
+        // Also remove folders in the tree structure
         val file = File(fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_FILE))
         if (file.exists()) {
             file.deleteRecursively()
         }
-
-        // TODO look for all thumbs defined for pre-viewable files that are in the child path
-        //   and remove them.
+        // Remove current folder and children in the index
         dao.deleteUnder(local.encodedState)
         dao.delete(local.encodedState)
     }
-
-    /** Detect current context (offline or cache) relying on the presence of a FileDownloader */
-//    private fun getCurrentFileType(): String {
-//        val isOfflineContext = fileDL != null
-//        return if (isOfflineContext)
-//            AppNames.LOCAL_FILE_TYPE_CACHE
-//        else
-//            AppNames.LOCAL_FILE_TYPE_OFFLINE
-//    }
 
     /**
      * Convenience class that iterates on remote pages to list the full content of

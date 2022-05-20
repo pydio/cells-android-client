@@ -25,9 +25,12 @@ data class RTransfer(
 
     @ColumnInfo(name = "mime") val mime: String,
 
-    @ColumnInfo(name = "md5") var md5: String? = null,
+    @ColumnInfo(name = "etag") var etag: String? = null,
 
     @ColumnInfo(name = "multipart") val multipart: Boolean = false,
+    // Single file: 0, Other wise the number of parts
+//    @ColumnInfo(name = "multipart") val multipart: Int = 0,
+//    @ColumnInfo(name = "parent_id") val parentId: Long = 0,
 
     @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
 

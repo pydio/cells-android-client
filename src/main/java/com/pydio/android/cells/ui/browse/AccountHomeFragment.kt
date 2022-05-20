@@ -132,13 +132,13 @@ class AccountHomeFragment : Fragment() {
         val accounts = withContext(Dispatchers.IO) { accountDao.getAccounts() }
         when (accounts.size) {
             0 -> { // No account: launch registration
-                binding.noAccountButton.text = "Register an account"
+                binding.noAccountButton.text = resources.getText(R.string.welcome_add_account_button)
                 binding.noAccountButton.setOnClickListener {
                     startActivity(Intent(requireActivity(), AuthActivity::class.java))
                 }
             }
             1 -> { // Launch browsing directly
-                binding.noAccountButton.text = "Browse"
+                binding.noAccountButton.text = resources.getText(R.string.action_browse)
                 binding.noAccountButton.setOnClickListener {
                     val action = MainNavDirections.openAccountHome(accounts[0].accountID)
                     findNavController().navigate(action)
@@ -146,7 +146,7 @@ class AccountHomeFragment : Fragment() {
             }
             // else we suggest to open the account list
             else -> {
-                binding.noAccountButton.text = "Choose an account"
+                binding.noAccountButton.text = resources.getText(R.string.action_open_transfers)
                 binding.noAccountButton.setOnClickListener {
                     findNavController().navigate(MainNavDirections.openAccountList())
                 }

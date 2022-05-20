@@ -26,7 +26,7 @@ class NodeGridAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         val thumbDirPath =
-            fileService.dataParentPath(item.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+            fileService.dataParentPath(item.getAccountID(), AppNames.LOCAL_FILE_TYPE_THUMB)
         tracker?.let {
             holder.bind(item, thumbDirPath, it.isSelected(item.encodedState))
         } ?: run {

@@ -68,6 +68,10 @@ data class RTreeNode(
         return StateID.fromId(encodedState)
     }
 
+    fun getAccountID(): StateID {
+        return getStateID().account()
+    }
+
     fun isFolder(): Boolean {
         return isFolderFromMime(mime)
     }

@@ -135,6 +135,11 @@ fun currentTimestampAsString() : String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(System.currentTimeMillis())
 }
 
+fun timestampForLogMessage() : String {
+    val formatter = SimpleDateFormat("dd/MM/yy' at 'HH:mm", Locale.US)
+    return formatter.format(System.currentTimeMillis())
+}
+
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
 }

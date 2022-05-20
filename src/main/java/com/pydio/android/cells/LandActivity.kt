@@ -108,7 +108,7 @@ class LandActivity : AppCompatActivity() {
     private suspend fun chooseFirstPage() {
         val landActivity = this
 
-        val stateID: StateID?
+        var stateID: StateID? = null
         // Fallback on defined accounts:
         val accounts = withContext(Dispatchers.IO) { accountDao.getAccounts() }
         when (accounts.size) {
@@ -123,16 +123,19 @@ class LandActivity : AppCompatActivity() {
             else -> {
                 // If a session is listed as in foreground, we open this one
                 val currSession = withContext(Dispatchers.IO) { sessionDao.getForegroundSession() }
-                stateID = StateID.fromId(currSession?.accountID)
+                currSession?.let { stateID = StateID.fromId(it.accountID) }
+                    ?: let {
+                        // TODO we should open the account list
+                    }
             }
             // else we navigate to the MainActivity with no state,
             //  that should led us to the account list
             //  size > 1 -> navController.navigate(MainNavDirections.openAccountList())
         }
         val intent = Intent(landActivity, MainActivity::class.java)
-        if (stateID != null) {
-            accountService.openSession(stateID.accountId)
-            intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+        stateID?.let {
+            accountService.openSession(it.accountId)
+            intent.putExtra(AppNames.EXTRA_STATE, it.id)
         }
         landActivity.finish()
         startActivity(intent)
@@ -159,7 +162,10 @@ class LandActivity : AppCompatActivity() {
         } else {
             binding.offlineNotMigratedDesc.visibility = View.VISIBLE
             binding.offlineNotMigratedDesc.text =
-                String.format(resources.getString(R.string.post_migration_sync_message), offlineRootsNb)
+                String.format(
+                    resources.getString(R.string.post_migration_sync_message),
+                    offlineRootsNb
+                )
 
             binding.launchSyncBtn.text = resources.getText(R.string.button_resync_all)
             binding.launchSyncBtn.visibility = View.VISIBLE
@@ -167,8 +173,10 @@ class LandActivity : AppCompatActivity() {
                 // TODO launch this in a wider scope and handle a progress
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
-                        nodeService.runFullSync()
+                        nodeService.runFullSync("User, post-migration")
                     }
+                }
+                lifecycleScope.launch {
                     chooseFirstPage()
                 }
             }

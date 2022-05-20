@@ -99,7 +99,8 @@ class TransferService(
     suspend fun getOrDownloadFile(state: StateID, type: String): File? =
         withContext(Dispatchers.IO) {
 
-            val nodeDB = treeNodeRepository.nodeDB(state)
+            val account = state.account()
+            val nodeDB = treeNodeRepository.nodeDB(account)
             val rNode = nodeDB.treeNodeDao().getNode(state.id)
             if (rNode == null) {
                 // No node found, aborting
@@ -117,7 +118,7 @@ class TransferService(
             node.properties = rNode.properties
             node.meta = rNode.meta
 
-            val parentFolder = fileService.dataParentPath(state.accountId, type)
+            val parentFolder = fileService.dataParentPath(state.account(), type)
 
             val filename = when (type) {
                 AppNames.LOCAL_FILE_TYPE_THUMB,

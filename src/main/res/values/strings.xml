@@ -18,6 +18,7 @@
 
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
+    <string name="action_choose_account">Choose an account</string>
     <string name="action_browse">Browse</string>
     <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_offline_roots">Offline Files</string>

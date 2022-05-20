@@ -9,14 +9,12 @@ import com.pydio.android.cells.utils.currentTimestamp
 data class RTransferCancellation(
 
     @PrimaryKey
-    @ColumnInfo(name = "transfer_id")
-    var transferId: Long,
-
+    @ColumnInfo(name = "transfer_id") val transferId: Long,
     @ColumnInfo(name = "encoded_state") val encodedState: String,
-
     @ColumnInfo(name = "request_ts") val requestTimestamp: Long,
 
-    ) {
+    // TODO handle when call comes from a  child transfer
+) {
 
     companion object {
         fun cancel(
