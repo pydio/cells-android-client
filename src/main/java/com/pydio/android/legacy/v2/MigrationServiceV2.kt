@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.LogDao
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
@@ -13,6 +12,7 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.SessionFactory
+import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.callbacks.ProgressListener
 import com.pydio.cells.legacy.P8Credentials
@@ -28,6 +28,8 @@ import org.koin.core.component.inject
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 /**
  * Centralize migration process from v2 to v3.
@@ -44,7 +46,6 @@ class MigrationServiceV2 : KoinComponent {
     private val prefs: CellsPreferences by inject()
 
     private val jobService by inject<JobService>()
-    private val jobDao by inject<JobDao>()
     private val logDao by inject<LogDao>()
 
     private val oldDbNames = listOf(
@@ -63,34 +64,41 @@ class MigrationServiceV2 : KoinComponent {
      * We add a second of sleep between various steps to be able to see the progress and various
      * status
      *
-     * @return the number of offline  roots node that have been migrated */
+     * @return the number of offline roots node that have been migrated */
+    @OptIn(ExperimentalTime::class)
     suspend fun migrate(context: Context, migrationJob: RJob): Int {
 
-        jobService.update(migrationJob, 0, "Preparing migration...")
+        val result: Pair<Boolean, Int>
+        val timeToSync = measureTimedValue {
 
-        prepare(context)
-        delay(3000)
-        jobService.update(migrationJob, 20, "Migrating accounts and credentials...")
+            jobService.update(migrationJob, 0, "Preparing migration...")
 
-        val result = migrateAccounts(migrationJob, 50) {
-            jobService.update(migrationJob, it, null)
-            true
+            prepare(context)
+            delay(1000)
+            jobService.update(migrationJob, 20, "Migrating accounts and credentials...")
+
+            result = migrateAccounts(migrationJob, 50) {
+                jobService.update(migrationJob, it, null)
+                true
+            }
+            delay(1000)
+
+            if (result.first) {
+                jobService.update(migrationJob, 0, "Cleaning legacy files...")
+                cleanLegacyFiles(context)
+                prefs.setInt(
+                    AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
+                    ClientData.getInstance().versionCode.toInt()
+                )
+            }
+            delay(1000)
         }
-        delay(3000)
 
-        if (result.first) {
-            jobService.update(migrationJob, 0, "Cleaning legacy files...")
-            cleanLegacyFiles(context)
-            prefs.setInt(
-                AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
-                ClientData.getInstance().versionCode.toInt()
-            )
-        }
-        delay(3000)
+        val msg =
+            "Migration done with ${result.second} offline roots in ${timeToSync.duration.inWholeSeconds}s"
+        val progressMsg = "Migration terminated at ${timestampForLogMessage()}"
 
-        jobService.done(migrationJob, "Migration done.")
-        delay(2000)
-
+        jobService.done(migrationJob, msg, progressMsg)
         return result.second
     }
 

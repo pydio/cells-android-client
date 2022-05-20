@@ -294,6 +294,7 @@ class NodeService(
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
 
+    @OptIn(ExperimentalTime::class)
     suspend fun runFullSync(caller: String): RJob? {
 
         val sessions = accountService.listSessionViews(false)
@@ -309,30 +310,35 @@ class NodeService(
 
         val startTS = timestampForLogMessage()
         jobService.i(logTag, "Full sync started at $startTS by $caller", "${job.jobId}")
-        for (session in sessions) {
-            if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
-                && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
-            ) {
-                runAccountSync(session.getStateID(), caller, job.jobId)
-                jobService.update(job, 1, "${session.getStateID()} OK")
+
+        var changeNb = 0
+        val timeToSync = measureTimedValue {
+            for (session in sessions) {
+                if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
+                    && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
+                ) {
+                    changeNb += runAccountSync(session.getStateID(), caller, job.jobId)
+                    jobService.update(job, 1, "${session.getStateID()} OK")
+                }
             }
         }
-        val msg = "Full sync done at ${timestampForLogMessage()}"
-        jobService.done(job, msg)
+        val msg = "Full sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
+        val progressMsg = "Full sync terminated at ${timestampForLogMessage()}"
+        jobService.done(job, msg, progressMsg)
         jobService.i(logTag, msg, "${job.jobId}")
 
         return job
     }
 
     @OptIn(ExperimentalTime::class)
-    suspend fun runAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L) =
+    suspend fun runAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
 
         withContext(Dispatchers.IO) {
             var changeNb = 0
 
             val roots = nodeDB(stateID).offlineRootDao().getAll()
             if (roots.isEmpty()) {
-                return@withContext
+                return@withContext 0
             }
             jobService.d(logTag, "Syncing: $stateID", "$parentJobId")
 
@@ -343,18 +349,19 @@ class NodeService(
                 maxSteps = roots.size.toLong()
             ) ?: let {
                 jobService.e(logTag, "could not create account sync job for $stateID ")
-                return@withContext
+                return@withContext 0
             }
             val timeToSync = measureTimedValue {
-
                 for (offlineRoot in roots) {
                     changeNb += syncOfflineRoot(offlineRoot)
                     jobService.update(job, 1, "Sync done for ${offlineRoot.getStateID()}")
                 }
             }
-            val msg = "Sync done for ${stateID} with $changeNb changes in ${timeToSync.duration}"
+            val msg =
+                "Sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s for ${stateID}"
             jobService.i(logTag, msg, "${parentJobId}")
-            jobService.done(job, msg)
+            jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
+            return@withContext changeNb
         }
 
     suspend fun syncOfflineRoot(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {

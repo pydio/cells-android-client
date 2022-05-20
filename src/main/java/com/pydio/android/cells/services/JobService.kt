@@ -40,11 +40,12 @@ class JobService(runtimeDB: RuntimeDB) {
         jobDao.update(job)
     }
 
-    fun done(job: RJob, message: String?) {
+    fun done(job: RJob, message: String?, lastProgressMsg: String?) {
         job.status = AppNames.JOB_STATUS_DONE
         job.doneTimestamp = currentTimestamp()
         job.progress = job.progressMax
-        job.progressMessage = message
+        job.message = message
+        job.progressMessage = lastProgressMsg
         jobDao.update(job)
     }
 
