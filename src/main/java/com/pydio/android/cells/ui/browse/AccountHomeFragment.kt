@@ -146,7 +146,7 @@ class AccountHomeFragment : Fragment() {
             }
             // else we suggest to open the account list
             else -> {
-                binding.noAccountButton.text = resources.getText(R.string.action_open_transfers)
+                binding.noAccountButton.text = resources.getText(R.string.action_choose_account)
                 binding.noAccountButton.setOnClickListener {
                     findNavController().navigate(MainNavDirections.openAccountList())
                 }

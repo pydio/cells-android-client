@@ -96,7 +96,7 @@ class MigrationServiceV2 : KoinComponent {
 
         val msg =
             "Migration done with ${result.second} offline roots in ${timeToSync.duration.inWholeSeconds}s"
-        val progressMsg = "Migration terminated at ${timestampForLogMessage()}"
+        val progressMsg = "Migration terminated on ${timestampForLogMessage()}"
 
         jobService.done(migrationJob, msg, progressMsg)
         return result.second
