@@ -21,17 +21,22 @@ class JobService(runtimeDB: RuntimeDB) {
     private val logDao = runtimeDB.logDao()
 
     fun createAndLaunch(
-        label: String,
+        owner: String,
         template: String,
+        label: String,
         parentId: Long = 0,
         maxSteps: Long = -1
     ): RJob? {
-        val newJob = RJob.create(label, template, parentId)
-        newJob.progressMax = maxSteps
+        val newJob = RJob.create(owner, template, label, parentId)
+        newJob.total = maxSteps
         newJob.status = AppNames.JOB_STATUS_PROCESSING
         newJob.startTimestamp = currentTimestamp()
         val jobId = jobDao.insert(newJob)
         return jobDao.getById(jobId)
+    }
+
+    fun getRunningJobs(template: String): List<RJob>{
+        return jobDao.getRunningForTemplate(template)
     }
 
     fun update(job: RJob, increment: Long, message: String?) {
@@ -43,7 +48,7 @@ class JobService(runtimeDB: RuntimeDB) {
     fun done(job: RJob, message: String?, lastProgressMsg: String?) {
         job.status = AppNames.JOB_STATUS_DONE
         job.doneTimestamp = currentTimestamp()
-        job.progress = job.progressMax
+        job.progress = job.total
         job.message = message
         job.progressMessage = lastProgressMsg
         jobDao.update(job)
@@ -58,6 +63,11 @@ class JobService(runtimeDB: RuntimeDB) {
     fun i(tag: String?, message: String, callerId: String?) {
         Log.i(tag, message + " " + (callerId ?: ""))
         log(AppNames.INFO, tag, message, callerId)
+    }
+
+    fun w(tag: String?, message: String, callerId: String?) {
+        Log.w(tag, message + " " + (callerId ?: ""))
+        log(AppNames.WARNING, tag, message, callerId)
     }
 
     fun e(tag: String?, message: String, callerId: String? = null) {

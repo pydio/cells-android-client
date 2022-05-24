@@ -33,7 +33,7 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
         val pair = decodeModel(model)
         dlScope.launch {
 
-            transferService.getOrDownloadFile(pair.first, pair.second)?.let {
+            transferService.getFileForDisplay(pair.first, pair.second, null)?.let {
                 // TODO rather use a stream
                 // Log.e(logTag, "Got a file...")
                 var bytes = it.readBytes()

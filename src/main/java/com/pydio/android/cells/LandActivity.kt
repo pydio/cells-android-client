@@ -70,8 +70,9 @@ class LandActivity : AppCompatActivity() {
 
         val migrationJob: RJob? = withContext(Dispatchers.IO) {
             val job = jobService.createAndLaunch(
+                AppNames.JOB_OWNER_WORKER,
+                AppNames.JOB_TEMPLATE_MIGRATION_V2,
                 "Migration from v2 to v3",
-                "migrationV2",
                 maxSteps = 100
             ) ?: return@withContext null
             jobService.i(logTag, "Created ${job.label}", "${job.jobId}")
@@ -84,7 +85,7 @@ class LandActivity : AppCompatActivity() {
         }
         jobDao.getLiveById(migrationJob.jobId).observe(this@LandActivity) {
             it?.let {
-                val newValue = it.progress * 100 / it.progressMax
+                val newValue = it.progress * 100 / it.total
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     binding.loadingBar.setProgress(newValue.toInt(), true)
                 } else {
@@ -147,8 +148,8 @@ class LandActivity : AppCompatActivity() {
 
         // change layout for next step
         binding.loadingBar.visibility = View.GONE
-        binding.migrationTitle.text = res.getString(R.string.welcome_title)
-        binding.currentStatus = res.getString(R.string.post_migration_message)
+        binding.migrationTitle.text = res.getString(R.string.post_migration_title)
+        // binding.currentStatus = res.getString(R.string.post_migration_message)
 
         binding.browseBtn.visibility = View.VISIBLE
         binding.browseBtn.setOnClickListener {
@@ -158,22 +159,17 @@ class LandActivity : AppCompatActivity() {
         }
 
         if (offlineRootsNb == 0) {
-            binding.browseBtn.text = res.getText(R.string.action_browse)
+            binding.browseBtn.text = res.getText(R.string.action_open_app)
         } else {
             binding.offlineNotMigratedDesc.visibility = View.VISIBLE
-            binding.offlineNotMigratedDesc.text =
-                String.format(
-                    resources.getString(R.string.post_migration_sync_message),
-                    offlineRootsNb
-                )
-
+            binding.offlineNotMigratedDesc.text = resources.getString(R.string.post_migration_sync_message)
             binding.launchSyncBtn.text = resources.getText(R.string.button_resync_all)
             binding.launchSyncBtn.visibility = View.VISIBLE
             binding.launchSyncBtn.setOnClickListener {
                 // TODO launch this in a wider scope and handle a progress
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
-                        nodeService.runFullSync("User, post-migration")
+                        nodeService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
                     }
                 }
                 lifecycleScope.launch {

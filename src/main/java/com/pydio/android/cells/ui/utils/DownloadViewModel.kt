@@ -55,7 +55,7 @@ class DownloadViewModel(
     fun cancelDownload() {
         vmScope.launch {
             transferId.value?.let {
-                transferService.cancelTransfer(stateID.account(), it)
+                transferService.cancelTransfer(stateID.account(), it, AppNames.JOB_OWNER_USER)
             }
             _isProcessing = false
         }
@@ -72,7 +72,7 @@ class DownloadViewModel(
                 res.first?.let {
                     transfer = transferService.liveTransfer(stateID.account(), it)
                     transferId.value = it
-                    transferService.getOrDownloadFile(stateID.account(), it)?.let {
+                    transferService.runDownloadTransfer(stateID.account(), it)?.let {
                         _errorMessage.value = it
                         _isProcessing = false
                         return@launch

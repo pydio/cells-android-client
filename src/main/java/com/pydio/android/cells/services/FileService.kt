@@ -35,10 +35,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
     }
 
-//    fun dataParentFolder(stateID: StateID, type: String): File {
-//        return File(dataParentPath(stateID.accountId, type))
-//    }
-
     fun dataParentPath(accountId: StateID, type: String): String {
         val dirName = treeNodeRepository.sessions[accountId.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $accountId")
@@ -68,8 +64,8 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     /**
      * Get the path to a local resource, if it exists:
      * typically, it returns null for the thumb file if it has not yet been downloaded
-     * and persisted from the remote server
-     * */
+     * from the remote server and persisted
+     */
     @Throws(java.lang.IllegalStateException::class)
     fun getLocalPath(item: RTreeNode, type: String): String {
         val stat = StateID.fromId(item.encodedState)
@@ -89,7 +85,8 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     }
 
     /* LOCAL FILES (for offline and cache) */
-    suspend fun registerLocalFile(
+//    suspend fun registerLocalFile(
+    fun registerLocalFile(
         stateID: StateID,
         rTreeNode: RTreeNode,
         type: String,
@@ -101,7 +98,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         dao.insert(rLocalFile)
     }
 
-    fun  needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean{
+    fun needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
         val fileRecord = dao.getFile(stateID.id, type) ?: return true
         return remote.lastModified <= fileRecord.remoteTS &&
@@ -123,7 +120,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     }
 
     fun deleteCachedFileRecursively(folderId: StateID) {
-
         val dao = treeNodeRepository.nodeDB(folderId.account()).localFileDao()
         val fileRecords = dao.getFilesUnder(folderId.id)
         for (record in fileRecords) {
@@ -157,24 +153,22 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return rTreeNode.etag == rFile.etag && rTreeNode.remoteModificationTS == rFile.remoteTS
     }
 
-    fun getThumbPath(item: RTreeNode): String? {
-// FIXME
-        return null
-
-//        return if (Str.empty(item.thumbFilename)) {
-//            null
-//        } else {
-//            "${
-//                dataParentPath(
-//                    item.getStateID().accountId,
-//                    AppNames.LOCAL_FILE_TYPE_THUMB
-//                )
-//            }${sep}${item.thumbFilename}"
-//        }
-    }
+//    fun getThumbPath(item: RTreeNode): String? {
+//        return null
+//
+////        return if (Str.empty(item.thumbFilename)) {
+////            null
+////        } else {
+////            "${
+////                dataParentPath(
+////                    item.getStateID().accountId,
+////                    AppNames.LOCAL_FILE_TYPE_THUMB
+////                )
+////            }${sep}${item.thumbFilename}"
+////        }
+//    }
 
 //    fun getOfflineThumbPath(item: RLiveOfflineRoot): String? {
-//// FIXME
 //        return null
 ////        return if (Str.empty(item.thumbFilename)) {
 ////            null
@@ -188,18 +182,18 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 ////        }
 //    }
 
-    fun getAccountBasePath(stateID: StateID, type: String): String {
-        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
-        val middle = sep + dirName
-        return when (type) {
-            AppNames.LOCAL_DIR_TYPE_CACHE ->
-                appCacheDir + middle
-            AppNames.LOCAL_DIR_TYPE_FILE ->
-                appFilesDir + middle
-            else -> throw IllegalStateException("Unknown base folder type: $type")
-        }
-    }
+//    fun getAccountBasePath(stateID: StateID, type: String): String {
+//        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
+//            ?: throw IllegalStateException("No record found for $stateID")
+//        val middle = sep + dirName
+//        return when (type) {
+//            AppNames.LOCAL_DIR_TYPE_CACHE ->
+//                appCacheDir + middle
+//            AppNames.LOCAL_DIR_TYPE_FILE ->
+//                appFilesDir + middle
+//            else -> throw IllegalStateException("Unknown base folder type: $type")
+//        }
+//    }
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
@@ -242,7 +236,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             files.deleteRecursively()
         }
     }
-
 
     /** We also check if the file exists and return null otherwise */
     private fun getFileFromRecord(record: RLocalFile): File? {

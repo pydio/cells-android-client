@@ -27,7 +27,6 @@ class TreeDiff(
     private val client: Client,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
-    private val thumbDL: ThumbDownloader?,
 ) : KoinComponent {
 
     companion object {
@@ -209,25 +208,23 @@ class TreeDiff(
     /* LOCAL HELPERS */
     private fun checkFiles(stateID: StateID, remote: FileNode) {
 
-        if (!alsoCheckFiles) {
+        if (!alsoCheckFiles || fileDL == null) {
             return
         }
 
         if (remote.hasThumb() &&
-            thumbDL != null &&
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_THUMB)
         ) {
             diffScope.launch {
-                thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
+                fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
             }
         }
 
         if (remote.isPreViewable &&
-            thumbDL != null &&
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_PREVIEW)
         ) {
             diffScope.launch {
-                thumbDL.orderThumbDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
+                fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
             }
         }
 
@@ -236,7 +233,7 @@ class TreeDiff(
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_FILE)
         ) {
             diffScope.launch {
-                fileDL.orderFileDL(stateID.id)
+                fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE)
             }
         }
     }

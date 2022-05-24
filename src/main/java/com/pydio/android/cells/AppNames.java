@@ -8,10 +8,8 @@ public interface AppNames {
 
     /* SHARED PREFERENCE KEYS */
     String PREF_KEY_INSTALLED_VERSION_CODE = "installed_version_code";
-    // String PREF_KEY_CURRENT_STATE = "current_state";
     String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
     String PREF_KEY_CURR_RECYCLER_ORDER = "current_recycler_order";
-    // String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
     String PREF_KEY_METERED_DL_THUMBS = "on_metered_dl_thumbs";
     String PREF_KEY_METERED_DL_FILES = "on_metered_dl_files";
     String PREF_KEY_OFFLINE_FREQ = "current_offline_frequency";
@@ -71,15 +69,29 @@ public interface AppNames {
     String LOCAL_MODIF_MOVE = "moving";
     String LOCAL_MODIF_RESTORE = "restore";
 
-    /* Transfers */
-    String TRANSFER_TYPE_DOWNLOAD = "download";
-    String TRANSFER_TYPE_UPLOAD = "upload";
 
+    /* Async jobs */
+    // Known owners
+    String JOB_OWNER_USER = "User";
+    String JOB_OWNER_WORKER = "Worker";
+    String JOB_OWNER_SYSTEM = "Android System";
+    // Known Templates
+    String JOB_TEMPLATE_FULL_RESYNC = "full-sync";
+    String JOB_TEMPLATE_RESYNC = "sync-%s";
+    String JOB_TEMPLATE_MIGRATION_V2 = "migration-v2";
+    String JOB_TEMPLATE_CLEAN = "clean";
+    // Status
     String JOB_STATUS_NEW = "new";
     String JOB_STATUS_PROCESSING = "processing";
     String JOB_STATUS_CANCELED = "canceled";
     String JOB_STATUS_DONE = "done";
     String JOB_STATUS_ERROR = "error";
+
+
+    /* Transfers */
+    String TRANSFER_TYPE_DOWNLOAD = "download";
+    String TRANSFER_TYPE_UPLOAD = "upload";
+
 
     /* Intents extra keys */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
@@ -127,28 +139,24 @@ public interface AppNames {
 
     String OFFLINE_STORAGE_INTERNAL = "internal";
 
-
     // Local tree:
     // baseDir +--- cache +--- accountID +--- thumbs
     //                                   +--- previews
-    //         +--- files +--- accountID +--- offline
+    //         +--- files +--- accountID +--- local
+    //                                   +--- transfers
     String THUMB_PARENT_DIR = "thumbs";
     String PREVIEW_PARENT_DIR = "previews";
     String LOCAL_FILE_PARENT_DIR = "local";
     String TRANSFER_PARENT_DIR = "transfers";
-//    String OFFLINE_FILE_PARENT_DIR = "offline";
 
     // Local types
-    String LOCAL_DIR_TYPE_CACHE = "cache";
-    String LOCAL_DIR_TYPE_FILE = "files";
-//    String LOCAL_FILE_TYPE_NONE = "none";
+//    String LOCAL_DIR_TYPE_CACHE = "cache";
+//    String LOCAL_DIR_TYPE_FILE = "files";
 
     String LOCAL_FILE_TYPE_THUMB = "thumb";
     String LOCAL_FILE_TYPE_PREVIEW = "preview";
     String LOCAL_FILE_TYPE_FILE = "file";
     String LOCAL_FILE_TYPE_TRANSFER = "transfer";
-//    String LOCAL_FILE_TYPE_CACHE = "cache";
-//    String LOCAL_FILE_TYPE_OFFLINE = "offline";
     // TODO
     // String LOCAL_FILE_TYPE_EXTERNAL = "external";
 

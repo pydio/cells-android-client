@@ -136,9 +136,9 @@ class MigrationServiceV2 : KoinComponent {
         for (rec in recs) {
             try {
                 if (rec.isLegacy) {
-                    migrateOneP8Account(job, rec, accDB)
+                    migrateOneP8Account(rec, accDB)
                 } else {
-                    offlineRootsNb += migrateOneCellsAccount(job, rec, accDB, syncDB)
+                    offlineRootsNb += migrateOneCellsAccount(rec, accDB, syncDB)
                 }
                 progressListener.onProgress(oneStep.toLong())
                 val msg = "${rec.username}@${rec.url()} has been migrated"
@@ -159,7 +159,6 @@ class MigrationServiceV2 : KoinComponent {
 
     /** @return the number of migrated offline roots */
     suspend fun migrateOneCellsAccount(
-        job: RJob,
         record: AccountRecord,
         v2MainDB: V2MainDB,
         syncDB: V2SyncDB
@@ -229,7 +228,7 @@ class MigrationServiceV2 : KoinComponent {
         // nodeService.syncAll(accountID)
     }
 
-    suspend fun migrateOneP8Account(job: RJob, record: AccountRecord, v2MainDB: V2MainDB) {
+    suspend fun migrateOneP8Account(record: AccountRecord, v2MainDB: V2MainDB) {
         val currState = StateID.fromId(record.id())
         Log.i(logTag, "About to migrate: $currState")
 

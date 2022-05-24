@@ -11,11 +11,11 @@ import com.pydio.cells.transport.StateID
 data class RTransfer(
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "transfer_id")
-    var transferId: Long = 0L,
-
+    @ColumnInfo(name = "transfer_id") val transferId: Long = 0L,
+    // When this transfer is part of a larger job
+    @ColumnInfo(name = "job_id") val jobId: Long = 0L,
+    // The corresponding node
     @ColumnInfo(name = "encoded_state") val encodedState: String,
-
     // Download, upload... see AppNames for updated list of supported values
     @ColumnInfo(name = "type") val type: String,
 
@@ -57,10 +57,12 @@ data class RTransfer(
             path: String,
             byteSize: Long,
             mime: String,
+            parentJobId: Long = 0L,
             status: String? = AppNames.JOB_STATUS_NEW,
         ): RTransfer {
             return RTransfer(
                 encodedState = encodedState,
+                jobId = parentJobId,
                 type = type,
                 localPath = path,
                 byteSize = byteSize,

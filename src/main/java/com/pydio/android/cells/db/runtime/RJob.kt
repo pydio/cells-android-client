@@ -16,8 +16,10 @@ data class RJob(
     @ColumnInfo(name = "parent_id") var parentId: Long = 0L,
     // Human readable label
     @ColumnInfo(name = "label") val label: String,
-    // the template: offline, clean, late upload, migration
+    // The template: offline, clean, late upload, migration
     @ColumnInfo(name = "template") val template: String,
+    // Who triggered the job: worker, user, external-<app-id>
+    @ColumnInfo(name = "owner") val owner: String,
     // New, processing, canceled, done, error
     @ColumnInfo(name = "status") var status: String? = null,
     // Message: might be an error but also a cancellation reason
@@ -25,7 +27,7 @@ data class RJob(
     // Observable value for progress listeners
     @ColumnInfo(name = "progress") var progress: Long = 0,
     // To compute the progress in pro-cent
-    @ColumnInfo(name = "progress_max") var progressMax: Long = -1,
+    @ColumnInfo(name = "progress_max") var total: Long = -1,
     // Observable status for the end user
     @ColumnInfo(name = "progress_message") var progressMessage: String? = null,
     // Timestamps
@@ -37,12 +39,14 @@ data class RJob(
 
     companion object {
         fun create(
-            label: String,
+            owner: String,
             template: String,
+            label: String,
             parentId: Long = 0,
             status: String? = AppNames.JOB_STATUS_NEW,
         ): RJob {
             return RJob(
+                owner = owner,
                 parentId = parentId,
                 label = label,
                 template = template,
