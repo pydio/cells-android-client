@@ -14,6 +14,7 @@
     <string name="button_skip">Passer</string>
     <!-- Navigation labels -->
     <string name="action_home">Page d\'accueil</string>
+    <string name="action_open_app">Ouvrir l\'app.</string>
     <string name="action_choose_account">Choisir un compte</string>
     <string name="action_browse">Parcourir</string>
     <string name="action_open_workspaces">Espaces de travail</string>
@@ -94,7 +95,7 @@
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
     <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
-    <string name="no_result_for_search">Aucun résultat trouvé pour : %s</string>
+    <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
@@ -126,8 +127,9 @@
     <string name="relaunch_transfer">Redémarrer le transfert</string>
     <string name="delete_record">Supprimer l\'enregistrement</string>
     <!-- Migration-->
-    <string name="post_migration_message">Vos configurations existantes ont été migrées.</string>
-    <string name="post_migration_sync_message">Nous avons détecté %s objets hors ligne.\nVoulez-vous les synchroniser maintenant?\nSi votre connexion est limitée, vous pouvez sautez cette étape.</string>
+    <string name="migration_message">Migration des données existantes, veuillez patienter…</string>
+    <string name="post_migration_title">Mise à niveau réussie !</string>
+    <string name="post_migration_sync_message">Vous avez un ou plusieurs éléments marqués comme hors ligne et cette migration nécessite un retéléchargement complet. Voulez-vous procéder maintenant ? Vous pouvez l\'ignorer et effectuer la synchronisation plus tard.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choisir une action à appliquer aux éléments sélectionnés</string>
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
