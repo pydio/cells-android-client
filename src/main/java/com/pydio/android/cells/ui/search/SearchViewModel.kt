@@ -42,7 +42,7 @@ class SearchViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    fun setQuery(query: String){
+    fun setQuery(query: String) {
         _queryString = query
     }
 
@@ -52,14 +52,15 @@ class SearchViewModel(
     }
 
     fun doQuery() = vmScope.launch {
-        if (Str.empty(queryString)){
+        if (Str.empty(queryString)) {
             _errorMessage.value = "Please enter a non empty search query"
             return@launch
         }
         setLoading(true)
-        _hits.value = nodeService.remoteQuery(accountId, queryString!!)
+        val results = nodeService.remoteQuery(accountId, queryString!!)
 //         _hits.value = nodeService.queryLocally(query, stateID)
-        setLoading(false)
+        setLoading(false) // We must turn-off loading before setting the value for the error message to be correct
+        _hits.value = results
     }
 
     override fun onCleared() {
