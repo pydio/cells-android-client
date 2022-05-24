@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
-                android:text="Migrating legacy data, please wait…"
+                android:text="@string/post_migration_title"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintBottom_toTopOf="@id/migration_status"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -97,5 +97,19 @@
                 app:layout_constraintTop_toBottomOf="@id/offline_not_migrated_desc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- TODO Handle copyright
+                <TextView
+                    android:id="@+id/version_text"
+                    style="@style/TextAppearance.Material3.BodyLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="Copyright Abstrium SAS 2020"
+                    android:textSize="12sp" />
+        -->
+
     </LinearLayout>
 </layout>

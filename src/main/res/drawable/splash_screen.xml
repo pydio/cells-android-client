@@ -6,6 +6,6 @@
         </shape>
     </item>
     <item
-        android:drawable="@drawable/pydio_logo"
+        android:drawable="@drawable/ic_splash_logo"
         android:gravity="center" />
 </layer-list>
