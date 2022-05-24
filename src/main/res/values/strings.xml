@@ -9,7 +9,7 @@
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_switch_to_grid_layout">Show as grid</string>
-    <string name="button_switch_to_list_layout">Show as list</string>
+    <string name="button_switch_to_list_layout">Show as list</string>Home
     <string name="button_open_sort_by">Sort by…</string>
     <string name="button_open_connection_center">Manage connection</string>
     <string name="button_clear_transfer_list">Clear transfer list</string>
@@ -18,6 +18,7 @@
 
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
+    <string name="action_open_app">Open App</string>
     <string name="action_choose_account">Choose an account</string>
     <string name="action_browse">Browse</string>
     <string name="action_open_workspaces">Workspaces</string>
@@ -147,8 +148,9 @@
     <string name="relaunch_transfer">Re-launch transfer</string>
     <string name="delete_record">Delete record</string>
     <!-- Migration-->
-    <string name="post_migration_message">All your configuration has been migrated.</string>
-    <string name="post_migration_sync_message">We have detected %s offline objects.\nDo you want to sync them now?\nIf your connection is sparse, skip this step.</string>
+    <string name="migration_message">Migrating legacy data, please wait…</string>
+    <string name="post_migration_title">Successfully Upgraded to New Version!</string>
+    <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
 
     <!-- More menus -->
     <string name="open_more_menu">Choose an action to apply to the selected items</string>
