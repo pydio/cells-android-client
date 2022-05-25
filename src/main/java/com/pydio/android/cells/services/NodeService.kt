@@ -326,7 +326,7 @@ class NodeService(
                     && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
                 ) {
                     changeNb += runAccountSync(session.getStateID(), caller, job.jobId)
-                    jobService.update(job, 1, "${session.getStateID()} OK")
+                    jobService.incrementProgress(job, 1, "${session.getStateID()} OK")
                 }
             }
         }
@@ -342,18 +342,11 @@ class NodeService(
     suspend fun runAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
         withContext(Dispatchers.IO) {
 
+            val label = "Account sync for $stateID launched by $caller"
             val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_RESYNC, stateID.toString())
 
             // We first check if a sync is not already running for this account
-            val runningJobs = jobService.getRunningJobs(currJobTemplate)
-            if (runningJobs.isNotEmpty()) {
-                val startTS = timestampForLogMessage()
-                jobService.w(
-                    logTag,
-                    "Cannot start sync for $stateID requested by $caller at $startTS, " +
-                            "${runningJobs.size} job(s) are already running",
-                    null
-                )
+            if (hasExistingJob(label, currJobTemplate, 120)) {
                 return@withContext 0
             }
 
@@ -367,7 +360,7 @@ class NodeService(
             val job = jobService.createAndLaunch(
                 caller,
                 currJobTemplate,
-                "Sync for $stateID launched by $caller",
+                label,
                 parentId = parentJobId,
                 maxSteps = roots.size.toLong()
             ) ?: let {
@@ -377,7 +370,11 @@ class NodeService(
             val timeToSync = measureTimedValue {
                 for (offlineRoot in roots) {
                     changeNb += syncOfflineRoot(offlineRoot, job)
-                    jobService.update(job, 1, "Sync done for ${offlineRoot.getStateID()}")
+                    jobService.incrementProgress(
+                        job,
+                        1,
+                        "Sync done for ${offlineRoot.getStateID()}"
+                    )
                 }
             }
             val msg =
@@ -399,17 +396,11 @@ class NodeService(
             return@withContext 0
         }
 
-        // We first check if a sync is not already running for this account
+        val label = "Sync for $stateID launched by $caller"
         val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_RESYNC, stateID.toString())
-        val runningJobs = jobService.getRunningJobs(currJobTemplate)
-        if (runningJobs.isNotEmpty()) {
-            val startTS = timestampForLogMessage()
-            jobService.w(
-                logTag,
-                "Cannot start sync for $stateID requested by $caller at $startTS, " +
-                        "${runningJobs.size} job(s) are already running",
-                null
-            )
+
+        // We first check if a sync is not already running for this account
+        if (hasExistingJob(label, currJobTemplate, 120)) {
             return@withContext 0
         }
 
@@ -417,7 +408,7 @@ class NodeService(
         val job = jobService.createAndLaunch(
             caller,
             currJobTemplate,
-            "Sync for $stateID launched by $caller",
+            label,
         ) ?: let {
             jobService.e(logTag, "could not create sync job for $stateID ")
             return@withContext 0
@@ -434,6 +425,43 @@ class NodeService(
 
         return@withContext changeNb
 
+    }
+
+
+    private suspend fun hasExistingJob(
+        label: String,
+        template: String,
+        timeoutInSeconds: Int
+    ): Boolean {
+
+        // We first check if a sync is not already running for this account
+        var runningJobs = jobService.getRunningJobs(template)
+        if (runningJobs.isNotEmpty()) {
+            // We check for old jobs
+            for (runningJob in runningJobs) {
+                val timeSinceStart = currentTimestamp() - runningJob.startTimestamp
+                if (timeSinceStart > timeoutInSeconds) {
+                    runningJob.doneTimestamp = currentTimestamp()
+                    runningJob.message = "Timeout after $timeSinceStart seconds"
+                    runningJob.status = AppNames.JOB_STATUS_TIMEOUT
+                    jobService.update(runningJob)
+                }
+            }
+
+            // We re-query the DB to see if we still have old jobs and cancel the launch in such case
+            runningJobs = jobService.getRunningJobs(template)
+            if (runningJobs.isNotEmpty()) {
+                val startTS = timestampForLogMessage()
+                jobService.w(
+                    logTag,
+                    "Cannot start job [$label], ${runningJobs.size} job(s) are already running",
+                    null
+                )
+                return true
+            }
+        }
+
+        return false
     }
 
     private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot, job: RJob): Int =
@@ -457,9 +485,10 @@ class NodeService(
                         RTreeNode.fromFileNode(stateID, nodeInfo)
                     }
 
-                // TODO Rather use DI via a factory?
                 val fileDL = FileDownloader(job)
                 val changeNb = syncNodeAt(treeNode, client, treeNodeDao, fileDL)
+                fileDL.walkingDone()
+                fileDL.manualJoin()
 
                 if (changeNb > 0) {
                     offlineRoot.localModificationTS = currentTimestamp()

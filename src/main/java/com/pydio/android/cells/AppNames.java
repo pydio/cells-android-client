@@ -86,6 +86,7 @@ public interface AppNames {
     String JOB_STATUS_CANCELED = "canceled";
     String JOB_STATUS_DONE = "done";
     String JOB_STATUS_ERROR = "error";
+    String JOB_STATUS_TIMEOUT = "timeout";
 
 
     /* Transfers */

@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
@@ -27,6 +26,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -45,10 +45,18 @@ class TransferService(
 ) {
 
     private val logTag = TransferService::class.java.simpleName
-    private val mimeMap = MimeTypeMap.getSingleton()
 
     private val transferServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
+
+    companion object {
+        // Hard-coded constants to ease implementation in a first pass. TODO: improve
+        const val thumbDim = 300
+        const val previewDim = 1024
+        // The 2 below value are rough average for thumb and preview downloads
+        const val thumbSize: Long = 20 * 1024
+        const val previewSize: Long = 200 * 1024
+    }
 
     private fun getTransferDao(accountId: StateID): TransferDao {
         return nodeDB(accountId).transferDao()
@@ -71,17 +79,17 @@ class TransferService(
         }
     }
 
-    fun getLiveTransfer(stateId: StateID): LiveData<RTransfer?> {
-        return getTransferDao(stateId).getLiveByState(stateId.id)
-    }
+//    fun getLiveTransfer(stateId: StateID): LiveData<RTransfer?> {
+//        return getTransferDao(stateId).getLiveByState(stateId.id)
+//    }
 
     fun getLiveRecord(accountId: StateID, transferUid: Long): LiveData<RTransfer?> {
         return getTransferDao(accountId).getLiveById(transferUid)
     }
 
-    fun getTransferById(accountId: StateID, transferId: Long): RTransfer? {
-        return getTransferDao(accountId).getById(transferId)
-    }
+//    fun getTransferById(accountId: StateID, transferId: Long): RTransfer? {
+//        return getTransferDao(accountId).getById(transferId)
+//    }
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
         nodeDB(stateId).transferDao().clearTerminatedTransfers()
@@ -100,7 +108,6 @@ class TransferService(
     /** DOWNLOADS **/
 
     suspend fun getFileForDisplay(state: StateID, type: String, parentJob: RJob?): File? =
-
         withContext(Dispatchers.IO) {
             val account = state.account()
             val nodeDB = treeNodeRepository.nodeDB(account)
@@ -117,10 +124,15 @@ class TransferService(
                 return@withContext it
             }
 
-            downloadFile(state, rNode, type, parentJob)
+            downloadFile(state, rNode, type, parentJob, null)
         }
 
-    suspend fun getFileForDiff(state: StateID, type: String, parentJob: RJob?): File? =
+    suspend fun getFileForDiff(
+        state: StateID,
+        type: String,
+        parentJob: RJob?,
+        progressChannel: Channel<Long>?
+    ): File? =
         withContext(Dispatchers.IO) {
             val account = state.account()
             val nodeDB = treeNodeRepository.nodeDB(account)
@@ -131,7 +143,7 @@ class TransferService(
                 return@withContext null
             }
 
-            downloadFile(state, rNode, type, parentJob)
+            downloadFile(state, rNode, type, parentJob, progressChannel)
         }
 
     /**
@@ -142,21 +154,36 @@ class TransferService(
         state: StateID,
         rNode: RTreeNode,
         type: String,
-        parentJob: RJob?
+        parentJob: RJob?,
+        progressChannel: Channel<Long>?
     ): File? {
 
         val parentFolder = fileService.dataParentPath(state.account(), type)
 
         val filename = when (type) {
             AppNames.LOCAL_FILE_TYPE_THUMB,
-            AppNames.LOCAL_FILE_TYPE_PREVIEW -> dlThumb(state, rNode, parentFolder, type)
+            AppNames.LOCAL_FILE_TYPE_PREVIEW -> {
+                val name = dlThumb(state, rNode, parentFolder, type)
+                if (type == AppNames.LOCAL_FILE_TYPE_THUMB) {
+                    progressChannel?.send(thumbSize)
+                } else if (type == AppNames.LOCAL_FILE_TYPE_PREVIEW) {
+                    progressChannel?.send(previewSize)
+                }
+                name
+            }
             AppNames.LOCAL_FILE_TYPE_FILE -> {
-                val res =  prepareDownload(state, type)
-                if (Str.notEmpty(res.second)){
-                    Log.e(logTag, "could not launch download for $state: ${res.second}")
+                val (jobId, errorMsg) = prepareDownload(state, type)
+                if (Str.notEmpty(errorMsg)) {
+                    Log.e(logTag, "could not launch download for $state: $errorMsg")
                     return null
                 }
-                runDownloadTransfer(state, res.first)
+                val errorMsg2 = runDownloadTransfer(state, jobId, progressChannel)
+                if (Str.notEmpty(errorMsg2)) {
+                    Log.e(logTag, "could not launch download for $state: $errorMsg")
+                    return null
+                }
+                // filename is
+                state.path.substring(1)
 
 //                val rec = RTransfer.fromState(
 //                    state.id,
@@ -205,8 +232,11 @@ class TransferService(
      * Performs the real download for the pre-registered transfer record and update
      * both the RTreeNode and RTransfer records depending on the output status.
      */
-    suspend fun runDownloadTransfer(accountId: StateID, transferId: Long): String? =
-        withContext(Dispatchers.IO) {
+    suspend fun runDownloadTransfer(
+        accountId: StateID,
+        transferId: Long,
+        progressChannel: Channel<Long>?
+    ): String? = withContext(Dispatchers.IO) {
 
             var errorMessage: String? = null
 
@@ -257,8 +287,11 @@ class TransferService(
                             true
                         } ?: false
 
-                        rTransfer.progress = progressL
+                        rTransfer.progress += progressL
                         dao.update(rTransfer)
+                        serviceScope.launch {
+                            progressChannel?.send(progressL)
+                        }
                         canceled
                     }
 
@@ -285,6 +318,7 @@ class TransferService(
 
             } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
                 errorMessage = "Could not download file for " + state + ": " + se.message
+                se.printStackTrace()
             } catch (ioe: IOException) {
                 // TODO Could not write the file in the local fs, we should notify the user
                 errorMessage =
@@ -316,8 +350,8 @@ class TransferService(
             val client = accountService.getClient(state)
 
             val dim = when (type) {
-                AppNames.LOCAL_FILE_TYPE_THUMB -> 300
-                else -> 1024 // AppNames.LOCAL_FILE_TYPE_PREVIEW
+                AppNames.LOCAL_FILE_TYPE_THUMB -> thumbDim
+                else -> previewDim // AppNames.LOCAL_FILE_TYPE_PREVIEW
             }
             val filename = client.getThumbnail(state, node, File(parPath), dim)
             val targetFile = File(parPath + File.separator + filename)
@@ -355,7 +389,6 @@ class TransferService(
             exifInterface.saveAttributes()
         }
     }
-
 
     /** UPLOADS **/
 

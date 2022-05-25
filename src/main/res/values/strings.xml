@@ -116,9 +116,6 @@
 
     <string name="empty_folder">This folder is empty</string>
     <string name="empty_content_message">No content here yet</string>
-    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-    <!--    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>-->
 
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>

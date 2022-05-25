@@ -71,20 +71,20 @@ class MigrationServiceV2 : KoinComponent {
         val result: Pair<Boolean, Int>
         val timeToSync = measureTimedValue {
 
-            jobService.update(migrationJob, 0, "Preparing migration...")
+            jobService.incrementProgress(migrationJob, 0, "Preparing migration...")
 
             prepare(context)
             delay(1000)
-            jobService.update(migrationJob, 20, "Migrating accounts and credentials...")
+            jobService.incrementProgress(migrationJob, 20, "Migrating accounts and credentials...")
 
             result = migrateAccounts(migrationJob, 50) {
-                jobService.update(migrationJob, it, null)
+                jobService.incrementProgress(migrationJob, it, null)
                 true
             }
             delay(1000)
 
             if (result.first) {
-                jobService.update(migrationJob, 0, "Cleaning legacy files...")
+                jobService.incrementProgress(migrationJob, 0, "Cleaning legacy files...")
                 cleanLegacyFiles(context)
                 prefs.setInt(
                     AppNames.PREF_KEY_INSTALLED_VERSION_CODE,

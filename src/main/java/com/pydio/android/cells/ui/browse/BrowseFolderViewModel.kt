@@ -8,6 +8,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,17 +69,18 @@ class BrowseFolderViewModel(
     }
 
     private suspend fun doPull() {
-        val result = nodeService.pull(stateId)
+        Log.d(logTag, "About to pull for $stateId")
+        val (changeNb, errMsg) = nodeService.pull(stateId)
         withContext(Dispatchers.Main) {
-            if (result.second != null) {
+            if (Str.notEmpty(errMsg)) {
                 if (backOffTicker.getCurrentIndex() > 0) {
                     // Not optimal, we should rather check the current session status
                     // before launching the poll
                     // We do not display the error message if first
-                    _errorMessage.value = result.second
+                    _errorMessage.value = errMsg
                 }
                 pause()
-            } else if (result.first > 0) {
+            } else if (changeNb > 0) {
                 backOffTicker.resetIndex()
             }
             setLoading(false)

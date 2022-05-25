@@ -39,9 +39,13 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getRunningForTemplate(template)
     }
 
-    fun update(job: RJob, increment: Long, message: String?) {
+    fun incrementProgress(job: RJob, increment: Long, message: String?) {
         job.progress = job.progress + increment
         message?.let { job.progressMessage = message }
+        jobDao.update(job)
+    }
+
+    fun update(job: RJob) {
         jobDao.update(job)
     }
 

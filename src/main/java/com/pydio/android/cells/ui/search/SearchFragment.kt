@@ -76,7 +76,10 @@ class SearchFragment : Fragment() {
                     searchVM.isLoading.value == true
                     -> resources.getString(R.string.loading_message)
                     else
-                    -> String.format(resources.getString(R.string.no_result_for_search), searchVM.queryString)
+                    -> String.format(
+                        resources.getString(R.string.no_result_for_search),
+                        searchVM.queryString
+                    )
                 }
                 binding.emptyContentDesc = msg
                 adapter.submitList(listOf())
@@ -154,7 +157,7 @@ class SearchFragment : Fragment() {
             }
 
             if (!activeSessionVM.isServerReachable()) {
-                showMessage( requireContext(), resources.getString(R.string.server_unreachable))
+                showMessage(requireContext(), resources.getString(R.string.server_unreachable))
                 return@launch
             }
 

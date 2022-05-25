@@ -49,11 +49,6 @@ class TreeDiff(
     private val nodeService: NodeService by inject()
     private val fileService: FileService by inject()
 
-//    private val thumbParPath =
-//        fileService.dataParentPath(baseFolderStateId.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
-//    private val previewParPath =
-//        fileService.dataParentPath(baseFolderStateId.accountId, AppNames.LOCAL_FILE_TYPE_PREVIEW)
-
     private var alsoCheckFiles = fileDL != null
 
     private var changeNumber = 0
@@ -61,7 +56,7 @@ class TreeDiff(
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
-        Log.d(logTag, "Launching diff for $baseFolderStateId")
+        Log.e(logTag, "Launching diff for $baseFolderStateId (with check file: $alsoCheckFiles)")
 
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(baseFolderStateId.id)
@@ -108,6 +103,7 @@ class TreeDiff(
             Log.d(logTag, "Synced node at $baseFolderStateId with $changeNumber changes")
         }
 
+        Log.e(logTag, "Synced node at $baseFolderStateId with $changeNumber changes")
         return@withContext changeNumber
     }
 
@@ -233,7 +229,7 @@ class TreeDiff(
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_FILE)
         ) {
             diffScope.launch {
-                fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE)
+                fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE, remote.size)
             }
         }
     }
