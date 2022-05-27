@@ -83,7 +83,7 @@ public interface AppNames {
     // Status
     String JOB_STATUS_NEW = "new";
     String JOB_STATUS_PROCESSING = "processing";
-    String JOB_STATUS_CANCELED = "canceled";
+    String JOB_STATUS_CANCELLED = "cancelled";
     String JOB_STATUS_DONE = "done";
     String JOB_STATUS_ERROR = "error";
     String JOB_STATUS_TIMEOUT = "timeout";

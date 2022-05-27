@@ -53,6 +53,7 @@ class TransferService(
         // Hard-coded constants to ease implementation in a first pass. TODO: improve
         const val thumbDim = 300
         const val previewDim = 1024
+
         // The 2 below value are rough average for thumb and preview downloads
         const val thumbSize: Long = 20 * 1024
         const val previewSize: Long = 200 * 1024
@@ -172,7 +173,7 @@ class TransferService(
                 name
             }
             AppNames.LOCAL_FILE_TYPE_FILE -> {
-                val (jobId, errorMsg) = prepareDownload(state, type)
+                val (jobId, errorMsg) = prepareDownload(state, type, parentJob)
                 if (Str.notEmpty(errorMsg)) {
                     Log.e(logTag, "could not launch download for $state: $errorMsg")
                     return null
@@ -182,19 +183,8 @@ class TransferService(
                     Log.e(logTag, "could not launch download for $state: $errorMsg")
                     return null
                 }
-                // filename is
+                // filename is...  (Note that we remove the leading slash to comply with childFile method signature, see just below)
                 state.path.substring(1)
-
-//                val rec = RTransfer.fromState(
-//                    state.id,
-//                    AppNames.TRANSFER_TYPE_DOWNLOAD,
-//                    parentFolder + state.path,
-//                    rNode.size,
-//                    rNode.mime,
-//                )
-//                val recId = getTransferDao(state).insert(rec)
-//                runDownloadTransfer(state, recId)
-
             }
             else -> null
         }
@@ -205,7 +195,7 @@ class TransferService(
      * Centralize client specific actions that should be done **before** launching
      * the real download.
      */
-    suspend fun prepareDownload(state: StateID, type: String): Pair<Long, String?> =
+    suspend fun prepareDownload(state: StateID, type: String, parentJob: RJob?): Pair<Long, String?> =
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
@@ -224,6 +214,7 @@ class TransferService(
                 localPath,
                 rNode.size,
                 rNode.mime,
+                parentJobId = parentJob?.jobId ?: 0L
             )
             return@withContext Pair(getTransferDao(state).insert(rec), null)
         }
@@ -238,109 +229,111 @@ class TransferService(
         progressChannel: Channel<Long>?
     ): String? = withContext(Dispatchers.IO) {
 
-            var errorMessage: String? = null
+        var errorMessage: String? = null
 
-            val dao = getTransferDao(accountId)
+        val dao = getTransferDao(accountId)
 
-            // Retrieve data and sanity check
-            val rTransfer = dao.getById(transferId) ?: run {
-                val msg = "No record found for $transferId, aborting file DL"
-                Log.w(logTag, msg)
-                return@withContext msg
-            }
+        // Retrieve data and sanity check
+        val rTransfer = dao.getById(transferId) ?: run {
+            val msg = "No record found for $transferId, aborting file DL"
+            Log.w(logTag, msg)
+            return@withContext msg
+        }
 
-            val state = StateID.fromId(rTransfer.encodedState)
-            val rNode = nodeService.getNode(state)
-            if (rNode == null) {
-                // No node found, aborting
-                errorMessage = "No node found for $state, aborting file DL"
-                Log.w(logTag, errorMessage)
-                return@withContext errorMessage
-            }
-
-            // Prepare target file
-            val targetFile = File(rTransfer.localPath)
-
-            var out: FileOutputStream? = null
-            try {
-
-                Log.d(logTag, "About to download file from $state")
-
-                targetFile.parentFile!!.mkdirs()
-                out = FileOutputStream(targetFile)
-
-                // Mark the download as started
-                rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-                rTransfer.status = AppNames.JOB_STATUS_PROCESSING
-                dao.update(rTransfer)
-
-                // Real transfer
-                accountService.getClient(state)
-                    .download(state.workspace, state.file, out) { progressL ->
-
-                        val canceled = dao.hasBeenCancelled(rTransfer.transferId)?.let {
-                            val msg = "Download cancelled by ${it.owner}"
-                            rTransfer.status = AppNames.JOB_STATUS_CANCELED
-                            rTransfer.doneTimestamp = currentTimestamp()
-                            rTransfer.error = msg
-                            errorMessage = msg
-                            true
-                        } ?: false
-
-                        rTransfer.progress += progressL
-                        dao.update(rTransfer)
-                        serviceScope.launch {
-                            progressChannel?.send(progressL)
-                        }
-                        canceled
-                    }
-
-                // Mark the download as done
-                if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
-                    rTransfer.status = AppNames.JOB_STATUS_DONE
-                    rTransfer.doneTimestamp = currentTimestamp()
-                    rTransfer.error = null
-                    dao.update(rTransfer)
-
-                    val type = AppNames.LOCAL_FILE_TYPE_FILE
-                    fileService.registerLocalFile(state, rNode, type, targetFile)
-                    // TODO handle the case where the download duration is long enough to enable
-//                    //   end-user to modify (or delete) the corresponding node before it is downloaded
-//                    rNode.localFilePath = rTransfer.localPath
-                } else {
-                    // At this point, if we had an error or a cancel, the target file is most probably corrupted.
-                    // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
-                    fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
-                }
-
-                // FIXME do we still need to update the index?
-                // nodeDB(state).treeNodeDao().update(rNode)
-
-            } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
-                errorMessage = "Could not download file for " + state + ": " + se.message
-                se.printStackTrace()
-            } catch (ioe: IOException) {
-                // TODO Could not write the file in the local fs, we should notify the user
-                errorMessage =
-                    "Could not write file for DL of $state to the local device: ${ioe.message}"
-                ioe.printStackTrace()
-            } finally {
-                IoHelpers.closeQuietly(out)
-            }
-            if (Str.notEmpty(errorMessage)) {
-                rTransfer.doneTimestamp = currentTimestamp()
-                rTransfer.status = AppNames.JOB_STATUS_ERROR
-                rTransfer.error = errorMessage
-                dao.update(rTransfer)
-                // Try to remove partly downloaded file
-                if (targetFile.exists()) {
-                    targetFile.delete()
-                }
-                Log.e(logTag, errorMessage!!)
-            }
-
+        val state = StateID.fromId(rTransfer.encodedState)
+        val rNode = nodeService.getNode(state)
+        if (rNode == null) {
+            // No node found, aborting
+            errorMessage = "No node found for $state, aborting file DL"
+            Log.w(logTag, errorMessage)
             return@withContext errorMessage
         }
+
+        // Prepare target file
+        val targetFile = File(rTransfer.localPath)
+        targetFile.parentFile?.mkdirs()
+
+        var out: FileOutputStream? = null
+        try {
+
+            Log.d(logTag, "About to download file from $state")
+
+            out = FileOutputStream(targetFile)
+
+            // Mark the download as started
+            rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            rTransfer.status = AppNames.JOB_STATUS_PROCESSING
+            dao.update(rTransfer)
+
+            // Real transfer
+            accountService.getClient(state)
+                .download(state.workspace, state.file, out) { progressL ->
+
+                    // TODO also manage parent job cancellation
+
+                    val cancelled = dao.hasBeenCancelled(rTransfer.transferId)?.let {
+                        val msg = "Download cancelled by ${it.owner}"
+                        rTransfer.status = AppNames.JOB_STATUS_CANCELLED
+                        rTransfer.doneTimestamp = currentTimestamp()
+                        rTransfer.error = msg
+                        errorMessage = msg
+                        true
+                    } ?: false
+
+                    rTransfer.progress += progressL
+                    dao.update(rTransfer)
+                    serviceScope.launch {
+                        progressChannel?.send(progressL)
+                    }
+                    cancelled
+                }
+
+            // Mark the download as done
+            if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
+                rTransfer.status = AppNames.JOB_STATUS_DONE
+                rTransfer.doneTimestamp = currentTimestamp()
+                rTransfer.error = null
+                dao.update(rTransfer)
+
+                val type = AppNames.LOCAL_FILE_TYPE_FILE
+                fileService.registerLocalFile(state, rNode, type, targetFile)
+                // TODO handle the case where the download duration is long enough to enable
+//                    //   end-user to modify (or delete) the corresponding node before it is downloaded
+//                    rNode.localFilePath = rTransfer.localPath
+            } else {
+                // At this point, if we had an error or a cancel, the target file is most probably corrupted.
+                // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
+                fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
+            }
+
+            // FIXME do we still need to update the index?
+            // nodeDB(state).treeNodeDao().update(rNode)
+
+        } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
+            errorMessage = "Could not download file for " + state + ": " + se.message
+            se.printStackTrace()
+        } catch (ioe: IOException) {
+            // TODO Could not write the file in the local fs, we should notify the user
+            errorMessage =
+                "Could not write file for DL of $state to the local device: ${ioe.message}"
+            ioe.printStackTrace()
+        } finally {
+            IoHelpers.closeQuietly(out)
+        }
+        if (Str.notEmpty(errorMessage)) {
+            rTransfer.doneTimestamp = currentTimestamp()
+            rTransfer.status = AppNames.JOB_STATUS_ERROR
+            rTransfer.error = errorMessage
+            dao.update(rTransfer)
+            // Try to remove partly downloaded file
+            if (targetFile.exists()) {
+                targetFile.delete()
+            }
+            Log.e(logTag, errorMessage!!)
+        }
+
+        return@withContext errorMessage
+    }
 
     private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): String? {
         val node = FileNode()
@@ -526,15 +519,6 @@ class TransferService(
     private fun nodeDB(stateID: StateID): TreeNodeDB {
         return treeNodeRepository.nodeDB(stateID)
     }
-
-//    private fun createTargetFile(parentID: StateID, name: String): File {
-//        val targetStateID = createLocalState(parentID, name)
-//        val localPath =
-//            fileService.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
-//        val tf = File(localPath)
-//        tf.parentFile!!.mkdirs()
-//        return tf
-//    }
 
     private fun createLocalState(parentID: StateID, name: String): StateID {
         val parentPath =

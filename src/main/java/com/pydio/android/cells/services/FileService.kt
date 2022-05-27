@@ -41,26 +41,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return staticDataParentPath(dirName, type)
     }
 
-    private fun staticDataParentPath(currDirName: String, type: String): String {
-        val middle = sep + currDirName + sep
-        return when (type) {
-            AppNames.LOCAL_FILE_TYPE_THUMB ->
-                appCacheDir + middle + AppNames.THUMB_PARENT_DIR
-            AppNames.LOCAL_FILE_TYPE_PREVIEW ->
-                appCacheDir + middle + AppNames.PREVIEW_PARENT_DIR
-            // TODO we cannot put this in the default cache folder for now:
-            //   we do not know how to configure the file provider to allow access to this location
-            //   for external viewing
-            AppNames.LOCAL_FILE_TYPE_FILE ->
-                appFilesDir + middle + AppNames.LOCAL_FILE_PARENT_DIR
-            // Same with the transfer folder, see:
-            // https://developer.android.com/training/data-storage/shared/media#open-file-descriptor
-            AppNames.LOCAL_FILE_TYPE_TRANSFER ->
-                appFilesDir + middle + AppNames.TRANSFER_PARENT_DIR
-            else -> throw IllegalStateException("Unknown file type: $type")
-        }
-    }
-
     /**
      * Get the path to a local resource, if it exists:
      * typically, it returns null for the thumb file if it has not yet been downloaded
@@ -149,65 +129,12 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return file
     }
 
-    private fun isFileInLineWithIndex(rTreeNode: RTreeNode, rFile: RLocalFile): Boolean {
-        return rTreeNode.etag == rFile.etag && rTreeNode.remoteModificationTS == rFile.remoteTS
-    }
-
-//    fun getThumbPath(item: RTreeNode): String? {
-//        return null
-//
-////        return if (Str.empty(item.thumbFilename)) {
-////            null
-////        } else {
-////            "${
-////                dataParentPath(
-////                    item.getStateID().accountId,
-////                    AppNames.LOCAL_FILE_TYPE_THUMB
-////                )
-////            }${sep}${item.thumbFilename}"
-////        }
-//    }
-
-//    fun getOfflineThumbPath(item: RLiveOfflineRoot): String? {
-//        return null
-////        return if (Str.empty(item.thumbFilename)) {
-////            null
-////        } else {
-////            "${
-////                dataParentPath(
-////                    item.getStateID().accountId,
-////                    AppNames.LOCAL_FILE_TYPE_THUMB
-////                )
-////            }${sep}${item.thumbFilename}"
-////        }
-//    }
-
-//    fun getAccountBasePath(stateID: StateID, type: String): String {
-//        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
-//            ?: throw IllegalStateException("No record found for $stateID")
-//        val middle = sep + dirName
-//        return when (type) {
-//            AppNames.LOCAL_DIR_TYPE_CACHE ->
-//                appCacheDir + middle
-//            AppNames.LOCAL_DIR_TYPE_FILE ->
-//                appFilesDir + middle
-//            else -> throw IllegalStateException("Unknown base folder type: $type")
-//        }
-//    }
-
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
         val imgPath = dataParentPath(stateID.account(), AppNames.LOCAL_FILE_TYPE_TRANSFER)
         // Superstition? the tree structure is created at account registration. Is it not enough?
         File(imgPath).mkdirs()
         return File("${imgPath}${sep}IMG_${timestamp}.jpg")
-
-        // Would be safer but with an ugly name :(
-        //        return File.createTempFile(
-//            "IMG_${timestamp}_", /* prefix */
-//            ".jpg", /* suffix */
-//            storageDir /* directory */
-//        )
     }
 
     fun cleanFileCacheFor(stateID: StateID, dirName: String) = serviceScope.launch {
@@ -225,7 +152,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 //        if (tmpCache.exists()) {
 //            tmpCache.deleteRecursively()
 //        }
-
     }
 
     fun cleanAllLocalFiles(stateID: StateID, dirName: String) = serviceScope.launch {
@@ -235,6 +161,32 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         if (files.exists()) {
             files.deleteRecursively()
         }
+    }
+
+    // Local helpers
+
+    private fun staticDataParentPath(currDirName: String, type: String): String {
+        val middle = sep + currDirName + sep
+        return when (type) {
+            AppNames.LOCAL_FILE_TYPE_THUMB ->
+                appCacheDir + middle + AppNames.THUMB_PARENT_DIR
+            AppNames.LOCAL_FILE_TYPE_PREVIEW ->
+                appCacheDir + middle + AppNames.PREVIEW_PARENT_DIR
+            // TODO we cannot put this in the default cache folder for now:
+            //   we do not know how to configure the file provider to allow access to this location
+            //   for external viewing
+            AppNames.LOCAL_FILE_TYPE_FILE ->
+                appFilesDir + middle + AppNames.LOCAL_FILE_PARENT_DIR
+            // Same with the transfer folder, see:
+            // https://developer.android.com/training/data-storage/shared/media#open-file-descriptor
+            AppNames.LOCAL_FILE_TYPE_TRANSFER ->
+                appFilesDir + middle + AppNames.TRANSFER_PARENT_DIR
+            else -> throw IllegalStateException("Unknown file type: $type")
+        }
+    }
+
+    private fun isFileInLineWithIndex(rTreeNode: RTreeNode, rFile: RLocalFile): Boolean {
+        return rTreeNode.etag == rFile.etag && rTreeNode.remoteModificationTS == rFile.remoteTS
     }
 
     /** We also check if the file exists and return null otherwise */

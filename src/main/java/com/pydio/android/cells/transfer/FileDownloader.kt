@@ -15,6 +15,10 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+/**
+ * Manage the various jobs and queues to request downloads and then perform then in background
+ * while updating the calling job to be able to follow progress.
+ */
 class FileDownloader(private val parentJob: RJob) : KoinComponent {
 
     private val logTag = FileDownloader::class.java.simpleName
@@ -48,7 +52,7 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
                 sizeInBytes > 0 -> sizeInBytes
                 type == AppNames.LOCAL_FILE_TYPE_THUMB -> TransferService.thumbSize
                 type == AppNames.LOCAL_FILE_TYPE_PREVIEW -> TransferService.previewSize
-                else -> 0L
+                else -> 0L // This should never happen
             }
         )
         queue.send(encodeModel(encodedState, type))
@@ -129,11 +133,6 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         }
     }
 
-    private fun persistTotal(total: Long) {
-        parentJob.total = total
-        jobService.update(parentJob)
-    }
-
     private suspend fun manageProgress() {
         for (msg in progressChannel) {
             progressInBytes += msg
@@ -143,6 +142,11 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
                 persistProgress(progressInBytes)
             }
         }
+    }
+
+    private fun persistTotal(total: Long) {
+        parentJob.total = total
+        jobService.update(parentJob)
     }
 
     private fun persistProgress(progress: Long) {

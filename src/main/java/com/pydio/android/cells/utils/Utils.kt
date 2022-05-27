@@ -20,7 +20,6 @@ fun Fragment.hideKeyboard() {
     imm.hideSoftInputFromWindow(requireView().windowToken, 0)
 }
 
-
 /* VARIOUS */
 
 fun childFile(parPath: String, filename: String): File {
