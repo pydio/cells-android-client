@@ -131,6 +131,11 @@
     <string name="search_label">Search Label</string>
     <string name="search_hint">Search Hint</string>
 
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
+    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+
     <!-- Transfer Management -->
     <string name="transfer_list_title">Current transfers</string>
     <string name="choose_target_for_share_title">Share to…</string>
@@ -154,7 +159,7 @@
     <string name="more_button_description">Show more actions for this element</string>
     <string name="open_in_workspaces">Open location</string>
     <string name="open_parent_in_workspaces">Open parent location</string>
-    <string name="force_resync">Synchronize</string>
+    <string name="force_resync">Synchronise</string>
     <string name="force_resync_desc">Launch synchronisation with remote server now</string>
     <string name="open_with">Open with…</string>
     <string name="download_to_device">Download to device</string>
