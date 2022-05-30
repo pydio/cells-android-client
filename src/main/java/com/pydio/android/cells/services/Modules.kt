@@ -143,7 +143,7 @@ val viewModelModule = module {
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
 
     viewModel { BookmarksViewModel(get()) }
-    viewModel { OfflineRootsViewModel(get()) }
+    viewModel { OfflineRootsViewModel(get(), get()) }
 
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }

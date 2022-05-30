@@ -95,6 +95,7 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
     private suspend fun download(encoded: String) {
         val (stateId, type) = decodeModel(encoded)
         try {
+            jobService.incrementProgress(parentJob, 0, stateId.fileName)
             transferService.getFileForDiff(stateId, type, parentJob, progressChannel)
         } catch (e: SDKException) {
             Log.w(

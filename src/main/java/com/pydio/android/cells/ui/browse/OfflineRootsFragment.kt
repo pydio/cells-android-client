@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -76,6 +77,29 @@ class OfflineRootsFragment : Fragment() {
                 binding.forceRefresh.setOnRefreshListener { offlineVM.forceRefresh() }
                 offlineVM.isLoading.observe(viewLifecycleOwner) {
                     binding.forceRefresh.isRefreshing = it
+                }
+
+                offlineVM.runningSync.observe(viewLifecycleOwner) {
+                    it?.let { runningSync ->
+//                        Log.e(
+//                            logTag,
+//                            "Received event for ${runningSync.jobId} - ${runningSync.progress}/${runningSync.total}"
+//                        )
+                        binding.syncHeader.includedHeaderContent.visibility = View.VISIBLE
+                        binding.syncHeader.syncAccount = runningSync
+                        if (runningSync.progress > 1 && runningSync.total > 0) {
+                            binding.syncHeader.progress.isIndeterminate = false
+                            val prog = (100 * runningSync.progress / runningSync.total).toInt()
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                binding.syncHeader.progress.setProgress(prog, true)
+                            } else {
+                                binding.syncHeader.progress.progress = prog
+                            }
+                        }
+                        binding.syncHeader.executePendingBindings()
+                    } ?: let {
+                        binding.syncHeader.includedHeaderContent.visibility = View.GONE
+                    }
                 }
             }
         }

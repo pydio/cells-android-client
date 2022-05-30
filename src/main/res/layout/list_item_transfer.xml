@@ -74,7 +74,7 @@
             app:layout_constraintStart_toEndOf="@id/thumb"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.85"
-            app:updateProgress="@{transfer}" />
+            app:updateTransferProgress="@{transfer}" />
 
         <ImageView
             android:id="@+id/more_button"

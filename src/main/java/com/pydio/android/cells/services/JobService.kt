@@ -1,5 +1,6 @@
 package com.pydio.android.cells.services
 
+import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
@@ -35,7 +36,33 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getById(jobId)
     }
 
-    fun getRunningJobs(template: String): List<RJob>{
+    fun create(
+        owner: String,
+        template: String,
+        label: String,
+        parentId: Long = 0,
+        maxSteps: Long = -1
+    ): Long {
+        val newJob = RJob.create(owner, template, label, parentId)
+        newJob.total = maxSteps
+        return jobDao.insert(newJob)
+    }
+
+    suspend fun launched(jobId: Long): String? = withContext(Dispatchers.IO) {
+        val newJob = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
+        newJob.status = AppNames.JOB_STATUS_PROCESSING
+        newJob.startTimestamp = currentTimestamp()
+        jobDao.update(newJob)
+        return@withContext null
+    }
+
+    fun get(jobId: Long): RJob? = jobDao.getById(jobId)
+
+    fun getMostRecentRunning(template: String): LiveData<RJob?> {
+        return jobDao.getMostRecentRunning(template)
+    }
+
+    fun getRunningJobs(template: String): List<RJob> {
         return jobDao.getRunningForTemplate(template)
     }
 

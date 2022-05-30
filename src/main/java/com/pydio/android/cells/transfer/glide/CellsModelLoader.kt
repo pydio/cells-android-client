@@ -29,7 +29,7 @@ class CellsModelLoader : ModelLoader<String, ByteBuffer> {
         // TODO better validation?
         return try {
             val res = decodeModel(model)
-            res.first != null && Str.notEmpty(res.second)
+            Str.notEmpty(res.second)
         } catch (e: Exception) {
             false
         }

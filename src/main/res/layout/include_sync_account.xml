@@ -6,34 +6,34 @@
     <data>
 
         <variable
-            name="transfer"
-            type="com.pydio.android.cells.db.nodes.RTransfer" />
+            name="syncAccount"
+            type="com.pydio.android.cells.db.runtime.RJob" />
     </data>
 
     <LinearLayout
+        android:id="@+id/included_header_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_medium"
-        android:orientation="vertical"
-        android:padding="@dimen/margin_large">
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/file_name"
+            android:id="@+id/job_name"
             style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:layout_marginBottom="@dimen/margin_xsmall"
-            app:transferTitle="@{transfer}"
+            app:jobTitle="@{syncAccount}"
             tools:text="my-image-88639: with a specially long name and some detailed information.jpg" />
 
         <TextView
-            android:id="@+id/loading_message"
+            android:id="@+id/job_status"
             style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:text="@string/download_wait_message" />
+            app:jobStatus="@{syncAccount}"
+            tools:text="Downloading, please wait…" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress"
@@ -42,16 +42,7 @@
             android:layout_margin="@dimen/margin_small"
             android:indeterminate="true"
             android:visibility="visible"
-            app:updateTransferProgress="@{transfer}" />
+            app:updateJobProgress="@{syncAccount}" />
 
-        <Button
-            android:id="@+id/cancel_download_button"
-            style="?attr/materialButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/margin"
-            android:focusable="true"
-            android:text="@string/button_cancel" />
     </LinearLayout>
 </layout>

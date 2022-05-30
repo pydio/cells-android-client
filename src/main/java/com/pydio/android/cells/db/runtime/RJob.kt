@@ -26,16 +26,22 @@ data class RJob(
     @ColumnInfo(name = "message") var message: String? = null,
     // Observable value for progress listeners
     @ColumnInfo(name = "progress") var progress: Long = 0,
-    // To compute the progress in pro-cent
-    @ColumnInfo(name = "progress_max") var total: Long = -1,
     // Observable status for the end user
-    @ColumnInfo(name = "progress_message") var progressMessage: String? = null,
+    @ColumnInfo(name = "progress_msg") var progressMessage: String? = null,
+    // To compute the progress in pro-cent
+    @ColumnInfo(name = "total") var total: Long = -1,
     // Timestamps
     @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
     @ColumnInfo(name = "done_ts") var doneTimestamp: Long = -1L,
 
     ) {
+
+    fun isFail(): Boolean {
+        return status == AppNames.JOB_STATUS_ERROR ||
+                status == AppNames.JOB_STATUS_TIMEOUT ||
+                status == AppNames.JOB_STATUS_CANCELLED
+    }
 
     companion object {
         fun create(

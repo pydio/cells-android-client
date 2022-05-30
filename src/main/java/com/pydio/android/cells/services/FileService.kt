@@ -80,9 +80,20 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
     fun needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
-        val fileRecord = dao.getFile(stateID.id, type) ?: return true
-        return remote.lastModified <= fileRecord.remoteTS &&
-                remote.eTag == fileRecord.etag
+        val fileRecord = dao.getFile(stateID.id, type) ?: let {
+            Log.d(tag, "$type not found for ${stateID.file}, downloading")
+            return true
+        }
+        val hasChanged = !(remote.lastModified <= fileRecord.remoteTS &&
+                remote.eTag == fileRecord.etag)
+        if (hasChanged) {
+            Log.d(
+                tag, "$type for ${stateID.file} needs update:\n" +
+                        "  ${remote.lastModified} - ${fileRecord.remoteTS} \n" +
+                        "  ${remote.eTag} - ${fileRecord.etag}"
+            )
+        }
+        return hasChanged
     }
 
     fun unregisterLocalFile(stateID: StateID, type: String) {

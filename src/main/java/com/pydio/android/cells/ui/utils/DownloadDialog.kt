@@ -10,16 +10,14 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.navArgs
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.DialogDownloadBinding
-import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.externallyView
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.io.File
 
 class DownloadDialog : DialogFragment() {
 
-    private val logTag = DownloadDialog::class.java.simpleName
+    // private val logTag = DownloadDialog::class.java.simpleName
 
     private val args: DownloadDialogArgs by navArgs()
 
@@ -33,7 +31,7 @@ class DownloadDialog : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         isCancelable = false
         binding = DataBindingUtil.inflate(
             inflater, R.layout.dialog_download, container, false

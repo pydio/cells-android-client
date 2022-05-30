@@ -65,8 +65,7 @@ class DownloadViewModel(
         vmScope.launch {
             // TODO handle case when a download for the same file is already running
             val (jobId, errMsg) = transferService.prepareDownload(
-                stateID,
-                AppNames.LOCAL_FILE_TYPE_FILE
+                stateID, AppNames.LOCAL_FILE_TYPE_FILE, null
             )
             if (errMsg != null) {
                 _isProcessing = false

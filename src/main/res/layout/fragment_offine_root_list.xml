@@ -3,32 +3,50 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/offline_root_list_fragment"
+    <data>
+
+        <variable
+            name="syncAccount"
+            type="com.pydio.android.cells.db.runtime.RJob" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!-- Header -->
 
         <include
-            android:id="@+id/empty_content"
-            layout="@layout/list_empty_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:visibility="gone" />
+            android:id="@+id/sync_header"
+            layout="@layout/include_sync_account"
+            app:syncAccount="@{syncAccount}" />
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/force_refresh"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/offline_root_list_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/offline_root_list"
+            <include
+                android:id="@+id/empty_content"
+                layout="@layout/list_empty_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                android:layout_gravity="center_vertical"
+                android:visibility="gone" />
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/force_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/offline_root_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
 </layout>
