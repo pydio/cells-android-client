@@ -22,6 +22,8 @@ import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
+import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.showLongMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -74,7 +76,23 @@ class OfflineRootsFragment : Fragment() {
 
                 configureRecyclerAdapter()
 
-                binding.forceRefresh.setOnRefreshListener { offlineVM.forceRefresh() }
+                binding.forceRefresh.setOnRefreshListener {
+                    offlineVM.runningSync.value?.let {
+                        val timeSinceStart = currentTimestamp() - it.startTimestamp
+                        val timeSinceUpdate = currentTimestamp() - it.updateTimestamp
+                        if (timeSinceStart < 300 || timeSinceUpdate < 120) {
+                            val m = "start: ${timeSinceStart}s ago, update: ${timeSinceUpdate}s ago"
+                            Log.e(logTag, m)
+                            showLongMessage(
+                                requireContext(),
+                                resources.getString(R.string.sync_already_running)
+                            )
+                            offlineVM.setLoading(false)
+                            return@setOnRefreshListener
+                        }
+                    }
+                    offlineVM.forceRefresh()
+                }
                 offlineVM.isLoading.observe(viewLifecycleOwner) {
                     binding.forceRefresh.isRefreshing = it
                 }
@@ -87,6 +105,8 @@ class OfflineRootsFragment : Fragment() {
 //                        )
                         binding.syncHeader.includedHeaderContent.visibility = View.VISIBLE
                         binding.syncHeader.syncAccount = runningSync
+                        binding.syncHeader.jobName.text =
+                            resources.getText(R.string.sync_in_progress)
                         if (runningSync.progress > 1 && runningSync.total > 0) {
                             binding.syncHeader.progress.isIndeterminate = false
                             val prog = (100 * runningSync.progress / runningSync.total).toInt()

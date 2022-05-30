@@ -14,13 +14,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <!-- Header -->
 
+        <!-- Optional header that shows sync job status if one is running -->
         <include
+            android:layout_width="match_parent"
+            android:layout_margin="@dimen/margin_medium"
+            android:layout_height="wrap_content"
             android:id="@+id/sync_header"
             layout="@layout/include_sync_account"
             app:syncAccount="@{syncAccount}" />
 
+        <!-- Effective list -->
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/offline_root_list_fragment"
             android:layout_width="match_parent"

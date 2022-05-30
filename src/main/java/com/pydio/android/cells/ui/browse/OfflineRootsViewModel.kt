@@ -58,21 +58,20 @@ class OfflineRootsViewModel(
         _errorMessage.value = null
         setLoading(true)
         vmScope.launch {
-            // TODO insure a sync is not already running for this account.
             val (jobId, error) = nodeService.prepareAccountSync(stateId, AppNames.JOB_OWNER_USER)
             if (Str.notEmpty(error)) {
                 _errorMessage.value = error
             } else {
                 jobService.launched(jobId)
                 CellsApp.instance.appScope.launch {
-                    nodeService.performAccountSync(stateId, jobId)
+                    nodeService.performAccountSync(stateId, jobId, CellsApp.instance.applicationContext)
                 }
             }
             setLoading(false)
         }
     }
 
-    private fun setLoading(loading: Boolean) {
+    fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
 }

@@ -46,11 +46,14 @@ class ActiveSessionViewModel(
     lateinit var sessionView: LiveData<RSessionView?>
     lateinit var workspaces: LiveData<List<RWorkspace>>
 
-    fun isServerReachable():Boolean {
-        if (sessionView.value == null){
+    fun isServerReachable(): Boolean {
+        if (sessionView.value == null) {
             return false
         }
         return isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        // val reachable = isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        // Log.e(logTag, "Reachable: $reachable - $isOnline - ${sessionView.value?.authStatus}")
+        // return reachable
     }
 
     // Watcher states

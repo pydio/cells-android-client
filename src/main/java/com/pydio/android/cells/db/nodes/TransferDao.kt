@@ -39,6 +39,9 @@ interface TransferDao {
     @Query("SELECT * FROM transfers ORDER BY start_ts DESC")
     fun getActiveTransfers(): LiveData<List<RTransfer>?>
 
+    @Query("DELETE FROM transfers WHERE done_ts = -1 AND update_ts < :staleLimit ")
+    fun clearStaleTransfers(staleLimit: Long)
+
     @Query("DELETE FROM transfers WHERE done_ts > 0")
     fun clearTerminatedTransfers()
 

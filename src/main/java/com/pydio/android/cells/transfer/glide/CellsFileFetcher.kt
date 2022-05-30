@@ -3,7 +3,10 @@ package com.pydio.android.cells.transfer.glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
+import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.utils.showMessage
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,13 +33,18 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
         // Log.e(logTag, "About to load the file...")
 
-        val pair = decodeModel(model)
+        val (stateId, type) = decodeModel(model)
         dlScope.launch {
 
-            transferService.getFileForDisplay(pair.first, pair.second, null)?.let {
+            val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
+            // TODO better error management
+            if (Str.notEmpty(errMsg)) {
+                showMessage(CellsApp.instance.applicationContext, errMsg!!)
+            }
+            file?.let {
                 // TODO rather use a stream
                 // Log.e(logTag, "Got a file...")
-                var bytes = it.readBytes()
+                val bytes = it.readBytes()
                 val byteBuffer = ByteBuffer.wrap(bytes)
                 callback.onDataReady(byteBuffer)
             }

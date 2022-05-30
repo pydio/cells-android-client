@@ -93,7 +93,10 @@ class TransferService(
 //    }
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
-        nodeDB(stateId).transferDao().clearTerminatedTransfers()
+        val dao = nodeDB(stateId).transferDao()
+        dao.clearTerminatedTransfers()
+        // We also remove unterminated jobs that have not been updated since more than 10 minutes
+        dao.clearStaleTransfers(currentTimestamp() - 600)
     }
 
     suspend fun deleteRecord(stateId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
@@ -108,21 +111,26 @@ class TransferService(
 
     /** DOWNLOADS **/
 
-    suspend fun getFileForDisplay(state: StateID, type: String, parentJob: RJob?): File? =
+    suspend fun getFileForDisplay(
+        state: StateID,
+        type: String,
+        parentJob: RJob?
+    ): Pair<File?, String?> =
         withContext(Dispatchers.IO) {
             val account = state.account()
             val nodeDB = treeNodeRepository.nodeDB(account)
             val rNode = nodeDB.treeNodeDao().getNode(state.id)
             if (rNode == null) {
                 // No node found, aborting
-                Log.e(logTag, "No node found for $state, aborting $type DL")
-                return@withContext null
+                val errMsg = "No node found for $state, aborting $type DL"
+                Log.e(logTag, errMsg)
+                return@withContext null to errMsg
             }
 
             // Detect if file is there and still up to date
             // TODO handle case when we are not connected
             fileService.getLocalFile(state, rNode, type)?.let {
-                return@withContext it
+                return@withContext it to null
             }
 
             downloadFile(state, rNode, type, parentJob, null)
@@ -133,15 +141,16 @@ class TransferService(
         type: String,
         parentJob: RJob?,
         progressChannel: Channel<Long>?
-    ): File? =
+    ): Pair<File?, String?> =
         withContext(Dispatchers.IO) {
             val account = state.account()
             val nodeDB = treeNodeRepository.nodeDB(account)
             val rNode = nodeDB.treeNodeDao().getNode(state.id)
             if (rNode == null) {
                 // No node found, aborting
-                Log.e(logTag, "No node found for $state, aborting $type DL")
-                return@withContext null
+                val errMsg = "No node found for $state, aborting $type DL"
+                Log.e(logTag, errMsg)
+                return@withContext null to errMsg
             }
 
             downloadFile(state, rNode, type, parentJob, progressChannel)
@@ -157,7 +166,7 @@ class TransferService(
         type: String,
         parentJob: RJob?,
         progressChannel: Channel<Long>?
-    ): File? {
+    ): Pair<File?, String?> {
 
         val parentFolder = fileService.dataParentPath(state.account(), type)
 
@@ -175,27 +184,33 @@ class TransferService(
             AppNames.LOCAL_FILE_TYPE_FILE -> {
                 val (jobId, errorMsg) = prepareDownload(state, type, parentJob)
                 if (Str.notEmpty(errorMsg)) {
-                    Log.e(logTag, "could not launch download for $state: $errorMsg")
-                    return null
+                    val errMsg = "could not launch download for $state: $errorMsg"
+                    Log.e(logTag, errMsg)
+                    return null to errMsg
                 }
                 val errorMsg2 = runDownloadTransfer(state, jobId, progressChannel)
                 if (Str.notEmpty(errorMsg2)) {
-                    Log.e(logTag, "could not launch download for $state: $errorMsg")
-                    return null
+                    val errMsg = "could not download file for $state: $errorMsg"
+                    Log.e(logTag, errMsg)
+                    return null to errMsg
                 }
                 // filename is...  (Note that we remove the leading slash to comply with childFile method signature, see just below)
                 state.path.substring(1)
             }
             else -> null
         }
-        return filename?.let { childFile(parentFolder, filename) }
+        return filename?.let { childFile(parentFolder, filename) } to null
     }
 
     /**
      * Centralize client specific actions that should be done **before** launching
      * the real download.
      */
-    suspend fun prepareDownload(state: StateID, type: String, parentJob: RJob?): Pair<Long, String?> =
+    suspend fun prepareDownload(
+        state: StateID,
+        type: String,
+        parentJob: RJob?
+    ): Pair<Long, String?> =
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
@@ -281,6 +296,7 @@ class TransferService(
                     } ?: false
 
                     rTransfer.progress += progressL
+                    rTransfer.updateTimestamp = currentTimestamp()
                     dao.update(rTransfer)
                     serviceScope.launch {
                         progressChannel?.send(progressL)
@@ -292,6 +308,7 @@ class TransferService(
             if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
                 rTransfer.status = AppNames.JOB_STATUS_DONE
                 rTransfer.doneTimestamp = currentTimestamp()
+                rTransfer.updateTimestamp = currentTimestamp()
                 rTransfer.error = null
                 dao.update(rTransfer)
 

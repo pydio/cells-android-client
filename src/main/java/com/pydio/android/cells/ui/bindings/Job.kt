@@ -6,19 +6,6 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.pydio.android.cells.db.runtime.RJob
 
-//@BindingAdapter("jobIcon")
-//fun ImageView.setJobIcon(item: RJob?) {
-//    if (item == null) {
-//        return
-//    }
-//    setImageResource(
-//        when (item.type) {
-//            AppNames.TRANSFER_TYPE_DOWNLOAD -> R.drawable.ic_outline_file_download_24
-//            else -> R.drawable.ic_outline_file_upload_24
-//        }
-//    )
-//}
-
 @BindingAdapter("jobTitle")
 fun TextView.setJobTitle(item: RJob?) {
     item?.let {
@@ -29,7 +16,7 @@ fun TextView.setJobTitle(item: RJob?) {
 @BindingAdapter("jobStatus")
 fun TextView.setJobStatus(item: RJob?) {
     item?.let {
-        text = item.status + " - " + item.progressMessage
+        text = item.progressMessage
     }
 }
 

@@ -33,6 +33,7 @@ data class RJob(
     // Timestamps
     @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
+    @ColumnInfo(name = "update_ts") var updateTimestamp: Long = -1L,
     @ColumnInfo(name = "done_ts") var doneTimestamp: Long = -1L,
 
     ) {

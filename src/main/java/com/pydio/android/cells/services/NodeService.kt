@@ -1,11 +1,13 @@
 package com.pydio.android.cells.services
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.ROfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -369,7 +371,7 @@ class NodeService(
             return@withContext jobId to null
         }
 
-    suspend fun performAccountSync(accountID: StateID, jobId: Long) =
+    suspend fun performAccountSync(accountID: StateID, jobId: Long, context: Context) =
         withContext(Dispatchers.IO) {
             val job = jobService.get(jobId) ?: let {
                 Log.e(logTag, "No job found for id $jobId, aborting launch...")
@@ -381,7 +383,11 @@ class NodeService(
                 return@withContext // Should never happen, check has just been done before creating the Job Record
             }
 
-            jobService.incrementProgress(job, 0, "Walking the tree to look for changes")
+            jobService.incrementProgress(
+                job,
+                0,
+                context.resources.getString(R.string.sync_tree_walking)
+            )
 
             var changeNb = 0
             for (offlineRoot in roots) {
@@ -558,17 +564,19 @@ class NodeService(
                 fileDL.walkingDone()
                 fileDL.manualJoin()
 
-                if (changeNb > 0) {
-                    offlineRoot.localModificationTS = currentTimestamp()
-                    offlineRoot.message = null // TODO double check
-                }
-                offlineRoot.lastCheckTS = currentTimestamp()
-                offlineRoot.status = AppNames.OFFLINE_STATUS_ACTIVE
-                offlineDao.update(offlineRoot)
+                if (!fileDL.isFailed()) {
+                    if (changeNb > 0) {
+                        offlineRoot.localModificationTS = currentTimestamp()
+                        offlineRoot.message = null // TODO double check
+                    }
+                    offlineRoot.lastCheckTS = currentTimestamp()
+                    offlineRoot.status = AppNames.OFFLINE_STATUS_ACTIVE
+                    offlineDao.update(offlineRoot)
 
-                // TODO add more info on the corresponding root RTreeNode ??
-                treeNode.setOfflineRoot(true)
-                persistUpdated(treeNode)
+                    // TODO add more info on the corresponding root RTreeNode ??
+                    treeNode.setOfflineRoot(true)
+                    persistUpdated(treeNode)
+                }
                 return@withContext changeNb
             } catch (se: SDKException) {
                 Log.e(logTag, "could update offline sync status for " + stateID.id)
@@ -789,8 +797,15 @@ class NodeService(
      */
     suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
         withContext(Dispatchers.IO) {
+
+            Log.e(
+                logTag,
+                "Trying to retrieve local file for ${rTreeNode.getStateID()}, check update: $checkUpToDate"
+            )
+
             val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
+                Log.e(logTag, "File not found at ${file.absolutePath}")
                 return@withContext null
             }
 

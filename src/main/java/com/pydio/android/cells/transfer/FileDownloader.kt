@@ -7,6 +7,7 @@ import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,6 +45,8 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
     private val totalChannel = Channel<Long>()
     private val progressChannel = Channel<Long>()
 
+    private var isFailed = false
+
     /** Enqueue a new download */
     suspend fun orderDL(encodedState: String, type: String, sizeInBytes: Long = 0L) {
         Log.d(logTag, "DL $type for $encodedState")
@@ -69,6 +72,11 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         doneJob.join()
     }
 
+    fun isFailed() : Boolean {
+        return isFailed
+    }
+
+
     init {
         initialize()
     }
@@ -85,8 +93,10 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
                     return
                 }
                 else -> {
-                    Log.d(logTag, "Processing DL for $msg")
-                    download(msg)
+                    if (!isFailed){
+                        Log.d(logTag, "Processing DL for $msg")
+                        download(msg)
+                    }
                 }
             }
         }
@@ -96,7 +106,12 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         val (stateId, type) = decodeModel(encoded)
         try {
             jobService.incrementProgress(parentJob, 0, stateId.fileName)
-            transferService.getFileForDiff(stateId, type, parentJob, progressChannel)
+            val (_, errMsg) = transferService.getFileForDiff(stateId, type, parentJob, progressChannel)
+            if (Str.notEmpty(errMsg)){
+                // We cancel the diff as soon as we find an error. TODO improve
+                isFailed = true
+                jobService.failed(parentJob.jobId, errMsg!!)
+            }
         } catch (e: SDKException) {
             Log.w(
                 logTag,
