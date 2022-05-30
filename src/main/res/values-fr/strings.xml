@@ -98,9 +98,6 @@
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
-    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-    <!--    <string name="empty_cache_and_server_unreachable">Cannot list folder content:\nNo connection to remote server…</string>-->
-    <!--    <string name="no_file_and_server_unreachable">Cannot download file:\nNo connection to remote server…</string>-->
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
@@ -113,6 +110,10 @@
     <!-- Search -->
     <string name="search_label">Étiquette de recherche</string>
     <string name="search_hint">Aide pour la recherche</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
+    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
     <!-- Transfer Management -->
     <string name="transfer_list_title">Transferts en cours</string>
     <string name="choose_target_for_share_title">Partager avec…</string>
@@ -135,7 +136,7 @@
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
     <string name="open_in_workspaces">Ouvrir l\'emplacement</string>
     <string name="open_parent_in_workspaces">Ouvrir l\'emplacement parent</string>
-    <string name="force_resync">Re-synchroniser</string>
+    <string name="force_resync">Synchronise</string>
     <string name="force_resync_desc">Relancer une synchronisation avec le serveur distant</string>
     <string name="open_with">Ouvrir avec…</string>
     <string name="download_to_device">Télécharger sur votre appareil</string>
@@ -195,6 +196,7 @@
     <string name="rename_dialog_title">Renommer</string>
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
+    <string name="download_wait_message">Downloading, please wait…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="choose_list_layout">Type de mise en page</string>
