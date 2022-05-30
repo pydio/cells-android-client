@@ -216,6 +216,7 @@
     <string name="rename_dialog_title">Rename</string>
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
+    <string name="download_wait_message">Downloading, please wait…</string>
 
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
