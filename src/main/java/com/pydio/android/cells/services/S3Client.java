@@ -11,11 +11,14 @@ import com.pydio.cells.api.S3Names;
 import com.pydio.cells.api.SDKException;
 import com.pydio.cells.transport.CellsTransport;
 import com.pydio.cells.utils.Log;
+import com.pydio.cells.utils.Str;
 
 import java.net.URL;
 
 /* Main entry point to communicate with a S3 store */
 public class S3Client implements com.pydio.cells.api.S3Client {
+
+    private final static String logTag = S3Client.class.getSimpleName();
 
     private final static String DEFAULT_BUCKET_NAME = "io";
     private final static String DEFAULT_GATEWAY_SECRET = "gatewaysecret";
@@ -77,7 +80,7 @@ public class S3Client implements com.pydio.cells.api.S3Client {
         if ("/".equals(parent)) {
             return getCleanPath(slug, "/".concat(fileName));
         } else {
-            return getCleanPath(slug, parent.concat("/") + fileName);
+            return getCleanPath(slug, parent.concat("/").concat(fileName));
         }
     }
 

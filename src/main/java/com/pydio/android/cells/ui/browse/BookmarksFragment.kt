@@ -125,7 +125,6 @@ class BookmarksFragment : Fragment() {
 //            return
 //        }
 
-
         lifecycleScope.launch {
             nodeService.getLocalFile(node, activeSessionVM.isServerReachable())?.let {
                 externallyView(requireContext(), it, node)

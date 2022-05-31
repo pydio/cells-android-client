@@ -21,15 +21,15 @@ data class RLocalFile(
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    // Thumb, Preview, Cache, Offline
+    // Thumb, Preview, File
     @ColumnInfo(name = "type") val type: String,
 
-    // Might be the file (for thumbs, preview) or the rel path from base dir (real files)
+    // Might be the file (for thumbs, preview) or the rel path from base dir (for files)
     // e.g. common-files/test/my-image.jpg
     @ColumnInfo(name = "file") val file: String,
 
     // The e-tag of the **main** file: it is used to detect when the file is probably out-dated
-    // and thus that we need to retrigger the download of the corresponding file.
+    // and thus that we need to re-trigger the download of the corresponding file.
     @ColumnInfo(name = "etag") var etag: String?,
 
     @ColumnInfo(name = "size") var size: Long = -1L,

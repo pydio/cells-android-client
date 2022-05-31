@@ -188,11 +188,12 @@ class AccountServiceImpl(
             val dirName = treeNodeRepository.sessions[accountId]?.dirName
                 ?: throw IllegalStateException("No record found for $stateId")
 
+            val fileService: FileService = get()
+            fileService.cleanAllLocalFiles(stateId, dirName)
+
             // Credentials
             authService.forgetCredentials(stateId, oldAccount.isLegacy)
 
-            val fileService: FileService = get()
-            fileService.cleanAllLocalFiles(stateId, dirName)
 
             // Remove rows in the account tables
             sessionDao.forgetSession(accountId)
@@ -274,22 +275,19 @@ class AccountServiceImpl(
 
     override suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?> =
         withContext(Dispatchers.IO) {
-            val result: Pair<Int, String?>
-
             val accountID = StateID.fromId(accountIDStr)
             try {
                 val client: Client = getClient(accountID)
                 val wsDiff = WorkspaceDiff(accountID, client)
                 val changeNb = wsDiff.compareWithRemote()
-                result = Pair(changeNb, null)
+                return@withContext changeNb to null
             } catch (e: SDKException) {
                 val msg = "could not get workspace list for $accountID"
                 Log.e(logTag, msg)
                 e.printStackTrace()
                 notifyError(accountID, e.code)
-                return@withContext Pair(0, msg)
+                return@withContext 0 to msg
             }
-            return@withContext result
         }
 
 

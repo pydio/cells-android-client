@@ -114,6 +114,7 @@ class AuthService(authDB: AuthDB) {
         transport: CellsTransport,
         token: Token
     ): String {
+
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())
         val jwtCredentials = JWTCredentials(accountID.username, token)

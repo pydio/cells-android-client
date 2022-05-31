@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.pydio.android.cells.services
 
 import android.app.ActivityManager
@@ -128,8 +126,8 @@ class NetworkService constructor(
     }
 
 // FIXME moved here from main activity.
-        // Not sure if it still works
-        
+    // Not sure if it still works
+
 // This was in MainActivity.OnCreate method
 //        NetworkStatusHelper(this@MainActivity).observe(this, {
 //            showMessage(
@@ -162,5 +160,4 @@ class NetworkService constructor(
             )
         }
     }
-
 }

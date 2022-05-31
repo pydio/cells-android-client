@@ -9,18 +9,19 @@ import com.pydio.android.cells.AppNames
 data class RNetworkInfo(
 
     @PrimaryKey(autoGenerate = true)
-    var transferId: Long = 0L,
-
-    @ColumnInfo(name = "last_checked") var lastCheckedTS: Long = -1L,
+    var id: Long = 0L,
 
     // unknown, no_internet, metered, ok
-    @ColumnInfo(name = "status") var status: String = "unknown",
+    @ColumnInfo(name = "status") var status: String = AppNames.NETWORK_STATUS_UNKNOWN,
+
+    @ColumnInfo(name = "last_checked") var lastCheckedTS: Long = -1L,
 
     @ColumnInfo(name = "last_response_code") var lastResponseCode: Int = 200,
 
     @ColumnInfo(name = "last_response_msg") var lastResponseMsg: String? = null,
 
     ){
+
     fun isOnline() = status == AppNames.NETWORK_STATUS_OK
 
     fun isOffline() = status == AppNames.NETWORK_STATUS_NO_INTERNET
