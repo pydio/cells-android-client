@@ -6,7 +6,6 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.accounts.WorkspaceDao
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.utils.areWsNodeContentEquals
 import com.pydio.cells.api.Client
@@ -70,7 +69,10 @@ class WorkspaceDiff(
                 } else if (order == 0) {
                     if (!areWsNodeContentEquals(remote, local!!)) {
                         putUpdateChange(remote)
+                    } else {
+                        alsoCheckWSTreeNode(local, remote)
                     }
+
                     // Move local cursor to next and restart the loop
                     local = if (lit.hasNext()) lit.next() else null
                     continue
@@ -86,6 +88,20 @@ class WorkspaceDiff(
         while (lit.hasNext()) {
             local = lit.next()
             putDeleteChange(local)
+        }
+    }
+
+    private fun alsoCheckWSTreeNode(local: RWorkspace, remote: WorkspaceNode) {
+
+        // The corresponding root tree node might have been deleted during a cache clean
+        val localState = local.getStateID()
+        val treeNodeState = localState.account().withPath("/${remote.slug}")
+
+        // We re-create it if it is not there anymore
+        nodeDB.treeNodeDao().getNode(treeNodeState.id) ?: let {
+            Log.i(logTag, "Recreating WS RTreeNode for $localState")
+            val wsTreeNode = RTreeNode.fromWorkspaceNode(localState, remote)
+            nodeDB.treeNodeDao().insert(wsTreeNode)
         }
     }
 
@@ -178,11 +194,6 @@ class WorkspaceDiff(
                 }
             }
             nodes.sort()
-
-//            val it = nodes.iterator()
-//            while (it.hasNext()) {
-//                Log.d(logTag, it.next().slug)
-//            }
 
             nodeIterator = nodes.iterator()
         }
