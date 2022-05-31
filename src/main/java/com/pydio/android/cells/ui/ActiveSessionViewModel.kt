@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
  */
 class ActiveSessionViewModel(
     private val accountService: AccountService,
-    networkService: NetworkService,
+    private val networkService: NetworkService,
     id: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
@@ -37,7 +37,7 @@ class ActiveSessionViewModel(
 
     // Business objects
     val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
-    private val isOnline = networkService.hasInternetAccess()
+    private var isOnline = networkService.hasInternetAccess()
 
     private var _accountId: String? = null
     val accountId: String?
@@ -50,10 +50,13 @@ class ActiveSessionViewModel(
         if (sessionView.value == null) {
             return false
         }
-        return isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        // val reachable = isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        // Log.e(logTag, "Reachable: $reachable - $isOnline - ${sessionView.value?.authStatus}")
-        // return reachable
+        // TODO this is useless as it is implemented for the time being. We should rather have
+        //  a cached value that gets automatically updated when connection state changes.
+        isOnline = networkService.hasInternetAccess()
+        // return isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        val reachable = isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        Log.i(logTag, "Reachable: $reachable - $isOnline - ${sessionView.value?.authStatus}")
+        return reachable
     }
 
     // Watcher states
@@ -103,21 +106,21 @@ class ActiveSessionViewModel(
         withContext(Dispatchers.Main) {
             _errorMessage.value = null
         }
-        val result = accountService.refreshWorkspaceList(accountId!!)
+        val (changeNb, errMsg) = accountService.refreshWorkspaceList(accountId!!)
         withContext(Dispatchers.Main) {
-            if (result.second != null) { // Non-Null response is an error message
+            if (errMsg != null) { // Non-Null response is an error message
                 if (backOffTicker.getCurrentIndex() > 0) {
-                    Log.e(logTag, "Could not list workspace...")
+                    Log.e(logTag, "could not list workspaces...")
                     // We do not display the error message if first
-                    _errorMessage.value = result.second
+                    _errorMessage.value = errMsg
                 }
                 Log.i(logTag, "Pausing poll")
                 pause()
-            } else if (result.first > 0) {
+            } else if (changeNb > 0) {
                 backOffTicker.resetIndex()
             }
             setLoading(false)
-            if (result.second == null) { // Also reset error message
+            if (errMsg == null) { // Also reset error message
                 _errorMessage.value = null
             }
         }
@@ -146,7 +149,6 @@ class ActiveSessionViewModel(
         currWatcher?.cancel()
         resume()
     }
-
 
     override fun onCleared() {
         super.onCleared()
