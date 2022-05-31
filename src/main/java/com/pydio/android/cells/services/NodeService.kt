@@ -62,11 +62,12 @@ class NodeService(
         if (Str.empty(encoded)) {
             encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
         }
-        val orders = parseOrder(encoded!!)
+        val (sortByCol, sortByOrder) = parseOrder(encoded!!)
+        val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
-                    "AND parent_path = '${stateID.file}' " +
-                    "ORDER BY ${orders.first} ${orders.second} "
+                    "AND parent_path = ? " +
+                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
         return nodeDB(stateID).treeNodeDao().orderedLs(lsQuery)
     }
@@ -742,22 +743,33 @@ class NodeService(
     }
 
     suspend fun clearAccountCache(stateID: String): String? = withContext(Dispatchers.IO) {
-        val account = StateID.fromId(StateID.fromId(stateID).accountId)
+        val accountID = StateID.fromId(stateID).account()
         try {
-            // TODO also delete corresponding index rows
-            //  Should we use 2 distinct tables for cache and offline ?
+            // First delete corresponding files
+            fileService.cleanFileCacheFor(accountID)
 
-            // Delete  files:
-            val dirName = treeNodeRepository.sessions[account.id]?.dirName
-                ?: throw IllegalStateException("Cannot clean cache: no record found for $stateID")
-            fileService.cleanFileCacheFor(account, dirName)
+            // Also clean index
+            val offlineDao = nodeDB(accountID).offlineRootDao()
+            val offlinePaths = offlineDao.getAll().map { it.encodedState }
+            val treeNodeDao = nodeDB(accountID).treeNodeDao()
+            for (record in treeNodeDao.getUnder(accountID.id)) {
+                if (!isInOfflineTree(offlinePaths, record.encodedState)) {
+                    treeNodeDao.delete(record.encodedState)
+                }
+            }
+
             return@withContext null
         } catch (e: Exception) {
-            val msg = "Could not delete account $account"
+            val msg = "Could not clear cache for $accountID"
             logException(logTag, msg, e)
             return@withContext msg
         }
     }
+
+    private fun isInOfflineTree(rootPaths: List<String>, currentPath: String): Boolean {
+        return rootPaths.any { currentPath.startsWith(it) }
+    }
+
 
     private suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 

@@ -46,7 +46,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
      * typically, it returns null for the thumb file if it has not yet been downloaded
      * from the remote server and persisted
      */
-    @Throws(java.lang.IllegalStateException::class)
     fun getLocalPath(item: RTreeNode, type: String): String {
         val stat = StateID.fromId(item.encodedState)
         return getLocalPathFromState(stat, type)
@@ -148,33 +147,57 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return File("${imgPath}${sep}IMG_${timestamp}.jpg")
     }
 
-    fun cleanFileCacheFor(stateID: StateID, dirName: String) = serviceScope.launch {
+    fun cleanFileCacheFor(accountID: StateID) = serviceScope.launch {
 
-        val cache = File(CellsApp.instance.cacheDir.absolutePath + sep + dirName)
-        if (cache.exists()) {
-            cache.deleteRecursively()
+        // First clean the files that are not in an offline root sub-tree
+        // We retrieve defined offline roots
+        val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
+        val offlinePaths = offlineDao.getAll().map { it.encodedState }
+        // We then iterate on all files
+        val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
+        for (record in filesDao.getFilesUnder(accountID.id)) {
+            if (!isInOfflineTree(offlinePaths, record.encodedState)) {
+                filesDao.delete(record.encodedState, record.type)
+            }
         }
 
-        // FIXME we should do this more finely:
-        // -> walk the tree
-        // -> check if the current path fits with an offline root
-
-//        val tmpCache = File(staticDataParentPath(dirName, AppNames.LOCAL_FILE_TYPE_CACHE))
-//        if (tmpCache.exists()) {
-//            tmpCache.deleteRecursively()
-//        }
+        // We then also clean transfer temporary files
+        val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
+        if (transferDir.exists()) {
+            transferDir.deleteRecursively()
+        }
     }
 
-    fun cleanAllLocalFiles(stateID: StateID, dirName: String) = serviceScope.launch {
-        cleanFileCacheFor(stateID, dirName)
+    /* Violently remove all local files and also empty the local_files table */
+    suspend fun cleanAllLocalFiles(accountID: StateID, dirName: String) {
 
-        val files = File(CellsApp.instance.filesDir.absolutePath + sep + dirName)
-        if (files.exists()) {
-            files.deleteRecursively()
+        // Recursively delete local folders
+        var currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_THUMB))
+        if (currDir.exists()) {
+            currDir.deleteRecursively()
         }
+        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_PREVIEW))
+        if (currDir.exists()) {
+            currDir.deleteRecursively()
+        }
+        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_FILE))
+        if (currDir.exists()) {
+            currDir.deleteRecursively()
+        }
+        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
+        if (currDir.exists()) {
+            currDir.deleteRecursively()
+        }
+
+        // Also empty the local_files table
+        val localFileDao = treeNodeRepository.nodeDB(accountID).localFileDao()
+        localFileDao.deleteUnder(accountID.id)
     }
 
     // Local helpers
+    private fun isInOfflineTree(rootPaths: List<String>, currentPath: String): Boolean {
+        return rootPaths.any { currentPath.startsWith(it) }
+    }
 
     private fun staticDataParentPath(currDirName: String, type: String): String {
         val middle = sep + currDirName + sep
