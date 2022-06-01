@@ -21,6 +21,8 @@
     <string name="action_open_offline_roots">Offline-Dateien</string>
     <string name="action_open_bookmarks">Favoriten</string>
     <string name="action_open_transfers">Übertragungen</string>
+    <string name="action_open_jobs">Hintergrundjobs</string>
+    <string name="action_open_logs">Protokolle</string>
     <string name="action_open_about">Über Pydio</string>
     <string name="action_search">Suchen</string>
     <string name="action_settings">Einstellungen</string>
@@ -111,9 +113,14 @@
     <string name="search_label">Suchbegriff</string>
     <string name="search_hint">Suchtipp</string>
     <!--Offline -->
-    <string name="sync_in_progress">Synchronising…</string>
-    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
-    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <string name="sync_in_progress">Synchronisierung…</string>
+    <string name="sync_downloading">Dateien werden heruntergeladen…</string>
+    <string name="sync_tree_walking">Durchsuchen des Baums nach Änderungen…</string>
+    <string name="sync_already_running">Ein Synchronisierungsprozess läuft bereits. Bitte warten Sie, bevor Sie einen neuen starten</string>
+    <!-- Job Management -->
+    <string name="job_list_title">Hintergrundprozesse</string>
+    <!-- Log Management -->
+    <string name="log_list_title">Hintergrund-Job-Logs</string>
     <!-- Transfer Management -->
     <string name="transfer_list_title">Aktuelle Übertragungen</string>
     <string name="choose_target_for_share_title">Teilen mit…</string>
@@ -136,7 +143,7 @@
     <string name="more_button_description">Weitere Aktionen für dieses Element anzeigen</string>
     <string name="open_in_workspaces">Speicherort öffnen</string>
     <string name="open_parent_in_workspaces">Übergeordneten Speicherort öffnen</string>
-    <string name="force_resync">Synchronise</string>
+    <string name="force_resync">Synchronisieren</string>
     <string name="force_resync_desc">Synchronisierung mit dem entfernten Server jetzt starten</string>
     <string name="open_with">Öffnen mit…</string>
     <string name="download_to_device">Auf Gerät herunterladen</string>
@@ -196,7 +203,7 @@
     <string name="rename_dialog_title">Umbenennen</string>
     <string name="rename_dialog_message">Bitte geben Sie einen neuen Namen für: \n%s ein</string>
     <string name="rename_dialog_confirm_button">Umbenennen</string>
-    <string name="download_wait_message">Downloading, please wait…</string>
+    <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Listen anpassen (falls zutreffend)</string>
     <string name="pref_choose_list_layout">Layout-Typ</string>
@@ -214,6 +221,9 @@
     <string name="pref_category_title_feedback">Feedback und Hilfe</string>
     <string name="pref_feedback_send_title">Feedback senden</string>
     <string name="pref_feedback_send_desc">Technische Probleme melden oder neue Funktionen vorschlagen</string>
+    <string name="pref_category_title_troubleshooting">Fehlerbehebung</string>
+    <string name="pref_troubleshooting_show_list_desc">Gibt Zugriff auf weitere Seiten, um Hintergrund-Jobs zu beheben</string>
+    <string name="pref_troubleshooting_show_list_title">Diagnose-Seiten anzeigen</string>
     <string name="pref_choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
     <string name="pref_choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
     <!-- Accessibility various content -->

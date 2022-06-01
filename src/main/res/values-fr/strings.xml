@@ -21,6 +21,8 @@
     <string name="action_open_offline_roots">Fichiers hors ligne</string>
     <string name="action_open_bookmarks">Favoris</string>
     <string name="action_open_transfers">Transferts</string>
+    <string name="action_open_jobs">Tâches de fond</string>
+    <string name="action_open_logs">Journal</string>
     <string name="action_open_about">A propos</string>
     <string name="action_search">Recherche</string>
     <string name="action_settings">Paramètres</string>
@@ -111,9 +113,14 @@
     <string name="search_label">Étiquette de recherche</string>
     <string name="search_hint">Aide pour la recherche</string>
     <!--Offline -->
-    <string name="sync_in_progress">Synchronising…</string>
-    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
-    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <string name="sync_in_progress">En cours de synchronisation…</string>
+    <string name="sync_downloading">Téléchargement des fichiers…</string>
+    <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements…</string>
+    <string name="sync_already_running">Une synchronisation est déjà en cours. Veuillez patienter avant d\'en lancer une nouvelle</string>
+    <!-- Job Management -->
+    <string name="job_list_title">Tâches de fond</string>
+    <!-- Log Management -->
+    <string name="log_list_title">Journaux des tâches</string>
     <!-- Transfer Management -->
     <string name="transfer_list_title">Transferts en cours</string>
     <string name="choose_target_for_share_title">Partager avec…</string>
@@ -136,7 +143,7 @@
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
     <string name="open_in_workspaces">Ouvrir l\'emplacement</string>
     <string name="open_parent_in_workspaces">Ouvrir l\'emplacement parent</string>
-    <string name="force_resync">Synchronise</string>
+    <string name="force_resync">Synchroniser</string>
     <string name="force_resync_desc">Relancer une synchronisation avec le serveur distant</string>
     <string name="open_with">Ouvrir avec…</string>
     <string name="download_to_device">Télécharger sur votre appareil</string>
@@ -196,7 +203,7 @@
     <string name="rename_dialog_title">Renommer</string>
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
-    <string name="download_wait_message">Downloading, please wait…</string>
+    <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="pref_choose_list_layout">Type de mise en page</string>
@@ -214,6 +221,9 @@
     <string name="pref_category_title_feedback">Commentaires et aide</string>
     <string name="pref_feedback_send_title">Envoyer des commentaires</string>
     <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
+    <string name="pref_category_title_troubleshooting">Obtenir de l\'aide</string>
+    <string name="pref_troubleshooting_show_list_desc">Donne accès à plus de pages pour aider au dépannage des tâches de fond</string>
+    <string name="pref_troubleshooting_show_list_title">Afficher les tables de diagnostic</string>
     <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
     <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
     <!-- Accessibility various content -->
