@@ -25,6 +25,8 @@
     <string name="action_open_offline_roots">Offline Files</string>
     <string name="action_open_bookmarks">Bookmarks</string>
     <string name="action_open_transfers">Transfers</string>
+    <string name="action_open_jobs">Background Jobs</string>
+    <string name="action_open_logs">Logs</string>
     <string name="action_open_about">About</string>
     <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
@@ -133,8 +135,15 @@
 
     <!--Offline -->
     <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_downloading">Downloading files…</string>
     <string name="sync_tree_walking">Walking the tree to look for changes…</string>
     <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+
+    <!-- Job Management -->
+    <string name="job_list_title">Background jobs</string>
+
+    <!-- Log Management -->
+    <string name="log_list_title">Background job logs</string>
 
     <!-- Transfer Management -->
     <string name="transfer_list_title">Current transfers</string>
@@ -225,8 +234,8 @@
 
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
-    <string name="choose_list_layout">Type of layout</string>
-    <string name="use_larger_grid">Use larger grid</string>
+    <string name="pref_choose_list_layout">Type of layout</string>
+    <string name="pref_use_larger_grid">Use larger grid</string>
     <string name="pref_category_title_metered">Limitations on metered network</string>
     <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
     <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
@@ -240,8 +249,11 @@
     <string name="pref_category_title_feedback">Feedback and help</string>
     <string name="pref_feedback_send_title">Send feedback</string>
     <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
-    <string name="choose_list_offline_frequency_title">Sync frequency</string>
-    <string name="choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
+    <string name="pref_category_title_troubleshooting">Troubleshooting</string>
+    <string name="pref_troubleshooting_show_list_desc">Gives access to more pages to help troubleshooting background jobs</string>
+    <string name="pref_troubleshooting_show_list_title">Show runtime tables</string>
+    <string name="pref_choose_list_offline_frequency_title">Sync frequency</string>
+    <string name="pref_choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
 
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Create or import</string>

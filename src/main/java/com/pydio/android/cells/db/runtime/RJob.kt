@@ -44,6 +44,10 @@ data class RJob(
                 status == AppNames.JOB_STATUS_CANCELLED
     }
 
+    fun isDone(): Boolean {
+        return status == AppNames.JOB_STATUS_DONE
+    }
+
     companion object {
         fun create(
             owner: String,

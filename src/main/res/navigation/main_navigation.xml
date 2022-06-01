@@ -33,6 +33,14 @@
         app:destination="@id/transfer_list_destination" />
 
     <action
+        android:id="@+id/open_jobs"
+        app:destination="@id/job_list_destination" />
+
+    <action
+        android:id="@+id/open_logs"
+        app:destination="@id/log_list_destination" />
+
+    <action
         android:id="@+id/launch_download"
         app:destination="@id/download_dialog_destination" />
 
@@ -160,6 +168,20 @@
         <action
             android:id="@+id/open_transfer_menu"
             app:destination="@id/transfer_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/job_list_destination"
+        android:name="com.pydio.android.cells.ui.home.JobListFragment"
+        android:label="@string/job_list_title"
+        tools:layout="@layout/fragment_job_list">
+    </fragment>
+
+    <fragment
+        android:id="@+id/log_list_destination"
+        android:name="com.pydio.android.cells.ui.home.LogListFragment"
+        android:label="@string/log_list_title"
+        tools:layout="@layout/fragment_log_list">
     </fragment>
 
     <fragment

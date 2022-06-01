@@ -13,6 +13,8 @@ import com.pydio.android.cells.ui.auth.ServerUrlViewModel
 import com.pydio.android.cells.ui.browse.BookmarksViewModel
 import com.pydio.android.cells.ui.browse.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
+import com.pydio.android.cells.ui.home.JobListViewModel
+import com.pydio.android.cells.ui.home.LogListViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.search.SearchViewModel
@@ -144,6 +146,9 @@ val viewModelModule = module {
 
     viewModel { BookmarksViewModel(get()) }
     viewModel { OfflineRootsViewModel(get(), get()) }
+
+    viewModel { JobListViewModel(get()) }
+    viewModel { LogListViewModel(get()) }
 
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }

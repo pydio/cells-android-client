@@ -152,7 +152,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         // First clean the files that are not in an offline root sub-tree
         // We retrieve defined offline roots
         val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
-        val offlinePaths = offlineDao.getAll().map { it.encodedState }
+        val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
         // We then iterate on all files
         val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
         for (record in filesDao.getFilesUnder(accountID.id)) {

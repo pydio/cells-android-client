@@ -188,6 +188,11 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.invalidate()
             }
         }
+
+        // Access to logs and jobs
+        val showItems = prefs.get().getBoolean(AppNames.PREF_KEY_SHOW_RUNTIME_LISTS, false)
+        binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = showItems
+        binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = showItems
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {

@@ -199,8 +199,8 @@
     <string name="download_wait_message">Downloading, please wait…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
-    <string name="choose_list_layout">Type de mise en page</string>
-    <string name="use_larger_grid">Utiliser une grille plus grande</string>
+    <string name="pref_choose_list_layout">Type de mise en page</string>
+    <string name="pref_use_larger_grid">Utiliser une grille plus grande</string>
     <string name="pref_category_title_metered">Limitations sur les réseaux tarifés/limités</string>
     <string name="pref_metered_dl_thumbs_title">Télécharger les vignettes</string>
     <string name="pref_metered_dl_thumbs_desc">Récupérer également les vignettes lorsque le réseau est limité</string>
@@ -214,8 +214,8 @@
     <string name="pref_category_title_feedback">Commentaires et aide</string>
     <string name="pref_feedback_send_title">Envoyer des commentaires</string>
     <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
-    <string name="choose_list_offline_frequency_title">Fréquence de synchronisation</string>
-    <string name="choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
+    <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
+    <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Créer ou importer</string>
     <string name="exit_description">Quitter l\'application</string>

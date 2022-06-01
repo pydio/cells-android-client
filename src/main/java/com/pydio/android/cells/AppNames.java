@@ -15,6 +15,7 @@ public interface AppNames {
     String PREF_KEY_OFFLINE_FREQ = "current_offline_frequency";
     String PREF_KEY_OFFLINE_CONST_WIFI = "sync_on_wifi_only";
     String PREF_KEY_OFFLINE_CONST_CHARGING = "sync_on_charging_only";
+    String PREF_KEY_SHOW_RUNTIME_LISTS = "show_runtime_list";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
     String RECYCLER_LAYOUT_LIST = "list";
@@ -68,7 +69,6 @@ public interface AppNames {
     String LOCAL_MODIF_RENAME = "renaming";
     String LOCAL_MODIF_MOVE = "moving";
     String LOCAL_MODIF_RESTORE = "restore";
-
 
     /* Async jobs */
     // Known owners

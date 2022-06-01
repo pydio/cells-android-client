@@ -17,12 +17,12 @@
             app:entries="@array/list_layout_labels"
             app:entryValues="@array/list_layout_values"
             app:key="current_recycler_layout"
-            app:title="@string/choose_list_layout"
+            app:title="@string/pref_choose_list_layout"
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
             app:key="use_larger_grid"
-            app:title="@string/use_larger_grid" />
+            app:title="@string/pref_use_larger_grid" />
 
     </PreferenceCategory>
 
@@ -50,8 +50,8 @@
             app:entries="@array/offline_frequency_labels"
             app:entryValues="@array/offline_frequency_values"
             app:key="current_offline_frequency"
-            app:summary="@string/choose_list_offline_frequency_desc"
-            app:title="@string/choose_list_offline_frequency_title"
+            app:summary="@string/pref_choose_list_offline_frequency_desc"
+            app:title="@string/pref_choose_list_offline_frequency_title"
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
@@ -78,5 +78,24 @@
     <!--            app:title="@string/pref_feedback_send_title" />-->
 
     <!--    </PreferenceCategory>-->
+
+    <PreferenceCategory
+        app:key="troubleshooting_category"
+        app:title="@string/pref_category_title_troubleshooting">
+
+        <!-- FIXME change default to false before going live -->
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:key="show_runtime_list"
+            app:summary="@string/pref_troubleshooting_show_list_desc"
+            app:title="@string/pref_troubleshooting_show_list_title" />
+
+        <!--            <Preference-->
+        <!--                app:key="show"-->
+        <!--                app:summary="@string/pref_feedback_send_desc"-->
+        <!--                app:title="@string/pref_feedback_send_title" />-->
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

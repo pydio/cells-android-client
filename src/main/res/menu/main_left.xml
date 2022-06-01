@@ -37,6 +37,16 @@
                 android:icon="@drawable/ic_baseline_folder_delete_24"
                 android:title="@string/action_clear_cache" />
             <item
+                android:id="@+id/job_list_destination"
+                android:icon="@drawable/ic_baseline_info_24"
+                android:visible="false"
+                android:title="@string/action_open_jobs" />
+            <item
+                android:id="@+id/log_list_destination"
+                android:icon="@drawable/ic_baseline_info_24"
+                android:visible="false"
+                android:title="@string/action_open_logs" />
+            <item
                 android:id="@+id/about_destination"
                 android:icon="@drawable/ic_baseline_info_24"
                 android:title="@string/action_open_about" />

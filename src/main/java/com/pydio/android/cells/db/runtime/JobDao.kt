@@ -27,6 +27,9 @@ interface JobDao {
     @Query("SELECT * FROM jobs WHERE template = :template AND done_ts = -1")
     fun getRunningForTemplate(template: String): List<RJob>
 
+    @Query("SELECT * FROM jobs WHERE parent_id < 1 ORDER BY creation_ts DESC")
+    fun getRootJobs(): LiveData<List<RJob>>
+
     @Query("SELECT * FROM jobs WHERE template = :template AND done_ts = -1 ORDER BY start_ts DESC LIMIT 1")
     fun getMostRecentRunning(template: String): LiveData<RJob?>
 

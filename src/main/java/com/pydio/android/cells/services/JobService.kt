@@ -78,6 +78,10 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getRunningForTemplate(template)
     }
 
+    fun listRootJobs(): LiveData<List<RJob>> {
+        return jobDao.getRootJobs()
+    }
+
     fun incrementProgress(job: RJob, increment: Long, message: String?) {
         job.progress = job.progress + increment
         message?.let { job.progressMessage = message }
@@ -97,6 +101,12 @@ class JobService(runtimeDB: RuntimeDB) {
         job.message = message
         job.progressMessage = lastProgressMsg
         jobDao.update(job)
+    }
+
+    /* MANAGE LOGS */
+
+    fun listLogs(): LiveData<List<RLog>> {
+        return logDao.getLiveLogs()
     }
 
     // Shortcut for logging

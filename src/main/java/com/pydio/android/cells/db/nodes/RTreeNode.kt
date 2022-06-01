@@ -20,9 +20,10 @@ import java.util.*
 data class RTreeNode(
 
     @PrimaryKey
-    @ColumnInfo(name = "encoded_state") val encodedState: String,
-
     @ColumnInfo(name = "uuid") val uuid: String,
+
+    // This can change when the remote node moves...
+    @ColumnInfo(name = "encoded_state") var encodedState: String,
 
     @ColumnInfo(name = "workspace") val workspace: String,
 

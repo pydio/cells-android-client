@@ -20,6 +20,16 @@ data class RLog(
     @ColumnInfo(name = "caller_id") val callerId: String? = null,
 ) {
 
+    fun getLevelString(): String = when (level) {
+        1 -> AppNames.FATAL
+        2 -> AppNames.ERROR
+        3 -> AppNames.WARNING
+        4 -> AppNames.INFO
+        5 -> AppNames.DEBUG
+        6 -> AppNames.TRACE
+        else -> "unknown level: $level"
+    }
+
     companion object {
 
         fun create(level: String, tag: String?, message: String, callerId: String?): RLog {

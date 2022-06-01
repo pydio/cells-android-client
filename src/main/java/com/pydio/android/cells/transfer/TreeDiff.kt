@@ -213,6 +213,7 @@ class TreeDiff(
             diffScope.launch {
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
             }
+            changeNumber++
         }
 
         if (remote.isPreViewable &&
@@ -221,6 +222,7 @@ class TreeDiff(
             diffScope.launch {
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
             }
+            changeNumber++
         }
 
         if (remote.isFile &&
@@ -229,6 +231,7 @@ class TreeDiff(
             diffScope.launch {
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE, remote.size)
             }
+            changeNumber++
         }
     }
 

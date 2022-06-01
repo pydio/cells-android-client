@@ -5,9 +5,9 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import com.pydio.android.cells.AppNames
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
-import com.pydio.android.cells.AppNames
 import java.io.File
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -29,16 +29,19 @@ fun childFile(parPath: String, filename: String): File {
 /* CURRENT SYSTEM INFORMATION */
 
 fun getOSCurrentVersion(): String {
-    val release = java.lang.Double.parseDouble(java.lang.String(Build.VERSION.RELEASE).replaceAll("(\\d+[.]\\d+)(.*)", "$1"))
+    val release = java.lang.Double.parseDouble(
+        java.lang.String(Build.VERSION.RELEASE).replaceAll("(\\d+[.]\\d+)(.*)", "$1")
+    )
     var codeName = "Unsupported"//below Jelly Bean
-    if (release >= 4.1 && release < 4.4)  codeName = "Jelly Bean"
-    else if (release < 5)   codeName = "Kit Kat"
-    else if (release < 6)   codeName = "Lollipop"
-    else if (release < 7)   codeName = "Marshmallow"
-    else if (release < 8)   codeName = "Nougat"
-    else if (release < 9)   codeName = "Oreo"
-    else if (release < 10)  codeName = "Pie"
-    else if (release >= 10) codeName = "Android "+(release.toInt())//since API 29 no more candy code names
+    if (release >= 4.1 && release < 4.4) codeName = "Jelly Bean"
+    else if (release < 5) codeName = "Kit Kat"
+    else if (release < 6) codeName = "Lollipop"
+    else if (release < 7) codeName = "Marshmallow"
+    else if (release < 8) codeName = "Nougat"
+    else if (release < 9) codeName = "Oreo"
+    else if (release < 10) codeName = "Pie"
+    else if (release >= 10) codeName =
+        "Android " + (release.toInt())//since API 29 no more candy code names
     return codeName + " v" + release + ", API Level: " + Build.VERSION.SDK_INT
 }
 
@@ -108,7 +111,7 @@ fun logException(caller: String?, msg: String, e: Exception) {
 
 fun parseOrder(encoded: String): Pair<String, String> {
     val tokens = encoded.split("||")
-    if (tokens.size != 2 ){
+    if (tokens.size != 2) {
         Log.e("parseOrder", "could not parse encoded order $encoded")
         return Pair(AppNames.DEFAULT_SORT_BY, AppNames.DEFAULT_SORT_BY_DIR)
     }
@@ -126,17 +129,22 @@ fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault())
  * Centralise generation of timestamp to ease potential later refactoring.
  * We currently rely on number of seconds since 1970.
  */
-fun currentTimestamp() : Long {
+fun currentTimestamp(): Long {
     return System.currentTimeMillis() / 1000L
 }
 
-fun currentTimestampAsString() : String {
+fun currentTimestampAsString(): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(System.currentTimeMillis())
 }
 
-fun timestampForLogMessage() : String {
+fun timestampForLogMessage(): String {
     val formatter = SimpleDateFormat("dd/MM/yy' at 'HH:mm", Locale.US)
     return formatter.format(System.currentTimeMillis())
+}
+
+fun timestampToString(timestamp: Long, pattern: String): String {
+    val formatter = SimpleDateFormat(pattern, Locale.US)
+    return formatter.format(timestamp * 1000)
 }
 
 fun getCurrentDateTime(): Date {

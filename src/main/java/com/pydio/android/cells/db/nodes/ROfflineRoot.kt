@@ -12,7 +12,7 @@ data class ROfflineRoot(
     @PrimaryKey
     @ColumnInfo(name = "uuid") val uuid: String,
 
-    @ColumnInfo(name = "encoded_state") val encodedState: String,
+    @ColumnInfo(name = "encoded_state") var encodedState: String,
 
     @ColumnInfo(name = "status") var status: String,
 

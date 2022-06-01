@@ -199,8 +199,8 @@
     <string name="download_wait_message">Downloading, please wait…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Listen anpassen (falls zutreffend)</string>
-    <string name="choose_list_layout">Layout-Typ</string>
-    <string name="use_larger_grid">Größeres Raster verwenden</string>
+    <string name="pref_choose_list_layout">Layout-Typ</string>
+    <string name="pref_use_larger_grid">Größeres Raster verwenden</string>
     <string name="pref_category_title_metered">Einschränkungen im gemessenen Netzwerk</string>
     <string name="pref_metered_dl_thumbs_title">Daumen herunterladen</string>
     <string name="pref_metered_dl_thumbs_desc">Thumbnails auch im gemessenen Netzwerk abrufen</string>
@@ -214,8 +214,8 @@
     <string name="pref_category_title_feedback">Feedback und Hilfe</string>
     <string name="pref_feedback_send_title">Feedback senden</string>
     <string name="pref_feedback_send_desc">Technische Probleme melden oder neue Funktionen vorschlagen</string>
-    <string name="choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
-    <string name="choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
+    <string name="pref_choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
+    <string name="pref_choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Erstellen oder importieren</string>
     <string name="exit_description">Die Anwendung beenden</string>

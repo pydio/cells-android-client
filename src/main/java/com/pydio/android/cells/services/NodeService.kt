@@ -128,7 +128,13 @@ class NodeService(
             // Also cache offline status and public link URL locally
             if (!currSession.isRemoteLegacy) {
                 ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
-                    newNode.setOfflineRoot(true)
+                    if (it.encodedState != newNode.encodedState) {
+                        // TODO we should rather try to move existing offline root
+                        removeOfflineRoot(state)
+                        updateOfflineRoot(newNode)
+                    } else {
+                        newNode.setOfflineRoot(true)
+                    }
                 }
             }
             var addr: String? = null
@@ -287,6 +293,20 @@ class NodeService(
             persistUpdated(rTreeNode)
         }
 
+    // TODO finalize this: we should try to move already existing cache file and index
+    //   rather than deleting / recreating the offline root
+    suspend fun moveOfflineRoot(rTreeNode: RTreeNode, offlineRoot: ROfflineRoot) =
+        withContext(Dispatchers.IO) {
+            val stateID = rTreeNode.getStateID()
+            val db = nodeDB(stateID)
+            val offlineDao = db.offlineRootDao()
+            offlineRoot.encodedState = rTreeNode.encodedState
+            offlineDao.insert(offlineRoot) // We rely on node UUID and insert REPLACE strategy
+            rTreeNode.setOfflineRoot(true)
+            persistUpdated(rTreeNode)
+        }
+
+
     suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
@@ -356,7 +376,7 @@ class NodeService(
                 return@withContext 0L to "A running job already exists"
             }
 
-            val roots = nodeDB(stateID).offlineRootDao().getAll()
+            val roots = nodeDB(stateID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
                 return@withContext 0L to "No offline root is defined for currrent account"
             }
@@ -378,8 +398,9 @@ class NodeService(
                 Log.e(logTag, "No job found for id $jobId, aborting launch...")
                 return@withContext
             }
+            jobService.i(logTag, "Starting ${job.label}", AppNames.JOB_OWNER_USER)
 
-            val roots = nodeDB(accountID).offlineRootDao().getAll()
+            val roots = nodeDB(accountID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
                 return@withContext // Should never happen, check has just been done before creating the Job Record
             }
@@ -399,12 +420,7 @@ class NodeService(
 //            if (changeNb > 0) {
 //                jobService.incrementProgress(job, 0, "Downloading changed files")
 //            }
-
-            jobService.done(
-                job,
-                "Terminated sync for ${accountID} with $changeNb changes.",
-                "$jobId launched by ${job.owner}"
-            )
+            jobService.done(job, "Sync done with $changeNb changes.", "Successfully done")
         }
 
     fun getRunningAccountSync(accountID: StateID): LiveData<RJob?> {
@@ -428,7 +444,7 @@ class NodeService(
             }
 
             var changeNb = 0
-            val roots = nodeDB(stateID).offlineRootDao().getAll()
+            val roots = nodeDB(stateID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
                 return@withContext 0
             }
@@ -750,7 +766,7 @@ class NodeService(
 
             // Also clean index
             val offlineDao = nodeDB(accountID).offlineRootDao()
-            val offlinePaths = offlineDao.getAll().map { it.encodedState }
+            val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
             val treeNodeDao = nodeDB(accountID).treeNodeDao()
             for (record in treeNodeDao.getUnder(accountID.id)) {
                 if (!isInOfflineTree(offlinePaths, record.encodedState)) {
