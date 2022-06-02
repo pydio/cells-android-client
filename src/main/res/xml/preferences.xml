@@ -20,9 +20,11 @@
             app:title="@string/pref_choose_list_layout"
             app:useSimpleSummaryProvider="true" />
 
+<!-- TODO implement
         <SwitchPreferenceCompat
             app:key="use_larger_grid"
             app:title="@string/pref_use_larger_grid" />
+-->
 
     </PreferenceCategory>
 
@@ -85,17 +87,10 @@
 
         <!-- FIXME change default to false before going live -->
         <SwitchPreferenceCompat
-            android:defaultValue="true"
+            android:defaultValue="false"
             app:key="show_runtime_list"
             app:summary="@string/pref_troubleshooting_show_list_desc"
             app:title="@string/pref_troubleshooting_show_list_title" />
-
-        <!--            <Preference-->
-        <!--                app:key="show"-->
-        <!--                app:summary="@string/pref_feedback_send_desc"-->
-        <!--                app:title="@string/pref_feedback_send_title" />-->
-
     </PreferenceCategory>
-
 
 </PreferenceScreen>
