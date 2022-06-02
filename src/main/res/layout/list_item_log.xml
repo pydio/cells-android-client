@@ -16,40 +16,40 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_small">
+        android:layout_marginStart="@dimen/margin_small"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:layout_marginBottom="0dp">
 
         <TextView
             android:id="@+id/primaryText"
-            style="@style/text_list_primary"
+            style="@style/TextAppearance.Material3.TitleSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_xsmall"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:singleLine="true"
-            app:logTitle="@{log}"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/margin_xsmall"
             app:layout_constraintBottom_toTopOf="@id/secondaryText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="[Warning] caller id at 22 june 2002" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:logTitle="@{log}"
+            tools:text="[Info] 02-06 15.06:33 - Job #158" />
 
         <TextView
             android:id="@+id/secondaryText"
-            style="@style/text_list_secondary"
+            style="@style/TextAppearance.Material3.BodySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_small"
-            app:logMessage="@{log}"
+            android:layout_marginBottom="@dimen/margin_xsmall"
             app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/primaryText"
+            app:logMessage="@{log}"
             tools:text="could not reach server at admin@files.example.com, aborting..." />
 
         <View
             android:id="@+id/divider"
-            style="@style/Divider.Horizontal"
+            style="@style/Divider.Horizontal.List"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
