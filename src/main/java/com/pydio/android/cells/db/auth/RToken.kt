@@ -27,9 +27,11 @@ data class RToken(
 
     @ColumnInfo(name = "refresh_token") val refreshToken: String?,
 
-    @ColumnInfo(name = "expires_in") val expiresIn: Long = 0,
+    @ColumnInfo(name = "expires_in") val expiresIn: Long = 0L,
 
-    @ColumnInfo(name = "expiration_time") val expirationTime: Long = 0,
+    @ColumnInfo(name = "expiration_time") val expirationTime: Long = 0L,
+
+    @ColumnInfo(name = "refreshing_since_ts") var refreshingSinceTs: Long = 0L,
 
     // valid, expired, refreshing...
     // @ColumnInfo(name = "status") val status: Int,
