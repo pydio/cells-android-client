@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
-                android:text="@string/post_migration_title"
+                android:text="@string/migration_message"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintBottom_toTopOf="@id/migration_status"
                 app:layout_constraintEnd_toEndOf="parent"
