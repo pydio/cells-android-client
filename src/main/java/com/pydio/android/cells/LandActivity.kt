@@ -17,6 +17,7 @@ import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.legacy.v2.MigrationServiceV2
@@ -62,6 +63,7 @@ class LandActivity : AppCompatActivity() {
                 }
             }
         }
+        jobService.i(logTag, "### Application started","-")
     }
 
     private suspend fun migrate() {
@@ -166,8 +168,7 @@ class LandActivity : AppCompatActivity() {
             binding.launchSyncBtn.text = resources.getText(R.string.button_resync_all)
             binding.launchSyncBtn.visibility = View.VISIBLE
             binding.launchSyncBtn.setOnClickListener {
-                // TODO launch this in a wider scope and handle a progress
-                lifecycleScope.launch {
+                CellsApp.instance.appScope.launch {
                     withContext(Dispatchers.IO) {
                         nodeService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
                     }
