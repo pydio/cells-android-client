@@ -190,9 +190,8 @@ class TransferService(
                 }
                 val errorMsg2 = runDownloadTransfer(state, jobId, progressChannel)
                 if (Str.notEmpty(errorMsg2)) {
-                    val errMsg = "could not download file for $state: $errorMsg"
-                    Log.e(logTag, errMsg)
-                    return null to errMsg
+                    Log.e(logTag, errorMsg2!!)
+                    return null to errorMsg2
                 }
                 // filename is...  (Note that we remove the leading slash to comply with childFile method signature, see just below)
                 state.path.substring(1)
@@ -281,6 +280,10 @@ class TransferService(
             dao.update(rTransfer)
 
             // Real transfer
+
+            var lastUpdateTS = 0L
+            var byteWritten = 0L
+
             accountService.getClient(state)
                 .download(state.workspace, state.file, out) { progressL ->
 
@@ -295,11 +298,20 @@ class TransferService(
                         true
                     } ?: false
 
-                    rTransfer.progress += progressL
-                    rTransfer.updateTimestamp = currentTimestamp()
-                    dao.update(rTransfer)
-                    serviceScope.launch {
-                        progressChannel?.send(progressL)
+                    byteWritten += progressL
+                    val newTs = currentTimestamp()
+
+                    // We only update the records every seconds)
+                    if (newTs - lastUpdateTS >= 1) {
+                        rTransfer.progress += byteWritten
+                        rTransfer.updateTimestamp = newTs
+                        dao.update(rTransfer)
+                        val increment = byteWritten
+                        serviceScope.launch {
+                            progressChannel?.send(increment)
+                        }
+                        byteWritten = 0
+                        lastUpdateTS = rTransfer.updateTimestamp
                     }
                     cancelled
                 }
@@ -309,8 +321,16 @@ class TransferService(
                 rTransfer.status = AppNames.JOB_STATUS_DONE
                 rTransfer.doneTimestamp = currentTimestamp()
                 rTransfer.updateTimestamp = currentTimestamp()
+                rTransfer.progress += byteWritten
+                rTransfer.updateTimestamp = currentTimestamp()
                 rTransfer.error = null
                 dao.update(rTransfer)
+
+                if (byteWritten > 0) {
+                    serviceScope.launch {
+                        progressChannel?.send(byteWritten)
+                    }
+                }
 
                 val type = AppNames.LOCAL_FILE_TYPE_FILE
                 fileService.registerLocalFile(state, rNode, type, targetFile)
@@ -327,12 +347,12 @@ class TransferService(
             // nodeDB(state).treeNodeDao().update(rNode)
 
         } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
-            errorMessage = "Could not download file for " + state + ": " + se.message
+            errorMessage = "could not download file for " + state + ": " + se.message
             se.printStackTrace()
         } catch (ioe: IOException) {
             // TODO Could not write the file in the local fs, we should notify the user
             errorMessage =
-                "Could not write file for DL of $state to the local device: ${ioe.message}"
+                "could not write file for DL of $state to the local device: ${ioe.message}"
             ioe.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(out)

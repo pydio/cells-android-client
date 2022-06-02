@@ -97,7 +97,10 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
     fun unregisterLocalFile(stateID: StateID, type: String) {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
-        dao.delete(stateID.id, type)
+        dao.getFile(stateID.id, type)?.let {
+            getFileFromRecord(it)?.delete()
+            dao.delete(stateID.id, type)
+        }
     }
 
     fun deleteCachedFilesFor(rTreeNode: RTreeNode) {

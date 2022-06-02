@@ -1,7 +1,9 @@
 package com.pydio.android.cells.ui.utils
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +29,7 @@ class DownloadDialog : DialogFragment() {
 
     private lateinit var binding: DialogDownloadBinding
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,7 +47,16 @@ class DownloadDialog : DialogFragment() {
                 binding.progress.isIndeterminate = false
                 downloadVM.transfer?.observe(viewLifecycleOwner) {
                     it?.let {
+                        val sizeValue = Formatter.formatShortFileSize(this.context, it.byteSize)
+                        binding.loadingMessage.text =
+                            "$sizeValue - ${resources.getString(R.string.download_wait_message)}"
                         binding.transfer = it
+                        val newValue = it.progress * 100 / it.byteSize
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            binding.progress.setProgress(newValue.toInt(), true)
+                        } else {
+                            binding.progress.progress = newValue.toInt()
+                        }
                     }
                 }
             }

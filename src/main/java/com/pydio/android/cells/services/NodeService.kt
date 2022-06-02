@@ -307,7 +307,7 @@ class NodeService(
         }
 
 
-    suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
+    private suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
 
@@ -315,29 +315,18 @@ class NodeService(
     @OptIn(ExperimentalTime::class)
     suspend fun runFullSync(caller: String): RJob? {
 
+        val label = "Full sync requested by $caller"
+        val template = AppNames.JOB_TEMPLATE_FULL_RESYNC
         // We first check if a full sync is already running
-        val runningJobs = jobService.getRunningJobs(AppNames.JOB_TEMPLATE_FULL_RESYNC)
-        if (runningJobs.isNotEmpty()) {
-            val startTS = timestampForLogMessage()
-            jobService.w(
-                logTag,
-                "Cannot start full sync requested by $caller at $startTS, " +
-                        "${runningJobs.size} job(s) are already running",
-                null
-            )
+        if (hasExistingJob(label, template, 120)) {
             return null
         }
 
         val sessions = accountService.listSessionViews(false)
         // TODO add a filter to get rid of the sessions that have no defined offline roots
 
-        val job = jobService.createAndLaunch(
-            caller,
-            AppNames.JOB_TEMPLATE_FULL_RESYNC,
-            "Full sync requested by $caller",
-            sessions.size.toLong(),
-        ) ?: return null
-
+        val job = jobService.createAndLaunch(caller, template, label, 0, sessions.size.toLong())
+            ?: return null
 
         val startTS = timestampForLogMessage()
         jobService.i(logTag, "Full sync started at $startTS by $caller", "${job.jobId}")
@@ -398,7 +387,7 @@ class NodeService(
                 Log.e(logTag, "No job found for id $jobId, aborting launch...")
                 return@withContext
             }
-            jobService.i(logTag, "Starting ${job.label}", AppNames.JOB_OWNER_USER)
+            jobService.i(logTag, "Starting ${job.label}", "$jobId")
 
             val roots = nodeDB(accountID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
@@ -471,8 +460,8 @@ class NodeService(
                 }
             }
             val msg =
-                "Sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s for ${stateID}"
-            jobService.i(logTag, msg, "${parentJobId}")
+                "Sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s for $stateID"
+            jobService.i(logTag, msg, "${job.jobId}")
             jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
             return@withContext changeNb
         }
@@ -531,23 +520,29 @@ class NodeService(
         if (runningJobs.isNotEmpty()) {
             // We check for old jobs
             for (runningJob in runningJobs) {
-                val timeSinceStart = currentTimestamp() - runningJob.startTimestamp
-                if (timeSinceStart > timeoutInSeconds) {
+
+                val (isTimedOut, msg) = if (runningJob.updateTimestamp > 1) {
+                    val dur = currentTimestamp() - runningJob.updateTimestamp
+                    (dur > timeoutInSeconds) to "Timeout: no update since $dur seconds"
+                } else {
+                    val dur = currentTimestamp() - runningJob.startTimestamp
+                    (dur > timeoutInSeconds) to "Timeout: job started with no update since $dur seconds"
+                }
+                if (isTimedOut) {
                     runningJob.doneTimestamp = currentTimestamp()
-                    runningJob.message = "Timeout after $timeSinceStart seconds"
+                    runningJob.message = msg
                     runningJob.status = AppNames.JOB_STATUS_TIMEOUT
                     jobService.update(runningJob)
+                    jobService.w(logTag, msg, "${runningJob.jobId}")
                 }
             }
 
             // We re-query the DB to see if we still have old jobs and cancel the launch in such case
             runningJobs = jobService.getRunningJobs(template)
             if (runningJobs.isNotEmpty()) {
-                jobService.w(
-                    logTag,
-                    "Cannot start job [$label], ${runningJobs.size} job(s) are already running",
-                    null
-                )
+                val msg =
+                    "Cannot start job [$label], ${runningJobs.size} job(s) are already running"
+                jobService.w(logTag, msg, "[not started]")
                 return true
             }
         }

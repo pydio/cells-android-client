@@ -72,7 +72,7 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         doneJob.join()
     }
 
-    fun isFailed() : Boolean {
+    fun isFailed(): Boolean {
         return isFailed
     }
 
@@ -93,7 +93,7 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
                     return
                 }
                 else -> {
-                    if (!isFailed){
+                    if (!isFailed) {
                         Log.d(logTag, "Processing DL for $msg")
                         download(msg)
                     }
@@ -106,11 +106,17 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         val (stateId, type) = decodeModel(encoded)
         try {
             jobService.incrementProgress(parentJob, 0, stateId.fileName)
-            val (_, errMsg) = transferService.getFileForDiff(stateId, type, parentJob, progressChannel)
-            if (Str.notEmpty(errMsg)){
+            val (_, errMsg) = transferService.getFileForDiff(
+                stateId,
+                type,
+                parentJob,
+                progressChannel
+            )
+            if (Str.notEmpty(errMsg)) {
                 // We cancel the diff as soon as we find an error. TODO improve
                 isFailed = true
                 jobService.failed(parentJob.jobId, errMsg!!)
+                jobService.e(logTag, "$errMsg", "${parentJob.jobId}")
             }
         } catch (e: SDKException) {
             Log.w(
@@ -118,6 +124,11 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
                 "could not download $type for $stateId, error #${e.code}: ${e.message}"
             )
             // accountService.notifyError(state, e.code)
+            jobService.e(
+                logTag,
+                "unexpected error #${e.code} during $type DL for $stateId: ${e.message} ",
+                "${parentJob.jobId}"
+            )
         }
     }
 
