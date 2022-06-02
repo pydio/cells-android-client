@@ -35,7 +35,6 @@ class JobListFragment : Fragment() {
         val adapter = JobListAdapter(this::onClicked)
         binding.jobList.adapter = adapter
         jobVM.jobs.observe(viewLifecycleOwner) {
-            Log.e(logTag, "go a new list, size: ${it.size}")
             adapter.submitList(it)
         }
 

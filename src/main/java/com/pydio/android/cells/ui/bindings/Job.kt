@@ -1,7 +1,7 @@
 package com.pydio.android.cells.ui.bindings
 
+import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -10,20 +10,21 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.timestampToString
+import java.util.*
 
+@SuppressLint("SetTextI18n")
 @BindingAdapter("jobTitle")
 fun TextView.setJobTitle(item: RJob?) {
     item?.let {
-        text = item.label
+        text = "#${it.jobId}: ${item.label}"
     }
 }
-
 
 @BindingAdapter("jobStatus")
 fun TextView.setJobStatus(item: RJob?) {
     item?.let {
 
-        var desc = "${item.status} "
+        var desc = "${item.status?.uppercase(Locale.getDefault())} "
 
         val createdTs = timestampToString(item.creationTimestamp, "dd-MM HH:mm:ss")
         val startTs = timestampToString(item.startTimestamp, "dd-MM HH:mm:ss")
@@ -35,13 +36,13 @@ fun TextView.setJobStatus(item: RJob?) {
                     item.status == AppNames.JOB_STATUS_ERROR -> {
                 desc += "at $doneTs: ${item.message}"
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    this.setTextColor(resources.getColor(R.color.danger, context.theme))
+                    setTextColor(resources.getColor(R.color.danger, context.theme))
                 }
             }
             item.status == AppNames.JOB_STATUS_CANCELLED -> {
                 desc += "at $doneTs: ${item.message}"
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    this.setTextColor(resources.getColor(R.color.colorAccent, context.theme))
+                    setTextColor(resources.getColor(R.color.colorAccent, context.theme))
                 }
             }
 
@@ -54,7 +55,7 @@ fun TextView.setJobStatus(item: RJob?) {
             else -> desc += " waiting since $createdTs"
 
         }
-        Log.e("jobStatus", "Setting status to: $desc")
+        // Log.e("jobStatus", "Setting status to: $desc")
         text = desc
     }
 }

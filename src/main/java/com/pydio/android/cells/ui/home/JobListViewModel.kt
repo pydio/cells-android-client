@@ -9,5 +9,5 @@ import com.pydio.android.cells.services.JobService
 class JobListViewModel(
     jobService: JobService
 ) : ViewModel() {
-    val jobs = jobService.listRootJobs()
+    val jobs = jobService.listLiveJobs(true)
 }

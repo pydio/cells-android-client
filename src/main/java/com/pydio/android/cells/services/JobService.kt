@@ -78,8 +78,12 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getRunningForTemplate(template)
     }
 
-    fun listRootJobs(): LiveData<List<RJob>> {
-        return jobDao.getRootJobs()
+    fun listLiveJobs(showChildren: Boolean): LiveData<List<RJob>> {
+        return if (showChildren){
+            jobDao.getLiveJobs()
+        } else {
+            jobDao.getRootJobs()
+        }
     }
 
     fun incrementProgress(job: RJob, increment: Long, message: String?) {

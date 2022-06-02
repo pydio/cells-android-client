@@ -80,7 +80,7 @@ class OfflineRootsFragment : Fragment() {
                     offlineVM.runningSync.value?.let {
                         val timeSinceStart = currentTimestamp() - it.startTimestamp
                         val timeSinceUpdate = currentTimestamp() - it.updateTimestamp
-                        if (timeSinceStart < 300 || timeSinceUpdate < 120) {
+                        if (timeSinceStart < 300 && timeSinceUpdate < 120) {
                             val m = "start: ${timeSinceStart}s ago, update: ${timeSinceUpdate}s ago"
                             Log.e(logTag, m)
                             showLongMessage(
@@ -99,10 +99,6 @@ class OfflineRootsFragment : Fragment() {
 
                 offlineVM.runningSync.observe(viewLifecycleOwner) {
                     it?.let { runningSync ->
-//                        Log.e(
-//                            logTag,
-//                            "Received event for ${runningSync.jobId} - ${runningSync.progress}/${runningSync.total}"
-//                        )
                         binding.syncHeader.includedHeaderContent.visibility = View.VISIBLE
                         binding.syncHeader.syncAccount = runningSync
                         if (runningSync.progress > 1 && runningSync.total > 0) {
