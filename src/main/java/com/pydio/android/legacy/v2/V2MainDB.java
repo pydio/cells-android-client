@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.pydio.cells.api.SdkNames;
 import com.pydio.cells.client.security.LegacyPasswordManager;
 import com.pydio.cells.transport.auth.Token;
+import com.pydio.cells.utils.Str;
 
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
@@ -114,17 +115,39 @@ public class V2MainDB extends SQLiteOpenHelper {
     // DAOs
 
     public List<AccountRecord> listAccountRecords() {
-
-        List<AccountRecord> sessions = new ArrayList<>();
+        List<AccountRecord> accountRecords= new ArrayList<>();
         synchronized (lock) {
             SQLiteDatabase db = readDB();
             Cursor cursor = db.rawQuery(ALL_ACCOUNTS, null);
             while (cursor.moveToNext()) {
                 byte[] blob = cursor.getBlob(1);
                 String json = new String(blob, Charset.defaultCharset());
+                // Also support older legacy DB model
+                if (json.contains("mHost")) {
+                    json = json.replace("mHost", "host")
+                            .replace("mScheme", "scheme")
+                            .replace("mPort", "port")
+                            .replace("mPath", "path")
+                            .replace("mVersion", "version")
+                            .replace("mVersionName", "versionName")
+                            .replace("mIconURL", "iconURL")
+                            .replace("mWelcomeMessage", "welcomeMessage")
+                            .replace("mLabel", "label")
+                            .replace("mUrl", "url")
+                            .replace("mSSLContext", "sslContext")
+                            .replace("mSSLUnverified", "sslUnverified")
+                            .replace("mLegacy", "legacy")
+                            .replace("mProperties", "properties");
+                }
+
                 try {
-                    AccountRecord s = new Gson().fromJson(json, AccountRecord.class);
-                    sessions.add(s);
+                    Gson gson = new Gson();
+                    AccountRecord record = gson.fromJson(json, AccountRecord.class);
+                    if (Str.notEmpty(record.accountID)) {
+                        accountRecords.add(record);
+                    } else {
+                        System.out.println(" No account ID for current row, skipping");
+                    }
                 } catch (Exception e) {
                     System.out.println(" Unable to deserialize: " + e.getMessage());
                     e.printStackTrace();
@@ -132,11 +155,11 @@ public class V2MainDB extends SQLiteOpenHelper {
             }
             cursor.close();
         }
-        return sessions;
+        return accountRecords;
     }
 
-    public static List<LegacyAccountRecord> listLegacyAccountRecords() {
-        List<LegacyAccountRecord> sessions = new ArrayList<>();
+    public List<LegacyAccountRecord> listLegacyAccountRecords() {
+        List<LegacyAccountRecord> accountRecords = new ArrayList<>();
         synchronized (lock) {
             SQLiteDatabase db = readDB();
             Cursor cursor = db.rawQuery(ALL_ACCOUNTS, null);
@@ -159,14 +182,13 @@ public class V2MainDB extends SQLiteOpenHelper {
                             .replace("mLegacy", "legacy")
                             .replace("mProperties", "properties");
                 }
-                LegacyAccountRecord s = new Gson().fromJson(json, LegacyAccountRecord.class);
-                sessions.add(s);
+                LegacyAccountRecord record = new Gson().fromJson(json, LegacyAccountRecord.class);
+                accountRecords.add(record);
             }
             cursor.close();
         }
-        return sessions;
+        return accountRecords;
     }
-
 
     public Map<String, Token> listAllTokens() {
         Map<String, Token> tokens = new HashMap<>();
@@ -198,18 +220,18 @@ public class V2MainDB extends SQLiteOpenHelper {
     }
 
     public Map<String, String> listAllLegacyPasswords() {
-        Map<String, String> creds = new HashMap<>();
+        Map<String, String> credentials = new HashMap<>();
         synchronized (lock) {
             SQLiteDatabase db = readDB();
             try (Cursor cursor = db.rawQuery(ALL_PASSWORDS, null)) {
                 while (cursor.moveToNext()) {
                     String user = cursor.getString(0);
                     String pwd = cursor.getString(1);
-                    creds.put(user, pwd);
+                    credentials.put(user, pwd);
                 }
             }
         }
-        return creds;
+        return credentials;
     }
 
     public String getPassword(String key) {
@@ -236,7 +258,6 @@ public class V2MainDB extends SQLiteOpenHelper {
                     e.printStackTrace();
                     return null;
                 }
-
             }
         }
     }

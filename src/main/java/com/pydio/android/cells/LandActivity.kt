@@ -2,6 +2,7 @@ package com.pydio.android.cells
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,7 +18,6 @@ import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.legacy.v2.MigrationServiceV2
@@ -57,16 +57,18 @@ class LandActivity : AppCompatActivity() {
         if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) == true) {
             lifecycleScope.launch {
                 if (needsMigration(applicationContext)) {
-                    migrate()
+                    migrate(applicationContext)
                 } else {
                     chooseFirstPage()
                 }
             }
         }
-        jobService.i(logTag, "### Application started","-")
     }
 
-    private suspend fun migrate() {
+    private suspend fun migrate(context: Context) {
+
+        val oldValue = getOldVersion(context)
+        val newValue = ClientData.getInstance().versionCode.toInt()
 
         binding.migrationReportPanel.visibility = View.VISIBLE
 
@@ -74,7 +76,7 @@ class LandActivity : AppCompatActivity() {
             val job = jobService.createAndLaunch(
                 AppNames.JOB_OWNER_WORKER,
                 AppNames.JOB_TEMPLATE_MIGRATION_V2,
-                "Migration from v2 to v3",
+                "Migration to v3 (from $oldValue to $newValue)",
                 maxSteps = 100
             ) ?: return@withContext null
             jobService.i(logTag, "Created ${job.label}", "${job.jobId}")
@@ -98,7 +100,7 @@ class LandActivity : AppCompatActivity() {
             }
         }
         val offlineRootsNb = withContext(Dispatchers.IO) {
-            val nb = migrationService.migrate(applicationContext, migrationJob)
+            val nb = migrationService.migrate(applicationContext, migrationJob, oldValue, newValue)
             jobService.i(
                 logTag, "${migrationJob.label} terminated",
                 "${migrationJob.jobId}"
@@ -164,7 +166,8 @@ class LandActivity : AppCompatActivity() {
             binding.browseBtn.text = res.getText(R.string.action_open_app)
         } else {
             binding.offlineNotMigratedDesc.visibility = View.VISIBLE
-            binding.offlineNotMigratedDesc.text = resources.getString(R.string.post_migration_sync_message)
+            binding.offlineNotMigratedDesc.text =
+                resources.getString(R.string.post_migration_sync_message)
             binding.launchSyncBtn.text = resources.getText(R.string.button_resync_all)
             binding.launchSyncBtn.visibility = View.VISIBLE
             binding.launchSyncBtn.setOnClickListener {
@@ -182,27 +185,50 @@ class LandActivity : AppCompatActivity() {
         }
     }
 
-    private fun needsMigration(context: Context): Boolean {
-        val oldValue = prefs.getInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE)
+    private var legacySharedPrefsKey = "Pydio"
+    private var legacyOldVersionKey = "version"
 
+    private fun getLegacyPreference(context: Context, key: String): String? {
+        val sp: SharedPreferences = context.getSharedPreferences(legacySharedPrefsKey, MODE_PRIVATE)
+        return sp.getString(key, null)
+    }
+
+
+    private fun getOldVersion(context: Context): Int {
+        var oldValue = prefs.getInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE)
+        if (oldValue == -1) {// Try V2 stylee
+            getLegacyPreference(context, legacyOldVersionKey)?.let { oldValue = it.toInt() }
+        }
+        return oldValue
+    }
+
+    private fun needsMigration(context: Context): Boolean {
+
+        val oldValue = getOldVersion(context)
+        val newValue = ClientData.getInstance().versionCode.toInt()
+
+        Log.e(logTag, "in needs migration, old: $oldValue, new: $newValue")
+
+        // New installation without legacy data
         if (oldValue < 1 && !migrationService.hasLegacyDB(context)) {
-            // New installation without legacy data
-            prefs.setInt(
-                AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
-                ClientData.getInstance().versionCode.toInt()
-            )
+            prefs.setInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE, newValue)
             return false
         }
 
-        if (oldValue < ClientData.getInstance().versionCode) {
-            return if (migrationService.hasLegacyDB(context)) {
-                true
-            } else {
-                Log.e(logTag, "Needs migration but cannot find legacy DB files, aborting")
-                false
-            }
+        // No migration is necessary for the time being when coming from a 100+ version
+        if (oldValue > 100) {
+            prefs.setInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE, newValue)
+            return false
         }
-        return false
+
+        // We probably need a migration but found no legacy DB
+        if (!migrationService.hasLegacyDB(context)) {
+            val msg = "could not find legacy DB files for version $oldValue, aborting"
+            jobService.e(logTag, msg, "-")
+            return false
+        }
+
+        return true
     }
 
 //    private suspend fun progress(newValue: Int) {

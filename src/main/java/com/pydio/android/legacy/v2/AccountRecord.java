@@ -25,20 +25,6 @@ public class AccountRecord {
 
     Map<String, WorkspaceNode> cachedWorkspaces;
 
-    public static AccountRecord fromServer(String username, Server server) {
-        AccountRecord record = new AccountRecord();
-        record.username = username;
-        record.serverUrl = server.url();
-        // Not very elegant. Improve.
-        StateID state = new StateID(username, server.url());
-        record.accountID = state.getId();
-        record.skipVerify = server.getServerURL().skipVerify();
-        record.legacy = server.isLegacy();
-        record.serverLabel = server.getLabel();
-        record.welcomeMessage = server.getWelcomeMessage();
-        return record;
-    }
-
     public String id() {
         return accountID;
     }
@@ -59,27 +45,41 @@ public class AccountRecord {
         return legacy;
     }
 
-    public String getServerLabel() {
-        return serverLabel;
-    }
-
-    public String getWelcomeMessage() {
-        return welcomeMessage;
-    }
-
-    public Map<String, WorkspaceNode> getCachedWorkspaces() {
-        return cachedWorkspaces;
-    }
-
-    public WorkspaceNode getCachedWorkspace(String slug) {
-        return cachedWorkspaces.get(slug);
-    }
-
     public void setWorkspaces(Map<String, WorkspaceNode> cachedWorkspaces) {
         this.cachedWorkspaces = cachedWorkspaces;
     }
 
-    public boolean hasWorkspacesLoaded() {
-        return cachedWorkspaces != null && cachedWorkspaces.size() > 0;
+    public static AccountRecord fromServer(String username, Server server) {
+        AccountRecord record = new AccountRecord();
+        record.username = username;
+        record.serverUrl = server.url();
+        // Not very elegant. Improve.
+        StateID state = new StateID(username, server.url());
+        record.accountID = state.getId();
+        record.skipVerify = server.getServerURL().skipVerify();
+        record.legacy = server.isLegacy();
+        record.serverLabel = server.getLabel();
+        record.welcomeMessage = server.getWelcomeMessage();
+        return record;
     }
+
+    //    public String getServerLabel() {
+//        return serverLabel;
+//    }
+//
+//    public String getWelcomeMessage() {
+//        return welcomeMessage;
+//    }
+//
+//    public Map<String, WorkspaceNode> getCachedWorkspaces() {
+//        return cachedWorkspaces;
+//    }
+//
+//    public WorkspaceNode getCachedWorkspace(String slug) {
+//        return cachedWorkspaces.get(slug);
+//    }
+//
+//    public boolean hasWorkspacesLoaded() {
+//        return cachedWorkspaces != null && cachedWorkspaces.size() > 0;
+//    }
 }

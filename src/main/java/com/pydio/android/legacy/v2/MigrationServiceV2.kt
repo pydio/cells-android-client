@@ -12,8 +12,10 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.SessionFactory
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.ServerURL
 import com.pydio.cells.api.callbacks.ProgressListener
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ClientData
@@ -66,23 +68,33 @@ class MigrationServiceV2 : KoinComponent {
      *
      * @return the number of offline roots node that have been migrated */
     @OptIn(ExperimentalTime::class)
-    suspend fun migrate(context: Context, migrationJob: RJob): Int {
+    suspend fun migrate(context: Context, migrationJob: RJob, oldValue: Int, newValue: Int): Int {
 
         val result: Pair<Boolean, Int>
         val timeToSync = measureTimedValue {
 
+            var beginTS = currentTimestamp()
             jobService.incrementProgress(migrationJob, 0, "Preparing migration...")
-
             prepare(context)
-            delay(1000)
+            var dur = currentTimestamp() - beginTS
+            if (dur < 1000) {
+                delay(1200 - dur)
+            }
             jobService.incrementProgress(migrationJob, 20, "Migrating accounts and credentials...")
 
-            result = migrateAccounts(migrationJob, 50) {
-                jobService.incrementProgress(migrationJob, it, null)
-                true
+            result = if (oldValue < 50) {
+                migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
+                    jobService.incrementProgress(migrationJob, it, null)
+                    true
+                }
+            } else {
+                migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
+                    jobService.incrementProgress(migrationJob, it, null)
+                    true
+                }
             }
-            delay(1000)
 
+            beginTS = currentTimestamp()
             if (result.first) {
                 jobService.incrementProgress(migrationJob, 0, "Cleaning legacy files...")
                 cleanLegacyFiles(context)
@@ -91,7 +103,10 @@ class MigrationServiceV2 : KoinComponent {
                     ClientData.getInstance().versionCode.toInt()
                 )
             }
-            delay(1000)
+            dur = currentTimestamp() - beginTS
+            if (dur < 1000) {
+                delay(1200 - dur)
+            }
         }
 
         val msg =
@@ -115,8 +130,77 @@ class MigrationServiceV2 : KoinComponent {
     }
 
     // List existing accounts and migrate them one by one
-    private suspend fun migrateAccounts(
+    private suspend fun migrateAccountsFromV23x(
+        context: Context,
         job: RJob,
+        oldValue: Int,
+        newValue: Int,
+        maxProgress: Int,
+        progressListener: ProgressListener
+    ): Pair<Boolean, Int> {
+        val accDB = V2MainDB.getHelper()
+        val syncDB = V2SyncDB.getHelper()
+
+        // Load accounts that have been already registered by the user
+        val recs = accDB.listLegacyAccountRecords()
+
+        if (recs.size == 0) {
+            val msg = "No account found. Nothing to migrate..."
+            jobService.w(logTag, msg, "${job.jobId}")
+            return Pair(true, 0)
+        }
+
+        Log.w(logTag, "    Found " + recs.size + " accounts. ")
+        val oneStep = maxProgress / recs.size
+        var offlineRootsNb = 0
+
+        // Convert each account to new format recreate mapping with tokens
+        for (rec in recs) {
+            var beginTS = currentTimestamp()
+            try {
+                val accountID = StateID(rec.user, rec.server.url)
+                Log.i(logTag, "About to migrate: $accountID from $oldValue to $newValue")
+
+                var url = ServerURLImpl.fromAddress(rec.server.url, rec.server.sslUnverified)
+
+                if (rec.server.versionName == "cells") {
+                    migrateCellsFrom23x(accDB, rec.user, url)
+                } else {
+                    migrateP8From23x(rec, accDB, url)
+                }
+
+                offlineRootsNb += refreshMigratedAccount(job, accountID, rec.ID, syncDB)
+
+                // We will loose the info of the old ID and thus the path after this point,
+                // So for old legacy instance, we must clean folders here
+                Log.e(logTag, "About to delete files for ID: " + rec.ID)
+
+                val file = File(context.filesDir.absoluteFile, rec.ID)
+                if (file.exists()) {
+                    file.deleteRecursively()
+                }
+
+                progressListener.onProgress(oneStep.toLong())
+                val msg = "$accountID has been migrated"
+                jobService.i(logTag, msg, "${job.jobId}")
+            } catch (e: Exception) { // We have a NPE from production here. Try to gather more info
+                val msg = "could not migrate ${rec.user}@${rec.server.url}: ${e.message}"
+                jobService.e(logTag, msg, "${job.jobId}", e)
+                return Pair(false, 0)
+            }
+            var dur = currentTimestamp() - beginTS
+            if (dur < 1000) {
+                delay(1000 - dur)
+            }
+        }
+        return Pair(true, offlineRootsNb)
+    }
+
+    // List existing accounts and migrate them one by one
+    private suspend fun migrateAccountsFromV24x(
+        job: RJob,
+        oldValue: Int,
+        newValue: Int,
         maxProgress: Int,
         progressListener: ProgressListener
     ): Pair<Boolean, Int> {
@@ -127,6 +211,7 @@ class MigrationServiceV2 : KoinComponent {
             val msg = "No account found. Nothing to migrate..."
             Log.w(logTag, "    $msg")
             logDao.insert(RLog.info(logTag, msg, null))
+            jobService.w(logTag, msg, "${job.jobId}")
             return Pair(true, 0)
         }
 
@@ -134,74 +219,72 @@ class MigrationServiceV2 : KoinComponent {
         val oneStep = maxProgress / recs.size
         var offlineRootsNb = 0
         for (rec in recs) {
+            var beginTS = currentTimestamp()
             try {
-                if (rec.isLegacy) {
-                    migrateOneP8Account(rec, accDB)
-                } else {
-                    offlineRootsNb += migrateOneCellsAccount(rec, accDB, syncDB)
+
+                val accountID = StateID.fromId(rec.id())
+                Log.i(logTag, "About to migrate: $accountID from $oldValue to $newValue")
+                val session = accountService.getSession(accountID)
+
+                if (session == null) {
+                    if (rec.isLegacy) {
+                        migrateP8From24x(rec, accDB)
+                    } else {
+                        migrateCellsFrom24x(rec, accDB)
+                    }
                 }
+
+                offlineRootsNb += refreshMigratedAccount(job, accountID, rec.id(), syncDB)
+
                 progressListener.onProgress(oneStep.toLong())
                 val msg = "${rec.username}@${rec.url()} has been migrated"
-                logDao.insert(RLog.info(logTag, msg, "${job.jobId}"))
-                Log.i(logTag, "... $msg")
-                delay(2000)
+                jobService.i(logTag, msg, "${job.jobId}")
             } catch (e: Exception) {
-                Log.e(
-                    logTag,
-                    "... could not migrate ${rec.username}@${rec.url()}: ${e.message}"
-                )
-                e.printStackTrace()
+                val msg = "could not migrate ${rec.username}@${rec.url()}: ${e.message}"
+                jobService.e(logTag, msg, "${job.jobId}", e)
                 return Pair(false, 0)
+            }
+            var dur = currentTimestamp() - beginTS
+            if (dur < 1000) {
+                delay(1000 - dur)
             }
         }
         return Pair(true, offlineRootsNb)
     }
 
     /** @return the number of migrated offline roots */
-    suspend fun migrateOneCellsAccount(
-        record: AccountRecord,
-        v2MainDB: V2MainDB,
+    private suspend fun refreshMigratedAccount(
+        job: RJob,
+        accountID: StateID,
+        oldId: String, // record.id()
         syncDB: V2SyncDB
     ): Int {
-        val accountID = StateID.fromId(record.id())
-        Log.i(logTag, "About to migrate: $accountID")
-
-        // Main account and credentials
-        val session = accountService.getSession(accountID)
-        if (session == null) {
-            Log.i(logTag, "No session found in room, creating.")
-            val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
-
-            val token = v2MainDB.getToken(record.id())
-            if (token == null) {
-                val server = sessionFactory.registerServer(serverURL)
-                accountService.registerAccount(
-                    record.username,
-                    server,
-                    AppNames.AUTH_STATUS_NO_CREDS
-                )
-            } else {
-                // TODO better handling of expired and error tokens
-                val jwtCredentials = JWTCredentials(record.username, token)
-                accountService.signUp(serverURL, jwtCredentials)
-            }
-        }
-
         // Refresh workspace list and check credentials
-        var client = try {
+        val client = try {
             sessionFactory.getUnlockedClient(accountID.accountId)
         } catch (e: Exception) {
-            null
+            val msg = "could not retrieve client for $accountID: ${e.message}"
+            jobService.e(logTag, msg, "${job.jobId}")
+            Log.e(logTag, msg)
+            e.printStackTrace()
+            return 0
         }
 
-        val result = accountService.refreshWorkspaceList(accountID.accountId)
-        if (result.second != null) { // Non-Null response is an error message
-            Log.i(logTag, "could not list workspaces for $accountID: ${result.second}")
-            client = null
+        val (_, errMsg) = accountService.refreshWorkspaceList(accountID.accountId)
+        errMsg?.let {
+            val msg = "could not list workspaces for $accountID: $errMsg"
+            Log.w(logTag, msg)
+            jobService.w(logTag, msg, "${job.jobId}")
+            return 0
+        }
+
+        // We do not support offline roots for P8
+        if (client.isLegacy) {
+            return 0
         }
 
         // Migrate offline roots
-        val offlineRoots = syncDB.getWatches(record.id())
+        val offlineRoots = syncDB.getWatches(oldId)
         if (offlineRoots.isEmpty()) {
             return 0
         }
@@ -225,37 +308,83 @@ class MigrationServiceV2 : KoinComponent {
         }
 
         return offlineRoots.size
-        // nodeService.syncAll(accountID)
     }
 
-    suspend fun migrateOneP8Account(record: AccountRecord, v2MainDB: V2MainDB) {
-        val currState = StateID.fromId(record.id())
-        Log.i(logTag, "About to migrate: $currState")
-
-        val session = accountService.getSession(currState)
-        if (session == null) {
-            Log.i(logTag, "No session found in room, creating.")
-            val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
-
-            val pwd = v2MainDB.getPassword(record.id())
-            if (pwd == null) {
-                val server = sessionFactory.registerServer(serverURL)
-                accountService.registerAccount(
-                    record.username,
-                    server,
-                    AppNames.AUTH_STATUS_NO_CREDS
-                )
-            } else {
-                // TODO better handling of expired and error tokens
-                val jwtCredentials = P8Credentials(record.username, pwd)
-                accountService.signUp(serverURL, jwtCredentials)
-            }
+    private suspend fun migrateCellsFrom23x(
+        v2MainDB: V2MainDB,
+        userName: String,
+        serverURL: ServerURL
+    ) {
+        val subject = userName + "@" + serverURL.url
+        val token = v2MainDB.getToken(subject)
+        if (token == null) {
+            val server = sessionFactory.registerServer(serverURL)
+            accountService.registerAccount(userName, server, AppNames.AUTH_STATUS_NO_CREDS)
+        } else {
+            // TODO better handling of expired and error tokens
+            val jwtCredentials = JWTCredentials(userName, token)
+            accountService.signUp(serverURL, jwtCredentials)
         }
+    }
 
-        // Refresh workspace list to also check credentials
-        val result = accountService.refreshWorkspaceList(currState.accountId)
-        if (result.second != null) { // Non-Null response is an error message
-            Log.w(logTag, "could not list workspaces for $currState: ${result.second}")
+    private suspend fun migrateP8From23x(
+        record: LegacyAccountRecord,
+        v2MainDB: V2MainDB,
+        serverURL: ServerURL
+    ) {
+        val subject = record.user + "@" + serverURL.url
+        val pwd = v2MainDB.getPassword(subject)
+        if (pwd == null) {
+            val server = sessionFactory.registerServer(serverURL)
+            accountService.registerAccount(record.user, server, AppNames.AUTH_STATUS_NO_CREDS)
+        } else {
+            // TODO better handling of expired and error tokens
+            val jwtCredentials = P8Credentials(record.user, pwd)
+            accountService.signUp(serverURL, jwtCredentials)
+        }
+    }
+
+    private suspend fun migrateCellsFrom24x(
+        record: AccountRecord,
+        v2MainDB: V2MainDB
+    ) {
+        Log.i(logTag, "No session found in room, creating.")
+        val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
+
+        val token = v2MainDB.getToken(record.id())
+        if (token == null) {
+            val server = sessionFactory.registerServer(serverURL)
+            accountService.registerAccount(
+                record.username,
+                server,
+                AppNames.AUTH_STATUS_NO_CREDS
+            )
+        } else {
+            // TODO better handling of expired and error tokens
+            val jwtCredentials = JWTCredentials(record.username, token)
+            accountService.signUp(serverURL, jwtCredentials)
+        }
+    }
+
+    private suspend fun migrateP8From24x(
+        record: AccountRecord,
+        v2MainDB: V2MainDB
+    ) {
+        Log.i(logTag, "No session found in room, creating.")
+        val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
+
+        val pwd = v2MainDB.getPassword(record.id())
+        if (pwd == null) {
+            val server = sessionFactory.registerServer(serverURL)
+            accountService.registerAccount(
+                record.username,
+                server,
+                AppNames.AUTH_STATUS_NO_CREDS
+            )
+        } else {
+            // TODO better handling of expired and error tokens
+            val jwtCredentials = P8Credentials(record.username, pwd)
+            accountService.signUp(serverURL, jwtCredentials)
         }
     }
 
@@ -311,7 +440,6 @@ class MigrationServiceV2 : KoinComponent {
         }
     }
 
-
     private fun dbFile(context: Context, name: String): File {
         return File(dbPath(context, name))
     }
@@ -319,4 +447,84 @@ class MigrationServiceV2 : KoinComponent {
     private fun dbPath(context: Context, name: String): String {
         return context.filesDir.absolutePath + File.separator + name
     }
+
+//    /** @return the number of migrated offline roots */
+//    suspend fun migrateAndRefreshOneCellsAccount(
+//        job: RJob,
+//        record: AccountRecord,
+//        v2MainDB: V2MainDB,
+//        syncDB: V2SyncDB
+//    ): Int {
+//        val accountID = StateID.fromId(record.id())
+//        Log.i(logTag, "About to migrate: $accountID")
+//
+//        // Main account and credentials
+//        val session = accountService.getSession(accountID)
+//        if (session == null) {
+//            Log.i(logTag, "No session found in room, creating.")
+//            val serverURL = ServerURLImpl.fromAddress(record.url(), record.skipVerify())
+//
+//            val token = v2MainDB.getToken(record.id())
+//            if (token == null) {
+//                val server = sessionFactory.registerServer(serverURL)
+//                accountService.registerAccount(
+//                    record.username,
+//                    server,
+//                    AppNames.AUTH_STATUS_NO_CREDS
+//                )
+//            } else {
+//                // TODO better handling of expired and error tokens
+//                val jwtCredentials = JWTCredentials(record.username, token)
+//                accountService.signUp(serverURL, jwtCredentials)
+//            }
+//        }
+//
+//        // Refresh workspace list and check credentials
+//        var client = try {
+//            sessionFactory.getUnlockedClient(accountID.accountId)
+//        } catch (e: Exception) {
+//            val msg = "could not retrieve client for $accountID: ${e.message}"
+//            jobService.e(logTag, msg, "${job.jobId}")
+//            Log.e(logTag, msg)
+//            e.printStackTrace()
+//            return 0
+//        }
+//
+//        val (_, errMsg) = accountService.refreshWorkspaceList(accountID.accountId)
+//        errMsg?.let {
+//            val msg = "could not list workspaces for $accountID: $errMsg"
+//            Log.w(logTag, msg)
+//            jobService.w(logTag, msg, "${job.jobId}")
+//            return 0
+//        }
+//
+//        // Migrate offline roots
+//        val offlineRoots = syncDB.getWatches(record.id())
+//        if (offlineRoots.isEmpty()) {
+//            return 0
+//        }
+//
+//        for (currRoot in offlineRoots) {
+//            val storedFileNode = currRoot.node
+//            val state = accountID.withPath("/" + storedFileNode.workspace + storedFileNode.path)
+//            val newNode = if (client == null) {
+//                if (Str.empty(storedFileNode.mimeType)) {
+//                    storedFileNode.setProperty(
+//                        SdkNames.NODE_PROPERTY_MIME,
+//                        SdkNames.NODE_MIME_DEFAULT
+//                    )
+//                }
+//                RTreeNode.fromFileNode(state, storedFileNode)
+//            } else {
+//                val fn = client.nodeInfo(storedFileNode.workspace, storedFileNode.path)
+//                RTreeNode.fromFileNode(state, fn)
+//            }
+//            nodeService.updateOfflineRoot(newNode, AppNames.OFFLINE_STATUS_MIGRATED)
+//        }
+//
+//        return offlineRoots.size
+//        // nodeService.syncAll(accountID)
+//    }
+
+
 }

@@ -79,7 +79,7 @@ class JobService(runtimeDB: RuntimeDB) {
     }
 
     fun listLiveJobs(showChildren: Boolean): LiveData<List<RJob>> {
-        return if (showChildren){
+        return if (showChildren) {
             jobDao.getLiveJobs()
         } else {
             jobDao.getRootJobs()
@@ -129,9 +129,10 @@ class JobService(runtimeDB: RuntimeDB) {
         log(AppNames.WARNING, tag, message, callerId)
     }
 
-    fun e(tag: String?, message: String, callerId: String? = null) {
-        Log.e(tag, message + " " + (callerId ?: ""))
+    fun e(tag: String?, message: String, callerId: String? = null, e: Exception? = null) {
         log(AppNames.ERROR, tag, message, callerId)
+        Log.e(tag, message + " " + (callerId ?: ""))
+        e?.printStackTrace()
     }
 
     private fun log(level: String, tag: String?, message: String, callerId: String?) =
