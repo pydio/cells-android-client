@@ -119,7 +119,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.d(logTag, "Clicked on ${node.name} -> $command")
+        Log.d(logTag, "Clicked on ${node.getStateID()} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {

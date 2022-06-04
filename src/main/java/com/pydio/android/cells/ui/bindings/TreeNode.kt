@@ -67,7 +67,7 @@ fun TextView.setNodeDesc(item: RTreeNode?) {
 @BindingAdapter("nodePath")
 fun TextView.setNodePath(item: RTreeNode?) {
     item?.let {
-        text = StateID.fromId(item.encodedState).toString()
+        text = item.getStateID().parentPath
     }
 }
 
