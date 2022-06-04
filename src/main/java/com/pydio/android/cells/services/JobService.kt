@@ -25,7 +25,7 @@ class JobService(runtimeDB: RuntimeDB) {
         owner: String,
         template: String,
         label: String,
-        parentId: Long = 0,
+        parentId: Long = -1,
         maxSteps: Long = -1
     ): RJob? {
         val newJob = RJob.create(owner, template, label, parentId)
@@ -40,7 +40,7 @@ class JobService(runtimeDB: RuntimeDB) {
         owner: String,
         template: String,
         label: String,
-        parentId: Long = 0,
+        parentId: Long = -1,
         maxSteps: Long = -1
     ): Long {
         val newJob = RJob.create(owner, template, label, parentId)

@@ -11,7 +11,7 @@ interface LogDao {
     @Insert
     fun insert(log: RLog): Long
 
-    @Query("SELECT * FROM logs ORDER BY timestamp DESC")
+    @Query("SELECT * FROM logs ORDER BY log_id DESC")
     fun getLiveLogs(): LiveData<List<RLog>>
 
     @Query("SELECT * FROM logs ORDER BY timestamp DESC LIMIT 100")

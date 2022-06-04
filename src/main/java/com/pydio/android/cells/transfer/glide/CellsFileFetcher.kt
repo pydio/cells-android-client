@@ -6,6 +6,7 @@ import com.bumptech.glide.load.data.DataFetcher
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.showMessage
+import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ import java.nio.ByteBuffer
  */
 class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, KoinComponent {
 
-    // private val logTag = CellsFileFetcher::class.simpleName
+    private val logTag = CellsFileFetcher::class.simpleName
 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
@@ -37,16 +38,19 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
         dlScope.launch {
 
             val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
-            // TODO better error management
-            if (Str.notEmpty(errMsg)) {
-                showMessage(CellsApp.instance.applicationContext, errMsg!!)
-            }
             file?.let {
                 // TODO rather use a stream
                 // Log.e(logTag, "Got a file...")
                 val bytes = it.readBytes()
                 val byteBuffer = ByteBuffer.wrap(bytes)
                 callback.onDataReady(byteBuffer)
+            }
+            // TODO rather display a boken image with the error message
+            if (Str.notEmpty(errMsg)) {
+                Log.e(logTag, "could not get $type at $stateId: $errMsg")
+//                with(Dispatchers.Main) {
+//                    showMessage(CellsApp.instance.applicationContext, errMsg!!)
+//                }
             }
         }
     }

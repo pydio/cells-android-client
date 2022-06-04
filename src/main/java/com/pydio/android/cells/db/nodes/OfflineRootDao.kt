@@ -23,7 +23,7 @@ interface OfflineRootDao {
     fun getByUuid(uuid: String): ROfflineRoot?
 
     @Query("SELECT * FROM offline_roots WHERE status != :lostStatus ORDER BY sort_name")
-    fun getAllActive(lostStatus : String = AppNames.OFFLINE_STATUS_LOST): List<ROfflineRoot>
+    fun getAllActive(lostStatus : String? = AppNames.OFFLINE_STATUS_LOST): List<ROfflineRoot>
 
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
     fun getAll(): List<ROfflineRoot>

@@ -45,9 +45,9 @@ import kotlin.time.measureTimedValue
 
 class NodeService(
     private val prefs: CellsPreferences,
-    private val treeNodeRepository: TreeNodeRepository,
     private val jobService: JobService,
     private val accountService: AccountService,
+    private val treeNodeRepository: TreeNodeRepository,
     private val fileService: FileService,
 ) {
 
@@ -55,9 +55,14 @@ class NodeService(
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
-    /* Expose DB content as LiveData for the ViewModels */
+    // Query the local index to get LiveData for the ViewModels
 
+    /**
+     * Get a LiveData List for all the nodes that have been indexed in the folder at StateID,
+     * using the order that is currently set in preferences.
+     */
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
+
         var encoded = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
         if (Str.empty(encoded)) {
             encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
@@ -70,6 +75,7 @@ class NodeService(
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
         return nodeDB(stateID).treeNodeDao().orderedLs(lsQuery)
+
     }
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
@@ -306,7 +312,6 @@ class NodeService(
             persistUpdated(rTreeNode)
         }
 
-
     private suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
         updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
@@ -317,29 +322,36 @@ class NodeService(
 
         val label = "Full sync requested by $caller"
         val template = AppNames.JOB_TEMPLATE_FULL_RESYNC
-        // We first check if a full sync is already running
+
         if (hasExistingJob(label, template, 120)) {
             return null
         }
 
-        val sessions = accountService.listSessionViews(false)
-        // TODO add a filter to get rid of the sessions that have no defined offline roots
+        val sessions = accountService.listSessionViews(false).filter {
+            // Filter out the accounts with no defined offline root
+            nodeDB(it.getStateID()).offlineRootDao().getAllActive().isNotEmpty()
+        }
 
-        val job = jobService.createAndLaunch(caller, template, label, 0, sessions.size.toLong())
-            ?: return null
+        val job =
+            jobService.createAndLaunch(caller, template, label, maxSteps = sessions.size.toLong())
+                ?: return null
 
         val startTS = timestampForLogMessage()
-        jobService.i(logTag, "Full sync started at $startTS by $caller", "${job.jobId}")
-
+        val firstMsg = "Full sync started at $startTS by $caller"
+        jobService.i(logTag, firstMsg, "${job.jobId}")
+        jobService.incrementProgress(job, 0, firstMsg)
         var changeNb = 0
         val timeToSync = measureTimedValue {
             for (session in sessions) {
-                if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
+                val msg = if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
                     && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
                 ) {
                     changeNb += launchAccountSync(session.getStateID(), caller, job.jobId)
-                    jobService.incrementProgress(job, 1, "${session.getStateID()} OK")
+                    "${session.getStateID()} OK"
+                } else {
+                    "Skip ${session.getStateID()} - session: ${session.lifecycleState}, account: ${session.authStatus} "
                 }
+                jobService.incrementProgress(job, 1, msg)
             }
         }
         val msg = "Full sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
@@ -499,9 +511,7 @@ class NodeService(
         val timeToSync = measureTimedValue {
             changeNb = syncOfflineRoot(offlineRoot, job)
         }
-
-        val msg =
-            "Sync prepared for $stateID with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
+        val msg = "Synced $stateID with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
         jobService.i(logTag, msg, "${job.jobId}")
         jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
 
@@ -512,7 +522,8 @@ class NodeService(
     private suspend fun hasExistingJob(
         label: String,
         template: String,
-        timeoutInSeconds: Int
+        timeoutSinceUpdated: Int = 120,
+        timeoutSinceStarted: Int = 300,
     ): Boolean {
 
         // We first check if a sync is not already running for this account
@@ -521,12 +532,12 @@ class NodeService(
             // We check for old jobs
             for (runningJob in runningJobs) {
 
-                val (isTimedOut, msg) = if (runningJob.updateTimestamp > 1) {
+                val (isTimedOut, msg) = if (runningJob.updateTimestamp > 0) {
                     val dur = currentTimestamp() - runningJob.updateTimestamp
-                    (dur > timeoutInSeconds) to "Timeout: no update since $dur seconds"
+                    (dur > timeoutSinceUpdated) to "Timeout: no update since $dur seconds"
                 } else {
                     val dur = currentTimestamp() - runningJob.startTimestamp
-                    (dur > timeoutInSeconds) to "Timeout: job started with no update since $dur seconds"
+                    (dur > timeoutSinceStarted) to "Timeout: job started with no update since $dur seconds"
                 }
                 if (isTimedOut) {
                     runningJob.doneTimestamp = currentTimestamp()
@@ -540,8 +551,11 @@ class NodeService(
             // We re-query the DB to see if we still have old jobs and cancel the launch in such case
             runningJobs = jobService.getRunningJobs(template)
             if (runningJobs.isNotEmpty()) {
-                val msg =
-                    "Cannot start job [$label], ${runningJobs.size} job(s) are already running"
+                var msg =
+                    "Cannot start job [$label], job ${runningJobs[0].jobId} is already running"
+                if (runningJobs.size > 1) {
+                    msg += " (plus ${runningJobs.size - 1} others)"
+                }
                 jobService.w(logTag, msg, "[not started]")
                 return true
             }
@@ -550,6 +564,7 @@ class NodeService(
         return false
     }
 
+    @OptIn(ExperimentalTime::class)
     private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot, job: RJob): Int =
         withContext(Dispatchers.IO) {
             val stateID = offlineRoot.getStateID()
@@ -572,7 +587,12 @@ class NodeService(
                     }
 
                 val fileDL = FileDownloader(job)
-                val changeNb = syncNodeAt(treeNode, client, treeNodeDao, fileDL)
+                var changeNb = 0
+                val timeToSync = measureTimedValue {
+                    syncNodeAt(treeNode, client, treeNodeDao, fileDL)
+                }
+                val msg = "walked  $stateID in ${timeToSync.duration.inWholeSeconds}s"
+                jobService.d(logTag, msg, job.jobId.toString())
                 fileDL.walkingDone()
                 fileDL.manualJoin()
 
@@ -1011,7 +1031,7 @@ class NodeService(
     suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
         withContext(Dispatchers.IO) {
             try {
-                val nodes = getClient(stateID).search(stateID.path, query, 20)
+                val nodes = getClient(stateID).search(stateID.path ?: "/", query, 20)
                     .map { RTreeNode.fromFileNode(stateID, it) }
 
                 // We already insert found nodes in the cache to ease following user action
