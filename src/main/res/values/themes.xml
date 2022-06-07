@@ -37,7 +37,6 @@
 
         <!-- In action mode, we want to hide the default app bar -->
         <item name="windowActionModeOverlay">true</item>
-
     </style>
 
     <style name="Theme.Md3.SplashScreen" parent="Theme.CellsCompat">

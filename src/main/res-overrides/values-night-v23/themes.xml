@@ -5,6 +5,7 @@
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
+        <!--        <item name="colorPrimaryContainer">@color/md_theme_dark_error</item> -->
         <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
         <item name="colorSecondary">@color/md_theme_dark_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
@@ -32,4 +33,11 @@
         <item name="colorPrimaryInverse">@color/md_theme_dark_primaryInverse</item>
 
     </style>
+
+    <!-- Action bar - necessary attributes otherwise the OS status bar buttons are not visible (black on black) -->
+    <style name="Theme.Md3" parent="Theme.CellsCompat">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+    </style>
+
 </resources>
