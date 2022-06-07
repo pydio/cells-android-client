@@ -8,10 +8,6 @@
     <data>
 
         <variable
-            name="thumbDirPath"
-            type="java.lang.String" />
-
-        <variable
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
     </data>
