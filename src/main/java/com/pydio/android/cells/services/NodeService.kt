@@ -125,6 +125,7 @@ class NodeService(
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode, isDiffRoot: Boolean = false) =
         withContext(Dispatchers.IO) {
+            // Log.e(logTag, "upserting node: ${newNode.getStateID()}")
 
             val state = newNode.getStateID()
             val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
@@ -169,6 +170,8 @@ class NodeService(
             }
 
             val old = ndb.treeNodeDao().getNode(newNode.encodedState)
+            Log.e(logTag, "old: ${old?.getStateID()}")
+
             if (old == null) {
                 ndb.treeNodeDao().insert(newNode)
             } else {
@@ -1032,11 +1035,20 @@ class NodeService(
         withContext(Dispatchers.IO) {
             try {
                 val nodes = getClient(stateID).search(stateID.path ?: "/", query, 20)
-                    .map { RTreeNode.fromFileNode(stateID, it) }
+                    .map {
+                        // Log.e(logTag, "mapping query result for $stateID: ${it.path}")
+                        RTreeNode.fromFileNode(stateID, it)
+                    }
 
                 // We already insert found nodes in the cache to ease following user action
                 for (node in nodes) {
-                    getNode(node.getStateID()) ?: upsertNode(node)
+                    // Log.e(logTag, "handling query result for ${node.getStateID()} ")
+                    getNode(node.getStateID())?.let {
+                        // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
+                    } ?: let {
+                        // Log.e(logTag, "none found upserting")
+                        upsertNode(node)
+                    }
                 }
 
                 return@withContext nodes

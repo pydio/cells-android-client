@@ -148,7 +148,6 @@ class SearchFragment : Fragment() {
 //            return
 //        }
 
-
         lifecycleScope.launch {
             // We just retrieved results search, no need to check if the node is up to date
             nodeService.getLocalFile(node, false)?.let {

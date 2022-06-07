@@ -20,10 +20,10 @@ import java.util.*
 data class RTreeNode(
 
     @PrimaryKey
-    @ColumnInfo(name = "uuid") val uuid: String,
-
-    // This can change when the remote node moves...
     @ColumnInfo(name = "encoded_state") var encodedState: String,
+
+    // Two nodes in our local index can have the same UUID -> through policies they points toward the same S3 file.
+    @ColumnInfo(name = "uuid") val uuid: String,
 
     @ColumnInfo(name = "workspace") val workspace: String,
 

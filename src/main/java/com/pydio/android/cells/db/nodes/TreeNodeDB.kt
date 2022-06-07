@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap
     views = [
         RLiveOfflineRoot::class
     ],
-    version = 1,
-    exportSchema = false,
+    version = 2,
+    exportSchema = true,
 )
 abstract class TreeNodeDB : RoomDatabase() {
 
@@ -46,7 +46,8 @@ abstract class TreeNodeDB : RoomDatabase() {
                     context.applicationContext,
                     TreeNodeDB::class.java,
                     dbName
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCES.put(accountId, instance)
                 return instance
             }

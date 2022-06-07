@@ -10,9 +10,9 @@ import com.pydio.cells.transport.StateID
 data class ROfflineRoot(
 
     @PrimaryKey
-    @ColumnInfo(name = "uuid") val uuid: String,
-
     @ColumnInfo(name = "encoded_state") var encodedState: String,
+
+    @ColumnInfo(name = "uuid") val uuid: String,
 
     @ColumnInfo(name = "status") var status: String,
 

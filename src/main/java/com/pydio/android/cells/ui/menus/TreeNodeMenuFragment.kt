@@ -48,7 +48,6 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
  * depending on the context.
@@ -94,6 +93,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         val stateIds = mutableListOf<StateID>()
         for (encoded in args.selected) {
             stateIds.add(StateID.fromId(encoded))
+            // val currState = StateID.fromId(encoded)
+            // Log.e(logTag, "configuring more menu: $currState")
+            // stateIds.add(currState)
         }
         parametersOf(stateIds, args.contextType)
     }
@@ -164,6 +166,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         } else if (treeNodeMenuVM.stateIDs.size > 1) {
             return inflateMultiSelectedLayout(inflater, container)
         }
+
+        Log.e(logTag, "Creating more menu for single node, context: ${treeNodeMenuVM.contextType}")
 
         // Provide correct UI for a single node depending on the context
         return when (treeNodeMenuVM.contextType) {
@@ -318,6 +322,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         )
         val binding = searchBinding as MoreMenuSearchBinding
         treeNodeMenuVM.node.observe(this) {
+            Log.e(logTag, "observing node for search more menu: ${it?.getStateID()}")
+
             it?.let {
                 bind(binding, it)
             }
