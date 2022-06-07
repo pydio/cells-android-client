@@ -592,7 +592,7 @@ class NodeService(
                 val fileDL = FileDownloader(job)
                 var changeNb = 0
                 val timeToSync = measureTimedValue {
-                    syncNodeAt(treeNode, client, treeNodeDao, fileDL)
+                    changeNb += syncNodeAt(treeNode, client, treeNodeDao, fileDL)
                 }
                 val msg = "walked  $stateID in ${timeToSync.duration.inWholeSeconds}s"
                 jobService.d(logTag, msg, job.jobId.toString())
