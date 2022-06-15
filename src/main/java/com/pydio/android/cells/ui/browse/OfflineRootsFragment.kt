@@ -103,17 +103,17 @@ class OfflineRootsFragment : Fragment() {
                         binding.syncHeader.syncAccount = runningSync
                         if (runningSync.progress > 1 && runningSync.total > 0) {
                             binding.syncHeader.progress.isIndeterminate = false
-                            binding.syncHeader.jobName.text =
-                                resources.getText(R.string.sync_in_progress)
-                            val prog = (100 * runningSync.progress / runningSync.total).toInt()
+//                            binding.syncHeader.jobName.text =
+//                                resources.getText(R.string.sync_in_progress)
+                            val progress = (100 * runningSync.progress / runningSync.total).toInt()
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                binding.syncHeader.progress.setProgress(prog, true)
+                                binding.syncHeader.progress.setProgress(progress, true)
                             } else {
-                                binding.syncHeader.progress.progress = prog
+                                binding.syncHeader.progress.progress = progress
                             }
-                        } else {
-                            binding.syncHeader.jobName.text =
-                                resources.getText(R.string.sync_in_progress)
+//                        } else {
+//                            binding.syncHeader.jobName.text =
+//                                resources.getText(R.string.sync_in_progress)
                        }
                         binding.syncHeader.executePendingBindings()
                     } ?: let {

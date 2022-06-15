@@ -1,8 +1,6 @@
 package com.pydio.android.cells.ui.bindings
 
 import android.annotation.SuppressLint
-import android.text.format.DateUtils
-import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
 import android.view.View
 import android.widget.ImageView
@@ -18,6 +16,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.hasTreeNodeFlag
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.utils.asAgoString
 import com.pydio.cells.api.SdkNames
 
 @BindingAdapter("offlineRootTitle")
@@ -42,11 +41,7 @@ fun TextView.setOfflineRootDesc(item: RLiveOfflineRoot?) {
     val prefix = resources.getString(R.string.last_check)
 
     val mTimeValue = if (item.lastCheckTs > 1) {
-        DateUtils.formatDateTime(
-            this.context,
-            item.lastCheckTs * 1000L,
-            FORMAT_ABBREV_RELATIVE
-        )
+        asAgoString(item.lastCheckTs)
     } else {
         resources.getString(R.string.last_check_never)
     }

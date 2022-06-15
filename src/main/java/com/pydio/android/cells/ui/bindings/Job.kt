@@ -9,6 +9,8 @@ import androidx.databinding.BindingAdapter
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.utils.asSinceString
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 import java.util.*
 
@@ -50,10 +52,13 @@ fun TextView.setJobStatus(item: RJob?) {
                 desc += "at $doneTs: ${item.message}"
             }
             item.startTimestamp > 0 -> {
-                desc += "since $startTs (last update: $updatedTs): ${item.progressMessage}"
+                if (currentTimestamp() - item.updateTimestamp < 120){
+                    desc += "${asSinceString(item.startTimestamp)}\n${item.progressMessage}"
+                } else  {
+                    desc += "idle ${asSinceString(item.updateTimestamp)}\nlast message: ${item.progressMessage}"
+                }
             }
             else -> desc += " waiting since $createdTs"
-
         }
         // Log.e("jobStatus", "Setting status to: $desc")
         text = desc

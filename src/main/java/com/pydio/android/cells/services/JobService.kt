@@ -115,7 +115,7 @@ class JobService(runtimeDB: RuntimeDB) {
 
     // Shortcut for logging
     fun d(tag: String?, message: String, callerId: String?) {
-        Log.i(tag, message + " " + (callerId ?: ""))
+        Log.d(tag, message + " " + (callerId ?: ""))
         log(AppNames.DEBUG, tag, message, callerId)
     }
 

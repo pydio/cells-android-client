@@ -9,9 +9,6 @@ import com.pydio.android.cells.AppNames
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
 import java.io.File
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
 
 /* UI */
 
@@ -120,41 +117,3 @@ fun parseOrder(encoded: String): Pair<String, String> {
 
 /* HELPERS TO MANAGE DATES */
 
-fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault()): String {
-    val formatter = SimpleDateFormat(format, locale)
-    return formatter.format(this)
-}
-
-/**
- * Centralise generation of timestamp to ease potential later refactoring.
- * We currently rely on number of seconds since 1970.
- */
-fun currentTimestamp(): Long {
-    return System.currentTimeMillis() / 1000L
-}
-
-fun currentTimestampAsString(): String {
-    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(System.currentTimeMillis())
-}
-
-fun timestampForLogMessage(): String {
-    val formatter = SimpleDateFormat("dd/MM/yy' at 'HH:mm", Locale.US)
-    return formatter.format(System.currentTimeMillis())
-}
-
-fun timestampToString(timestamp: Long, pattern: String): String {
-    val formatter = SimpleDateFormat(pattern, Locale.US)
-    return formatter.format(timestamp * 1000)
-}
-
-fun getCurrentDateTime(): Date {
-    return Calendar.getInstance().time
-}
-
-fun getTimestampAsString(timestamp: Long): String {
-    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(timestamp)
-}
-
-fun getTimestampAsENString(timestamp: Long): String {
-    return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.ENGLISH).format(timestamp)
-}
