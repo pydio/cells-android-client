@@ -69,6 +69,7 @@ class MigrationServiceV2 : KoinComponent {
      * @return the number of offline roots node that have been migrated */
     @OptIn(ExperimentalTime::class)
     suspend fun migrate(context: Context, migrationJob: RJob, oldValue: Int, newValue: Int): Int {
+        delay(1200) // dirty workaround: take a nap even if you're a speedy device
 
         val result: Pair<Boolean, Int>
         val timeToSync = measureTimedValue {
