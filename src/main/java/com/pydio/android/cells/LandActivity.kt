@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent
 
 /**
  * Launcher activity: it handles necessary migration and then decide which page
@@ -61,9 +62,26 @@ class LandActivity : AppCompatActivity() {
                 } else {
                     chooseFirstPage()
                 }
+                afterCreate()
             }
         }
     }
+
+    private fun afterCreate() {
+        val jobService: JobService by KoinJavaComponent.inject(JobService::class.java)
+        try {
+            jobService.i(
+                logTag,
+                "### Application started with user agent: ${
+                    ClientData.getInstance().userAgent()
+                }",
+                "-"
+            )
+        } catch (e: Exception) {
+            Log.e(logTag, "could not log start: " + e.toString())
+        }
+    }
+
 
     private suspend fun migrate(context: Context) {
 

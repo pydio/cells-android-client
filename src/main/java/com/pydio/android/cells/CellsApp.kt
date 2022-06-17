@@ -13,15 +13,12 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.allModules
 import com.pydio.cells.api.SDKException
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -78,19 +75,6 @@ class CellsApp : Application(), KoinComponent {
 
         cancelPendingWorkManager(this)
         setupOfflineWorker(this)
-
-        afterCreate()
-    }
-
-    private fun afterCreate() {
-        appScope.launch {
-            val jobService: JobService by inject(JobService::class.java)
-            jobService.i(
-                logTag,
-                "### Application started with user agent: ${ClientData.getInstance().userAgent()}",
-                "-"
-            )
-        }
     }
 
     @Throws(SDKException::class)
@@ -114,7 +98,6 @@ class CellsApp : Application(), KoinComponent {
         ClientData.updateInstance(instance)
         return instance.clientID
     }
-
 
     // TODO implement background cleaning, typically:
     //  - states

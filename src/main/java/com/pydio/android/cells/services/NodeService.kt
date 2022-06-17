@@ -170,7 +170,7 @@ class NodeService(
             }
 
             val old = ndb.treeNodeDao().getNode(newNode.encodedState)
-            Log.e(logTag, "old: ${old?.getStateID()}")
+            Log.d(logTag, "upserting node at: ${old?.getStateID() ?: state}")
 
             if (old == null) {
                 ndb.treeNodeDao().insert(newNode)

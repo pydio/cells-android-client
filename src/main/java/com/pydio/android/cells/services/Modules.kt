@@ -42,6 +42,16 @@ val appModule = module {
 
 val dbModule = module {
 
+    // Runtime DB
+    single {
+        Room.databaseBuilder(
+            androidContext().applicationContext,
+            RuntimeDB::class.java,
+            "runtimedb"
+        ).build()
+    }
+
+
     // Auth DB
     single {
         Room.databaseBuilder(
@@ -62,17 +72,13 @@ val dbModule = module {
             .build()
     }
 
-    // Runtime DB
-    single {
-        Room.databaseBuilder(
-            androidContext().applicationContext,
-            RuntimeDB::class.java,
-            "runtimedb"
-        ).build()
-    }
 }
 
 val daoModule = module {
+
+    single { get<RuntimeDB>().networkInfoDao() }
+    single { get<RuntimeDB>().jobDao() }
+    single { get<RuntimeDB>().logDao() }
 
     single { get<AuthDB>().tokenDao() }
     single { get<AuthDB>().legacyCredentialsDao() }
@@ -83,28 +89,26 @@ val daoModule = module {
     single { get<AccountDB>().sessionDao() }
     single { get<AccountDB>().workspaceDao() }
 
-    single { get<RuntimeDB>().networkInfoDao() }
-    single { get<RuntimeDB>().jobDao() }
-    single { get<RuntimeDB>().logDao() }
 }
 
 val serviceModule = module {
 
-    // Manage network state
+    // Network state
     single { NetworkService(androidContext(), get()) }
 
-    // Manage long running jobs
+    // Long running jobs
     single { JobService(get()) }
 
-    // Manage accounts and authentication
-    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
-    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
-
+    // Authentication
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
     single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
-
     single { AuthService(get()) }
+
+    // Accounts and Sessions
+    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
+    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
+    single<AccountService> { AccountServiceImpl(get(), get(), get(), get()) }
     single {
         SessionFactory(
             get(),
@@ -114,7 +118,6 @@ val serviceModule = module {
             get()
         )
     }
-    single<AccountService> { AccountServiceImpl(get(), get(), get(), get()) }
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
