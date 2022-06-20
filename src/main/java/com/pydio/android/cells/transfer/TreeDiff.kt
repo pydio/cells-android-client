@@ -82,7 +82,7 @@ class TreeDiff(
 
         // Then perform real diff
         if (remote.isFolder) {
-            handleFolder()
+            handleFolder(remote, local)
         } else {
             when {
                 local == null -> {
@@ -106,7 +106,8 @@ class TreeDiff(
         return@withContext changeNumber
     }
 
-    private suspend fun handleFolder() {
+
+    private suspend fun handleFolder(remote: FileNode, local: RTreeNode?) {
         val remotes = RemoteNodeIterator(baseFolderStateId)
         val locals = dao.getNodesForDiff(baseFolderStateId.id, baseFolderStateId.file).iterator()
         processChanges(remotes, locals)
@@ -118,8 +119,14 @@ class TreeDiff(
                 dao.update(it)
             }
         } else if (baseFolderStateId.file != null) {
-            client.nodeInfo(baseFolderStateId.workspace, baseFolderStateId.file)?.let { parFolder ->
-                nodeService.upsertNode(RTreeNode.fromFileNode(baseFolderStateId, parFolder), true)
+            if (local == null ||
+                !areNodeContentEquals(remote, local, client.isLegacy) ||
+                changeNumber > 0
+            ) {
+                nodeService.upsertNode(
+                    RTreeNode.fromFileNode(baseFolderStateId, remote),
+                    true
+                )
             }
         }
     }
