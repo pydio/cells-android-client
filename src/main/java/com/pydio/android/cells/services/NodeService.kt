@@ -63,11 +63,17 @@ class NodeService(
      */
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
 
+        // var encoded = prefs.getPreference(
+        //     AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+        // )
         var encoded = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
         if (Str.empty(encoded)) {
-            encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
+            encoded = AppNames.DEFAULT_SORT_ENCODED
         }
-        val (sortByCol, sortByOrder) = parseOrder(encoded!!)
+//        if (Str.empty(encoded)) {
+//            encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
+//        }
+        val (sortByCol, sortByOrder) = parseOrder(encoded)
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +

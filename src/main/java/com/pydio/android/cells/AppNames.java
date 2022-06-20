@@ -23,6 +23,7 @@ public interface AppNames {
 
     String DEFAULT_SORT_BY = "sort_name";
     String DEFAULT_SORT_BY_DIR = "ASC";
+    String DEFAULT_SORT_ENCODED = DEFAULT_SORT_BY + "||" + DEFAULT_SORT_BY_DIR;
 
     String OFFLINE_FREQ_QUARTER = "quarter";
     String OFFLINE_FREQ_HOUR = "hour";
