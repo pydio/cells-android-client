@@ -20,10 +20,13 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentOffineRootListBinding
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -35,6 +38,8 @@ class OfflineRootsFragment : Fragment() {
     private val logTag = OfflineRootsFragment::class.java.simpleName
 
     private val prefs: CellsPreferences by inject()
+    private val nodeService: NodeService by inject()
+
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val offlineVM: OfflineRootsViewModel by viewModel()
 
@@ -114,7 +119,7 @@ class OfflineRootsFragment : Fragment() {
 //                        } else {
 //                            binding.syncHeader.jobName.text =
 //                                resources.getText(R.string.sync_in_progress)
-                       }
+                        }
                         binding.syncHeader.executePendingBindings()
                     } ?: let {
                         binding.syncHeader.includedHeaderContent.visibility = View.GONE
@@ -150,27 +155,32 @@ class OfflineRootsFragment : Fragment() {
     private fun navigateTo(node: RLiveOfflineRoot) =
         lifecycleScope.launch {
             if (node.isFolder()) {
-                val action = MainNavDirections.openFolder(node.encodedState)
-                findNavController().navigate(action)
-            } else {
-
-                // FIXME implement file viewing
-                Log.i(logTag, "OPEN: ${node.encodedState}")
-
-//                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
-//                file?.let {
-//                    val intent = externallyView(requireContext(), file, node)
-//                    try {
-//                        startActivity(intent)
-//                        val msg = "Opened ${it.name} (${intent.type}) with external viewer"
-//                        Log.e(tag, "Intent success: $msg")
-//                    } catch (e: Exception) {
-//                        val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
-//                        Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
-//                        Log.e(tag, "Call to intent failed: $msg")
-//                        e.printStackTrace()
-//                    }
-//                }
+                findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
+                return@launch
             }
+
+            val sid = node.getStateID()
+            Log.d(logTag, "About to navigate to $sid, mime type: ${node.mime}")
+            // TODO implement opening the carousel from here
+            val treeNode = nodeService.getNode(sid) ?: run {
+                Log.e(logTag, "trying to open a node $sid that is unknown by the index")
+                return@launch
+            }
+            nodeService.getLocalFile(treeNode, activeSessionVM.isServerReachable())?.let {
+                externallyView(requireContext(), it, treeNode)
+                return@launch
+            }
+
+            if (!activeSessionVM.isServerReachable()) {
+                showMessage(
+                    requireContext(),
+                    resources.getString(R.string.cannot_download_file) + "\n" +
+                            resources.getString(R.string.server_unreachable)
+                )
+                return@launch
+            }
+
+            val action = MainNavDirections.launchDownload(node.encodedState, true)
+            findNavController().navigate(action)
         }
 }
