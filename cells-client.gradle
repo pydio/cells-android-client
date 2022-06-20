@@ -65,6 +65,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
+    }
+
 // FIXME
 //    sourceSets {
 //        all {

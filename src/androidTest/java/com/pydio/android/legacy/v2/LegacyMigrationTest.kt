@@ -49,8 +49,8 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         Log.i(logTag, "... Found legacy db files, about to migrate")
 
         // List existing accounts and migrate them one by one
-        val accDB = V2MainDB.getHelper()
-        val syncDB = V2SyncDB.getHelper()
+        val accDB = V2MainDB.helper
+        val syncDB = V2SyncDB.helper
         val recs = accDB.listAccountRecords()
         Log.w(logTag, "    Found " + recs.size + " accounts. ")
         val migrationServiceV2 = MigrationServiceV2()
