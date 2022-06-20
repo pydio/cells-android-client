@@ -292,7 +292,7 @@ class BrowseFolderFragment : Fragment() {
         if (!activeSessionVM.isServerReachable()) {
             showMessage(
                 requireContext(),
-                resources.getString(R.string.empty_cache) + "\n" +
+                resources.getString(R.string.cannot_download_file) + "\n" +
                         resources.getString(R.string.server_unreachable)
             )
             return@launch
