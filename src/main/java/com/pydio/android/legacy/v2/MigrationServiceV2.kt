@@ -83,16 +83,24 @@ class MigrationServiceV2 : KoinComponent {
             }
             jobService.incrementProgress(migrationJob, 20, "Migrating accounts and credentials...")
 
-            result = if (oldValue < 50) {
-                migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
-                    jobService.incrementProgress(migrationJob, it, null)
-                    true
+            result = try {
+                if (oldValue < 50) {
+                    migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
+                        jobService.incrementProgress(migrationJob, it, null)
+                        true
+                    }
+                } else {
+                    migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
+                        jobService.incrementProgress(migrationJob, it, null)
+                        true
+                    }
                 }
-            } else {
-                migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
-                    jobService.incrementProgress(migrationJob, it, null)
-                    true
-                }
+            } catch (e: Exception) {
+                jobService.failed(
+                    migrationJob.jobId,
+                    "could not perform migration from code version $oldValue to $newValue, cause: ${e.message} "
+                )
+                return 0
             }
 
             beginTS = currentTimestamp()
@@ -110,11 +118,18 @@ class MigrationServiceV2 : KoinComponent {
             }
         }
 
-        val msg =
-            "Migration done with ${result.second} offline roots in ${timeToSync.duration.inWholeSeconds}s"
-        val progressMsg = "Migration terminated on ${timestampForLogMessage()}"
 
-        jobService.done(migrationJob, msg, progressMsg)
+        if (result.first) {
+            val msg =
+                "Migration done with ${result.second} offline roots in ${timeToSync.duration.inWholeSeconds}s"
+            val progressMsg = "Migration terminated on ${timestampForLogMessage()}"
+            jobService.done(migrationJob, msg, progressMsg)
+        } else {
+            jobService.failed(
+                migrationJob.jobId,
+                "Unexpected error while trying to migrate from $oldValue to $newValue"
+            )
+        }
         return result.second
     }
 
@@ -139,8 +154,8 @@ class MigrationServiceV2 : KoinComponent {
         maxProgress: Int,
         progressListener: ProgressListener
     ): Pair<Boolean, Int> {
-        val accDB = V2MainDB.getHelper()
-        val syncDB = V2SyncDB.getHelper()
+        val accDB = V2MainDB.helper ?: return false to 0
+        val syncDB = V2SyncDB.helper ?: return false to 0
 
         // Load accounts that have been already registered by the user
         val recs = accDB.listLegacyAccountRecords()
@@ -205,8 +220,10 @@ class MigrationServiceV2 : KoinComponent {
         maxProgress: Int,
         progressListener: ProgressListener
     ): Pair<Boolean, Int> {
-        val accDB = V2MainDB.getHelper()
-        val syncDB = V2SyncDB.getHelper()
+        val accDB = V2MainDB.helper ?: return false to 0
+        val syncDB = V2SyncDB.helper ?: return false to 0
+
+
         val recs = accDB.listAccountRecords()
         if (recs.size == 0) {
             val msg = "No account found. Nothing to migrate..."

@@ -472,11 +472,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 //  TODO handle a loading state
                 ACTION_CREATE_FOLDER -> {
                     createFolder(requireContext(), node.getStateID(), nodeService)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_RENAME -> {
                     rename(requireContext(), node, nodeService)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_COPY -> {
                     launchCopy.launch(
@@ -496,25 +496,25 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 }
                 ACTION_DELETE -> {
                     moveToRecycle(requireContext(), node, nodeService)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_EMPTY_RECYCLE -> {
                     emptyRecycle(requireContext(), node, nodeService)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_DELETE_PERMANENTLY -> {
                     deleteFromRecycle(requireContext(), node, nodeService)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_RESTORE_FROM_RECYCLE -> {
                     nodeService.restoreNode(node.getStateID())?.let {
                         showLongMessage(requireContext(), it)
                     }
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_TOGGLE_BOOKMARK -> {
                     nodeService.toggleBookmark(node)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_TOGGLE_SHARED -> {
                     // TODO ask confirmation
@@ -531,7 +531,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                             )
                         }
                     }
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_PUBLIC_LINK_COPY -> {
                     val clipboard =
@@ -550,7 +550,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                             resources.getString(R.string.link_copy_failed)
                         )
                     }
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_PUBLIC_LINK_SHARE -> {
                     node.getShareAddress()?.let { link ->
@@ -559,15 +559,15 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                             .putExtra(Intent.EXTRA_TEXT, link)
                         startActivity(shareIntent)
                     }
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_TOGGLE_OFFLINE -> {
                     nodeService.toggleOffline(node)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 ACTION_FORCE_RESYNC -> {
                     nodeService.syncOfflineRoot(node)
-                    moreMenu.dismiss()
+                    doDismiss()
                 }
                 // In-app navigation
                 ACTION_OPEN_IN_WORKSPACES -> {
@@ -605,4 +605,13 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
             }
         }
     }
+
+    private fun doDismiss() {
+        try {
+            dismiss()
+        } catch (e: Exception) {
+            Log.e(logTag, "cannot dismiss more menu for ${treeNodeMenuVM.stateIDs}: ${e.message}")
+        }
+    }
+
 }
