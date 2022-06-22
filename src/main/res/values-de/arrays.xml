@@ -9,10 +9,10 @@
         <item>Größe (kleinste zuerst)</item>
         <item>Größe (größte zuerst)</item>
     </string-array>
-
-<!--    <item>Typ (A bis Z)</item>-->
-<!--    <item>Typ (Z bis A)</item>-->
-
+    <!--        <item>Type (A to Z)</item>-->
+    <!--        <item>Type (Z to A)</item>-->
+    <!--        <item>mime||ASC</item>-->
+    <!--        <item>mime||DESC</item>-->
     <string-array name="list_layout_labels">
         <item>Liste</item>
         <item>Raster</item>
