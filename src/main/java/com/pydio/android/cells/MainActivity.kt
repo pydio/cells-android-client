@@ -196,8 +196,10 @@ class MainActivity : AppCompatActivity() {
         liveSharedPreferences
             .getBoolean(AppNames.PREF_KEY_SHOW_RUNTIME_LISTS, false)
             .observe(this) {
-                binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = it
-                binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = it
+                it?.let { // necessary or we might encounter NPE when deployed on production0
+                    binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = it
+                    binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = it
+                }
             }
     }
 
@@ -338,18 +340,16 @@ class MainActivity : AppCompatActivity() {
         liveSharedPreferences
             .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
             .observe(this) {
-                if (it == null) {
-                    return@observe
-                }
-
-                when (it) {
-                    AppNames.RECYCLER_LAYOUT_GRID -> {
-                        layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
-                        layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
-                    }
-                    else -> {
-                        layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
-                        layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
+                it?.let {
+                    when (it) {
+                        AppNames.RECYCLER_LAYOUT_GRID -> {
+                            layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
+                            layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
+                        }
+                        else -> {
+                            layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
+                            layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
+                        }
                     }
                 }
             }

@@ -18,11 +18,11 @@ import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBookmarkListBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.showLongMessage
 import com.pydio.android.cells.utils.showMessage
@@ -120,10 +120,12 @@ class BookmarksFragment : Fragment() {
 //                        AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
 //                        AppNames.RECYCLER_LAYOUT_LIST
 //                    )
-                    configureRecyclerAdapter(it)
 
-                    bookmarksVM.bookmarks.removeObserver(observer)
-                    bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                    it?.let {
+                        configureRecyclerAdapter(it)
+                        bookmarksVM.bookmarks.removeObserver(observer)
+                        bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                    }
                 }
 
             liveSharedPreferences!!
@@ -131,10 +133,12 @@ class BookmarksFragment : Fragment() {
                     AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
                 )
                 .observe(viewLifecycleOwner) {
-                    if (bookmarksVM.orderHasChanged(it)) {
-                        bookmarksVM.bookmarks.removeObserver(observer)
-                        bookmarksVM.afterCreate(accountID, it)
-                        bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                    it?.let {
+                        if (bookmarksVM.orderHasChanged(it)) {
+                            bookmarksVM.bookmarks.removeObserver(observer)
+                            bookmarksVM.afterCreate(accountID, it)
+                            bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                        }
                     }
                 }
         }

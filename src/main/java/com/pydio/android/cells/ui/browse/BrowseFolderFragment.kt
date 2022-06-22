@@ -139,10 +139,12 @@ class BrowseFolderFragment : Fragment() {
                     AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
                 )
                 .observe(viewLifecycleOwner) {
-                    if (browseFolderVM.orderHasChanged(it)) {
-                        browseFolderVM.children.removeObserver(observer)
-                        browseFolderVM.reQuery(it)
-                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
+                    it?.let{
+                        if (browseFolderVM.orderHasChanged(it)) {
+                            browseFolderVM.children.removeObserver(observer)
+                            browseFolderVM.reQuery(it)
+                            browseFolderVM.children.observe(viewLifecycleOwner, observer)
+                        }
                     }
                 }
         }
