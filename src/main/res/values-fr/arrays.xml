@@ -6,11 +6,12 @@
         <item>Par nom (de Z à A)</item>
         <item>Date de modification (les plus anciens d\'abord)</item>
         <item>Date de modification (les plus récents d\'abord)</item>
-        <item>Par type (de A à Z)</item>
-        <item>Par type (de Z à A)</item>
         <item>Par taille (les plus petits d\'abord)</item>
         <item>Par taille (les plus gros d\'abord)</item>
     </string-array>
+<!--    <item>Par type (de A à Z)</item>-->
+<!--    <item>Par type (de Z à A)</item>-->
+
     <string-array name="list_layout_labels">
         <item>Liste</item>
         <item>Grille</item>

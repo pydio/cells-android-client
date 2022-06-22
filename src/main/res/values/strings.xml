@@ -118,6 +118,7 @@
 
     <string name="empty_folder">This folder is empty</string>
     <string name="empty_content_message">No content here yet</string>
+    <string name="no_bookmark_for_account">No bookmark has been defined for this account…</string>
 
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
