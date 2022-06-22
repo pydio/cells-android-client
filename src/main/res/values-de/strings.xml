@@ -100,6 +100,7 @@
     <string name="no_result_for_search">Kein Ergebnis für \"%s\" gefunden</string>
     <string name="empty_folder">Dieser Ordner ist leer</string>
     <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
+    <string name="no_bookmark_for_account">Für dieses Konto wurde kein Lesezeichen definiert…</string>
     <plurals name="selected_count">
         <item quantity="one">%d Element ausgewählt</item>
         <item quantity="other">%d Elemente ausgewählt</item>
