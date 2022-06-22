@@ -12,11 +12,11 @@ class CellsPreferences(context: Context) {
         return sharedPreferences
     }
 
-    fun getPreference(key: String): String? {
-        return sharedPreferences.getString(key, null)
+    fun getString(key: String, defValue: String): String {
+        return sharedPreferences.getString(key, defValue) ?: defValue
     }
 
-    fun setPreference(key: String, value: String) {
+    fun setString(key: String, value: String) {
         with(sharedPreferences.edit()) {
             putString(key, value)
             apply()
@@ -30,6 +30,17 @@ class CellsPreferences(context: Context) {
     fun setInt(key: String, value: Int) {
         with(sharedPreferences.edit()) {
             putInt(key, value)
+            apply()
+        }
+    }
+
+    fun getBoolean(key: String, defValue: Boolean = false): Boolean {
+        return sharedPreferences.getBoolean(key, defValue)
+    }
+
+    fun setBoolean(key: String, value: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(key, value)
             apply()
         }
     }

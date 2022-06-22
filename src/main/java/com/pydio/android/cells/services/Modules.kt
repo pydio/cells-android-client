@@ -143,7 +143,7 @@ val viewModelModule = module {
     viewModel { AccountListViewModel(get()) }
 
     viewModel { ActiveSessionViewModel(get(), get()) }
-    viewModel { params -> BrowseFolderViewModel(params.get(), get()) }
+    viewModel { params -> BrowseFolderViewModel(params.get(), get(), get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
 

@@ -30,7 +30,11 @@ class NodeListAdapter(
     // private val fileService: FileService by inject()
 
     private var showPath = false
-    var tracker: SelectionTracker<String>? = null
+    private var tracker: SelectionTracker<String>? = null
+
+    fun setTracker(tracker: SelectionTracker<String>) {
+        this.tracker = tracker
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -136,13 +140,19 @@ class NodeListItemKeyProvider(private val adapter: NodeListAdapter) :
 }
 
 class NodeListItemDetailsLookup(private val recyclerView: RecyclerView) :
-
     ItemDetailsLookup<String>() {
+
+    private val logTag = NodeListItemDetailsLookup::class.simpleName
+
     override fun getItemDetails(event: MotionEvent): ItemDetails<String>? {
         val view = recyclerView.findChildViewUnder(event.x, event.y)
         if (view != null) {
-            return (recyclerView.getChildViewHolder(view) as NodeListAdapter.ViewHolder)
-                .getItemDetails()
+            val childViewHolder = recyclerView.getChildViewHolder(view)
+            if (childViewHolder is NodeListAdapter.ViewHolder) {
+                return childViewHolder.getItemDetails()
+            } else {
+                Log.e(logTag, "unexpected holder type: ${childViewHolder} ")
+            }
         }
         return null
     }

@@ -384,6 +384,11 @@ class TransferService(
                 else -> previewDim // AppNames.LOCAL_FILE_TYPE_PREVIEW
             }
             val filename = client.getThumbnail(state, node, File(parPath), dim)
+            if (Str.empty(filename)) {
+                Log.e(logTag, "could not get thumb for $state but no error have been thrown")
+                return null
+            }
+
             val targetFile = File(parPath + File.separator + filename)
             if (!client.isLegacy) {
                 handleOrientation(rNode, targetFile.absolutePath)

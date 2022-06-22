@@ -63,16 +63,9 @@ class NodeService(
      */
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
 
-        // var encoded = prefs.getPreference(
-        //     AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-        // )
-        var encoded = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-        if (Str.empty(encoded)) {
-            encoded = AppNames.DEFAULT_SORT_ENCODED
-        }
-//        if (Str.empty(encoded)) {
-//            encoded = "${AppNames.DEFAULT_SORT_BY}||${AppNames.DEFAULT_SORT_BY_DIR}"
-//        }
+         var encoded = prefs.getString(
+             AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
@@ -80,9 +73,22 @@ class NodeService(
                     "AND parent_path = ? " +
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
-        return nodeDB(stateID).treeNodeDao().orderedLs(lsQuery)
-
+        return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
+
+    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
+        var encoded = prefs.getString(
+            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+        )
+        val (sortByCol, sortByOrder) = parseOrder(encoded)
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE flags & "+ AppNames.FLAG_BOOKMARK +
+                    " = "+AppNames.FLAG_BOOKMARK+" ORDER BY $sortByCol $sortByOrder"
+        )
+        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
+    }
+
+
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
         // Tweak to also be able to list workspaces roots
@@ -104,10 +110,6 @@ class NodeService(
     fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
-    }
-
-    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB(accountID).treeNodeDao().getBookmarked()
     }
 
     fun listOfflineRoots(stateID: StateID): LiveData<List<RLiveOfflineRoot>> {
@@ -209,14 +211,13 @@ class NodeService(
     }
 
     /* Calls to query both the cache and the remote server */
-
     suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
             getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked())
-            // rTreeNode.isBookmarked = !rTreeNode.isBookmarked
-            // rTreeNode.localModificationTS = currentTimestamp()
-            // nodeDB(stateID).treeNodeDao().update(rTreeNode)
+             rTreeNode.setBookmarked(!rTreeNode.isBookmarked())
+             rTreeNode.localModificationTS = currentTimestamp()
+             nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             return@withContext null

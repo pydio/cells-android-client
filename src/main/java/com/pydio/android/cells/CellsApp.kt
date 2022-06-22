@@ -1,12 +1,10 @@
 package com.pydio.android.cells
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -42,7 +40,7 @@ class CellsApp : Application(), KoinComponent {
 
     // Shortcut to access preferences
     // TODO must be a better way to do and let koin handle context injection
-    lateinit var sharedPreferences: SharedPreferences
+    // lateinit var sharedPreferences: SharedPreferences
 
     // var currentTheme = R.style.Theme_Cells
 
@@ -61,7 +59,7 @@ class CellsApp : Application(), KoinComponent {
         val currClientData = updateClientData()
         Log.d(logTag, "    Current Client Data: $currClientData")
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        // sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         Log.i(logTag, "... Pre-init done")
 
         // Launch dependency injection framework
@@ -127,14 +125,12 @@ fun setupOfflineWorker(mainApplication: CellsApp) {
         val workManager = WorkManager.getInstance(mainApplication)
 
         val prefs: CellsPreferences by inject(CellsPreferences::class.java)
-        // val frequency = mainApplication.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
-        val frequency = prefs.getPreference(AppNames.PREF_KEY_OFFLINE_FREQ)
-        val onWifi =
-            mainApplication.sharedPreferences.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
-        val onCharging = mainApplication.sharedPreferences.getBoolean(
-            AppNames.PREF_KEY_OFFLINE_CONST_CHARGING,
-            true
+        val frequency = prefs.getString(
+            AppNames.PREF_KEY_OFFLINE_FREQ,
+            AppNames.OFFLINE_FREQ_WEEK
         )
+        val onWifi = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
+        val onCharging = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_CHARGING, true)
 
         // Useful worker
         val builder = Constraints.Builder().setRequiresBatteryNotLow(true)

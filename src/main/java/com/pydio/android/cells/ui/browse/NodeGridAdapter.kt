@@ -9,19 +9,24 @@ import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.databinding.GridItemNodeBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.FileService
+import com.pydio.cells.utils.Log
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class NodeGridAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
 ) : ListAdapter<RTreeNode, NodeGridAdapter.ViewHolder>(TreeNodeDiffCallback()), KoinComponent {
 
     private val fileService: FileService by inject()
-    var tracker: SelectionTracker<String>? = null
+    private var tracker: SelectionTracker<String>? = null
+
+    fun setTracker(tracker: SelectionTracker<String>) {
+        this.tracker = tracker
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -115,13 +120,20 @@ class NodeGridItemKeyProvider(private val adapter: NodeGridAdapter) :
 }
 
 class NodeGridItemDetailsLookup(private val recyclerView: RecyclerView) :
-
     ItemDetailsLookup<String>() {
+
+    private val logTag = NodeGridItemDetailsLookup::class.simpleName
+
     override fun getItemDetails(event: MotionEvent): ItemDetails<String>? {
         val view = recyclerView.findChildViewUnder(event.x, event.y)
+
         if (view != null) {
-            return (recyclerView.getChildViewHolder(view) as NodeGridAdapter.ViewHolder)
-                .getItemDetails()
+            val childViewHolder = recyclerView.getChildViewHolder(view)
+            if (childViewHolder is NodeGridAdapter.ViewHolder) {
+                return childViewHolder.getItemDetails()
+            } else {
+                Log.e(logTag, "unexpected holder type: ${childViewHolder} ")
+            }
         }
         return null
     }

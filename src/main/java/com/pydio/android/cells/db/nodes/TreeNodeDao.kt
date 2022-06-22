@@ -48,7 +48,7 @@ interface TreeNodeDao {
     ): LiveData<List<RTreeNode>>
 
     @RawQuery(observedEntities = [RTreeNode::class])
-    fun orderedLs(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
+    fun treeNodeQuery(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY name")
     fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>

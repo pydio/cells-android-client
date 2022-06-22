@@ -23,6 +23,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
@@ -43,13 +44,16 @@ class MainActivity : AppCompatActivity() {
 
     private val logTag = MainActivity::class.simpleName
 
+    private val nodeService: NodeService by inject()
+
+    private val prefs: CellsPreferences by inject()
+    private val liveSharedPreferences = LiveSharedPreferences(prefs.get())
+
+    private val activeSessionVM: ActiveSessionViewModel by viewModel()
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-
-    private val prefs: CellsPreferences by inject()
-    private val nodeService: NodeService by inject()
-    private val activeSessionVM: ActiveSessionViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,7 +114,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleCustomNavigation(stateID: StateID?) {
 
-        // No use, this is the default
+        // Useless: this is the default
 //        if (stateID == null) {
 //            navController.navigate(MainNavDirections.openAccountList())
 //            return
@@ -151,7 +155,6 @@ class MainActivity : AppCompatActivity() {
         // Observe current live session to update the UI
         activeSessionVM.sessionView.observe(this) {
             it?.let { liveSession ->
-
                 // Set current session info in the Navigation view header
                 val headerView = binding.navView.getHeaderView(0)
                 val primaryText =
@@ -189,10 +192,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Access to logs and jobs
-        val showItems = prefs.get().getBoolean(AppNames.PREF_KEY_SHOW_RUNTIME_LISTS, false)
-        binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = showItems
-        binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = showItems
+        // Optional access to log and job tables
+        liveSharedPreferences
+            .getBoolean(AppNames.PREF_KEY_SHOW_RUNTIME_LISTS, false)
+            .observe(this) {
+                binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = it
+                binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = it
+            }
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
@@ -329,29 +335,38 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val oldValue = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
-        when (oldValue ?: AppNames.RECYCLER_LAYOUT_LIST) {
-            AppNames.RECYCLER_LAYOUT_GRID -> {
-                layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
-                layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
+        liveSharedPreferences
+            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .observe(this) {
+                if (it == null) {
+                    return@observe
+                }
+
+                when (it) {
+                    AppNames.RECYCLER_LAYOUT_GRID -> {
+                        layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
+                        layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
+                    }
+                    else -> {
+                        layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
+                        layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
+                    }
+                }
             }
-            else -> {
-                layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
-                layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
-            }
-        }
 
         layoutSwitcher.setOnMenuItemClickListener {
-            val value = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
-            val newValue = if (value != null && AppNames.RECYCLER_LAYOUT_GRID == value) {
-                AppNames.RECYCLER_LAYOUT_LIST
-            } else {
-                AppNames.RECYCLER_LAYOUT_GRID
-            }
-            prefs.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            this.recreate()
+            val newValue = when (prefs.getString(
+                AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
+                AppNames.RECYCLER_LAYOUT_LIST
+            )) {
+                AppNames.RECYCLER_LAYOUT_GRID -> AppNames.RECYCLER_LAYOUT_LIST
+                else -> AppNames.RECYCLER_LAYOUT_GRID
+            }
+            prefs.setString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
+//             Log.e(logTag, "in listener, new layout value: $newValue")
+//            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//            this.recreate()
             return@setOnMenuItemClickListener true
         }
     }

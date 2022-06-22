@@ -130,7 +130,10 @@ class OfflineRootsFragment : Fragment() {
     }
 
     private fun configureRecyclerAdapter() {
-        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val prefLayout = prefs.getString(
+            AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
+            AppNames.RECYCLER_LAYOUT_LIST
+        )
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         val adapter: ListAdapter<RLiveOfflineRoot, out RecyclerView.ViewHolder?>
         if (asGrid) {

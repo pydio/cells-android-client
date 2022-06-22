@@ -114,6 +114,7 @@ class TreeDiff(
 
         // Update info for current folder
         if (baseFolderStateId.file == "/") {
+            // FIXME ws root specific management smells
             nodeService.getNode(baseFolderStateId)?.let {
                 it.lastCheckTS = currentTimestamp()
                 dao.update(it)

@@ -1,15 +1,13 @@
 package com.pydio.android.cells.ui.browse
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,14 +22,21 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.android.cells.utils.showLongMessage
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ * Displays a list of all bookmarks for current account in a recycler view.
+ * Note that we query the server to update the index with not yet cached nodes that are bookmarked.
+ */
 class BookmarksFragment : Fragment() {
 
     private val logTag = BookmarksFragment::class.java.simpleName
@@ -42,19 +47,30 @@ class BookmarksFragment : Fragment() {
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val bookmarksVM: BookmarksViewModel by viewModel()
 
+    private var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>? = null
+    private val observer = BookmarkObserver()
+
     private lateinit var binding: FragmentBookmarkListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_bookmark_list, container, false
         )
-        findNavController().addOnDestinationChangedListener(ChangeListener())
-        // Insure the option menu (and toolbar icons) get refreshed
-        setHasOptionsMenu(true)
 
+        binding.forceRefresh.setOnRefreshListener { bookmarksVM.triggerRefresh() }
+
+        bookmarksVM.isLoading.observe(viewLifecycleOwner) {
+            binding.forceRefresh.isRefreshing = it
+        }
+        bookmarksVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+            msg?.let { showLongMessage(requireContext(), msg) }
+        }
+
+        // findNavController().addOnDestinationChangedListener(ChangeListener())
         return binding.root
     }
 
@@ -78,35 +94,67 @@ class BookmarksFragment : Fragment() {
         activeSessionVM.sessionView.observe(viewLifecycleOwner) { activeSession ->
             activeSession?.let { session ->
                 val accountID = StateID.fromId(session.accountID)
-                bookmarksVM.afterCreate(accountID)
-                configureRecyclerAdapter(bookmarksVM)
+                val currOrder = prefs.getString(
+                    AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+                    AppNames.DEFAULT_SORT_ENCODED
+                )
+                bookmarksVM.afterCreate(accountID, currOrder)
                 bookmarksVM.triggerRefresh()
+                preconfigureAdapter(accountID)
             }
         }
     }
 
-    private fun configureRecyclerAdapter(viewModel: BookmarksViewModel) {
-        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
-        val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
-        val adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
-        if (asGrid) {
-            binding.bookmarkList.layoutManager = GridLayoutManager(activity, 3)
-            adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
-        } else {
-            binding.bookmarkList.layoutManager = LinearLayoutManager(requireActivity())
-            adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+    private fun preconfigureAdapter(accountID: StateID) {
+
+        var liveSharedPreferences: LiveSharedPreferences? = null
+        bookmarksVM.bookmarks.observe(viewLifecycleOwner) {
+            if (liveSharedPreferences != null) {
+                return@observe
+            }
+            liveSharedPreferences = LiveSharedPreferences(prefs.get())
+            liveSharedPreferences!!
+                .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+                .observe(viewLifecycleOwner) {
+//                    val prefLayout = prefs.getPreference(
+//                        AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
+//                        AppNames.RECYCLER_LAYOUT_LIST
+//                    )
+                    configureRecyclerAdapter(it)
+
+                    bookmarksVM.bookmarks.removeObserver(observer)
+                    bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                }
+
+            liveSharedPreferences!!
+                .getString(
+                    AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+                )
+                .observe(viewLifecycleOwner) {
+                    if (bookmarksVM.orderHasChanged(it)) {
+                        bookmarksVM.bookmarks.removeObserver(observer)
+                        bookmarksVM.afterCreate(accountID, it)
+                        bookmarksVM.bookmarks.observe(viewLifecycleOwner, observer)
+                    }
+                }
         }
-        binding.bookmarkList.adapter = adapter
-        viewModel.bookmarks.observe(viewLifecycleOwner) {
-            if (it.isEmpty()) {
-                binding.emptyContent.visibility = View.VISIBLE
-                binding.bookmarkList.visibility = View.GONE
-            } else {
-                binding.bookmarkList.visibility = View.VISIBLE
-                binding.emptyContent.visibility = View.GONE
-                adapter.submitList(it)
+    }
+
+    private fun configureRecyclerAdapter(listLayout: String) {
+
+        when (listLayout) {
+            AppNames.RECYCLER_LAYOUT_GRID -> {
+                val columns = resources.getInteger(R.integer.grid_default_column_number)
+                binding.bookmarkList.layoutManager = GridLayoutManager(activity, columns)
+                adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
+            }
+            AppNames.RECYCLER_LAYOUT_LIST -> {
+                binding.bookmarkList.layoutManager = LinearLayoutManager(requireActivity())
+                adapter = NodeListAdapter { node, action -> onClicked(node, action) }
             }
         }
+
+        binding.bookmarkList.adapter = adapter
     }
 
     private fun navigateTo(node: RTreeNode) {
@@ -134,8 +182,8 @@ class BookmarksFragment : Fragment() {
             if (!activeSessionVM.isServerReachable()) {
                 showMessage(
                     requireContext(),
-                resources.getString(R.string.empty_cache) + "\n" +
-                        resources.getString(R.string.server_unreachable)
+                    resources.getString(R.string.empty_cache) + "\n" +
+                            resources.getString(R.string.server_unreachable)
                 )
                 return@launch
             }
@@ -145,15 +193,31 @@ class BookmarksFragment : Fragment() {
         }
     }
 
-    private inner class ChangeListener : NavController.OnDestinationChangedListener {
+    inner class BookmarkObserver : Observer<List<RTreeNode>> {
 
-        override fun onDestinationChanged(
-            controller: NavController,
-            destination: NavDestination,
-            arguments: Bundle?
-        ) {
-            Log.i(logTag, "Destination changed to ${destination.displayName}")
+        override fun onChanged(it: List<RTreeNode>?) {
+            it?.let {
+                if (it.isEmpty()) {
+                    val msg = when {
+                        !activeSessionVM.isServerReachable()
+                        -> resources.getString(R.string.empty_cache) + "\n" +
+                                resources.getString(R.string.server_unreachable)
+                        bookmarksVM.isLoading.value == true
+                        -> resources.getString(R.string.loading_message)
+                        else
+                        -> resources.getString(R.string.no_bookmark_for_account)
+                    }
+                    binding.emptyContentDesc = msg
+                    adapter?.submitList(listOf())
+                    binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
+
+                } else {
+                    binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
+                    Log.e(logTag, "Submitting new list with ${it.size} elements")
+                    Log.d(logTag, "${it}")
+                    adapter?.submitList(it)
+                }
+            }
         }
     }
 }
-

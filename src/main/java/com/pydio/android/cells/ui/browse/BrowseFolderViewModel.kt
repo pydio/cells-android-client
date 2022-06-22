@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit
 class BrowseFolderViewModel(
     encodedStateID: String,
     private val nodeService: NodeService,
+    prefs: CellsPreferences
 ) : ViewModel() {
 
     private val logTag = BrowseFolderViewModel::class.simpleName
@@ -46,17 +49,22 @@ class BrowseFolderViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    // Cache list order to only trigger order change when necessary
+    private var _currentOrder = prefs.getString(
+        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+        AppNames.DEFAULT_SORT_ENCODED
+    )
+
     init {
         setLoading(true)
     }
 
-/*
-    fun afterCreate(stateId: StateID){
-        _stateId = stateId
-        _currentFolder = nodeService.getLiveNode(stateId)
-        _children = nodeService.ls(stateId)
+    fun reQuery(newOrder: String) {
+        if (_currentOrder != newOrder) {
+            _currentOrder = newOrder
+            _children = nodeService.ls(stateId)
+        }
     }
-*/
 
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
@@ -103,7 +111,11 @@ class BrowseFolderViewModel(
         _isActive = false
     }
 
-    fun forceRefresh() {
+    fun orderHasChanged(newOrder: String): Boolean {
+        return _currentOrder != newOrder
+    }
+
+    fun triggerRefresh() {
         setLoading(true)
         pause()
         currWatcher?.cancel()
@@ -120,7 +132,7 @@ class BrowseFolderViewModel(
         viewModelJob.cancel()
     }
 
-    fun setLoading(loading: Boolean) {
+    private fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
 }

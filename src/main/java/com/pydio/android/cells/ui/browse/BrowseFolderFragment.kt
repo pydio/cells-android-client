@@ -35,6 +35,7 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.android.cells.utils.showLongMessage
@@ -65,23 +66,27 @@ class BrowseFolderFragment : Fragment() {
     private val browseFolderVM: BrowseFolderViewModel by viewModel { parametersOf(args.state) }
     private lateinit var binding: FragmentBrowseFolderBinding
 
+    private var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>? = null
+    private val observer = ChildObserver()
+
     private var mode: ActionMode? = null
     private var actionModeCallback: PrimaryActionModeCallback? = null
     private var tracker: SelectionTracker<String>? = null
-
-    private lateinit var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
-    private val observer = ChildObserver()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+//         Log.d(logTag, "### On create at ${StateID.fromId(args.state)}")
+        setHasOptionsMenu(true)
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        configureRecyclerAdapter()
-        setHasOptionsMenu(true)
+        // configureRecyclerAdapter()
+        preconfigureAdapter()
+
+        binding.forceRefresh.setOnRefreshListener { browseFolderVM.triggerRefresh() }
 
         browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
@@ -93,22 +98,58 @@ class BrowseFolderFragment : Fragment() {
                 }
             }
         }
-
-        binding.forceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
-
         browseFolderVM.isLoading.observe(viewLifecycleOwner) {
             binding.forceRefresh.isRefreshing = it
         }
         browseFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(requireContext(), msg) }
         }
+
         return binding.root
     }
 
-    private fun configureRecyclerAdapter() {
+    private fun preconfigureAdapter() {
+//        configureRecyclerAdapter(prefLayout)
+        var liveSharedPreferences: LiveSharedPreferences? = null
+        browseFolderVM.children.observe(viewLifecycleOwner) {
+            if (liveSharedPreferences != null) {
+                return@observe
+            }
+            liveSharedPreferences = LiveSharedPreferences(prefs.get())
+            liveSharedPreferences!!
+                .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+                .observe(viewLifecycleOwner) {
+                    // Log.e(logTag, "list layout has changed, reconfiguring. New value: $it")
+                    val prefLayout = prefs.getString(
+                        AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
+                        AppNames.RECYCLER_LAYOUT_LIST
+                    )
+                    configureRecyclerAdapter(prefLayout)
 
-        // Manage grid or linear layouts
-        val prefLayout = prefs.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+//                     Log.e(logTag, "reconfigure. New value: $it")
+                    browseFolderVM.children.removeObserver(observer)
+//                browseFolderVM.resume(false)
+                    browseFolderVM.children.observe(viewLifecycleOwner, observer)
+//                binding.invalidateAll()
+//                binding.executePendingBindings()
+                }
+
+            liveSharedPreferences!!
+                .getString(
+                    AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+                )
+                .observe(viewLifecycleOwner) {
+                    if (browseFolderVM.orderHasChanged(it)) {
+                        browseFolderVM.children.removeObserver(observer)
+                        browseFolderVM.reQuery(it)
+                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
+                    }
+                }
+        }
+    }
+
+    private fun configureRecyclerAdapter(prefLayout: String) {
+
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         val trackerBuilder: SelectionTracker.Builder<String>?
         if (asGrid) {
@@ -142,9 +183,9 @@ class BrowseFolderFragment : Fragment() {
                 SelectionPredicates.createSelectAnything()
             ).build()
             if (adapter is NodeListAdapter) {
-                (adapter as NodeListAdapter).tracker = tmpTracker
+                (adapter as NodeListAdapter).setTracker(tmpTracker)
             } else if (adapter is NodeGridAdapter) {
-                (adapter as NodeGridAdapter).tracker = tmpTracker
+                (adapter as NodeGridAdapter).setTracker(tmpTracker)
             }
             tmpTracker.addObserver(
                 object : SelectionTracker.SelectionObserver<String>() {
@@ -375,7 +416,9 @@ class BrowseFolderFragment : Fragment() {
 
     inner class ChildObserver : Observer<List<RTreeNode>> {
         override fun onChanged(it: List<RTreeNode>?) {
+//             Log.e(logTag, "children changed, it: $it")
             it?.let {
+
                 if (it.isEmpty()) {
 
                     val msg = when {
@@ -389,12 +432,12 @@ class BrowseFolderFragment : Fragment() {
                     }
 
                     binding.emptyContentDesc = msg
-                    adapter.submitList(listOf())
+                    adapter?.submitList(listOf())
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
 
                 } else {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
-                    adapter.submitList(it)
+                    adapter?.submitList(it)
                 }
             }
         }
