@@ -100,6 +100,7 @@
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
+    <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
