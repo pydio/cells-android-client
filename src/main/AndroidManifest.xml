@@ -9,7 +9,7 @@
 
     <!-- To be able to take photos -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <!-- WIP: access data usage from within the app 
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
@@ -22,12 +22,12 @@
         android:label="@string/application_title"
         android:roundIcon="@mipmap/ic_launcher2_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Md3">
+        android:theme="@style/Cells.Md3">
 
         <activity
             android:name=".LandActivity"
             android:exported="true"
-            android:theme="@style/Theme.Md3.SplashScreen">
+            android:theme="@style/Cells.Md3.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -36,11 +36,13 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Cells.Md3.LightStatusBar" />
 
         <activity
             android:name=".ChooseTargetActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Cells.Md3.LightStatusBar" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.SEND" />
@@ -55,7 +57,8 @@
 
         <activity
             android:name=".AuthActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Cells.Md3.LightStatusBar" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />

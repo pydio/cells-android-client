@@ -24,6 +24,7 @@ import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -57,6 +58,10 @@ class LandActivity : AppCompatActivity() {
 
         if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) == true) {
             lifecycleScope.launch {
+                // we won't see the copyright screen if we do not put a delay here,
+                // the splash screen is loaded but the land activity layout is not shown until
+                // the app is ready.
+                // delay(1000)
                 if (needsMigration(applicationContext)) {
                     migrate(applicationContext)
                 } else {
@@ -78,15 +83,15 @@ class LandActivity : AppCompatActivity() {
                 "-"
             )
         } catch (e: Exception) {
-            Log.e(logTag, "could not log start: " + e.toString())
+            Log.e(logTag, "could not log start: $e")
         }
     }
 
 
     private suspend fun migrate(context: Context) {
 
-        val oldValue = getOldVersion(context)
-        val newValue = ClientData.getInstance().versionCode.toInt()
+        val oldVersion = getOldVersion(context)
+        val newVersion = ClientData.getInstance().versionCode.toInt()
 
         binding.migrationReportPanel.visibility = View.VISIBLE
 
@@ -94,7 +99,7 @@ class LandActivity : AppCompatActivity() {
             val job = jobService.createAndLaunch(
                 AppNames.JOB_OWNER_WORKER,
                 AppNames.JOB_TEMPLATE_MIGRATION_V2,
-                "Migration to v3 (from $oldValue to $newValue)",
+                "Migration to v3 (from $oldVersion to $newVersion)",
                 maxSteps = 100
             ) ?: return@withContext null
             jobService.i(logTag, "Created ${job.label}", "${job.jobId}")
@@ -118,7 +123,7 @@ class LandActivity : AppCompatActivity() {
             }
         }
         val offlineRootsNb = withContext(Dispatchers.IO) {
-            val nb = migrationService.migrate(applicationContext, migrationJob, oldValue, newValue)
+            val nb = migrationService.migrate(applicationContext, migrationJob, oldVersion, newVersion)
             jobService.i(
                 logTag, "${migrationJob.label} terminated",
                 "${migrationJob.jobId}"

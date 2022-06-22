@@ -11,10 +11,9 @@
             type="String" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/migration_report_panel"
@@ -22,7 +21,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_layout_margin"
             android:background="@color/md_theme_light_secondaryContainer"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.15">
 
             <TextView
                 android:id="@+id/migration_title"
@@ -98,18 +102,18 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- TODO Handle copyright
-                <TextView
-                    android:id="@+id/version_text"
-                    style="@style/TextAppearance.Material3.BodyLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:text="Copyright Abstrium SAS 2020"
-                    android:textSize="12sp" />
-        -->
+        <TextView
+            android:id="@+id/version_text"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            android:text="@string/copyright_string"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
