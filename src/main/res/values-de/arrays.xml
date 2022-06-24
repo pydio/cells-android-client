@@ -11,8 +11,6 @@
     </string-array>
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
-    <!--        <item>mime||ASC</item>-->
-    <!--        <item>mime||DESC</item>-->
     <string-array name="list_layout_labels">
         <item>Liste</item>
         <item>Raster</item>

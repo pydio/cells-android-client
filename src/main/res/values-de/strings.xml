@@ -8,8 +8,9 @@
     <string name="button_switch_to_grid_layout">Als Raster anzeigen</string>
     <string name="button_switch_to_list_layout">Als Liste anzeigen</string>
     <string name="button_open_sort_by">Sortieren nach…</string>
+    <string name="button_open_filter_by">Filter by…</string>
     <string name="button_open_connection_center">Verbindung verwalten</string>
-    <string name="button_clear_list">Übertragungsliste löschen</string>
+    <string name="button_clear_list">Clear list</string>
     <string name="button_resync_all">Synchronisieren</string>
     <string name="button_skip">Überspringen</string>
     <!-- Navigation labels -->
@@ -120,6 +121,17 @@
     <string name="sync_already_running">Ein Synchronisierungsprozess läuft bereits. Bitte warten Sie, bevor Sie einen neuen starten</string>
     <!-- Job Management -->
     <string name="job_list_title">Hintergrundprozesse</string>
+    <string name="filter_by_status_title">Filter by status</string>
+    <string name="filter_by_status_show_all_label">Show all (no filter)</string>
+    <string name="filter_by_status_new_label">New</string>
+    <string name="filter_by_status_processing_label">Processing</string>
+    <string name="filter_by_status_cancelled_label">Cancelled</string>
+    <string name="filter_by_status_done_label">Done</string>
+    <string name="filter_by_status_error_label">Error</string>
+    <string name="filter_by_status_timeout_label">Timeout</string>
+    <string name="job_sort_by_title">Sort by</string>
+    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
     <!-- Log Management -->
     <string name="log_list_title">Hintergrund-Job-Logs</string>
     <!-- Transfer Management -->
