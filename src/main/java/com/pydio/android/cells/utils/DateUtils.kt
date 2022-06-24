@@ -1,5 +1,6 @@
 package com.pydio.android.cells.utils
 
+import com.pydio.android.cells.AppNames
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,6 +24,15 @@ fun asSinceString(timestamp: Long): String {
         agoLong < tDay * 2 -> String.format("since %s hours", agoLong / tHour)
         agoLong < tDay * 7 -> String.format("since %s days", agoLong / tDay)
         else -> getTimestampAsString(timestamp)
+    }
+}
+
+fun fromFreqToMinuteInterval(freq: String?): Long {
+    return when (freq) {
+        AppNames.OFFLINE_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
+        AppNames.OFFLINE_FREQ_HOUR -> 60
+        AppNames.OFFLINE_FREQ_DAY -> 60 * 24
+        else -> 60 * 24 * 7
     }
 }
 

@@ -17,6 +17,13 @@ public interface AppNames {
     String PREF_KEY_OFFLINE_CONST_CHARGING = "sync_on_charging_only";
     String PREF_KEY_SHOW_RUNTIME_LISTS = "show_runtime_list";
 
+
+    String PREF_KEY_JOB_FILTER_BY_STATUS = "job_filter_by_status";
+    String PREF_KEY_JOB_SORT_BY = "job_sort_by";
+
+    String PREF_KEY_TRANSFER_SORT_BY = "transfer_sort_by";
+    String PREF_KEY_TRANSFER_FILTER_BY_STATUS = "transfer_filter_by_status";
+
     /* SHARED PREFERENCE WELL KNOWN VALUES */
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
@@ -81,14 +88,17 @@ public interface AppNames {
     String JOB_TEMPLATE_RESYNC = "sync-%s";
     String JOB_TEMPLATE_MIGRATION_V2 = "migration-v2";
     String JOB_TEMPLATE_CLEAN = "clean";
-    // Status
+
+    String JOB_SORT_BY_DEFAULT = "creation_ts_desc";
+    // Status: Warning, same value list must be defined in the res/values/arrays.xml file
+    String FILTER_BY_STATUS = "filter_by_status";
     String JOB_STATUS_NEW = "new";
     String JOB_STATUS_PROCESSING = "processing";
     String JOB_STATUS_CANCELLED = "cancelled";
     String JOB_STATUS_DONE = "done";
     String JOB_STATUS_ERROR = "error";
     String JOB_STATUS_TIMEOUT = "timeout";
-
+    String JOB_STATUS_NO_FILTER = "show_all";
 
     /* Transfers */
     String TRANSFER_TYPE_DOWNLOAD = "download";

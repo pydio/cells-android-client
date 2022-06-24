@@ -11,8 +11,9 @@
     <string name="button_switch_to_grid_layout">Show as grid</string>
     <string name="button_switch_to_list_layout">Show as list</string>Home
     <string name="button_open_sort_by">Sort by…</string>
+    <string name="button_open_filter_by">Filter by…</string>
     <string name="button_open_connection_center">Manage connection</string>
-    <string name="button_clear_transfer_list">Clear transfer list</string>
+    <string name="button_clear_list">Clear list</string>
     <string name="button_resync_all">Re-sync</string>
     <string name="button_skip">Skip</string>
 
@@ -142,6 +143,18 @@
 
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
+    <string name="filter_by_status_title">Filter by status</string>
+    <string name="filter_by_status_show_all_label">Show all (no filter)</string>
+    <string name="filter_by_status_new_label">New</string>
+    <string name="filter_by_status_processing_label">Processing</string>
+    <string name="filter_by_status_cancelled_label">Cancelled</string>
+    <string name="filter_by_status_done_label">Done</string>
+    <string name="filter_by_status_error_label">Error</string>
+    <string name="filter_by_status_timeout_label">Timeout</string>
+
+    <string name="job_sort_by_title">Sort by</string>
+    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
 
     <!-- Log Management -->
     <string name="log_list_title">Background job logs</string>
@@ -159,6 +172,7 @@
     <!--Transfers -->
     <string name="relaunch_transfer">Re-launch transfer</string>
     <string name="delete_record">Delete record</string>
+
     <!-- Migration-->
     <string name="migration_message">Migrating legacy data, please wait…</string>
     <string name="post_migration_title">Successfully Upgraded to New Version!</string>

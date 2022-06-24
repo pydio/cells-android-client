@@ -8,8 +8,10 @@ import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.allModules
@@ -17,7 +19,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -37,12 +39,6 @@ class CellsApp : Application(), KoinComponent {
     // Exposed to the whole app for tasks that must survive termination of the calling UI element
     // Typically for actions launched from the "More" menu (copy, move...)
     val appScope = CoroutineScope(SupervisorJob())
-
-    // Shortcut to access preferences
-    // TODO must be a better way to do and let koin handle context injection
-    // lateinit var sharedPreferences: SharedPreferences
-
-    // var currentTheme = R.style.Theme_Cells
 
     companion object {
         lateinit var instance: CellsApp
@@ -70,9 +66,6 @@ class CellsApp : Application(), KoinComponent {
             workManagerFactory()
             modules(allModules)
         }
-
-        cancelPendingWorkManager(this)
-        setupOfflineWorker(this)
     }
 
     @Throws(SDKException::class)
@@ -115,102 +108,27 @@ class CellsApp : Application(), KoinComponent {
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
     }
-}
 
-fun setupOfflineWorker(mainApplication: CellsApp) {
+//     /**
+//      * If there is a pending work because of previous crash we'd like it to not run.
+//      */
+//     suspend fun cancelPendingWorkManager(mainApplication: CellsApp) {
+//         WorkManager.getInstance(mainApplication).cancelAllWork()
+//         // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
 
-    val logTag = "CellsApp.WorkerSetUp"
+//         // Test launch with one time worker
+// //            OneTimeWorkRequestBuilder<OfflineSyncWorker>()
+// //                .setInputData(Data.EMPTY)
+// //                .build()
+// //                .also {
+// //                    workManager
+// //                        .enqueueUniqueWork(
+// //                            OfflineSyncWorker.WORK_NAME + "_" + currentTimestamp(),
+// //                            ExistingWorkPolicy.APPEND,
+// //                            it
+// //                        )
+// //                }
+// //            Log.e(logTag, "One time OfflineSyncWorker created")
+//     }
 
-    runBlocking {
-        val workManager = WorkManager.getInstance(mainApplication)
-
-        val prefs: CellsPreferences by inject(CellsPreferences::class.java)
-        val frequency = prefs.getString(
-            AppNames.PREF_KEY_OFFLINE_FREQ,
-            AppNames.OFFLINE_FREQ_WEEK
-        )
-        val onWifi = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
-        val onCharging = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_CHARGING, true)
-
-        // Useful worker
-        val builder = Constraints.Builder().setRequiresBatteryNotLow(true)
-
-        // TODO Improve this:
-        //   - on wifi is no equivalent to !onMetered
-        //   - re-add requires device Idle true
-
-        if (onWifi) {
-            builder.setRequiredNetworkType(NetworkType.UNMETERED)
-        }
-        if (onCharging) {
-            builder.setRequiresCharging(true)
-        }
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            builder.setRequiresDeviceIdle(true)
-//        }
-// alternative (more elegant?) syntax:
-        //            .apply {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    setRequiresDeviceIdle(true)
-//                }
-//            }
-
-
-        // Dev constraints. Do **not** use this in production
-//        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-//            16,
-//            TimeUnit.MINUTES
-//        ).setConstraints(builder.build())
-//            .build()
-
-        val repeatInterval = fromFreqToMinuteInterval(frequency)
-        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-            repeatInterval, TimeUnit.MINUTES
-        ).setConstraints(builder.build()).build()
-
-        workManager.enqueueUniquePeriodicWork(
-            OfflineSyncWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            repeatingRequest
-        )
-
-        Log.e(logTag, ".....................")
-        Log.e(logTag, "... Offline Worker created, interval: $repeatInterval min.")
-        Log.e(logTag, ".....................")
-    }
-}
-
-private fun fromFreqToMinuteInterval(freq: String?): Long {
-    return when (freq) {
-        AppNames.OFFLINE_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
-        AppNames.OFFLINE_FREQ_HOUR -> 60
-        AppNames.OFFLINE_FREQ_DAY -> 60 * 24
-        else -> 60 * 24 * 7
-    }
-}
-
-
-/**
- * If there is a pending work because of previous crash we'd like it to not run.
- */
-private fun cancelPendingWorkManager(mainApplication: CellsApp) {
-    runBlocking {
-        WorkManager.getInstance(mainApplication).cancelAllWork()
-        // WorkManager.getInstance(mainApplication).cancelAllWork().result.await()
-
-        // Test launch with one time worker
-//            OneTimeWorkRequestBuilder<OfflineSyncWorker>()
-//                .setInputData(Data.EMPTY)
-//                .build()
-//                .also {
-//                    workManager
-//                        .enqueueUniqueWork(
-//                            OfflineSyncWorker.WORK_NAME + "_" + currentTimestamp(),
-//                            ExistingWorkPolicy.APPEND,
-//                            it
-//                        )
-//                }
-//            Log.e(logTag, "One time OfflineSyncWorker created")
-    }
-}
+// }

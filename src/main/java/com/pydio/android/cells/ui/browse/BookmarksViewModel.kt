@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
  */
 class BookmarksViewModel(private val nodeService: NodeService) : ViewModel() {
 
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private var vmJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
     private var _stateID: StateID? = null
     val stateID: StateID?
@@ -70,4 +70,10 @@ class BookmarksViewModel(private val nodeService: NodeService) : ViewModel() {
             setLoading(false)
         }
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        vmJob.cancel()
+    }
+
 }

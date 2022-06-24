@@ -1,6 +1,7 @@
 package com.pydio.android.cells.reactive
 
 import android.content.SharedPreferences
+import android.util.Log
 import io.reactivex.rxjava3.subjects.PublishSubject
 
 /**
@@ -9,8 +10,11 @@ import io.reactivex.rxjava3.subjects.PublishSubject
  */
 class LiveSharedPreferences(private val sharedPrefs: SharedPreferences) {
 
+    private val logTag = LiveSharedPreferences::class.simpleName
     private val updateSubject = PublishSubject.create<String>()
+
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        Log.d(logTag, "- Shared pref change event: $key")
         updateSubject.onNext(key)
     }
 

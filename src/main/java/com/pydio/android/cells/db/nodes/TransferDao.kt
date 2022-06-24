@@ -5,8 +5,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.TypeConverters
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.pydio.android.cells.db.Converters
 
 @Dao
@@ -47,6 +49,9 @@ interface TransferDao {
 
     @Query("DELETE FROM transfers WHERE transfer_id = :transferId")
     fun deleteTransfer(transferId: Long)
+
+    @RawQuery(observedEntities = [RTreeNode::class])
+    fun transferQuery(query: SupportSQLiteQuery): LiveData<List<RTransfer>>
 
     // TRANSFER CANCELLATION
     @Insert(onConflict = OnConflictStrategy.REPLACE)

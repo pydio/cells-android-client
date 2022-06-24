@@ -63,6 +63,10 @@
         app:destination="@id/sort_by_more_menu" />
 
     <action
+        android:id="@+id/open_preference_list"
+        app:destination="@id/pref_list_menu" />
+
+    <action
         android:id="@+id/open_manage_connection"
         app:destination="@id/manage_connection_more_menu" />
 
@@ -214,6 +218,20 @@
         android:id="@+id/sort_by_more_menu"
         android:name="com.pydio.android.cells.ui.menus.SortMenuFragment"
         android:label="Sort By" />
+
+    <dialog
+        android:id="@+id/pref_list_menu"
+        android:name="com.pydio.android.cells.ui.menus.PrefListMenuFragment">
+        <argument
+            android:name="preferenceKey"
+            app:argType="string" />
+        <argument
+            android:name="wellKnownValuesKey"
+            app:argType="string" />
+        <argument
+            android:name="defValue"
+            app:argType="string" />
+    </dialog>
 
     <dialog
         android:id="@+id/manage_connection_more_menu"

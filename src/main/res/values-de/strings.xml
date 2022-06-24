@@ -9,7 +9,7 @@
     <string name="button_switch_to_list_layout">Als Liste anzeigen</string>
     <string name="button_open_sort_by">Sortieren nach…</string>
     <string name="button_open_connection_center">Verbindung verwalten</string>
-    <string name="button_clear_transfer_list">Übertragungsliste löschen</string>
+    <string name="button_clear_list">Übertragungsliste löschen</string>
     <string name="button_resync_all">Synchronisieren</string>
     <string name="button_skip">Überspringen</string>
     <!-- Navigation labels -->

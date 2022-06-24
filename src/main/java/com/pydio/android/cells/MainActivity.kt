@@ -21,20 +21,30 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.bindings.getWsIconForMenu
 import com.pydio.android.cells.ui.home.clearCache
 import com.pydio.android.cells.ui.search.SearchFragment
+import com.pydio.android.cells.utils.fromFreqToMinuteInterval
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent
+import java.util.concurrent.TimeUnit
 
 /**
  * Central activity for browsing, managing accounts and settings.
@@ -76,9 +86,85 @@ class MainActivity : AppCompatActivity() {
         // Add custom listeners
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
+        configureWorkers()
+
         configureNavigationDrawer()
 
         handleCustomNavigation(stateID)
+
+    }
+
+    private fun configureWorkers() {
+        //  appScope.launch {
+
+        val prefs: CellsPreferences by KoinJavaComponent.inject(CellsPreferences::class.java)
+        val liveSharedPreferences = LiveSharedPreferences(prefs.get())
+
+        liveSharedPreferences
+            .getString(
+                AppNames.PREF_KEY_OFFLINE_FREQ,
+                AppNames.OFFLINE_FREQ_WEEK
+            )
+            .observe(this) {
+                it?.let {
+                    val workManager = WorkManager.getInstance(CellsApp.instance)
+                    workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
+                    val request = buildWorkRequest(prefs)
+                    workManager.enqueueUniquePeriodicWork(
+                        OfflineSyncWorker.WORK_NAME, ExistingPeriodicWorkPolicy.REPLACE, request
+                    )
+                }
+            }
+    }
+    //  }
+
+    private fun buildWorkRequest(prefs: CellsPreferences): PeriodicWorkRequest {
+
+        val frequency = prefs.getString(
+            AppNames.PREF_KEY_OFFLINE_FREQ,
+            AppNames.OFFLINE_FREQ_WEEK
+        )
+        val onWifi = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
+        val onCharging = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_CHARGING, true)
+
+        // TODO Improve this:
+        //   - on wifi is no equivalent to !onMetered
+        //   - re-add requires device Idle true
+
+        // Useful worker
+        val builder = Constraints.Builder().setRequiresBatteryNotLow(true)
+
+        if (onWifi) {
+            builder.setRequiredNetworkType(NetworkType.UNMETERED)
+        }
+        if (onCharging) {
+            builder.setRequiresCharging(true)
+        }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            builder.setRequiresDeviceIdle(true)
+//        }
+// alternative (more elegant?) syntax:
+        //            .apply {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    setRequiresDeviceIdle(true)
+//                }
+//            }
+
+        // Dev constraints. Do **not** use this in production
+//        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+//            16,
+//            TimeUnit.MINUTES
+//        ).setConstraints(builder.build())
+//            .build()
+
+        val repeatInterval = fromFreqToMinuteInterval(frequency)
+        Log.d(logTag, "... Built offline request with a frequency of $repeatInterval min.")
+
+        return PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+            repeatInterval, TimeUnit.MINUTES
+        ).setConstraints(builder.build()).build()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -327,6 +413,7 @@ class MainActivity : AppCompatActivity() {
             return@setOnMenuItemClickListener true
         }
     }
+
 
     private fun configureLayoutSwitcher(menu: Menu) {
         val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)

@@ -27,8 +27,8 @@ class BrowseFolderViewModel(
 ) : ViewModel() {
 
     private val logTag = BrowseFolderViewModel::class.simpleName
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private var vmJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
     val stateId: StateID = StateID.fromId(encodedStateID)
     val currentFolder = nodeService.getLiveNode(stateId)
@@ -129,7 +129,7 @@ class BrowseFolderViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        viewModelJob.cancel()
+        vmJob.cancel()
     }
 
     private fun setLoading(loading: Boolean) {

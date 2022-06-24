@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -16,6 +17,7 @@ import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.decodeSortById
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -38,6 +40,7 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
+    private val prefs: CellsPreferences,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val nodeService: NodeService,
@@ -65,6 +68,27 @@ class TransferService(
 
     fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
         return nodeDB(stateId).transferDao().getActiveTransfers()
+    }
+
+    fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
+
+        var sortById = prefs.getString(
+            AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
+        )
+        var filterByStatus = prefs.getString(
+            AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
+        )
+        val (sortByCol, sortByOrder) = decodeSortById(sortById)
+
+        val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
+            SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
+        } else {
+            SimpleSQLiteQuery(
+                "SELECT * FROM transfers WHERE status = ? ORDER BY $sortByCol $sortByOrder ",
+                arrayOf(filterByStatus)
+            )
+        }
+        return nodeDB(stateId).transferDao().transferQuery(lsQuery)
     }
 
     fun liveTransfer(accountId: StateID, transferId: Long): LiveData<RTransfer?> {

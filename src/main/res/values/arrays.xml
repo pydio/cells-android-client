@@ -22,9 +22,6 @@
         <item>size||DESC</item>
     </string-array>
 
-    <!--        <item>mime||ASC</item>-->
-    <!--        <item>mime||DESC</item>-->
-
     <string-array name="list_layout_labels">
         <item>List</item>
         <item>Grid</item>
@@ -47,6 +44,21 @@
         <item>day</item>
         <item>hour</item>
         <item>quarter</item>
+    </string-array>
+
+    <string-array name="filter_by_status_values" translatable="false">
+        <item>show_all</item>
+        <item>new</item>
+        <item>processing</item>
+        <item>cancelled</item>
+        <item>done</item>
+        <item>error</item>
+        <item>timeout</item>
+    </string-array>
+
+    <string-array name="job_sort_by_values" translatable="false">
+        <item>creation_ts_desc</item>
+        <item>creation_ts_asc</item>
     </string-array>
 
 </resources>

@@ -115,5 +115,11 @@ fun parseOrder(encoded: String): Pair<String, String> {
     return Pair(tokens[0], tokens[1])
 }
 
+fun decodeSortById(sortId: String): Pair<String, String> {
+    val prefix = sortId.substring(0, sortId.lastIndexOf("_"))
+    val suffix = sortId.substring(sortId.lastIndexOf("_") + 1)
+    return prefix to if (suffix == "desc") "DESC" else "ASC"
+}
+
 /* HELPERS TO MANAGE DATES */
 
