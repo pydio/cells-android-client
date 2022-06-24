@@ -12,15 +12,15 @@ you would do from your personal computer, only on a smaller screen.
 With a limited subset of features, the Android application can yet prove to be useful because it has
 been optimized for mobile usage:
 
-- it manages and caches authorization, no need to re-log at each connection
-- it has a aggressive cache optimisation strategy to avoid downloading the files when not necessary
-- you can configure what you download depending on your connection status (e.g. only download
-  thumbnails when you are on an un-metered network)
-- when offline, you can access the sub-parts of the remote server that have been already cached
-- you can also mark parts of you distant document repository as "offline": corresponding files are
+- It manages and caches authorization, no need to re-log at each connection.
+- It has a aggressive cache optimisation strategy to avoid downloading the files when not necessary.
+- You can configure what you download depending on your connection status (e.g. only download
+  tumbnails when you are on an un-metered network).
+- When offline, you can access the sub-parts of the remote server that have been already cached.
+- You can also mark parts of you distant document repository as "offline": corresponding files are
   then downloaded and regularly synchronized when you are online, providing full access to these
   later when you are offline.
-- you control the disk usage of the app on your device and can clear the cache to gain space on
+- You control the disk usage of the app on your device and can clear the cache to gain space on
   demand.
 
 ## Built with
@@ -52,7 +52,7 @@ create an account and get started.
 
 ## Testing
 
-> **Warning**: Most procedures described below are not "backward" compatible:  
+> **Warning**: the procedure described below is not "backward" compatible:  
 > you will have to un-install and fully re-install the application to be able to have the current main released version on your device. Handle with care!
 
 ### Beta testing from the store
