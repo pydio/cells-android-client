@@ -108,6 +108,7 @@ class CellsApp : Application(), KoinComponent {
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
     }
+}
 
 //     /**
 //      * If there is a pending work because of previous crash we'd like it to not run.

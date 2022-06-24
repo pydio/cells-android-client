@@ -21,11 +21,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
@@ -33,18 +29,17 @@ import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineSyncWorker
+import com.pydio.android.cells.services.OfflineSyncWorker.Companion.buildWorkRequest
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.bindings.getWsIconForMenu
 import com.pydio.android.cells.ui.home.clearCache
 import com.pydio.android.cells.ui.search.SearchFragment
-import com.pydio.android.cells.utils.fromFreqToMinuteInterval
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent
-import java.util.concurrent.TimeUnit
 
 /**
  * Central activity for browsing, managing accounts and settings.
@@ -94,77 +89,24 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // TODO is it OK to init works in main activity?
     private fun configureWorkers() {
-        //  appScope.launch {
-
         val prefs: CellsPreferences by KoinJavaComponent.inject(CellsPreferences::class.java)
         val liveSharedPreferences = LiveSharedPreferences(prefs.get())
-
-        liveSharedPreferences
-            .getString(
-                AppNames.PREF_KEY_OFFLINE_FREQ,
-                AppNames.OFFLINE_FREQ_WEEK
-            )
-            .observe(this) {
-                it?.let {
-                    val workManager = WorkManager.getInstance(CellsApp.instance)
-                    workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
-                    val request = buildWorkRequest(prefs)
-                    workManager.enqueueUniquePeriodicWork(
-                        OfflineSyncWorker.WORK_NAME, ExistingPeriodicWorkPolicy.REPLACE, request
-                    )
-                }
-            }
-    }
-    //  }
-
-    private fun buildWorkRequest(prefs: CellsPreferences): PeriodicWorkRequest {
-
-        val frequency = prefs.getString(
+        liveSharedPreferences.getString(
             AppNames.PREF_KEY_OFFLINE_FREQ,
             AppNames.OFFLINE_FREQ_WEEK
-        )
-        val onWifi = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_WIFI, true)
-        val onCharging = prefs.getBoolean(AppNames.PREF_KEY_OFFLINE_CONST_CHARGING, true)
-
-        // TODO Improve this:
-        //   - on wifi is no equivalent to !onMetered
-        //   - re-add requires device Idle true
-
-        // Useful worker
-        val builder = Constraints.Builder().setRequiresBatteryNotLow(true)
-
-        if (onWifi) {
-            builder.setRequiredNetworkType(NetworkType.UNMETERED)
+        ).observe(this) {
+            it?.let {
+                val workManager = WorkManager.getInstance(CellsApp.instance)
+                workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
+                workManager.enqueueUniquePeriodicWork(
+                    OfflineSyncWorker.WORK_NAME,
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    buildWorkRequest(prefs),
+                )
+            }
         }
-        if (onCharging) {
-            builder.setRequiresCharging(true)
-        }
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            builder.setRequiresDeviceIdle(true)
-//        }
-// alternative (more elegant?) syntax:
-        //            .apply {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    setRequiresDeviceIdle(true)
-//                }
-//            }
-
-        // Dev constraints. Do **not** use this in production
-//        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-//            16,
-//            TimeUnit.MINUTES
-//        ).setConstraints(builder.build())
-//            .build()
-
-        val repeatInterval = fromFreqToMinuteInterval(frequency)
-        Log.d(logTag, "... Built offline request with a frequency of $repeatInterval min.")
-
-        return PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-            repeatInterval, TimeUnit.MINUTES
-        ).setConstraints(builder.build()).build()
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -199,21 +141,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleCustomNavigation(stateID: StateID?) {
-
-        // Useless: this is the default
-//        if (stateID == null) {
-//            navController.navigate(MainNavDirections.openAccountList())
-//            return
-//        }
-//        stateID?.let {
-//            val action = when {
-//                Str.notEmpty(it.workspace) ->
-//                    MainNavDirections.openFolder(it.id)
-//                else -> MainNavDirections.openAccountHome(it.id)
-//            }
-//            navController.navigate(action)
-//        }
-
         stateID?.let {
             when {
                 Str.notEmpty(it.workspace) -> {
@@ -225,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configureNavigationDrawer() {
-        // Configure navigation View header buttons
+        // Header card
         val header = binding.navView.getHeaderView(0)
         val switchAccountBtn = header.findViewById<ImageView>(R.id.nav_header_switch_account)
         switchAccountBtn?.setOnClickListener {
@@ -233,15 +160,14 @@ class MainActivity : AppCompatActivity() {
             closeDrawer()
         }
 
+        // Observe current live session
         if (activeSessionVM.accountId == null) {
             return
         }
         val accId = activeSessionVM.accountId
-
-        // Observe current live session to update the UI
         activeSessionVM.sessionView.observe(this) {
             it?.let { liveSession ->
-                // Set current session info in the Navigation view header
+                // Header
                 val headerView = binding.navView.getHeaderView(0)
                 val primaryText =
                     headerView.findViewById<TextView>(R.id.nav_header_primary_text)
@@ -254,7 +180,6 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.menu.findItem(R.id.offline_root_list_destination)?.isVisible =
                     !liveSession.isLegacy
 
-                // Force refresh of the navigation view
                 binding.navView.invalidate()
             }
         }
@@ -290,7 +215,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(logTag, "... Item selected: #${it.itemId}")
+        Log.d(logTag, "... Item selected: #${it.itemId}")
         var done = false
         when (it.itemId) {
             R.id.offline_root_list_destination -> {
@@ -363,8 +288,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configureConnexionAlarm(menu: Menu) {
-
-        // The connection alarm button
         val connexionAlarmBtn = menu.findItem(R.id.open_connexion_dialog)
         connexionAlarmBtn.isVisible = false
         if (activeSessionVM.accountId == null) {
