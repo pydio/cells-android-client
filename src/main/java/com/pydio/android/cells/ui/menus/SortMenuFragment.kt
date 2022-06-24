@@ -52,10 +52,8 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         configItem(sortBinding.byNameDesc, keys[2])
         configItem(sortBinding.byRemoteTsDesc, keys[3])
         configItem(sortBinding.byRemoteTsAsc, keys[4])
-        configItem(sortBinding.byMimeAsc, keys[5])
-        configItem(sortBinding.byMimeDesc, keys[6])
-        configItem(sortBinding.bySizeAsc, keys[7])
-        configItem(sortBinding.bySizeDesc, keys[8])
+        configItem(sortBinding.bySizeAsc, keys[5])
+        configItem(sortBinding.bySizeDesc, keys[6])
         sortBinding.executePendingBindings()
         return sortBinding.root
     }

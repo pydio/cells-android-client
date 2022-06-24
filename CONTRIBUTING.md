@@ -4,4 +4,9 @@
 your contribution. To make the process as seamless as possible, we recommend you read this
 contribution guide*.
 
+
 [TODO]
+
+> You wanna help?  Already say "Hello" in the [forum](https://forum.pydio.com)!!
+> 
+> It might motivate us to finish this page...
