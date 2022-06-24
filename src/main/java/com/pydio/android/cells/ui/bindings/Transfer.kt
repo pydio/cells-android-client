@@ -95,9 +95,11 @@ fun TextView.setTransferStatus(item: RTransfer?) {
 @BindingAdapter("updateTransferProgress")
 fun ProgressBar.setTransferProgress(item: RTransfer?) {
     item?.let {
-        val percentage = (it.progress * 100) / it.byteSize
-        // Log.e("Updating Progress", "New values: ${it.progress} - ${it.byteSize} - $percentage")
-        progress = percentage.toInt()
+        if (it.byteSize > 0) {
+            val percentage = (it.progress * 100) / it.byteSize
+            // Log.e("Updating Progress", "New values: ${it.progress} - ${it.byteSize} - $percentage")
+            progress = percentage.toInt()
+        }
     }
 }
 
