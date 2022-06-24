@@ -109,15 +109,13 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
     }
 
     if (item.hasThumb()) {
-        val corner: Int = resources.getInteger(R.integer.glide_thumb_radius)
+        val corner = resources.getDimension(R.dimen.glide_thumb_radius)
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .transform(
                 MultiTransformation(
                     CenterCrop(),
-                    // TODO this does not work
                     RoundedCorners(convertDpToPixel(context, corner))
-                    // RoundedCorners(16)
                 )
             )
             .into(this)
@@ -210,7 +208,8 @@ fun getComposedDrawable(context: Context, mime: String, sortName: String?): Laye
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    val insetPx = convertDpToPixel(context, 8)
+    // FIXME: hardcoded value
+    val insetPx = convertDpToPixel(context, 8f)
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
@@ -227,7 +226,8 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    val insetPx = convertDpToPixel(context, 20)
+    // FIXME: hardcoded value
+    val insetPx = convertDpToPixel(context, 20f)
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
@@ -301,7 +301,7 @@ fun getMessageFromLocalModifStatus(context: Context, status: String): String? {
     }
 }
 
-fun convertDpToPixel(context: Context, dp: Int): Int {
+fun convertDpToPixel(context: Context, dp: Float): Int {
     val res =
         dp * (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
     return res.roundToInt()
