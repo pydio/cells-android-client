@@ -8,10 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentJobListBinding
 import com.pydio.android.cells.db.runtime.RJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class JobListFragment : Fragment() {
@@ -58,15 +61,14 @@ class JobListFragment : Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-//        activeSessionVM.accountId?.let { accId ->
-//            val clearListBtn = menu.findItem(R.id.clear_transfer_table)
-//            clearListBtn.isVisible = true
-//            clearListBtn.setOnMenuItemClickListener {
-//                lifecycleScope.launch {
-//                    jobVM.transferService.clearTerminated(StateID.fromId(accId))
-//                }
-//                return@setOnMenuItemClickListener true
-//            }
-//        }
-    }
+        val clearListBtn = menu.findItem(R.id.clear_table)
+        clearListBtn.isVisible = true
+        clearListBtn.setOnMenuItemClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                jobVM.jobService.clearTerminated()
+            }
+            return@setOnMenuItemClickListener true
+        }
+   }
+
 }

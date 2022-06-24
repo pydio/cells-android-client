@@ -7,7 +7,7 @@ import com.pydio.android.cells.services.JobService
  * Holds a list of recent jobs and provides various clean features (still to implement).
  */
 class JobListViewModel(
-    jobService: JobService
+    val jobService: JobService
 ) : ViewModel() {
     val jobs = jobService.listLiveJobs(true)
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string-array name="order_by_labels">
         <item>Canonical (A to Z, folders first)</item>
         <item>File name (A to Z)</item>
@@ -9,6 +10,8 @@
         <item>Size (smallest first)</item>
         <item>Size (largest first)</item>
     </string-array>
+
+    <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
 

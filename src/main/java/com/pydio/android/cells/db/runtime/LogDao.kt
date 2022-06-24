@@ -23,4 +23,6 @@ interface LogDao {
     @Query("SELECT * FROM logs WHERE level = :levelId ORDER BY timestamp DESC LIMIT 100")
     fun getByLevel(levelId: Int): List<RLog>
 
+    @Query("DELETE FROM logs ")
+    fun clearLogs()
 }

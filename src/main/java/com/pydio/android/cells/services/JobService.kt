@@ -107,6 +107,10 @@ class JobService(runtimeDB: RuntimeDB) {
         jobDao.update(job)
     }
 
+    fun clearTerminated(){
+     jobDao.clearTerminatedJobs()
+    }
+
     /* MANAGE LOGS */
 
     fun listLogs(): LiveData<List<RLog>> {
@@ -142,4 +146,9 @@ class JobService(runtimeDB: RuntimeDB) {
                 logDao.insert(log)
             }
         }
+
+    fun clearAllLogs(){
+        logDao.clearLogs()
+    }
+
 }

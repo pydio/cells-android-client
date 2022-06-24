@@ -46,8 +46,6 @@ class TransferListFragment : Fragment() {
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         val adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
-
-
         transferVM.transfers.observe(viewLifecycleOwner) {
             // Log.e(logTag, "Got an event on the transfer list, size: ${it.size}")
             adapter.submitList(it)

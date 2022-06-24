@@ -43,10 +43,10 @@ interface JobDao {
     fun getAllNew(): List<RJob>
 
     @Query("SELECT * FROM jobs ORDER BY start_ts DESC")
-    fun getActiveTransfers(): LiveData<List<RJob>?>
+    fun getActiveJobs(): LiveData<List<RJob>?>
 
     @Query("DELETE FROM jobs WHERE done_ts > 0")
-    fun clearTerminatedTransfers()
+    fun clearTerminatedJobs()
 
     @Query("DELETE FROM jobs WHERE job_id = :jobId")
     fun deleteTransfer(jobId: Long)
