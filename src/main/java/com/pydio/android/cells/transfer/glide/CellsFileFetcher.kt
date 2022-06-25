@@ -24,6 +24,15 @@ import java.nio.ByteBuffer
  */
 class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, KoinComponent {
 
+    // TODO implement cache cleaning for glide
+//    // This method must be called on the main thread.
+//    Glide.get(context).clearMemory()
+//
+//    Thread(Runnable {
+//        // This method must be called on a background thread.
+//        Glide.get(context).clearDiskCache()
+//    }).start()
+
     private val logTag = CellsFileFetcher::class.simpleName
 
     private var dlJob = Job()
@@ -32,7 +41,6 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     private val transferService: TransferService by inject()
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
-        // Log.e(logTag, "About to load the file...")
 
         val (stateId, type) = decodeModel(model)
         dlScope.launch {
@@ -40,12 +48,11 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
             val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
             file?.let {
                 // TODO rather use a stream
-                // Log.e(logTag, "Got a file...")
                 val bytes = it.readBytes()
                 val byteBuffer = ByteBuffer.wrap(bytes)
                 callback.onDataReady(byteBuffer)
             }
-            // TODO rather display a boken image with the error message
+            // TODO rather display a broken image with the error message
             if (Str.notEmpty(errMsg)) {
                 Log.e(logTag, "could not get $type at $stateId: $errMsg")
 //                with(Dispatchers.Main) {

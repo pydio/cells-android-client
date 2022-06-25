@@ -14,8 +14,7 @@ fun encodeModel(encodedState: String, eTag: String?, type: String): String {
 }
 
 fun decodeModel(encoded: String): Pair<StateID, String> {
-    // We remove the prefix that we do not use:
-    //Log.d("decodeModel", "Encoded: $encoded")
+    // We remove the eTag prefix that we do not use (only serves to find modifs, see above)
     val model = encoded.substring(encoded.indexOf(":") + 1)
     val type = model.substring(0, model.indexOf(":"))
     val encodedState = model.substring(model.indexOf(":") + 1)

@@ -40,7 +40,7 @@
         Goes with the clipToPadding=false prop in the recycler layout -->
     <dimen name="recycler_bottom_fab_padding">64dp</dimen>
     <!-- For rounded corners (in dp) -->
-    <dimen name="glide_thumb_radius">6dp</dimen>
+    <dimen name="glide_thumb_radius">3dp</dimen>
     <!-- List Items -->
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_more_size">32dp</dimen>

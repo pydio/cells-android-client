@@ -21,7 +21,6 @@ class CellsModelLoader : ModelLoader<String, ByteBuffer> {
         height: Int,
         options: Options
     ): ModelLoader.LoadData<ByteBuffer>? {
-//        Log.e(logTag, "buildLoadData for $model")
         return ModelLoader.LoadData(ObjectKey(model), CellsFileFetcher(model))
     }
 
@@ -34,12 +33,5 @@ class CellsModelLoader : ModelLoader<String, ByteBuffer> {
             false
         }
     }
-
-//    companion object {
-//        private val logTag = CellsModelLoader::class.java.simpleName
-//        private const val THUMB = AppNames.LOCAL_FILE_TYPE_THUMB
-//        private const val PREVIEW = AppNames.LOCAL_FILE_TYPE_PREVIEW
-//        private const val FILE = AppNames.LOCAL_FILE_TYPE_FILE
-//    }
 }
  

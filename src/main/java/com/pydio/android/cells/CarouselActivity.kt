@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.pydio.android.cells.databinding.ActivityCarouselBinding
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
@@ -81,7 +82,16 @@ class CarouselActivity : AppCompatActivity() {
         state?.let {
             carouselVM.afterCreate(state.parent(), state)
             carouselVM.allChildren.observe(this) {
-                carouselVM.updateElements(it)
+                // dirty hack to avoid strange effects when there is only one image
+                if (it.size == 1) {
+                    val tmpList: MutableList<RTreeNode> = ArrayList()
+                    tmpList.add(it[0])
+                    tmpList.add(it[0])
+                    carouselVM.updateElements(tmpList)
+                } else {
+                    carouselVM.updateElements(it)
+                }
+
             }
         }
 
@@ -149,10 +159,14 @@ class CarouselActivity : AppCompatActivity() {
                 Glide.with(this@CarouselActivity)
                     .load(encodeModel(currItem, AppNames.LOCAL_FILE_TYPE_FILE))
                     .thumbnail(thumbnailRequest)
+                    .placeholder(R.drawable.loading_img)
+                    .error(R.drawable.file_image_outline)
                     .into(view)
             } else {
                 Glide.with(this@CarouselActivity)
                     .load(encodeModel(currItem, AppNames.LOCAL_FILE_TYPE_PREVIEW))
+                    .placeholder(R.drawable.loading_img)
+                    .error(R.drawable.file_image_outline)
                     .thumbnail(thumbnailRequest)
                     .into(view)
             }

@@ -112,6 +112,8 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         val corner = resources.getDimension(R.dimen.glide_thumb_radius)
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.file_image_outline)
             .transform(
                 MultiTransformation(
                     CenterCrop(),
