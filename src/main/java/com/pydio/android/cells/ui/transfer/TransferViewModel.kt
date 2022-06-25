@@ -58,6 +58,9 @@ class TransferViewModel(
     }
 
     init {
+        Log.d(logTag, "init launched")
+        reQuery("init")
+
         vmScope.launch {
             liveSharedPreferences.getString(
                 AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS,
@@ -83,5 +86,4 @@ class TransferViewModel(
             }
         }
     }
-
 }

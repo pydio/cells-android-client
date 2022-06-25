@@ -66,9 +66,9 @@ class TransferService(
         return nodeDB(accountId).transferDao()
     }
 
-    fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
-        return nodeDB(stateId).transferDao().getActiveTransfers()
-    }
+//    fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
+//        return nodeDB(stateId).transferDao().getActiveTransfers()
+//    }
 
     fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
 
@@ -88,6 +88,7 @@ class TransferService(
                 arrayOf(filterByStatus)
             )
         }
+//         Log.e(logTag, "About to query: ${lsQuery.sql}")
         return nodeDB(stateId).transferDao().transferQuery(lsQuery)
     }
 

@@ -16,7 +16,6 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuPrefBinding
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.ui.bindings.convertDpToPixel
-import com.pydio.android.cells.utils.showMessage
 import org.koin.android.ext.android.inject
 
 /**
@@ -39,18 +38,18 @@ class PrefListMenuFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(logTag, "onCreateView")
         prefBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_pref, container, false
         )
 
-        val layout = prefBinding.moreMenuPref
+        val parentLayout = prefBinding.moreMenuPref
 
         val args: PrefListMenuFragmentArgs by navArgs()
         val prefKey = args.preferenceKey
         val valueListKey = args.wellKnownValuesKey
-        // val key = "filter_by_status"
         oldPref = prefs.getString(prefKey, args.defValue)
+
+        Log.d(logTag, "onCreateView, default filter: $oldPref")
 
         var titleId = getResourceIdByName(requireContext(), "string", "${prefKey}_title")
         if (titleId == 0) {
@@ -73,14 +72,29 @@ class PrefListMenuFragment : BottomSheetDialogFragment() {
         val keys = resources.getStringArray(currPrefKnownValuesId)
         for (currKey in keys) {
 
-            // FIXME rather use a button component
-            
+            val rowLayout = LinearLayout(requireContext())
+            parentLayout.addView(rowLayout)
+            rowLayout.orientation = LinearLayout.VERTICAL
+            rowLayout.addBackgroundRipple()
+
+            rowLayout.setOnClickListener {
+                // showMessage(requireContext(), currKey)
+                prefs.setString(prefKey, currKey)
+                dismiss()
+            }
+            if (currKey == oldPref) {
+                // TODO this does not work yet
+                rowLayout.isSelected = true
+            }
+
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
+            val style =
+                if (currKey == oldPref) R.style.TextAppearance_Material3_TitleMedium else R.style.TextAppearance_Material3_BodyLarge
             val textView =
-                TextView(requireContext(), null, 0, R.style.TextAppearance_Material3_BodyLarge)
+                TextView(requireContext(), null, 0, style)
 
             val labelId =
                 getResourceIdByName(requireContext(), "string", "${valueListKey}_${currKey}_label")
@@ -90,28 +104,13 @@ class PrefListMenuFragment : BottomSheetDialogFragment() {
                 currKey
             }
             textView.layoutParams = params
-            val hPadding = convertDpToPixel(
-                requireContext(),
-                resources.getDimension(R.dimen.margin_small)
-            )
-            val vPadding = convertDpToPixel(
-                requireContext(),
-                resources.getDimension(R.dimen.margin_xsmall)
-            )
+            val hPadding =
+                convertDpToPixel(requireContext(), resources.getDimension(R.dimen.margin_small))
+            val vPadding =
+                convertDpToPixel(requireContext(), resources.getDimension(R.dimen.margin_xsmall))
             textView.setPadding(hPadding, vPadding, hPadding, vPadding)
-            textView.setTextIsSelectable(true)
-            textView.setOnClickListener {
-                showMessage(requireContext(), currKey)
-                prefs.setString(prefKey, currKey)
-                dismiss()
-            }
 
-            textView.addBackgroundRipple()
-            if (currKey == oldPref) {
-                // TODO this does not work yet
-                textView.isSelected = true
-            }
-            layout.addView(textView)
+            rowLayout.addView(textView)
         }
 
         return prefBinding.root
