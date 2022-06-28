@@ -71,7 +71,6 @@ val dbModule = module {
         )
             .build()
     }
-
 }
 
 val daoModule = module {
@@ -85,16 +84,15 @@ val daoModule = module {
     single { get<AuthDB>().authStateDao() }
 
     single { get<AccountDB>().accountDao() }
-    single { get<AccountDB>().liveSessionDao() }
+    single { get<AccountDB>().sessionViewDao() }
     single { get<AccountDB>().sessionDao() }
     single { get<AccountDB>().workspaceDao() }
-
 }
 
 val serviceModule = module {
 
     // Network state
-    single { NetworkService(androidContext(), get()) }
+    single { NetworkService(androidContext()) }
 
     // Long running jobs
     single { JobService(get()) }
@@ -123,7 +121,7 @@ val serviceModule = module {
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
     single { NodeService(get(), get(), get(), get(), get()) }
     single { FileService(get()) }
-    single { TransferService(get(), get(), get(), get(), get()) }
+    single { TransferService(get(), get(), get(), get(), get(), get()) }
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSyncWorker(
@@ -142,13 +140,13 @@ val viewModelModule = module {
     viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
-    viewModel { ActiveSessionViewModel(get(), get()) }
-    viewModel { params -> BrowseFolderViewModel(params.get(), get(), get()) }
+    viewModel { ActiveSessionViewModel(get(), get(), get()) }
+    viewModel { params -> BrowseFolderViewModel(params.get(), get(), get(), get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
 
     viewModel { BookmarksViewModel(get()) }
-    viewModel { OfflineRootsViewModel(get(), get()) }
+    viewModel { OfflineRootsViewModel(get(), get(), get()) }
 
     viewModel { JobListViewModel(get()) }
     viewModel { LogListViewModel(get()) }

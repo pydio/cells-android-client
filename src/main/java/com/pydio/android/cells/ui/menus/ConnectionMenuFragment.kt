@@ -7,14 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuManageConnectionBinding
 import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.tasks.loginAccount
 import com.pydio.android.cells.ui.ActiveSessionViewModel
+import com.pydio.android.cells.utils.showMessage
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 /**
  * Menu that can be opened when current session connection is broken to explain status
@@ -24,6 +26,7 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = ConnectionMenuFragment::class.java.simpleName
 
+    private val networkService: NetworkService by inject()
     private val authService: AuthService by inject()
     private val sessionFactory: SessionFactory by inject()
 
@@ -46,16 +49,24 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
 
         connectionBinding.session = activeSessionVM.sessionView.value
         connectionBinding.launchAuth.setOnClickListener {
-            activeSessionVM.sessionView.value?.let {
-                loginAccount(
-                    requireActivity(),
-                    authService,
-                    sessionFactory,
-                    it,
-                    AuthService.NEXT_ACTION_TERMINATE,
+            if (networkService.isConnected()) {
+                activeSessionVM.sessionView.value?.let {
+                    loginAccount(
+                        requireActivity(),
+                        authService,
+                        sessionFactory,
+                        it,
+                        AuthService.NEXT_ACTION_TERMINATE,
+                    )
+                    dismiss()
+                }
+            } else {
+                showMessage(
+                    requireContext(),
+                    "Cannot launch authentication process with no internet access"
                 )
-                dismiss()
             }
+
         }
         connectionBinding.executePendingBindings()
         return connectionBinding.root

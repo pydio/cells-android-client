@@ -19,6 +19,12 @@ class BackOffTicker {
         }
     }
 
+    fun getCurrentDelay(): Long {
+        synchronized(this) {
+            return backoffDuration[currentBackoffIndex]
+        }
+    }
+
     fun getCurrentIndex(): Int {
         synchronized(this) {
             return currentBackoffIndex

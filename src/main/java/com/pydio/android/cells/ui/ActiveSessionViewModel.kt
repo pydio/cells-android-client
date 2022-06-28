@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.runtime.RNetworkInfo
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
@@ -26,18 +26,29 @@ import java.util.concurrent.TimeUnit
  * and the remote server.
  */
 class ActiveSessionViewModel(
-    private val accountService: AccountService,
+    private val prefs: CellsPreferences,
     private val networkService: NetworkService,
+    private val accountService: AccountService,
     id: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
     private val logTag = "${ActiveSessionViewModel::class.simpleName}[${id.substring(24)}]"
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private var vmJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
-    // Business objects
-    val networkInfo: LiveData<RNetworkInfo> = networkService.getLiveStatus()
-    private var isOnline = networkService.hasInternetAccess()
+//    // Business objects
+//    private var _networkStatus: NetworkStatus = NetworkStatus.Available
+//    private val _isConnected = MutableLiveData<Boolean>()
+//    val isConnected: LiveData<Boolean>
+//        get() = _isConnected
+
+//    fun isOnline(): Boolean {
+//        return networkService.liveInternetFlag?.value ?: false
+//    }
+//
+//    fun isMetered(): Boolean {
+//        return networkService.liveMeteredFlag?.value ?: false
+//    }
 
     private var _accountId: String? = null
     val accountId: String?
@@ -46,17 +57,30 @@ class ActiveSessionViewModel(
     lateinit var sessionView: LiveData<RSessionView?>
     lateinit var workspaces: LiveData<List<RWorkspace>>
 
-    fun isServerReachable(): Boolean {
+    fun canListMeta(): Boolean {
         if (sessionView.value == null) {
             return false
         }
-        // TODO this is useless as it is implemented for the time being. We should rather have
-        //  a cached value that gets automatically updated when connection state changes.
-        isOnline = networkService.hasInternetAccess()
-        // return isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        val reachable = isOnline && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        Log.i(logTag, "Reachable: $reachable - $isOnline - ${sessionView.value?.authStatus}")
+        val reachable = networkService.isConnected() &&
+                sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        if (!reachable) {
+            Log.d(
+                logTag, "Un-reachable. Connected: ${networkService.isConnected()} " +
+                        ", auth status: ${sessionView.value?.authStatus}"
+            )
+        }
         return reachable
+    }
+
+    fun canDownloadFiles(): Boolean {
+        if (sessionView.value == null) {
+            return false
+        }
+
+        val dlFileOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_FILES, false)
+        return networkService.isConnected() &&
+                sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED &&
+                (dlFileOnMetered || !networkService.isMetered())
     }
 
     // Watcher states
@@ -71,6 +95,24 @@ class ActiveSessionViewModel(
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>
         get() = _errorMessage
+
+//    init {
+//        _isConnected.value = true
+//        val liveNetwork = LiveNetwork(CellsApp.instance.applicationContext)
+//        if (liveNetwork.value is NetworkStatus.Unavailable) {
+//            setNetworkStatus(NetworkStatus.Unavailable)
+//        }
+//        vmScope.launch {
+//            liveNetwork.asFlow().collect() {
+//                it?.let {
+//                    Log.e(logTag, "Setting new status: $it")
+//                    setNetworkStatus(it)
+//                }
+//            }
+//        }
+//        Log.e(logTag, "Initial status: ${liveNetwork.value}")
+//        Log.e(logTag, "Stored status: $_networkStatus")
+//    }
 
     fun afterCreate(accountId: String?) {
         if (accountId != null) {
@@ -87,11 +129,49 @@ class ActiveSessionViewModel(
         }
     }
 
-    // TODO handle network status
+    fun pause() {
+        _isRunning = false
+    }
+
+    fun resume() {
+        Log.d(logTag, "resuming...")
+        backOffTicker.resetIndex()
+        if (!_isRunning) {
+            _isRunning = true
+            currWatcher = watchSession()
+        }
+    }
+
+//    private fun setNetworkStatus(status: NetworkStatus) {
+//        Log.e(logTag, "############### Setting new status: $status")
+//        this._networkStatus = status
+//
+//        _isConnected.value = _networkStatus !is NetworkStatus.Unavailable
+//    }
+
+    fun forceRefresh() {
+        setLoading(true)
+        pause()
+        currWatcher?.cancel()
+        resume()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e(logTag, "onCleared for $accountId")
+        vmJob.cancel()
+    }
+
     private fun watchSession() = vmScope.launch {
         while (_isRunning) {
-            doPull()
-            val nd = backOffTicker.getNextDelay()
+            val nd = if (networkService.isConnected()) {
+                doPull()
+                backOffTicker.getNextDelay()
+            } else {
+                setLoading(false)
+                // backOffTicker.getCurrentDelay()
+                2
+            }
             Log.d(logTag, "... ${StateID.fromId(_accountId)} - About to sleep ${nd}s")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
@@ -126,34 +206,7 @@ class ActiveSessionViewModel(
         }
     }
 
-    fun pause() {
-        _isRunning = false
-    }
-
-    fun resume() {
-        Log.d(logTag, "resuming...")
-        backOffTicker.resetIndex()
-        if (!_isRunning) {
-            _isRunning = true
-            currWatcher = watchSession()
-        }
-    }
-
     private fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
-
-    fun forceRefresh() {
-        setLoading(true)
-        pause()
-        currWatcher?.cancel()
-        resume()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.e(logTag, "onCleared for $accountId")
-        viewModelJob.cancel()
-    }
-
 }

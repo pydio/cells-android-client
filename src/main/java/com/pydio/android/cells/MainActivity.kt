@@ -27,6 +27,7 @@ import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.OfflineSyncWorker.Companion.buildWorkRequest
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private val logTag = MainActivity::class.simpleName
 
     private val nodeService: NodeService by inject()
+    private val networkService: NetworkService by inject()
 
     private val prefs: CellsPreferences by inject()
     private val liveSharedPreferences = LiveSharedPreferences(prefs.get())
@@ -309,19 +311,45 @@ class MainActivity : AppCompatActivity() {
         }
 
         // The "no internet banner"
-        activeSessionVM.networkInfo.observe(this) {
-            // Log.e(logTag, "--- observing network info, new event")
-            it?.let { networkInfo ->
-                val offlineBannerState = if (networkInfo.isOffline())
-                    View.VISIBLE else View.GONE
-                /*  Log.e(
-                      logTag, "--- current status: ${networkInfo.status} " +
-                              "(disconnected: ${networkInfo.isOffline()})"
-                  )*/
+        networkService.liveInternetFlag.observe(this) {
+            it?.let {
+                val offlineBannerState = if (!it) View.VISIBLE else View.GONE
                 binding.offlineBanner.visibility = offlineBannerState
                 binding.executePendingBindings()
             }
         }
+
+        //
+//        val liveNetwork = LiveNetwork(this)
+//
+//        if (liveNetwork.value is NetworkStatus.Unavailable) {
+//            activeSessionVM.setNetworkStatus(NetworkStatus.Unavailable)
+//        }
+//
+//        liveNetwork.observe(this) {
+//            it?.let {
+//                binding.offlineBanner.visibility = when (it) {
+//                    NetworkStatus.Available -> View.GONE
+//                    NetworkStatus.Unavailable -> View.VISIBLE
+//                }
+//                activeSessionVM.setNetworkStatus(it)
+//            }
+//        }
+
+//        // The "no internet banner"
+//        activeSessionVM.networkInfo.observe(this) {
+//            // Log.e(logTag, "--- observing network info, new event")
+//            it?.let { networkInfo ->
+//                val offlineBannerState = if (networkInfo.isOffline())
+//                    View.VISIBLE else View.GONE
+//                /*  Log.e(
+//                      logTag, "--- current status: ${networkInfo.status} " +
+//                              "(disconnected: ${networkInfo.isOffline()})"
+//                  )*/
+//                binding.offlineBanner.visibility = offlineBannerState
+//                binding.executePendingBindings()
+//            }
+//        }
     }
 
     private fun configureSort(menu: Menu) {
@@ -336,7 +364,6 @@ class MainActivity : AppCompatActivity() {
             return@setOnMenuItemClickListener true
         }
     }
-
 
     private fun configureLayoutSwitcher(menu: Menu) {
         val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)

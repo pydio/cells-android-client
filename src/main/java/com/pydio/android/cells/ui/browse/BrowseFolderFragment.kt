@@ -31,14 +31,14 @@ import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBrowseFolderBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.isPreViewable
-import com.pydio.android.cells.utils.showLongMessage
 import com.pydio.android.cells.utils.showMessage
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -60,6 +60,7 @@ class BrowseFolderFragment : Fragment() {
 
     private val prefs: CellsPreferences by inject()
     private val nodeService: NodeService by inject()
+    private val networkService: NetworkService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
@@ -100,10 +101,28 @@ class BrowseFolderFragment : Fragment() {
         }
         browseFolderVM.isLoading.observe(viewLifecycleOwner) {
             binding.forceRefresh.isRefreshing = it
+
+            // Workaround a corner case when folder is empty after loading
+            if (!it && browseFolderVM.children?.value?.isEmpty() == true) {
+                val msg = resources.getString(R.string.empty_folder)
+                binding.emptyContentDesc = msg
+            }
         }
         browseFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
-            msg?.let { showLongMessage(requireContext(), msg) }
+            msg?.let { showMessage(requireContext(), msg) }
         }
+
+        networkService.liveInternetFlag.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) {
+                    // We also want to refresh the top banner typically
+                    onResume()
+                } else {
+                    browseFolderVM.pause()
+                }
+            }
+        }
+
 
         return binding.root
     }
@@ -139,7 +158,7 @@ class BrowseFolderFragment : Fragment() {
                     AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
                 )
                 .observe(viewLifecycleOwner) {
-                    it?.let{
+                    it?.let {
                         if (browseFolderVM.orderHasChanged(it)) {
                             browseFolderVM.children.removeObserver(observer)
                             browseFolderVM.reQuery(it)
@@ -327,19 +346,26 @@ class BrowseFolderFragment : Fragment() {
             return@launch
         }
 
-        nodeService.getLocalFile(node, activeSessionVM.isServerReachable())?.let {
+        nodeService.getLocalFile(node, activeSessionVM.canDownloadFiles())?.let {
             externallyView(requireContext(), it, node)
             return@launch
         }
 
-        if (!activeSessionVM.isServerReachable()) {
+        if (!activeSessionVM.canListMeta()) {
             showMessage(
                 requireContext(),
                 resources.getString(R.string.cannot_download_file) + "\n" +
                         resources.getString(R.string.server_unreachable)
             )
             return@launch
+        } else if (!activeSessionVM.canDownloadFiles()) {
+            showMessage(
+                requireContext(),
+                resources.getString(R.string.no_download_on_metered)
+            )
+            return@launch
         }
+
 
         val action = MainNavDirections.launchDownload(node.encodedState, true)
         findNavController().navigate(action)
@@ -420,11 +446,9 @@ class BrowseFolderFragment : Fragment() {
         override fun onChanged(it: List<RTreeNode>?) {
 //             Log.e(logTag, "children changed, it: $it")
             it?.let {
-
                 if (it.isEmpty()) {
-
                     val msg = when {
-                        !activeSessionVM.isServerReachable()
+                        !activeSessionVM.canListMeta()
                         -> resources.getString(R.string.empty_cache) + "\n" +
                                 resources.getString(R.string.server_unreachable)
                         browseFolderVM.isLoading.value == true
@@ -436,7 +460,6 @@ class BrowseFolderFragment : Fragment() {
                     binding.emptyContentDesc = msg
                     adapter?.submitList(listOf())
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
-
                 } else {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
                     adapter?.submitList(it)

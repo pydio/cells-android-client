@@ -42,13 +42,11 @@ fun rename(
     dialog.window?.findViewById<TextInputEditText>(android.R.id.text1)
         ?.let {
             it.setText(node.name.toCharArray(), 0, node.name.length)
-            if (node.name.length > 0 && node.name.lastIndexOf(".") > 1) {
+            if (node.name.isNotEmpty() && node.name.lastIndexOf(".") > 1) {
                 it.setSelection(0, node.name.lastIndexOf("."))
             }
             it.requestFocus()
         }
-
-
     return true
 }
 

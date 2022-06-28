@@ -7,7 +7,9 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.services.JobService
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -20,8 +22,9 @@ import kotlinx.coroutines.launch
  * Holds a live list of the offline roots for the current session
  */
 class OfflineRootsViewModel(
-    private val nodeService: NodeService,
-    private val jobService: JobService
+    private val networkService: NetworkService,
+    private val jobService: JobService,
+    private val nodeService: NodeService
 ) : ViewModel() {
 
     // private val tag = OfflineRootsViewModel::class.simpleName
@@ -58,16 +61,38 @@ class OfflineRootsViewModel(
         _errorMessage.value = null
         setLoading(true)
         vmScope.launch {
-            val (jobId, error) = nodeService.prepareAccountSync(stateId, AppNames.JOB_OWNER_USER)
-            if (Str.notEmpty(error)) {
-                _errorMessage.value = error
-            } else {
-                jobService.launched(jobId)
-                CellsApp.instance.appScope.launch {
-                    nodeService.performAccountSync(stateId, jobId, CellsApp.instance.applicationContext)
+            doForceRefresh()
+            setLoading(false)
+        }
+    }
+
+    private suspend fun doForceRefresh() {
+        when (networkService.networkStatus) {
+            is NetworkStatus.Metered -> {
+                // TODO implement settings to force accept this user story
+                _errorMessage.value = "preventing re-sync with on metered network"
+            }
+            is NetworkStatus.Unavailable -> {
+                _errorMessage.value = "cannot launch re-sync with no internet connection"
+            }
+            is NetworkStatus.Available -> {
+                val (jobId, error) = nodeService.prepareAccountSync(
+                    stateId,
+                    AppNames.JOB_OWNER_USER
+                )
+                if (Str.notEmpty(error)) {
+                    _errorMessage.value = error
+                } else {
+                    jobService.launched(jobId)
+                    CellsApp.instance.appScope.launch {
+                        nodeService.performAccountSync(
+                            stateId,
+                            jobId,
+                            CellsApp.instance.applicationContext
+                        )
+                    }
                 }
             }
-            setLoading(false)
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit
 class BrowseFolderViewModel(
     encodedStateID: String,
     private val nodeService: NodeService,
+    private val networkService: NetworkService,
     prefs: CellsPreferences
 ) : ViewModel() {
 
@@ -68,16 +70,22 @@ class BrowseFolderViewModel(
 
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
-            doPull()
-            val nd = backOffTicker.getNextDelay()
-            Log.d(logTag, "... Next delay: $nd - $stateId")
+            val nd = if (networkService.isConnected()) {
+                doPull()
+                backOffTicker.getNextDelay()
+            } else {
+                setLoading(false)
+                // backOffTicker.getCurrentDelay()
+                2
+            }
+            Log.d(logTag, "... $stateId - About to sleep ${nd}s")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
         Log.i(logTag, "paused")
     }
 
     private suspend fun doPull() {
-        Log.d(logTag, "About to pull for $stateId")
+        Log.e(logTag, "#### About to pull for $stateId")
         val (changeNb, errMsg) = nodeService.pull(stateId)
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(errMsg)) {
@@ -92,6 +100,11 @@ class BrowseFolderViewModel(
                 backOffTicker.resetIndex()
             }
             setLoading(false)
+
+            if (_children.value?.isEmpty() == true) {
+                // TODO find a way to notify the BrowseFolderFragment that loading is done.
+            }
+
         }
     }
 

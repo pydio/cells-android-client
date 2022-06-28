@@ -24,6 +24,9 @@ interface AccountDao {
     @Query("SELECT * FROM accounts WHERE username = :username AND url = :url LIMIT 1")
     fun getAccount(username: String, url: String): RAccount?
 
+    @Query("SELECT * FROM accounts WHERE url = :url ")
+    fun getAccountByUrl(url: String): List<RAccount>
+
     @Query("SELECT * FROM accounts")
     fun getAccounts(): List<RAccount>
 

@@ -2,128 +2,188 @@ package com.pydio.android.cells.services
 
 import android.app.ActivityManager
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.TrafficStats
-import android.os.Build
+import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
-import com.pydio.android.cells.db.runtime.NetworkInfoDao
-import com.pydio.android.cells.db.runtime.RNetworkInfo
-import com.pydio.android.cells.utils.currentTimestamp
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
+import com.pydio.android.cells.reactive.LiveNetwork
+import com.pydio.android.cells.reactive.NetworkStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
 
-class NetworkService constructor(
-    private val context: Context,
-    private val networkDao: NetworkInfoDao,
-) {
+class NetworkService constructor(context: Context) {
 
     private val logTag = NetworkService::class.simpleName
+    private val serviceJob = Job()
+    private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
-    private val networkServiceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + networkServiceJob)
+    // Business objects
+    private var _networkStatus: NetworkStatus = NetworkStatus.Available
+    val networkStatus: NetworkStatus
+        get() = _networkStatus
+
+    private val _isConnected = MutableLiveData<Boolean>()
+    val liveInternetFlag: LiveData<Boolean>
+        get() = _isConnected
+    private val _isMetered = MutableLiveData<Boolean>()
+    val liveMeteredFlag: LiveData<Boolean>
+        get() = _isMetered
+
+    // Manage UI
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
 
     init {
+        _isConnected.value = true
+        _isMetered.value = false
+        val liveNetwork = LiveNetwork(context)
+        if (liveNetwork.value is NetworkStatus.Unavailable) {
+            setNetworkStatus(NetworkStatus.Unavailable)
+        } else if (liveNetwork.value is NetworkStatus.Metered) {
+            setNetworkStatus(NetworkStatus.Metered)
+        }
         serviceScope.launch {
-            networkDao.get() ?: let {
-                networkDao.insert(RNetworkInfo())
-            }
-        }
-    }
-
-    fun getLiveStatus(): LiveData<RNetworkInfo> = networkDao.getLive()
-
-    fun networkInfo(): RNetworkInfo? = networkDao.get()
-
-    fun updateStatus(newStatus: String, errorCode: Int) {
-        // Log.e(logTag, "!!!!! Updating status to $newStatus")
-        // Thread.dumpStack()
-        val info = networkDao.get() ?: RNetworkInfo()
-        info.status = newStatus
-        info.lastCheckedTS = currentTimestamp()
-        networkDao.update(info)
-    }
-
-    fun isNetworkConnected(): Boolean {
-        var result = false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.run {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI -> true
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        ConnectivityManager.TYPE_ETHERNET -> true
-                        else -> false
-                    }
-
+            liveNetwork.asFlow().collect() {
+                it?.let {
+                    Log.e(logTag, "Setting new status: $it")
+                    setNetworkStatus(it)
                 }
             }
         }
-
-        return result
+        Log.e(logTag, "Initial status: ${liveNetwork.value}")
+        Log.e(logTag, "Stored status: $_networkStatus")
     }
 
-    fun isNetworkMetered(): Boolean {
-        var result = false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) -> false
-                else -> true
-            }
-        } else {
-            connectivityManager.run {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        else -> false
-                    }
+    fun isConnected(): Boolean {
+        return _networkStatus is NetworkStatus.Available || _networkStatus is NetworkStatus.Metered
+    }
 
-                }
-            }
+    fun isMetered(): Boolean {
+        return _networkStatus is NetworkStatus.Metered
+    }
+
+    private fun setNetworkStatus(status: NetworkStatus) {
+        Log.e(logTag, "############### Setting new status: $status")
+        this._networkStatus = status
+        serviceScope.launch(Dispatchers.Main) {
+            _isConnected.value = _networkStatus !is NetworkStatus.Unavailable
+            _isMetered.value = _networkStatus !is NetworkStatus.Metered
         }
-        return result
     }
 
-    fun hasInternetAccess(): Boolean {
-        var result = false
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> true
-                else -> false
-            }
-        } else {
-            // TODO implement this if really needed
-            return true
-        }
+//    override fun onCleared() {
+//        super.onCleared()
+//        vmJob.cancel()
+//    }
 
-        return result
-    }
+
+//
+//    private val networkServiceJob = Job()
+//    private val serviceScope = CoroutineScope(Dispatchers.IO + networkServiceJob)
+//
+//    init {
+//        serviceScope.launch {
+//            networkDao.get() ?: let {
+//                networkDao.insert(RNetworkInfo())
+//            }
+//        }
+//    }
+//
+//    fun getLiveStatus(): LiveData<RNetworkInfo> = networkDao.getLive()
+//
+//    fun networkInfo(): RNetworkInfo? = networkDao.get()
+//
+//    fun updateStatus(newStatus: String, errorCode: Int) {
+//        // Log.e(logTag, "!!!!! Updating status to $newStatus")
+//        // Thread.dumpStack()
+//        val info = networkDao.get() ?: RNetworkInfo()
+//        info.status = newStatus
+//        info.lastCheckedTS = currentTimestamp()
+//        networkDao.update(info)
+//    }
+//
+//    fun isNetworkConnected(): Boolean {
+//        var result = false
+//        val connectivityManager =
+//            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+//            val activeNetwork =
+//                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+//            result = when {
+//                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+//                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+//                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+//                else -> false
+//            }
+//        } else {
+//            connectivityManager.run {
+//                connectivityManager.activeNetworkInfo?.run {
+//                    result = when (type) {
+//                        ConnectivityManager.TYPE_WIFI -> true
+//                        ConnectivityManager.TYPE_MOBILE -> true
+//                        ConnectivityManager.TYPE_ETHERNET -> true
+//                        else -> false
+//                    }
+//
+//                }
+//            }
+//        }
+//
+//        return result
+//    }
+//
+//    fun isNetworkMetered(): Boolean {
+//        var result = false
+//        val connectivityManager =
+//            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+//            val activeNetwork =
+//                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+//            result = when {
+//                activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) -> false
+//                else -> true
+//            }
+//        } else {
+//            connectivityManager.run {
+//                connectivityManager.activeNetworkInfo?.run {
+//                    result = when (type) {
+//                        ConnectivityManager.TYPE_MOBILE -> true
+//                        else -> false
+//                    }
+//
+//                }
+//            }
+//        }
+//        return result
+//    }
+//
+//    fun hasInternetAccess(): Boolean {
+//        var result = false
+//        val connectivityManager =
+//            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+//            val activeNetwork =
+//                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+//            result = when {
+//                activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> true
+//                else -> false
+//            }
+//        } else {
+//            // TODO implement this if really needed
+//            return true
+//        }
+//
+//        return result
+//    }
 
 // FIXME moved here from main activity.
     // Not sure if it still works
@@ -148,8 +208,8 @@ class NetworkService constructor(
         for (runningApp in runningApps) {
             val received = TrafficStats.getUidRxBytes(runningApp.uid)
             val sent = TrafficStats.getUidTxBytes(runningApp.uid)
-            android.util.Log.d(
-                logTag, java.lang.String.format(
+            Log.d(
+                logTag, String.format(
                     Locale.getDefault(),
                     "uid: %1d - name: %s: Sent = %1d, Received = %1d",
                     runningApp.uid,

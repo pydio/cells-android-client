@@ -18,6 +18,7 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.decodeSortById
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -41,6 +42,7 @@ import java.util.*
 
 class TransferService(
     private val prefs: CellsPreferences,
+    private val networkService: NetworkService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val nodeService: NodeService,
@@ -105,17 +107,9 @@ class TransferService(
         }
     }
 
-//    fun getLiveTransfer(stateId: StateID): LiveData<RTransfer?> {
-//        return getTransferDao(stateId).getLiveByState(stateId.id)
-//    }
-
     fun getLiveRecord(accountId: StateID, transferUid: Long): LiveData<RTransfer?> {
         return getTransferDao(accountId).getLiveById(transferUid)
     }
-
-//    fun getTransferById(accountId: StateID, transferId: Long): RTransfer? {
-//        return getTransferDao(accountId).getById(transferId)
-//    }
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
         val dao = nodeDB(stateId).transferDao()
@@ -135,7 +129,6 @@ class TransferService(
         }
 
     /** DOWNLOADS **/
-
     suspend fun getFileForDisplay(
         state: StateID,
         type: String,
@@ -152,13 +145,30 @@ class TransferService(
                 return@withContext null to errMsg
             }
 
-            // Detect if file is there and still up to date
-            // TODO handle case when we are not connected
+            // Various cases depending on local file presence, network status and user preferences
             fileService.getLocalFile(state, rNode, type)?.let {
                 return@withContext it to null
             }
 
-            downloadFile(state, rNode, type, parentJob, null)
+            if (networkService.isConnected() && !networkService.isMetered()) {
+                return@withContext downloadFile(state, rNode, type, parentJob, null)
+            }
+
+            val dlThumbOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_THUMBS, false)
+            if (dlThumbOnMetered && (type == AppNames.LOCAL_FILE_TYPE_THUMB ||
+                        type == AppNames.LOCAL_FILE_TYPE_PREVIEW)
+            ) {
+                return@withContext downloadFile(state, rNode, type, parentJob, null)
+            }
+
+            val dlFileOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_FILES, false)
+            if (dlFileOnMetered && (type == AppNames.LOCAL_FILE_TYPE_FILE)
+            ) {
+                return@withContext downloadFile(state, rNode, type, parentJob, null)
+            }
+
+            throw SDKException(ErrorCodes.con_failed, "could not dl $type for $state")
+            // return@withContext null to "could not dl $type for $state"
         }
 
     suspend fun getFileForDiff(
@@ -288,15 +298,16 @@ class TransferService(
             return@withContext errorMessage
         }
 
+        // Insure we are connected and not metered (or DL with metered is allowed in prefs)
+
+
+        Log.d(logTag, "About to download file from $state")
         // Prepare target file
         val targetFile = File(rTransfer.localPath)
         targetFile.parentFile?.mkdirs()
 
         var out: FileOutputStream? = null
         try {
-
-            Log.d(logTag, "About to download file from $state")
-
             out = FileOutputStream(targetFile)
 
             // Mark the download as started
@@ -305,7 +316,6 @@ class TransferService(
             dao.update(rTransfer)
 
             // Real transfer
-
             var lastUpdateTS = 0L
             var byteWritten = 0L
 
@@ -313,7 +323,6 @@ class TransferService(
                 .download(state.workspace, state.file, out) { progressL ->
 
                     // TODO also manage parent job cancellation
-
                     val cancelled = dao.hasBeenCancelled(rTransfer.transferId)?.let {
                         val msg = "Download cancelled by ${it.owner}"
                         rTransfer.status = AppNames.JOB_STATUS_CANCELLED

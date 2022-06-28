@@ -45,7 +45,7 @@ class AccountServiceImpl(
 
     private val accountDao: AccountDao = accountDB.accountDao()
     private val sessionDao: SessionDao = accountDB.sessionDao()
-    private val sessionViewDao: SessionViewDao = accountDB.liveSessionDao()
+    private val sessionViewDao: SessionViewDao = accountDB.sessionViewDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
     override fun getClient(stateId: StateID): Client {
@@ -80,7 +80,8 @@ class AccountServiceImpl(
     @Throws(SDKException::class)
     override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String {
         sessionFactory.registerAccountCredentials(serverURL, credentials)
-        val server: Server = sessionFactory.getServer(serverURL.id)
+        val server = sessionFactory.getServer(serverURL.id)
+            ?: throw SDKException("could not sign up: unknown server with id ${serverURL.id}")
         // At this point we assume we have been connected or an error has already been thrown
         val state = registerAccount(credentials.username, server, AppNames.AUTH_STATUS_CONNECTED)
         return state.id
@@ -142,12 +143,12 @@ class AccountServiceImpl(
                         if (isNetworkDownError(e.code)) {
                             Log.e(logTag, "##### Unreachable host")
                             val networkService: NetworkService = get()
-                            if (networkService.networkInfo()?.isOffline() != true) {
+                            /*if (networkService.networkInfo()?.isOffline() != true) {
                                 networkService.updateStatus(
                                     AppNames.NETWORK_STATUS_NO_INTERNET,
                                     e.code
                                 )
-                            }
+                            }*/
                             return@withContext Pair(0, "Network down")
                         }
                         // TODO insure we do not miss anything
@@ -311,11 +312,11 @@ class AccountServiceImpl(
 
                 // First handle network issue
                 if (isNetworkDownError(code)) {
-                    Log.e(logTag, "##### Unreachable host")
-                    val networkService: NetworkService = get()
-                    if (networkService.networkInfo()?.isOffline() != true) {
-                        networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
-                    }
+//                    Log.e(logTag, "##### Unreachable host")
+//                    val networkService: NetworkService = get()
+//                    if (networkService.networkInfo()?.isOffline() != true) {
+//                        networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
+//                    }
                     return@withContext
                 }
 

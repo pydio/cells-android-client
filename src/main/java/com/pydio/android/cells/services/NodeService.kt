@@ -63,9 +63,9 @@ class NodeService(
      */
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
 
-         var encoded = prefs.getString(
-             AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-         )
+        var encoded = prefs.getString(
+            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+        )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
@@ -73,6 +73,8 @@ class NodeService(
                     "AND parent_path = ? " +
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
+        Log.e(logTag, "about to list, querry: ${lsQuery.sql}")
+        Thread.dumpStack()
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
@@ -82,12 +84,11 @@ class NodeService(
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE flags & "+ AppNames.FLAG_BOOKMARK +
-                    " = "+AppNames.FLAG_BOOKMARK+" ORDER BY $sortByCol $sortByOrder"
+            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
+                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
         )
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
-
 
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
@@ -215,9 +216,9 @@ class NodeService(
         val stateID = rTreeNode.getStateID()
         try {
             getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked())
-             rTreeNode.setBookmarked(!rTreeNode.isBookmarked())
-             rTreeNode.localModificationTS = currentTimestamp()
-             nodeDB(stateID).treeNodeDao().update(rTreeNode)
+            rTreeNode.setBookmarked(!rTreeNode.isBookmarked())
+            rTreeNode.localModificationTS = currentTimestamp()
+            nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             return@withContext null
@@ -1019,7 +1020,7 @@ class NodeService(
                 persistLocallyModified(node, AppNames.LOCAL_MODIF_RENAME)
             } catch (se: SDKException) {
                 se.printStackTrace()
-                return@withContext "Could not delete $stateID: ${se.message}"
+                return@withContext "Could not rename $stateID: ${se.message}"
             }
             return@withContext null
         }
@@ -1077,7 +1078,7 @@ class NodeService(
             persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
         } catch (se: SDKException) {
             se.printStackTrace()
-            return@withContext "Could not delete $stateID: ${se.message}"
+            return@withContext "Could not restore $stateID: ${se.message}"
         }
         return@withContext null
     }
@@ -1127,13 +1128,6 @@ class NodeService(
     }
 
     private fun getLocalFile(item: RTreeNode, type: String): File {
-// Trick so that we do not store offline files also in the cache... double check
-//        if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
-//            type == AppNames.LOCAL_FILE_TYPE_CACHE // FIXME &&
-////             item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-//        ) {
-//            return File(fileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
-//        }
         return File(fileService.getLocalPath(item, type))
     }
 }

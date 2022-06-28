@@ -70,7 +70,7 @@ class SearchFragment : Fragment() {
             if (it.isEmpty()) {
                 binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
                 val msg = when {
-                    !activeSessionVM.isServerReachable()
+                    !activeSessionVM.canListMeta()
                     -> resources.getString(R.string.cannot_search_remote) + "\n" +
                             resources.getString(R.string.server_unreachable)
                     searchVM.isLoading.value == true
@@ -155,7 +155,7 @@ class SearchFragment : Fragment() {
                 return@launch
             }
 
-            if (!activeSessionVM.isServerReachable()) {
+            if (!activeSessionVM.canListMeta()) {
                 showMessage(requireContext(), resources.getString(R.string.server_unreachable))
                 return@launch
             }

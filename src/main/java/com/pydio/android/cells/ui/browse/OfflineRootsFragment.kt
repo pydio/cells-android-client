@@ -169,16 +169,22 @@ class OfflineRootsFragment : Fragment() {
                 Log.e(logTag, "trying to open a node $sid that is unknown by the index")
                 return@launch
             }
-            nodeService.getLocalFile(treeNode, activeSessionVM.isServerReachable())?.let {
+            nodeService.getLocalFile(treeNode, activeSessionVM.canDownloadFiles())?.let {
                 externallyView(requireContext(), it, treeNode)
                 return@launch
             }
 
-            if (!activeSessionVM.isServerReachable()) {
+            if (!activeSessionVM.canListMeta()) {
                 showMessage(
                     requireContext(),
                     resources.getString(R.string.cannot_download_file) + "\n" +
                             resources.getString(R.string.server_unreachable)
+                )
+                return@launch
+            } else if (!activeSessionVM.canDownloadFiles()) {
+                showMessage(
+                    requireContext(),
+                    resources.getString(R.string.no_download_on_metered)
                 )
                 return@launch
             }

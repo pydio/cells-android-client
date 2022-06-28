@@ -178,16 +178,22 @@ class BookmarksFragment : Fragment() {
 //        }
 
         lifecycleScope.launch {
-            nodeService.getLocalFile(node, activeSessionVM.isServerReachable())?.let {
+            nodeService.getLocalFile(node, activeSessionVM.canDownloadFiles())?.let {
                 externallyView(requireContext(), it, node)
                 return@launch
             }
 
-            if (!activeSessionVM.isServerReachable()) {
+            if (!activeSessionVM.canListMeta()) {
                 showMessage(
                     requireContext(),
-                    resources.getString(R.string.empty_cache) + "\n" +
+                    resources.getString(R.string.cannot_download_file) + "\n" +
                             resources.getString(R.string.server_unreachable)
+                )
+                return@launch
+            } else if (!activeSessionVM.canDownloadFiles()) {
+                showMessage(
+                    requireContext(),
+                    resources.getString(R.string.no_download_on_metered)
                 )
                 return@launch
             }
@@ -203,7 +209,7 @@ class BookmarksFragment : Fragment() {
             it?.let {
                 if (it.isEmpty()) {
                     val msg = when {
-                        !activeSessionVM.isServerReachable()
+                        !activeSessionVM.canListMeta()
                         -> resources.getString(R.string.empty_cache) + "\n" +
                                 resources.getString(R.string.server_unreachable)
                         bookmarksVM.isLoading.value == true

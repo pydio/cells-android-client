@@ -20,7 +20,7 @@ abstract class AccountDB : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao
 
-    abstract fun liveSessionDao(): SessionViewDao
+    abstract fun sessionViewDao(): SessionViewDao
 
     abstract fun workspaceDao(): WorkspaceDao
 
