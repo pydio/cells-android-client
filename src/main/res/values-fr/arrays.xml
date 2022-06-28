@@ -9,6 +9,7 @@
         <item>Taille (les plus petits d\'abord)</item>
         <item>Taille (les plus gros d\'abord)</item>
     </string-array>
+    <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
     <string-array name="list_layout_labels">

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GENERIC MESSAGES -->
+    <!-- Button Labels -->
+    <string name="button_ok">OK</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_switch_to_grid_layout">Show as grid</string>
+    <string name="button_switch_to_list_layout">Show as list</string>
+    <string name="button_open_sort_by">Sort by…</string>
+    <string name="button_open_filter_by">Filter by…</string>
+    <string name="button_open_connection_center">Manage connection</string>
+    <string name="button_clear_list">Clear list</string>
+    <string name="button_resync_all">Re-sync</string>
+    <string name="button_skip">Skip</string>
+    <!-- Navigation labels -->
+    <string name="action_home">Home</string>
+    <string name="action_open_app">Open App</string>
+    <string name="action_choose_account">Choose an account</string>
+    <string name="action_browse">Browse</string>
+    <string name="action_open_workspaces">Workspaces</string>
+    <string name="action_open_offline_roots">Offline Files</string>
+    <string name="action_open_bookmarks">Bookmarks</string>
+    <string name="action_open_transfers">Transfers</string>
+    <string name="action_open_jobs">Background Jobs</string>
+    <string name="action_open_logs">Logs</string>
+    <string name="action_open_about">About</string>
+    <string name="action_search">Search</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_clear_cache">Clear Cache</string>
+    <!-- Main Menu (left drawer) -->
+    <!-- Section titles -->
+    <string name="my_workspaces">My Workspaces</string>
+    <string name="quick_access">Quick Access</string>
+    <string name="my_account">My Account</string>
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+    <!-- Various -->
+    <string name="generic_error_message">Unexpected error…</string>
+    <!-- PAGE SPECIFIC MESSAGES -->
+    <!-- Welcome Page -->
+    <string name="welcome_title">Welcome in Pydio!</string>
+    <string name="welcome_subtitle">A light Cells client for Android</string>
+    <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
+    <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
+    <string name="welcome_add_account_button">Configure a connection</string>
+    <!-- About Page -->
+    <string name="about_page_version_title">Pydio</string>
+    <string name="about_version_title">Pydio Client for Android</string>
+    <string name="about_help_title">Troubleshooting</string>
+    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
+    <string name="version_name_display">Version name: %s</string>
+    <string name="version_code_display">Version code: %s</string>
+    <string name="version_date_display">Version date: %s</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
+    <string name="help_button_support">Contact Pydio Support</string>
+    <string name="open_website_button">More info on pydio.com</string>
+    <!-- Authentication process  -->
+    <string name="ask_url_title">Register a new account</string>
+    <string name="ask_url_desc">Please, enter your server address</string>
+    <string name="ask_url_example">e.g: https://files.example.com</string>
+    <string name="oauth_callback_waiting">Authentication process has been launched</string>
+    <string name="oauth_callback_cancel">Cancel</string>
+    <string name="invalid_tls_certificate">Invalid certificate</string>
+    <string name="confirm_skip_verify_title">Invalid certificate</string>
+    <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
+    <string name="button_i_understand_the_risks">OK, I understand the risks</string>
+    <string name="p8_credentials_title">Pydio 8 (legacy)</string>
+    <string name="p8_credentials_desc">Please enter your credentials</string>
+    <string name="oauth_code_flow_desc">Processing, please be patient.</string>
+    <!-- Manage connection -->
+    <string name="no_connection_title">Connection Down</string>
+    <string name="no_connection_status">Cannot connect to %1$s as %2$s: %3$s</string>
+    <string name="launch_auth">Re-authenticate</string>
+    <string name="auth_ok">Account is connected</string>
+    <string name="auth_err_expired">Credentials are expired</string>
+    <string name="auth_err_no_token">No or invalid credentials</string>
+    <!-- Account management -->
+    <string name="account_list_title">My Accounts</string>
+    <string name="account_list_desc">Manage already registered remote servers</string>
+    <string name="account_list_none">No account has been configured yet…</string>
+    <string name="account_details_title">Account detail title</string>
+    <string name="account_details_desc">Account details description</string>
+    <!-- Browse management -->
+    <string name="ws_list_subtitle">Choose a workspace to browse</string>
+    <string name="browse_list_desc">Browse your remote servers</string>
+    <string name="browse_list_none">Empty</string>
+    <string name="recycle_bin_label">Recycle Bin</string>
+    <string name="account_server_label">Server: %s</string>
+    <string name="account_logged_in_as_label">Logged in as %s</string>
+    <string name="category_cells">Cells</string>
+    <string name="category_workspaces">Workspaces</string>
+    <string name="last_check">Last check</string>
+    <string name="last_check_never">never</string>
+    <string name="loading_message">Please wait while loading content…</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="server_unreachable">No connection to remote server…</string>
+    <string name="empty_cache">Cannot list folder content</string>
+    <string name="cannot_download_file">Cannot download file</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
+    <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="no_result_for_search">No result found for \"%s\"</string>
+    <string name="empty_folder">This folder is empty</string>
+    <string name="empty_content_message">No content here yet</string>
+    <string name="no_bookmark_for_account">No bookmark has been defined for this account…</string>
+    <plurals name="selected_count">
+        <item quantity="other">%d items selected</item>
+    </plurals>
+    <!-- Local modification status -->
+    <string name="in_progress_deleting">Deleting…</string>
+    <string name="in_progress_renaming">Renaming…</string>
+    <string name="in_progress_moving">Moving…</string>
+    <string name="in_progress_restoring">Restoring…</string>
+    <!-- Search -->
+    <string name="search_label">Search Label</string>
+    <string name="search_hint">Search Hint</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_downloading">Downloading files…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
+    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <!-- Job Management -->
+    <string name="job_list_title">Background jobs</string>
+    <string name="filter_by_status_title">Filter by status</string>
+    <string name="filter_by_status_show_all_label">Show all (no filter)</string>
+    <string name="filter_by_status_new_label">New</string>
+    <string name="filter_by_status_processing_label">Processing</string>
+    <string name="filter_by_status_cancelled_label">Cancelled</string>
+    <string name="filter_by_status_done_label">Done</string>
+    <string name="filter_by_status_error_label">Error</string>
+    <string name="filter_by_status_timeout_label">Timeout</string>
+    <string name="job_sort_by_title">Sort by</string>
+    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
+    <!-- Log Management -->
+    <string name="log_list_title">Background job logs</string>
+    <!-- Transfer Management -->
+    <string name="transfer_list_title">Current transfers</string>
+    <string name="choose_target_for_share_title">Share to…</string>
+    <string name="choose_target_for_copy_title">Copy to…</string>
+    <string name="choose_target_for_move_title">Move to…</string>
+    <!-- Target choice -->
+    <string name="choose_target_subtitle">Select a location</string>
+    <string name="pick_up_session">Choose an account</string>
+    <string name="pick_up_workspace">Choose a target workspace</string>
+    <string name="pick_up_folder">Choose a target folder</string>
+    <!--Transfers -->
+    <string name="relaunch_transfer">Re-launch transfer</string>
+    <string name="delete_record">Delete record</string>
+    <!-- Migration-->
+    <string name="migration_message">Migrating legacy data, please wait…</string>
+    <string name="post_migration_title">Successfully Upgraded to New Version!</string>
+    <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
+    <!-- More menus -->
+    <string name="open_more_menu">Choose an action to apply to the selected items</string>
+    <string name="more_button_description">Show more actions for this element</string>
+    <string name="open_in_workspaces">Open location</string>
+    <string name="open_parent_in_workspaces">Open parent location</string>
+    <string name="force_resync">Synchronise</string>
+    <string name="force_resync_desc">Launch synchronisation with remote server now</string>
+    <string name="open_with">Open with…</string>
+    <string name="download_to_device">Download to device</string>
+    <string name="rename">Rename…</string>
+    <string name="copy_to">Copy to…</string>
+    <string name="move_to">Move to…</string>
+    <string name="public_link">Public link</string>
+    <string name="public_link_content_desc">Create or delete a public link for this element</string>
+    <string name="keep_offline">Keep offline</string>
+    <string name="keep_offline_content_desc">Keep this element offline</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="bookmark_element_content_desc">Bookmark this element</string>
+    <string name="delete">Delete</string>
+    <string name="empty_recycle">Empty recycle</string>
+    <string name="restore_content">Restore</string>
+    <string name="permanently_remove">Permanently remove</string>
+    <string name="create_folder">Create folder here</string>
+    <string name="import_files">Import from device</string>
+    <string name="take_picture">Take picture</string>
+    <string name="share_with">Share</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="remove_link">Delete public link</string>
+    <string name="link_copied_to_clip">Link copied to clipboard</string>
+    <string name="link_copy_failed">Failed to copy link</string>
+    <!-- Sort By -->
+    <string name="sort_by">Sort By</string>
+    <string name="order_by_canon">Canonical (A to Z, folders first)</string>
+    <string name="order_by_name_asc">File name (A to Z)</string>
+    <string name="order_by_name_desc">File name (Z to A)</string>
+    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>
+    <string name="order_by_remote_ts_desc">Modified (newest first)</string>
+    <string name="order_by_mime_asc">Type (A to Z)</string>
+    <string name="order_by_mime_desc">Type (Z to A)</string>
+    <string name="order_by_size_asc">Size (smallest first)</string>
+    <string name="order_by_size_desc">Size (largest first)</string>
+    <!-- Dialogs -->
+    <string name="choose_external_app_title">Open with…</string>
+    <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
+    <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete all cached data and files.</string>
+    <string name="confirm_account_logout_title">Logout account\n%s ?</string>
+    <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
+    <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
+    <string name="confirm_cache_deletion_title">Clear cache</string>
+    <string name="create_account">Create an account</string>
+    <string name="content_description_media">Preview of the content</string>
+    <string name="dialog_create_folder_title">Create folder</string>
+    <string name="dialog_create_folder_positive_btn">Create</string>
+    <string name="confirm_move_to_recycle_title">Confirm deletion</string>
+    <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
+    <plurals name="confirm_multi_move_to_recycle_desc">
+        <item quantity="other">The %d selected items will be moved to the recycle bin</item>
+    </plurals>
+    <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>
+    <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
+    <string name="confirm_empty_recycle_message">This empties the recycle bin for %s: all trashed content will be definitively deleted.</string>
+    <string name="rename_dialog_title">Rename</string>
+    <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
+    <string name="rename_dialog_confirm_button">Rename</string>
+    <string name="download_wait_message">Downloading, please wait…</string>
+    <!-- Settings -->
+    <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
+    <string name="pref_choose_list_layout">Type of layout</string>
+    <string name="pref_use_larger_grid">Use larger grid</string>
+    <string name="pref_category_title_metered">Limitations on metered network</string>
+    <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
+    <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
+    <string name="pref_metered_dl_files_title">Download offline files</string>
+    <string name="pref_metered_dl_files_desc">Also download offline files when on metered network</string>
+    <string name="pref_category_title_offline">Customise offline synchronisation</string>
+    <string name="pref_offline_constraint_wifi_title">On wifi only</string>
+    <string name="pref_offline_constraint_wifi_desc">Only launch background synchronisation when on WIFI</string>
+    <string name="pref_offline_constraint_charging_title">When charging</string>
+    <string name="pref_offline_constraint_charging_desc">Only launch sync when the device is charging</string>
+    <string name="pref_category_title_feedback">Feedback and help</string>
+    <string name="pref_feedback_send_title">Send feedback</string>
+    <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
+    <string name="pref_category_title_troubleshooting">Troubleshooting</string>
+    <string name="pref_troubleshooting_show_list_desc">Gives access to more pages to help troubleshooting background jobs</string>
+    <string name="pref_troubleshooting_show_list_title">Show runtime tables</string>
+    <string name="pref_choose_list_offline_frequency_title">Sync frequency</string>
+    <string name="pref_choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
+    <!-- Accessibility various content -->
+    <string name="node_add_button_description">Create or import</string>
+    <string name="exit_description">Exit the application</string>
+    <string name="switch_account_description">Choose another remote server</string>
+    <string name="logo_description">Pydio application logo</string>
+    <string name="loading_description">Current item is being refreshed</string>
+    <string name="thumb_description">Small content preview</string>
+    <string name="folder_icon_description">Folder icon</string>
+    <string name="empty_content_icon_description">Empty list icon</string>
+    <string name="switch_account">Switch account</string>
+    <string name="switch_workspace">Switch workspace</string>
+    <string name="parent_folder">Parent folder</string>
+    <string name="order_by_title">Sort order</string>
+</resources>

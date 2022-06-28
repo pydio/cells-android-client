@@ -97,6 +97,7 @@
     <string name="server_unreachable">Keine Verbindung zum Server…</string>
     <string name="empty_cache">Ordnerinhalt kann nicht aufgelistet werden</string>
     <string name="cannot_download_file">Datei kann nicht heruntergeladen werden</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
     <string name="cannot_search_remote">Suche nicht möglich</string>
     <string name="no_result_for_search">Kein Ergebnis für \"%s\" gefunden</string>
     <string name="empty_folder">Dieser Ordner ist leer</string>
