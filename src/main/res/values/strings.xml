@@ -114,6 +114,7 @@
     <string name="server_unreachable">No connection to remote server…</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
     <string name="cannot_search_remote">Cannot perform search</string>
     <string name="no_result_for_search">No result found for \"%s\"</string>
 
