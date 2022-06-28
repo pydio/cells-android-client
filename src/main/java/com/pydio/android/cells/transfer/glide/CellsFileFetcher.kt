@@ -3,9 +3,8 @@ package com.pydio.android.cells.transfer.glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.utils.showMessage
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
@@ -41,23 +40,23 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     private val transferService: TransferService by inject()
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
-
-        val (stateId, type) = decodeModel(model)
         dlScope.launch {
-
-            val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
-            file?.let {
-                // TODO rather use a stream
-                val bytes = it.readBytes()
-                val byteBuffer = ByteBuffer.wrap(bytes)
-                callback.onDataReady(byteBuffer)
-            }
-            // TODO rather display a broken image with the error message
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "could not get $type at $stateId: $errMsg")
-//                with(Dispatchers.Main) {
-//                    showMessage(CellsApp.instance.applicationContext, errMsg!!)
-//                }
+            val (stateId, type) = decodeModel(model)
+            try {
+                val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
+                file?.let {
+                    // TODO rather use a stream
+                    val bytes = it.readBytes()
+                    val byteBuffer = ByteBuffer.wrap(bytes)
+                    callback.onDataReady(byteBuffer)
+                }
+                if (Str.notEmpty(errMsg)) {
+                    // TODO rather only rely on exception
+                    callback.onLoadFailed(SDKException("could not get $type at $stateId: $errMsg"))
+                }
+            } catch (e: Exception) {
+                Log.e(logTag, "error while trying to get $type at $stateId: ${e.message}")
+                callback.onLoadFailed(e)
             }
         }
     }
