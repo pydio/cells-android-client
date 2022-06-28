@@ -109,18 +109,25 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
     }
 
     if (item.hasThumb()) {
-        val corner = resources.getDimension(R.dimen.glide_thumb_radius)
+        val corner = resources.getDimension(R.dimen.glide_thumb_radius).toInt()
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .placeholder(R.drawable.loading_img)
             .error(R.drawable.file_image_outline)
-            .transform(
-                MultiTransformation(
-                    CenterCrop(),
-                    RoundedCorners(convertDpToPixel(context, corner))
-                )
-            )
+            .transform(MultiTransformation(CenterCrop(), RoundedCorners(corner)))
             .into(this)
+//        val corner = resources.getDimension(R.dimen.glide_thumb_radius)
+//        Glide.with(context)
+//            .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
+//            .placeholder(R.drawable.loading_img)
+//            .error(R.drawable.file_image_outline)
+//            .transform(
+//                MultiTransformation(
+//                    CenterCrop(),
+//                    RoundedCorners(convertDpToPixel(context, corner))
+//                )
+//            )
+//             .into(this)
     } else {
         setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
     }
@@ -210,7 +217,7 @@ fun getComposedDrawable(context: Context, mime: String, sortName: String?): Laye
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    val insetPx = convertDpToPixel(context, R.dimen.list_thumb_margin.toFloat())
+    val insetPx = context.resources.getDimension(R.dimen.list_thumb_margin).toInt()
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
@@ -227,7 +234,7 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    val insetPx = convertDpToPixel(context, R.dimen.grid_thumb_margin.toFloat())
+    val insetPx = context.resources.getDimension(R.dimen.grid_thumb_margin).toInt()
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
