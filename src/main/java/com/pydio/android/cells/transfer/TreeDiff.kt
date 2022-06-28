@@ -5,10 +5,12 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDao
 import com.pydio.android.cells.services.FileService
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.areNodeContentEquals
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.Client
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
@@ -46,6 +48,7 @@ class TreeDiff(
     private val folderDiffJob = Job()
     private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
 
+    private val networkService: NetworkService by inject()
     private val nodeService: NodeService by inject()
     private val fileService: FileService by inject()
 
@@ -69,6 +72,13 @@ class TreeDiff(
             // Corner case: connection failed, we just return with no change
             if (e.isConnectionFailedError) {
                 throw e
+            }
+
+            if (!networkService.isConnected()) {
+                throw SDKException(
+                    ErrorCodes.no_internet,
+                    "Cannot compare with no connection to the server"
+                )
             }
         }
 
