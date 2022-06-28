@@ -3,11 +3,21 @@ files:
     translation: /src/main/res/values-%locale%/strings.xml
     languages_mapping:
       locale:
-        fr: fr
         de: de
+        es: es-rES
+        fr: fr
+        it: it
+        ja: ja
+        pt-BR: pt-rBR
+        ru: ru
   - source: /src/main/res/values/arrays.xml
     translation: /src/main/res/values-%locale%/arrays.xml
     languages_mapping:
       locale:
-        fr: fr
         de: de
+        es: es-rES
+        fr: fr
+        it: it
+        ja: ja
+        pt-BR: pt-rBR
+        ru: ru
