@@ -210,8 +210,7 @@ fun getComposedDrawable(context: Context, mime: String, sortName: String?): Laye
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    // FIXME: hardcoded value
-    val insetPx = convertDpToPixel(context, 8f)
+    val insetPx = convertDpToPixel(context, R.dimen.list_thumb_margin.toFloat())
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
@@ -228,8 +227,7 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
             getDrawableFromMime(mime, sortName),
             context.theme
         )
-    // FIXME: hardcoded value
-    val insetPx = convertDpToPixel(context, 20f)
+    val insetPx = convertDpToPixel(context, R.dimen.grid_thumb_margin.toFloat())
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }

@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit
 
 /** Holds a folder and all its children */
 class BrowseFolderViewModel(
-    encodedStateID: String,
-    private val nodeService: NodeService,
+    prefs: CellsPreferences,
     private val networkService: NetworkService,
-    prefs: CellsPreferences
+    private val nodeService: NodeService,
+    encodedStateID: String
 ) : ViewModel() {
 
     private val logTag = BrowseFolderViewModel::class.simpleName
@@ -100,11 +100,6 @@ class BrowseFolderViewModel(
                 backOffTicker.resetIndex()
             }
             setLoading(false)
-
-            if (_children.value?.isEmpty() == true) {
-                // TODO find a way to notify the BrowseFolderFragment that loading is done.
-            }
-
         }
     }
 

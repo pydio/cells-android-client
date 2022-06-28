@@ -73,8 +73,7 @@ class NodeService(
                     "AND parent_path = ? " +
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
-        Log.e(logTag, "about to list, querry: ${lsQuery.sql}")
-        Thread.dumpStack()
+        // Log.e(logTag, "About to list, query: ${lsQuery.sql}")
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
@@ -869,7 +868,7 @@ class NodeService(
             try {
                 // Compare with remote if possible
                 val remote = getNodeInfo(rTreeNode.getStateID())
-                // We cannot stat remote, but we have a file let's open this one FIXME
+                // We cannot stat remote, but we have a file let's open this one
                     ?: return@withContext file
 
                 val isUpToDate = rTreeNode.etag == remote.eTag &&

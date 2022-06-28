@@ -21,13 +21,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.pydio.android.cells.databinding.ActivityCarouselBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -37,14 +35,12 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class CarouselActivity : AppCompatActivity() {
 
     private val logTag = CarouselActivity::class.simpleName
-    private val accountService: AccountService by inject()
 
     private val carouselVM: CarouselViewModel by viewModel()
-// FIXME PASS at least the account ID to the view model
-
     private lateinit var binding: ActivityCarouselBinding
 
-    var numImages = 0
+    // TODO shouldn't this rather be in the viewModel?
+    private var numImages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate, intent: $intent")
@@ -100,9 +96,6 @@ class CarouselActivity : AppCompatActivity() {
 
     private fun setupActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_carousel)
-
-        // TODO if no better solution is found, open here a simple viewer with glide
-        //   instead of the carousel => we have glitches when we have only one picture
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.windowInsetsController?.hide(WindowInsetsCompat.Type.statusBars())

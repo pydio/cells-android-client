@@ -57,7 +57,7 @@ data class RWorkspace(
                     type = wsNode.workspaceType,
                     label = wsNode.label,
                     description = wsNode.description,
-                    // FIXME can we retrieve remote mod TS?
+                    // TODO can we retrieve remote mod TS?
                     remoteModificationTS = 0L,
                     meta = wsNode.properties,
                 )

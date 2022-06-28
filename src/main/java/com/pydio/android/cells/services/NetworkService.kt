@@ -185,7 +185,7 @@ class NetworkService constructor(context: Context) {
 //        return result
 //    }
 
-// FIXME moved here from main activity.
+// TODO moved here from main activity.
     // Not sure if it still works
 
 // This was in MainActivity.OnCreate method

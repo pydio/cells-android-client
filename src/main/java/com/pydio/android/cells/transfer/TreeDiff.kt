@@ -116,7 +116,6 @@ class TreeDiff(
         return@withContext changeNumber
     }
 
-
     private suspend fun handleFolder(remote: FileNode, local: RTreeNode?) {
         val remotes = RemoteNodeIterator(baseFolderStateId)
         val locals = dao.getNodesForDiff(baseFolderStateId.id, baseFolderStateId.file).iterator()
@@ -124,7 +123,7 @@ class TreeDiff(
 
         // Update info for current folder
         if (baseFolderStateId.file == "/") {
-            // FIXME ws root specific management smells
+            // TODO ws root specific management smells
             nodeService.getNode(baseFolderStateId)?.let {
                 it.lastCheckTS = currentTimestamp()
                 dao.update(it)

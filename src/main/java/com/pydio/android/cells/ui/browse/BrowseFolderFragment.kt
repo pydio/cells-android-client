@@ -59,8 +59,8 @@ class BrowseFolderFragment : Fragment() {
     private val logTag = BrowseFolderFragment::class.java.simpleName
 
     private val prefs: CellsPreferences by inject()
-    private val nodeService: NodeService by inject()
     private val networkService: NetworkService by inject()
+    private val nodeService: NodeService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
@@ -84,7 +84,6 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        // configureRecyclerAdapter()
         preconfigureAdapter()
 
         binding.forceRefresh.setOnRefreshListener { browseFolderVM.triggerRefresh() }
@@ -103,7 +102,7 @@ class BrowseFolderFragment : Fragment() {
             binding.forceRefresh.isRefreshing = it
 
             // Workaround a corner case when folder is empty after loading
-            if (!it && browseFolderVM.children?.value?.isEmpty() == true) {
+            if (!it && browseFolderVM.children.value?.isEmpty() == true) {
                 val msg = resources.getString(R.string.empty_folder)
                 binding.emptyContentDesc = msg
             }
@@ -122,51 +121,60 @@ class BrowseFolderFragment : Fragment() {
                 }
             }
         }
-
-
         return binding.root
     }
 
     private fun preconfigureAdapter() {
-//        configureRecyclerAdapter(prefLayout)
-        var liveSharedPreferences: LiveSharedPreferences? = null
-        browseFolderVM.children.observe(viewLifecycleOwner) {
-            if (liveSharedPreferences != null) {
-                return@observe
-            }
-            liveSharedPreferences = LiveSharedPreferences(prefs.get())
-            liveSharedPreferences!!
-                .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
-                .observe(viewLifecycleOwner) {
-                    // Log.e(logTag, "list layout has changed, reconfiguring. New value: $it")
-                    val prefLayout = prefs.getString(
-                        AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
-                        AppNames.RECYCLER_LAYOUT_LIST
-                    )
-                    configureRecyclerAdapter(prefLayout)
+//        var liveSharedPreferences: LiveSharedPreferences? = null
+//        browseFolderVM.children.observe(viewLifecycleOwner) {
+//            if (liveSharedPreferences != null) {
+//                return@observe
+//            }
+//            liveSharedPreferences = LiveSharedPreferences(prefs.get())
+//            liveSharedPreferences!!
+//                .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+//                .observe(viewLifecycleOwner) {
+//                    it?.let {
+//                        configureRecyclerAdapter(it)
+//                        browseFolderVM.children.removeObserver(observer)
+//                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
+//                    }
+//                }
+//            liveSharedPreferences!!
+//                .getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
+//                .observe(viewLifecycleOwner) {
+//                    it?.let {
+//                        if (browseFolderVM.orderHasChanged(it)) {
+//                            browseFolderVM.children.removeObserver(observer)
+//                            browseFolderVM.reQuery(it)
+//                            browseFolderVM.children.observe(viewLifecycleOwner, observer)
+//                        }
+//                    }
+//                }
+//        }
 
-//                     Log.e(logTag, "reconfigure. New value: $it")
-                    browseFolderVM.children.removeObserver(observer)
-//                browseFolderVM.resume(false)
-                    browseFolderVM.children.observe(viewLifecycleOwner, observer)
-//                binding.invalidateAll()
-//                binding.executePendingBindings()
-                }
-
-            liveSharedPreferences!!
-                .getString(
-                    AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-                )
-                .observe(viewLifecycleOwner) {
-                    it?.let {
-                        if (browseFolderVM.orderHasChanged(it)) {
-                            browseFolderVM.children.removeObserver(observer)
-                            browseFolderVM.reQuery(it)
-                            browseFolderVM.children.observe(viewLifecycleOwner, observer)
-                        }
+        val liveSharedPreferences = LiveSharedPreferences(prefs.get())
+        liveSharedPreferences
+            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .observe(viewLifecycleOwner) {
+                it?.let {
+                    configureRecyclerAdapter(it)
+                    if (browseFolderVM.children.value != null && (browseFolderVM.children.value as List<RTreeNode>).isNotEmpty()) {
+                        adapter?.submitList(browseFolderVM.children.value as List<RTreeNode>)
                     }
                 }
-        }
+            }
+        liveSharedPreferences
+            .getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
+            .observe(viewLifecycleOwner) {
+                it?.let {
+                    if (browseFolderVM.orderHasChanged(it)) {
+                        browseFolderVM.children.removeObserver(observer)
+                        browseFolderVM.reQuery(it)
+                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
+                    }
+                }
+            }
     }
 
     private fun configureRecyclerAdapter(prefLayout: String) {
@@ -318,7 +326,7 @@ class BrowseFolderFragment : Fragment() {
                     )
                 findNavController().navigate(action)
             }
-            else -> return // Unknown action, log warning and returns
+            else -> return // Unknown action
         }
     }
 
@@ -365,7 +373,6 @@ class BrowseFolderFragment : Fragment() {
             )
             return@launch
         }
-
 
         val action = MainNavDirections.launchDownload(node.encodedState, true)
         findNavController().navigate(action)

@@ -85,7 +85,6 @@
         app:key="troubleshooting_category"
         app:title="@string/pref_category_title_troubleshooting">
 
-        <!-- FIXME change default to false before going live -->
         <SwitchPreferenceCompat
             android:defaultValue="false"
             app:key="show_runtime_list"

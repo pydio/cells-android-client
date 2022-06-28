@@ -237,9 +237,8 @@ data class RTreeNode(
                     size = 0L,
                     remoteModificationTS = 0,
                     properties = node.properties,
-                    // FIXME
-                    meta = Properties(),
                     // TODO manage this
+                    meta = Properties(),
                     metaHash = 0,
                     sortName = currSortName,
                 )

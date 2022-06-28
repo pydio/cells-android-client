@@ -377,9 +377,6 @@ class TransferService(
                 fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
             }
 
-            // FIXME do we still need to update the index?
-            // nodeDB(state).treeNodeDao().update(rNode)
-
         } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
             errorMessage = "could not download file for " + state + ": " + se.message
             se.printStackTrace()

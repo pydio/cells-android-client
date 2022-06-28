@@ -75,5 +75,4 @@ class BookmarksViewModel(private val nodeService: NodeService) : ViewModel() {
         super.onCleared()
         vmJob.cancel()
     }
-
 }
