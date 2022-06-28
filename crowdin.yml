@@ -4,7 +4,7 @@ files:
     languages_mapping:
       locale:
         de: de
-        es: es-rES
+        es-ES: es-rES
         fr: fr
         it: it
         ja: ja
@@ -15,7 +15,7 @@ files:
     languages_mapping:
       locale:
         de: de
-        es: es-rES
+        es-ES: es-rES
         fr: fr
         it: it
         ja: ja
