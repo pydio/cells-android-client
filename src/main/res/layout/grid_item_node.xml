@@ -22,17 +22,25 @@
         style="?attr/materialCardViewElevatedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/grid_layout_card_margin"
+        android:layout_margin="3dp"
         android:checkable="true"
+        app:cardBackgroundColor="?attr/colorOnPrimary"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/grid_ws_card_elevation"
         app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">
+        <!--        app:cardElevation="@dimen/grid_ws_card_elevation"-->
+        <!--        app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">-->
+
         <!--        android:background="@drawable/item_selectable"-->
         <!--        app:cardBackgroundColor="?attr/colorOnPrimary"-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_xsmall"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginEnd="@dimen/margin_xsmall"
+            android:layout_marginBottom="@dimen/margin_xsmall"
             android:orientation="vertical">
 
             <!-- Media -->
@@ -42,28 +50,26 @@
                 android:layout_height="@dimen/grid_layout_card_icon_size"
                 android:contentDescription="@string/content_description_media"
                 android:scaleType="centerCrop"
+                app:cardCornerRadius="@dimen/card_corner_radius"
                 app:cardThumbItem="@{node}"
                 tools:srcCompat="@drawable/icon_grid_folder" />
 
-            <!--app:cardThumbDirPath="@{thumbDirPath}"-->
-
-
-            <View
-                style="@style/Divider.Horizontal.List"
-                android:layout_width="match_parent"
-                android:layout_height="1dp" />
+<!--            <View-->
+<!--                style="@style/Divider.Horizontal.List"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="1dp" />-->
 
             <LinearLayout
                 android:id="@+id/node_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_xsmall"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
 
                 <TextView
-                    style="@style/text_list_primary"
+                    style="@style/TextAppearance.Material3.BodySmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
@@ -121,7 +127,7 @@
             android:id="@+id/more_btn_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginTop="@dimen/margin_small"
             android:layout_marginEnd="@dimen/margin_xsmall"
             android:gravity="end|top">
 
