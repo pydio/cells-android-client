@@ -4,12 +4,19 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.WorkManager
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
+import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +34,7 @@ import java.util.concurrent.TimeUnit
  */
 class ActiveSessionViewModel(
     private val prefs: CellsPreferences,
+    private val jobService: JobService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
     id: String = UUID.randomUUID().toString()
@@ -36,19 +44,7 @@ class ActiveSessionViewModel(
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
-//    // Business objects
-//    private var _networkStatus: NetworkStatus = NetworkStatus.Available
-//    private val _isConnected = MutableLiveData<Boolean>()
-//    val isConnected: LiveData<Boolean>
-//        get() = _isConnected
-
-//    fun isOnline(): Boolean {
-//        return networkService.liveInternetFlag?.value ?: false
-//    }
-//
-//    fun isMetered(): Boolean {
-//        return networkService.liveMeteredFlag?.value ?: false
-//    }
+    private val livePrefs = LiveSharedPreferences(prefs.get())
 
     private var _accountId: String? = null
     val accountId: String?
@@ -96,6 +92,16 @@ class ActiveSessionViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    init {
+        configureWorkers()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e(logTag, "onCleared for $accountId")
+        vmJob.cancel()
+    }
+
     fun afterCreate(accountId: String?) {
         if (accountId != null) {
             _accountId = accountId
@@ -116,7 +122,6 @@ class ActiveSessionViewModel(
     }
 
     fun resume() {
-//        Log.d(logTag, "resuming...")
         backOffTicker.resetIndex()
         if (!_isRunning) {
             _isRunning = true
@@ -125,13 +130,6 @@ class ActiveSessionViewModel(
         _errorMessage.value = null
     }
 
-//    private fun setNetworkStatus(status: NetworkStatus) {
-//        Log.e(logTag, "############### Setting new status: $status")
-//        this._networkStatus = status
-//
-//        _isConnected.value = _networkStatus !is NetworkStatus.Unavailable
-//    }
-
     fun forceRefresh() {
         setLoading(true)
         pause()
@@ -139,10 +137,36 @@ class ActiveSessionViewModel(
         resume()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e(logTag, "onCleared for $accountId")
-        vmJob.cancel()
+    // TODO is it OK to init workers in this view Model?
+    private fun configureWorkers() {
+        vmScope.launch {
+            livePrefs.getString(AppNames.PREF_KEY_OFFLINE_FREQ, AppNames.OFFLINE_FREQ_WEEK)
+                .asFlow().collect {
+                    // Log.e(logTag, "### Live share pref event: $it")
+                    it?.let { resetWorker() }
+                }
+            // TODO also observe offline constraints settings
+        }
+    }
+
+    private fun resetWorker() {
+        // debug info
+        val it = prefs.getString(AppNames.PREF_KEY_OFFLINE_FREQ, "<not-set>")
+        val prefix = "### Cancel and restart offline worker with [$it] frequency "
+        try {
+            jobService.i(logTag, prefix, "Live Pref Observer")
+        } catch (e: Exception) {
+            Log.e(logTag, "$prefix, could not log to user table: ${e.message}")
+        }
+        // Effective reset.
+        // TODO make it more clever to prevent systematic launch of the worker each time the preferences change
+        val workManager = WorkManager.getInstance(CellsApp.instance)
+        workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
+        workManager.enqueueUniquePeriodicWork(
+            OfflineSyncWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            OfflineSyncWorker.buildWorkRequest(prefs),
+        )
     }
 
     private fun watchSession() = vmScope.launch {

@@ -21,16 +21,13 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.OfflineSyncWorker
-import com.pydio.android.cells.services.OfflineSyncWorker.Companion.buildWorkRequest
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.bindings.getWsIconForMenu
 import com.pydio.android.cells.ui.home.clearCache
@@ -40,7 +37,6 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.java.KoinJavaComponent
 
 /**
  * Central activity for browsing, managing accounts and settings.
@@ -50,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private val logTag = MainActivity::class.simpleName
 
+    private val jobService: JobService by inject()
     private val nodeService: NodeService by inject()
     private val networkService: NetworkService by inject()
 
@@ -82,33 +79,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
         // Add custom listeners
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
-
-        configureWorkers()
-
         configureNavigationDrawer()
-
         handleCustomNavigation(stateID)
-
-    }
-
-    // TODO is it OK to init works in main activity?
-    private fun configureWorkers() {
-        val prefs: CellsPreferences by KoinJavaComponent.inject(CellsPreferences::class.java)
-        val liveSharedPreferences = LiveSharedPreferences(prefs.get())
-        liveSharedPreferences.getString(
-            AppNames.PREF_KEY_OFFLINE_FREQ,
-            AppNames.OFFLINE_FREQ_WEEK
-        ).observe(this) {
-            it?.let {
-                val workManager = WorkManager.getInstance(CellsApp.instance)
-                workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
-                workManager.enqueueUniquePeriodicWork(
-                    OfflineSyncWorker.WORK_NAME,
-                    ExistingPeriodicWorkPolicy.REPLACE,
-                    buildWorkRequest(prefs),
-                )
-            }
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -318,38 +290,6 @@ class MainActivity : AppCompatActivity() {
                 binding.executePendingBindings()
             }
         }
-
-        //
-//        val liveNetwork = LiveNetwork(this)
-//
-//        if (liveNetwork.value is NetworkStatus.Unavailable) {
-//            activeSessionVM.setNetworkStatus(NetworkStatus.Unavailable)
-//        }
-//
-//        liveNetwork.observe(this) {
-//            it?.let {
-//                binding.offlineBanner.visibility = when (it) {
-//                    NetworkStatus.Available -> View.GONE
-//                    NetworkStatus.Unavailable -> View.VISIBLE
-//                }
-//                activeSessionVM.setNetworkStatus(it)
-//            }
-//        }
-
-//        // The "no internet banner"
-//        activeSessionVM.networkInfo.observe(this) {
-//            // Log.e(logTag, "--- observing network info, new event")
-//            it?.let { networkInfo ->
-//                val offlineBannerState = if (networkInfo.isOffline())
-//                    View.VISIBLE else View.GONE
-//                /*  Log.e(
-//                      logTag, "--- current status: ${networkInfo.status} " +
-//                              "(disconnected: ${networkInfo.isOffline()})"
-//                  )*/
-//                binding.offlineBanner.visibility = offlineBannerState
-//                binding.executePendingBindings()
-//            }
-//        }
     }
 
     private fun configureSort(menu: Menu) {
@@ -392,7 +332,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         layoutSwitcher.setOnMenuItemClickListener {
-
             val newValue = when (prefs.getString(
                 AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
                 AppNames.RECYCLER_LAYOUT_LIST

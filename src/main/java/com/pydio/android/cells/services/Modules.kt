@@ -140,7 +140,7 @@ val viewModelModule = module {
     viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
-    viewModel { ActiveSessionViewModel(get(), get(), get()) }
+    viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
