@@ -96,24 +96,6 @@ class ActiveSessionViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-//    init {
-//        _isConnected.value = true
-//        val liveNetwork = LiveNetwork(CellsApp.instance.applicationContext)
-//        if (liveNetwork.value is NetworkStatus.Unavailable) {
-//            setNetworkStatus(NetworkStatus.Unavailable)
-//        }
-//        vmScope.launch {
-//            liveNetwork.asFlow().collect() {
-//                it?.let {
-//                    Log.e(logTag, "Setting new status: $it")
-//                    setNetworkStatus(it)
-//                }
-//            }
-//        }
-//        Log.e(logTag, "Initial status: ${liveNetwork.value}")
-//        Log.e(logTag, "Stored status: $_networkStatus")
-//    }
-
     fun afterCreate(accountId: String?) {
         if (accountId != null) {
             _accountId = accountId
@@ -134,12 +116,13 @@ class ActiveSessionViewModel(
     }
 
     fun resume() {
-        Log.d(logTag, "resuming...")
+//        Log.d(logTag, "resuming...")
         backOffTicker.resetIndex()
         if (!_isRunning) {
             _isRunning = true
             currWatcher = watchSession()
         }
+        _errorMessage.value = null
     }
 
 //    private fun setNetworkStatus(status: NetworkStatus) {
