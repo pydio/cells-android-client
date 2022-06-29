@@ -4,8 +4,7 @@
 your contribution. To make the process as seamless as possible, we recommend you read this
 contribution guide*.
 
-
-[TODO]
+[TODO] but the process to build the app is basically explained in the [packaging project](https://github.com/pydio/cells-android-app). 
 
 > You wanna help?  Already say "Hello" in the [forum](https://forum.pydio.com)!!
 > 
