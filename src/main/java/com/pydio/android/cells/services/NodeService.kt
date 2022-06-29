@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.bumptech.glide.Glide
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.R
@@ -44,13 +45,13 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 class NodeService(
+    private val appContext: Context,
     private val prefs: CellsPreferences,
     private val jobService: JobService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val fileService: FileService,
 ) {
-
     private val logTag = NodeService::class.simpleName
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
@@ -88,7 +89,6 @@ class NodeService(
         )
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
-
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
         // Tweak to also be able to list workspaces roots
@@ -799,7 +799,18 @@ class NodeService(
                 }
             }
 
+            // TODO finalise cache cleaning for glide
+            // Yet, this should violently and completly empty Glide's cache
+
+            // Must be called on the main thread
+            withContext(Dispatchers.Main) {
+                Glide.get(appContext).clearMemory()
+            }
+            // Must be called on a background thread.
+            Glide.get(appContext).clearDiskCache()
+
             return@withContext null
+
         } catch (e: Exception) {
             val msg = "Could not clear cache for $accountID"
             logException(logTag, msg, e)
