@@ -26,6 +26,7 @@ class LogListAdapter(
 
         fun bind(item: RLog, onItemClicked: (node: RLog, command: String) -> Unit) {
             binding.log = item
+            // binding.invalidateAll()
             binding.executePendingBindings()
         }
 
@@ -46,7 +47,9 @@ class LogDiffCallback : DiffUtil.ItemCallback<RLog>() {
     }
 
     override fun areContentsTheSame(oldItem: RLog, newItem: RLog): Boolean {
-        // log records never changes..
-        return true
+        // log record content never changes but we must check this at least
+        // or we have strange glitches in the list, typically wrong level colors
+        return oldItem.logId == newItem.logId && oldItem.level == newItem.level
+        // return true
     }
 }
