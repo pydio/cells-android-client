@@ -61,7 +61,8 @@ data class RToken(
                 expirationTime = token.expirationTime,
                 scope = token.scope,
                 refreshToken = token.refreshToken,
-                tokenType = token.tokenType
+                tokenType = token.tokenType,
+                refreshingSinceTs = token.refreshingSinceTs,
             )
         }
     }
