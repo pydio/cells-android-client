@@ -69,6 +69,7 @@ class TreeDiff(
         } catch (e: SDKException) {
             val msg = "stat failed at ${baseFolderStateId}: ${e.message}"
             Log.e(logTag, msg)
+            e.printStackTrace()
             // Corner case: connection failed, we just return with no change
             if (e.isConnectionFailedError) {
                 throw e

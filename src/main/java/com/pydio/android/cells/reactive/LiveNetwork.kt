@@ -26,7 +26,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
     fun announceStatus() {
-        Log.e(
+        Log.d(
             logTag, "About to announce status for $this, " +
                     "we have ${validNetworkConnections.size} valid connections" +
                     " (${unMeteredConnections.size} un-metered)"
@@ -47,7 +47,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     }
 
     override fun onActive() {
-        Log.e(logTag, "### $this.onActive(). We have ${validNetworkConnections.size} valid con")
+        Log.i(logTag, "### $this.onActive(). We have ${validNetworkConnections.size} valid con")
         super.onActive()
         connectivityManagerCallback = getConnectivityManagerCallback()
         val networkRequest = NetworkRequest
@@ -59,7 +59,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     }
 
     override fun onInactive() {
-        Log.e(logTag, "onInactive()")
+        Log.i(logTag, "onInactive()")
         super.onInactive()
         connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
     }

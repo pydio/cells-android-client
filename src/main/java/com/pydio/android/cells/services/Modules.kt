@@ -119,7 +119,7 @@ val serviceModule = module {
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    single { NodeService(get(), get(), get(), get(), get()) }
+    single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get(), get(), get()) }
 
