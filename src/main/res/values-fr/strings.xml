@@ -97,6 +97,7 @@
     <string name="server_unreachable">Aucune connexion au serveur distant…</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
     <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="empty_folder">Ce dossier est vide</string>
