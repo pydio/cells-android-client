@@ -24,7 +24,6 @@ import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -75,18 +74,13 @@ class LandActivity : AppCompatActivity() {
     private fun afterCreate() {
         val jobService: JobService by KoinJavaComponent.inject(JobService::class.java)
         try {
-            jobService.i(
-                logTag,
-                "### Application started with user agent: ${
-                    ClientData.getInstance().userAgent()
-                }",
-                "-"
-            )
+            val creationMsg =
+                "### Application started with user agent: ${ClientData.getInstance().userAgent()}"
+            jobService.w(logTag, creationMsg, "Launcher")
         } catch (e: Exception) {
             Log.e(logTag, "could not log start: $e")
         }
     }
-
 
     private suspend fun migrate(context: Context) {
 
@@ -123,7 +117,8 @@ class LandActivity : AppCompatActivity() {
             }
         }
         val offlineRootsNb = withContext(Dispatchers.IO) {
-            val nb = migrationService.migrate(applicationContext, migrationJob, oldVersion, newVersion)
+            val nb =
+                migrationService.migrate(applicationContext, migrationJob, oldVersion, newVersion)
             jobService.i(
                 logTag, "${migrationJob.label} terminated",
                 "${migrationJob.jobId}"
