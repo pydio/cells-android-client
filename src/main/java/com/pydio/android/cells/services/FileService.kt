@@ -152,11 +152,12 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
     fun cleanFileCacheFor(accountID: StateID) = serviceScope.launch {
 
-        // First clean the files that are not in an offline root sub-tree
-        // We retrieve defined offline roots
+        // Defined offline roots that must be left intact
         val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
         val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
-        // We then iterate on all files
+
+        // Iterate on all files both in cache/<id>/{previews,thumbs} and in files/<id>/local
+        // and delete the ones that are not in offline roots
         val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
         for (record in filesDao.getFilesUnder(accountID.id)) {
             if (!isInOfflineTree(offlinePaths, record.encodedState)) {
@@ -164,7 +165,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
             }
         }
 
-        // We then also clean transfer temporary files
+        // Also violently wipe transfer temporary files
         val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
         if (transferDir.exists()) {
             transferDir.deleteRecursively()
