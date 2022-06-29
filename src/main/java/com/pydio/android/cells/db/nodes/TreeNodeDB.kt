@@ -46,7 +46,8 @@ abstract class TreeNodeDB : RoomDatabase() {
                     context.applicationContext,
                     TreeNodeDB::class.java,
                     dbName
-                ).fallbackToDestructiveMigration()
+                )
+                    // .fallbackToDestructiveMigration()
                     .build()
                 INSTANCES.put(accountId, instance)
                 return instance
