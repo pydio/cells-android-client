@@ -361,7 +361,7 @@ class MainActivity : AppCompatActivity() {
     private fun needListOptions(): Boolean {
         return navController.currentDestination?.let {
             when (it.id) {
-                R.id.search_destination -> true
+                // R.id.search_destination -> true
                 R.id.bookmark_list_destination -> true
                 R.id.browse_folder_destination -> true
                 R.id.offline_root_list_destination -> true
