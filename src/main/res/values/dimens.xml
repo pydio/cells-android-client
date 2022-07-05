@@ -49,6 +49,7 @@
     <dimen name="list_icon_corner_radius">6dp</dimen>
     <dimen name="list_thumb_margin">8dp</dimen>
     <dimen name="list_icon_margin">8dp</dimen>
+    <dimen name="list_more_end_margin">6dp</dimen>
     <dimen name="list_button_size">24dp</dimen>
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>

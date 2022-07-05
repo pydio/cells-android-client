@@ -65,17 +65,20 @@
 
         <ImageView
             android:id="@+id/more_button"
-            android:layout_width="@dimen/list_icon_size"
-            android:layout_height="@dimen/list_icon_size"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="@dimen/list_icon_margin"
-
+            android:layout_width="@dimen/list_more_size"
+            android:layout_height="@dimen/list_more_size"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="@dimen/list_icon_margin"
+            android:layout_marginEnd="@dimen/list_more_end_margin"
+            android:layout_marginBottom="@dimen/list_icon_margin"
             android:contentDescription="@string/more_button_description"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:src="@drawable/tweaked_more_vert_32"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/node_label"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!--        android:layout_alignParentEnd="true"-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
