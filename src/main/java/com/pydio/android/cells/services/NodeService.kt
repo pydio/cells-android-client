@@ -90,6 +90,19 @@ class NodeService(
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
+    fun listOfflineRoots(accountID: StateID): LiveData<List<RLiveOfflineRoot>> {
+
+        var encoded = prefs.getString(
+            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+        )
+        val (sortByCol, sortByOrder) = parseOrder(encoded)
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM RLiveOfflineRoot WHERE " +
+                    "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
+        )
+        return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
+    }
+
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
         // Tweak to also be able to list workspaces roots
         var parPath = stateID.file
@@ -112,9 +125,6 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
-    fun listOfflineRoots(stateID: StateID): LiveData<List<RLiveOfflineRoot>> {
-        return nodeDB(stateID).liveOfflineRootDao().getLiveOfflineRoots()
-    }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
         return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)

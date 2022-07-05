@@ -73,6 +73,7 @@
             android:text="@string/order_by_remote_ts_asc" />
 
         <!-- By TYPE -->
+<!--
         <TextView
             android:id="@+id/by_mime_asc"
             style="@style/TextAppearance.Material3.BodyLarge"
@@ -92,6 +93,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_mime_desc" />
+-->
 
         <!-- SIZE -->
         <TextView

@@ -25,7 +25,6 @@ import com.google.android.material.navigation.NavigationView
 import com.pydio.android.cells.databinding.ActivityMainBinding
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
@@ -46,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
     private val logTag = MainActivity::class.simpleName
 
-    private val jobService: JobService by inject()
     private val nodeService: NodeService by inject()
     private val networkService: NetworkService by inject()
 

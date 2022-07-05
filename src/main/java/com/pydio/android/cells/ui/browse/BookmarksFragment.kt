@@ -47,10 +47,9 @@ class BookmarksFragment : Fragment() {
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val bookmarksVM: BookmarksViewModel by viewModel()
 
+    private lateinit var binding: FragmentBookmarkListBinding
     private var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>? = null
     private val observer = BookmarkObserver()
-
-    private lateinit var binding: FragmentBookmarkListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,8 +60,6 @@ class BookmarksFragment : Fragment() {
             inflater, R.layout.fragment_bookmark_list, container, false
         )
 
-        binding.forceRefresh.setOnRefreshListener { bookmarksVM.triggerRefresh() }
-
         bookmarksVM.isLoading.observe(viewLifecycleOwner) {
             binding.forceRefresh.isRefreshing = it
         }
@@ -70,22 +67,8 @@ class BookmarksFragment : Fragment() {
             msg?.let { showLongMessage(requireContext(), msg) }
         }
 
-        // findNavController().addOnDestinationChangedListener(ChangeListener())
+        binding.forceRefresh.setOnRefreshListener { bookmarksVM.triggerRefresh() }
         return binding.root
-    }
-
-    private fun onClicked(node: RTreeNode, command: String) {
-        when (command) {
-            AppNames.ACTION_OPEN -> navigateTo(node)
-            AppNames.ACTION_MORE -> {
-                val action = BookmarksFragmentDirections.openMoreMenu(
-                    arrayOf(node.encodedState),
-                    TreeNodeMenuFragment.CONTEXT_BOOKMARKS
-                )
-                findNavController().navigate(action)
-            }
-            else -> return // do nothing
-        }
     }
 
     override fun onResume() {
@@ -116,11 +99,6 @@ class BookmarksFragment : Fragment() {
             liveSharedPreferences!!
                 .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
                 .observe(viewLifecycleOwner) {
-//                    val prefLayout = prefs.getPreference(
-//                        AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
-//                        AppNames.RECYCLER_LAYOUT_LIST
-//                    )
-
                     it?.let {
                         configureRecyclerAdapter(it)
                         bookmarksVM.bookmarks.removeObserver(observer)
@@ -145,7 +123,6 @@ class BookmarksFragment : Fragment() {
     }
 
     private fun configureRecyclerAdapter(listLayout: String) {
-
         when (listLayout) {
             AppNames.RECYCLER_LAYOUT_GRID -> {
                 val columns = resources.getInteger(R.integer.grid_default_column_number)
@@ -157,8 +134,21 @@ class BookmarksFragment : Fragment() {
                 adapter = NodeListAdapter { node, action -> onClicked(node, action) }
             }
         }
-
         binding.bookmarkList.adapter = adapter
+    }
+
+    private fun onClicked(node: RTreeNode, command: String) {
+        when (command) {
+            AppNames.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_MORE -> {
+                val action = BookmarksFragmentDirections.openMoreMenu(
+                    arrayOf(node.encodedState),
+                    TreeNodeMenuFragment.CONTEXT_BOOKMARKS
+                )
+                findNavController().navigate(action)
+            }
+            else -> return // do nothing
+        }
     }
 
     private fun navigateTo(node: RTreeNode) {
@@ -224,7 +214,7 @@ class BookmarksFragment : Fragment() {
                 } else {
                     binding.emptyContent.viewEmptyContentLayout.visibility = View.GONE
                     Log.e(logTag, "Submitting new list with ${it.size} elements")
-                    Log.d(logTag, "${it}")
+                    Log.d(logTag, "$it")
                     adapter?.submitList(it)
                 }
             }

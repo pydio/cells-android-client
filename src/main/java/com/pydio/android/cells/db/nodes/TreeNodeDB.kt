@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.concurrent.ConcurrentHashMap
 
 @Database(
@@ -17,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
     views = [
         RLiveOfflineRoot::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class TreeNodeDB : RoomDatabase() {
@@ -47,11 +49,17 @@ abstract class TreeNodeDB : RoomDatabase() {
                     TreeNodeDB::class.java,
                     dbName
                 )
-                    // .fallbackToDestructiveMigration()
+                    // Old dev version of the DB that has made to the Play store during RC phase
+                    .fallbackToDestructiveMigrationFrom(1)
+                    // Adding a column in the view necessitates a migration
+                    .addMigrations(MIGRATION_2_3)
+                    // Ease downgrade for dev purposes, this should not happen in prod
+                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                 INSTANCES.put(accountId, instance)
                 return instance
             }
+
         }
 
         fun closeDatabase(context: Context, accountId: String, dbName: String) {
@@ -62,6 +70,25 @@ abstract class TreeNodeDB : RoomDatabase() {
                 }
                 tempInstance.close()
                 context.deleteDatabase(dbName)
+            }
+        }
+
+        // Migrations
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+
+                // Add a column to the LiveOfflineRoot view
+                database.execSQL("DROP VIEW `RLiveOfflineRoot`")
+                val newViewSQL = "CREATE VIEW `RLiveOfflineRoot` " +
+                        "AS SELECT offline_roots.encoded_state, offline_roots.uuid, " +
+                        "offline_roots.status, offline_roots.local_mod_ts, " +
+                        "offline_roots.last_check_ts, offline_roots.message, " +
+                        "tree_nodes.mime, tree_nodes.name, tree_nodes.size, " +
+                        "tree_nodes.etag, tree_nodes.remote_mod_ts, tree_nodes.flags, " +
+                        "offline_roots.sort_name FROM offline_roots " +
+                        "INNER JOIN tree_nodes ON offline_roots.encoded_state = tree_nodes.encoded_state"
+                database.execSQL(newViewSQL)
             }
         }
     }

@@ -39,7 +39,8 @@ class SearchFragment : Fragment() {
     private val searchVM: SearchViewModel by viewModel { parametersOf(StateID.fromId(args.state).accountId) }
 
     private lateinit var binding: FragmentSearchBinding
-
+    private lateinit var adapter: NodeListAdapter
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,12 +50,8 @@ class SearchFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_search, container, false
         )
-        val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-        adapter.showPath()
-        binding.hits.adapter = adapter
 
         searchVM.setQuery(args.query)
-
         searchVM.isLoading.observe(viewLifecycleOwner) {
             binding.swipeRefresh.isRefreshing = it
         }
@@ -64,9 +61,22 @@ class SearchFragment : Fragment() {
 //            // Does nothing yet.
 //            binding.swipeRefresh.isRefreshing = false
         }
+        adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+        adapter.showPath()
+        binding.hits.adapter = adapter
 
+        return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        searchVM.doQuery()
         searchVM.hits.observe(viewLifecycleOwner) {
-
             if (it.isEmpty()) {
                 binding.emptyContent.viewEmptyContentLayout.visibility = View.VISIBLE
                 val msg = when {
@@ -88,20 +98,11 @@ class SearchFragment : Fragment() {
                 adapter.submitList(it)
             }
         }
-        return binding.root
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        searchVM.doQuery()
+        // TODO make this more reliable by using a temporary overlay style.
         val currActivity = requireActivity() as AppCompatActivity
-        val bg = resources.getDrawable(R.drawable.bar_bg_search, requireActivity().theme)
         currActivity.supportActionBar?.let { bar ->
+            val bg = resources.getDrawable(R.drawable.bar_bg_search, requireActivity().theme)
             bar.setBackgroundDrawable(bg)
             bar.title = "Searching: ${searchVM.queryString}..."
         }

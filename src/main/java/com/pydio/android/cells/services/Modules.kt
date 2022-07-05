@@ -146,7 +146,7 @@ val viewModelModule = module {
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
 
     viewModel { BookmarksViewModel(get()) }
-    viewModel { OfflineRootsViewModel(get(), get(), get()) }
+    viewModel { OfflineRootsViewModel(get(), get(), get(), get()) }
 
     viewModel { JobListViewModel(get()) }
     viewModel { LogListViewModel(get()) }

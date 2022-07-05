@@ -75,7 +75,6 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         Log.d(tag, "Item clicked: ORDER BY $order ")
         if (oldOrder != order) {
             prefs.setString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
-            // CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
             dismiss()
             requireActivity().recreate()
         } else {

@@ -17,6 +17,7 @@ import com.pydio.android.cells.db.Converters
             "tree_nodes.name, " +
             "tree_nodes.size, " +
             "tree_nodes.etag, " +
+            "tree_nodes.remote_mod_ts, " +
             "tree_nodes.flags, " +
             "offline_roots.sort_name " +
             "FROM offline_roots INNER JOIN tree_nodes " +
@@ -35,6 +36,8 @@ data class RLiveOfflineRoot(
 
     @ColumnInfo(name = "status") val status: String,
 
+    @ColumnInfo(name = "remote_mod_ts") var remoteModTS: Long,
+
     @ColumnInfo(name = "local_mod_ts") val localModTs: Long = 0L,
 
     @ColumnInfo(name = "last_check_ts") val lastCheckTs: Long = 0L,
@@ -49,7 +52,7 @@ data class RLiveOfflineRoot(
 
     @ColumnInfo(name = "flags") val flags: Int,
 
-) {
+    ) {
 
     fun getStateID(): StateID {
         return StateID.fromId(encodedState)

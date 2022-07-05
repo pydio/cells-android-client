@@ -8,6 +8,7 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.NetworkStatus
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
  * Holds a live list of the offline roots for the current session
  */
 class OfflineRootsViewModel(
+    prefs: CellsPreferences,
     private val networkService: NetworkService,
     private val jobService: JobService,
     private val nodeService: NodeService
@@ -29,10 +31,8 @@ class OfflineRootsViewModel(
 
     // private val tag = OfflineRootsViewModel::class.simpleName
 
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-    lateinit var runningSync: LiveData<RJob?>
+    private var vmJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
     private lateinit var _stateId: StateID
     val stateId: StateID
@@ -41,6 +41,14 @@ class OfflineRootsViewModel(
     private lateinit var _offlineRoots: LiveData<List<RLiveOfflineRoot>>
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
         get() = _offlineRoots
+
+    lateinit var runningSync: LiveData<RJob?>
+
+    // Cache list order to only trigger order change when necessary
+    private var _currentOrder = prefs.getString(
+        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+        AppNames.DEFAULT_SORT_ENCODED
+    )
 
     // Manage UI
     private val _isLoading = MutableLiveData<Boolean>()
@@ -55,6 +63,17 @@ class OfflineRootsViewModel(
         _stateId = stateId
         _offlineRoots = nodeService.listOfflineRoots(stateId)
         runningSync = nodeService.getRunningAccountSync(stateId.account())
+    }
+
+    fun orderHasChanged(newOrder: String): Boolean {
+        return _currentOrder != newOrder
+    }
+
+    fun reQuery(newOrder: String) {
+        if (_currentOrder != newOrder) {
+            _currentOrder = newOrder
+            _offlineRoots = nodeService.listOfflineRoots(stateId)
+        }
     }
 
     fun forceRefresh() {
