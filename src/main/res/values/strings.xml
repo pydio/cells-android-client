@@ -77,7 +77,7 @@
     <string name="confirm_skip_verify_title">Invalid certificate</string>
     <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
     <string name="button_i_understand_the_risks">OK, I understand the risks</string>
-    <string name="p8_credentials_title">Pydio 8 (legacy)</string>
+    <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>
     <string name="oauth_code_flow_desc">Processing, please be patient.</string>
 

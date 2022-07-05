@@ -61,12 +61,7 @@ fun ImageView.setAuthAction(item: RSessionView?) {
 @BindingAdapter("account_primary_text")
 fun TextView.setAccountPrimaryText(item: RSessionView?) {
     item?.let {
-
-        var legacy = ""
-        if (item.isLegacy) {
-            legacy = "(Legacy)"
-        }
-        text = "${item.serverLabel()} ${legacy} "
+        text = item.serverLabel()
     }
 }
 
