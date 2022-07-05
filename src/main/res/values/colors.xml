@@ -63,7 +63,7 @@
     <color name="md_theme_dark_inversePrimary">#00668B</color>
     <color name="md_theme_dark_shadow">#000000</color>
     <color name="md_theme_dark_primaryInverse">#00668B</color>
-    <color name="seed">#067098</color>
+    <color name="seed">@color/md_theme_light_primary</color>
     <color name="error">#BA1B1B</color>
 
     <!-- A few hard-coded colors -->

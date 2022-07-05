@@ -112,15 +112,32 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
     }
 
-    private fun handleCustomNavigation(stateID: StateID?) {
-        stateID?.let {
-            when {
-                Str.notEmpty(it.workspace) -> {
-                    val action = MainNavDirections.openFolder(it.id)
-                    navController.navigate(action)
-                }
-            }
-        } ?: let { navController.navigate(MainNavDirections.openAccountList()) }
+    override fun onStart() {
+        Log.d(logTag, "onStart, intent: $intent")
+        super.onStart()
+    }
+
+    override fun onStop() {
+        Log.d(logTag, "onStop, intent: $intent")
+        super.onStop()
+    }
+
+    override fun onPause() {
+        Log.d(logTag, "onPause, intent: $intent")
+        super.onPause()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onBackPressed() {
+        val drawer = binding.mainDrawerLayout
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun configureNavigationDrawer() {
@@ -186,6 +203,17 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun handleCustomNavigation(stateID: StateID?) {
+        stateID?.let {
+            when {
+                Str.notEmpty(it.workspace) -> {
+                    val action = MainNavDirections.openFolder(it.id)
+                    navController.navigate(action)
+                }
+            }
+        } ?: let { navController.navigate(MainNavDirections.openAccountList()) }
+    }
+
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
         Log.d(logTag, "... Item selected: #${it.itemId}")
         var done = false
@@ -218,34 +246,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun closeDrawer() {
         binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
-    }
-
-    override fun onStart() {
-        Log.d(logTag, "onStart, intent: $intent")
-        super.onStart()
-    }
-
-    override fun onStop() {
-        Log.d(logTag, "onStop, intent: $intent")
-        super.onStop()
-    }
-
-    override fun onPause() {
-        Log.d(logTag, "onPause, intent: $intent")
-        super.onPause()
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun onBackPressed() {
-        val drawer = binding.mainDrawerLayout
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun configureSearch(menu: Menu) {

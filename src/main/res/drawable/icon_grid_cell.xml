@@ -11,13 +11,24 @@
         </shape>
     </item>
     <item
-        android:bottom="@dimen/grid_icon_inner_margin"
-        android:drawable="@drawable/file_cells"
-        android:end="@dimen/grid_icon_inner_margin"
+        android:bottom="@dimen/grid_layout_card_margin"
+        android:drawable="@drawable/file_cells_logo"
+        android:end="@dimen/grid_layout_card_margin"
         android:gravity="center"
-        android:left="@dimen/grid_icon_inner_margin"
-        android:right="@dimen/grid_icon_inner_margin"
-        android:start="@dimen/grid_icon_inner_margin"
-        android:top="@dimen/grid_icon_inner_margin"
+        android:left="@dimen/grid_layout_card_margin"
+        android:right="@dimen/grid_layout_card_margin"
+        android:start="@dimen/grid_layout_card_margin"
+        android:top="@dimen/grid_layout_card_margin"
         tools:ignore="UnusedAttribute" />
+<!--    <item-->
+<!--        android:bottom="@dimen/grid_icon_inner_margin"-->
+<!--        android:drawable="@drawable/file_cells_logo"-->
+<!--        android:end="@dimen/grid_icon_inner_margin"-->
+<!--        android:gravity="center"-->
+<!--        android:left="@dimen/grid_icon_inner_margin"-->
+<!--        android:right="@dimen/grid_icon_inner_margin"-->
+<!--        android:start="@dimen/grid_icon_inner_margin"-->
+<!--        android:top="@dimen/grid_icon_inner_margin"-->
+<!--        tools:ignore="UnusedAttribute" />-->
+
 </layer-list>

@@ -56,7 +56,7 @@
     <!-- Grid Layout with card view-->
     <integer name="grid_default_column_number">3</integer>
     <integer name="grid_bigger_column_number">2</integer>
-    <dimen name="grid_thumb_margin">20dp</dimen>
+    <dimen name="grid_thumb_margin">32dp</dimen>
     <dimen name="grid_layout_card_margin">8dp</dimen>
     <dimen name="card_padding">4dp</dimen>
     <dimen name="card_corner_radius">2dp</dimen>
@@ -65,11 +65,12 @@
     <dimen name="grid_layout_card_icon_size">96dp</dimen>
     <!-- Grid layout for the account home-->
     <integer name="grid_ws_column_number">2</integer>
-    <dimen name="grid_ws_image_size">144dp</dimen>
+    <dimen name="grid_ws_image_size">128dp</dimen>
     <dimen name="grid_ws_image_corner_radius">6dp</dimen>
+<!--    <dimen name="grid_thumb_margin2">106dp</dimen>-->
     <dimen name="grid_ws_icon_size">24dp</dimen>
     <dimen name="grid_ws_icon_margin">24dp</dimen>
-    <dimen name="grid_ws_icon_inner_size">16dp</dimen>
+    <dimen name="grid_ws_icon_inner_size">8dp</dimen>
     <dimen name="grid_ws_card_elevation">4dp</dimen>
     <dimen name="grid_ws_card_max_elevation">8dp</dimen>
 

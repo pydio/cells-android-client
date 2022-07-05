@@ -8,6 +8,7 @@ import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
@@ -40,8 +41,8 @@ fun TextView.setNodeTitle(item: RTreeNode?) {
     }
 }
 
-@SuppressLint("SetTextI18n")
 @BindingAdapter("nodeDesc")
+@SuppressLint("SetTextI18n")
 fun TextView.setNodeDesc(item: RTreeNode?) {
 
     if (item == null) {
@@ -235,6 +236,7 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
             context.theme
         )
     val insetPx = context.resources.getDimension(R.dimen.grid_thumb_margin).toInt()
+    Log.e("getting thumb", "##### compute size: $insetPx ")
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }
@@ -251,14 +253,14 @@ fun getDrawableFromMime(passedMime: String, sortName: String?): Int {
     return when {
         // WS Types
         mime == SdkNames.WS_TYPE_PERSONAL -> R.drawable.file_folder_shared_outline
-        mime == SdkNames.WS_TYPE_CELL -> R.drawable.file_cells
+        mime == SdkNames.WS_TYPE_CELL -> R.drawable.file_cells_logo
         mime == SdkNames.WS_TYPE_DEFAULT -> R.drawable.file_folder_outline
         mime == SdkNames.NODE_MIME_WS_ROOT -> {
             // Tweak: we deduce type of ws root from the sort name. Not very clean
             val prefix = sortName ?: ""
             when {
                 prefix.startsWith("1_2") -> R.drawable.file_folder_shared_outline
-                prefix.startsWith("1_8") -> R.drawable.file_cells
+                prefix.startsWith("1_8") -> R.drawable.file_cells_logo
                 else -> R.drawable.file_folder_outline
             }
         }
