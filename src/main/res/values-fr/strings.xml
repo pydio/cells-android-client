@@ -65,7 +65,7 @@
     <string name="confirm_skip_verify_title">Certificat non valide</string>
     <string name="confirm_skip_verify_desc">Si vous savez ce que vous faites, vous pouvez choisir d\'ignorer l\'étape de validation du certificat TLS</string>
     <string name="button_i_understand_the_risks">Oui, je comprends les risques</string>
-    <string name="p8_credentials_title">Pydio 8 (en fin de vie)</string>
+    <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Veuillez entrer vos informations d\'identification</string>
     <string name="oauth_code_flow_desc">Traitement en cours, veuillez patienter.</string>
     <!-- Manage connection -->
@@ -103,6 +103,7 @@
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
+    <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
@@ -217,7 +218,7 @@
     <string name="rename_dialog_title">Renommer</string>
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
-    <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
+    <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="pref_choose_list_layout">Type de mise en page</string>
