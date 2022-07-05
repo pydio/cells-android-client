@@ -65,7 +65,7 @@
     <string name="confirm_skip_verify_title">Ungültiges Zertifikat</string>
     <string name="confirm_skip_verify_desc">Wenn Sie wissen, was Sie tun, können Sie den Schritt der TLS-Zertifikatsüberprüfung überspringen</string>
     <string name="button_i_understand_the_risks">Okay, ich verstehe die Risiken</string>
-    <string name="p8_credentials_title">Pydio 8 (Legacy)</string>
+    <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Bitte geben Sie Ihre Zugangsdaten ein</string>
     <string name="oauth_code_flow_desc">Verarbeitung, bitte haben Sie Geduld.</string>
     <!-- Manage connection -->
@@ -103,6 +103,7 @@
     <string name="empty_folder">Dieser Ordner ist leer</string>
     <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
     <string name="no_bookmark_for_account">Für dieses Konto wurde kein Lesezeichen definiert…</string>
+    <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
     <plurals name="selected_count">
         <item quantity="one">%d Element ausgewählt</item>
         <item quantity="other">%d Elemente ausgewählt</item>

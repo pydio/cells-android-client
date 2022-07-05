@@ -65,7 +65,7 @@
     <string name="confirm_skip_verify_title">Invalid certificate</string>
     <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
     <string name="button_i_understand_the_risks">OK, I understand the risks</string>
-    <string name="p8_credentials_title">Pydio 8 (legacy)</string>
+    <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>
     <string name="oauth_code_flow_desc">Processing, please be patient.</string>
     <!-- Manage connection -->
@@ -103,6 +103,7 @@
     <string name="empty_folder">This folder is empty</string>
     <string name="empty_content_message">No content here yet</string>
     <string name="no_bookmark_for_account">No bookmark has been defined for this account…</string>
+    <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
         <item quantity="other">%d items selected</item>
