@@ -21,6 +21,7 @@ fun TextView.setLogTitle(item: RLog?) {
                 1, 2 -> setTextColor(resources.getColor(R.color.danger, context.theme))
                 3 -> setTextColor(resources.getColor(R.color.colorAccent, context.theme))
                 4 -> setTextColor(resources.getColor(R.color.ok, context.theme))
+                else -> setTextColor(resources.getColor(R.color.material_neutral, context.theme))
             }
         }
     }
