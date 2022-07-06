@@ -102,17 +102,17 @@ class SearchFragment : Fragment() {
         // TODO make this more reliable by using a temporary overlay style.
         val currActivity = requireActivity() as AppCompatActivity
         currActivity.supportActionBar?.let { bar ->
-            val bg = resources.getDrawable(R.drawable.bar_bg_search, requireActivity().theme)
-            bar.setBackgroundDrawable(bg)
-            bar.title = "Searching: ${searchVM.queryString}..."
+//            val bg = resources.getDrawable(R.drawable.bar_bg_search, requireActivity().theme)
+//            bar.setBackgroundDrawable(bg)
+            bar.title = "Searching: ${searchVM.queryString}…"
         }
     }
 
     override fun onPause() {
         super.onPause()
-        val currActivity = requireActivity() as AppCompatActivity
-        val bg = resources.getDrawable(R.drawable.empty, requireActivity().theme)
-        currActivity.supportActionBar?.setBackgroundDrawable(bg)
+//        val currActivity = requireActivity() as AppCompatActivity
+//        val bg = resources.getDrawable(R.drawable.empty, requireActivity().theme)
+//        currActivity.supportActionBar?.setBackgroundDrawable(bg)
     }
 
     fun updateQuery(query: String) {
