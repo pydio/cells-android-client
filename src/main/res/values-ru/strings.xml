@@ -103,7 +103,8 @@
     <string name="empty_folder">Эта папка пуста</string>
     <string name="empty_content_message">Здесь пока ничего нет</string>
     <string name="no_bookmark_for_account">Для этого аккаунта не задано ни одной закладки…</string>
-    <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
+    <string name="no_transfer_for_account">There is currently no transfer list to show</string>
+    <string name="no_offline_root_for_account">Нет папок помеченных как оффлайн для данного аккаунта…</string>
     <plurals name="selected_count">
         <item quantity="one">%d элемент выбран</item>
         <item quantity="few">%d items selected</item>
@@ -133,13 +134,13 @@
     <string name="filter_by_status_done_label">Готово</string>
     <string name="filter_by_status_error_label">Ошибка</string>
     <string name="filter_by_status_timeout_label">Таймаут</string>
-    <string name="job_sort_by_title">Sort by</string>
-    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
-    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
+    <string name="job_sort_by_title">Сортировать по</string>
+    <string name="job_sort_by_creation_ts_desc_label">Создание (сначала новые)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Создание (сначала старые)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Background job logs</string>
+    <string name="log_list_title">Журналы фоновых процессов</string>
     <!-- Transfer Management -->
-    <string name="transfer_list_title">Current transfers</string>
+    <string name="transfer_list_title">Текущие передачи</string>
     <string name="choose_target_for_share_title">Поделиться…</string>
     <string name="choose_target_for_copy_title">Копировать…</string>
     <string name="choose_target_for_move_title">Переместить…</string>
@@ -154,7 +155,7 @@
     <!-- Migration-->
     <string name="migration_message">Миграция старых данных, подождите…</string>
     <string name="post_migration_title">Успешно обновлено до новой версии!</string>
-    <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
+    <string name="post_migration_sync_message">У вас есть элементы помеченные как оффлайн. Миграция потребует их повторного скачивания. Хотите продолжить? Синхронизацию можно пропустить и выполнить позже.</string>
     <!-- More menus -->
     <string name="open_more_menu">Выберите действие для выбранных элементов</string>
     <string name="more_button_description">Больше действий для этого элемента</string>
@@ -168,37 +169,37 @@
     <string name="copy_to">Копировать…</string>
     <string name="move_to">Переместить…</string>
     <string name="public_link">Публичная ссылка</string>
-    <string name="public_link_content_desc">Create or delete a public link for this element</string>
-    <string name="keep_offline">Keep offline</string>
-    <string name="keep_offline_content_desc">Keep this element offline</string>
-    <string name="bookmark">Bookmark</string>
-    <string name="bookmark_element_content_desc">Bookmark this element</string>
-    <string name="delete">Delete</string>
-    <string name="empty_recycle">Empty recycle</string>
-    <string name="restore_content">Restore</string>
-    <string name="permanently_remove">Permanently remove</string>
-    <string name="create_folder">Create folder here</string>
-    <string name="import_files">Import from device</string>
-    <string name="take_picture">Take picture</string>
-    <string name="share_with">Share</string>
-    <string name="copy_to_clipboard">Copy to clipboard</string>
-    <string name="remove_link">Delete public link</string>
-    <string name="link_copied_to_clip">Link copied to clipboard</string>
-    <string name="link_copy_failed">Failed to copy link</string>
+    <string name="public_link_content_desc">Создать или удалить публичную ссылку для этого элемента</string>
+    <string name="keep_offline">Сохранить оффлайн</string>
+    <string name="keep_offline_content_desc">Сохранить этот элемент оффлайн</string>
+    <string name="bookmark">Закладка</string>
+    <string name="bookmark_element_content_desc">Добавить в закладки</string>
+    <string name="delete">Удалить</string>
+    <string name="empty_recycle">Очистить корзину</string>
+    <string name="restore_content">Восстановить</string>
+    <string name="permanently_remove">Окончательно удалить</string>
+    <string name="create_folder">Создать папку здесь</string>
+    <string name="import_files">Импорт с устройства</string>
+    <string name="take_picture">Сделать снимок</string>
+    <string name="share_with">Поделиться</string>
+    <string name="copy_to_clipboard">Копировать в буфер обмена</string>
+    <string name="remove_link">Удалить публичную ссылку</string>
+    <string name="link_copied_to_clip">Ссылка скопирована в буфер обмена</string>
+    <string name="link_copy_failed">Не удалось скопировать ссылку</string>
     <!-- Sort By -->
-    <string name="sort_by">Sort By</string>
-    <string name="order_by_canon">Canonical (A to Z, folders first)</string>
-    <string name="order_by_name_asc">File name (A to Z)</string>
-    <string name="order_by_name_desc">File name (Z to A)</string>
-    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>
-    <string name="order_by_remote_ts_desc">Modified (newest first)</string>
-    <string name="order_by_mime_asc">Type (A to Z)</string>
-    <string name="order_by_mime_desc">Type (Z to A)</string>
-    <string name="order_by_size_asc">Size (smallest first)</string>
-    <string name="order_by_size_desc">Size (largest first)</string>
+    <string name="sort_by">Порядок Сортировки</string>
+    <string name="order_by_canon">Канонический (А-Я, сначала папки)</string>
+    <string name="order_by_name_asc">Имя файла (А-Я)</string>
+    <string name="order_by_name_desc">Имя файла (Я-А)</string>
+    <string name="order_by_remote_ts_asc">Дата изменения (сначала старые)</string>
+    <string name="order_by_remote_ts_desc">Дата изменения (сначала новые)</string>
+    <string name="order_by_mime_asc">Тип (А-Я)</string>
+    <string name="order_by_mime_desc">Тип (Я-А)</string>
+    <string name="order_by_size_asc">Размер (сначала маленькие)</string>
+    <string name="order_by_size_desc">Размер (сначала большие)</string>
     <!-- Dialogs -->
-    <string name="choose_external_app_title">Open with…</string>
-    <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
+    <string name="choose_external_app_title">Открыть с помощью…</string>
+    <string name="confirm_account_deletion_title">Удалить аккаунт\n%s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete all cached data and files.</string>
     <string name="confirm_account_logout_title">Logout account\n%s ?</string>
     <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
@@ -222,7 +223,7 @@
     <string name="rename_dialog_title">Rename</string>
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
-    <string name="download_wait_message">Downloading, please wait…</string>
+    <string name="download_wait_message">Загрузка, пожалуйста подождите…</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
     <string name="pref_choose_list_layout">Type of layout</string>
