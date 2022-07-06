@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -74,11 +75,19 @@ class TransferService(
 
     fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
 
-        var sortById = prefs.getString(
-            AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
-        )
         var filterByStatus = prefs.getString(
             AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
+        )
+        return queryTransfersExplicitFilter(stateId, filterByStatus)
+    }
+
+    fun queryTransfersExplicitFilter(
+        stateId: StateID,
+        filterByStatus: String
+    ): LiveData<List<RTransfer>> {
+
+        var sortById = prefs.getString(
+            AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
         )
         val (sortByCol, sortByOrder) = decodeSortById(sortById)
 
@@ -90,9 +99,10 @@ class TransferService(
                 arrayOf(filterByStatus)
             )
         }
-//         Log.e(logTag, "About to query: ${lsQuery.sql}")
+        // Log.e(logTag, "About to query: ${lsQuery.sql}, with ${lsQuery.argCount} arg")
         return nodeDB(stateId).transferDao().transferQuery(lsQuery)
     }
+
 
     fun liveTransfer(accountId: StateID, transferId: Long): LiveData<RTransfer?> {
         return nodeDB(accountId).transferDao().getLiveById(transferId)
@@ -113,9 +123,13 @@ class TransferService(
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
         val dao = nodeDB(stateId).transferDao()
+        // val before = dao.getTransferCount()
+
         dao.clearTerminatedTransfers()
         // We also remove unterminated jobs that have not been updated since more than 10 minutes
         dao.clearStaleTransfers(currentTimestamp() - 600)
+        // val after = dao.getTransferCount()
+        // Log.e(logTag, "After transfer clean: $after (B4: $before)")
     }
 
     suspend fun deleteRecord(stateId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
@@ -403,6 +417,54 @@ class TransferService(
         return@withContext errorMessage
     }
 
+/**
+ Debug method to easily debug transfers live Data issues 
+ */
+    suspend fun createDummyTransfers(accountId: StateID) = withContext(Dispatchers.IO) {
+        val dao = getTransferDao(accountId)
+        var i = 0
+        while (i < 10000) {
+
+            if (dao.getTransferCount() < 20) {
+
+                Log.e(logTag, "Creating job with id $i")
+                val recInit = RTransfer.fromState(
+                    accountId.withPath("/common-files/dummy/$i").id,
+                    AppNames.TRANSFER_TYPE_UPLOAD,
+                    "/data/user/common-files/dummy/$i",
+                    1024L * 1024L,
+                    SdkNames.NODE_MIME_DEFAULT
+                )
+
+                val newJobId = dao.insert(recInit)
+
+                val rec = dao.getById(newJobId) ?: continue
+
+                // start dummy transfer
+                rec.startTimestamp = currentTimestamp()
+                rec.status = AppNames.JOB_STATUS_PROCESSING
+                dao.update(rec)
+
+                // Dummy transfer with progress
+                while (rec.progress < rec.byteSize) {
+                    rec.progress += 10240
+                    rec.updateTimestamp = currentTimestamp()
+                    dao.update(rec)
+                    delay(100)
+                }
+
+                // Terminate
+                rec.updateTimestamp = currentTimestamp()
+                rec.error = null
+                rec.status = AppNames.JOB_STATUS_DONE
+                rec.doneTimestamp = rec.updateTimestamp
+                dao.update(rec)
+            }
+            delay(2000)
+            i++
+        }
+    }
+
     private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): String? {
         val node = FileNode()
         node.properties = rNode.properties
@@ -489,17 +551,20 @@ class TransferService(
                 true
             ) { progressL ->
                 transferRecord.progress = progressL
+                transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                transferRecord.updateTimestamp = currentTimestamp()
                 dao.update(transferRecord)
                 false
             }
 
             transferRecord.error = null
-            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            // uploadRecord.progress = 100
+            transferRecord.doneTimestamp = currentTimestamp()
+            transferRecord.status = AppNames.JOB_STATUS_DONE
 
         } catch (e: Exception) {
             // TODO manage errors correctly
             transferRecord.error = e.message
+            transferRecord.status = AppNames.JOB_STATUS_ERROR
             e.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(inputStream)

@@ -17,6 +17,7 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.OfflineSyncWorker
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +38,7 @@ class ActiveSessionViewModel(
     private val jobService: JobService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
+    private val transferService: TransferService,
     id: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
@@ -109,6 +111,11 @@ class ActiveSessionViewModel(
             sessionView = accountService.getLiveSession(accountId)
             workspaces = accountService.getLiveWorkspaces(accountId)
             setLoading(true)
+
+            // // FIXME remove this as only been added for debug purposes
+            // vmScope.launch {
+            //     transferService.createJobs(StateID.fromId(accountId))
+            // }
         } else {
             // Awful tweak to insure late init objects have been initialized to avoid crash
             sessionView = accountService.getLiveSession("none")
@@ -135,6 +142,10 @@ class ActiveSessionViewModel(
         pause()
         currWatcher?.cancel()
         resume()
+    }
+
+    private fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
     }
 
     // TODO is it OK to init workers in this view Model?
@@ -211,9 +222,5 @@ class ActiveSessionViewModel(
                 _errorMessage.value = null
             }
         }
-    }
-
-    private fun setLoading(loading: Boolean) {
-        _isLoading.value = loading
     }
 }

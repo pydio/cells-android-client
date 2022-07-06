@@ -140,7 +140,7 @@ val viewModelModule = module {
     viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
-    viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
+    viewModel { ActiveSessionViewModel(get(), get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
     viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
@@ -155,7 +155,7 @@ val viewModelModule = module {
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
 
-    viewModel { params -> TransferViewModel(params.get(), get(), get()) }
+    viewModel { params -> TransferViewModel(get(), get(), params.get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }
 
     viewModel { params -> SearchViewModel(params.get(), get()) }

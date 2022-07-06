@@ -1,6 +1,7 @@
 package com.pydio.android.cells.reactive
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -15,6 +16,8 @@ class LivePreference<T> constructor(
     private val defaultValue: T?
 ) : MutableLiveData<T>() {
 
+    // private val logTag = LivePreference::class.simpleName
+
     private var disposable: Disposable? = null
     private var lastValue: T? = null
 
@@ -26,7 +29,7 @@ class LivePreference<T> constructor(
     override fun onActive() {
         super.onActive()
 
-        if (lastValue != preferences.all[key]) {
+        if (lastValue != preferences.all[key] && preferences.all[key] != null) {
             lastValue = preferences.all[key] as T
             postValue(lastValue)
         }

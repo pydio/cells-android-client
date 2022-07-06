@@ -76,7 +76,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         if (oldOrder != order) {
             prefs.setString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
             dismiss()
-            requireActivity().recreate()
+//             requireActivity().recreate()
         } else {
             dismiss()
         }

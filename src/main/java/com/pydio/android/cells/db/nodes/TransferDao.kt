@@ -38,6 +38,9 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE start_ts = -1")
     fun getAllNew(): List<RTransfer>
 
+    @Query("SELECT COUNT(*) FROM transfers")
+    fun getTransferCount(): Long
+
     @Query("SELECT * FROM transfers ORDER BY start_ts DESC")
     fun getActiveTransfers(): LiveData<List<RTransfer>?>
 
@@ -50,7 +53,7 @@ interface TransferDao {
     @Query("DELETE FROM transfers WHERE transfer_id = :transferId")
     fun deleteTransfer(transferId: Long)
 
-    @RawQuery(observedEntities = [RTreeNode::class])
+    @RawQuery(observedEntities = [RTransfer::class])
     fun transferQuery(query: SupportSQLiteQuery): LiveData<List<RTransfer>>
 
     // TRANSFER CANCELLATION

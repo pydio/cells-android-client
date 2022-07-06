@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
  * Hold a list of recent file transfers for current session.
  */
 class TransferViewModel(
-    state: String?,
     prefs: CellsPreferences,
-    val transferService: TransferService
+    val transferService: TransferService,
+    state: String?
 ) : ViewModel() {
 
     private val logTag = TransferViewModel::class.simpleName
@@ -32,17 +32,37 @@ class TransferViewModel(
 
     private val stateID = StateID.fromId(state)
 
-    private val lastEvent = MutableLiveData<String>()
-    val transfers: LiveData<List<RTransfer>> = Transformations.switchMap(lastEvent) {
-        transferService.queryTransfers(stateID)
-    }
-
     private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
 
-    private var oldFilter = prefs.getString(
+    private val nameQueryLiveData: MutableLiveData<String> = liveSharedPreferences.getString(
         AppNames.PREF_KEY_JOB_FILTER_BY_STATUS,
         AppNames.JOB_STATUS_NO_FILTER
     )
+
+    fun getTransfersWithLiveFilter(): LiveData<List<RTransfer>> {
+        return Transformations.switchMap(
+            nameQueryLiveData
+        ) { name ->
+            Log.e(logTag, "filter has changed: $name")
+            transferService.queryTransfers(stateID)
+        }
+    }
+
+    // Manage UI
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
+    private var _oldFilter = prefs.getString(
+        AppNames.PREF_KEY_JOB_FILTER_BY_STATUS,
+        AppNames.JOB_STATUS_NO_FILTER
+    )
+    val oldFilter: String
+        get() = _oldFilter
+
     private var oldSortBy = prefs.getString(
         AppNames.PREF_KEY_TRANSFER_SORT_BY,
         AppNames.JOB_SORT_BY_DEFAULT
@@ -54,12 +74,11 @@ class TransferViewModel(
     }
 
     private fun reQuery(value: String) {
-        lastEvent.value = value
+        nameQueryLiveData.value = value
     }
 
     init {
-        Log.d(logTag, "init launched")
-        reQuery("init")
+        // reQuery(_oldFilter)
 
         vmScope.launch {
             liveSharedPreferences.getString(
@@ -67,9 +86,9 @@ class TransferViewModel(
                 AppNames.JOB_STATUS_NO_FILTER
             ).asFlow().collect {
                 it?.let {
-                    if (it != oldFilter) {
+                    if (it != _oldFilter) {
                         reQuery(it)
-                        oldFilter = it
+                        _oldFilter = it
                     }
                 }
             }
