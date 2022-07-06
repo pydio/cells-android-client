@@ -1,13 +1,12 @@
 package com.pydio.android.cells.utils
 
-import android.content.Context
 import android.util.Log
 import android.webkit.MimeTypeMap
+import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
-import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.nodes.RTreeNode
 
 private const val NODE_UTILS = "NodeUtils"
 
@@ -93,38 +92,38 @@ fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
 }
 
 
-fun getAppMime(context: Context, name: String): String {
-    val filename = name.lowercase()
-
-    return if (filename.contains(".doc") || filename.contains(".docx")) {
-        "application/msword"
-    } else if (filename.contains(".pdf")) {
-        "application/pdf"
-    } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-        "application/vnd.ms-powerpoint"
-    } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-        "application/vnd.ms-excel"
-    } else if (filename.contains(".rtf")) {
-        "application/rtf"
-    } else if (filename.contains(".wav") || filename.contains(".mp3")) {
-        "audio/x-wav"
-    } else if (filename.contains(".ogg") || filename.contains(".flac")) {
-        "audio/*"
-    } else if (filename.contains(".gif")) {
-        "image/gif"
-    } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-        "image/jpeg"
-    } else if (filename.contains(".txt")) {
-        "text/plain"
-    } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename
-            .contains(".mpeg") || filename.contains(".mpe") || filename
-            .contains(".mp4") || filename.contains(".avi")
-    ) {
-        "video/*"
-    } else {
-        "*/*"
-    }
-}
+//fun getAppMime(context: Context, name: String): String {
+//    val filename = name.lowercase()
+//
+//    return if (filename.contains(".doc") || filename.contains(".docx")) {
+//        "application/msword"
+//    } else if (filename.contains(".pdf")) {
+//        "application/pdf"
+//    } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
+//        "application/vnd.ms-powerpoint"
+//    } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
+//        "application/vnd.ms-excel"
+//    } else if (filename.contains(".rtf")) {
+//        "application/rtf"
+//    } else if (filename.contains(".wav") || filename.contains(".mp3")) {
+//        "audio/x-wav"
+//    } else if (filename.contains(".ogg") || filename.contains(".flac")) {
+//        "audio/*"
+//    } else if (filename.contains(".gif")) {
+//        "image/gif"
+//    } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
+//        "image/jpeg"
+//    } else if (filename.contains(".txt")) {
+//        "text/plain"
+//    } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename
+//            .contains(".mpeg") || filename.contains(".mpe") || filename
+//            .contains(".mp4") || filename.contains(".avi")
+//    ) {
+//        "video/*"
+//    } else {
+//        "*/*"
+//    }
+//}
 
 fun isPreViewable(element: RTreeNode): Boolean {
     return if (element.mime.startsWith("image/") ||

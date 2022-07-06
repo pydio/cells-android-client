@@ -59,7 +59,7 @@ class FolderListAdapter(
         adapterScope.launch {
 
             val parentState =
-                if (Str.empty(currFolderStateID.workspace)) null else currFolderStateID.parentFolder()
+                if (Str.empty(currFolderStateID.workspace)) null else currFolderStateID.parent()
 
             var items = when (list) {
                 null -> listOf(DataItem.HeaderItem(parentState))

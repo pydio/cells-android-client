@@ -4,7 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.utils.currentTimestamp
 
+/**
+ * Experimental class to try a cache of the network status. Will probably disapear soon:
+ * Do not rely on it.
+ */
 @Entity(tableName = "network_info")
 data class RNetworkInfo(
 
@@ -20,9 +25,24 @@ data class RNetworkInfo(
 
     @ColumnInfo(name = "last_response_msg") var lastResponseMsg: String? = null,
 
-    ){
+    ) {
 
     fun isOnline() = status == AppNames.NETWORK_STATUS_OK
 
     fun isOffline() = status == AppNames.NETWORK_STATUS_NO_INTERNET
+
+    companion object {
+        fun create(
+            status: String?,
+            lastResponseCode: Int,
+            lastResponseMsg: String?
+        ): RNetworkInfo {
+            return RNetworkInfo(
+                status = status ?: AppNames.NETWORK_STATUS_UNKNOWN,
+                lastResponseCode = lastResponseCode,
+                lastResponseMsg = lastResponseMsg,
+                lastCheckedTS = currentTimestamp(),
+            )
+        }
+    }
 }

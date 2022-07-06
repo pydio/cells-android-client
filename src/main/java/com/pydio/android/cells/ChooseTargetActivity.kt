@@ -14,12 +14,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.pydio.android.cells.databinding.ActivityChooseTargetBinding
+import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.pydio.android.cells.databinding.ActivityChooseTargetBinding
-import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 
 /**
  * Let the end-user choose a target in one of the defined remote servers.
@@ -124,14 +124,12 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         return true
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val valid = chooseTargetVM.isTargetValid()
         Log.d(logTag, "On PrepareOptionMenu, target is valid: $valid")
         super.onPrepareOptionsMenu(menu)
-        menu?.let { currMenu ->
-            currMenu.findItem(R.id.launch_upload)?.let {
-                it.isVisible = valid
-            }
+        menu.findItem(R.id.launch_upload)?.let {
+            it.isVisible = valid
         }
         return true
     }

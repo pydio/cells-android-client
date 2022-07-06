@@ -87,15 +87,13 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         Log.d(logTag, "onPrepareOptionsMenu: ${StateID.fromId(activeSessionVM.accountId)}")
         super.onPrepareOptionsMenu(menu)
-        menu?.let {
-            configureSearch(it)
-            configureConnexionAlarm(it)
-            configureLayoutSwitcher(it)
-            configureSort(it)
-        }
+        configureSearch(menu)
+        configureConnexionAlarm(menu)
+        configureLayoutSwitcher(menu)
+        configureSort(menu)
         return true
     }
 

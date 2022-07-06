@@ -13,7 +13,6 @@
     <item
         android:id="@+id/open_connexion_dialog"
         android:icon="@drawable/ic_round_warning_24"
-        android:iconTint="?attr/colorError"
         android:title="@string/button_open_connection_center"
         app:showAsAction="always" />
 

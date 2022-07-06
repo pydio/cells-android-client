@@ -160,7 +160,7 @@ class MigrationServiceV2 : KoinComponent {
         // Load accounts that have been already registered by the user
         val recs = accDB.listLegacyAccountRecords()
 
-        if (recs.size == 0) {
+        if (recs.isEmpty()) {
             val msg = "No account found. Nothing to migrate..."
             jobService.w(logTag, msg, "${job.jobId}")
             return Pair(true, 0)
@@ -172,12 +172,12 @@ class MigrationServiceV2 : KoinComponent {
 
         // Convert each account to new format recreate mapping with tokens
         for (rec in recs) {
-            var beginTS = currentTimestamp()
+            val beginTS = currentTimestamp()
             try {
                 val accountID = StateID(rec.user, rec.server.url)
                 Log.i(logTag, "About to migrate: $accountID from $oldValue to $newValue")
 
-                var url = ServerURLImpl.fromAddress(rec.server.url, rec.server.sslUnverified)
+                val url = ServerURLImpl.fromAddress(rec.server.url, rec.server.sslUnverified)
 
                 if (rec.server.versionName == "cells") {
                     migrateCellsFrom23x(accDB, rec.user, url)
@@ -204,7 +204,7 @@ class MigrationServiceV2 : KoinComponent {
                 jobService.e(logTag, msg, "${job.jobId}", e)
                 return Pair(false, 0)
             }
-            var dur = currentTimestamp() - beginTS
+            val dur = currentTimestamp() - beginTS
             if (dur < 1000) {
                 delay(1000 - dur)
             }
@@ -225,7 +225,7 @@ class MigrationServiceV2 : KoinComponent {
 
 
         val recs = accDB.listAccountRecords()
-        if (recs.size == 0) {
+        if (recs.isEmpty()) {
             val msg = "No account found. Nothing to migrate..."
             Log.w(logTag, "    $msg")
             logDao.insert(RLog.info(logTag, msg, null))
@@ -237,7 +237,7 @@ class MigrationServiceV2 : KoinComponent {
         val oneStep = maxProgress / recs.size
         var offlineRootsNb = 0
         for (rec in recs) {
-            var beginTS = currentTimestamp()
+            val beginTS = currentTimestamp()
             try {
 
                 val accountID = StateID.fromId(rec.id())
@@ -262,7 +262,7 @@ class MigrationServiceV2 : KoinComponent {
                 jobService.e(logTag, msg, "${job.jobId}", e)
                 return Pair(false, 0)
             }
-            var dur = currentTimestamp() - beginTS
+            val dur = currentTimestamp() - beginTS
             if (dur < 1000) {
                 delay(1000 - dur)
             }
@@ -310,13 +310,11 @@ class MigrationServiceV2 : KoinComponent {
         for (currRoot in offlineRoots) {
             val storedFileNode = currRoot.node
             val state = accountID.withPath("/" + storedFileNode.workspace + storedFileNode.path)
-            val newNode = if (client == null) {
-                if (Str.empty(storedFileNode.mimeType)) {
-                    storedFileNode.setProperty(
-                        SdkNames.NODE_PROPERTY_MIME,
-                        SdkNames.NODE_MIME_DEFAULT
-                    )
-                }
+            val newNode = if (Str.empty(storedFileNode.mimeType)) {
+                storedFileNode.setProperty(
+                    SdkNames.NODE_PROPERTY_MIME,
+                    SdkNames.NODE_MIME_DEFAULT
+                )
                 RTreeNode.fromFileNode(state, storedFileNode)
             } else {
                 val fn = client.nodeInfo(storedFileNode.workspace, storedFileNode.path)
