@@ -97,13 +97,14 @@
     <string name="server_unreachable">Aucune connexion au serveur distant…</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
+    <string name="no_download_on_metered">Les téléchargements sur les réseaux limités sont bridés, vous pouvez modifier cela dans les préférences de l\'application</string>
     <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
-    <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
+    <string name="no_transfer_for_account">There is currently no transfer list to show</string>
+    <string name="no_offline_root_for_account">Aucun dossier n\'a été tagué pour être maintenu hors ligne pour ce compte…</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
