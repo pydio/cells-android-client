@@ -16,6 +16,7 @@ import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.childFile
+import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.decodeSortById
 import com.pydio.cells.api.ErrorCodes
@@ -69,28 +70,22 @@ class TransferService(
         return nodeDB(accountId).transferDao()
     }
 
-//    fun activeTransfers(stateId: StateID): LiveData<List<RTransfer>?> {
-//        return nodeDB(stateId).transferDao().getActiveTransfers()
-//    }
-
     fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
-
-        var filterByStatus = prefs.getString(
+        val filterByStatus = prefs.getString(
             AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
         )
         return queryTransfersExplicitFilter(stateId, filterByStatus)
     }
 
-    fun queryTransfersExplicitFilter(
+    private fun queryTransfersExplicitFilter(
         stateId: StateID,
         filterByStatus: String
     ): LiveData<List<RTransfer>> {
-
-        var sortById = prefs.getString(
-            AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
+        val (sortByCol, sortByOrder) = decodeSortById(
+            prefs.getString(
+                AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
+            )
         )
-        val (sortByCol, sortByOrder) = decodeSortById(sortById)
-
         val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
             SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
         } else {
@@ -209,7 +204,7 @@ class TransferService(
      * Launch the effective download. No check is done anymore: we assume the caller has
      * done them before calling this method.
      */
-    suspend fun downloadFile(
+    private suspend fun downloadFile(
         state: StateID,
         rNode: RTreeNode,
         type: String,
@@ -293,7 +288,6 @@ class TransferService(
     ): String? = withContext(Dispatchers.IO) {
 
         var errorMessage: String? = null
-
         val dao = getTransferDao(accountId)
 
         // Retrieve data and sanity check
@@ -331,10 +325,8 @@ class TransferService(
             // Real transfer
             var lastUpdateTS = 0L
             var byteWritten = 0L
-
             accountService.getClient(state)
                 .download(state.workspace, state.file, out) { progressL ->
-
                     // TODO also manage parent job cancellation
                     val cancelled = dao.hasBeenCancelled(rTransfer.transferId)?.let {
                         val msg = "Download cancelled by ${it.owner}"
@@ -363,31 +355,32 @@ class TransferService(
                     cancelled
                 }
 
-            // Mark the download as done
             if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
-                rTransfer.status = AppNames.JOB_STATUS_DONE
-                rTransfer.doneTimestamp = currentTimestamp()
-                rTransfer.updateTimestamp = currentTimestamp()
-                rTransfer.progress += byteWritten
-                rTransfer.updateTimestamp = currentTimestamp()
-                rTransfer.error = null
-                dao.update(rTransfer)
-
+                // Mark the download as done
                 if (byteWritten > 0) {
                     serviceScope.launch {
                         progressChannel?.send(byteWritten)
                     }
                 }
+                rTransfer.progress += byteWritten
+                rTransfer.updateTimestamp = currentTimestamp()
+                rTransfer.error = null
+                dao.update(rTransfer)
 
-                val type = AppNames.LOCAL_FILE_TYPE_FILE
-                fileService.registerLocalFile(state, rNode, type, targetFile)
+                // Double check downloaded file is OK
+                val computedMd5 = computeFileMd5(targetFile)
+                if (rNode.etag != computedMd5) {
+                    errorMessage = "MD5 signatures do not match after the download has terminated"
+                } else {
+                    val type = AppNames.LOCAL_FILE_TYPE_FILE
+                    fileService.registerLocalFile(state, rNode, type, targetFile)
+                    rTransfer.status = AppNames.JOB_STATUS_DONE
+                    rTransfer.doneTimestamp = currentTimestamp()
+                    rTransfer.updateTimestamp = currentTimestamp()
+                    dao.update(rTransfer)
+                }
                 // TODO handle the case where the download duration is long enough to enable
-//                    //   end-user to modify (or delete) the corresponding node before it is downloaded
-//                    rNode.localFilePath = rTransfer.localPath
-            } else {
-                // At this point, if we had an error or a cancel, the target file is most probably corrupted.
-                // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
-                fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
+                //   end-user to modify (or delete) the corresponding node before it has been correctly downloaded
             }
 
         } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
@@ -406,62 +399,18 @@ class TransferService(
             rTransfer.status = AppNames.JOB_STATUS_ERROR
             rTransfer.error = errorMessage
             dao.update(rTransfer)
+
+            // At this point, if we had an error or a cancel, the target file is most probably corrupted.
+            // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
             // Try to remove partly downloaded file
             if (targetFile.exists()) {
                 targetFile.delete()
             }
-            Log.e(logTag, errorMessage!!)
+            // And unregister local file record
+            fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
+            Log.e(logTag, "Could not download file at $state : $errorMessage")
         }
-
         return@withContext errorMessage
-    }
-
-/**
- Debug method to easily debug transfers live Data issues 
- */
-    suspend fun createDummyTransfers(accountId: StateID) = withContext(Dispatchers.IO) {
-        val dao = getTransferDao(accountId)
-        var i = 0
-        while (i < 10000) {
-
-            if (dao.getTransferCount() < 20) {
-
-                Log.e(logTag, "Creating job with id $i")
-                val recInit = RTransfer.fromState(
-                    accountId.withPath("/common-files/dummy/$i").id,
-                    AppNames.TRANSFER_TYPE_UPLOAD,
-                    "/data/user/common-files/dummy/$i",
-                    1024L * 1024L,
-                    SdkNames.NODE_MIME_DEFAULT
-                )
-
-                val newJobId = dao.insert(recInit)
-
-                val rec = dao.getById(newJobId) ?: continue
-
-                // start dummy transfer
-                rec.startTimestamp = currentTimestamp()
-                rec.status = AppNames.JOB_STATUS_PROCESSING
-                dao.update(rec)
-
-                // Dummy transfer with progress
-                while (rec.progress < rec.byteSize) {
-                    rec.progress += 10240
-                    rec.updateTimestamp = currentTimestamp()
-                    dao.update(rec)
-                    delay(100)
-                }
-
-                // Terminate
-                rec.updateTimestamp = currentTimestamp()
-                rec.error = null
-                rec.status = AppNames.JOB_STATUS_DONE
-                rec.doneTimestamp = rec.updateTimestamp
-                dao.update(rec)
-            }
-            delay(2000)
-            i++
-        }
     }
 
     private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): String? {
@@ -704,4 +653,54 @@ class TransferService(
             false
         }
     }
+
+    /**
+     * Debug method to easily debug transfers live Data issues
+     */
+    suspend fun createDummyTransfers(accountId: StateID) = withContext(Dispatchers.IO) {
+        val dao = getTransferDao(accountId)
+        var i = 0
+        while (i < 10000) {
+
+            if (dao.getTransferCount() < 20) {
+
+                Log.e(logTag, "Creating job with id $i")
+                val recInit = RTransfer.fromState(
+                    accountId.withPath("/common-files/dummy/$i").id,
+                    AppNames.TRANSFER_TYPE_UPLOAD,
+                    "/data/user/common-files/dummy/$i",
+                    1024L * 1024L,
+                    SdkNames.NODE_MIME_DEFAULT
+                )
+
+                val newJobId = dao.insert(recInit)
+
+                val rec = dao.getById(newJobId) ?: continue
+
+                // start dummy transfer
+                rec.startTimestamp = currentTimestamp()
+                rec.status = AppNames.JOB_STATUS_PROCESSING
+                dao.update(rec)
+
+                // Dummy transfer with progress
+                while (rec.progress < rec.byteSize) {
+                    rec.progress += 10240
+                    rec.updateTimestamp = currentTimestamp()
+                    dao.update(rec)
+                    delay(100)
+                }
+
+                // Terminate
+                rec.updateTimestamp = currentTimestamp()
+                rec.error = null
+                rec.status = AppNames.JOB_STATUS_DONE
+                rec.doneTimestamp = rec.updateTimestamp
+                dao.update(rec)
+            }
+            delay(2000)
+            i++
+        }
+    }
+
+
 }

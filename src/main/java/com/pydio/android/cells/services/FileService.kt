@@ -105,9 +105,14 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         if (!upToDate) {
             return false
         }
+
         // Finally recompute local file md5 to insure it corresponds with the expected value (corrupted file)
         val computedMd5 = computeFileMd5(lf)
-        Log.e(logTag, "Computing md5: expected: [${localFile.etag}], computed: [$computedMd5]")
+        if (localFile.etag != computedMd5){
+            // This should never happen, we expect that the md5 check is done at DL time.
+            Log.w(logTag, "MD5 signatures do not match when trying to DL local file to device")
+            Log.d(logTag, "Expected: [${localFile.etag}], computed: [$computedMd5]")
+        }
         return localFile.etag == computedMd5
     }
 
