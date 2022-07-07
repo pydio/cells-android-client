@@ -31,8 +31,6 @@ import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentBrowseFolderBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
@@ -58,7 +56,6 @@ class BrowseFolderFragment : Fragment() {
 
     private val logTag = BrowseFolderFragment::class.java.simpleName
 
-    private val prefs: CellsPreferences by inject()
     private val networkService: NetworkService by inject()
     private val nodeService: NodeService by inject()
 
@@ -84,10 +81,19 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        preconfigureAdapter()
-
         binding.forceRefresh.setOnRefreshListener { browseFolderVM.triggerRefresh() }
 
+        browseFolderVM.liveSharedPreferences
+            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .observe(viewLifecycleOwner) {
+                it?.let {
+                    val oldList = adapter?.currentList
+                    configureRecyclerAdapter(it)
+                    if (oldList != null && oldList.isNotEmpty()) {
+                        adapter?.submitList(oldList)
+                    }
+                }
+            }
         browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isRecycle() || it.isInRecycle()) {
@@ -99,12 +105,13 @@ class BrowseFolderFragment : Fragment() {
             }
         }
         browseFolderVM.isLoading.observe(viewLifecycleOwner) {
-            binding.forceRefresh.isRefreshing = it
-
-            // Workaround a corner case when folder is empty after loading
-            if (!it && browseFolderVM.children.value?.isEmpty() == true) {
-                val msg = resources.getString(R.string.empty_folder)
-                binding.emptyContentDesc = msg
+            it?.let {
+                binding.forceRefresh.isRefreshing = it
+                // Workaround a corner case when folder is empty after loading
+                if (!it && adapter?.currentList?.isEmpty() == true) {
+                    val msg = resources.getString(R.string.empty_folder)
+                    binding.emptyContentDesc = msg
+                }
             }
         }
         browseFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
@@ -121,93 +128,46 @@ class BrowseFolderFragment : Fragment() {
                 }
             }
         }
+
+        browseFolderVM.getChildrenWithLiveSort().observe(viewLifecycleOwner, observer)
+
         return binding.root
     }
 
-    private fun preconfigureAdapter() {
-//        var liveSharedPreferences: LiveSharedPreferences? = null
-//        browseFolderVM.children.observe(viewLifecycleOwner) {
-//            if (liveSharedPreferences != null) {
-//                return@observe
-//            }
-//            liveSharedPreferences = LiveSharedPreferences(prefs.get())
-//            liveSharedPreferences!!
-//                .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
-//                .observe(viewLifecycleOwner) {
-//                    it?.let {
-//                        configureRecyclerAdapter(it)
-//                        browseFolderVM.children.removeObserver(observer)
-//                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
-//                    }
-//                }
-//            liveSharedPreferences!!
-//                .getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
-//                .observe(viewLifecycleOwner) {
-//                    it?.let {
-//                        if (browseFolderVM.orderHasChanged(it)) {
-//                            browseFolderVM.children.removeObserver(observer)
-//                            browseFolderVM.reQuery(it)
-//                            browseFolderVM.children.observe(viewLifecycleOwner, observer)
-//                        }
-//                    }
-//                }
-//        }
+    private fun configureRecyclerAdapter(listLayout: String) {
 
-        val liveSharedPreferences = LiveSharedPreferences(prefs.get())
-        liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
-            .observe(viewLifecycleOwner) {
-                it?.let {
-                    configureRecyclerAdapter(it)
-                    if (browseFolderVM.children.value != null && (browseFolderVM.children.value as List<RTreeNode>).isNotEmpty()) {
-                        adapter?.submitList(browseFolderVM.children.value as List<RTreeNode>)
-                    }
-                }
+        var trackerBuilder: SelectionTracker.Builder<String>? = null
+
+        when (listLayout) {
+            AppNames.RECYCLER_LAYOUT_GRID -> {
+                val columns = resources.getInteger(R.integer.grid_default_column_number)
+                binding.nodes.layoutManager = GridLayoutManager(requireActivity(), columns)
+                adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
+                binding.nodes.adapter = adapter
+                trackerBuilder = SelectionTracker.Builder(
+                    "grid_multi_selection",
+                    binding.nodes,
+                    NodeGridItemKeyProvider(adapter as NodeGridAdapter),
+                    NodeGridItemDetailsLookup(binding.nodes),
+                    StorageStrategy.createStringStorage()
+                )
             }
-        liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
-            .observe(viewLifecycleOwner) {
-                it?.let {
-                    if (browseFolderVM.orderHasChanged(it)) {
-                        browseFolderVM.children.removeObserver(observer)
-                        browseFolderVM.reQuery(it)
-                        browseFolderVM.children.observe(viewLifecycleOwner, observer)
-                    }
-                }
+            AppNames.RECYCLER_LAYOUT_LIST -> {
+                binding.nodes.layoutManager = LinearLayoutManager(requireActivity())
+                adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+                binding.nodes.adapter = adapter
+                trackerBuilder = SelectionTracker.Builder(
+                    "list_multi_selection",
+                    binding.nodes,
+                    NodeListItemKeyProvider(adapter as NodeListAdapter),
+                    NodeListItemDetailsLookup(binding.nodes),
+                    StorageStrategy.createStringStorage()
+                )
             }
-    }
-
-    private fun configureRecyclerAdapter(prefLayout: String) {
-
-        val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
-        val trackerBuilder: SelectionTracker.Builder<String>?
-        if (asGrid) {
-            val columns = resources.getInteger(R.integer.grid_default_column_number)
-            binding.nodes.layoutManager = GridLayoutManager(requireActivity(), columns)
-            adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
-            binding.nodes.adapter = adapter
-            trackerBuilder = SelectionTracker.Builder(
-                "grid_multi_selection",
-                binding.nodes,
-                NodeGridItemKeyProvider(adapter as NodeGridAdapter),
-                NodeGridItemDetailsLookup(binding.nodes),
-                StorageStrategy.createStringStorage()
-            )
-        } else {
-            binding.nodes.layoutManager = LinearLayoutManager(requireActivity())
-            adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-            binding.nodes.adapter = adapter
-            trackerBuilder = SelectionTracker.Builder(
-                "list_multi_selection",
-                binding.nodes,
-                NodeListItemKeyProvider(adapter as NodeListAdapter),
-                NodeListItemDetailsLookup(binding.nodes),
-                StorageStrategy.createStringStorage()
-            )
         }
 
         // Manage multi selection
-        trackerBuilder.let { builder ->
+        trackerBuilder?.let { builder ->
             val tmpTracker = builder.withSelectionPredicate(
                 SelectionPredicates.createSelectAnything()
             ).build()
@@ -276,12 +236,8 @@ class BrowseFolderFragment : Fragment() {
         Log.d(logTag, "onResume")
         super.onResume()
 
-        // We must insure the Observed LiveData has been correctly updated
-        // Otherwise we won't see sort order changes directly
         // TODO insure we want to reset backoff ticker index
         browseFolderVM.resume(true)
-        browseFolderVM.children.removeObserver(observer)
-        browseFolderVM.children.observe(viewLifecycleOwner, observer)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(true)
@@ -451,7 +407,7 @@ class BrowseFolderFragment : Fragment() {
 
     inner class ChildObserver : Observer<List<RTreeNode>> {
         override fun onChanged(it: List<RTreeNode>?) {
-//             Log.e(logTag, "children changed, it: $it")
+            // Log.e(logTag, "children changed, it: ${it?.size}")
             it?.let {
                 if (it.isEmpty()) {
                     val msg = when {

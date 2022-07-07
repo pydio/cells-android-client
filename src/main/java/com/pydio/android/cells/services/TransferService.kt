@@ -262,7 +262,7 @@ class TransferService(
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
-            val rNode = nodeService.getNode(state)
+            val rNode = nodeService.getLocalNode(state)
             if (rNode == null) {
                 // No node found, aborting
                 val errorMessage = "No node found for $state, aborting file DL"
@@ -304,7 +304,7 @@ class TransferService(
         }
 
         val state = StateID.fromId(rTransfer.encodedState)
-        val rNode = nodeService.getNode(state)
+        val rNode = nodeService.getLocalNode(state)
         if (rNode == null) {
             // No node found, aborting
             errorMessage = "No node found for $state, aborting file DL"
@@ -313,7 +313,6 @@ class TransferService(
         }
 
         // Insure we are connected and not metered (or DL with metered is allowed in prefs)
-
 
         Log.d(logTag, "About to download file from $state")
         // Prepare target file

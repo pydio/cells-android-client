@@ -192,7 +192,7 @@ class OfflineRootsFragment : Fragment() {
             val sid = node.getStateID()
             Log.d(logTag, "About to navigate to $sid, mime type: ${node.mime}")
             // TODO implement opening the carousel from here
-            val treeNode = nodeService.getNode(sid) ?: run {
+            val treeNode = nodeService.getLocalNode(sid) ?: run {
                 Log.e(logTag, "trying to open a node $sid that is unknown by the index")
                 return@launch
             }

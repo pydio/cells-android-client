@@ -23,6 +23,7 @@ import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.Client
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -64,7 +65,7 @@ class NodeService(
      */
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
 
-        var encoded = prefs.getString(
+        val encoded = prefs.getString(
             AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
@@ -79,7 +80,7 @@ class NodeService(
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        var encoded = prefs.getString(
+        val encoded = prefs.getString(
             AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
@@ -91,8 +92,7 @@ class NodeService(
     }
 
     fun listOfflineRoots(accountID: StateID): LiveData<List<RLiveOfflineRoot>> {
-
-        var encoded = prefs.getString(
+        val encoded = prefs.getString(
             AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
@@ -124,7 +124,6 @@ class NodeService(
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
-
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
         return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
@@ -199,7 +198,7 @@ class NodeService(
             }
         }
 
-    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
+    suspend fun getLocalNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
         nodeDB(stateID).treeNodeDao().getNode(stateID.id)
     }
 
@@ -399,7 +398,7 @@ class NodeService(
 
             val roots = nodeDB(stateID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
-                return@withContext 0L to "No offline root is defined for currrent account"
+                return@withContext 0L to "No offline root is defined for current account"
             }
 
             val jobId = jobService.create(
@@ -539,7 +538,7 @@ class NodeService(
 
     }
 
-    private suspend fun hasExistingJob(
+    private fun hasExistingJob(
         label: String,
         template: String,
         timeoutSinceUpdated: Int = 120,
@@ -784,14 +783,14 @@ class NodeService(
         }
     }
 
-    private suspend fun statRemoteNode(stateID: StateID): Stats? {
-        try {
-            return getClient(stateID).stats(stateID.workspace, stateID.file, true)
-        } catch (e: SDKException) {
-            handleSdkException(stateID, "could not stat at $stateID", e)
-        }
-        return null
-    }
+//    private suspend fun statRemoteNode(stateID: StateID): Stats? {
+//        try {
+//            return getClient(stateID).stats(stateID.workspace, stateID.file, true)
+//        } catch (e: SDKException) {
+//            handleSdkException(stateID, "could not stat at $stateID", e)
+//        }
+//        return null
+//    }
 
     suspend fun clearAccountCache(stateID: String): String? = withContext(Dispatchers.IO) {
         val accountID = StateID.fromId(stateID).account()
@@ -810,7 +809,7 @@ class NodeService(
             }
 
             // TODO finalise cache cleaning for glide
-            // Yet, this should violently and completly empty Glide's cache
+            // Yet, this should violently and completely empty Glide's cache
 
             // Must be called on the main thread
             withContext(Dispatchers.Main) {
@@ -832,34 +831,28 @@ class NodeService(
         return rootPaths.any { currentPath.startsWith(it) }
     }
 
+    private suspend fun isCachedVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
-    private suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
+        val localFileDao = treeNodeRepository.nodeDB(rTreeNode.getStateID()).localFileDao()
+        val localFile = localFileDao.getFile(rTreeNode.encodedState, AppNames.LOCAL_FILE_TYPE_FILE)
 
+        // Corner case: no internet connection
         if (!accountService.isClientConnected(rTreeNode.encodedState)) {
-            // Cannot tell without connection
-            return null
-            // We admit we are happy with any local version if present
-            // return rTreeNode.localFilename != null
+            // We admit we are happy with any local version that is found
+            localFile?.let { return true }
+            // File is not there and we have no connection returning null to let calling class handle this
+                ?: let { return null }
         }
 
-        // FIXME
-        return true
+        localFile ?: return false
 
-//        // Compare with remote if possible
-//        val remoteStats = statRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
-//        if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-//            && rTreeNode.localModificationTS >= remoteStats.getmTime()
-//        ) {
-//            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE).let {
-//                val file = File(it)
-//                // TODO at this point we are not 100% sure the local file
-//                //  is in-line with remote, typically if update is in process
-//                if (file.exists()) {
-//                    return true
-//                }
-//            }
-//        }
-//        return false
+        // Compare with remote if possible
+        val remoteFileNode = getNodeInfo(rTreeNode.getStateID()) ?: throw SDKException(
+            ErrorCodes.not_found,
+            "No node found on remote server for ${rTreeNode.getStateID()}"
+        )
+        val nodeInfo = RTreeNode.fromFileNode(rTreeNode.getStateID(), remoteFileNode)
+        return fileService.isLocalFileUpToDate(nodeInfo, localFile)
     }
 
     /**
@@ -972,22 +965,24 @@ class NodeService(
             var out: OutputStream? = null
             try {
                 out = resolver.openOutputStream(uri)
-                if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
+                if (isCachedVersionUpToDate(rTreeNode) ?: return@withContext) {
                     var input: InputStream? = null
                     try {
-                        input = FileInputStream(
-                            getLocalFile(
-                                rTreeNode,
-                                AppNames.LOCAL_FILE_TYPE_FILE
-                            )
+                        val localFile = getLocalFile(
+                            rTreeNode,
+                            AppNames.LOCAL_FILE_TYPE_FILE
                         )
+                        if (localFile.exists()) {
+                            input = FileInputStream(localFile)
+                        }
+
                         IoHelpers.pipeRead(input, out)
                     } finally {
                         IoHelpers.closeQuietly(input)
                     }
                     // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
                 } else {
-                    // Directly download to final destination
+                    // Directly download to final destination: we do not save the corresponding file in the cache
                     // TODO handle progress
                     getClient(stateID).download(stateID.workspace, stateID.file, out, null)
                 }
@@ -1071,12 +1066,9 @@ class NodeService(
                 // We already insert found nodes in the cache to ease following user action
                 for (node in nodes) {
                     // Log.e(logTag, "handling query result for ${node.getStateID()} ")
-                    getNode(node.getStateID())?.let {
+                    getLocalNode(node.getStateID())?.let {
                         // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
-                    } ?: let {
-                        // Log.e(logTag, "none found upserting")
-                        upsertNode(node)
-                    }
+                    } ?: upsertNode(node)
                 }
 
                 return@withContext nodes

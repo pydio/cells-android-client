@@ -3,7 +3,6 @@ package com.pydio.android.cells.services
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.RAccount
@@ -14,7 +13,6 @@ import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.db.accounts.WorkspaceDao
 import com.pydio.android.cells.transfer.WorkspaceDiff
-import com.pydio.android.cells.utils.hasAtLeastMeteredNetwork
 import com.pydio.android.cells.utils.logException
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
@@ -25,8 +23,6 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import java.net.HttpURLConnection
 
 /**
@@ -35,11 +31,13 @@ import java.net.HttpURLConnection
  * servers.
  */
 class AccountServiceImpl(
+    private val networkService: NetworkService,
     accountDB: AccountDB,
     private val authService: AuthService,
     private val sessionFactory: SessionFactory,
-    private val treeNodeRepository: TreeNodeRepository
-) : AccountService, KoinComponent {
+    private val treeNodeRepository: TreeNodeRepository,
+    private val fileService: FileService,
+) : AccountService {
 
     private val logTag = AccountService::class.java.simpleName
 
@@ -127,34 +125,31 @@ class AccountServiceImpl(
                 var changes = 0
                 val accounts = accountDao.getAccounts()
                 for (account in accounts) {
-                    try {
-                        if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-                            continue
-                        }
-                        // TODO rather use an API healthcheck
-                        val currClient = sessionFactory.getUnlockedClient(account.accountID)
-                        if (!currClient.stillAuthenticated()) {
-                            account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-                            accountDao.update(account)
-                            changes++
-                        }
-                    } catch (e: SDKException) {
-                        // First handle network issue
-                        if (isNetworkDownError(e.code)) {
-                            Log.e(logTag, "##### Unreachable host")
-                            val networkService: NetworkService = get()
-                            /*if (networkService.networkInfo()?.isOffline() != true) {
-                                networkService.updateStatus(
-                                    AppNames.NETWORK_STATUS_NO_INTERNET,
-                                    e.code
-                                )
-                            }*/
-                            return@withContext Pair(0, "Network down")
-                        }
-                        // TODO insure we do not miss anything
-                        Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
-                        e.printStackTrace()
+                    if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                        continue
                     }
+                    if (networkService.isConnected()) {
+                        try {
+                            // TODO rather use an API health check
+                            val currClient = sessionFactory.getUnlockedClient(account.accountID)
+                            if (!currClient.stillAuthenticated()) {
+                                // TODO implement finer status check (unauthorized, expired...)
+                                account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+                                accountDao.update(account)
+                                changes++
+                            }
+                        } catch (e: SDKException) {
+                            // TODO insure we do not miss anything
+                            Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
+                            e.printStackTrace()
+                        }
+                    } else {
+                        Log.w(
+                            logTag, "No network connection, " +
+                                    "cannot check auth status for ${account.account()}"
+                        )
+                    }
+
                 }
                 return@withContext Pair(changes, null)
             } catch (e: SDKException) {
@@ -162,7 +157,6 @@ class AccountServiceImpl(
                 return@withContext Pair(0, msg)
             }
         }
-
 
     private suspend fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
@@ -174,8 +168,6 @@ class AccountServiceImpl(
         }
         sessionDao.insert(session)
         treeNodeRepository.refreshSessionCache()
-
-        val fileService: FileService = get()
         fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
@@ -189,19 +181,14 @@ class AccountServiceImpl(
             val dirName = treeNodeRepository.sessions[accountId]?.dirName
                 ?: throw IllegalStateException("No record found for $stateId")
 
-            val fileService: FileService = get()
+            // Downloaded files
             fileService.cleanAllLocalFiles(stateId, dirName)
-
             // Credentials
             authService.forgetCredentials(stateId, oldAccount.isLegacy)
-
-
             // Remove rows in the account tables
             sessionDao.forgetSession(accountId)
             workspaceDao.forgetAccount(accountId)
             accountDao.forgetAccount(accountId)
-
-            val treeNodeRepository: TreeNodeRepository = get()
             treeNodeRepository.closeNodeDb(stateId.accountId)
 
             // Update local caches
@@ -266,7 +253,7 @@ class AccountServiceImpl(
     }
 
     override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
-        val isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
+        val isConnected = networkService.isConnected()
         val accountID = StateID.fromId(stateID).accountId
         accountDao.getAccount(accountID)?.let {
             return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED

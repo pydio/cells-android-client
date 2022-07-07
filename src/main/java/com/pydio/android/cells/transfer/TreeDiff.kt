@@ -125,7 +125,7 @@ class TreeDiff(
         // Update info for current folder
         if (baseFolderStateId.file == "/") {
             // TODO ws root specific management smells
-            nodeService.getNode(baseFolderStateId)?.let {
+            nodeService.getLocalNode(baseFolderStateId)?.let {
                 it.lastCheckTS = currentTimestamp()
                 dao.update(it)
             }

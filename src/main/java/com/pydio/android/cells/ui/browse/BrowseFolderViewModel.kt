@@ -3,9 +3,11 @@ package com.pydio.android.cells.ui.browse
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
@@ -35,9 +37,21 @@ class BrowseFolderViewModel(
     val stateId: StateID = StateID.fromId(encodedStateID)
     val currentFolder = nodeService.getLiveNode(stateId)
 
-    private var _children = nodeService.ls(stateId)
-    val children: LiveData<List<RTreeNode>>
-        get() = _children
+    val liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
+
+    // Enable LiveData update when the sort order changes
+    private val liveSortValue: MutableLiveData<String> = liveSharedPreferences.getString(
+        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+        AppNames.DEFAULT_SORT_ENCODED
+    )
+    fun getChildrenWithLiveSort(): LiveData<List<RTreeNode>> {
+        return Transformations.switchMap(
+            liveSortValue
+        ) { encodedSort ->
+            // Log.e(logTag, "sort order has changed: $encodedSort")
+            nodeService.ls(stateId)
+        }
+    }
 
     private val backOffTicker = BackOffTicker()
     private var _isActive = false
@@ -51,21 +65,8 @@ class BrowseFolderViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    // Cache list order to only trigger order change when necessary
-    private var _currentOrder = prefs.getString(
-        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
-        AppNames.DEFAULT_SORT_ENCODED
-    )
-
     init {
         setLoading(true)
-    }
-
-    fun reQuery(newOrder: String) {
-        if (_currentOrder != newOrder) {
-            _currentOrder = newOrder
-            _children = nodeService.ls(stateId)
-        }
     }
 
     private fun watchFolder() = vmScope.launch {
@@ -85,7 +86,7 @@ class BrowseFolderViewModel(
     }
 
     private suspend fun doPull() {
-        Log.e(logTag, "#### About to pull for $stateId")
+        Log.d(logTag, "About to pull for $stateId")
         val (changeNb, errMsg) = nodeService.pull(stateId)
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(errMsg)) {
@@ -104,8 +105,7 @@ class BrowseFolderViewModel(
     }
 
     fun resume(resetBackOffTicker: Boolean) {
-        Log.i(logTag, "resumed")
-        resetLiveChildren()
+        Log.d(logTag, "resumed")
         if (!_isActive) {
             _isActive = true
             currWatcher = watchFolder()
@@ -119,20 +119,12 @@ class BrowseFolderViewModel(
         _isActive = false
     }
 
-    fun orderHasChanged(newOrder: String): Boolean {
-        return _currentOrder != newOrder
-    }
 
     fun triggerRefresh() {
         setLoading(true)
         pause()
         currWatcher?.cancel()
         resume(true)
-    }
-
-    /** Force recreation of the liveData object, typically after sort order modification */
-    private fun resetLiveChildren() {
-        _children = nodeService.ls(stateId)
     }
 
     override fun onCleared() {

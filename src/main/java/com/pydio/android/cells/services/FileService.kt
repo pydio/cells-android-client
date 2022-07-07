@@ -5,6 +5,7 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLocalFile
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.utils.asFormattedString
+import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
@@ -18,7 +19,7 @@ import java.io.File
 /** Centralizes management of local files and where to store/find them. */
 class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
-    private val tag = FileService::class.simpleName
+    private val logTag = FileService::class.simpleName
 
     private val fileServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + fileServiceJob)
@@ -51,26 +52,20 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return getLocalPathFromState(stat, type)
     }
 
-    fun getLocalPathFromState(stat: StateID, type: String): String {
+    fun getLocalPathFromState(state: StateID, type: String): String {
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_FILE,
             AppNames.LOCAL_FILE_TYPE_TRANSFER
-            -> "${dataParentPath(stat.account(), type)}${stat.path}"
+            -> "${dataParentPath(state.account(), type)}${state.path}"
             AppNames.LOCAL_FILE_TYPE_THUMB,
             AppNames.LOCAL_FILE_TYPE_PREVIEW
-            -> "${dataParentPath(stat.account(), type)}${stat.file}"
-            else -> throw IllegalStateException("Cannot create $type path for $stat")
+            -> "${dataParentPath(state.account(), type)}${state.file}"
+            else -> throw IllegalStateException("Cannot create $type path for $state")
         }
     }
 
     /* LOCAL FILES (for offline and cache) */
-//    suspend fun registerLocalFile(
-    fun registerLocalFile(
-        stateID: StateID,
-        rTreeNode: RTreeNode,
-        type: String,
-        file: File
-    ) {
+    fun registerLocalFile(stateID: StateID, rTreeNode: RTreeNode, type: String, file: File) {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
         val rLocalFile =
             RLocalFile.fromFile(stateID, type, file, rTreeNode.etag, rTreeNode.remoteModificationTS)
@@ -80,19 +75,40 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     fun needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
         val fileRecord = dao.getFile(stateID.id, type) ?: let {
-            Log.d(tag, "$type not found for ${stateID.file}, downloading")
+            Log.d(logTag, "$type not found for ${stateID.file}, downloading")
             return true
         }
         val hasChanged = !(remote.lastModified <= fileRecord.remoteTS &&
                 remote.eTag == fileRecord.etag)
         if (hasChanged) {
             Log.d(
-                tag, "$type for ${stateID.file} needs update:\n" +
+                logTag, "$type for ${stateID.file} needs update:\n" +
                         "  ${remote.lastModified} - ${fileRecord.remoteTS} \n" +
                         "  ${remote.eTag} - ${fileRecord.etag}"
             )
         }
         return hasChanged
+    }
+
+    fun isLocalFileUpToDate(updatedNode: RTreeNode, localFile: RLocalFile): Boolean {
+
+        // First simple checks
+        var upToDate = updatedNode.remoteModificationTS <= localFile.remoteTS &&
+                updatedNode.etag == localFile.etag
+        if (!upToDate) {
+            return false
+        }
+        // Also double check the file is here
+        val parPath = dataParentPath(updatedNode.getAccountID(), AppNames.LOCAL_FILE_TYPE_FILE)
+        val lf = File(parPath + File.separator + localFile.file)
+        upToDate = lf.exists()
+        if (!upToDate) {
+            return false
+        }
+        // Finally recompute local file md5 to insure it corresponds with the expected value (corrupted file)
+        val computedMd5 = computeFileMd5(lf)
+        Log.e(logTag, "Computing md5: expected: [${localFile.etag}], computed: [$computedMd5]")
+        return localFile.etag == computedMd5
     }
 
     fun unregisterLocalFile(stateID: StateID, type: String) {
@@ -126,17 +142,17 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
 
         val rFile = dao.getFile(stateID.id, type) ?: let {
-            Log.e(tag, "no record for [$type]: $stateID")
+            Log.e(logTag, "no record for [$type]: $stateID")
             return null
         }
         val parPath = dataParentPath(stateID.account(), type)
         val file = File(parPath + File.separator + rFile.file)
         if (!file.exists()) {
-            Log.e(tag, "could not find file at ${file.absolutePath}")
+            Log.e(logTag, "could not find file at ${file.absolutePath}")
             return null
         }
         if (!isFileInLineWithIndex(rTreeNode, rFile)) {
-            Log.e(tag, "remote file has changed")
+            Log.e(logTag, "remote file has changed")
             return null
         }
         return file
@@ -233,7 +249,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         val file = File(parPath + File.separator + record.file)
         if (!file.exists()) {
             val m = "${record.getStateID()}: Missing ${record.type} record at ${file.absolutePath}"
-            Log.w(tag, m)
+            Log.w(logTag, m)
             return null
         }
         return file

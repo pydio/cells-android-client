@@ -106,7 +106,7 @@ val serviceModule = module {
     // Accounts and Sessions
     single<Store<Server>>(named("ServerStore")) { MemoryStore() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
-    single<AccountService> { AccountServiceImpl(get(), get(), get(), get()) }
+    single<AccountService> { AccountServiceImpl(get(), get(), get(), get(), get(), get()) }
     single {
         SessionFactory(
             get(),
