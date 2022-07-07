@@ -236,7 +236,7 @@ fun getComposedDrawableForGrid(context: Context, mime: String, sortName: String?
             context.theme
         )
     val insetPx = context.resources.getDimension(R.dimen.grid_thumb_margin).toInt()
-    Log.e("getting thumb", "##### compute size: $insetPx ")
+    // Log.e("getting thumb", "##### compute size: $insetPx ")
     val insetForeground = InsetDrawable(foreground, insetPx, insetPx, insetPx, insetPx)
     return LayerDrawable(arrayOf(background, insetForeground))
 }

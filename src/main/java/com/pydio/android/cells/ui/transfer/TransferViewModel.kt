@@ -34,14 +34,13 @@ class TransferViewModel(
 
     private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
 
-    private val nameQueryLiveData: MutableLiveData<String> = liveSharedPreferences.getString(
+    private val liveFilterStatus: MutableLiveData<String> = liveSharedPreferences.getString(
         AppNames.PREF_KEY_JOB_FILTER_BY_STATUS,
         AppNames.JOB_STATUS_NO_FILTER
     )
-
     fun getTransfersWithLiveFilter(): LiveData<List<RTransfer>> {
         return Transformations.switchMap(
-            nameQueryLiveData
+            liveFilterStatus
         ) { name ->
             Log.e(logTag, "filter has changed: $name")
             transferService.queryTransfers(stateID)
@@ -74,7 +73,7 @@ class TransferViewModel(
     }
 
     private fun reQuery(value: String) {
-        nameQueryLiveData.value = value
+        liveFilterStatus.value = value
     }
 
     init {

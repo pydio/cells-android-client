@@ -50,13 +50,8 @@ data class RLocalFile(
     companion object {
         private val logTag = RLocalFile::class.simpleName
 
-        fun fromFile(
-            stateID: StateID,
-            type: String,
-            file: File,
-            eTag: String?,
-            remoteTS: Long,
-        ): RLocalFile {
+        fun fromFile(stateID: StateID, type: String, file: File, eTag: String?, remoteTS: Long)
+                : RLocalFile {
             val filename = if (type == AppNames.LOCAL_FILE_TYPE_FILE) {
                 stateID.path.substring(1) // we remove the leading / for easier later use
             } else {

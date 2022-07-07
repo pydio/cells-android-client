@@ -131,7 +131,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         Log.d(logTag, "onCreate")
 
-        // Communication with the device to import files / take pictures, video, ...
+        // Communication with the device to import files / take pictures, video, etc.
         fileImporter = FileImporter(
             requireActivity().activityResultRegistry,
             treeNodeMenuVM,
@@ -140,6 +140,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         )
         lifecycle.addObserver(fileImporter)
 
+        // Download cached or remote files to device
         fileExporter = FileExporter(
             requireActivity().activityResultRegistry,
             treeNodeMenuVM.stateIDs[0],
