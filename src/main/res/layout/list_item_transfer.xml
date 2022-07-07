@@ -35,7 +35,7 @@
 
         <TextView
             android:id="@+id/primaryText"
-            style="@style/text_list_primary"
+            style="@style/TextAppearance.Material3.TitleSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_xsmall"
@@ -50,13 +50,10 @@
 
         <TextView
             android:id="@+id/secondaryText"
-            style="@style/text_list_secondary"
+            style="@style/TextAppearance.Material3.BodySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_small"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:singleLine="true"
             app:layout_constraintBottom_toTopOf="@id/progress"
             app:layout_constraintEnd_toEndOf="@id/progress"
             app:layout_constraintStart_toStartOf="@id/progress"

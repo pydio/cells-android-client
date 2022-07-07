@@ -9,10 +9,6 @@
         <variable
             name="node"
             type="com.pydio.android.cells.db.nodes.RTreeNode" />
-
-<!--        <variable-->
-<!--            name="thumbDirPath"-->
-<!--            type="java.lang.String" />-->
     </data>
 
     <merge>
@@ -26,18 +22,21 @@
                 android:id="@+id/node_thumb"
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
-                android:layout_margin="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginBottom="@dimen/margin_xsmall"
                 android:contentDescription="@string/thumb_description"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:nodeThumbItem="@{node}"
                 tools:srcCompat="@drawable/ic_baseline_folder_24" />
-<!--            app:nodeThumbDirPath="@{thumbDirPath}"-->
+            <!--            app:nodeThumbDirPath="@{thumbDirPath}"-->
 
             <TextView
                 android:id="@+id/node_label"
-                style="@style/text_list_primary"
+                style="@style/TextAppearance.Material3.TitleSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_medium"
@@ -58,15 +57,15 @@
                 android:id="@+id/node_path"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/node_label"
                 app:layout_constraintStart_toStartOf="@+id/node_label"
-                app:layout_constraintTop_toBottomOf="@id/node_label"
-                android:padding="0dp"
-                android:orientation="horizontal">
+                app:layout_constraintTop_toBottomOf="@id/node_label">
 
                 <TextView
-                    style="@style/text_list_secondary"
+                    style="@style/TextAppearance.Material3.BodySmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="false"

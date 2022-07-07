@@ -41,8 +41,9 @@ fun TextView.setTransferTitle(item: RTransfer?) {
 fun TextView.setTransferText(item: RTransfer?) {
     item?.let {
         val state = item.getStateId()
-        val arrow = if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "->" else "<-"
-        text = "${state.fileName} $arrow ${state.username}@${state.serverHost}"
+//        val arrow = if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "->" else "<-"
+//        text = "${state.fileName} $arrow ${state.username}@${state.serverHost}"
+        text = state.fileName
     }
 }
 

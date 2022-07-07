@@ -67,7 +67,7 @@
     <integer name="grid_ws_column_number">2</integer>
     <dimen name="grid_ws_image_size">128dp</dimen>
     <dimen name="grid_ws_image_corner_radius">6dp</dimen>
-<!--    <dimen name="grid_thumb_margin2">106dp</dimen>-->
+    <!--    <dimen name="grid_thumb_margin2">106dp</dimen>-->
     <dimen name="grid_ws_icon_size">24dp</dimen>
     <dimen name="grid_ws_icon_margin">24dp</dimen>
     <dimen name="grid_ws_icon_inner_size">8dp</dimen>
