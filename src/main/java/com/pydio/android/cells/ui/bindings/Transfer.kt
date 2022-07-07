@@ -54,12 +54,20 @@ fun TextView.setTransferStatus(item: RTransfer?) {
         val sizeValue = Formatter.formatShortFileSize(this.context, item.byteSize)
         var desc = "$sizeValue,"
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val color = when (item.status) {
+                AppNames.JOB_STATUS_WARNING -> R.color.warning
+                AppNames.JOB_STATUS_ERROR,
+                AppNames.JOB_STATUS_CANCELLED,
+                AppNames.JOB_STATUS_TIMEOUT -> R.color.danger
+                else -> R.color.material_neutral
+            }
+            setTextColor(resources.getColor(color, context.theme))
+        }
+
         when {
             Str.notEmpty(item.error) -> {
                 desc += " ${item.error}"
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    this.setTextColor(resources.getColor(R.color.danger, context.theme))
-                }
             }
             item.doneTimestamp > 0 -> {
                 val mTimeValue = DateUtils.formatDateTime(

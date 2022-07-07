@@ -289,6 +289,8 @@ class TransferService(
 
         var errorMessage: String? = null
         val dao = getTransferDao(accountId)
+        val lfType = AppNames.LOCAL_FILE_TYPE_FILE
+
 
         // Retrieve data and sanity check
         val rTransfer = dao.getById(transferId) ?: run {
@@ -306,13 +308,12 @@ class TransferService(
             return@withContext errorMessage
         }
 
-        // Insure we are connected and not metered (or DL with metered is allowed in prefs)
+        // TODO Insure we are connected and not metered (or DL with metered is allowed in prefs)
 
         Log.d(logTag, "About to download file from $state")
         // Prepare target file
         val targetFile = File(rTransfer.localPath)
         targetFile.parentFile?.mkdirs()
-
         var out: FileOutputStream? = null
         try {
             out = FileOutputStream(targetFile)
@@ -364,21 +365,22 @@ class TransferService(
                 }
                 rTransfer.progress += byteWritten
                 rTransfer.updateTimestamp = currentTimestamp()
-                rTransfer.error = null
                 dao.update(rTransfer)
 
                 // Double check downloaded file is OK
                 val computedMd5 = computeFileMd5(targetFile)
                 if (rNode.etag != computedMd5) {
-                    errorMessage = "MD5 signatures do not match after the download has terminated"
+                    rTransfer.error = "MD5 signatures do not match after the download has terminated"
+                    rTransfer.status = AppNames.JOB_STATUS_WARNING
                 } else {
-                    val type = AppNames.LOCAL_FILE_TYPE_FILE
-                    fileService.registerLocalFile(state, rNode, type, targetFile)
                     rTransfer.status = AppNames.JOB_STATUS_DONE
-                    rTransfer.doneTimestamp = currentTimestamp()
-                    rTransfer.updateTimestamp = currentTimestamp()
-                    dao.update(rTransfer)
+                    rTransfer.error = null
                 }
+                fileService.registerLocalFile(state, rNode, lfType, targetFile)
+                rTransfer.doneTimestamp = currentTimestamp()
+                rTransfer.updateTimestamp = currentTimestamp()
+                dao.update(rTransfer)
+
                 // TODO handle the case where the download duration is long enough to enable
                 //   end-user to modify (or delete) the corresponding node before it has been correctly downloaded
             }
@@ -407,7 +409,7 @@ class TransferService(
                 targetFile.delete()
             }
             // And unregister local file record
-            fileService.unregisterLocalFile(state, AppNames.LOCAL_FILE_TYPE_FILE)
+            fileService.unregisterLocalFile(state, lfType)
             Log.e(logTag, "Could not download file at $state : $errorMessage")
         }
         return@withContext errorMessage

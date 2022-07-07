@@ -96,6 +96,7 @@ public interface AppNames {
     String JOB_STATUS_PROCESSING = "processing";
     String JOB_STATUS_CANCELLED = "cancelled";
     String JOB_STATUS_DONE = "done";
+    String JOB_STATUS_WARNING = "warning";
     String JOB_STATUS_ERROR = "error";
     String JOB_STATUS_TIMEOUT = "timeout";
     String JOB_STATUS_NO_FILTER = "show_all";
