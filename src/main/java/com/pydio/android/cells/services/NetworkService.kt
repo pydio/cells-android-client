@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 
 class NetworkService constructor(context: Context) {
@@ -41,13 +40,11 @@ class NetworkService constructor(context: Context) {
         get() = _errorMessage
 
     init {
-        serviceScope.launch { // Asynchronous is necessary to wait for the context
+        // Default are rather optimistic, otherwise we get some UI glitches while the framework starts
+        _isConnected.value = true
+        _isMetered.value = false
 
-            withContext(Dispatchers.Main){
-                // Default are rather pessimistic: it seems that first event is always network unavailable.
-                _isConnected.value = false
-                _isMetered.value = false
-            }
+        serviceScope.launch { // Asynchronous is necessary to wait for the context
 
             val liveNetwork = LiveNetwork(context)
             if (liveNetwork.value is NetworkStatus.Unavailable) {
