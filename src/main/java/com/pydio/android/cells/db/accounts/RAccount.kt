@@ -63,6 +63,8 @@ data class RAccount(
         }
     }
 
+    fun account(): StateID = StateID.fromId(accountID)
+
     fun skipVerify() = tlsMode != 0
 
     fun serverLabel(): String? {
@@ -78,5 +80,4 @@ data class RAccount(
         }
         return null
     }
-
 }
