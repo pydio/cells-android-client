@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
@@ -16,8 +17,8 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
-import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -75,7 +76,7 @@ class ActiveSessionViewModel(
             return false
         }
 
-        val dlFileOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_FILES, false)
+        val dlFileOnMetered = prefs.getBoolean(AppKeys.METERED_ASK_B4_DL_FILES, false)
         return networkService.isConnected() &&
                 sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED &&
                 (dlFileOnMetered || !networkService.isMetered())
@@ -148,13 +149,27 @@ class ActiveSessionViewModel(
         _isLoading.value = loading
     }
 
+    private var oldOfflineFrequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
+
     // TODO is it OK to init workers in this view Model?
     private fun configureWorkers() {
+
+        val wManager = WorkManager.getInstance(CellsApp.instance.applicationContext)
+        val operation = wManager.enqueueUniquePeriodicWork(
+            OfflineSync.WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            OfflineSync.buildWorkRequest(prefs),
+        )
+
         vmScope.launch {
-            livePrefs.getString(AppNames.PREF_KEY_OFFLINE_FREQ, AppNames.OFFLINE_FREQ_WEEK)
+            livePrefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
                 .asFlow().collect {
                     // Log.e(logTag, "### Live share pref event: $it")
-                    it?.let { resetWorker() }
+                    it?.let {
+                        if (it != oldOfflineFrequency) {
+                            resetWorker()
+                        }
+                    }
                 }
             // TODO also observe offline constraints settings
         }
@@ -162,9 +177,10 @@ class ActiveSessionViewModel(
 
     private fun resetWorker() {
         // debug info
-        val it = prefs.getString(AppNames.PREF_KEY_OFFLINE_FREQ, "<not-set>")
+        val it = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
         val prefix = "### Cancel and restart offline worker with [$it] frequency "
         try {
+            oldOfflineFrequency = it
             jobService.i(logTag, prefix, "Live Pref Observer")
         } catch (e: Exception) {
             Log.e(logTag, "$prefix, could not log to user table: ${e.message}")
@@ -172,11 +188,11 @@ class ActiveSessionViewModel(
         // Effective reset.
         // TODO make it more clever to prevent systematic launch of the worker each time the preferences change
         val workManager = WorkManager.getInstance(CellsApp.instance)
-        workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
+        workManager.cancelUniqueWork(OfflineSync.WORK_NAME)
         workManager.enqueueUniquePeriodicWork(
-            OfflineSyncWorker.WORK_NAME,
+            OfflineSync.WORK_NAME,
             ExistingPeriodicWorkPolicy.REPLACE,
-            OfflineSyncWorker.buildWorkRequest(prefs),
+            OfflineSync.buildWorkRequest(prefs),
         )
     }
 

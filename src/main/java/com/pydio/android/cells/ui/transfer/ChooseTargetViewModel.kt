@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,7 @@ class ChooseTargetViewModel(private val transferService: TransferService) : View
                     AppNames.ACTION_COPY -> {
                         val intent = Intent(context, MainActivity::class.java)
                         intent.action = AppNames.ACTION_CHOOSE_TARGET
-                        intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
                         withContext(Dispatchers.Main) {
                             _postIntent.value = intent
                         }
@@ -71,7 +72,7 @@ class ChooseTargetViewModel(private val transferService: TransferService) : View
                     AppNames.ACTION_MOVE -> {
                         val intent = Intent(context, MainActivity::class.java)
                         intent.action = AppNames.ACTION_CHOOSE_TARGET
-                        intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
                         withContext(Dispatchers.Main) {
                             _postIntent.value = intent
                         }

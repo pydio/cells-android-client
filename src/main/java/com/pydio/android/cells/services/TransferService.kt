@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -72,7 +73,7 @@ class TransferService(
 
     fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
         val filterByStatus = prefs.getString(
-            AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
+            AppKeys.TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
         )
         return queryTransfersExplicitFilter(stateId, filterByStatus)
     }
@@ -83,7 +84,7 @@ class TransferService(
     ): LiveData<List<RTransfer>> {
         val (sortByCol, sortByOrder) = decodeSortById(
             prefs.getString(
-                AppNames.PREF_KEY_TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
+                AppKeys.TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
             )
         )
         val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
@@ -163,14 +164,14 @@ class TransferService(
                 return@withContext downloadFile(state, rNode, type, parentJob, null)
             }
 
-            val dlThumbOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_THUMBS, false)
+            val dlThumbOnMetered = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
             if (dlThumbOnMetered && (type == AppNames.LOCAL_FILE_TYPE_THUMB ||
                         type == AppNames.LOCAL_FILE_TYPE_PREVIEW)
             ) {
                 return@withContext downloadFile(state, rNode, type, parentJob, null)
             }
 
-            val dlFileOnMetered = prefs.getBoolean(AppNames.PREF_KEY_METERED_DL_FILES, false)
+            val dlFileOnMetered = prefs.getBoolean(AppKeys.METERED_ASK_B4_DL_FILES, false)
             if (dlFileOnMetered && (type == AppNames.LOCAL_FILE_TYPE_FILE)
             ) {
                 return@withContext downloadFile(state, rNode, type, parentJob, null)

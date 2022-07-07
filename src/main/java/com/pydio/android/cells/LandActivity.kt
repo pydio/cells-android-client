@@ -158,7 +158,7 @@ class LandActivity : AppCompatActivity() {
         val intent = Intent(landActivity, MainActivity::class.java)
         stateID?.let {
             accountService.openSession(it.accountId)
-            intent.putExtra(AppNames.EXTRA_STATE, it.id)
+            intent.putExtra(AppKeys.EXTRA_STATE, it.id)
         }
         landActivity.finish()
         startActivity(intent)
@@ -213,7 +213,7 @@ class LandActivity : AppCompatActivity() {
 
 
     private fun getOldVersion(context: Context): Int {
-        var oldValue = prefs.getInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE)
+        var oldValue = prefs.getInt(AppKeys.INSTALLED_VERSION_CODE)
         if (oldValue == -1) {// Try V2 stylee
             getLegacyPreference(context, legacyOldVersionKey)?.let { oldValue = it.toInt() }
         }
@@ -229,13 +229,13 @@ class LandActivity : AppCompatActivity() {
 
         // New installation without legacy data
         if (oldValue < 1 && !migrationService.hasLegacyDB(context)) {
-            prefs.setInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE, newValue)
+            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
             return false
         }
 
         // No migration is necessary for the time being when coming from a 100+ version
         if (oldValue > 100) {
-            prefs.setInt(AppNames.PREF_KEY_INSTALLED_VERSION_CODE, newValue)
+            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
             return false
         }
 

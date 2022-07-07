@@ -29,9 +29,9 @@ fun asSinceString(timestamp: Long): String {
 
 fun fromFreqToMinuteInterval(freq: String?): Long {
     return when (freq) {
-        AppNames.OFFLINE_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
-        AppNames.OFFLINE_FREQ_HOUR -> 60
-        AppNames.OFFLINE_FREQ_DAY -> 60 * 24
+        AppNames.SYNC_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
+        AppNames.SYNC_FREQ_HOUR -> 60
+        AppNames.SYNC_FREQ_DAY -> 60 * 24
         else -> 60 * 24 * 7
     }
 }

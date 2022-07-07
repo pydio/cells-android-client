@@ -6,36 +6,24 @@ public interface AppNames {
     String KEY_PREFIX = "com.pydio.android.cells";
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 
-    /* SHARED PREFERENCE KEYS */
-    String PREF_KEY_INSTALLED_VERSION_CODE = "installed_version_code";
-    String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
-    String PREF_KEY_CURR_RECYCLER_ORDER = "current_recycler_order";
-    String PREF_KEY_METERED_DL_THUMBS = "on_metered_dl_thumbs";
-    String PREF_KEY_METERED_DL_FILES = "on_metered_dl_files";
-    String PREF_KEY_OFFLINE_FREQ = "current_offline_frequency";
-    String PREF_KEY_OFFLINE_CONST_WIFI = "sync_on_wifi_only";
-    String PREF_KEY_OFFLINE_CONST_CHARGING = "sync_on_charging_only";
-    String PREF_KEY_SHOW_RUNTIME_LISTS = "show_runtime_list";
-
-
-    String PREF_KEY_JOB_FILTER_BY_STATUS = "job_filter_by_status";
-    String PREF_KEY_JOB_SORT_BY = "job_sort_by";
-
-    String PREF_KEY_TRANSFER_SORT_BY = "transfer_sort_by";
-    String PREF_KEY_TRANSFER_FILTER_BY_STATUS = "transfer_filter_by_status";
-
     /* SHARED PREFERENCE WELL KNOWN VALUES */
+
+    // LAYOUT AND SORTS
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
-
     String DEFAULT_SORT_BY = "sort_name";
     String DEFAULT_SORT_BY_DIR = "ASC";
     String DEFAULT_SORT_ENCODED = DEFAULT_SORT_BY + "||" + DEFAULT_SORT_BY_DIR;
 
-    String OFFLINE_FREQ_QUARTER = "quarter";
-    String OFFLINE_FREQ_HOUR = "hour";
-    String OFFLINE_FREQ_DAY = "day";
-    String OFFLINE_FREQ_WEEK = "week";
+    // OFFLINE SYNC
+    String SYNC_FREQ_QUARTER = "quarter";
+    String SYNC_FREQ_HOUR = "hour";
+    String SYNC_FREQ_DAY = "day";
+    String SYNC_FREQ_WEEK = "week";
+
+    String SYNC_NET_TYPE_CONNECTED = "Connected";
+    String SYNC_NET_TYPE_UNMETERED = "Unmetered";
+    String SYNC_NET_TYPE_NOT_ROAMING = "Not Roaming";
 
     int ITEM_TYPE_HEADER = 0;
     int ITEM_TYPE_WS = 1;
@@ -104,15 +92,6 @@ public interface AppNames {
     /* Transfers */
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
-
-
-    /* Intents extra keys */
-    String EXTRA_STATE = KEY_PREFIX_ + "state";
-    String EXTRA_SERVER_URL = KEY_PREFIX_ + "server.url";
-    String EXTRA_SERVER_IS_LEGACY = KEY_PREFIX_ + "server.islegacy";
-    String EXTRA_AFTER_AUTH_ACTION = KEY_PREFIX_ + "auth.next.action";
-    String EXTRA_ACTION_CONTEXT = KEY_PREFIX_ + "context.action";
-    String EXTRA_SESSION_UID = KEY_PREFIX_ + "session.uid";
 
     String QUERY_KEY_CODE = "code";
     String QUERY_KEY_STATE = "state";

@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
@@ -78,7 +79,7 @@ class TransferListFragment : Fragment() {
             filterListBtn.isVisible = true
             filterListBtn.setOnMenuItemClickListener {
                 val action = MainNavDirections.openPreferenceList(
-                    AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS,
+                    AppKeys.TRANSFER_FILTER_BY_STATUS,
                     AppNames.FILTER_BY_STATUS,
                     AppNames.JOB_STATUS_NO_FILTER
                 )
@@ -90,8 +91,8 @@ class TransferListFragment : Fragment() {
             sortListBtn.isVisible = true
             sortListBtn.setOnMenuItemClickListener {
                 val action = MainNavDirections.openPreferenceList(
-                    AppNames.PREF_KEY_TRANSFER_SORT_BY,
-                    AppNames.PREF_KEY_JOB_SORT_BY,
+                    AppKeys.TRANSFER_SORT_BY,
+                    AppKeys.JOB_SORT_BY,
                     AppNames.JOB_SORT_BY_DEFAULT
                 )
                 findNavController().navigate(action)

@@ -20,11 +20,11 @@
             app:title="@string/pref_choose_list_layout"
             app:useSimpleSummaryProvider="true" />
 
-<!-- TODO implement
-        <SwitchPreferenceCompat
-            app:key="use_larger_grid"
-            app:title="@string/pref_use_larger_grid" />
--->
+        <!-- TODO implement
+                <SwitchPreferenceCompat
+                    app:key="use_larger_grid"
+                    app:title="@string/pref_use_larger_grid" />
+        -->
 
     </PreferenceCategory>
 
@@ -33,14 +33,30 @@
         app:title="@string/pref_category_title_metered">
 
         <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:key="apply_metered_limitations"
+            app:summary="@string/pref_apply_metered_limits_desc"
+            app:title="@string/pref_apply_metered_limits_title" />
+
+        <SwitchPreferenceCompat
+            android:dependency="apply_metered_limitations"
             app:key="on_metered_dl_thumbs"
             app:summary="@string/pref_metered_dl_thumbs_desc"
             app:title="@string/pref_metered_dl_thumbs_title" />
 
         <SwitchPreferenceCompat
-            app:key="on_metered_dl_files"
-            app:summary="@string/pref_metered_dl_files_desc"
-            app:title="@string/pref_metered_dl_files_title" />
+            android:defaultValue="true"
+            android:dependency="apply_metered_limitations"
+            app:key="on_metered_ask_before_dl_files"
+            app:title="@string/pref_on_metered_ask_before_dl_files_title" />
+
+        <EditTextPreference
+            android:defaultValue="2"
+            android:dependency="on_metered_ask_before_dl_files"
+            android:dialogTitle="@string/on_metered_ask_before_dl_files_greater_than_desc"
+            app:key="on_metered_ask_before_dl_files_greater_than"
+            app:title="@string/on_metered_ask_before_dl_files_greater_than_title"
+            app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
 
@@ -51,22 +67,37 @@
         <DropDownPreference
             app:entries="@array/offline_frequency_labels"
             app:entryValues="@array/offline_frequency_values"
-            app:key="current_offline_frequency"
+            app:key="sync_frequency"
             app:summary="@string/pref_choose_list_offline_frequency_desc"
             app:title="@string/pref_choose_list_offline_frequency_title"
             app:useSimpleSummaryProvider="true" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            app:key="sync_on_wifi_only"
+        <DropDownPreference
+            android:defaultValue="Unmetered"
+            app:entries="@array/network_type_labels"
+            app:entryValues="@array/network_type_values"
+            app:key="sync_network_type"
             app:summary="@string/pref_offline_constraint_wifi_desc"
-            app:title="@string/pref_offline_constraint_wifi_title" />
+            app:title="@string/pref_offline_constraint_wifi_title"
+            app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            app:key="sync_on_charging_only"
+            app:key="sync_on_charging"
             app:summary="@string/pref_offline_constraint_charging_desc"
             app:title="@string/pref_offline_constraint_charging_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:key="sync_on_batt_not_low"
+            app:summary="@string/pref_offline_constraint_batt_not_low_desc"
+            app:title="@string/pref_offline_constraint_batt_not_low_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            app:key="sync_on_idle"
+            app:summary="@string/pref_offline_constraint_idle_desc"
+            app:title="@string/pref_offline_constraint_idle_title" />
 
     </PreferenceCategory>
 
@@ -87,7 +118,7 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            app:key="show_runtime_list"
+            app:key="show_debug_tools"
             app:summary="@string/pref_troubleshooting_show_list_desc"
             app:title="@string/pref_troubleshooting_show_list_title" />
     </PreferenceCategory>

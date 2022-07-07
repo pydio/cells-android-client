@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CarouselActivity
 import com.pydio.android.cells.MainNavDirections
@@ -84,7 +85,7 @@ class BrowseFolderFragment : Fragment() {
         binding.forceRefresh.setOnRefreshListener { browseFolderVM.triggerRefresh() }
 
         browseFolderVM.liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .getString(AppKeys.CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
             .observe(viewLifecycleOwner) {
                 it?.let {
                     val oldList = adapter?.currentList
@@ -229,7 +230,7 @@ class BrowseFolderFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.e(logTag, "onSaveInstanceState for: ${browseFolderVM.stateId}")
-        outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateId.id)
+        outState.putString(AppKeys.EXTRA_STATE, browseFolderVM.stateId.id)
     }
 
     override fun onResume() {
@@ -304,7 +305,7 @@ class BrowseFolderFragment : Fragment() {
 
         if (isPreViewable(node)) {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
-            intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
+            intent.putExtra(AppKeys.EXTRA_STATE, node.encodedState)
             startActivity(intent)
             Log.d(logTag, "open carousel for ${node.getStateID()}, mime type: ${node.mime}")
             return@launch

@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
@@ -46,7 +47,7 @@ class OfflineRootsViewModel(
 
     // Cache list order to only trigger order change when necessary
     private var _currentOrder = prefs.getString(
-        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+        AppKeys.CURR_RECYCLER_ORDER,
         AppNames.DEFAULT_SORT_ENCODED
     )
 

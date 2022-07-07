@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.MainActivity
 import com.pydio.android.cells.R
@@ -49,7 +50,7 @@ class OAuthFlowFragment : Fragment() {
                     AuthService.NEXT_ACTION_BROWSE -> {
                         // We have registered a new account and want to browse to it
                         val intent = Intent(requireActivity(), MainActivity::class.java)
-                        intent.putExtra(AppNames.EXTRA_STATE, accountID)
+                        intent.putExtra(AppKeys.EXTRA_STATE, accountID)
                         Log.i(logTag, "Auth Successful, navigating to ${StateID.fromId(accountID)}")
                         startActivity(intent)
                     }

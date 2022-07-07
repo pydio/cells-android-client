@@ -83,9 +83,9 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         when (inIntent.action) {
             AppNames.ACTION_CHOOSE_TARGET -> {
                 val actionContext =
-                    intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT) ?: AppNames.ACTION_COPY
+                    intent.getStringExtra(AppKeys.EXTRA_ACTION_CONTEXT) ?: AppNames.ACTION_COPY
                 chooseTargetVM.setActionContext(actionContext)
-                val stateID = StateID.fromId(intent.getStringExtra(AppNames.EXTRA_STATE))
+                val stateID = StateID.fromId(intent.getStringExtra(AppKeys.EXTRA_STATE))
                 chooseTargetVM.setCurrentState(stateID)
             }
             Intent.ACTION_SEND -> {

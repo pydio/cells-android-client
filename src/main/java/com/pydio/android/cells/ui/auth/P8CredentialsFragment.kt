@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.MainActivity
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentP8CredentialsBinding
@@ -53,7 +53,7 @@ class P8CredentialsFragment : Fragment() {
                         // We have registered a new account and want to browse to it
                         val nextState = StateID.fromId(it)
                         val intent = Intent(requireActivity(), MainActivity::class.java)
-                        intent.putExtra(AppNames.EXTRA_STATE, it)
+                        intent.putExtra(AppKeys.EXTRA_STATE, it)
                         Log.i(logTag, "Auth success, about to browse to $nextState")
                         startActivity(intent)
                     }

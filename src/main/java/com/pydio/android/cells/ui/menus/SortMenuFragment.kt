@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuSortBinding
@@ -25,7 +26,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
 
     private val prefs: CellsPreferences by inject()
     private val oldOrder =
-        prefs.getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
+        prefs.getString(AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
 
     private lateinit var sortBinding: MoreMenuSortBinding
 
@@ -74,7 +75,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     private fun onClicked(order: String) {
         Log.d(tag, "Item clicked: ORDER BY $order ")
         if (oldOrder != order) {
-            prefs.setString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
+            prefs.setString(AppKeys.CURR_RECYCLER_ORDER, order)
             dismiss()
 //             requireActivity().recreate()
         } else {

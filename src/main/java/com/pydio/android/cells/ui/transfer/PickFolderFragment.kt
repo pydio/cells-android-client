@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.UploadNavigationDirections
@@ -43,8 +44,8 @@ class PickFolderFragment : Fragment() {
         )
         setHasOptionsMenu(true)
 
-        val stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
-            val encodedState = savedInstanceState.getString(AppNames.EXTRA_STATE)
+        val stateID = if (savedInstanceState?.getString(AppKeys.EXTRA_STATE) != null) {
+            val encodedState = savedInstanceState.getString(AppKeys.EXTRA_STATE)
             StateID.fromId(encodedState)
         } else {
             val args: PickFolderFragmentArgs by navArgs()
@@ -134,7 +135,7 @@ class PickFolderFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putSerializable(AppNames.EXTRA_STATE, pickFolderVM.stateID.id)
+        savedInstanceState.putSerializable(AppKeys.EXTRA_STATE, pickFolderVM.stateID.id)
         super.onSaveInstanceState(savedInstanceState)
     }
 }

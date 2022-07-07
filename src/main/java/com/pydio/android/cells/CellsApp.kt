@@ -5,29 +5,17 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.OfflineSyncWorker
 import com.pydio.android.cells.services.allModules
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.koin.java.KoinJavaComponent.inject
-import java.util.concurrent.TimeUnit
 
 /**
  * Main entry point of the Pydio client application.

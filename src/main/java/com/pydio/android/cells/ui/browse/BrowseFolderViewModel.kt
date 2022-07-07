@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.reactive.LiveSharedPreferences
@@ -41,7 +42,7 @@ class BrowseFolderViewModel(
 
     // Enable LiveData update when the sort order changes
     private val liveSortValue: MutableLiveData<String> = liveSharedPreferences.getString(
-        AppNames.PREF_KEY_CURR_RECYCLER_ORDER,
+        AppKeys.CURR_RECYCLER_ORDER,
         AppNames.DEFAULT_SORT_ENCODED
     )
     fun getChildrenWithLiveSort(): LiveData<List<RTreeNode>> {

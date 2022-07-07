@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.reactive.LiveSharedPreferences
@@ -35,7 +36,7 @@ class TransferViewModel(
     private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
 
     private val liveFilterStatus: MutableLiveData<String> = liveSharedPreferences.getString(
-        AppNames.PREF_KEY_JOB_FILTER_BY_STATUS,
+        AppKeys.JOB_FILTER_BY_STATUS,
         AppNames.JOB_STATUS_NO_FILTER
     )
     fun getTransfersWithLiveFilter(): LiveData<List<RTransfer>> {
@@ -56,14 +57,14 @@ class TransferViewModel(
         get() = _errorMessage
 
     private var _oldFilter = prefs.getString(
-        AppNames.PREF_KEY_JOB_FILTER_BY_STATUS,
+        AppKeys.JOB_FILTER_BY_STATUS,
         AppNames.JOB_STATUS_NO_FILTER
     )
     val oldFilter: String
         get() = _oldFilter
 
     private var oldSortBy = prefs.getString(
-        AppNames.PREF_KEY_TRANSFER_SORT_BY,
+        AppKeys.TRANSFER_SORT_BY,
         AppNames.JOB_SORT_BY_DEFAULT
     )
 
@@ -81,7 +82,7 @@ class TransferViewModel(
 
         vmScope.launch {
             liveSharedPreferences.getString(
-                AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS,
+                AppKeys.TRANSFER_FILTER_BY_STATUS,
                 AppNames.JOB_STATUS_NO_FILTER
             ).asFlow().collect {
                 it?.let {
@@ -92,7 +93,7 @@ class TransferViewModel(
                 }
             }
             liveSharedPreferences.getString(
-                AppNames.PREF_KEY_TRANSFER_SORT_BY,
+                AppKeys.TRANSFER_SORT_BY,
                 AppNames.JOB_SORT_BY_DEFAULT
             ).asFlow().collect {
                 it?.let {

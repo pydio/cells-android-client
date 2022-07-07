@@ -60,8 +60,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val encodedState = savedInstanceState?.getString(AppNames.EXTRA_STATE)
-            ?: intent.getStringExtra(AppNames.EXTRA_STATE)
+        val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
+            ?: intent.getStringExtra(AppKeys.EXTRA_STATE)
         val stateID = StateID.fromId(encodedState)
         Log.d(logTag, "onCreate for: $stateID")
         activeSessionVM.afterCreate(stateID?.accountId)
@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         activeSessionVM.accountId?.let {
             Log.i(logTag, "onSaveInstanceState for: ${StateID.fromId(it)}")
-            outState.putString(AppNames.EXTRA_STATE, it)
+            outState.putString(AppKeys.EXTRA_STATE, it)
         }
     }
 
@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
         // Optional access to log and job tables
         liveSharedPreferences
-            .getBoolean(AppNames.PREF_KEY_SHOW_RUNTIME_LISTS, false)
+            .getBoolean(AppKeys.SHOW_DEBUG_TOOLS, false)
             .observe(this) {
                 it?.let { // necessary or we might encounter NPE when deployed on production0
                     binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = it
@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .getString(AppKeys.CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
             .observe(this) {
                 it?.let {
                     when (it) {
@@ -329,13 +329,13 @@ class MainActivity : AppCompatActivity() {
 
         layoutSwitcher.setOnMenuItemClickListener {
             val newValue = when (prefs.getString(
-                AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT,
+                AppKeys.CURR_RECYCLER_LAYOUT,
                 AppNames.RECYCLER_LAYOUT_LIST
             )) {
                 AppNames.RECYCLER_LAYOUT_GRID -> AppNames.RECYCLER_LAYOUT_LIST
                 else -> AppNames.RECYCLER_LAYOUT_GRID
             }
-            prefs.setString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
+            prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, newValue)
 //             Log.e(logTag, "in listener, new layout value: $newValue")
 //            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 //            this.recreate()

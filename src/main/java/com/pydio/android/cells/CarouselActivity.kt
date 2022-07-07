@@ -64,12 +64,12 @@ class CarouselActivity : AppCompatActivity() {
 
         var state: StateID? = null
         if (savedInstanceState != null) {
-            val stateStr = savedInstanceState.getString(AppNames.EXTRA_STATE)
+            val stateStr = savedInstanceState.getString(AppKeys.EXTRA_STATE)
             // TODO switch query depending on the context (browse, bookmark, offline...)
             // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
             state = StateID.fromId(stateStr)
-        } else if (intent.hasExtra(AppNames.EXTRA_STATE)) {
-            val stateStr: String = intent.getStringExtra(AppNames.EXTRA_STATE)!!
+        } else if (intent.hasExtra(AppKeys.EXTRA_STATE)) {
+            val stateStr: String = intent.getStringExtra(AppKeys.EXTRA_STATE)!!
             // TODO switch query depending on the context (browse, bookmark, offline...)
             // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
             state = StateID.fromId(stateStr)

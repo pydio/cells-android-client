@@ -2,6 +2,7 @@ package com.pydio.android.legacy.v2
 
 import android.content.Context
 import android.util.Log
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.LogDao
@@ -108,7 +109,7 @@ class MigrationServiceV2 : KoinComponent {
                 jobService.incrementProgress(migrationJob, 0, "Cleaning legacy files...")
                 cleanLegacyFiles(context)
                 prefs.setInt(
-                    AppNames.PREF_KEY_INSTALLED_VERSION_CODE,
+                    AppKeys.INSTALLED_VERSION_CODE,
                     ClientData.getInstance().versionCode.toInt()
                 )
             }

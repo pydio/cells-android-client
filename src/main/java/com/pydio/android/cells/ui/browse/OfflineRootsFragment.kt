@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
@@ -96,7 +97,7 @@ class OfflineRootsFragment : Fragment() {
 
         val liveSharedPreferences = LiveSharedPreferences(prefs.get())
         liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
+            .getString(AppKeys.CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
             .observe(viewLifecycleOwner) {
                 it?.let {
                     configureRecyclerAdapter(it)
@@ -107,7 +108,7 @@ class OfflineRootsFragment : Fragment() {
             }
 
         liveSharedPreferences
-            .getString(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
+            .getString(AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED)
             .observe(viewLifecycleOwner) {
                 it?.let {
                     if (offlineVM.orderHasChanged(it)) {

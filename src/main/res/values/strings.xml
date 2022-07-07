@@ -255,15 +255,24 @@
     <string name="pref_choose_list_layout">Type of layout</string>
     <string name="pref_use_larger_grid">Use larger grid</string>
     <string name="pref_category_title_metered">Limitations on metered network</string>
+
+    <string name="pref_apply_metered_limits_title">Apply limitations</string>
+    <string name="pref_apply_metered_limits_desc">Warning: turning this off will skip all limitations when on a metered network. This might lead to raising costs</string>
     <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
     <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
-    <string name="pref_metered_dl_files_title">Download offline files</string>
-    <string name="pref_metered_dl_files_desc">Also download offline files when on metered network</string>
-    <string name="pref_category_title_offline">Customise offline synchronisation</string>
-    <string name="pref_offline_constraint_wifi_title">On wifi only</string>
-    <string name="pref_offline_constraint_wifi_desc">Only launch background synchronisation when on WIFI</string>
+    <string name="pref_on_metered_ask_before_dl_files_title">Ask before download</string>
+    <string name="on_metered_ask_before_dl_files_greater_than_title">When file is greater than (in MB)</string>
+    <string name="on_metered_ask_before_dl_files_greater_than_desc">Ask before download when target file is greater than (in MB)</string>
+    <string name="pref_category_title_offline">Offline synchronisation</string>
+    <string name="pref_offline_constraint_wifi_title">Run sync when network is</string>
+    <string name="pref_offline_constraint_wifi_desc">Choose a type of network that constrains when we can launch the synchronisation</string>
     <string name="pref_offline_constraint_charging_title">When charging</string>
     <string name="pref_offline_constraint_charging_desc">Only launch sync when the device is charging</string>
+    <string name="pref_offline_constraint_idle_title">When Idle</string>
+    <string name="pref_offline_constraint_idle_desc">When the device is idle (works for Android 6+)</string>
+    <string name="pref_offline_constraint_batt_not_low_title">When battery not low</string>
+    <string name="pref_offline_constraint_batt_not_low_desc">when the bettery is not low</string>
+
     <string name="pref_category_title_feedback">Feedback and help</string>
     <string name="pref_feedback_send_title">Send feedback</string>
     <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>

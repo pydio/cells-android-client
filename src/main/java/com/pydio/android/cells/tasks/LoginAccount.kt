@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
+import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.ServerURLImpl
 import kotlinx.coroutines.launch
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.AuthActivity
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
@@ -28,9 +28,9 @@ fun loginAccount(
 
         if (sessionView.isLegacy) {
             val toAuthIntent = Intent(context, AuthActivity::class.java)
-            toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, serverURL.toJson())
-            toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, true)
-            toAuthIntent.putExtra(AppNames.EXTRA_AFTER_AUTH_ACTION, next)
+            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
+            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, true)
+            toAuthIntent.putExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION, next)
             startActivity(context, toAuthIntent, null)
 
         } else {

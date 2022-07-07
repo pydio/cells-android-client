@@ -5,6 +5,7 @@ import androidx.work.WorkerParameters
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.auth.AuthDB
 import com.pydio.android.cells.db.runtime.RuntimeDB
+import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.account.AccountListViewModel
 import com.pydio.android.cells.ui.auth.OAuthViewModel
@@ -124,9 +125,7 @@ val serviceModule = module {
     single { TransferService(get(), get(), get(), get(), get(), get()) }
 
     worker { (workerParams: WorkerParameters) ->
-        OfflineSyncWorker(
-            accountService = get(),
-            nodeService = get(),
+        OfflineSync(
             appContext = get(),
             params = workerParams,
         )

@@ -16,7 +16,7 @@ import com.pydio.android.cells.ui.auth.ServerUrlFragmentDirections
  */
 class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private val tag = "AuthActivity"
+    private val logTag = "AuthActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,13 +24,13 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
     override fun onResume() {
-        Log.i(tag, "onResume, intent: $intent")
+        Log.i(logTag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
     }
 
     override fun onPause() {
-        Log.i(tag, "onPause, intent: $intent")
+        Log.i(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 
@@ -47,12 +47,12 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
         }
 
-        if (intent.hasExtra(AppNames.EXTRA_SERVER_URL)) {
-            val urlStr: String = intent.getStringExtra(AppNames.EXTRA_SERVER_URL)!!
-            if (intent.getBooleanExtra(AppNames.EXTRA_SERVER_IS_LEGACY, false)) {
+        if (intent.hasExtra(AppKeys.EXTRA_SERVER_URL)) {
+            val urlStr: String = intent.getStringExtra(AppKeys.EXTRA_SERVER_URL)!!
+            if (intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)) {
                 val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(
                     urlStr,
-                    intent.getStringExtra(AppNames.EXTRA_AFTER_AUTH_ACTION)!!
+                    intent.getStringExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION)!!
                 )
                 findNavController(R.id.auth_fragment_host).navigate(action)
             } else {

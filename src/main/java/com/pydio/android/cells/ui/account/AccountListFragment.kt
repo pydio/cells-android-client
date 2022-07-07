@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.AuthActivity
 import com.pydio.android.cells.MainActivity
@@ -45,7 +46,7 @@ class AccountListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d(logTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
+        Log.d(logTag, "onCreateView ${savedInstanceState?.getString(AppKeys.EXTRA_STATE)}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )
@@ -103,7 +104,7 @@ class AccountListFragment : Fragment() {
             AppNames.ACTION_OPEN -> lifecycleScope.launch {
                 accountService.openSession(accountID)
                 val intent = Intent(requireActivity(), MainActivity::class.java)
-                intent.putExtra(AppNames.EXTRA_STATE, accountID)
+                intent.putExtra(AppKeys.EXTRA_STATE, accountID)
                 startActivity(intent)
             }
             else -> return // do nothing

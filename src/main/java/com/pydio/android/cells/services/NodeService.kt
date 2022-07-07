@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.R
@@ -65,7 +66,7 @@ class NodeService(
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
 
         val encoded = prefs.getString(
-            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val parPath = stateID.file
@@ -80,7 +81,7 @@ class NodeService(
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
         val encoded = prefs.getString(
-            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val lsQuery = SimpleSQLiteQuery(
@@ -92,7 +93,7 @@ class NodeService(
 
     fun listOfflineRoots(accountID: StateID): LiveData<List<RLiveOfflineRoot>> {
         val encoded = prefs.getString(
-            AppNames.PREF_KEY_CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
         )
         val (sortByCol, sortByOrder) = parseOrder(encoded)
         val lsQuery = SimpleSQLiteQuery(
