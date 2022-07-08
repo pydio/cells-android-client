@@ -40,7 +40,7 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapter: NodeListAdapter
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -161,7 +161,7 @@ class SearchFragment : Fragment() {
                 return@launch
             }
 
-            val action = MainNavDirections.launchDownload(node.encodedState, true)
+            val action = MainNavDirections.launchDownload(node.encodedState, node.size, true)
             findNavController().navigate(action)
         }
     }

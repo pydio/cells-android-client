@@ -61,7 +61,7 @@ class DownloadViewModel(
         }
     }
 
-    init {
+    fun launchDownload() {
         vmScope.launch {
             // TODO handle case when a download for the same file is already running
             val (jobId, errMsg) = transferService.prepareDownload(

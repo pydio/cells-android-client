@@ -209,15 +209,8 @@ class OfflineRootsFragment : Fragment() {
                             resources.getString(R.string.server_unreachable)
                 )
                 return@launch
-            } else if (!activeSessionVM.canDownloadFiles()) {
-                showMessage(
-                    requireContext(),
-                    resources.getString(R.string.no_download_on_metered)
-                )
-                return@launch
             }
-
-            val action = MainNavDirections.launchDownload(node.encodedState, true)
+            val action = MainNavDirections.launchDownload(node.encodedState, node.size, true)
             findNavController().navigate(action)
         }
 

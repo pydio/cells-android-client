@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.text.format.Formatter
@@ -10,16 +11,31 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.DialogDownloadBinding
+import com.pydio.android.cells.reactive.NetworkStatus
+import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.android.cells.utils.showMessage
+import com.pydio.cells.utils.Log
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import java.io.File
 
-class DownloadDialog : DialogFragment() {
+class DownloadDialog : DialogFragment(), KoinComponent {
 
-    // private val logTag = DownloadDialog::class.java.simpleName
+    private val logTag = DownloadDialog::class.java.simpleName
+
+    private val prefs: CellsPreferences by inject()
+    private val networkService: NetworkService by inject()
+
+    private val limit =
+        prefs.getString(AppKeys.METERED_ASK_B4_DL_FILES_SIZE, "2").toInt() * 1024 * 1024
 
     private val args: DownloadDialogArgs by navArgs()
 
@@ -35,6 +51,7 @@ class DownloadDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         isCancelable = false
         binding = DataBindingUtil.inflate(
             inflater, R.layout.dialog_download, container, false
@@ -104,4 +121,58 @@ class DownloadDialog : DialogFragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        when (networkService.networkStatus) {
+            is NetworkStatus.Unavailable,
+            is NetworkStatus.Unknown,
+            is NetworkStatus.Roaming,
+            -> {
+                showMessage(requireContext(), "Cannot download file with no connection")
+                dismiss()
+            }
+            is NetworkStatus.Metered
+            -> {
+                val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
+                val askIfGreaterThan = prefs.getBoolean(AppKeys.METERED_ASK_B4_DL_FILES, true)
+                val bigEnough = askIfGreaterThan && (args.size > limit)
+
+                Log.e(logTag, "limit: $limit, args.size: ${args.size}")
+                Log.e(
+                    logTag,
+                    "applyLimit: $applyLimit, askIfGreaterThan: $askIfGreaterThan, bigEnough: $bigEnough"
+                )
+
+                if (applyLimit && bigEnough) {
+                    confirmDownload(requireContext())
+                } else {
+                    downloadVM.launchDownload()
+                }
+            }
+            else -> downloadVM.launchDownload()
+        }
+    }
+
+    private fun confirmDownload(
+        context: Context
+    ): Boolean {
+        val humanFriendlySize = Formatter.formatShortFileSize(context, args.size)
+        MaterialAlertDialogBuilder(context)
+            .setTitle(context.resources.getString(R.string.confirm_download_title))
+            .setMessage(
+                context.resources.getString(
+                    R.string.confirm_download_desc,
+                    humanFriendlySize
+                )
+            )
+            .setPositiveButton(R.string.button_ok) { _, _ ->
+                Log.e(logTag, "About to launch download")
+                downloadVM.launchDownload()
+            }
+            .setNegativeButton(R.string.button_cancel) { _, _ ->
+                dismiss()
+            }
+            .show()
+        return true
+    }
 }

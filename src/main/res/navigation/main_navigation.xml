@@ -260,6 +260,9 @@
             android:name="state"
             app:argType="string" />
         <argument
+            android:name="size"
+            app:argType="long" />
+        <argument
             android:name="forwardAfterDownload"
             app:argType="boolean" />
     </dialog>

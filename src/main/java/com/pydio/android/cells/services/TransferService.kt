@@ -289,7 +289,6 @@ class TransferService(
         val dao = getTransferDao(accountId)
         val lfType = AppNames.LOCAL_FILE_TYPE_FILE
 
-
         // Retrieve data and sanity check
         val rTransfer = dao.getById(transferId) ?: run {
             val msg = "No record found for $transferId, aborting file DL"
@@ -305,8 +304,6 @@ class TransferService(
             Log.w(logTag, errorMessage)
             return@withContext errorMessage
         }
-
-        // TODO Insure we are connected and not metered (or DL with metered is allowed in prefs)
 
         Log.d(logTag, "About to download file from $state")
         // Prepare target file
@@ -379,11 +376,9 @@ class TransferService(
                 rTransfer.doneTimestamp = currentTimestamp()
                 rTransfer.updateTimestamp = currentTimestamp()
                 dao.update(rTransfer)
-
                 // TODO handle the case where the download duration is long enough to enable
                 //   end-user to modify (or delete) the corresponding node before it has been correctly downloaded
             }
-
         } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
             errorMessage = "could not download file for " + state + ": " + se.message
             se.printStackTrace()

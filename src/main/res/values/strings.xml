@@ -253,6 +253,9 @@
     <string name="rename_dialog_confirm_button">Rename</string>
     <string name="download_wait_message">Downloading, please wait…</string>
 
+    <string name="confirm_download_title">Confirm download</string>
+    <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
+
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
     <string name="pref_choose_list_layout">Type of layout</string>
