@@ -38,10 +38,10 @@ class OfflineSync(
 
             val netType = when (prefs.getString(
                 AppKeys.SYNC_CONST_NETWORK_TYPE,
-                AppNames.SYNC_NET_TYPE_UNMETERED
+                AppNames.NETWORK_TYPE_CONSTRAINT_UNMETERED
             )) {
-                AppNames.SYNC_NET_TYPE_NOT_ROAMING -> NetworkType.NOT_ROAMING
-                AppNames.SYNC_NET_TYPE_CONNECTED -> NetworkType.CONNECTED
+                AppNames.NETWORK_TYPE_CONSTRAINT_NOT_ROAMING -> NetworkType.NOT_ROAMING
+                AppNames.NETWORK_TYPE_CONSTRAINT_NONE -> NetworkType.CONNECTED
                 else -> NetworkType.UNMETERED
             }
             constraintBuilder.setRequiredNetworkType(netType)

@@ -20,6 +20,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
     val validNetworkConnections: MutableSet<Network> = mutableSetOf()
     val unMeteredConnections: MutableSet<Network> = mutableSetOf()
+    val notRoamingConnections: MutableSet<Network> = mutableSetOf()
 
     var connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -28,19 +29,16 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     fun announceStatus() {
         Log.d(
             logTag, "About to announce status for $this, " +
-                    "we have ${validNetworkConnections.size} valid connections" +
-                    " (${unMeteredConnections.size} un-metered)"
+                    "we have ${validNetworkConnections.size} live connections" +
+                    " (${unMeteredConnections.size} un-metered and ${notRoamingConnections.size} not roaming )"
         )
 
-//        Log.e(logTag, "Browsing all con:")
-//        for (currCon in validNetworkConnections) {
-//            Log.e(logTag, "${currCon.networkHandle}")
-//        }
-
         if (unMeteredConnections.isNotEmpty()) {
-            postValue(NetworkStatus.Available)
-        } else if (validNetworkConnections.isNotEmpty()) {
+            postValue(NetworkStatus.Unmetered)
+        } else if (notRoamingConnections.isNotEmpty()) {
             postValue(NetworkStatus.Metered)
+        } else if (validNetworkConnections.isNotEmpty()) {
+            postValue(NetworkStatus.Roaming)
         } else {
             postValue(NetworkStatus.Unavailable)
         }
@@ -81,6 +79,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
                 super.onLost(network)
                 validNetworkConnections.remove(network)
                 unMeteredConnections.remove(network)
+                notRoamingConnections.remove(network)
                 announceStatus()
             }
 
@@ -94,6 +93,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
                 } else {
                     validNetworkConnections.remove(network)
                     unMeteredConnections.remove(network)
+                    notRoamingConnections.remove(network)
                 }
                 announceStatus()
             }
@@ -110,6 +110,10 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
                     ) {
                         unMeteredConnections.add(network)
                     }
+                    if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING) == true
+                    ) {
+                        notRoamingConnections.add(network)
+                    }
                     announceStatus()
                 }
             }
@@ -118,9 +122,11 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 }
 
 sealed class NetworkStatus {
-    object Available : NetworkStatus()
+    object Unmetered : NetworkStatus()
     object Metered : NetworkStatus()
+    object Roaming : NetworkStatus()
     object Unavailable : NetworkStatus()
+    object Unknown : NetworkStatus()
 }
 
 private object InternetAvailability {

@@ -3,6 +3,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="networkType"
+            type="String" />
+    </data>
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/main_drawer_layout"
         android:layout_width="match_parent"
@@ -22,22 +29,23 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:visibility="gone">
-                    <!--android:gravity="center_horizontal"-->
 
                     <ImageView
-                        android:id="@+id/node_thumb"
+                        android:id="@+id/offline_banner_icon"
                         android:layout_width="@dimen/list_item_flag_decorator"
                         android:layout_height="@dimen/list_item_flag_decorator"
                         android:layout_marginStart="@dimen/margin_small"
                         android:contentDescription="@string/no_internet"
-                        android:src="@drawable/ic_baseline_cloud_off_24" />
+                        app:offlineBannerIcon="@{networkType}"
+                        app:srcCompat="@drawable/ic_baseline_cloud_off_24" />
 
                     <TextView
+                        android:id="@+id/offline_banner_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:gravity="center_horizontal"
-                        android:text="@string/no_internet" />
+                        app:offlineBannerDesc="@{networkType}" />
 
                 </LinearLayout>
 

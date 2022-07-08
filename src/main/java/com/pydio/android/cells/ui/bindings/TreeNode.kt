@@ -8,7 +8,6 @@ import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.ImageView
@@ -87,7 +86,6 @@ fun ImageView.setFolderThumb(item: RTreeNode?) {
     setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
 }
 
-
 @BindingAdapter("nodeThumbLoading")
 fun ImageView.showLoadingLayer(item: RTreeNode?) {
     if (item == null) {
@@ -114,21 +112,9 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
             .placeholder(R.drawable.loading_img)
-            .error(R.drawable.file_image_outline)
+            .error(R.drawable.no_thumb_for_glide)
             .transform(MultiTransformation(CenterCrop(), RoundedCorners(corner)))
             .into(this)
-//        val corner = resources.getDimension(R.dimen.glide_thumb_radius)
-//        Glide.with(context)
-//            .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
-//            .placeholder(R.drawable.loading_img)
-//            .error(R.drawable.file_image_outline)
-//            .transform(
-//                MultiTransformation(
-//                    CenterCrop(),
-//                    RoundedCorners(convertDpToPixel(context, corner))
-//                )
-//            )
-//             .into(this)
     } else {
         setImageDrawable(getComposedDrawable(context, item.mime, item.sortName))
     }

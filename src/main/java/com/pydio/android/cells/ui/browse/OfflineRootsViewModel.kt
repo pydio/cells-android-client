@@ -90,12 +90,16 @@ class OfflineRootsViewModel(
         when (networkService.networkStatus) {
             is NetworkStatus.Metered -> {
                 // TODO implement settings to force accept this user story
-                _errorMessage.value = "preventing re-sync with on metered network"
+                _errorMessage.value = "Preventing re-sync on metered network"
             }
-            is NetworkStatus.Unavailable -> {
-                _errorMessage.value = "cannot launch re-sync with no internet connection"
+            is NetworkStatus.Roaming -> {
+                // TODO implement settings to force accept this user story
+                _errorMessage.value = "Preventing re-sync when on roaming network"
             }
-            is NetworkStatus.Available -> {
+            is NetworkStatus.Unavailable, is NetworkStatus.Unknown -> {
+                _errorMessage.value = "Cannot launch re-sync with no internet connection"
+            }
+            is NetworkStatus.Unmetered -> {
                 val (jobId, error) = nodeService.prepareAccountSync(
                     stateId,
                     AppNames.JOB_OWNER_USER

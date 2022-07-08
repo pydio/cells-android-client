@@ -7,7 +7,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.utils.currentTimestamp
 
 /**
- * Experimental class to try a cache of the network status. Will probably disapear soon:
+ * Experimental class to try a cache of the network status. Will probably disappear soon:
  * Do not rely on it.
  */
 @Entity(tableName = "network_info")
@@ -17,7 +17,7 @@ data class RNetworkInfo(
     var id: Long = 0L,
 
     // unknown, no_internet, metered, ok
-    @ColumnInfo(name = "status") var status: String = AppNames.NETWORK_STATUS_UNKNOWN,
+    @ColumnInfo(name = "status") var status: String = AppNames.NETWORK_TYPE_UNKNOWN,
 
     @ColumnInfo(name = "last_checked") var lastCheckedTS: Long = -1L,
 
@@ -27,9 +27,9 @@ data class RNetworkInfo(
 
     ) {
 
-    fun isOnline() = status == AppNames.NETWORK_STATUS_OK
+    fun isOnline() = status == AppNames.NETWORK_TYPE_UNMETERED
 
-    fun isOffline() = status == AppNames.NETWORK_STATUS_NO_INTERNET
+    fun isOffline() = status == AppNames.NETWORK_TYPE_UNAVAILABLE
 
     companion object {
         fun create(
@@ -38,7 +38,7 @@ data class RNetworkInfo(
             lastResponseMsg: String?
         ): RNetworkInfo {
             return RNetworkInfo(
-                status = status ?: AppNames.NETWORK_STATUS_UNKNOWN,
+                status = status ?: AppNames.NETWORK_TYPE_UNKNOWN,
                 lastResponseCode = lastResponseCode,
                 lastResponseMsg = lastResponseMsg,
                 lastCheckedTS = currentTimestamp(),

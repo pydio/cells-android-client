@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.reactive.LiveNetwork
 import com.pydio.android.cells.reactive.NetworkStatus
 import kotlinx.coroutines.CoroutineScope
@@ -23,16 +24,20 @@ class NetworkService constructor(context: Context) {
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
     // Business objects
-    private var _networkStatus: NetworkStatus = NetworkStatus.Unavailable
+    private var _networkStatus: NetworkStatus = NetworkStatus.Unknown
     val networkStatus: NetworkStatus
         get() = _networkStatus
 
-    private val _isConnected = MutableLiveData<Boolean>()
-    val liveInternetFlag: LiveData<Boolean>
-        get() = _isConnected
-    private val _isMetered = MutableLiveData<Boolean>()
-    val liveMeteredFlag: LiveData<Boolean>
-        get() = _isMetered
+    private val _networkType = MutableLiveData<String>()
+    val networkType: LiveData<String>
+        get() = _networkType
+
+//    private val _isConnected = MutableLiveData<Boolean>()
+//    val liveInternetFlag: LiveData<Boolean>
+//        get() = _isConnected
+//    private val _isMetered = MutableLiveData<Boolean>()
+//    val liveMeteredFlag: LiveData<Boolean>
+//        get() = _isMetered
 
     // Manage UI
     private val _errorMessage = MutableLiveData<String?>()
@@ -40,44 +45,46 @@ class NetworkService constructor(context: Context) {
         get() = _errorMessage
 
     init {
-        // Default are rather optimistic, otherwise we get some UI glitches while the framework starts
-        _isConnected.value = true
-        _isMetered.value = false
+        // Default are rather optimistic, otherwise we get some UI glitches while the app starts
+        _networkType.value = AppNames.NETWORK_TYPE_UNMETERED
 
         serviceScope.launch { // Asynchronous is necessary to wait for the context
 
             val liveNetwork = LiveNetwork(context)
-            if (liveNetwork.value is NetworkStatus.Unavailable) {
-                setNetworkStatus(NetworkStatus.Unavailable)
-            } else if (liveNetwork.value is NetworkStatus.Metered) {
-                setNetworkStatus(NetworkStatus.Metered)
-            }
+            setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unknown)
 
-            liveNetwork.asFlow().collect() {
-                it?.let {
-                    // Log.d(logTag, "collected status: $it")
-                    setNetworkStatus(it)
-                }
+            liveNetwork.asFlow().collect {
+                setNetworkStatus(it)
             }
             Log.i(logTag, "Initial status: ${liveNetwork.value}")
-            Log.i(logTag, "After init, current network status: $_networkStatus")
+            Log.i(logTag, "After init, current network status: $_networkType")
         }
     }
 
     fun isConnected(): Boolean {
-        return _networkStatus is NetworkStatus.Available || _networkStatus is NetworkStatus.Metered
+        return _networkStatus is NetworkStatus.Unmetered ||
+                _networkStatus is NetworkStatus.Metered ||
+                _networkStatus is NetworkStatus.Roaming
     }
 
     fun isMetered(): Boolean {
-        return _networkStatus is NetworkStatus.Metered
+        return _networkStatus is NetworkStatus.Metered ||
+                _networkStatus is NetworkStatus.Roaming
     }
 
     private fun setNetworkStatus(status: NetworkStatus) {
-        Log.i(logTag, "### Setting new status: $status")
+
+        Log.e(logTag, "### Setting new status: $status")
         this._networkStatus = status
+
         serviceScope.launch(Dispatchers.Main) {
-            _isConnected.value = _networkStatus !is NetworkStatus.Unavailable
-            _isMetered.value = _networkStatus !is NetworkStatus.Metered
+            _networkType.value = when (status) {
+                is NetworkStatus.Unmetered -> AppNames.NETWORK_TYPE_UNMETERED
+                is NetworkStatus.Metered -> AppNames.NETWORK_TYPE_METERED
+                is NetworkStatus.Roaming -> AppNames.NETWORK_TYPE_ROAMING
+                is NetworkStatus.Unavailable -> AppNames.NETWORK_TYPE_UNAVAILABLE
+                else -> AppNames.NETWORK_TYPE_UNKNOWN
+            }
         }
     }
 

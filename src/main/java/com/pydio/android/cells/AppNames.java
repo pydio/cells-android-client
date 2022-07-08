@@ -2,9 +2,21 @@ package com.pydio.android.cells;
 
 public interface AppNames {
 
-    // TODO  make this generic
-    String KEY_PREFIX = "com.pydio.android.cells";
-    String KEY_PREFIX_ = KEY_PREFIX + ".";
+    // Network management
+//    String NETWORK_STATUS_UNKNOWN = "unknown";
+//    String NETWORK_STATUS_NO_INTERNET = "no_internet";
+//    String NETWORK_STATUS_METERED = "metered";
+//    String NETWORK_STATUS_OK = "ok";
+
+    String NETWORK_TYPE_UNMETERED = "Unmetered";
+    String NETWORK_TYPE_METERED = "Metered";
+    String NETWORK_TYPE_ROAMING = "Roaming";
+    String NETWORK_TYPE_UNAVAILABLE = "Unavailable";
+    String NETWORK_TYPE_UNKNOWN = "Unknown";
+
+    String NETWORK_TYPE_CONSTRAINT_NONE = "None";
+    String NETWORK_TYPE_CONSTRAINT_UNMETERED = "Unmetered";
+    String NETWORK_TYPE_CONSTRAINT_NOT_ROAMING = "Not Roaming";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
 
@@ -21,22 +33,23 @@ public interface AppNames {
     String SYNC_FREQ_DAY = "day";
     String SYNC_FREQ_WEEK = "week";
 
-    String SYNC_NET_TYPE_CONNECTED = "Connected";
-    String SYNC_NET_TYPE_UNMETERED = "Unmetered";
-    String SYNC_NET_TYPE_NOT_ROAMING = "Not Roaming";
-
     int ITEM_TYPE_HEADER = 0;
     int ITEM_TYPE_WS = 1;
     int ITEM_TYPE_NODE = 2;
 
-    String SORT_BY_NAME = "name";
-    String SORT_BY_MIME = "mime";
-    String SORT_BY_SIZE = "size";
-    String SORT_BY_REMOTE_TS = "remote_mod_ts";
-    String SORT_BY_LAST_CHECK = "last_check_ts";
-    String SORT_BY_DESC = "DESC";
+//    String SORT_BY_NAME = "name";
+//    String SORT_BY_MIME = "mime";
+//    String SORT_BY_SIZE = "size";
+//    String SORT_BY_REMOTE_TS = "remote_mod_ts";
+//    String SORT_BY_LAST_CHECK = "last_check_ts";
+//    String SORT_BY_DESC = "DESC";
 
     /* Generic actions */
+
+    // TODO  make this generic
+    String KEY_PREFIX = "com.pydio.android.cells";
+    String KEY_PREFIX_ = KEY_PREFIX + ".";
+
     String ACTION_MORE = KEY_PREFIX_ + "more";
     String ACTION_OPEN = KEY_PREFIX_ + "open";
     String ACTION_CANCEL = KEY_PREFIX_ + "cancel";
@@ -104,11 +117,6 @@ public interface AppNames {
     String CUSTOM_PATH_OFFLINE = "/__offline__";
     String CUSTOM_PATH_SHARES = "/__shares__";
 
-    // Network status
-    String NETWORK_STATUS_UNKNOWN = "unknown";
-    String NETWORK_STATUS_NO_INTERNET = "no_internet";
-    String NETWORK_STATUS_METERED = "metered";
-    String NETWORK_STATUS_OK = "ok";
     // Account Authentication States
     // TODO finalize auth state management
     String AUTH_STATUS_NEW = "new";

@@ -279,10 +279,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         // The "no internet banner"
-        networkService.liveInternetFlag.observe(this) {
+        networkService.networkType.observe(this) {
             it?.let {
-                val offlineBannerState = if (!it) View.VISIBLE else View.GONE
-                binding.offlineBanner.visibility = offlineBannerState
+                val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
+                if (it == AppNames.NETWORK_TYPE_UNMETERED ||
+                    (it == AppNames.NETWORK_TYPE_METERED && !applyLimit)
+                ) {
+                    binding.offlineBanner.visibility = View.GONE
+                } else {
+                    binding.networkType = it
+                    binding.offlineBanner.visibility = View.VISIBLE
+                }
                 binding.executePendingBindings()
             }
         }

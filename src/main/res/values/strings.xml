@@ -111,6 +111,9 @@
     <string name="loading_message">Please wait while loading content…</string>
 
     <string name="no_internet">No internet connection</string>
+    <string name="metered_connection">On a metered connection</string>
+    <string name="roaming_connection">Using a roaming connection</string>
+
     <string name="server_unreachable">No connection to remote server…</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>

@@ -16,11 +16,11 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.decodeSortById
-import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -139,7 +139,7 @@ class TransferService(
         }
 
     /** DOWNLOADS **/
-    suspend fun getFileForDisplay(
+    suspend fun getImageForDisplay(
         state: StateID,
         type: String,
         parentJob: RJob?
@@ -155,30 +155,27 @@ class TransferService(
                 return@withContext null to errMsg
             }
 
-            // Various cases depending on local file presence, network status and user preferences
+            // First try to retrieve local file
             fileService.getLocalFile(state, rNode, type)?.let {
                 return@withContext it to null
             }
 
-            if (networkService.isConnected() && !networkService.isMetered()) {
-                return@withContext downloadFile(state, rNode, type, parentJob, null)
-            }
+            // Otherwise, try to download if network type and user preferences allow it
+            val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
+            val dlThumb = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
+            when (networkService.networkStatus) {
+                is NetworkStatus.Unmetered
+                -> return@withContext downloadFile(state, rNode, type, parentJob, null)
+                is NetworkStatus.Metered
+                -> if (!applyLimit || dlThumb) {
+                    return@withContext downloadFile(state, rNode, type, parentJob, null)
+                } else {
+                    return@withContext null to "Cannot download preview images on metered network"
+                }
+                else -> return@withContext null to "No network connection: cannot download preview image"
 
-            val dlThumbOnMetered = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
-            if (dlThumbOnMetered && (type == AppNames.LOCAL_FILE_TYPE_THUMB ||
-                        type == AppNames.LOCAL_FILE_TYPE_PREVIEW)
-            ) {
-                return@withContext downloadFile(state, rNode, type, parentJob, null)
             }
-
-            val dlFileOnMetered = prefs.getBoolean(AppKeys.METERED_ASK_B4_DL_FILES, false)
-            if (dlFileOnMetered && (type == AppNames.LOCAL_FILE_TYPE_FILE)
-            ) {
-                return@withContext downloadFile(state, rNode, type, parentJob, null)
-            }
-
-            throw SDKException(ErrorCodes.con_failed, "could not dl $type for $state")
-            // return@withContext null to "could not dl $type for $state"
+//            throw SDKException(ErrorCodes.con_failed, "could not dl $type for $state")
         }
 
     suspend fun getFileForDiff(
@@ -371,7 +368,8 @@ class TransferService(
                 // Double check downloaded file is OK
                 val computedMd5 = computeFileMd5(targetFile)
                 if (rNode.etag != computedMd5) {
-                    rTransfer.error = "MD5 signatures do not match after the download has terminated"
+                    rTransfer.error =
+                        "MD5 signatures do not match after the download has terminated"
                     rTransfer.status = AppNames.JOB_STATUS_WARNING
                 } else {
                     rTransfer.status = AppNames.JOB_STATUS_DONE

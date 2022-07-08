@@ -43,7 +43,7 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
         dlScope.launch {
             val (stateId, type) = decodeModel(model)
             try {
-                val (file, errMsg) = transferService.getFileForDisplay(stateId, type, null)
+                val (file, errMsg) = transferService.getImageForDisplay(stateId, type, null)
                 file?.let {
                     // TODO rather use a stream
                     val bytes = it.readBytes()

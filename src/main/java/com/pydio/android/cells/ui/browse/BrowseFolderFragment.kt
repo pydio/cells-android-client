@@ -119,13 +119,13 @@ class BrowseFolderFragment : Fragment() {
             msg?.let { showMessage(requireContext(), msg) }
         }
 
-        networkService.liveInternetFlag.observe(viewLifecycleOwner) {
+        networkService.networkType.observe(viewLifecycleOwner) {
             it?.let {
-                if (it) {
-                    // We also want to refresh the top banner typically
-                    onResume()
-                } else {
-                    browseFolderVM.pause()
+                when (it) {
+                    AppNames.NETWORK_TYPE_UNMETERED,
+                    AppNames.NETWORK_TYPE_METERED
+                    -> onResume()
+                    else -> browseFolderVM.pause()
                 }
             }
         }
