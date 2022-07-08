@@ -244,7 +244,7 @@
     <string name="pref_offline_constraint_idle_title">When Idle</string>
     <string name="pref_offline_constraint_idle_desc">When the device is idle (works for Android 6+)</string>
     <string name="pref_offline_constraint_batt_not_low_title">When battery not low</string>
-    <string name="pref_offline_constraint_batt_not_low_desc">when the bettery is not low</string>
+    <string name="pref_offline_constraint_batt_not_low_desc">When the battery is not low</string>
     <string name="pref_category_title_feedback">Feedback and help</string>
     <string name="pref_feedback_send_title">Send feedback</string>
     <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>

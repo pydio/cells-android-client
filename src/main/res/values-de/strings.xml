@@ -240,7 +240,7 @@
     <string name="pref_offline_constraint_idle_title">Wenn im Ruhezustand</string>
     <string name="pref_offline_constraint_idle_desc">Wenn das Gerät inaktiv ist (funktioniert für Android 6+)</string>
     <string name="pref_offline_constraint_batt_not_low_title">Wenn der Akku nicht schwach ist</string>
-    <string name="pref_offline_constraint_batt_not_low_desc">Wenn die Batterie nicht leer ist</string>
+    <string name="pref_offline_constraint_batt_not_low_desc">Bei nicht niedrigem Akkustand</string>
     <string name="pref_category_title_feedback">Feedback und Hilfe</string>
     <string name="pref_feedback_send_title">Feedback senden</string>
     <string name="pref_feedback_send_desc">Technische Probleme melden oder neue Funktionen vorschlagen</string>
