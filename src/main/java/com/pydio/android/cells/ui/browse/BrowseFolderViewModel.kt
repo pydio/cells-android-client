@@ -45,13 +45,9 @@ class BrowseFolderViewModel(
         AppKeys.CURR_RECYCLER_ORDER,
         AppNames.DEFAULT_SORT_ENCODED
     )
+
     fun getChildrenWithLiveSort(): LiveData<List<RTreeNode>> {
-        return Transformations.switchMap(
-            liveSortValue
-        ) { encodedSort ->
-            // Log.e(logTag, "sort order has changed: $encodedSort")
-            nodeService.ls(stateId)
-        }
+        return Transformations.switchMap(liveSortValue) { nodeService.ls(stateId) } // Log.e(logTag, "sort order has changed: $encodedSort")
     }
 
     private val backOffTicker = BackOffTicker()
@@ -119,7 +115,6 @@ class BrowseFolderViewModel(
     fun pause() {
         _isActive = false
     }
-
 
     fun triggerRefresh() {
         setLoading(true)

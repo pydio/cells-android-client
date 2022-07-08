@@ -109,7 +109,7 @@ class BrowseFolderFragment : Fragment() {
             it?.let {
                 binding.forceRefresh.isRefreshing = it
                 // Workaround a corner case when folder is empty after loading
-                if (!it && adapter?.currentList?.isEmpty() == true) {
+                if (!it && networkService.isConnected() && adapter?.currentList?.isEmpty() == true) {
                     val msg = resources.getString(R.string.empty_folder)
                     binding.emptyContentDesc = msg
                 }
@@ -405,6 +405,7 @@ class BrowseFolderFragment : Fragment() {
             // Log.e(logTag, "children changed, it: ${it?.size}")
             it?.let {
                 if (it.isEmpty()) {
+                    // Log.e(logTag, "About to set empty message:")
                     val msg = when {
                         !activeSessionVM.canListMeta()
                         -> resources.getString(R.string.empty_cache) + "\n" +
@@ -414,6 +415,7 @@ class BrowseFolderFragment : Fragment() {
                         else
                         -> resources.getString(R.string.empty_folder)
                     }
+                    // Log.e(logTag, "$msg")
 
                     binding.emptyContentDesc = msg
                     adapter?.submitList(listOf())
