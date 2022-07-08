@@ -22,4 +22,9 @@
         <item>Toutes les heures</item>
         <item>Tous les quarts d\'heure</item>
     </string-array>
+    <string-array name="network_type_labels">
+        <item>Non limité</item>
+        <item>Pas en itinérance</item>
+        <item>Connecté (dès que le serveur peut être atteint, sans prendre en compte le type de réseau)</item>
+    </string-array>
 </resources>
