@@ -22,4 +22,9 @@
         <item>Jede Stunde</item>
         <item>Alle 15 Minuten</item>
     </string-array>
+    <string-array name="network_type_labels">
+        <item>Ungemessenes</item>
+        <item>Nicht bei Roaming</item>
+        <item>Verbunden (sobald wir den Server erreichen können, unabhängig vom Netzwerktyp)</item>
+    </string-array>
 </resources>

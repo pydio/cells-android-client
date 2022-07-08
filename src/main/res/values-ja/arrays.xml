@@ -22,4 +22,9 @@
         <item>Every hour</item>
         <item>Every 15 minutes</item>
     </string-array>
+    <string-array name="network_type_labels">
+        <item>Unmetered</item>
+        <item>Not Roaming</item>
+        <item>Connected (run as soon as we can reach the server, no matter the network type)</item>
+    </string-array>
 </resources>
