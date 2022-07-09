@@ -153,15 +153,18 @@ class TreeDiff(
             } else {
                 var order = remote.name.compareTo(local.name)
 
-                while (order > 0 && lit.hasNext()) { // Next local is lexicographically smaller
-                    putDeleteChange(local!!)
-                    local = lit.next()
-                    order = remote.name.compareTo(local.name)
+                while (order > 0 && local != null) { // Next local is lexicographically smaller
+                    putDeleteChange(local)
+                    if (lit.hasNext()){
+                        local = lit.next()
+                        order = remote.name.compareTo(local.name)
+                    } else {
+                        local = null
+                        continue
+                    }
                 }
-                if (order > 0) {
-                    // last local is smaller than next remote, no more matches for any next remote
-                    local = null
-                } else if (order == 0) {
+
+                if (order == 0) {
                     if (areNodeContentEquals(remote, local!!, client.isLegacy)) {
                         checkFiles(local.getStateID(), remote)
                     } else {
