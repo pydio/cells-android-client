@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout
-
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -30,7 +28,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:nodeThumbItem="@{node}"
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
-        <!--        app:nodeThumbDirPath="@{thumbDirPath}"-->
 
         <ImageView
             android:id="@+id/node_thumb_loading"
@@ -52,18 +49,34 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
-            android:layout_marginBottom="2dp"
             android:background="@drawable/item_selectable"
             android:ellipsize="end"
             android:maxLines="1"
-            app:layout_constraintBottom_toTopOf="@id/node_description"
-            app:layout_constraintEnd_toStartOf="@id/flags_layout"
-            app:layout_constraintHorizontal_bias="0"
+            android:paddingTop="@dimen/margin_small"
+            app:layout_constraintBottom_toTopOf="@id/node_desc"
+            app:layout_constraintEnd_toStartOf="@id/more_button"
             app:layout_constraintStart_toStartOf="@+id/node_description"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             app:nodeTitle="@{node}"
             tools:text="Folder 1 with a very very long text...  " />
+        <!--            app:layout_constraintHorizontal_bias=".5"
+        -->
+
+        <TextView
+            android:id="@+id/node_desc"
+            style="@style/text_list_secondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="start"
+            android:singleLine="true"
+            android:paddingTop="@dimen/margin_xxsmall"
+            app:layout_constraintBottom_toTopOf="@id/node_description"
+            app:layout_constraintEnd_toStartOf="@id/more_button"
+            app:layout_constraintStart_toStartOf="@+id/node_description"
+            app:layout_constraintTop_toBottomOf="@id/node_label"
+            app:nodeDesc="@{node}"
+            tools:text="July 8 - 1,7 MB" />
 
         <TextView
             android:id="@+id/node_description"
@@ -71,60 +84,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:paddingBottom="@dimen/margin_small"
+            app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintEnd_toStartOf="@id/more_button"
-            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@+id/node_thumb"
-            app:layout_constraintTop_toBottomOf="@id/node_label"
-            app:nodeDesc="@{node}"
-            tools:text="Your personal files" />
-
-        <LinearLayout
-            android:id="@+id/flags_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="0dp"
-            android:animateLayoutChanges="true"
-            app:flow_horizontalAlign="end"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/more_button"
-            app:layout_constraintHorizontal_bias="1"
-            app:layout_constraintStart_toEndOf="@+id/node_label"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5">
-
-            <ImageView
-                android:id="@+id/flag_bookmark"
-                android:layout_width="@dimen/list_item_flag_decorator"
-                android:layout_height="@dimen/list_item_flag_decorator"
-                android:layout_marginStart="@dimen/margin_xsmall"
-                android:contentDescription="@string/bookmark"
-                android:src="@drawable/ic_baseline_star_border_24"
-                app:bookmark="@{node}"
-                app:tint="@color/flag_bookmark" />
-
-            <ImageView
-                android:id="@+id/flag_shared"
-                android:layout_width="@dimen/list_item_flag_decorator"
-                android:layout_height="@dimen/list_item_flag_decorator"
-                android:layout_marginStart="@dimen/margin_xsmall"
-                android:contentDescription="@string/public_link"
-                android:src="@drawable/ic_baseline_link_24"
-                app:shared="@{node}"
-                app:tint="@color/flag_share" />
-
-            <ImageView
-                android:id="@+id/flag_offline"
-                android:layout_width="@dimen/list_item_flag_decorator"
-                android:layout_height="@dimen/list_item_flag_decorator"
-                android:layout_marginStart="@dimen/margin_xsmall"
-                android:contentDescription="@string/keep_offline"
-                android:src="@drawable/ic_outline_download_done_24"
-                app:offline="@{node}"
-                app:tint="@color/flag_offline" />
-
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/node_desc"
+            app:nodePath="@{node}"
+            tools:text="/personal-files/Photo/2022/Trip to Dordogne" />
+        <!--        app:layout_constraintHorizontal_bias="0"-->
 
         <ImageView
             android:id="@+id/more_button"
@@ -139,16 +106,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1"
-            app:layout_constraintStart_toEndOf="@id/flags_layout"
+            app:layout_constraintStart_toEndOf="@id/node_label"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
+            android:id="@+id/divider"
             style="@style/Divider.Horizontal.List"
-            android:layout_marginTop="@dimen/margin_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/node_thumb" />
+            app:layout_constraintTop_toBottomOf="@id/node_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

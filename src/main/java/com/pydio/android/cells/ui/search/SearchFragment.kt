@@ -34,12 +34,18 @@ class SearchFragment : Fragment() {
     private val logTag = SearchFragment::class.simpleName
 
     private val nodeService: NodeService by inject()
+
     private val args: SearchFragmentArgs by navArgs()
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val searchVM: SearchViewModel by viewModel { parametersOf(StateID.fromId(args.state).accountId) }
 
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapter: NodeListAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,16 +67,11 @@ class SearchFragment : Fragment() {
 //            // Does nothing yet.
 //            binding.swipeRefresh.isRefreshing = false
         }
-        adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-        adapter.showPath()
+
+        adapter = NodeListAdapter(TreeNodeMenuFragment.CONTEXT_SEARCH, this::onClicked)
         binding.hits.adapter = adapter
 
         return binding.root
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onResume() {
@@ -108,12 +109,12 @@ class SearchFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+//    override fun onPause() {
+//        super.onPause()
 //        val currActivity = requireActivity() as AppCompatActivity
 //        val bg = resources.getDrawable(R.drawable.empty, requireActivity().theme)
 //        currActivity.supportActionBar?.setBackgroundDrawable(bg)
-    }
+//    }
 
     fun updateQuery(query: String) {
         searchVM.query(query)

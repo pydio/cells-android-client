@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.browse
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -12,7 +11,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.databinding.ListItemNodeBinding
+import com.pydio.android.cells.databinding.ListItemSearchBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.cells.utils.Log
 
 /**
@@ -21,32 +22,41 @@ import com.pydio.cells.utils.Log
  * that enables selecting more than one element at a time.
  */
 class NodeListAdapter(
+    private val context: String,
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
-) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
+) : ListAdapter<RTreeNode, RecyclerView.ViewHolder>(TreeNodeDiffCallback()) {
 
     // private val logTag = NodeListAdapter::class.simpleName
-
-// , KoinComponent
-    // private val fileService: FileService by inject()
-
-    private var showPath = false
     private var tracker: SelectionTracker<String>? = null
 
-    fun setTracker(tracker: SelectionTracker<String>) {
-        this.tracker = tracker
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        tracker?.let {
-            holder.bind(item, it.isSelected(item.encodedState))
-        } ?: run {
-            holder.bind(item)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (context) {
+            TreeNodeMenuFragment.CONTEXT_BROWSE -> BrowseViewHolder.from(parent)
+                .with(onItemClicked)
+            TreeNodeMenuFragment.CONTEXT_SEARCH -> SearchViewHolder.from(parent)
+                .with(onItemClicked)
+            else -> throw ClassCastException("Unknown context $context")
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent, showPath).with(onItemClicked)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is BrowseViewHolder -> {
+                val item = getItem(position)
+                tracker?.let {
+                    holder.bind(item, it.isSelected(item.encodedState))
+                } ?: run {
+                    holder.bind(item)
+                }
+            }
+            is SearchViewHolder -> {
+                holder.bind(getItem(position))
+            }
+        }
+    }
+
+    fun setTracker(tracker: SelectionTracker<String>) {
+        this.tracker = tracker
     }
 
     fun doGetKey(position: Int): String {
@@ -64,33 +74,20 @@ class NodeListAdapter(
         return -1
     }
 
-    fun showPath() {
-        showPath = true
-    }
-
-    class ViewHolder private constructor(
-        val binding: ListItemNodeBinding,
-        private val showPath: Boolean
-    ) :
+    class BrowseViewHolder private constructor(val binding: ListItemNodeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private val tag = ViewHolder::class.simpleName
+        private val tag = BrowseViewHolder::class.simpleName
 
-        //         fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
         fun bind(item: RTreeNode, isSelected: Boolean = false) {
             binding.node = item
-//            binding.thumbDirPath = thumbDirPath
-
             binding.rowLayout.isActivated = isSelected
-            if (showPath) {
-                binding.nodePath.visibility = View.VISIBLE
-            }
             binding.executePendingBindings()
         }
 
         fun with(
             onItemClicked: (node: RTreeNode, command: String) -> Unit
-        ): ViewHolder {
+        ): BrowseViewHolder {
 
             binding.root.setOnClickListener {
                 Log.i(tag, "onItemClicked")
@@ -110,7 +107,7 @@ class NodeListAdapter(
                 override fun getSelectionKey(): String {
                     val node = binding.node
                     if (node == null) {
-                        Log.e("NodeListAdapter.ViewHolder", "getSelectionKey for $node")
+                        Log.e("NodeListAdapter.BrowseViewHolder", "getSelectionKey for $node")
                         return "no state"
                     }
                     return node.encodedState
@@ -118,10 +115,56 @@ class NodeListAdapter(
             }
 
         companion object {
-            fun from(parent: ViewGroup, showPath: Boolean): ViewHolder {
+            fun from(parent: ViewGroup): BrowseViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = ListItemNodeBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding, showPath)
+                return BrowseViewHolder(binding)
+            }
+        }
+    }
+
+    class SearchViewHolder private constructor(val binding: ListItemSearchBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        // private val tag = SearchViewHolder::class.simpleName
+
+        fun bind(item: RTreeNode) {
+            binding.node = item
+            // binding.rowLayout.isActivated = isSelected
+            binding.executePendingBindings()
+        }
+
+        fun with(onItemClicked: (node: RTreeNode, command: String) -> Unit): SearchViewHolder {
+
+            binding.root.setOnClickListener {
+                // Log.d(tag, "onItemClicked")
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
+            }
+
+            binding.moreButton.setOnClickListener {
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_MORE) }
+            }
+            return this
+        }
+
+//        fun getItemDetails(): ItemDetailsLookup.ItemDetails<String> =
+//            object : ItemDetailsLookup.ItemDetails<String>() {
+//                override fun getPosition(): Int = adapterPosition
+//                override fun getSelectionKey(): String {
+//                    val node = binding.node
+//                    if (node == null) {
+//                        Log.e("NodeListAdapter.ViewHolder", "getSelectionKey for $node")
+//                        return "no state"
+//                    }
+//                    return node.encodedState
+//                }
+//            }
+
+        companion object {
+            fun from(parent: ViewGroup): SearchViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemSearchBinding.inflate(layoutInflater, parent, false)
+                return SearchViewHolder(binding)
             }
         }
     }
@@ -148,10 +191,10 @@ class NodeListItemDetailsLookup(private val recyclerView: RecyclerView) :
         val view = recyclerView.findChildViewUnder(event.x, event.y)
         if (view != null) {
             val childViewHolder = recyclerView.getChildViewHolder(view)
-            if (childViewHolder is NodeListAdapter.ViewHolder) {
+            if (childViewHolder is NodeListAdapter.BrowseViewHolder) {
                 return childViewHolder.getItemDetails()
             } else {
-                Log.e(logTag, "unexpected holder type: ${childViewHolder} ")
+                Log.e(logTag, "unexpected holder type: $childViewHolder ")
             }
         }
         return null

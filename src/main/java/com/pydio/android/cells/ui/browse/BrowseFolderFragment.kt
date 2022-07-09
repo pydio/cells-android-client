@@ -155,7 +155,7 @@ class BrowseFolderFragment : Fragment() {
             }
             AppNames.RECYCLER_LAYOUT_LIST -> {
                 binding.nodes.layoutManager = LinearLayoutManager(requireActivity())
-                adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+                adapter = NodeListAdapter(TreeNodeMenuFragment.CONTEXT_BROWSE) { node, action -> onClicked(node, action) }
                 binding.nodes.adapter = adapter
                 trackerBuilder = SelectionTracker.Builder(
                     "list_multi_selection",

@@ -27,7 +27,7 @@ class DownloadViewModel(
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    val stateID = StateID.fromId(encodedState)
+    val stateID : StateID = StateID.fromId(encodedState)
 
     private var _transferId = MutableLiveData<Long>().apply {
         this.value = 0L
