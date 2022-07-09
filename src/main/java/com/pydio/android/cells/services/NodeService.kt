@@ -958,36 +958,27 @@ class NodeService(
 
     private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
-
-            val rTreeNode =
-                nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                ?: return@withContext
+            val localFile = getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
             val resolver = CellsApp.instance.contentResolver
             var out: OutputStream? = null
             try {
                 out = resolver.openOutputStream(uri)
-                if (isCachedVersionUpToDate(rTreeNode) ?: return@withContext) {
+                if (isCachedVersionUpToDate(rTreeNode) ?: return@withContext && localFile.exists()) {
                     var input: InputStream? = null
                     try {
-                        val localFile = getLocalFile(
-                            rTreeNode,
-                            AppNames.LOCAL_FILE_TYPE_FILE
-                        )
-                        if (localFile.exists()) {
-                            input = FileInputStream(localFile)
-                        }
-
+                        input = FileInputStream(localFile)
                         IoHelpers.pipeRead(input, out)
                     } finally {
                         IoHelpers.closeQuietly(input)
                     }
-                    // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
                 } else {
                     // Directly download to final destination: we do not save the corresponding file in the cache
                     // TODO handle progress
                     getClient(stateID).download(stateID.workspace, stateID.file, out, null)
                 }
                 Log.i(logTag, "... File has been copied to ${uri.path}")
-
             } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
                 Log.e(logTag, "could not perform DL for " + stateID.id)
                 se.printStackTrace()

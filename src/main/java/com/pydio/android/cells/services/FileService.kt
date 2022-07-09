@@ -48,8 +48,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
      * from the remote server and persisted
      */
     fun getLocalPath(item: RTreeNode, type: String): String {
-        val stat = StateID.fromId(item.encodedState)
-        return getLocalPathFromState(stat, type)
+        return getLocalPathFromState(item.getStateID(), type)
     }
 
     fun getLocalPathFromState(state: StateID, type: String): String {
@@ -116,32 +115,6 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         return localFile.etag == computedMd5
     }
 
-    fun unregisterLocalFile(stateID: StateID, type: String) {
-        val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
-        dao.getFile(stateID.id, type)?.let {
-            getFileFromRecord(it)?.delete()
-            dao.delete(stateID.id, type)
-        }
-    }
-
-    fun deleteCachedFilesFor(rTreeNode: RTreeNode) {
-        val dao = treeNodeRepository.nodeDB(rTreeNode.getAccountID()).localFileDao()
-        val fileRecords = dao.getFiles(rTreeNode.encodedState)
-        for (record in fileRecords) {
-            getFileFromRecord(record)?.delete()
-        }
-        dao.delete(rTreeNode.encodedState)
-    }
-
-    fun deleteCachedFileRecursively(folderId: StateID) {
-        val dao = treeNodeRepository.nodeDB(folderId.account()).localFileDao()
-        val fileRecords = dao.getFilesUnder(folderId.id)
-        for (record in fileRecords) {
-            getFileFromRecord(record)?.delete()
-        }
-        dao.deleteUnder(folderId.id)
-    }
-
     /** This also checks that the file is in line with the index */
     fun getLocalFile(stateID: StateID, rTreeNode: RTreeNode, type: String): File? {
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
@@ -194,7 +167,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     }
 
     /* Violently remove all local files and also empty the local_files table */
-    suspend fun cleanAllLocalFiles(accountID: StateID, dirName: String) {
+    fun cleanAllLocalFiles(accountID: StateID, dirName: String) {
 
         // Recursively delete local folders
         var currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_THUMB))
@@ -217,6 +190,32 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         // Also empty the local_files table
         val localFileDao = treeNodeRepository.nodeDB(accountID).localFileDao()
         localFileDao.deleteUnder(accountID.id)
+    }
+
+    fun unregisterLocalFile(stateID: StateID, type: String) {
+        val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
+        dao.getFile(stateID.id, type)?.let {
+            getFileFromRecord(it)?.delete()
+            dao.delete(stateID.id, type)
+        }
+    }
+
+    fun deleteCachedFilesFor(rTreeNode: RTreeNode) {
+        val dao = treeNodeRepository.nodeDB(rTreeNode.getAccountID()).localFileDao()
+        val fileRecords = dao.getFiles(rTreeNode.encodedState)
+        for (record in fileRecords) {
+            getFileFromRecord(record)?.delete()
+        }
+        dao.delete(rTreeNode.encodedState)
+    }
+
+    fun deleteCachedFileRecursively(folderId: StateID) {
+        val dao = treeNodeRepository.nodeDB(folderId.account()).localFileDao()
+        val fileRecords = dao.getFilesUnder(folderId.id)
+        for (record in fileRecords) {
+            getFileFromRecord(record)?.delete()
+        }
+        dao.deleteUnder(folderId.id)
     }
 
     // Local helpers
@@ -259,5 +258,4 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
         }
         return file
     }
-
 }
