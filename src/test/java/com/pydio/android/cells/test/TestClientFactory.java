@@ -10,11 +10,14 @@ import com.pydio.cells.client.ClientFactory;
 import com.pydio.cells.transport.CellsTransport;
 import com.pydio.cells.transport.auth.CredentialService;
 import com.pydio.cells.utils.JavaCustomEncoder;
+import com.pydio.cells.utils.MemoryStore;
+import com.pydio.cells.utils.tests.TestCredentialService;
 
 public class TestClientFactory extends ClientFactory {
 
     public TestClientFactory() {
-        super();
+        this(new TestCredentialService(new MemoryStore<>(), new MemoryStore<>()),
+                new MemoryStore<>(), new MemoryStore<>());
     }
 
     public TestClientFactory(CredentialService credentialService, Store<Server> serverStore, Store<Transport> transportStore) {
