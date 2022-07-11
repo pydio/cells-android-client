@@ -99,7 +99,6 @@ class AppCredentialService(
                     "No new token has been generated for $state"
                 )
             put(state.id, newToken)
-            Log.w(logTag, "Token refreshed")
         } catch (re: RemoteIOException) {
             Log.d(logTag, "Could not refresh token: " + re.message)
             throw re
