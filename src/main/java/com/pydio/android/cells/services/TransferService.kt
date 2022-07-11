@@ -215,7 +215,10 @@ class TransferService(
         val filename = when (type) {
             AppNames.LOCAL_FILE_TYPE_THUMB,
             AppNames.LOCAL_FILE_TYPE_PREVIEW -> {
-                val name = dlThumb(state, rNode, parentFolder, type)
+                val (name, errorMsg) = dlThumb(state, rNode, parentFolder, type)
+                if (Str.notEmpty(errorMsg)) {
+                    return null to errorMsg
+                }
                 if (type == AppNames.LOCAL_FILE_TYPE_THUMB) {
                     progressChannel?.send(thumbSize)
                 } else if (type == AppNames.LOCAL_FILE_TYPE_PREVIEW) {
@@ -239,6 +242,9 @@ class TransferService(
                 state.path.substring(1)
             }
             else -> null
+        }
+        if (filename == null){
+
         }
         return filename?.let { childFile(parentFolder, filename) } to null
     }
@@ -409,7 +415,7 @@ class TransferService(
         return@withContext errorMessage
     }
 
-    private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): String? {
+    private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): Pair<String?, String?> {
         val node = FileNode()
         node.properties = rNode.properties
         node.meta = rNode.meta
@@ -422,8 +428,7 @@ class TransferService(
             }
             val filename = client.getThumbnail(state, node, File(parPath), dim)
             if (Str.empty(filename)) {
-                Log.e(logTag, "could not get thumb for $state but no error have been thrown")
-                return null
+                return null to "Could not get thumb for $state, it is probably missing in the server"
             }
 
             val targetFile = File(parPath + File.separator + filename)
@@ -432,14 +437,14 @@ class TransferService(
             }
 
             fileService.registerLocalFile(state, rNode, type, targetFile)
-            return filename
+            return filename to null
         } catch (e: java.lang.Exception) {
             Log.e(logTag, "could not get thumb for $state: ${e.message}")
             // TODO improve At this point, if we had an error, the target file is most probably corrupted or missing
             //   Problem: if we are offline we might reach this point and and remove the record too fast. 
             // e.printStackTrace()
             fileService.unregisterLocalFile(state, type)
-            return null
+            return null to "Get thumb for $state failed: ${e.message}"
         }
     }
 
