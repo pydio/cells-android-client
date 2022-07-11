@@ -23,8 +23,8 @@
         <item>Каждые 15 минут</item>
     </string-array>
     <string-array name="network_type_labels">
-        <item>Unmetered</item>
-        <item>Not Roaming</item>
-        <item>Connected (run as soon as we can reach the server, no matter the network type)</item>
+        <item>Безлимит</item>
+        <item>Не в роуминге</item>
+        <item>Подключено (запустить, как только мы сможем получить доступ к серверу, независимо от типа сети)</item>
     </string-array>
 </resources>

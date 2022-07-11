@@ -94,6 +94,8 @@
     <string name="last_check_never">jamais</string>
     <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <string name="no_internet">Aucune connexion internet</string>
+    <string name="metered_connection">Connecté à un réseau limité</string>
+    <string name="roaming_connection">Connecté en itinérance</string>
     <string name="server_unreachable">Aucune connexion au serveur distant…</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
@@ -220,6 +222,8 @@
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
     <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
+    <string name="confirm_download_title">Confirmer le téléchargement</string>
+    <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="pref_choose_list_layout">Type de mise en page</string>
