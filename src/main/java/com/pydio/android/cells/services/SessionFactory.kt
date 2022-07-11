@@ -25,7 +25,7 @@ import com.pydio.cells.utils.Str
  */
 class SessionFactory(
     private val networkService: NetworkService,
-    credentialService: CredentialService,
+    credentialService: AppCredentialService,
     serverStore: Store<Server>,
     private val transportStore: Store<Transport>,
     accountDB: AccountDB

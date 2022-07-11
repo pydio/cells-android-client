@@ -83,8 +83,11 @@ class BrowseFolderViewModel(
     }
 
     private suspend fun doPull() {
-        Log.d(logTag, "About to pull for $stateId")
+
+        Log.d(logTag, "### Launching remote pull for $stateId")
         val (changeNb, errMsg) = nodeService.pull(stateId)
+        // Log.d(logTag, "... After pull with $changeNb changes, msg: $errMsg")
+
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(errMsg)) {
                 if (backOffTicker.getCurrentIndex() > 0) {
@@ -102,7 +105,7 @@ class BrowseFolderViewModel(
     }
 
     fun resume(resetBackOffTicker: Boolean) {
-        Log.d(logTag, "resumed")
+        Log.d(logTag, "Resumed - reset ticker: $resetBackOffTicker")
         if (!_isActive) {
             _isActive = true
             currWatcher = watchFolder()

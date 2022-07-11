@@ -28,7 +28,6 @@ import com.pydio.android.cells.ui.viewer.CarouselViewModel
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
 import com.pydio.cells.api.Transport
-import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import org.koin.android.ext.koin.androidContext
@@ -101,13 +100,21 @@ val serviceModule = module {
     // Authentication
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
-    single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
+    single {
+        AppCredentialService(
+            get(named("TokenStore")),
+            get(named("PasswordStore")),
+            get()
+        )
+    }
     single { AuthService(get()) }
 
-    // Accounts and Sessions
+    // Accounts
     single<Store<Server>>(named("ServerStore")) { MemoryStore() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
     single<AccountService> { AccountServiceImpl(get(), get(), get(), get(), get(), get()) }
+
+    // Sessions
     single {
         SessionFactory(
             get(),
