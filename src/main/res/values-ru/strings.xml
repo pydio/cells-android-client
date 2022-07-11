@@ -94,6 +94,8 @@
     <string name="last_check_never">никогда</string>
     <string name="loading_message">Пожалуйста, дождитесь загрузки…</string>
     <string name="no_internet">Нет подключения к интернету</string>
+    <string name="metered_connection">On a metered connection</string>
+    <string name="roaming_connection">Using a roaming connection</string>
     <string name="server_unreachable">Нет соединения с сервером…</string>
     <string name="empty_cache">Невозможно отобразить содержимое</string>
     <string name="cannot_download_file">Не удается загрузить файл</string>
@@ -103,7 +105,7 @@
     <string name="empty_folder">Эта папка пуста</string>
     <string name="empty_content_message">Здесь пока ничего нет</string>
     <string name="no_bookmark_for_account">Для этого аккаунта не задано ни одной закладки…</string>
-    <string name="no_transfer_for_account">There is no recent transfer to show</string>
+    <string name="no_transfer_for_account">Нет недавних передач для отображения</string>
     <string name="no_offline_root_for_account">Нет папок помеченных как оффлайн для данного аккаунта…</string>
     <plurals name="selected_count">
         <item quantity="one">%d элемент выбран</item>
@@ -200,30 +202,32 @@
     <!-- Dialogs -->
     <string name="choose_external_app_title">Открыть с помощью…</string>
     <string name="confirm_account_deletion_title">Удалить аккаунт\n%s?</string>
-    <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete all cached data and files.</string>
-    <string name="confirm_account_logout_title">Logout account\n%s ?</string>
-    <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
-    <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
-    <string name="confirm_cache_deletion_title">Clear cache</string>
-    <string name="create_account">Create an account</string>
-    <string name="content_description_media">Preview of the content</string>
-    <string name="dialog_create_folder_title">Create folder</string>
-    <string name="dialog_create_folder_positive_btn">Create</string>
-    <string name="confirm_move_to_recycle_title">Confirm deletion</string>
-    <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
+    <string name="confirm_account_deletion_desc">Это приведет к удалению информации о подключении к вашему серверу, а также всех данных и файлов из кэша.</string>
+    <string name="confirm_account_logout_title">Выйти из аккаунта\n%s ?</string>
+    <string name="confirm_account_logout_desc">Это удалит сведения о подключении к данному серверу: вам придется выполнить вход снова.</string>
+    <string name="confirm_cache_deletion_message">Это освободит место, но потребует повторного скачивания миниатюр изображений и содержимого папок.</string>
+    <string name="confirm_cache_deletion_title">Очистить кэш</string>
+    <string name="create_account">Создать аккаунт</string>
+    <string name="content_description_media">Предпросмотр содержимого</string>
+    <string name="dialog_create_folder_title">Создать папку</string>
+    <string name="dialog_create_folder_positive_btn">Создать</string>
+    <string name="confirm_move_to_recycle_title">Подтверждение удаления</string>
+    <string name="confirm_move_to_recycle_desc">%s перемещается в корзину</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
         <item quantity="one">The selected item will be moved to the recycle bin</item>
         <item quantity="few">The %d selected items will be moved to the recycle bin</item>
         <item quantity="many">The %d selected items will be moved to the recycle bin</item>
-        <item quantity="other">The %d selected items will be moved to the recycle bin</item>
+        <item quantity="other">%d выбранных элементов будут перемещены в корзину</item>
     </plurals>
-    <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>
-    <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
+    <string name="confirm_permanent_deletion_title">Подтверждение окончательного удаления</string>
+    <string name="confirm_permanent_deletion_desc">%s окончательно удаляется</string>
     <string name="confirm_empty_recycle_message">This empties the recycle bin for %s: all trashed content will be definitively deleted.</string>
     <string name="rename_dialog_title">Rename</string>
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
     <string name="download_wait_message">Загрузка, пожалуйста подождите…</string>
+    <string name="confirm_download_title">Confirm download</string>
+    <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
     <string name="pref_choose_list_layout">Type of layout</string>
