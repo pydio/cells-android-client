@@ -211,7 +211,6 @@ class LandActivity : AppCompatActivity() {
         return sp.getString(key, null)
     }
 
-
     private fun getOldVersion(context: Context): Int {
         var oldValue = prefs.getInt(AppKeys.INSTALLED_VERSION_CODE)
         if (oldValue == -1) {// Try V2 stylee

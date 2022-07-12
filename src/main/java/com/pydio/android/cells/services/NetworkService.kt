@@ -28,16 +28,9 @@ class NetworkService constructor(context: Context) {
     val networkStatus: NetworkStatus
         get() = _networkStatus
 
-    private val _networkType = MutableLiveData<String>()
+    private val _networkType = MutableLiveData(AppNames.NETWORK_TYPE_UNMETERED)
     val networkType: LiveData<String>
         get() = _networkType
-
-//    private val _isConnected = MutableLiveData<Boolean>()
-//    val liveInternetFlag: LiveData<Boolean>
-//        get() = _isConnected
-//    private val _isMetered = MutableLiveData<Boolean>()
-//    val liveMeteredFlag: LiveData<Boolean>
-//        get() = _isMetered
 
     // Manage UI
     private val _errorMessage = MutableLiveData<String?>()
@@ -45,10 +38,9 @@ class NetworkService constructor(context: Context) {
         get() = _errorMessage
 
     init {
-        // Default are rather optimistic, otherwise we get some UI glitches while the app starts
-        _networkType.value = AppNames.NETWORK_TYPE_UNMETERED
-
         serviceScope.launch { // Asynchronous is necessary to wait for the context
+            // Default are rather optimistic, otherwise we get some UI glitches while the app starts
+            _networkType.value = AppNames.NETWORK_TYPE_UNMETERED
 
             val liveNetwork = LiveNetwork(context)
             setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unknown)
