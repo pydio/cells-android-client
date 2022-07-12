@@ -130,6 +130,8 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
     if (item.hasThumb()) {
         Glide.with(context)
             .load(encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB))
+            .placeholder(R.drawable.loading_img)
+            .error(R.drawable.no_grid_thumb_for_glide)
             .transform(CenterCrop())
             .into(this)
     } else {
