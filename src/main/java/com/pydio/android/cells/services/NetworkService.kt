@@ -28,6 +28,7 @@ class NetworkService constructor(context: Context) {
     val networkStatus: NetworkStatus
         get() = _networkStatus
 
+    // Default is rather optimistic, otherwise we get some UI glitches while the app starts
     private val _networkType = MutableLiveData(AppNames.NETWORK_TYPE_UNMETERED)
     val networkType: LiveData<String>
         get() = _networkType
@@ -39,8 +40,6 @@ class NetworkService constructor(context: Context) {
 
     init {
         serviceScope.launch { // Asynchronous is necessary to wait for the context
-            // Default are rather optimistic, otherwise we get some UI glitches while the app starts
-            _networkType.value = AppNames.NETWORK_TYPE_UNMETERED
 
             val liveNetwork = LiveNetwork(context)
             setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unknown)

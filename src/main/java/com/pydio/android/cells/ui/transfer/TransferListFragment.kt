@@ -68,7 +68,7 @@ class TransferListFragment : Fragment() {
             val clearListBtn = menu.findItem(R.id.clear_table)
             clearListBtn.isVisible = true
             clearListBtn.setOnMenuItemClickListener {
-                Log.e(logTag, "clearListBtn clicked")
+                // Log.e(logTag, "clearListBtn clicked")
                 lifecycleScope.launch {
                     transferVM.transferService.clearTerminated(StateID.fromId(accId))
                 }
