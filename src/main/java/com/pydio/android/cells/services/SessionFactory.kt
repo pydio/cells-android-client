@@ -96,7 +96,6 @@ class SessionFactory(
         if (!networkService.isConnected())
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
 
-
 //        // TODO An idea might be to leave a hook here to enable network status refresh
 //        if (!forceCall && networkService.networkInfo()?.isOnline() != true) {
 //            Log.d(logTag, "... Refreshing network status")

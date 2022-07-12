@@ -48,7 +48,10 @@ val dbModule = module {
             androidContext().applicationContext,
             RuntimeDB::class.java,
             "runtimedb"
-        ).build()
+        )
+            .addMigrations(RuntimeDB.MIGRATION_1_2)
+            .fallbackToDestructiveMigrationOnDowngrade()
+            .build()
     }
 
 
@@ -75,7 +78,6 @@ val dbModule = module {
 
 val daoModule = module {
 
-    single { get<RuntimeDB>().networkInfoDao() }
     single { get<RuntimeDB>().jobDao() }
     single { get<RuntimeDB>().logDao() }
 

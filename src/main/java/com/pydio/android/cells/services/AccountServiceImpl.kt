@@ -131,13 +131,14 @@ class AccountServiceImpl(
                     if (networkService.isConnected()) {
                         try {
                             // TODO rather use an API health check
-                            val currClient = sessionFactory.getUnlockedClient(account.accountID)
-                            if (!currClient.stillAuthenticated()) {
-                                // TODO implement finer status check (unauthorized, expired...)
-                                account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-                                accountDao.update(account)
-                                changes++
-                            }
+//                            val currClient =
+                            sessionFactory.getUnlockedClient(account.accountID)
+//                            if (!currClient.stillAuthenticated()) {
+//                                // TODO implement finer status check (unauthorized, expired...)
+//                                account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+//                                accountDao.update(account)
+//                                changes++
+//                            }
                         } catch (e: SDKException) {
                             // TODO insure we do not miss anything
                             Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
@@ -149,7 +150,6 @@ class AccountServiceImpl(
                                     "cannot check auth status for ${account.account()}"
                         )
                     }
-
                 }
                 return@withContext Pair(changes, null)
             } catch (e: SDKException) {

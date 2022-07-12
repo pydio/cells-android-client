@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
     ],
     views = [RSessionView::class],
     version = 1,
-    exportSchema = false,
+    exportSchema = true,
 )
 
 abstract class AccountDB : RoomDatabase() {

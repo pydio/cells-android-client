@@ -16,9 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
 
 /**
  * This app specific credential service provides a refresh method that insures that only
@@ -28,7 +27,7 @@ class AppCredentialService(
     private val tokenStore: Store<Token>,
     passwordStore: Store<String>,
     private val networkService: NetworkService,
-) : CredentialService(tokenStore, passwordStore) {
+) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
     private val logTag = AppCredentialService::class.simpleName
 
@@ -38,10 +37,35 @@ class AppCredentialService(
     private val credServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + credServiceJob)
 
+//    override fun get(id: String?): Token? {
+//        val token = tokenStore[id] ?: return null
+//        val expiresIn = token.expirationTime - currentTimestamp();
+//        Log.e(logTag, "Got a token, it expires in $expiresIn seconds.");
+//        if (expiresIn < 60) {
+//            Log.e(logTag, "Got a token, it expires soon, in $expiresIn seconds.");
+//            serviceScope.launch {
+//                val sessionFactory: SessionFactory by inject()
+//                val transport = sessionFactory.getTransport(id) ?: return@launch
+//                val state = StateID.fromId(id)
+//                val refreshing = launchRefreshIfNotYetInProcess(state, token, transport)
+//                Log.e(logTag, "After launching refresh, refreshing: $refreshing")
+//            }
+//        }
+//        Log.i(logTag, "Got a token, it expires in $expiresIn seconds.");
+//        return token
+//    }
+
+
     // TODO insure this is a clean way to call suspending method from the *JAVA* parent class.
-    override fun refreshToken(id: String, transport: Transport): Token {
+    override fun refreshToken(id: String, transport: Transport): Token? {
         val token = runBlocking(Dispatchers.IO) {
-            doRefreshToken(id, transport)
+            try {
+                doRefreshToken(id, transport)
+            } catch (e: Exception) {
+                Log.e(logTag, "Could not refresh token for ${transport.id}: ${e.message}")
+                e.printStackTrace()
+                return@runBlocking null
+            }
         }
         return token
     }
@@ -55,7 +79,7 @@ class AppCredentialService(
         )
 
         val doing = launchRefreshIfNotYetInProcess(state, token, transport)
-        Log.d(logTag,"### About to wait for refreshed token, explicitly launched: $doing")
+        Log.d(logTag, "### About to wait for refreshed token, explicitly launched: $doing")
 
         // Wait until token is refreshed
         val timeout = currentTimestamp() + 30
@@ -82,7 +106,7 @@ class AppCredentialService(
     ): Boolean {
 
         // Sanity checks
-        if (!getRefreshLock(state, token)) {
+        if (!getRefreshLock(state)) {
             return false
         }
 
@@ -100,8 +124,8 @@ class AppCredentialService(
                 )
             put(state.id, newToken)
         } catch (re: RemoteIOException) {
-            Log.d(logTag, "Could not refresh token: " + re.message)
-            throw re
+            Log.e(logTag, "Could not refresh token: ${re.message}. Aborting")
+            return false
         } catch (se: SDKException) {
             if (se.code == ErrorCodes.refresh_token_expired) {
                 // could not refresh, finally deleting referential to avoid being stuck
@@ -111,13 +135,19 @@ class AppCredentialService(
                 Log.e(logTag, "... and deleting credentials")
                 remove(state.id)
             }
-            throw se
+            // throw se
+            return false
         }
         return true
     }
 
-    private fun getRefreshLock(state: StateID, token: Token): Boolean {
+    private fun getRefreshLock(state: StateID): Boolean {
         synchronized(lock) {
+            // We re-query the DB to insure we have the latest version
+            var token: Token = tokenStore.get(state.id) ?: throw SDKException(
+                ErrorCodes.no_token_available,
+                "Cannot refresh unknown token $state"
+            )
             if (token.refreshingSinceTs > 0) {
                 // TODO handle a timeout
                 return false
@@ -138,7 +168,7 @@ class AppCredentialService(
                 )
             }
 
-            token.refreshingSinceTs = System.currentTimeMillis() / 1000
+            token.refreshingSinceTs = currentTimestamp()
             put(state.id, token)
         }
         return true
