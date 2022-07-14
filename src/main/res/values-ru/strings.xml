@@ -185,6 +185,7 @@
     <string name="take_picture">Сделать снимок</string>
     <string name="share_with">Поделиться</string>
     <string name="copy_to_clipboard">Копировать в буфер обмена</string>
+    <string name="display_as_qrcode">Display as QR-Code</string>
     <string name="remove_link">Удалить публичную ссылку</string>
     <string name="link_copied_to_clip">Ссылка скопирована в буфер обмена</string>
     <string name="link_copy_failed">Не удалось скопировать ссылку</string>
@@ -226,6 +227,8 @@
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
     <string name="download_wait_message">Загрузка, пожалуйста подождите…</string>
+    <string name="display_as_qrcode_dialog_title">Direct link</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s</string>
     <string name="confirm_download_title">Confirm download</string>
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- Settings -->

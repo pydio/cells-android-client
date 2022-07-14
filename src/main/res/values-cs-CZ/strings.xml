@@ -109,6 +109,8 @@
     <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
+        <item quantity="few">%d items selected</item>
+        <item quantity="many">%d items selected</item>
         <item quantity="other">%d items selected</item>
     </plurals>
     <!-- Local modification status -->
@@ -214,6 +216,8 @@
     <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
         <item quantity="one">The selected item will be moved to the recycle bin</item>
+        <item quantity="few">The %d selected items will be moved to the recycle bin</item>
+        <item quantity="many">The %d selected items will be moved to the recycle bin</item>
         <item quantity="other">The %d selected items will be moved to the recycle bin</item>
     </plurals>
     <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>

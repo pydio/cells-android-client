@@ -183,6 +183,7 @@
     <string name="take_picture">Foto aufnehmen</string>
     <string name="share_with">Freigeben</string>
     <string name="copy_to_clipboard">In die Zwischenablage kopieren</string>
+    <string name="display_as_qrcode">Als QR-Code anzeigen</string>
     <string name="remove_link">Öffentlichen Link löschen</string>
     <string name="link_copied_to_clip">Link wurde in die Zwischenablage kopiert</string>
     <string name="link_copy_failed">Link konnte nicht kopiert werden</string>
@@ -222,6 +223,8 @@
     <string name="rename_dialog_message">Bitte geben Sie einen neuen Namen für: \n%s ein</string>
     <string name="rename_dialog_confirm_button">Umbenennen</string>
     <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
+    <string name="display_as_qrcode_dialog_title">Direktlink</string>
+    <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
     <string name="confirm_download_title">Herunterladen bestätigen</string>
     <string name="confirm_download_desc">Diese Datei ist groß (%s) und Sie sind in einem gemessenen Netzwerk. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <!-- Settings -->
