@@ -30,6 +30,7 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.tasks.copyNodes
 import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.tasks.deleteFromRecycle
+import com.pydio.android.cells.tasks.displayAsQRCode
 import com.pydio.android.cells.tasks.emptyRecycle
 import com.pydio.android.cells.tasks.moveNodes
 import com.pydio.android.cells.tasks.moveNodesToRecycle
@@ -75,6 +76,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_TOGGLE_OFFLINE = "toggle_offline"
         const val ACTION_TOGGLE_SHARED = "toggle_shared"
         const val ACTION_PUBLIC_LINK_COPY = "copy_public_link"
+        const val ACTION_DISPLAY_AS_QRCODE = "display_as_qrcode"
         const val ACTION_PUBLIC_LINK_SHARE = "share_public_link"
         const val ACTION_EMPTY_RECYCLE = "empty_recycle"
         const val ACTION_RESTORE_FROM_RECYCLE = "restore_from_recycle"
@@ -234,6 +236,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         } else {
             binding.publicLinkOff.visibility = View.GONE
             binding.publicLinkOn.visibility = View.VISIBLE
+            binding.displayAsQrcode.setOnClickListener { onClicked(ACTION_DISPLAY_AS_QRCODE) }
             binding.publicLinkDelete.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
             binding.publicLinkShareTo.setOnClickListener { onClicked(ACTION_PUBLIC_LINK_SHARE) }
             binding.publicLinkCopyToClipboard.setOnClickListener { onClicked(ACTION_PUBLIC_LINK_COPY) }
@@ -464,7 +467,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     }
 
     private fun onSingleClicked(actionOpenWith: String) {
-        val moreMenu = this
+        // val moreMenu = this
         val node = treeNodeMenuVM.node.value ?: return
         Log.d(logTag, "${node.getStateID()} -> $actionOpenWith")
         lifecycleScope.launch {
@@ -551,6 +554,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                             resources.getString(R.string.link_copy_failed)
                         )
                     }
+                    doDismiss()
+                }
+                ACTION_DISPLAY_AS_QRCODE -> {
+                    displayAsQRCode(requireContext(), node)
                     doDismiss()
                 }
                 ACTION_PUBLIC_LINK_SHARE -> {

@@ -112,4 +112,7 @@
     <!-- Accounts -->
     <dimen name="list_account_item_height">64dp</dimen>
 
+    <!-- QRCode -->
+    <integer name="qrcode_width">768</integer>
+
 </resources>

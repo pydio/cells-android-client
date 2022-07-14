@@ -211,6 +211,7 @@
     <string name="take_picture">Take picture</string>
     <string name="share_with">Share</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="display_as_qrcode">Display as QR-Code</string>
     <string name="remove_link">Delete public link</string>
     <string name="link_copied_to_clip">Link copied to clipboard</string>
     <string name="link_copy_failed">Failed to copy link</string>
@@ -252,6 +253,8 @@
     <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
     <string name="download_wait_message">Downloading, please wait…</string>
+    <string name="display_as_qrcode_dialog_title">Direct link</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s</string>
 
     <string name="confirm_download_title">Confirm download</string>
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
