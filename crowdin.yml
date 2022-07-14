@@ -3,6 +3,7 @@ files:
     translation: /src/main/res/values-%locale%/strings.xml
     languages_mapping:
       locale:
+        cs-CZ: cs-rCZ
         de: de
         es-ES: es-rES
         fr: fr
@@ -14,6 +15,7 @@ files:
     translation: /src/main/res/values-%locale%/arrays.xml
     languages_mapping:
       locale:
+        cs-CZ: cs-rCZ
         de: de
         es-ES: es-rES
         fr: fr
