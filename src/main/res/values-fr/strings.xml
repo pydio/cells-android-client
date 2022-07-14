@@ -183,6 +183,7 @@
     <string name="take_picture">Prendre une photo</string>
     <string name="share_with">Partager</string>
     <string name="copy_to_clipboard">Copier vers le presse-papiers</string>
+    <string name="display_as_qrcode">Afficher comme QR code</string>
     <string name="remove_link">Supprimer le lien public</string>
     <string name="link_copied_to_clip">Adresse copiée dans le presse-papiers</string>
     <string name="link_copy_failed">La copie du lien de partage a échoué</string>
@@ -222,6 +223,8 @@
     <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
     <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
+    <string name="display_as_qrcode_dialog_title">Lien direct</string>
+    <string name="display_as_qrcode_dialog_desc">Scannez le code pour accéder au partage vers %s</string>
     <string name="confirm_download_title">Confirmer le téléchargement</string>
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
     <!-- Settings -->
