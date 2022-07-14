@@ -17,7 +17,6 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
-import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
@@ -39,8 +38,7 @@ class ActiveSessionViewModel(
     private val jobService: JobService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
-    private val transferService: TransferService,
-    id: String = UUID.randomUUID().toString()
+    id: String = UUID.randomUUID().toString(),
 ) : ViewModel() {
 
     private val logTag = "${ActiveSessionViewModel::class.simpleName}[${id.substring(24)}]"
@@ -95,14 +93,10 @@ class ActiveSessionViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private var oldOfflineFrequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
+
     init {
         configureWorkers()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.e(logTag, "onCleared for $accountId")
-        vmJob.cancel()
     }
 
     fun afterCreate(accountId: String?) {
@@ -145,22 +139,18 @@ class ActiveSessionViewModel(
         resume()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        Log.e(logTag, "onCleared for $accountId")
+        vmJob.cancel()
+    }
+
     private fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
 
-    private var oldOfflineFrequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
-
-    // TODO is it OK to init workers in this view Model?
+    // Initialisation of workers is done at App start, we only register observer for change here.
     private fun configureWorkers() {
-
-        val wManager = WorkManager.getInstance(CellsApp.instance.applicationContext)
-        val operation = wManager.enqueueUniquePeriodicWork(
-            OfflineSync.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            OfflineSync.buildWorkRequest(prefs),
-        )
-
         vmScope.launch {
             livePrefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
                 .asFlow().collect {
@@ -176,7 +166,8 @@ class ActiveSessionViewModel(
     }
 
     private fun resetWorker() {
-        // debug info
+
+        // Debug info
         val it = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
         val prefix = "### Cancel and restart offline worker with [$it] frequency "
         try {
@@ -185,6 +176,7 @@ class ActiveSessionViewModel(
         } catch (e: Exception) {
             Log.e(logTag, "$prefix, could not log to user table: ${e.message}")
         }
+
         // Effective reset.
         // TODO make it more clever to prevent systematic launch of the worker each time the preferences change
         val workManager = WorkManager.getInstance(CellsApp.instance)

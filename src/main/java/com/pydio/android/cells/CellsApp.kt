@@ -5,15 +5,21 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.WorkManager
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.allModules
+import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -54,6 +60,8 @@ class CellsApp : Application(), KoinComponent {
             workManagerFactory()
             modules(allModules)
         }
+
+        appScope.launch { configureWorkers() }
     }
 
     @Throws(SDKException::class)
@@ -95,6 +103,16 @@ class CellsApp : Application(), KoinComponent {
         val release = Build.VERSION.RELEASE
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
+    }
+
+    private fun configureWorkers() {
+        val wManager = WorkManager.getInstance(applicationContext)
+        val prefs: CellsPreferences by inject()
+        wManager.enqueueUniquePeriodicWork(
+            OfflineSync.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            OfflineSync.buildWorkRequest(prefs),
+        )
     }
 }
 
