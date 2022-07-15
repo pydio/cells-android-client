@@ -12,12 +12,12 @@
     <string name="button_open_connection_center">Manage connection</string>
     <string name="button_clear_list">Clear list</string>
     <string name="button_resync_all">Re-sync</string>
-    <string name="button_skip">Skip</string>
+    <string name="button_skip">Saltar</string>
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
     <string name="action_open_app">Open App</string>
     <string name="action_choose_account">Choose an account</string>
-    <string name="action_browse">Browse</string>
+    <string name="action_browse">Explorar</string>
     <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_offline_roots">Offline Files</string>
     <string name="action_open_bookmarks">Bookmarks</string>
@@ -25,9 +25,9 @@
     <string name="action_open_jobs">Background Jobs</string>
     <string name="action_open_logs">Logs</string>
     <string name="action_open_about">About</string>
-    <string name="action_search">Search</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_clear_cache">Clear Cache</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_settings">Configuración</string>
+    <string name="action_clear_cache">Vaciar la caché</string>
     <!-- Main Menu (left drawer) -->
     <!-- Section titles -->
     <string name="my_workspaces">My Workspaces</string>
