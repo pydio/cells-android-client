@@ -33,7 +33,7 @@
     <string name="my_workspaces">My Workspaces</string>
     <string name="quick_access">Quick Access</string>
     <string name="my_account">My Account</string>
-    <string name="nav_open">Open</string>
+    <string name="nav_open">Abrir</string>
     <string name="nav_close">Close</string>
     <!-- Various -->
     <string name="generic_error_message">Unexpected error…</string>
@@ -46,25 +46,25 @@
     <string name="welcome_add_account_button">Configure a connection</string>
     <!-- About Page -->
     <string name="about_page_version_title">Pydio</string>
-    <string name="about_version_title">Pydio Client for Android</string>
-    <string name="about_help_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
-    <string name="version_name_display">Version name: %s</string>
-    <string name="version_code_display">Version code: %s</string>
-    <string name="version_date_display">Version date: %s</string>
-    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
-    <string name="help_button_support">Contact Pydio Support</string>
-    <string name="open_website_button">More info on pydio.com</string>
+    <string name="about_version_title">Cliente Pydio para Android</string>
+    <string name="about_help_title">Resolución de problemas</string>
+    <string name="about_page_copyright">Pydio es una marca registrada de Abstrium SAS.</string>
+    <string name="version_name_display">Nombre de la versión: %s</string>
+    <string name="version_code_display">Código de la versión: %s</string>
+    <string name="version_date_display">Fecha de la versión: %s</string>
+    <string name="about_page_get_help">Si no puedes conseguir que esta aplicación funcione correctamente, por favor envíe un correo electrónico con una descripción completa del problema al que se enfrenta para que podamos ayudarle.</string>
+    <string name="help_button_support">Contactar con el Servicio de Soporte Pydio</string>
+    <string name="open_website_button">Más información en pydio.com</string>
     <!-- Authentication process  -->
-    <string name="ask_url_title">Register a new account</string>
-    <string name="ask_url_desc">Please, enter your server address</string>
-    <string name="ask_url_example">e.g: https://files.example.com</string>
-    <string name="oauth_callback_waiting">Authentication process has been launched</string>
-    <string name="oauth_callback_cancel">Cancel</string>
-    <string name="invalid_tls_certificate">Invalid certificate</string>
-    <string name="confirm_skip_verify_title">Invalid certificate</string>
-    <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
-    <string name="button_i_understand_the_risks">OK, I understand the risks</string>
+    <string name="ask_url_title">Registrar una nueva cuenta</string>
+    <string name="ask_url_desc">Por favor, introduzca la dirección de su servidor</string>
+    <string name="ask_url_example">por ejemplo: https://files.example.com</string>
+    <string name="oauth_callback_waiting">Se ha iniciado el proceso de autenticación</string>
+    <string name="oauth_callback_cancel">Cancelar</string>
+    <string name="invalid_tls_certificate">Certificado invalido</string>
+    <string name="confirm_skip_verify_title">Certificado invalido</string>
+    <string name="confirm_skip_verify_desc">Si sabe lo que está haciendo, puede optar por omitir el paso de validación de certificados TLS</string>
+    <string name="button_i_understand_the_risks">Sí, entiendo los riesgos</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>
     <string name="oauth_code_flow_desc">Processing, please be patient.</string>
