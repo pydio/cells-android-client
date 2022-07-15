@@ -79,8 +79,6 @@
     <string name="account_list_title">Мои Аккаунты</string>
     <string name="account_list_desc">Управление зарегистрированными серверами</string>
     <string name="account_list_none">Аккаунты еще не настроены…</string>
-    <string name="account_details_title">Информация об аккаунте</string>
-    <string name="account_details_desc">Описание аккаунта</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Выберите рабочую область для просмотра</string>
     <string name="browse_list_desc">Просмотр ваших серверов</string>
@@ -119,8 +117,6 @@
     <string name="in_progress_moving">Перемещение…</string>
     <string name="in_progress_restoring">Восстановление…</string>
     <!-- Search -->
-    <string name="search_label">Метка поиска</string>
-    <string name="search_hint">Подсказка поиска</string>
     <!--Offline -->
     <string name="sync_in_progress">Синхронизация…</string>
     <string name="sync_downloading">Загрузка файлов…</string>

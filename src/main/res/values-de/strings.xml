@@ -79,8 +79,6 @@
     <string name="account_list_title">Meine Konten</string>
     <string name="account_list_desc">Bereits registrierte Server verwalten</string>
     <string name="account_list_none">Noch kein Konto wurde konfiguriert…</string>
-    <string name="account_details_title">Kontodetailstitel</string>
-    <string name="account_details_desc">Konto-Beschreibung</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Wählen Sie eine Arbeitsumgebung zum Durchsuchen</string>
     <string name="browse_list_desc">Durchsuchen Sie Ihre Remote-Server</string>
@@ -117,8 +115,6 @@
     <string name="in_progress_moving">Verschiebung…</string>
     <string name="in_progress_restoring">Wiederherstellung…</string>
     <!-- Search -->
-    <string name="search_label">Suchbegriff</string>
-    <string name="search_hint">Suchtipp</string>
     <!--Offline -->
     <string name="sync_in_progress">Synchronisierung…</string>
     <string name="sync_downloading">Dateien werden heruntergeladen…</string>
