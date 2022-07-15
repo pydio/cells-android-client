@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonical (A to Z, folders first)</item>
+        <item>Kanonické (A až Z, složky první)</item>
         <item>File name (A to Z)</item>
         <item>File name (Z to A)</item>
         <item>Modified (oldest first)</item>
