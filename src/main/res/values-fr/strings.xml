@@ -79,8 +79,6 @@
     <string name="account_list_title">Mes comptes</string>
     <string name="account_list_desc">Gérer les serveurs distants déjà enregistrés</string>
     <string name="account_list_none">Aucun compte n\'a encore été configuré…</string>
-    <string name="account_details_title">Détails du compte</string>
-    <string name="account_details_desc">Description du compte</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choisir un espace de travail à parcourir</string>
     <string name="browse_list_desc">Parcourir les serveurs distants</string>
@@ -117,8 +115,6 @@
     <string name="in_progress_moving">Déplacement en cours…</string>
     <string name="in_progress_restoring">Restauration en cours…</string>
     <!-- Search -->
-    <string name="search_label">Étiquette de recherche</string>
-    <string name="search_hint">Aide pour la recherche</string>
     <!--Offline -->
     <string name="sync_in_progress">En cours de synchronisation…</string>
     <string name="sync_downloading">Téléchargement des fichiers…</string>

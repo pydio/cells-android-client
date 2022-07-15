@@ -79,8 +79,6 @@
     <string name="account_list_title">My Accounts</string>
     <string name="account_list_desc">Manage already registered remote servers</string>
     <string name="account_list_none">No account has been configured yet…</string>
-    <string name="account_details_title">Account detail title</string>
-    <string name="account_details_desc">Account details description</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choose a workspace to browse</string>
     <string name="browse_list_desc">Browse your remote servers</string>
@@ -117,8 +115,6 @@
     <string name="in_progress_moving">Moving…</string>
     <string name="in_progress_restoring">Restoring…</string>
     <!-- Search -->
-    <string name="search_label">Search Label</string>
-    <string name="search_hint">Search Hint</string>
     <!--Offline -->
     <string name="sync_in_progress">Synchronising…</string>
     <string name="sync_downloading">Downloading files…</string>
