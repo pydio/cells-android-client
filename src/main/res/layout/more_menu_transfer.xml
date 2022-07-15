@@ -26,8 +26,8 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_xsmall"
             android:layout_marginStart="@dimen/margin_xsmall"
+            android:layout_marginTop="@dimen/margin_xsmall"
             android:orientation="horizontal"
             android:padding="@dimen/menu_padding">
 
@@ -35,8 +35,8 @@
                 android:layout_width="@dimen/menu_header_icon"
                 android:layout_height="@dimen/menu_header_icon"
                 android:contentDescription="@string/thumb_description"
-                app:transferIcon="@{rTransfer}"
                 android:elevation="@dimen/elevation_medium"
+                app:transferIcon="@{rTransfer}"
                 tools:srcCompat="@drawable/ic_outline_cloud_download_24" />
 
             <TextView
@@ -84,6 +84,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:orientation="horizontal"
             android:padding="@dimen/menu_row_padding"
+            android:visibility="gone"
             app:showForFailedOnly="@{rTransfer}">
 
             <ImageView
@@ -111,8 +112,7 @@
             android:padding="@dimen/menu_row_padding"
             app:showForDoneOnly="@{rTransfer}">
 
-
-        <ImageView
+            <ImageView
                 android:layout_width="@dimen/menu_icon"
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
