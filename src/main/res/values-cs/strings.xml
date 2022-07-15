@@ -12,7 +12,7 @@
     <string name="button_open_connection_center">Manage connection</string>
     <string name="button_clear_list">Clear list</string>
     <string name="button_resync_all">Re-sync</string>
-    <string name="button_skip">Skip</string>
+    <string name="button_skip">Přeskočit</string>
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
     <string name="action_open_app">Open App</string>
