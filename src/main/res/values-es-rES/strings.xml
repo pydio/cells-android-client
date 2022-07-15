@@ -15,16 +15,16 @@
     <string name="button_skip">Saltar</string>
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
-    <string name="action_open_app">Open App</string>
+    <string name="action_open_app">Abrir app</string>
     <string name="action_choose_account">Choose an account</string>
     <string name="action_browse">Explorar</string>
     <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_offline_roots">Offline Files</string>
-    <string name="action_open_bookmarks">Bookmarks</string>
-    <string name="action_open_transfers">Transfers</string>
+    <string name="action_open_bookmarks">Favoritos</string>
+    <string name="action_open_transfers">Transferencias</string>
     <string name="action_open_jobs">Background Jobs</string>
     <string name="action_open_logs">Logs</string>
-    <string name="action_open_about">About</string>
+    <string name="action_open_about">Acerca de</string>
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configuración</string>
     <string name="action_clear_cache">Vaciar la caché</string>
