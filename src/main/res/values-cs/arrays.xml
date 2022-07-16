@@ -2,29 +2,29 @@
 <resources>
     <string-array name="order_by_labels">
         <item>Kanonické (A až Z, složky první)</item>
-        <item>File name (A to Z)</item>
-        <item>File name (Z to A)</item>
-        <item>Modified (oldest first)</item>
-        <item>Modified (newest first)</item>
-        <item>Size (smallest first)</item>
-        <item>Size (largest first)</item>
+        <item>Název souboru (A až Z)</item>
+        <item>Název souboru (Z až A)</item>
+        <item>Upraveno (od nejstarších)</item>
+        <item>Upraveno (od nejnovějších)</item>
+        <item>Velikost (od nejmenších)</item>
+        <item>Velikost (od největších)</item>
     </string-array>
     <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
     <string-array name="list_layout_labels">
-        <item>List</item>
-        <item>Grid</item>
+        <item>Seznam</item>
+        <item>Mřížka</item>
     </string-array>
     <string-array name="offline_frequency_labels">
-        <item>Every week</item>
+        <item>Každý týden</item>
         <item>Každý den</item>
-        <item>Every hour</item>
-        <item>Every 15 minutes</item>
+        <item>Každou hodinu</item>
+        <item>Každých 15 minut</item>
     </string-array>
     <string-array name="network_type_labels">
-        <item>Unmetered</item>
-        <item>Not Roaming</item>
-        <item>Connected (run as soon as we can reach the server, no matter the network type)</item>
+        <item>Neomezené</item>
+        <item>Ne v roamingu</item>
+        <item>Připojeno (spustit jakmile je server dosažitelný, bez ohledu na typ sítě)</item>
     </string-array>
 </resources>
