@@ -6,17 +6,17 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
+import com.pydio.android.cells.databinding.ActivityAuthBinding
+import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.ui.auth.ServerUrlFragmentDirections
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import com.pydio.android.cells.databinding.ActivityAuthBinding
-import com.pydio.android.cells.ui.auth.ServerUrlFragmentDirections
 
-/**
- * Centralizes authentication processes.
- */
+/** Centralizes authentication processes. */
 class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private val logTag = "AuthActivity"
+    private val logTag = AuthActivity::class.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,13 +24,13 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
     override fun onResume() {
-        Log.i(logTag, "onResume, intent: $intent")
+        Log.d(logTag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
     }
 
     override fun onPause() {
-        Log.i(logTag, "onPause, intent: $intent")
+        Log.d(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 
@@ -47,13 +47,13 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
         }
 
-        if (intent.hasExtra(AppKeys.EXTRA_SERVER_URL)) {
+        if (intent.hasExtra(AppKeys.EXTRA_SERVER_URL) && Str.notEmpty(intent.getStringExtra(AppKeys.EXTRA_SERVER_URL))) {
             val urlStr: String = intent.getStringExtra(AppKeys.EXTRA_SERVER_URL)!!
             if (intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)) {
-                val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(
-                    urlStr,
-                    intent.getStringExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION)!!
-                )
+                // TODO double check that listing accounts is the relevant default here
+                val next: String = intent.getStringExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION)
+                    ?: AuthService.NEXT_ACTION_ACCOUNTS
+                val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr, next)
                 findNavController(R.id.auth_fragment_host).navigate(action)
             } else {
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
