@@ -53,6 +53,17 @@ class NetworkService constructor(context: Context) {
     }
 
     fun isConnected(): Boolean {
+
+        // TODO enhance this
+        if (_networkStatus is NetworkStatus.Unknown) {
+            Log.w(logTag, "Unknown network status, doing as if connected")
+            return true
+        }
+        if (_networkStatus is NetworkStatus.Unavailable) {
+            Log.w(logTag, "Unavailable network status, doing as if connected")
+            return true
+        }
+
         return _networkStatus is NetworkStatus.Unmetered ||
                 _networkStatus is NetworkStatus.Metered ||
                 _networkStatus is NetworkStatus.Roaming
@@ -65,7 +76,7 @@ class NetworkService constructor(context: Context) {
 
     private fun setNetworkStatus(status: NetworkStatus) {
 
-        Log.e(logTag, "### Setting new status: $status")
+        Log.i(logTag, "### Setting new status: $status")
         this._networkStatus = status
 
         serviceScope.launch(Dispatchers.Main) {
