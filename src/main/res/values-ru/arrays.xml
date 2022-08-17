@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Канонический (А-Я, сначала папки)</item>
-        <item>Имя файла (А-Я)</item>
-        <item>Имя файла (Я-А)</item>
-        <item>Дата изменения (сначала старые)</item>
-        <item>Дата изменения (сначала новые)</item>
-        <item>Размер (сначала маленькие)</item>
-        <item>Размер (сначала большие)</item>
+        <item>Canonical (A to Z, folders first)</item>
+        <item>File name (A to Z)</item>
+        <item>File name (Z to A)</item>
+        <item>Modified (oldest first)</item>
+        <item>Modified (newest first)</item>
+        <item>Size (smallest first)</item>
+        <item>Size (largest first)</item>
     </string-array>
     <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
     <string-array name="list_layout_labels">
-        <item>Список</item>
-        <item>Сетка</item>
+        <item>List</item>
+        <item>Grid</item>
     </string-array>
     <string-array name="offline_frequency_labels">
         <item>Каждую неделю</item>
