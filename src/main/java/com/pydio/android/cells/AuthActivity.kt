@@ -10,11 +10,10 @@ import com.pydio.android.cells.databinding.ActivityAuthBinding
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.auth.ServerUrlFragmentDirections
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 
 /** Centralizes authentication processes. */
-class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+class AuthActivity : AppCompatActivity() {
+//, CoroutineScope by MainScope() // legacy, should not be there anymore.
 
     private val logTag = AuthActivity::class.simpleName
 
@@ -54,7 +53,14 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 val next: String = intent.getStringExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION)
                     ?: AuthService.NEXT_ACTION_ACCOUNTS
                 val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr, next)
-                findNavController(R.id.auth_fragment_host).navigate(action)
+                val controller = findNavController(R.id.auth_fragment_host)
+
+                // Should prevent a difficult to debug crash seen in production
+                if (controller.findDestination(R.id.p8_credentials_destination) == null){
+                    Log.e(logTag, "Could not find p8 credential page destination:\n${Thread.currentThread().stackTrace}")
+                } else {
+                    controller.navigate(action)
+                }
             } else {
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
                 findNavController(R.id.auth_fragment_host).navigate(action)
