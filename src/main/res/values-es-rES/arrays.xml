@@ -5,9 +5,9 @@
         <item>Nombre de archivo (A‑Z)</item>
         <item>Nombre de archivo (Z‑A)</item>
         <item>Fecha de modificación (mas antiguo primero)</item>
-        <item>Modificado (más reciente primero)</item>
+        <item>Fecha de modificación (mas reciente primero)</item>
         <item>Tamaño (más pequeño primero)</item>
-        <item>Tamaño (primero más grande)</item>
+        <item>Tamaño (más grande primero)</item>
     </string-array>
     <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
@@ -18,13 +18,13 @@
     </string-array>
     <string-array name="offline_frequency_labels">
         <item>Cada semana</item>
-        <item>Todos los días</item>
+        <item>Cada día</item>
         <item>Cada hora</item>
         <item>Cada 15 minutos</item>
     </string-array>
     <string-array name="network_type_labels">
         <item>Red sin medición</item>
         <item>Sin itinerancia</item>
-        <item>Conectado (se ejecuta en cuanto podemos alcanzar el servidor, sin importar el tipo de red)</item>
+        <item>Conectado (se ejecutará en cuanto podamos alcanzar el servidor, sin importar el tipo de red)</item>
     </string-array>
 </resources>
