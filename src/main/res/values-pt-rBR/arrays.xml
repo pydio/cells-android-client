@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonical (A to Z, folders first)</item>
-        <item>File name (A to Z)</item>
-        <item>File name (Z to A)</item>
-        <item>Modified (oldest first)</item>
-        <item>Modified (newest first)</item>
-        <item>Size (smallest first)</item>
-        <item>Size (largest first)</item>
+        <item>Canonical (A a Z, pastas primeiro)</item>
+        <item>Nome do arquivo (A até Z)</item>
+        <item>Nome do arquivo (Z a A)</item>
+        <item>Modificado (mais antigo primeiro)</item>
+        <item>Modificado (mais recente primeiro)</item>
+        <item>Tamanho (menor primeiro)</item>
+        <item>Tamanho (maior primeiro)</item>
     </string-array>
     <!-- Mime type ordering does not mean anything for the time  being. -->
     <!--        <item>Type (A to Z)</item>-->
     <!--        <item>Type (Z to A)</item>-->
     <string-array name="list_layout_labels">
-        <item>List</item>
-        <item>Grid</item>
+        <item>Lista</item>
+        <item>Grade</item>
     </string-array>
     <string-array name="offline_frequency_labels">
-        <item>Every week</item>
-        <item>Every day</item>
-        <item>Every hour</item>
-        <item>Every 15 minutes</item>
+        <item>Semanalmente</item>
+        <item>Diariamente</item>
+        <item>A cada hora</item>
+        <item>A cada 15 minutos</item>
     </string-array>
     <string-array name="network_type_labels">
-        <item>Unmetered</item>
-        <item>Not Roaming</item>
-        <item>Connected (run as soon as we can reach the server, no matter the network type)</item>
+        <item>Não medida</item>
+        <item>Não está em roaming</item>
+        <item>Conectado (executado o mais rápido possível no servidor, independentemente do tipo de rede)</item>
     </string-array>
 </resources>

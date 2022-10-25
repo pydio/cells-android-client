@@ -19,7 +19,7 @@
     <string name="action_choose_account">Elegir una cuenta</string>
     <string name="action_browse">Explorar</string>
     <string name="action_open_workspaces">Workspaces</string>
-    <string name="action_open_offline_roots">Accesso Sin Conexión</string>
+    <string name="action_open_offline_roots">Archivos sin conexión</string>
     <string name="action_open_bookmarks">Favoritos</string>
     <string name="action_open_transfers">Transferencias</string>
     <string name="action_open_jobs">Trabajos en segundo plano</string>
@@ -31,7 +31,7 @@
     <!-- Main Menu (left drawer) -->
     <!-- Section titles -->
     <string name="my_workspaces">Mis espacios de trabajo</string>
-    <string name="quick_access">Acceso Rápido</string>
+    <string name="quick_access">Acceso rápido</string>
     <string name="my_account">Mi cuenta</string>
     <string name="nav_open">Abrir</string>
     <string name="nav_close">Cerrar</string>
@@ -41,8 +41,8 @@
     <!-- Welcome Page -->
     <string name="welcome_title">¡Bienvenido a Pydio!</string>
     <string name="welcome_subtitle">Un cliente ligero para Android</string>
-    <string name="welcome_text">Todos sus datos en su dispositivo, en cualquier lugar y en cualquier momento.</string>
-    <string name="welcome_no_account_instructions">En primer lugar, configure su conexión con el servidor remoto de Pydio:</string>
+    <string name="welcome_text">Todos tus datos en tu dispositivo, en cualquier lugar y en cualquier momento.</string>
+    <string name="welcome_no_account_instructions">En primer lugar, configura tu conexión con el servidor remoto de Pydio:</string>
     <string name="welcome_add_account_button">Configurar una conexión</string>
     <!-- About Page -->
     <string name="about_page_version_title">Pydio</string>
@@ -52,54 +52,54 @@
     <string name="version_name_display">Nombre de la versión: %s</string>
     <string name="version_code_display">Código de la versión: %s</string>
     <string name="version_date_display">Fecha de la versión: %s</string>
-    <string name="about_page_get_help">Si no puedes conseguir que esta aplicación funcione correctamente, por favor envíe un correo electrónico con una descripción completa del problema al que se enfrenta para que podamos ayudarle.</string>
-    <string name="help_button_support">Contactar con el Servicio de Soporte Pydio</string>
+    <string name="about_page_get_help">Si no puedes conseguir que esta aplicación funcione correctamente, por favor envía un correo electrónico con una descripción completa del problema al que te enfrentas para que podamos ayudarte.</string>
+    <string name="help_button_support">Contactar con el servicio de soporte Pydio</string>
     <string name="open_website_button">Más información en pydio.com</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Registrar una nueva cuenta</string>
-    <string name="ask_url_desc">Por favor, introduzca la dirección de su servidor</string>
+    <string name="ask_url_desc">Por favor, introduce la dirección de tu servidor</string>
     <string name="ask_url_example">por ejemplo: https://files.example.com</string>
     <string name="oauth_callback_waiting">Se ha iniciado el proceso de autenticación</string>
     <string name="oauth_callback_cancel">Cancelar</string>
-    <string name="invalid_tls_certificate">Certificado invalido</string>
+    <string name="invalid_tls_certificate">Certificado no válido</string>
     <string name="confirm_skip_verify_title">Certificado invalido</string>
-    <string name="confirm_skip_verify_desc">Si sabe lo que está haciendo, puede optar por omitir el paso de validación de certificados TLS</string>
+    <string name="confirm_skip_verify_desc">Si sabes lo que estás haciendo, puedes optar por omitir el paso de validación de certificados TLS</string>
     <string name="button_i_understand_the_risks">Sí, entiendo los riesgos</string>
     <string name="p8_credentials_title">Pydio 8</string>
-    <string name="p8_credentials_desc">Por favor, introduzca sus credenciales</string>
-    <string name="oauth_code_flow_desc">Procesamiento, por favor sea paciente.</string>
+    <string name="p8_credentials_desc">Por favor, introduce tus credenciales</string>
+    <string name="oauth_code_flow_desc">Procesando, por favor, se paciente.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Error de conexión</string>
     <string name="no_connection_status">No se puede conectar a %1$s como %2$s: %3$s</string>
     <string name="launch_auth">Volver a autentificar</string>
     <string name="auth_ok">La cuenta está conectada</string>
-    <string name="auth_err_expired">Las credenciales están caducadas</string>
+    <string name="auth_err_expired">Las credenciales han caducado</string>
     <string name="auth_err_no_token">No hay credenciales o son inválidas</string>
     <!-- Account management -->
     <string name="account_list_title">Mis cuentas</string>
     <string name="account_list_desc">Gestionar los servidores remotos ya registrados</string>
     <string name="account_list_none">Todavía no se ha configurado ninguna cuenta…</string>
     <!-- Browse management -->
-    <string name="ws_list_subtitle">Elija un espacio de trabajo para navegar</string>
-    <string name="browse_list_desc">Examine sus servidores remotos</string>
-    <string name="browse_list_none">Vaciar</string>
+    <string name="ws_list_subtitle">Elige un espacio de trabajo para navegar</string>
+    <string name="browse_list_desc">Examina tus servidores remotos</string>
+    <string name="browse_list_none">Vacío</string>
     <string name="recycle_bin_label">Papelera</string>
     <string name="account_server_label">Servidor: %s</string>
     <string name="account_logged_in_as_label">Conectado como %s</string>
     <string name="category_cells">Cells</string>
-    <string name="category_workspaces">Workspaces</string>
+    <string name="category_workspaces">Espacios de trabajo</string>
     <string name="last_check">Última verificación</string>
     <string name="last_check_never">nunca</string>
-    <string name="loading_message">Por favor, espere mientras carga el contenido…</string>
-    <string name="no_internet">No hay conexión al internet</string>
-    <string name="metered_connection">En una conexión con contador</string>
+    <string name="loading_message">Por favor, espera mientras se carga el contenido…</string>
+    <string name="no_internet">No hay conexión a internet</string>
+    <string name="metered_connection">En una conexión de uso medido</string>
     <string name="roaming_connection">Usando una conexión de roaming</string>
     <string name="server_unreachable">No hay conexión con el servidor…</string>
     <string name="empty_cache">No se puede listar el contenido de la carpeta</string>
     <string name="cannot_download_file">No se puede descargar el archivo</string>
-    <string name="no_download_on_metered">Las descargas en redes con medidor están restringidas, puedes cambiar esto en las preferencias de la aplicación</string>
-    <string name="cannot_search_remote">No se puede hacer la búsqueda</string>
-    <string name="no_result_for_search">No se encontró ningún resultado para \"%s\"</string>
+    <string name="no_download_on_metered">Las descargas en redes medidas están restringidas, puedes cambiar esto en las preferencias de la aplicación</string>
+    <string name="cannot_search_remote">No se puede realizar la búsqueda</string>
+    <string name="no_result_for_search">\"Ningún resultado encontrado para \"%s\".\"</string>
     <string name="empty_folder">Esta carpeta está vacía</string>
     <string name="empty_content_message">Todavía no hay contenido aquí</string>
     <string name="no_bookmark_for_account">No se ha definido ningún marcador para esta cuenta…</string>
@@ -113,16 +113,16 @@
     <string name="in_progress_deleting">Borrando…</string>
     <string name="in_progress_renaming">Renombrando…</string>
     <string name="in_progress_moving">Moviendo…</string>
-    <string name="in_progress_restoring">Restauración…</string>
+    <string name="in_progress_restoring">Restaurando…</string>
     <!-- Search -->
     <!--Offline -->
     <string name="sync_in_progress">Sincronizando…</string>
     <string name="sync_downloading">Descargando archivos…</string>
     <string name="sync_tree_walking">Caminando por el árbol para buscar cambios…</string>
-    <string name="sync_already_running">Ya se está ejecutando un proceso de sincronización, espere antes de iniciar uno nuevo</string>
+    <string name="sync_already_running">Ya se está ejecutando un proceso de sincronización, espera antes de iniciar uno nuevo</string>
     <!-- Job Management -->
     <string name="job_list_title">Trabajos en segundo plano</string>
-    <string name="filter_by_status_title">Filtrar por estatus</string>
+    <string name="filter_by_status_title">Filtrar por estado</string>
     <string name="filter_by_status_show_all_label">Mostrar todo (sin filtro)</string>
     <string name="filter_by_status_new_label">Nuevo</string>
     <string name="filter_by_status_processing_label">Procesando</string>
@@ -131,8 +131,8 @@
     <string name="filter_by_status_error_label">Error</string>
     <string name="filter_by_status_timeout_label">Tiempo agotado</string>
     <string name="job_sort_by_title">Ordenar por</string>
-    <string name="job_sort_by_creation_ts_desc_label">Creado (el más nuevo primero)</string>
-    <string name="job_sort_by_creation_ts_asc_label">Creado (el más antiguo primero)</string>
+    <string name="job_sort_by_creation_ts_desc_label">Fecha (más nuevo primero)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Fecha (más antiguo primero)</string>
     <!-- Log Management -->
     <string name="log_list_title">Registros de trabajos de fondo</string>
     <!-- Transfer Management -->
@@ -149,9 +149,9 @@
     <string name="relaunch_transfer">Relanzar transferencia</string>
     <string name="delete_record">Eliminar registro</string>
     <!-- Migration-->
-    <string name="migration_message">Migrando datos antiguos, por favor espere…</string>
-    <string name="post_migration_title">¡Actualizados con éxito a la nueva versión!</string>
-    <string name="post_migration_sync_message">Tiene uno o más elementos marcados como fuera de línea, esta migración requiere una re-descarga completa ahora. ¿Desea continuar? Puede omitirla y sincronizarla más tarde.</string>
+    <string name="migration_message">Migrando datos antiguos, por favor espera…</string>
+    <string name="post_migration_title">¡Actualizado con éxito a la nueva versión!</string>
+    <string name="post_migration_sync_message">Tienes uno o más elementos marcados como fuera de línea, esta migración requiere una re-descarga completa ahora. ¿Quieres continuar? Puedes saltarlo y sincronizarlo más tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Elija una acción para aplicar a los elementos seleccionados</string>
     <string name="more_button_description">Mostrar más acciones para este elemento</string>
@@ -168,7 +168,7 @@
     <string name="public_link_content_desc">Crear o eliminar un enlace público para este elemento</string>
     <string name="keep_offline">Mantener fuera de línea</string>
     <string name="keep_offline_content_desc">Mantener este elemento fuera de línea</string>
-    <string name="bookmark">Marcador</string>
+    <string name="bookmark">Favorito</string>
     <string name="bookmark_element_content_desc">Añadir este elemento a favoritos</string>
     <string name="delete">Eliminar</string>
     <string name="empty_recycle">Vaciar la papelera de reciclaje</string>
@@ -199,7 +199,7 @@
     <string name="confirm_account_deletion_title">¿Eliminar cuenta\n%s?</string>
     <string name="confirm_account_deletion_desc">Olvidará la información de conexión de su servidor remoto y también eliminará todos los datos y archivos almacenados en caché.</string>
     <string name="confirm_account_logout_title">¿Cerrar sesión en la cuenta\n%s?</string>
-    <string name="confirm_account_logout_desc">Se olvidarán sus credenciales para este servidor: debe volver a iniciar sesión para conectarse.</string>
+    <string name="confirm_account_logout_desc">Se olvidarán tus credenciales para este servidor: debes volver a iniciar sesión para conectarte.</string>
     <string name="confirm_cache_deletion_message">Esta acción liberará espacio pero forzará la redescarga de la vista previa de la imagen y el contenido de la carpeta.</string>
     <string name="confirm_cache_deletion_title">Borrar caché</string>
     <string name="create_account">Crear una cuenta</string>
@@ -216,12 +216,12 @@
     <string name="confirm_permanent_deletion_desc">%s será eliminado definitivamente</string>
     <string name="confirm_empty_recycle_message">Esto vacía la papelera de reciclaje de %s: todo el contenido de la papelera se borrará definitivamente.</string>
     <string name="rename_dialog_title">Renombrar</string>
-    <string name="rename_dialog_message">Por favor, introduzca un nuevo nombre para:\n%s</string>
+    <string name="rename_dialog_message">Por favor, introduce un nuevo nombre para:\n%s</string>
     <string name="rename_dialog_confirm_button">Renombrar</string>
-    <string name="download_wait_message">Descargando, por favor espere…</string>
+    <string name="download_wait_message">Descargando, por favor espera…</string>
     <string name="display_as_qrcode_dialog_title">Enlace directo</string>
     <string name="display_as_qrcode_dialog_desc">Escanear el código para acceder directamente a %s</string>
-    <string name="confirm_download_title">Confirmar Descarga</string>
+    <string name="confirm_download_title">Confirmar descarga</string>
     <string name="confirm_download_desc">Este archivo es grande (%s) y está en una red medida. ¿Está seguro que desea continuar?</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personalizar listas (cuando sea aplicable)</string>
@@ -229,19 +229,19 @@
     <string name="pref_use_larger_grid">Usar cuadrícula más grande</string>
     <string name="pref_category_title_metered">Limitaciones en la red medida</string>
     <string name="pref_apply_metered_limits_title">Aplicar limitaciones</string>
-    <string name="pref_apply_metered_limits_desc">Advertencia: Desactivar esto se omitirá todas las limitaciones cuando esté en una red medida. Esto podría llevar a aumentar los costos</string>
-    <string name="pref_metered_dl_thumbs_title">Descargar pulgares</string>
+    <string name="pref_apply_metered_limits_desc">Advertencia: Desactivar esto omitirá todas las limitaciones cuando esté en una red medida. Esto podría llevar a aumentar los costos</string>
+    <string name="pref_metered_dl_thumbs_title">Descargar miniaturas</string>
     <string name="pref_metered_dl_thumbs_desc">Recuperar miniaturas en la red medida</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Preguntar antes de descargar</string>
     <string name="on_metered_ask_before_dl_files_greater_than_title">Cuando el archivo es mayor que (en MB)</string>
     <string name="on_metered_ask_before_dl_files_greater_than_desc">Preguntar antes de descargar cuando el archivo de destino sea mayor que (en MB)</string>
     <string name="pref_category_title_offline">Sincronización offline</string>
     <string name="pref_offline_constraint_wifi_title">Ejecutar sincronización cuando la red esté</string>
-    <string name="pref_offline_constraint_wifi_desc">Elija un tipo de red que restringe cuando podamos iniciar la sincronización</string>
+    <string name="pref_offline_constraint_wifi_desc">Elige un tipo de red que restringe cuando podemos iniciar la sincronización</string>
     <string name="pref_offline_constraint_charging_title">Al cargar</string>
     <string name="pref_offline_constraint_charging_desc">Sólo inicia la sincronización cuando el dispositivo se está cargando</string>
-    <string name="pref_offline_constraint_idle_title">En reposo</string>
-    <string name="pref_offline_constraint_idle_desc">Cuando el dispositivo está en reposo (funciona para Android 6+)</string>
+    <string name="pref_offline_constraint_idle_title">Cuando está inactivo</string>
+    <string name="pref_offline_constraint_idle_desc">Cuando el dispositivo está inactivo (funciona en Android 6+)</string>
     <string name="pref_offline_constraint_batt_not_low_title">Cuando la batería no está baja</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Cuando la batería no está baja</string>
     <string name="pref_category_title_feedback">Comentarios y ayuda</string>
@@ -251,18 +251,18 @@
     <string name="pref_troubleshooting_show_list_desc">Da acceso a más páginas para ayudar a solucionar los trabajos en segundo plano</string>
     <string name="pref_troubleshooting_show_list_title">Mostrar tablas de tiempo de ejecución</string>
     <string name="pref_choose_list_offline_frequency_title">Frecuencia de sincronización</string>
-    <string name="pref_choose_list_offline_frequency_desc">Elija una frecuencia para la sincronización de fondo</string>
+    <string name="pref_choose_list_offline_frequency_desc">Elige una frecuencia para la sincronización en segundo plano</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Crear o importar</string>
     <string name="exit_description">Salir de la aplicación</string>
-    <string name="switch_account_description">Elija otro servidor remoto</string>
+    <string name="switch_account_description">Elige otro servidor remoto</string>
     <string name="logo_description">Logotipo de la aplicación Pydio</string>
-    <string name="loading_description">El artículo actual se está actualizando</string>
+    <string name="loading_description">Se está actualizando el elemento actual</string>
     <string name="thumb_description">Pequeña vista previa del contenido</string>
     <string name="folder_icon_description">Icono de carpeta</string>
     <string name="empty_content_icon_description">Icono de lista vacía</string>
     <string name="switch_account">Cambiar de cuenta</string>
     <string name="switch_workspace">Cambiar de espacio de trabajo</string>
     <string name="parent_folder">Carpeta superior</string>
-    <string name="order_by_title">Orden</string>
+    <string name="order_by_title">Ordenar</string>
 </resources>
