@@ -19,7 +19,7 @@ import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
-import com.pydio.android.cells.databinding.FragmentOffineRootListBinding
+import com.pydio.android.cells.databinding.FragmentOfflineRootListBinding
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.LiveSharedPreferences
@@ -47,7 +47,7 @@ class OfflineRootsFragment : Fragment() {
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val offlineVM: OfflineRootsViewModel by viewModel()
 
-    private lateinit var binding: FragmentOffineRootListBinding
+    private lateinit var binding: FragmentOfflineRootListBinding
 
     private var adapter: ListAdapter<RLiveOfflineRoot, out RecyclerView.ViewHolder?>? = null
     private val observer = OfflineRootObserver()
