@@ -1,16 +1,13 @@
 plugins {
-
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
-
     // Generate helper classes to pass data between fragments
     id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
-
     compileSdkVersion ownVersions['android.sdk.compile'] as int
     buildToolsVersion ownVersions['android.build.tools']
 
