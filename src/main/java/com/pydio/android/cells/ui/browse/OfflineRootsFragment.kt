@@ -58,7 +58,7 @@ class OfflineRootsFragment : Fragment() {
     ): View {
         setHasOptionsMenu(true)
         binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_offine_root_list, container, false
+            inflater, R.layout.fragment_offline_root_list, container, false
         )
 
         offlineVM.isLoading.observe(viewLifecycleOwner) {

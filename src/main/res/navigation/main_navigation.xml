@@ -132,7 +132,7 @@
         android:id="@+id/offline_root_list_destination"
         android:name="com.pydio.android.cells.ui.browse.OfflineRootsFragment"
         android:label="@string/action_open_offline_roots"
-        tools:layout="@layout/fragment_offine_root_list">
+        tools:layout="@layout/fragment_offline_root_list">
         <action
             android:id="@+id/open_more_menu"
             app:destination="@id/tree_node_more_menu" />

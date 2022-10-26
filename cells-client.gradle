@@ -101,7 +101,7 @@ dependencies {
         println "[DEBUG] Retrieve java sdk from maven repo"
     }
 
-    // dependencies are defined in root build.gradle file.
+    // dependencies are defined in root build.gradle file
     implementation libraries
     kapt librariesKapt
     // Enable custom data loader for glide library (display images)

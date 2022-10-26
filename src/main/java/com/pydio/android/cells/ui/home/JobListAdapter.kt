@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pydio.android.cells.databinding.ListItemJobBinding
 import com.pydio.android.cells.db.runtime.RJob
 
-
 class JobListAdapter(
     private val onItemClicked: (node: RJob, command: String) -> Unit
 ) : ListAdapter<RJob, JobListAdapter.ViewHolder>(JobDiffCallback()) {

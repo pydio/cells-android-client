@@ -174,10 +174,10 @@ class MainActivity : AppCompatActivity() {
         // Workspaces
         val wsMenuSection = binding.navView.menu.findItem(R.id.ws_section)
         activeSessionVM.workspaces.observe(this) {
-            if (it.isNotEmpty()) {
-                wsMenuSection.subMenu.clear()
+            if (it.isNotEmpty() && wsMenuSection != null && wsMenuSection.subMenu != null) {
+                wsMenuSection.subMenu!!.clear()
                 for (ws in it) {
-                    val wsItem = wsMenuSection.subMenu.add(ws.label)
+                    val wsItem = wsMenuSection.subMenu!!.add(ws.label)
                     wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
                     wsItem.setOnMenuItemClickListener {
                         val state = StateID.fromId(accId).withPath("/${ws.slug}")

@@ -4,10 +4,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -27,8 +32,6 @@ import org.koin.core.parameter.parametersOf
 
 /** Display a list of transfers for the current active account */
 class TransferListFragment : Fragment() {
-    // New correct way to do with androidx.fragment 1.5+ but the documentation has not yet been updated
-    // TODO implement this when the doc is there
 
     private val logTag = TransferListFragment::class.java.simpleName
 
@@ -36,7 +39,6 @@ class TransferListFragment : Fragment() {
     private val transferVM: TransferViewModel by viewModel { parametersOf(activeSessionVM.accountId) }
 
     private lateinit var binding: FragmentTransferListBinding
-
     private var adapter: TransferListAdapter = TransferListAdapter(this::onClicked)
     private val observer = TransferObserver()
 
@@ -44,118 +46,65 @@ class TransferListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        setHasOptionsMenu(true)
-        binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_transfer_list, container, false
-        )
-
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_transfer_list, container, false)
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
+        setupMenu()
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-
         transferVM.getTransfersWithLiveFilter().observe(viewLifecycleOwner, observer)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        activeSessionVM.accountId?.let { accId ->
-            val clearListBtn = menu.findItem(R.id.clear_table)
-            clearListBtn.isVisible = true
-            clearListBtn.setOnMenuItemClickListener {
-                // Log.e(logTag, "clearListBtn clicked")
-                lifecycleScope.launch {
-                    transferVM.transferService.clearTerminated(StateID.fromId(accId))
+    private fun setupMenu() {
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
+            override fun onPrepareMenu(menu: Menu) {
+                // TODO handle the case where activeSessionVM has no accountID
+            }
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.transfer_options, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (activeSessionVM.accountId == null){
+                    Log.e(logTag, "cannot call item selected action, no session VM is active")
                 }
-                return@setOnMenuItemClickListener true
-            }
 
-            val filterListBtn = menu.findItem(R.id.open_filter_by)
-            filterListBtn.isVisible = true
-            filterListBtn.setOnMenuItemClickListener {
-                val action = MainNavDirections.openPreferenceList(
-                    AppKeys.TRANSFER_FILTER_BY_STATUS,
-                    AppNames.FILTER_BY_STATUS,
-                    AppNames.JOB_STATUS_NO_FILTER
-                )
-                findNavController().navigate(action)
-                return@setOnMenuItemClickListener true
-            }
-
-            val sortListBtn = menu.findItem(R.id.open_sort_by)
-            sortListBtn.isVisible = true
-            sortListBtn.setOnMenuItemClickListener {
-                val action = MainNavDirections.openPreferenceList(
-                    AppKeys.TRANSFER_SORT_BY,
-                    AppKeys.JOB_SORT_BY,
-                    AppNames.JOB_SORT_BY_DEFAULT
-                )
-                findNavController().navigate(action)
-                return@setOnMenuItemClickListener true
-            }
-        }
-    }
-
-    // Menu Provider Methods
-    // Not yet implemented (see above)
-/*
-    override fun onPrepareMenu(menu: Menu) {
-        Log.e(logTag, "onPrepareMenu")
-
-        activeSessionVM.accountId?.let { accId ->
-            val clearListBtn = menu.findItem(R.id.clear_table)
-            clearListBtn.isVisible = true
-            clearListBtn.setOnMenuItemClickListener {
-                lifecycleScope.launch {
-                    transferVM.transferService.clearTerminated(StateID.fromId(accId))
+                val accountID = StateID.fromId(activeSessionVM.accountId)
+                when (menuItem.itemId) {
+                    R.id.clear_table -> {
+                        lifecycleScope.launch {
+                            transferVM.transferService.clearTerminated(accountID)
+                        }
+                        return true
+                    }
+                    R.id.open_filter_by -> {
+                        val action = MainNavDirections.openPreferenceList(
+                            AppKeys.TRANSFER_FILTER_BY_STATUS,
+                            AppNames.FILTER_BY_STATUS,
+                            AppNames.JOB_STATUS_NO_FILTER
+                        )
+                        findNavController().navigate(action)
+                        return true
+                    }
+                    R.id.open_sort_by -> {
+                        val action = MainNavDirections.openPreferenceList(
+                            AppKeys.TRANSFER_SORT_BY,
+                            AppKeys.JOB_SORT_BY,
+                            AppNames.JOB_SORT_BY_DEFAULT
+                        )
+                        findNavController().navigate(action)
+                        return true
+                    }
+                    else -> return false
                 }
-                return@setOnMenuItemClickListener true
             }
-
-            val filterListBtn = menu.findItem(R.id.open_filter_by)
-            filterListBtn.isVisible = true
-            filterListBtn.setOnMenuItemClickListener {
-                val action = MainNavDirections.openPreferenceList(
-                    AppNames.PREF_KEY_TRANSFER_FILTER_BY_STATUS,
-                    AppNames.FILTER_BY_STATUS,
-                    AppNames.JOB_STATUS_NO_FILTER
-                )
-                findNavController().navigate(action)
-                return@setOnMenuItemClickListener true
-            }
-
-            val sortListBtn = menu.findItem(R.id.open_sort_by)
-            sortListBtn.isVisible = true
-            sortListBtn.setOnMenuItemClickListener {
-                val action = MainNavDirections.openPreferenceList(
-                    AppNames.PREF_KEY_TRANSFER_SORT_BY,
-                    AppNames.PREF_KEY_JOB_SORT_BY,
-                    AppNames.JOB_SORT_BY_DEFAULT
-                )
-                findNavController().navigate(action)
-                return@setOnMenuItemClickListener true
-            }
-        }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        Log.e(logTag, "onCreateMenu")
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        Log.e(logTag, "onMenuItemSelected ${menuItem.itemId}")
-        return false
-    }
-
-    override fun onMenuClosed(menu: Menu) {
-        Log.e(logTag, "onMenuClosed")
-    }
-*/
 
     private fun onClicked(node: RTransfer, command: String) {
         Log.i(logTag, "Clicked on ${node.encodedState} -> $command")
