@@ -3,11 +3,6 @@ package com.pydio.android.cells;
 public interface AppNames {
 
     // Network management
-//    String NETWORK_STATUS_UNKNOWN = "unknown";
-//    String NETWORK_STATUS_NO_INTERNET = "no_internet";
-//    String NETWORK_STATUS_METERED = "metered";
-//    String NETWORK_STATUS_OK = "ok";
-
     String NETWORK_TYPE_UNMETERED = "Unmetered";
     String NETWORK_TYPE_METERED = "Metered";
     String NETWORK_TYPE_ROAMING = "Roaming";
@@ -45,8 +40,7 @@ public interface AppNames {
 //    String SORT_BY_DESC = "DESC";
 
     /* Generic actions */
-
-    // TODO  make this generic
+    // Rather make this generic
     String KEY_PREFIX = "com.pydio.android.cells";
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 

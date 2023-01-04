@@ -68,6 +68,8 @@ class CellsApp : Application(), KoinComponent {
     private fun updateClientData(): String {
 
         val packageInfo: PackageInfo = try {
+            // Requires API level 33
+            // applicationContext.packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
             applicationContext.packageManager.getPackageInfo(packageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             throw SDKException("Could not retrieve PackageInfo for $packageName", e)
