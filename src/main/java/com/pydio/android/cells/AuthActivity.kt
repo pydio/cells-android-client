@@ -13,7 +13,6 @@ import com.pydio.cells.utils.Str
 
 /** Centralizes authentication processes. */
 class AuthActivity : AppCompatActivity() {
-//, CoroutineScope by MainScope() // legacy, should not be there anymore.
 
     private val logTag = AuthActivity::class.simpleName
 
@@ -33,7 +32,11 @@ class AuthActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    private fun handleIntent(inIntent: Intent) {
+    private fun handleIntent(inIntent: Intent?) {
+        if (inIntent == null) {
+            return
+        }
+
         if (Intent.ACTION_VIEW == intent.action) {
             val uri = inIntent.data ?: return
             val code = uri.getQueryParameter(AppNames.QUERY_KEY_CODE)
@@ -56,8 +59,11 @@ class AuthActivity : AppCompatActivity() {
                 val controller = findNavController(R.id.auth_fragment_host)
 
                 // Should prevent a difficult to debug crash seen in production
-                if (controller.findDestination(R.id.p8_credentials_destination) == null){
-                    Log.e(logTag, "Could not find p8 credential page destination:\n${Thread.currentThread().stackTrace}")
+                if (controller.findDestination(R.id.p8_credentials_destination) == null) {
+                    Log.e(
+                        logTag,
+                        "Could not find p8 credential page destination:\n${Thread.currentThread().stackTrace}"
+                    )
                 } else {
                     controller.navigate(action)
                 }
