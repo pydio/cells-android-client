@@ -43,30 +43,6 @@ public class TestClient {
             Log.e(logTag, "could not retrieve configuration file, cause: " + e.getMessage());
             return;
         }
-
-//        node = new ServerNode();
-//        Error error = node.resolve(serverURL);
-//        if (error != null) {
-//            String msg = "Could not resolve server URL, cause: " + error;
-//            throw new RuntimeException(msg);
-//        }
-//
-//        // We rather retrieve an Android Specific client
-//        cellsClient = new CellsClient(node);
-//        ClientFactory.setCellsFactory(new AndroidClientFactory());
-//
-//        Client c  = ClientFactory.get(node);
-//        if (c instanceof CellsClient){
-//            cellsClient = (CellsClient) ClientFactory.get(node);
-//        } else {
-//            throw new RuntimeException("Unimplemented test when the client is not an instance of CellsClient");
-//        }
-//
-//        cellsClient.setCredentials(new LegacyPasswordCredentials(login, pwd));
-//        cellsClient.setSkipOAuthFlag(true);
-//
-//        cellsFs = new CellsFs("test", cellsClient, workspace, stateManager);
-
     }
 
     public CellsClient getCellsClient() {
