@@ -37,25 +37,6 @@ class AppCredentialService(
     private val credServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + credServiceJob)
 
-//    override fun get(id: String?): Token? {
-//        val token = tokenStore[id] ?: return null
-//        val expiresIn = token.expirationTime - currentTimestamp();
-//        Log.e(logTag, "Got a token, it expires in $expiresIn seconds.");
-//        if (expiresIn < 60) {
-//            Log.e(logTag, "Got a token, it expires soon, in $expiresIn seconds.");
-//            serviceScope.launch {
-//                val sessionFactory: SessionFactory by inject()
-//                val transport = sessionFactory.getTransport(id) ?: return@launch
-//                val state = StateID.fromId(id)
-//                val refreshing = launchRefreshIfNotYetInProcess(state, token, transport)
-//                Log.e(logTag, "After launching refresh, refreshing: $refreshing")
-//            }
-//        }
-//        Log.i(logTag, "Got a token, it expires in $expiresIn seconds.");
-//        return token
-//    }
-
-
     // TODO insure this is a clean way to call suspending method from the *JAVA* parent class.
     override fun refreshToken(id: String, transport: Transport): Token? {
         val token = runBlocking(Dispatchers.IO) {
@@ -78,12 +59,17 @@ class AppCredentialService(
             "Cannot refresh unknown token $state"
         )
 
-        val doing = launchRefreshIfNotYetInProcess(state, token, transport)
+        val doing = try {
+            launchRefreshIfNotYetInProcess(state, token, transport)
+        } catch (e: SDKException) {
+            throw SDKException(ErrorCodes.cannot_refresh_token, "Refresh token expired for $state")
+        }
         Log.d(logTag, "### About to wait for refreshed token, explicitly launched: $doing")
 
         // Wait until token is refreshed
         val timeout = currentTimestamp() + 30
         while (token.isExpired && currentTimestamp() < timeout) {
+            Log.d(logTag, "... still waiting")
             delay(500)
             token = tokenStore.get(id) ?: token
         }
@@ -129,11 +115,12 @@ class AppCredentialService(
         } catch (se: SDKException) {
             if (se.code == ErrorCodes.refresh_token_expired) {
                 // could not refresh, finally deleting referential to avoid being stuck
-                Log.e(logTag, "refresh_token_expired for $state")
-                Log.d(logTag, "Printing stack trace to understand where we come from:")
-                se.printStackTrace()
-                Log.e(logTag, "... and deleting credentials")
+                // Log.e(logTag, "refresh_token_expired for $state")
+                // Log.d(logTag, "Printing stack trace to understand where we come from:")
+                // se.printStackTrace()
+                // Log.e(logTag, "... and deleting credentials")
                 remove(state.id)
+                throw se
             }
             // throw se
             return false
