@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import com.google.accompanist.themeadapter.material.MdcTheme
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAboutBinding
@@ -60,8 +59,8 @@ class AboutFragment : Fragment() {
             startActivity(intent)
         }
 
-        val data = ClientData.getInstance()
         val onEmailClick: () -> Unit = {
+            val data = ClientData.getInstance()
             val format = resources.getString(R.string.app_info)
             val appInfo = String.format(
                 format,
@@ -86,7 +85,7 @@ class AboutFragment : Fragment() {
 
         binding.apply {
             composeAboutPage.setContent {
-                MdcTheme {
+                androidx.compose.material3.MaterialTheme {
                     AboutPage(onUriClick = onUriClick, onEmailClick = onEmailClick)
                 }
             }
@@ -131,13 +130,14 @@ private fun AboutPage(
 private fun TitleText(text: String) {
     Text(
         text = text.uppercase(),
-        style = MaterialTheme.typography.h6,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.titleSmall,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = dimensionResource(R.dimen.card_padding))
             .padding(top = dimensionResource(R.dimen.margin_medium))
             .wrapContentWidth(Alignment.Start)
-            .alpha(.6f)
+            .alpha(.8f)
     )
 }
 
@@ -150,6 +150,7 @@ private fun VersionCard(
 ) {
     // TODO this had rounded corners
     Surface(
+        tonalElevation = dimensionResource(R.dimen.grid_ws_card_elevation),
         modifier = Modifier
             .fillMaxWidth()
             .padding(
@@ -157,8 +158,8 @@ private fun VersionCard(
                 vertical = dimensionResource(R.dimen.text_padding_small)
             )
             .wrapContentWidth(Alignment.CenterHorizontally)
-            // must be last
-            .shadow(elevation = dimensionResource(R.dimen.grid_ws_card_elevation))
+//            // must be last
+//            .shadow(elevation = dimensionResource(R.dimen.grid_ws_card_elevation))
     ) {
         Column(
             modifier = Modifier
@@ -171,29 +172,30 @@ private fun VersionCard(
         ) {
             Text(
                 text = stringResource(R.string.version_name_display, version),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = dimensionResource(R.dimen.text_padding_small))
             )
             Text(
                 text = stringResource(R.string.version_code_display, code),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Text(
                 text = stringResource(R.string.version_date_display, relDate),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Text(
                 text = stringResource(R.string.about_page_copyright, relDate),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Text(
                 text = stringResource(R.string.copyright_string),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
             )
 
             Text(
                 text = stringResource(R.string.open_website_button),
-                style = MaterialTheme.typography.button,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .clickable { onUriClick() }
                     .fillMaxWidth()
@@ -216,6 +218,7 @@ private fun TroubleShootingCard(
 ) {
 
     Surface(
+        tonalElevation = dimensionResource(R.dimen.grid_ws_card_elevation),
         modifier = Modifier
             .fillMaxWidth()
             .padding(
@@ -223,7 +226,7 @@ private fun TroubleShootingCard(
                 vertical = dimensionResource(R.dimen.text_padding_small)
             )
             .wrapContentWidth(Alignment.CenterHorizontally)
-            .shadow(elevation = dimensionResource(R.dimen.grid_ws_card_elevation))
+//            .shadow(elevation = dimensionResource(R.dimen.grid_ws_card_elevation))
     ) {
         Column(
             modifier = Modifier
@@ -236,12 +239,13 @@ private fun TroubleShootingCard(
         ) {
             Text(
                 text = message,
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = dimensionResource(R.dimen.text_padding_small))
             )
             Text(
                 text = emailLabel,
-                style = MaterialTheme.typography.button,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier
                     .clickable { onEmailClick() }
                     .fillMaxWidth()
@@ -260,7 +264,7 @@ private fun TroubleShootingCard(
 @Preview
 @Composable
 private fun AboutPagePreview() {
-    MdcTheme {
+    androidx.compose.material3.MaterialTheme {
         AboutPage({}, {})
     }
 }
@@ -268,7 +272,7 @@ private fun AboutPagePreview() {
 @Preview
 @Composable
 private fun VersionCardPreview() {
-    MdcTheme {
+    androidx.compose.material3.MaterialTheme {
         VersionCard(
             "3.0.4", "131", "11 Jan 2023", {}
         )
@@ -278,7 +282,7 @@ private fun VersionCardPreview() {
 @Preview
 @Composable
 private fun TroubleShootingCardPreview() {
-    MdcTheme {
+    androidx.compose.material3.MaterialTheme {
         TroubleShootingCard(
             "If you cannot get this application to work correctly....",
             "Contact Pydio Support",
