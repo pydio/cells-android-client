@@ -36,6 +36,13 @@ class JobListFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_job_list, container, false
         )
+//        binding.apply {
+//            composeJobList.setContent {
+//                MaterialTheme {
+//                    JobList()
+//                }
+//            }
+//        }
 
         binding.jobList.layoutManager = LinearLayoutManager(requireActivity())
         val adapter = JobListAdapter(this::onClicked)
@@ -74,3 +81,12 @@ class JobListFragment : Fragment() {
         Log.d(logTag, "Clicked on ${node.jobId} -> $command")
     }
 }
+
+//@Composable
+//fun JobList() {
+//    Surface {
+//        Text("Hello Compose")
+//    }
+//}
+
+
