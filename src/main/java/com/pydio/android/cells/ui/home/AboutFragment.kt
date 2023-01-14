@@ -29,6 +29,7 @@ import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAboutBinding
 import com.pydio.android.cells.ui.ActiveSessionViewModel
+import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.android.cells.utils.getTimestampAsString
@@ -85,7 +86,7 @@ class AboutFragment : Fragment() {
 
         binding.apply {
             composeAboutPage.setContent {
-                androidx.compose.material3.MaterialTheme {
+                CellsTheme {
                     AboutPage(onUriClick = onUriClick, onEmailClick = onEmailClick)
                 }
             }
@@ -100,8 +101,6 @@ private fun AboutPage(
     onEmailClick: () -> Unit,
 ) {
     val data = ClientData.getInstance()
-
-    // TODO font style were rather Material3: TitleSmall & BodyLarge
 
     Column(
         modifier = Modifier
@@ -264,7 +263,7 @@ private fun TroubleShootingCard(
 @Preview
 @Composable
 private fun AboutPagePreview() {
-    androidx.compose.material3.MaterialTheme {
+    CellsTheme {
         AboutPage({}, {})
     }
 }
@@ -272,7 +271,7 @@ private fun AboutPagePreview() {
 @Preview
 @Composable
 private fun VersionCardPreview() {
-    androidx.compose.material3.MaterialTheme {
+    CellsTheme {
         VersionCard(
             "3.0.4", "131", "11 Jan 2023", {}
         )
@@ -282,7 +281,7 @@ private fun VersionCardPreview() {
 @Preview
 @Composable
 private fun TroubleShootingCardPreview() {
-    androidx.compose.material3.MaterialTheme {
+    CellsTheme {
         TroubleShootingCard(
             "If you cannot get this application to work correctly....",
             "Contact Pydio Support",

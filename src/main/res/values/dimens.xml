@@ -43,6 +43,7 @@
     <!-- For rounded corners (in dp) -->
     <dimen name="glide_thumb_radius">4dp</dimen>
     <!-- List Items -->
+    <dimen name="list_item_elevation">2dp</dimen>
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_more_size">32dp</dimen>
     <dimen name="grid_icon_size">48dp</dimen>
