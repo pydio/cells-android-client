@@ -112,7 +112,6 @@ private fun JobList(
     jobs: List<RJob>?,
     modifier: Modifier = Modifier
 ) {
-//    Box(modifier) {
     LazyColumn(Modifier.fillMaxWidth()) {
         items(jobs ?: listOf()) { job ->
             val jobTitle = "#${job.jobId}: ${job.label}"
@@ -123,26 +122,6 @@ private fun JobList(
                 progress = jobProgress,
                 modifier = modifier
             )
-        }
-//        }
-    }
-}
-
-@Composable
-private fun JobList2(
-    jobs: List<RJob>,
-) {
-    Box() {
-        Column(Modifier.fillMaxWidth()) {
-            jobs.forEach { job ->
-                val jobTitle = "#${job.jobId}: ${job.label}"
-                val jobProgress = (job.progress * 100).toFloat().div(job.total)
-                JobListItem(
-                    title = jobTitle,
-                    status = getJobStatus(job),
-                    progress = jobProgress,
-                )
-            }
         }
     }
 }
@@ -197,6 +176,7 @@ private fun JobListItem(
     modifier: Modifier = Modifier
 ) {
     // TODO add rounded corner on the top right
+    // TODO the progress bar part does not appear / disappear when needed.
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_item_elevation),
         modifier = modifier
