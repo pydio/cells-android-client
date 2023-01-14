@@ -71,7 +71,7 @@ fun ProgressBar.setJobProgress(item: RJob?) {
         if (it.total < 1) {
             return
         }
-        val percentage = (it.progress * 100) / it.total
+        val percentage = (it.progress * 100).div(it.total)
         // Log.e("Updating Progress", "New values: ${it.progress} - ${it.byteSize} - $percentage")
         progress = percentage.toInt()
     }

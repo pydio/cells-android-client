@@ -25,7 +25,6 @@ public interface AppKeys {
     String SYNC_CONST_ON_BATT_NOT_LOW = "sync_on_batt_not_low";
     String SYNC_CONST_ON_IDLE = "sync_on_idle";
 
-
     // Monitoring
     String TRANSFER_SORT_BY = "transfer_sort_by";
     String TRANSFER_FILTER_BY_STATUS = "transfer_filter_by_status";
