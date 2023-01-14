@@ -1,14 +1,12 @@
 package com.pydio.android.cells.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -47,7 +45,7 @@ import java.util.*
 
 class JobListFragment : Fragment() {
 
-    private val logTag = JobListFragment::class.java.simpleName
+    //private val logTag = JobListFragment::class.java.simpleName
     private val jobVM: JobListViewModel by viewModel()
     private lateinit var binding: FragmentJobListBinding
 
@@ -55,11 +53,9 @@ class JobListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_job_list, container, false
         )
-
         binding.apply {
             composeJobList.setContent {
                 val jobs by jobVM.jobs.observeAsState()
@@ -68,15 +64,7 @@ class JobListFragment : Fragment() {
                 }
             }
         }
-
-//        binding.jobList.layoutManager = LinearLayoutManager(requireActivity())
-//        val adapter = JobListAdapter(this::onClicked)
-//        binding.jobList.adapter = adapter
-//        jobVM.jobs.observe(viewLifecycleOwner) {
-//            adapter.submitList(it)
-//        }
-//        setupMenu()
-
+        setupMenu()
         return binding.root
     }
 
@@ -89,21 +77,17 @@ class JobListFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
+                return when (menuItem.itemId) {
                     R.id.clear_table -> {
                         lifecycleScope.launch(Dispatchers.IO) {
                             jobVM.jobService.clearTerminated()
                         }
-                        return true
+                        true
                     }
-                    else -> return false
+                    else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
-
-    private fun onClicked(node: RJob, command: String) {
-        Log.d(logTag, "Clicked on ${node.jobId} -> $command")
     }
 }
 

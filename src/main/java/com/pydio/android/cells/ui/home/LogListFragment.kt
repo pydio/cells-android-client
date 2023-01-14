@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -41,7 +40,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LogListFragment : Fragment() {
 
-    private val logTag = LogListFragment::class.java.simpleName
+    // private val logTag = LogListFragment::class.java.simpleName
     private val logListVM: LogListViewModel by viewModel()
     private lateinit var binding: FragmentLogListBinding
 
@@ -49,11 +48,9 @@ class LogListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_log_list, container, false
         )
-
         binding.apply {
             composeLogList.setContent {
                 val logs by logListVM.logs.observeAsState()
@@ -62,15 +59,7 @@ class LogListFragment : Fragment() {
                 }
             }
         }
-
-//        binding.logList.layoutManager = LinearLayoutManager(activity)
-//        val adapter = LogListAdapter(this::onClicked)
-//        binding.logList.adapter = adapter
-//        logListVM.logs.observe(viewLifecycleOwner) {
-//            adapter.submitList(it)
-//        }
-//        setupMenu()
-
+        setupMenu()
         return binding.root
     }
 
@@ -84,35 +73,18 @@ class LogListFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
+                return when (menuItem.itemId) {
                     R.id.clear_table -> {
                         lifecycleScope.launch(Dispatchers.IO) {
                             logListVM.jobService.clearAllLogs()
                         }
-                        return true
+                        true
                     }
-                    else -> return false
+                    else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
-
-
-    private fun onClicked(node: RLog, command: String) {
-        Log.i(logTag, "Clicked on ${node.logId} -> $command")
-//        when (command) {
-//            // AppNames.ACTION_OPEN -> navigateTo(node)
-//            AppNames.ACTION_MORE -> {
-//                val action = TransferListFragmentDirections.openTransferMenu(
-//                    node.encodedState,
-//                    node.transferId
-//                )
-//                findNavController().navigate(action)
-//            }
-//            else -> return // do nothing
-//        }
-    }
-
 }
 
 @Composable
