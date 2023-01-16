@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.home
 
 import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -260,7 +261,12 @@ private fun TroubleShootingCard(
     }
 }
 
-@Preview
+@Preview(name = "Light Mode")
+@Preview(
+    uiMode = UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "Dark Mode"
+)
 @Composable
 private fun AboutPagePreview() {
     CellsTheme {

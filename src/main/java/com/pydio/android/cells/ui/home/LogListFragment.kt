@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentLogListBinding
 import com.pydio.android.cells.db.runtime.RLog
@@ -96,6 +98,7 @@ private fun LogList(
         items(logs ?: listOf()) { log ->
             LogListItem(
                 title = getTitle(log),
+                level = log.getLevelString(),
                 message = log.message ?: "",
                 modifier = modifier
             )
@@ -106,11 +109,26 @@ private fun LogList(
 @Composable
 private fun LogListItem(
     title: String,
+    level: String,
     message: String,
     modifier: Modifier = Modifier
 ) {
-    // TODO add rounded corner on the top right
-    // TODO the progress bar part does not appear / disappear when needed.
+    // TODO add rounded corners
+    // TODO add alpha
+    val bgColor = when (level) {
+        AppNames.ERROR -> MaterialTheme.colorScheme.error
+        AppNames.WARNING -> MaterialTheme.colorScheme.primary
+        AppNames.DEBUG -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.secondary
+    }
+
+//            when (item.level) {
+//                1, 2 -> setTextColor(resources.getColor(R.color.danger, context.theme))
+//                3 -> setTextColor(resources.getColor(R.color.colorAccent, context.theme))
+//                4 -> setTextColor(resources.getColor(R.color.ok, context.theme))
+//                else -> setTextColor(resources.getColor(R.color.material_neutral, context.theme))
+//            }
+
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_item_elevation),
         modifier = modifier
@@ -120,6 +138,7 @@ private fun LogListItem(
     ) {
         Column(
             modifier = modifier
+                .background(color = bgColor)
                 .padding(
                     horizontal = dimensionResource(R.dimen.card_padding),
                     vertical = dimensionResource(R.dimen.margin_xsmall)
@@ -142,10 +161,9 @@ private fun LogListItem(
 private fun LogListItemPreview(
 ) {
     CellsTheme {
-        LogListItem("title", "status", Modifier)
+        LogListItem("title", AppNames.ERROR, "status", Modifier)
     }
 }
-
 
 //@Composable
 //private fun LogTitle(item: RLog?) {
@@ -153,14 +171,4 @@ private fun getTitle(item: RLog): String {
     val ts = timestampToString(item.timestamp, "dd-MM HH:mm:ss")
     val level = item.getLevelString()
     return "[$level] $ts - Job #${item.callerId}"
-
-    // TODO
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            when (item.level) {
-//                1, 2 -> setTextColor(resources.getColor(R.color.danger, context.theme))
-//                3 -> setTextColor(resources.getColor(R.color.colorAccent, context.theme))
-//                4 -> setTextColor(resources.getColor(R.color.ok, context.theme))
-//                else -> setTextColor(resources.getColor(R.color.material_neutral, context.theme))
-//            }
-//        }
 }

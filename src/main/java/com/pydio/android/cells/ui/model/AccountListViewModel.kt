@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.account
+package com.pydio.android.cells.ui.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData

@@ -7,7 +7,6 @@ import com.pydio.android.cells.db.auth.AuthDB
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.account.AccountListViewModel
 import com.pydio.android.cells.ui.auth.OAuthViewModel
 import com.pydio.android.cells.ui.auth.P8CredViewModel
 import com.pydio.android.cells.ui.auth.ServerUrlViewModel
@@ -18,6 +17,8 @@ import com.pydio.android.cells.ui.home.JobListViewModel
 import com.pydio.android.cells.ui.home.LogListViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
+import com.pydio.android.cells.ui.model.AccountListViewModel
+import com.pydio.android.cells.ui.model.SelectTargetViewModel
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transfer.PickFolderViewModel
@@ -160,6 +161,7 @@ val viewModelModule = module {
     viewModel { LogListViewModel(get()) }
 
     viewModel { ChooseTargetViewModel(get()) }
+    viewModel { SelectTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
 
