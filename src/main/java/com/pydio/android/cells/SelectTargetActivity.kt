@@ -1,26 +1,18 @@
 package com.pydio.android.cells
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.browse.FolderList
-import com.pydio.android.cells.ui.box.browse.SessionList
+import com.pydio.android.cells.ui.box.SelectTargetApp
+import com.pydio.android.cells.ui.box.TargetSelectionHost
 import com.pydio.android.cells.ui.model.AccountListViewModel
+import com.pydio.android.cells.ui.model.BrowseLocal
+import com.pydio.android.cells.ui.model.BrowseRemote
 import com.pydio.android.cells.ui.model.SelectTargetViewModel
-import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.transfer.PickFolderViewModel
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -34,6 +26,12 @@ sealed class SelectTargetDestination(val route: String) {
     }
 
     object CreateFolder : SelectTargetDestination("create-folder")
+
+    // Login
+    // Logout ?
+    // Cancel
+    // OK
+    // Up
 }
 
 /**
@@ -49,74 +47,38 @@ class SelectTargetActivity : ComponentActivity() {
         Log.d(logTag, "onCreate: launching target selection process")
         super.onCreate(savedInstanceState)
         setContent {
-            CellsTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val navController = rememberNavController()
 
-                    val selectTargetViewModel by viewModel<SelectTargetViewModel>()
-                    val accountListVM by viewModel<AccountListViewModel>()
-                    val pickFolderVM by viewModel<PickFolderViewModel>()
+            SelectTargetApp {
 
-                    TargetSelectionHost(
-                        navController,
-                        selectTargetViewModel,
-                        accountListVM,
-                        pickFolderVM
-                    )
+                val navController = rememberNavController()
+
+                val cancel: () -> Unit = { finishAndRemoveTask() }
+                val post: (intent: Intent) -> Unit = {
+                    setResult(Activity.RESULT_OK, it)
+                    finishAndRemoveTask()
                 }
-            }
-        }
-    }
-}
 
-@Composable
-fun TargetSelectionHost(
-    navController: NavHostController,
-    selectTargetVM: SelectTargetViewModel,
-    accountListVM: AccountListViewModel,
-    pickFolderVM: PickFolderViewModel,
-) {
-    val ctx = LocalContext.current
-    NavHost(
-        navController = navController,
-        startDestination = SelectTargetDestination.ChooseAccount.route
-    ) {
+                val browseRemoteVM by viewModel<BrowseRemote>()
+                val browseLocalVM by viewModel<BrowseLocal>()
 
-        val modifier = Modifier
-        val open: (stateId: StateID) -> Unit = { stateId ->
-            navController.navigate(SelectTargetDestination.OpenFolder.createRoute(stateId))
-        }
+                val selectTargetViewModel by viewModel<SelectTargetViewModel>()
+                val accountListVM by viewModel<AccountListViewModel>()
 
-        val openParent: (stateId: StateID) -> Unit = { stateId ->
-            if (stateId.isWorkspaceRoot) {
-                navController.navigate(SelectTargetDestination.ChooseAccount.route)
-            } else {
-                val parent = stateId.parent()
-                navController.navigate(SelectTargetDestination.OpenFolder.createRoute(parent))
-            }
-        }
+                // Current StateID
+                // FlowOf LiveData for this state id
+                // Background worker that regularly triggers remote fetch of data
+                //    - with backoff
+                //    - with cancel (?)
+                //    - with reset backoff <=> force flag
 
-        val login: (stateId: StateID) -> Unit = { stateId -> Log.e("TEST", "Login to $stateId") }
-
-        composable(SelectTargetDestination.ChooseAccount.route) {
-            SessionList(accountListVM, open, login, modifier)
-        }
-        composable(SelectTargetDestination.OpenFolder.route) { navBackStackEntry ->
-            val stateId =
-                navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
-            if (stateId == null) {
-                Toast.makeText(ctx, "no element id", Toast.LENGTH_LONG).show()
-            } else {
-                FolderList(
-                    StateID.fromId(stateId),
-                    selectTargetVM,
-                    pickFolderVM,
-                    open,
-                    openParent,
-                    modifier,
+                TargetSelectionHost(
+                    navController,
+                    browseLocalVM,
+                    browseRemoteVM,
+                    selectTargetViewModel,
+                    accountListVM,
+                    post,
+                    cancel
                 )
             }
         }

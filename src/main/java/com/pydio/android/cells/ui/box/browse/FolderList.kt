@@ -1,9 +1,11 @@
 package com.pydio.android.cells.ui.box.browse
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,48 +22,123 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
-import com.pydio.android.cells.ui.model.SelectTargetViewModel
+import com.pydio.android.cells.ui.model.BrowseLocal
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.transfer.PickFolderViewModel
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
+private val logTag = "FolderList.kt"
+
 @Composable
 fun FolderList(
-    stateID: StateID,
-    selectTargetVM: SelectTargetViewModel,
-    pickFolderVM: PickFolderViewModel,
+    stateId: String,
+    isLoading: Boolean,
+    browseLocalVM: BrowseLocal,
     openFolder: (stateID: StateID) -> Unit,
     openParentDestination: (stateID: StateID) -> Unit,
+    // still to see where to hoist what for these 2 callbacks.
+    postActivity: (i: Intent) -> Unit,
+    cancelActivity: () -> Unit,
     modifier: Modifier,
 ) {
 
+    val currState by rememberSaveable {
+        mutableStateOf(stateId)
+    }
+    browseLocalVM.afterCreate(StateID.fromId(currState))
+    val childNodes by browseLocalVM.childNodes.observeAsState()
+
+    FolderList(
+        stateId = stateId,
+        children = childNodes ?: listOf(),
+        isLoading = isLoading,
+        openFolder = openFolder,
+        openParentDestination = openParentDestination,
+        postActivity = postActivity,
+        cancelActivity = cancelActivity,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun FolderList(
+    stateId: String,
+    children: List<RTreeNode>,
+    isLoading: Boolean,
+    // pickFolderVM: PickFolderViewModel,
+    openFolder: (stateID: StateID) -> Unit,
+    openParentDestination: (stateID: StateID) -> Unit,
+    // still to see where to hoist what for these 2 callbacks.
+    postActivity: (i: Intent) -> Unit,
+    cancelActivity: () -> Unit,
+    modifier: Modifier,
+) {
+
+
     val ctx = LocalContext.current
-    pickFolderVM.afterCreate(stateID)
-    val children by pickFolderVM.children.observeAsState()
+
+    // This does not work yet: after create is always called and every thing recomposed
+    // even when the stateID is unchanged.
+    val currState by remember {
+        derivedStateOf {
+            Log.d(logTag, "Calculing")
+            StateID.fromId(stateId).id
+        }
+
+    }
+
+    // SPEC:
+
+    // ViewModel correctly scoped with injected services and:
+    // - MutableStateOf StateID
+    // - FlowOf LiveData for this state id
+    // - Background worker that regularly triggers remote fetch of data
+    //    - with backoff
+    //    - with cancel (?)
+    //    - with reset backoff <=> force flag
+
+    val open: (stateID: StateID) -> Unit = {
+        // TODO VM Set stateID
+        // vm.setStateID(stateID)
+        openFolder(it)
+    }
+
+    val post: (intent: Intent) -> Unit = {
+        postActivity(it)
+    }
 
     LazyColumn(Modifier.fillMaxWidth()) {
-        items(children ?: listOf()) { oneChild ->
+        item {
+            ParentListItem(modifier.clickable {
+                openParentDestination(StateID.fromId(currState))
+            })
+        }
+        items(children) { oneChild ->
             SelectTargetListItem(
                 title = getTargetTitle(oneChild.name, oneChild.mime),
                 desc = getTargetDesc(ctx, oneChild),
@@ -70,14 +147,31 @@ fun FolderList(
                 }
             )
         }
+        if (isLoading) {
+            item {
+                CircularProgressIndicator(
+                    modifier
+                        .fillMaxWidth()
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            }
+        }
     }
 }
 
 
+//private class StateIdSaver : Saver<StateID, String> {
+//    override fun SaverScope.save(value: StateID): String? {
+//        return value.id
+//    }
+//
+//    override fun restore(value: String): StateID? {
+//        return StateID.fromId(value)
+//    }
+//}
+
 @Composable
-private fun SelectTargetListItem(
-    title: String,
-    desc: String,
+private fun ParentListItem(
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -98,7 +192,65 @@ private fun SelectTargetListItem(
                     .background(MaterialTheme.colorScheme.error)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_baseline_person_24),
+                    painter = painterResource(R.drawable.ic_baseline_arrow_back_ios_new_24),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .size(48.dp)
+                        .size(dimensionResource(R.dimen.list_thumb_size))
+                        //.clip(CircleShape)
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
+
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.card_padding),
+                        vertical = dimensionResource(R.dimen.margin_xsmall)
+                    )
+                    .wrapContentWidth(Alignment.Start)
+            ) {
+                Text(
+                    text = "..",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = stringResource(R.string.parent_folder),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectTargetListItem(
+    title: String,
+    desc: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = dimensionResource(R.dimen.card_padding))
+            .wrapContentWidth(Alignment.CenterHorizontally)
+    ) {
+
+        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Surface(
+                tonalElevation = dimensionResource(R.dimen.list_item_elevation),
+                modifier = Modifier
+                    .size(40.dp)
+                    // .size(dimensionResource(R.dimen.list_thumb_size))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.file_folder_outline),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -107,15 +259,15 @@ private fun SelectTargetListItem(
                         //.clip(CircleShape)
                         .wrapContentSize(Alignment.Center)
                 )
-                Image(
-                    painter = painterResource(R.drawable.ic_baseline_check_24),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color.Green),
-                    modifier = Modifier // .fillMaxSize()
-                        //.size(dimensionResource(R.dimen.list_thumb_decorator_size))
-                        .size(12.dp)
-                        .wrapContentSize(Alignment.BottomEnd)
-                )
+//                Image(
+//                    painter = painterResource(R.drawable.ic_baseline_check_24),
+//                    contentDescription = null,
+//                    colorFilter = ColorFilter.tint(Color.Green),
+//                    modifier = Modifier // .fillMaxSize()
+//                        //.size(dimensionResource(R.dimen.list_thumb_decorator_size))
+//                        .size(12.dp)
+//                        .wrapContentSize(Alignment.BottomEnd)
+//                )
             }
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))

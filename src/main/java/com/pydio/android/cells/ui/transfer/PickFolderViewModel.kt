@@ -4,6 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
@@ -12,10 +16,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
 
 /**
@@ -58,6 +58,15 @@ class PickFolderViewModel(
     }
 
     fun afterCreate(stateID: StateID) {
+        Log.d(logTag, "After Create, state ID: $stateID")
+
+        // Cannot work: first time we pass here, the late-init prop is not yet initialized
+        //        if (stateID != null && stateID.equals(_stateID)){
+        //            // Nothing to do
+        //            Log.d(logTag, "After create, state unchanged: $stateID")
+        //            return
+        //        }
+
         _stateID = stateID
         _children = nodeService.listChildFolders(stateID)
     }
@@ -67,7 +76,7 @@ class PickFolderViewModel(
             doPull()
             val nd = backOffTicker.getNextDelay()
             delay(TimeUnit.SECONDS.toMillis(nd))
-            Log.d(logTag, "... Watching folders at $stateID, next delay: ${nd}s")
+            Log.d(logTag, "... Watching folders at ${_stateID.toString()}, next delay: ${nd}s")
         }
     }
 
@@ -122,6 +131,10 @@ class PickFolderViewModel(
     }
 
     fun pause() {
+        if (_isActive) {
+            Log.d(logTag, "... real pause called by")
+            Thread.dumpStack()
+        }
         _isActive = false
     }
 

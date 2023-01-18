@@ -110,7 +110,7 @@ class PickFolderFragment : Fragment() {
         Log.d(logTag, "onResume: ${pickFolderVM.stateID}")
         super.onResume()
         chooseTargetVM.setCurrentState(pickFolderVM.stateID)
-        pickFolderVM.resume()
+//         pickFolderVM.resume()
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(false)

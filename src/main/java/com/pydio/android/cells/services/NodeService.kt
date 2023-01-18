@@ -104,19 +104,22 @@ class NodeService(
     }
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
-        // Tweak to also be able to list workspaces roots
-        var parPath = stateID.file
-        var mime = SdkNames.NODE_MIME_FOLDER
-        if (Str.empty(parPath)) {
-            parPath = ""
-            mime = SdkNames.NODE_MIME_WS_ROOT
-        } else if (parPath == "/") {
-            Log.e(
-                logTag,
-                "unimplemented tweak. Is it OK?  $stateID: parPath: $parPath, mime: $mime"
-            )
-        }
-        Log.d(logTag, "Listing children of $stateID: parPath: $parPath, mime: $mime")
+        // We use the file param (that includes WS) to be able to also list workspaces roots
+        var parPath = stateID.file ?: "" // initialise with an empty String when null for queries
+
+        var mime = if (Str.notEmpty(parPath))
+            SdkNames.NODE_MIME_FOLDER
+        else
+            SdkNames.NODE_MIME_WS_ROOT
+//        if (parPath == "/") {
+//            Log.e(
+//                logTag,
+//                "unimplemented tweak. Is it OK?  $stateID: parPath: $parPath, mime: $mime"
+//            )
+//        }
+        Log.d(logTag, "Listing child folders for $stateID. parPath: [$parPath], mime: $mime")
+//        Log.d(logTag, "Called by:")
+//        Thread.dumpStack()
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
