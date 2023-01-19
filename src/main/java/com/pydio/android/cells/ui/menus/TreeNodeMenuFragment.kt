@@ -36,7 +36,7 @@ import com.pydio.android.cells.tasks.moveNodes
 import com.pydio.android.cells.tasks.moveNodesToRecycle
 import com.pydio.android.cells.tasks.moveToRecycle
 import com.pydio.android.cells.tasks.rename
-import com.pydio.android.cells.transfer.ChooseTargetContract
+import com.pydio.android.cells.tasks.contracts.SelectTargetContract
 import com.pydio.android.cells.transfer.FileExporter
 import com.pydio.android.cells.transfer.FileImporter
 import com.pydio.android.cells.ui.ActiveSessionViewModel
@@ -115,14 +115,14 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private lateinit var fileImporter: FileImporter
     private lateinit var fileExporter: FileExporter
 
-    private var launchCopy = registerForActivityResult(ChooseTargetContract()) {
+    private var launchCopy = registerForActivityResult(SelectTargetContract()) {
         it?.let {
             dismiss() // close the "more" menu
             copyNodes(requireContext(), treeNodeMenuVM.stateIDs, it, nodeService)
         }
     }
 
-    private var launchMove = registerForActivityResult(ChooseTargetContract()) {
+    private var launchMove = registerForActivityResult(SelectTargetContract()) {
         it?.let {
             dismiss()
             moveNodes(requireContext(), treeNodeMenuVM.stateIDs, it, nodeService)

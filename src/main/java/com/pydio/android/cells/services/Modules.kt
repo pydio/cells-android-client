@@ -18,7 +18,7 @@ import com.pydio.android.cells.ui.home.LogListViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.model.AccountListViewModel
-import com.pydio.android.cells.ui.model.BrowseLocal
+import com.pydio.android.cells.ui.model.BrowseLocalFolders
 import com.pydio.android.cells.ui.model.BrowseRemote
 import com.pydio.android.cells.ui.model.SelectTargetViewModel
 import com.pydio.android.cells.ui.search.SearchViewModel
@@ -162,7 +162,7 @@ val viewModelModule = module {
     viewModel { JobListViewModel(get()) }
     viewModel { LogListViewModel(get()) }
 
-    viewModel { BrowseLocal(get()) }
+    viewModel { BrowseLocalFolders(get()) }
     viewModel { BrowseRemote(get(), get()) }
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { SelectTargetViewModel(get()) }

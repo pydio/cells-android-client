@@ -13,7 +13,7 @@ fun SessionList(
     accountListVM: AccountListViewModel,
     openAccount: (stateID: StateID) -> Unit,
     login: (stateID: StateID) -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     val accounts by accountListVM.sessions.observeAsState()
     AccountList(accounts, openAccount, login, modifier)

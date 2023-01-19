@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.box.browse
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.text.format.DateUtils
 import android.text.format.Formatter
@@ -9,6 +8,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +22,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,37 +48,38 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
-import com.pydio.android.cells.ui.model.BrowseLocal
+import com.pydio.android.cells.ui.model.BrowseLocalFolders
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private val logTag = "FolderList.kt"
+private const val logTag = "FolderList.kt"
 
 @Composable
 fun FolderList(
+    action: String,
     stateId: String,
     isLoading: Boolean,
-    browseLocalVM: BrowseLocal,
-    openFolder: (stateID: StateID) -> Unit,
-    openParentDestination: (stateID: StateID) -> Unit,
-    // still to see where to hoist what for these 2 callbacks.
-    postActivity: (i: Intent) -> Unit,
+    browseLocalVM: BrowseLocalFolders,
+    openFolder: (StateID) -> Unit,
+    openParentDestination: (StateID) -> Unit,
+    postActivity: (StateID) -> Unit,
     cancelActivity: () -> Unit,
-    modifier: Modifier,
 ) {
 
     val currState by rememberSaveable {
         mutableStateOf(stateId)
     }
-    browseLocalVM.afterCreate(StateID.fromId(currState))
+    browseLocalVM.setState(StateID.fromId(currState))
     val childNodes by browseLocalVM.childNodes.observeAsState()
 
     FolderList(
+        action = action,
         stateId = stateId,
         children = childNodes ?: listOf(),
         isLoading = isLoading,
@@ -81,24 +87,21 @@ fun FolderList(
         openParentDestination = openParentDestination,
         postActivity = postActivity,
         cancelActivity = cancelActivity,
-        modifier = modifier
     )
 }
 
 @Composable
 fun FolderList(
+    action: String,
     stateId: String,
     children: List<RTreeNode>,
     isLoading: Boolean,
     // pickFolderVM: PickFolderViewModel,
-    openFolder: (stateID: StateID) -> Unit,
-    openParentDestination: (stateID: StateID) -> Unit,
-    // still to see where to hoist what for these 2 callbacks.
-    postActivity: (i: Intent) -> Unit,
+    openFolder: (StateID) -> Unit,
+    openParentDestination: (StateID) -> Unit,
+    postActivity: (StateID) -> Unit,
     cancelActivity: () -> Unit,
-    modifier: Modifier,
 ) {
-
 
     val ctx = LocalContext.current
 
@@ -109,7 +112,6 @@ fun FolderList(
             Log.d(logTag, "Calculing")
             StateID.fromId(stateId).id
         }
-
     }
 
     // SPEC:
@@ -128,32 +130,50 @@ fun FolderList(
         openFolder(it)
     }
 
-    val post: (intent: Intent) -> Unit = {
+    val post: (StateID) -> Unit = {
         postActivity(it)
     }
 
-    LazyColumn(Modifier.fillMaxWidth()) {
-        item {
-            ParentListItem(modifier.clickable {
-                openParentDestination(StateID.fromId(currState))
-            })
-        }
-        items(children) { oneChild ->
-            SelectTargetListItem(
-                title = getTargetTitle(oneChild.name, oneChild.mime),
-                desc = getTargetDesc(ctx, oneChild),
-                modifier = modifier.clickable {
-                    openFolder(StateID.fromId(oneChild.encodedState))
+    Column {
+        TableHeader(
+            action,
+            StateID.fromId(currState),
+            postActivity,
+            cancelActivity,
+            Modifier.fillMaxWidth()
+        )
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxWidth()) {
+                item {
+                    ParentListItem(
+                        StateID.fromId(currState),
+                        Modifier.clickable {
+                            openParentDestination(StateID.fromId(currState))
+                        })
                 }
-            )
-        }
-        if (isLoading) {
-            item {
-                CircularProgressIndicator(
-                    modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
+                items(children) { oneChild ->
+                    SelectTargetListItem(
+                        title = getTargetTitle(oneChild.name, oneChild.mime),
+                        desc = getTargetDesc(ctx, oneChild),
+                        modifier = Modifier.clickable {
+                            openFolder(StateID.fromId(oneChild.encodedState))
+                        }
+                    )
+                }
+            }
+            if (isLoading) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(Alignment.BottomCenter)
+                ) {
+                    CircularProgressIndicator(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensionResource(R.dimen.margin_medium))
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
     }
@@ -171,7 +191,63 @@ fun FolderList(
 //}
 
 @Composable
+private fun TableHeader(
+    action: String,
+    stateId: StateID,
+    onSelect: (StateID) -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier
+) {
+
+    val title = when (action) {
+        AppNames.ACTION_UPLOAD -> stringResource(R.string.choose_target_for_share_title)
+        AppNames.ACTION_COPY -> stringResource(R.string.choose_target_for_copy_title)
+        AppNames.ACTION_MOVE -> stringResource(R.string.choose_target_for_move_title)
+        else -> stringResource(R.string.choose_target_subtitle)
+    }
+    // TODO configure ellipsize from start (or middle?) rather than from the end
+    val subTitle = stateId.path ?: "${stateId.username}@${stateId.serverHost}"
+
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.margin_small),
+                    vertical = 0.dp
+                )
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = subTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+            IconButton(
+                onClick = { onSelect(stateId) },
+                enabled = Str.notEmpty(stateId.path)
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = "Select this target")
+            }
+            IconButton(onClick = onClose) {
+                Icon(Icons.Filled.Close, contentDescription = "Cancel activity")
+            }
+        }
+    }
+}
+
+@Composable
 private fun ParentListItem(
+    stateID: StateID,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -181,6 +257,13 @@ private fun ParentListItem(
             .padding(all = dimensionResource(R.dimen.card_padding))
             .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
+
+        val parentDescription = when {
+            Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
+            Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+            else -> stringResource(R.string.parent_folder)
+        }
+
 
         Row(modifier = Modifier.padding(all = 8.dp)) {
 
@@ -208,21 +291,22 @@ private fun ParentListItem(
 
             Column(
                 modifier = modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(
                         horizontal = dimensionResource(R.dimen.card_padding),
                         vertical = dimensionResource(R.dimen.margin_xsmall)
                     )
-                    .wrapContentWidth(Alignment.Start)
+                    .wrapContentSize(Alignment.CenterStart)
             ) {
                 Text(
                     text = "..",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = stringResource(R.string.parent_folder),
+                    text = parentDescription,
                     style = MaterialTheme.typography.bodySmall,
                 )
+
             }
         }
     }
@@ -324,6 +408,24 @@ private fun getTargetDesc(
     return "$mTimeValue • $sizeValue"
 }
 
+@Preview(name = "Light Mode")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "Dark Mode"
+)
+@Composable
+private fun TableHeaderPreview() {
+    CellsTheme {
+        TableHeader(
+            AppNames.ACTION_UPLOAD,
+            StateID("jack", "http://example.com", "/all-files/dummy"),
+            { },
+            { },
+            Modifier.fillMaxWidth()
+        )
+    }
+}
 
 @Preview(name = "Light Mode")
 @Preview(
@@ -332,8 +434,7 @@ private fun getTargetDesc(
     name = "Dark Mode"
 )
 @Composable
-private fun AccountListItemPreview(
-) {
+private fun AccountListItemPreview() {
     CellsTheme {
         SelectTargetListItem("WS on encrypted", "29 October 2020 • 81 MB", Modifier)
     }
