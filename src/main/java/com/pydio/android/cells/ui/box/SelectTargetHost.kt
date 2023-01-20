@@ -11,8 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.pydio.android.cells.SelectTargetDestination
-import com.pydio.android.cells.ui.box.browse.FolderList
+import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
 import com.pydio.android.cells.ui.model.AccountListViewModel
 import com.pydio.android.cells.ui.model.BrowseLocalFolders
@@ -22,10 +21,28 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "SelectTargetApp.kt"
+private const val logTag = "SelectTargetHost.kt"
+
+sealed class SelectTargetDestination(val route: String) {
+
+    object ChooseAccount : SelectTargetDestination("choose-account")
+
+    object OpenFolder : SelectTargetDestination("open/{stateId}") {
+        fun createRoute(stateId: StateID) = "open/${stateId.id}"
+        fun getPathKey() = "stateId"
+    }
+
+    // TODO
+    // Login
+    // Logout ?
+    // Up
+    // TODO add a route that display the newly launched uploads with a "run in background option"
+    // TODO add safety checks to prevent forbidden copy-move
+}
+
 
 @Composable
-fun TargetSelectionHost(
+fun SelectTargetHost(
     navController: NavHostController,
     action: String,
     initialStateId: String,
@@ -34,6 +51,7 @@ fun TargetSelectionHost(
     accountListVM: AccountListViewModel,
     postActivity: (stateID: StateID) -> Unit,
     cancelActivity: () -> Unit,
+    createFolder: (StateID) -> Unit,
 ) {
 
     val currLoadingState by browseRemoteVM.isLoading.observeAsState()
@@ -65,6 +83,8 @@ fun TargetSelectionHost(
 
     val login: (stateId: StateID) -> Unit = { stateId -> Log.e("TEST", "Login to $stateId") }
 
+    val forceRefresh: (stateId: StateID) -> Unit = { browseRemoteVM.watch(it) }
+
     var startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
         SelectTargetDestination.OpenFolder.route
     } else {
@@ -84,7 +104,7 @@ fun TargetSelectionHost(
             var stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
                     ?: initialStateId
-            FolderList(
+            SelectFolderScreen(
                 action,
                 stateId,
                 currLoadingState ?: true,
@@ -92,7 +112,9 @@ fun TargetSelectionHost(
                 open,
                 openParent,
                 postActivity,
-                cancelActivity
+                cancelActivity,
+                createFolder,
+                forceRefresh,
             )
         }
     }

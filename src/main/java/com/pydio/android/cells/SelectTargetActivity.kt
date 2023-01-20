@@ -12,9 +12,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.ui.box.SelectTargetApp
-import com.pydio.android.cells.ui.box.TargetSelectionHost
+import com.pydio.android.cells.ui.box.SelectTargetHost
 import com.pydio.android.cells.ui.model.AccountListViewModel
 import com.pydio.android.cells.ui.model.BrowseLocalFolders
 import com.pydio.android.cells.ui.model.BrowseRemote
@@ -22,35 +24,6 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
-sealed class SelectTargetDestination(val route: String) {
-
-    object ChooseAccount : SelectTargetDestination("choose-account")
-
-    object OpenFolder : SelectTargetDestination("open/{stateId}") {
-        fun createRoute(stateId: StateID) = "open/${stateId.id}"
-        fun getPathKey() = "stateId"
-    }
-
-    // TODO
-    object CreateFolder : SelectTargetDestination("create-folder")
-
-    // TODO
-    // Login
-    // Logout ?
-    // Up
-
-    // TODO add a route that display the newly launched uploads with a "run in background option"
-
-    // TODO also add a "swap to refresh" mechanism
-
-    // TODO limit up action when we are not in "share" context
-
-    // TODO Implement copy move between workspace of a same remote server
-
-    // TODO add safety checks to prevent forbidden copy-move
-
-}
 
 /**
  * Let the end-user choose a target in one of the defined remote servers.
@@ -62,6 +35,7 @@ class SelectTargetActivity : ComponentActivity() {
     private val logTag = SelectTargetActivity::class.simpleName
 
     private val transferService: TransferService by inject()
+    private val nodeService: NodeService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching target selection process")
@@ -82,6 +56,7 @@ class SelectTargetActivity : ComponentActivity() {
 
                 val browseRemoteVM by viewModel<BrowseRemote>()
                 val browseLocalVM by viewModel<BrowseLocalFolders>()
+                val accountListVM by viewModel<AccountListViewModel>()
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE_ID)) {
                     val initialStateID = StateID.fromId(initialStateId)
@@ -89,11 +64,9 @@ class SelectTargetActivity : ComponentActivity() {
                     browseRemoteVM.watch(initialStateID)
                 }
 
-                val cancel: () -> Unit = { finishAndRemoveTask() }
-
                 val launchTaskFor: (stateID: StateID) -> Unit = { stateID ->
                     if (action == AppNames.ACTION_COPY || action == AppNames.ACTION_MOVE) {
-                        val intent = getIntent(ctx, action, stateID)
+                        val intent = createNextIntent(ctx, action, stateID)
                         setResult(Activity.RESULT_OK, intent)
                     } else if (action == AppNames.ACTION_UPLOAD) {
                         for (uri in uris) {
@@ -104,9 +77,11 @@ class SelectTargetActivity : ComponentActivity() {
                     finishAndRemoveTask()
                 }
 
-                val accountListVM by viewModel<AccountListViewModel>()
+                val createRemoteFolder: (StateID) -> Unit = { createFolder(ctx, it, nodeService) }
 
-                TargetSelectionHost(
+                val cancel: () -> Unit = { finishAndRemoveTask() }
+
+                SelectTargetHost(
                     navController,
                     action,
                     initialStateId,
@@ -114,7 +89,8 @@ class SelectTargetActivity : ComponentActivity() {
                     browseRemoteVM,
                     accountListVM,
                     launchTaskFor,
-                    cancel
+                    cancel,
+                    createRemoteFolder,
                 )
             }
         }
@@ -164,11 +140,10 @@ class SelectTargetActivity : ComponentActivity() {
         return Triple(actionContext, stateID, uris)
     }
 
-    // TODO refactor to rather use a sealed class
-    fun getIntent(context: Context, actionContext: String, stateID: StateID): Intent {
+    // TODO refactor action names to rather use a sealed class
+    private fun createNextIntent(context: Context, action: String, stateID: StateID): Intent {
         var intent = Intent()
-
-        when (actionContext) {
+        when (action) {
             AppNames.ACTION_COPY -> {
                 intent = Intent(context, MainActivity::class.java)
                 intent.action = AppNames.ACTION_CHOOSE_TARGET
@@ -179,24 +154,8 @@ class SelectTargetActivity : ComponentActivity() {
                 intent.action = AppNames.ACTION_CHOOSE_TARGET
                 intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
             }
-            AppNames.ACTION_UPLOAD -> {
-
-                // TODO re-implement this
-//                        for (uri in uris) {
-//                            // TODO implement error management
-//                            val error = transferService.enqueueUpload(stateID, uri)
-//                        }
-//                        withContext(Dispatchers.Main) {
-//                            _postDone.value = true
-//                        }
-            }
-            else -> Log.e(logTag, "Unexpected action context: $actionContext")
+            else -> Log.e(logTag, "Unexpected action: $action")
         }
-
         return intent
     }
-
-    // }
 }
-
-

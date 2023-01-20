@@ -54,7 +54,7 @@ class BrowseRemote(
         _isLoading.value = true
         pause()
         currWatcher?.cancel()
-        _stateID.setValue(newStateID)
+        _stateID.value = newStateID
         resume()
     }
 
