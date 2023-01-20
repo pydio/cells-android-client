@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
 import com.pydio.android.cells.ui.model.AccountListViewModel
@@ -35,11 +36,10 @@ sealed class SelectTargetDestination(val route: String) {
     // TODO
     // Login
     // Logout ?
-    // Up
+
     // TODO add a route that display the newly launched uploads with a "run in background option"
     // TODO add safety checks to prevent forbidden copy-move
 }
-
 
 @Composable
 fun SelectTargetHost(
@@ -49,9 +49,7 @@ fun SelectTargetHost(
     browseLocalVM: BrowseLocalFolders,
     browseRemoteVM: BrowseRemote,
     accountListVM: AccountListViewModel,
-    postActivity: (stateID: StateID) -> Unit,
-    cancelActivity: () -> Unit,
-    createFolder: (StateID) -> Unit,
+    postActivity: (stateID: StateID, action: String?) -> Unit,
 ) {
 
     val currLoadingState by browseRemoteVM.isLoading.observeAsState()
@@ -81,11 +79,9 @@ fun SelectTargetHost(
         }
     }
 
-    val login: (stateId: StateID) -> Unit = { stateId -> Log.e("TEST", "Login to $stateId") }
-
     val forceRefresh: (stateId: StateID) -> Unit = { browseRemoteVM.watch(it) }
 
-    var startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
+    val startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
         SelectTargetDestination.OpenFolder.route
     } else {
         SelectTargetDestination.ChooseAccount.route
@@ -98,10 +94,11 @@ fun SelectTargetHost(
     ) {
 
         composable(SelectTargetDestination.ChooseAccount.route) {
+            val login: (StateID) -> Unit = { postActivity(it, AppNames.ACTION_LOGIN) }
             SessionList(accountListVM, open, login)
         }
         composable(SelectTargetDestination.OpenFolder.route) { navBackStackEntry ->
-            var stateId =
+            val stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
                     ?: initialStateId
             SelectFolderScreen(
@@ -112,8 +109,6 @@ fun SelectTargetHost(
                 open,
                 openParent,
                 postActivity,
-                cancelActivity,
-                createFolder,
                 forceRefresh,
             )
         }

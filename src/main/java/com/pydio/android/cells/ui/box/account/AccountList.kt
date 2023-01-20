@@ -24,12 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -39,7 +39,7 @@ import com.pydio.cells.transport.StateID
 fun AccountList(
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
-    login: (stateID: StateID) -> Unit,
+    doLogin: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(Modifier.fillMaxWidth()) {
@@ -48,8 +48,13 @@ fun AccountList(
                 title = "${account.serverLabel()}",
                 login = account.username,
                 url = account.url,
+                authStatus = account.authStatus,
+                isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
+                doLogin = doLogin,
                 modifier = modifier.clickable {
-                    openAccount(StateID(account.username, account.url))
+                    if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                        openAccount(StateID(account.username, account.url))
+                    }
                 }
             )
         }
@@ -61,8 +66,12 @@ private fun AccountListItem(
     title: String,
     login: String,
     url: String,
+    authStatus: String,
+    isForeground: Boolean,
+    doLogin: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_item_elevation),
         modifier = modifier
@@ -80,6 +89,8 @@ private fun AccountListItem(
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
                     .background(MaterialTheme.colorScheme.error)
             ) {
+
+                // TODO images are not correctly scaled
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_person_24),
                     contentDescription = null,
@@ -90,13 +101,11 @@ private fun AccountListItem(
                         //.clip(CircleShape)
                         .wrapContentSize(Alignment.Center)
                 )
-                Image(
-                    painter = painterResource(R.drawable.ic_baseline_check_24),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color.Green),
-                    modifier = Modifier // .fillMaxSize()
-                        //.size(dimensionResource(R.dimen.list_thumb_decorator_size))
-                        .size(12.dp)
+                AuthDecorator(
+                    authStatus = authStatus,
+                    modifier = Modifier
+                        .size(2.dp)
+//                        .size(dimensionResource(R.dimen.list_thumb_decorator_size))
                         .wrapContentSize(Alignment.BottomEnd)
                 )
             }
@@ -105,7 +114,7 @@ private fun AccountListItem(
 
             Column(
                 modifier = modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .padding(
                         horizontal = dimensionResource(R.dimen.card_padding),
                         vertical = dimensionResource(R.dimen.margin_xsmall)
@@ -121,8 +130,62 @@ private fun AccountListItem(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
+
+            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+
+                Surface(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                        .clickable(onClick = {
+                            doLogin(StateID(login, url))
+                        })
+                        .background(MaterialTheme.colorScheme.error)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_baseline_login_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .size(48.dp)
+                            .size(dimensionResource(R.dimen.list_thumb_size))
+                            //.clip(CircleShape)
+                            .wrapContentSize(Alignment.Center)
+                    )
+                }
+            }
+
         }
     }
+}
+
+@Composable
+private fun AuthDecorator(authStatus: String, modifier: Modifier) {
+    val imageId = when (authStatus) {
+        //AUTH_STATUS_NEW -> R.drawable.icon_folder
+        AppNames.AUTH_STATUS_NO_CREDS -> R.drawable.ic_outline_running_with_errors_24
+        AppNames.AUTH_STATUS_EXPIRED -> R.drawable.ic_outline_running_with_errors_24
+        AppNames.AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_outline_running_with_errors_24
+        AppNames.AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_wifi_protected_setup_24
+        AppNames.AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_check_24
+        else -> R.drawable.empty
+    }
+
+    val colorFilter = when (authStatus) {
+        AppNames.AUTH_STATUS_NO_CREDS -> MaterialTheme.colorScheme.error
+        AppNames.AUTH_STATUS_EXPIRED -> MaterialTheme.colorScheme.error
+        AppNames.AUTH_STATUS_UNAUTHORIZED -> MaterialTheme.colorScheme.error
+        AppNames.AUTH_STATUS_REFRESHING -> MaterialTheme.colorScheme.primary // was color.warning
+        AppNames.AUTH_STATUS_CONNECTED -> MaterialTheme.colorScheme.secondary // was color.ok
+        else -> MaterialTheme.colorScheme.error
+    }
+
+    Image(
+        painter = painterResource(imageId),
+        contentDescription = authStatus,
+        colorFilter = ColorFilter.tint(colorFilter),
+        modifier = modifier
+    )
 }
 
 @Preview(name = "Light Mode")
@@ -135,7 +198,19 @@ private fun AccountListItem(
 private fun AccountListItemPreview(
 ) {
     CellsTheme {
-        AccountListItem("Cells test server", "lea", "https://example.com", Modifier)
+        AccountListItem(
+            "Cells test server",
+            "lea",
+            "https://example.com",
+//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+//            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
+            authStatus = AppNames.AUTH_STATUS_REFRESHING,
+//            authStatus = AppNames.AUTH_STATUS_EXPIRED,
+//            authStatus = AppNames.AUTH_STATUS_CONNECTED,
+            isForeground = true,
+            {},
+            Modifier
+        )
     }
 }
 

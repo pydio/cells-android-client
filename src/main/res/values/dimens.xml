@@ -46,7 +46,7 @@
     <dimen name="list_item_elevation">2dp</dimen>
     <dimen name="list_thumb_size">48dp</dimen>
     <dimen name="list_thumb_margin">4dp</dimen>
-    <dimen name="list_thumb_decorator_size">12dp</dimen>
+    <dimen name="list_thumb_decorator_size">8dp</dimen>
     <dimen name="list_thumb_border_size">0.5dp</dimen>
 
     <dimen name="list_icon_size">24dp</dimen>

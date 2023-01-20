@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,7 +49,7 @@ class SelectTargetActivity : ComponentActivity() {
                 val ctx = LocalContext.current
                 val navController = rememberNavController()
 
-                val action = rememberSaveable { iAction }
+                val initialAction = rememberSaveable { iAction }
                 val initialStateId = rememberSaveable { iState.id }
                 val uris = rememberSaveable { iUris }
 
@@ -64,33 +63,43 @@ class SelectTargetActivity : ComponentActivity() {
                     browseRemoteVM.watch(initialStateID)
                 }
 
-                val launchTaskFor: (stateID: StateID) -> Unit = { stateID ->
-                    if (action == AppNames.ACTION_COPY || action == AppNames.ACTION_MOVE) {
-                        val intent = createNextIntent(ctx, action, stateID)
-                        setResult(Activity.RESULT_OK, intent)
-                    } else if (action == AppNames.ACTION_UPLOAD) {
-                        for (uri in uris) {
-                            transferService.enqueueUpload(stateID, uri)
+                val launchTaskFor: (StateID, String?) -> Unit = { stateID, action ->
+                    when (val currAction: String = action ?: initialAction) {
+                        AppNames.ACTION_COPY, AppNames.ACTION_MOVE -> {
+                            val intent = createNextIntent(ctx, currAction, stateID)
+                            setResult(Activity.RESULT_OK, intent)
+                            finishAndRemoveTask()
                         }
-                        Toast.makeText(ctx, "#### Launch upload ---- New", Toast.LENGTH_LONG).show()
+                        AppNames.ACTION_LOGIN -> {
+                            val intent = createNextIntent(ctx, currAction, stateID)
+                            setResult(Activity.RESULT_OK, intent)
+                        }
+                        AppNames.ACTION_UPLOAD -> {
+                            for (uri in uris) {
+                                transferService.enqueueUpload(stateID, uri)
+                            }
+//                            Toast
+//                                .makeText(ctx, "#### Launch upload ---- New", Toast.LENGTH_LONG)
+//                                .show()
+                            finishAndRemoveTask()
+                        }
+                        AppNames.ACTION_CANCEL -> {
+                            finishAndRemoveTask()
+                        }
+                        AppNames.ACTION_CREATE_FOLDER -> {
+                            createFolder(ctx, stateID, nodeService)
+                        }
                     }
-                    finishAndRemoveTask()
                 }
-
-                val createRemoteFolder: (StateID) -> Unit = { createFolder(ctx, it, nodeService) }
-
-                val cancel: () -> Unit = { finishAndRemoveTask() }
 
                 SelectTargetHost(
                     navController,
-                    action,
+                    initialAction,
                     initialStateId,
                     browseLocalVM,
                     browseRemoteVM,
                     accountListVM,
                     launchTaskFor,
-                    cancel,
-                    createRemoteFolder,
                 )
             }
         }
@@ -154,6 +163,12 @@ class SelectTargetActivity : ComponentActivity() {
                 intent.action = AppNames.ACTION_CHOOSE_TARGET
                 intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
             }
+            // FIXME - Not so simple
+            // AppNames.ACTION_LOGIN -> {
+            //     intent = Intent(context, MainActivity::class.java)
+            //     intent.action = AppNames.ACTION_LOGIN
+            //     intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
+            // }
             else -> Log.e(logTag, "Unexpected action: $action")
         }
         return intent
