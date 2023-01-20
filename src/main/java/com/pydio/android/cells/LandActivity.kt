@@ -223,8 +223,7 @@ class LandActivity : AppCompatActivity() {
 
         val oldValue = getOldVersion(context)
         val newValue = ClientData.getInstance().versionCode.toInt()
-
-        Log.e(logTag, "in needs migration, old: $oldValue, new: $newValue")
+        Log.d(logTag, "in needsMigration() - old version: $oldValue, new version: $newValue")
 
         // New installation without legacy data
         if (oldValue < 1 && !migrationService.hasLegacyDB(context)) {
