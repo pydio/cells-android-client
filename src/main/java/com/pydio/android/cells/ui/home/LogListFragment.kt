@@ -7,35 +7,19 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentLogListBinding
-import com.pydio.android.cells.db.runtime.RLog
+import com.pydio.android.cells.ui.box.system.LogList
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.utils.timestampToString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -89,86 +73,3 @@ class LogListFragment : Fragment() {
     }
 }
 
-@Composable
-private fun LogList(
-    logs: List<RLog>?,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(Modifier.fillMaxWidth()) {
-        items(logs ?: listOf()) { log ->
-            LogListItem(
-                title = getTitle(log),
-                level = log.getLevelString(),
-                message = log.message ?: "",
-                modifier = modifier
-            )
-        }
-    }
-}
-
-@Composable
-private fun LogListItem(
-    title: String,
-    level: String,
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    // TODO add rounded corners
-    // TODO add alpha
-    val bgColor = when (level) {
-        AppNames.ERROR -> MaterialTheme.colorScheme.error
-        AppNames.WARNING -> MaterialTheme.colorScheme.primary
-        AppNames.DEBUG -> MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.secondary
-    }
-
-//            when (item.level) {
-//                1, 2 -> setTextColor(resources.getColor(R.color.danger, context.theme))
-//                3 -> setTextColor(resources.getColor(R.color.colorAccent, context.theme))
-//                4 -> setTextColor(resources.getColor(R.color.ok, context.theme))
-//                else -> setTextColor(resources.getColor(R.color.material_neutral, context.theme))
-//            }
-
-    Surface(
-        tonalElevation = dimensionResource(R.dimen.list_item_elevation),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.CenterHorizontally)
-    ) {
-        Column(
-            modifier = modifier
-                .background(color = bgColor)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.card_padding),
-                    vertical = dimensionResource(R.dimen.margin_xsmall)
-                )
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun LogListItemPreview(
-) {
-    CellsTheme {
-        LogListItem("title", AppNames.ERROR, "status", Modifier)
-    }
-}
-
-//@Composable
-//private fun LogTitle(item: RLog?) {
-private fun getTitle(item: RLog): String {
-    val ts = timestampToString(item.timestamp, "dd-MM HH:mm:ss")
-    val level = item.getLevelString()
-    return "[$level] $ts - Job #${item.callerId}"
-}

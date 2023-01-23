@@ -2,18 +2,38 @@ package com.pydio.android.cells.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-//val Purple80 = Color(0xFFD0BCFF)
-//val PurpleGrey80 = Color(0xFFCCC2DC)
-//val Pink80 = Color(0xFFEFB8C8)
-//
-//val Purple40 = Color(0xFF6650a4)
-//val PurpleGrey40 = Color(0xFF625b71)
-//val Pink40 = Color(0xFF7D5260)
+// v3.0 Styles
 
-val Purple80 = Color(0xFF00668B)
-val PurpleGrey80 = Color(0xFF006c47)
-val Pink80 = Color(0xFF5654a8)
+// Primary
+val Blue = Color(0xFF00668B)
+val BlueGrey = Color(0xFF4E616D)
+val PurpleGrey = Color(0xFF615A7C)
+val DarkRed = Color(0xFFBA1B1B)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Secondary
+val LightBlue = Color(0xFF79D0FF)
+val LightBlueGrey = Color(0xFFB6C9D7)
+val LightPurpleGrey = Color(0xFFCAC1E9)
+val PinkRed = Color(0xFFFFB4A9)
+
+
+// A few hard coded-colors
+val flag_bookmark = Color(0xFFFF9800)
+val flag_offline = Color(0xFF607D8B)
+
+val flag_share = Color(0xFF009688)
+val ok = Color(0xFF219600)
+val debug = LightBlueGrey
+val info = LightPurpleGrey
+val warning = Color(0xFFFF9800)
+val danger = Color(0xFFBA1B1B)
+
+// <!-- Document icon colors -->
+val material_yellow = Color(0xFFFFE500)
+val material_orange = Color(0xFFFF9800)
+val material_deep_orange = Color(0xFFFF5722)
+val material_red = Color(0xFFF44336)
+val material_green = Color(0xFF4CAF50)
+val material_blue = Color(0xFF2196F)
+val material_indigo = Color(0xFF3F51B5)
+val material_neutral = Color(0xFF5C5F61)

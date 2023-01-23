@@ -21,29 +21,32 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = LightBlue,
+    secondary = LightBlueGrey,
+    tertiary = LightPurpleGrey,
+    error = PinkRed,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Blue,
+    secondary = BlueGrey,
+    tertiary = PurpleGrey,
+    error = DarkRed,
 )
 
+/* Other default colors to override
+background = Color(0xFFFFFBFE),
+surface = Color(0xFFFFFBFE),
+onPrimary = Color.White,
+onSecondary = Color.White,
+onTertiary = Color.White,
+onBackground = Color(0xFF1C1B1F),
+onSurface = Color(0xFF1C1B1F),
+*/
+
+
 /**
- * A Theme for Cells based on Material3.
+ * Root theme for the Cells application based on Material3.
  */
 @Composable
 fun CellsTheme(
@@ -51,8 +54,8 @@ fun CellsTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
-
 ) {
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -61,6 +64,9 @@ fun CellsTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
+
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -68,7 +74,6 @@ fun CellsTheme(
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
         }
     }
-
 
     MaterialTheme(
         colorScheme = colorScheme,

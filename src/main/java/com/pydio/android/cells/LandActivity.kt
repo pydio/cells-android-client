@@ -75,8 +75,12 @@ class LandActivity : AppCompatActivity() {
         val jobService: JobService by KoinJavaComponent.inject(JobService::class.java)
         try {
             val creationMsg =
-                "### Application started with user agent: ${ClientData.getInstance().userAgent()}"
-            jobService.w(logTag, creationMsg, "Launcher")
+                "### Starting agent ${ClientData.getInstance().userAgent()}"
+            jobService.i(logTag, creationMsg, "Cells App")
+//            jobService.d(logTag, ".... Testing log levels:", "DEBUGGER")
+//            jobService.i(logTag, "   check - 1", "DEBUGGER")
+//            jobService.w(logTag, "   check - 2. with a very very very very very very, very very very very looooong message!!!!!!!", "DEBUGGER")
+//            jobService.e(logTag, "   check - 3", "DEBUGGER")
         } catch (e: Exception) {
             Log.e(logTag, "could not log start: $e")
         }

@@ -41,7 +41,6 @@ class SelectTargetActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val (iAction, iState, iUris) = handleIntent(intent)
-
         setContent {
 
             SelectTargetApp {
@@ -72,7 +71,8 @@ class SelectTargetActivity : ComponentActivity() {
                         }
                         AppNames.ACTION_LOGIN -> {
                             val intent = createNextIntent(ctx, currAction, stateID)
-                            setResult(Activity.RESULT_OK, intent)
+                            // setResult(Activity.RESULT_OK, intent)
+                            startActivity(intent)
                         }
                         AppNames.ACTION_UPLOAD -> {
                             for (uri in uris) {
@@ -105,8 +105,6 @@ class SelectTargetActivity : ComponentActivity() {
         }
     }
 
-//     vmScope.launch {
-
     private fun handleIntent(inIntent: Intent): Triple<String, StateID, List<Uri>> {
 
         var actionContext = AppNames.ACTION_COPY
@@ -125,7 +123,7 @@ class SelectTargetActivity : ComponentActivity() {
                     actionContext = AppNames.ACTION_UPLOAD
                     uris.add(clipData.getItemAt(0).uri)
                 }
-                // TODO retrieve starting state from: ?
+                // TODO: rather provide smarter starting point(s) when launching the "browse and select process"
                 // CellsApp.instance.getCurrentState()
             }
             Intent.ACTION_SEND_MULTIPLE -> {
@@ -138,14 +136,6 @@ class SelectTargetActivity : ComponentActivity() {
                 }
             }
         }
-
-//        // Directly go inside a target location if defined
-//        chooseTargetVM.currentLocation.value?.let {
-//            val action = UploadNavigationDirections.actionPickFolder(it.id)
-//            navController.navigate(action)
-//            return
-//        }
-
         return Triple(actionContext, stateID, uris)
     }
 
@@ -163,12 +153,12 @@ class SelectTargetActivity : ComponentActivity() {
                 intent.action = AppNames.ACTION_CHOOSE_TARGET
                 intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
             }
-            // FIXME - Not so simple
-            // AppNames.ACTION_LOGIN -> {
-            //     intent = Intent(context, MainActivity::class.java)
-            //     intent.action = AppNames.ACTION_LOGIN
-            //     intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
-            // }
+            // TODO - double check
+            AppNames.ACTION_LOGIN -> {
+                intent = Intent(context, MainActivity::class.java)
+                intent.action = AppNames.ACTION_LOGIN
+                intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
+            }
             else -> Log.e(logTag, "Unexpected action: $action")
         }
         return intent

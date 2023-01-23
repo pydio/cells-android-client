@@ -255,7 +255,6 @@ private fun TroubleShootingCard(
                         bottom = dimensionResource(R.dimen.text_padding_small),
                     )
                     .wrapContentWidth(Alignment.CenterHorizontally)
-
             )
         }
     }

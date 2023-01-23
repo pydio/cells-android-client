@@ -443,7 +443,9 @@ class NodeService(
 //            if (changeNb > 0) {
 //                jobService.incrementProgress(job, 0, "Downloading changed files")
 //            }
-            jobService.done(job, "Sync done with $changeNb changes.", "Successfully done")
+            val msg = "Sync done with $changeNb changes."
+            jobService.done(job, msg, "Successfully done")
+            jobService.i(logTag, "Terminated ${job.label}", "$jobId")
         }
 
     fun getRunningAccountSync(accountID: StateID): LiveData<RJob?> {
