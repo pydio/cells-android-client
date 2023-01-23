@@ -20,40 +20,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
-import com.pydio.android.cells.databinding.FragmentAboutBinding
-import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.cells.transport.ClientData
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class AboutFragment : Fragment() {
 
     private val logTag = AboutFragment::class.simpleName
-
-    // We inject this to trigger state saving so that we stay on this page upon screen rotation.
-    // This is not used in the code, so we add the suppress annotation above
-    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-
-        val binding: FragmentAboutBinding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_about, container, false
-        )
 
         val onUriClick = {
             val intent = Intent(Intent.ACTION_VIEW)
@@ -85,14 +73,13 @@ class AboutFragment : Fragment() {
             }
         }
 
-        binding.apply {
-            composeAboutPage.setContent {
+        return ComposeView(requireContext()).apply {
+            setContent {
                 CellsTheme {
                     AboutPage(onUriClick = onUriClick, onEmailClick = onEmailClick)
                 }
             }
         }
-        return binding.root
     }
 }
 

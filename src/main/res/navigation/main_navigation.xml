@@ -191,8 +191,7 @@
     <fragment
         android:id="@+id/about_destination"
         android:name="com.pydio.android.cells.ui.home.AboutFragment"
-        android:label="@string/action_open_about"
-        tools:layout="@layout/fragment_about" />
+        android:label="@string/action_open_about"/>
 
     <fragment
         android:id="@+id/settings_destination"
