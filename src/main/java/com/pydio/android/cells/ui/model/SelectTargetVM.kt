@@ -21,9 +21,9 @@ import com.pydio.android.cells.services.TransferService
 /**
  * Holds the current location while choosing a target for file uploads or moves.
  */
-class SelectTargetViewModel(private val transferService: TransferService) : ViewModel() {
+class SelectTargetVM(private val transferService: TransferService) : ViewModel() {
 
-    private val logTag = SelectTargetViewModel::class.simpleName
+    private val logTag = SelectTargetVM::class.simpleName
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -35,9 +35,9 @@ class SelectTargetViewModel(private val transferService: TransferService) : View
     private var uris = mutableListOf<Uri>()
 
     // Runtime
-    private var _currentLocation = MutableLiveData<StateID?>()
-    val currentLocation: LiveData<StateID?>
-        get() = _currentLocation
+    private var _currLocation = MutableLiveData<StateID?>()
+    private val currLocation: LiveData<StateID?>
+        get() = _currLocation
 
     // Flags to trigger termination of the ChooseTarget activity:
     // Either we have an intent or we set the postDone flag
@@ -50,15 +50,15 @@ class SelectTargetViewModel(private val transferService: TransferService) : View
         get() = _postDone
 
     fun setCurrentState(stateID: StateID?) {
-        _currentLocation.value = stateID
+        _currLocation.value = stateID
     }
 
     fun isTargetValid(): Boolean {
-        return currentLocation.value?.path?.let { it.length > 1 } ?: false
+        return currLocation.value?.path?.let { it.length > 1 } ?: false
     }
 
     fun launchPost(context: Context) {
-        currentLocation.value?.let { stateID ->
+        currLocation.value?.let { stateID ->
             vmScope.launch {
                 when (_actionContext) {
                     AppNames.ACTION_COPY -> {

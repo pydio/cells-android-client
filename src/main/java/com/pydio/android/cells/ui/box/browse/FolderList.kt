@@ -56,7 +56,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.box.common.BrowseUpItem
-import com.pydio.android.cells.ui.model.BrowseLocalFolders
+import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
@@ -69,7 +69,7 @@ fun SelectFolderScreen(
     action: String,
     stateId: String,
     isLoading: Boolean,
-    browseLocalVM: BrowseLocalFolders,
+    browseLocalVM: BrowseLocalFoldersVM,
     openFolder: (StateID) -> Unit,
     openParentDestination: (StateID) -> Unit,
     postActivity: (StateID, String?) -> Unit,

@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.ui.transfer.PickFolderViewModel
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -19,9 +18,9 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 private val unknownStateId = StateID("https://example.com")
-private val logTag = BrowseRemote::class.simpleName
+private val logTag = BrowseRemoteVM::class.simpleName
 
-class BrowseRemote(
+class BrowseRemoteVM(
     private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {

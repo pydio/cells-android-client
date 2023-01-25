@@ -14,9 +14,9 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
-import com.pydio.android.cells.ui.model.AccountListViewModel
-import com.pydio.android.cells.ui.model.BrowseLocalFolders
-import com.pydio.android.cells.ui.model.BrowseRemote
+import com.pydio.android.cells.ui.model.AccountListVM
+import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.model.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -46,9 +46,9 @@ fun SelectTargetHost(
     navController: NavHostController,
     action: String,
     initialStateId: String,
-    browseLocalVM: BrowseLocalFolders,
-    browseRemoteVM: BrowseRemote,
-    accountListVM: AccountListViewModel,
+    browseLocalVM: BrowseLocalFoldersVM,
+    browseRemoteVM: BrowseRemoteVM,
+    accountListVM: AccountListVM,
     postActivity: (stateID: StateID, action: String?) -> Unit,
 ) {
 

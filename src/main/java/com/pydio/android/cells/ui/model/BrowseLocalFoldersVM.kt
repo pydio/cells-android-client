@@ -9,13 +9,13 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 
-private val logTag = BrowseRemote::class.simpleName
+private val logTag = BrowseRemoteVM::class.simpleName
 
 /**
  * Simple ViewModel for the UI that only holds the current parent folder state ID
  * and a LiveData list of its children to be used while selecting a target folder.
  */
-class BrowseLocalFolders(
+class BrowseLocalFoldersVM(
     private val nodeService: NodeService
 ) : ViewModel() {
 

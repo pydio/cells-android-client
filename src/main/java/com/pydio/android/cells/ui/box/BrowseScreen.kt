@@ -7,16 +7,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
-import com.pydio.android.cells.ui.model.BrowseLocalFolders
-import com.pydio.android.cells.ui.model.BrowseRemote
+import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.model.BrowseRemoteVM
 
 private const val logTag = "BrowseScreen.kt"
 
 @Composable
 fun BrowseScreen(
     navController: NavHostController,
-    browseLocalVM: BrowseLocalFolders,
-    browseRemoteVM: BrowseRemote,
+    browseLocalVM: BrowseLocalFoldersVM,
+    browseRemoteVM: BrowseRemoteVM,
     modifier: Modifier = Modifier,
 ) {
     val ctx = LocalContext.current

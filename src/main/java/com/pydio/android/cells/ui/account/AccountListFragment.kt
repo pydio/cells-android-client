@@ -21,7 +21,7 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.tasks.loginAccount
 import com.pydio.android.cells.ui.common.deleteAccount
 import com.pydio.android.cells.ui.common.logoutAccount
-import com.pydio.android.cells.ui.model.AccountListViewModel
+import com.pydio.android.cells.ui.model.AccountListVM
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -41,7 +41,7 @@ class AccountListFragment : Fragment() {
     private val sessionFactory: SessionFactory by inject()
     private val accountService: AccountService by inject()
 
-    private val accountListVM: AccountListViewModel by viewModel()
+    private val accountListVM: AccountListVM by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit
 /**
  * Central ViewModel when dealing with a user's accounts.
  */
-class AccountListViewModel(
+class AccountListVM(
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = AccountListViewModel::class.simpleName
+    private val logTag = AccountListVM::class.simpleName
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 

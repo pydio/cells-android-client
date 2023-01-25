@@ -17,11 +17,11 @@ import com.pydio.android.cells.ui.home.JobListViewModel
 import com.pydio.android.cells.ui.home.LogListViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
-import com.pydio.android.cells.ui.model.AccountListViewModel
-import com.pydio.android.cells.ui.model.BrowseLocalFolders
-import com.pydio.android.cells.ui.model.BrowseRemote
-import com.pydio.android.cells.ui.model.Migration
-import com.pydio.android.cells.ui.model.SelectTargetViewModel
+import com.pydio.android.cells.ui.model.AccountListVM
+import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.model.BrowseRemoteVM
+import com.pydio.android.cells.ui.model.MigrationVM
+import com.pydio.android.cells.ui.model.SelectTargetVM
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transfer.PickFolderViewModel
@@ -150,7 +150,7 @@ val viewModelModule = module {
     viewModel { ServerUrlViewModel(get(), get()) }
     viewModel { OAuthViewModel(get(), get(), get()) }
     viewModel { P8CredViewModel(get()) }
-    viewModel { AccountListViewModel(get()) }
+    viewModel { AccountListVM(get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }
@@ -163,13 +163,13 @@ val viewModelModule = module {
     viewModel { JobListViewModel(get()) }
     viewModel { LogListViewModel(get()) }
 
-    viewModel { BrowseLocalFolders(get()) }
-    viewModel { BrowseRemote(get(), get()) }
+    viewModel { BrowseLocalFoldersVM(get()) }
+    viewModel { BrowseRemoteVM(get(), get()) }
     viewModel { ChooseTargetViewModel(get()) }
-    viewModel { SelectTargetViewModel(get()) }
+    viewModel { SelectTargetVM(get()) }
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
-    viewModel { Migration(get(), get(), get(), get()) }
+    viewModel { MigrationVM(get(), get(), get(), get()) }
 
 
     viewModel { params -> TransferViewModel(get(), get(), params.get()) }

@@ -26,7 +26,7 @@ enum class Step {
     STARTING, MIGRATING_FROM_V2, AFTER_LEGACY_MIGRATION, AFTER_MIGRATION_ERROR
 }
 
-class Migration(
+class MigrationVM(
     private val prefs: CellsPreferences,
     private val jobService: JobService,
     private val jobDao: JobDao,

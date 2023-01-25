@@ -10,7 +10,7 @@ import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.ui.model.Migration
+import com.pydio.android.cells.ui.model.MigrationVM
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class LandActivity : AppCompatActivity() {
         val landActivity = this
 
         lifecycleScope.launch {
-            val migrationVM by viewModel<Migration>()
+            val migrationVM by viewModel<MigrationVM>()
             val needsMigration = migrationVM.needsMigration(applicationContext)
             if (needsMigration) {
                 // forward to migration page

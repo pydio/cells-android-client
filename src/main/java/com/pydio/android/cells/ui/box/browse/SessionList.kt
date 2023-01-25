@@ -5,12 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.pydio.android.cells.ui.box.account.AccountList
-import com.pydio.android.cells.ui.model.AccountListViewModel
+import com.pydio.android.cells.ui.model.AccountListVM
 import com.pydio.cells.transport.StateID
 
 @Composable
 fun SessionList(
-    accountListVM: AccountListViewModel,
+    accountListVM: AccountListVM,
     openAccount: (stateID: StateID) -> Unit,
     login: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,

@@ -16,9 +16,9 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
-import com.pydio.android.cells.ui.model.AccountListViewModel
-import com.pydio.android.cells.ui.model.BrowseLocalFolders
-import com.pydio.android.cells.ui.model.BrowseRemote
+import com.pydio.android.cells.ui.model.AccountListVM
+import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.model.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.android.ext.android.inject
@@ -52,9 +52,9 @@ class SelectTargetActivity : ComponentActivity() {
                 val initialStateId = rememberSaveable { iState.id }
                 val uris = rememberSaveable { iUris }
 
-                val browseRemoteVM by viewModel<BrowseRemote>()
-                val browseLocalVM by viewModel<BrowseLocalFolders>()
-                val accountListVM by viewModel<AccountListViewModel>()
+                val browseRemoteVM by viewModel<BrowseRemoteVM>()
+                val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
+                val accountListVM by viewModel<AccountListVM>()
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE_ID)) {
                     val initialStateID = StateID.fromId(initialStateId)

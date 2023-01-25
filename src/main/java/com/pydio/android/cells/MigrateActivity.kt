@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.box.MigrationApp
 import com.pydio.android.cells.ui.box.MigrationHost
-import com.pydio.android.cells.ui.model.Migration
+import com.pydio.android.cells.ui.model.MigrationVM
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MigrateActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MigrateActivity : ComponentActivity() {
         setContent {
             MigrationApp {
                 val navController = rememberNavController()
-                val migrationVM by viewModel<Migration>()
+                val migrationVM by viewModel<MigrationVM>()
                 val afterMigration: () -> Unit = {
                     val intent = Intent(migrateActivity, LandActivity::class.java)
                     startActivity(intent)
