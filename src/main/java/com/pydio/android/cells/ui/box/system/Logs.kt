@@ -1,8 +1,5 @@
 package com.pydio.android.cells.ui.box.system
 
-//import androidx.compose.material.ContentAlpha
-//import androidx.compose.material.LocalContentAlpha
-// import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
@@ -26,7 +22,6 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.timestampToString
-import java.util.*
 
 @Composable
 fun LogList(
@@ -113,7 +108,7 @@ private fun LogItemTitle(
         append(ts)
         append(" ")
         withStyle(style = SpanStyle(background = bgColor)) {
-            append("${level.toUpperCase()}")
+            append(" ${level.uppercase()} ")
         }
         append(" ")
         // append(stringResource(R.string.read_time, post.metadata.readTimeMinutes))

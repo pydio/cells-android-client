@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
 import com.pydio.android.cells.db.Converters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
@@ -38,6 +39,9 @@ interface JobDao {
 
     @Query("SELECT * FROM jobs WHERE job_id = :jobId LIMIT 1")
     fun getLiveById(jobId: Long): LiveData<RJob?>
+
+    @Query("SELECT * FROM jobs WHERE job_id = :jobId LIMIT 1")
+    fun getJobById(jobId: Long): Flow<RJob?>
 
     @Query("SELECT * FROM jobs WHERE start_ts = -1")
     fun getAllNew(): List<RJob>

@@ -20,6 +20,7 @@ import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.model.AccountListViewModel
 import com.pydio.android.cells.ui.model.BrowseLocalFolders
 import com.pydio.android.cells.ui.model.BrowseRemote
+import com.pydio.android.cells.ui.model.Migration
 import com.pydio.android.cells.ui.model.SelectTargetViewModel
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
@@ -168,6 +169,8 @@ val viewModelModule = module {
     viewModel { SelectTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
+    viewModel { Migration(get(), get(), get(), get()) }
+
 
     viewModel { params -> TransferViewModel(get(), get(), params.get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }
