@@ -21,7 +21,7 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.tasks.loginAccount
 import com.pydio.android.cells.ui.common.deleteAccount
 import com.pydio.android.cells.ui.common.logoutAccount
-import com.pydio.android.cells.ui.model.AccountListVM
+import com.pydio.android.cells.ui.models.AccountListVM
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel

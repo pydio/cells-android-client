@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.home
+package com.pydio.android.cells.ui.fragments
 
 import android.os.Bundle
 import android.text.InputType

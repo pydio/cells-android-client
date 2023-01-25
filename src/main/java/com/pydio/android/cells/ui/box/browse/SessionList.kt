@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.pydio.android.cells.ui.box.account.AccountList
-import com.pydio.android.cells.ui.model.AccountListVM
+import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.transport.StateID
 
 @Composable

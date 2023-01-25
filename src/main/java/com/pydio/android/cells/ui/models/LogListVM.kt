@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.home
+package com.pydio.android.cells.ui.models
 
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.JobService
@@ -6,8 +6,8 @@ import com.pydio.android.cells.services.JobService
 /**
  * Holds a list of recent jobs and provides various clean features (still to implement).
  */
-class JobListViewModel(
+class LogListVM(
     val jobService: JobService
 ) : ViewModel() {
-    val jobs = jobService.listLiveJobs(true)
+    val logs = jobService.listLogs()
 }

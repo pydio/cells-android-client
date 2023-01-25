@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.box.MigrationApp
 import com.pydio.android.cells.ui.box.MigrationHost
-import com.pydio.android.cells.ui.model.MigrationVM
+import com.pydio.android.cells.ui.models.MigrationVM
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MigrateActivity : ComponentActivity() {

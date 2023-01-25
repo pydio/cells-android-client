@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.home
+package com.pydio.android.cells.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,31 +17,32 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.R
-import com.pydio.android.cells.databinding.FragmentLogListBinding
-import com.pydio.android.cells.ui.box.system.LogList
+import com.pydio.android.cells.databinding.FragmentJobListBinding
+import com.pydio.android.cells.ui.box.system.JobList
+import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LogListFragment : Fragment() {
+class JobListFragment : Fragment() {
 
-    // private val logTag = LogListFragment::class.java.simpleName
-    private val logListVM: LogListViewModel by viewModel()
-    private lateinit var binding: FragmentLogListBinding
+    //private val logTag = JobListFragment::class.java.simpleName
+    private val jobVM: JobListVM by viewModel()
+    private lateinit var binding: FragmentJobListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_log_list, container, false
+            inflater, R.layout.fragment_job_list, container, false
         )
         binding.apply {
-            composeLogList.setContent {
-                val logs by logListVM.logs.observeAsState()
+            composeJobList.setContent {
+                val jobs by jobVM.jobs.observeAsState()
                 CellsTheme {
-                    LogList(logs, Modifier)
+                    JobList(jobs, Modifier)
                 }
             }
         }
@@ -51,7 +52,6 @@ class LogListFragment : Fragment() {
 
     private fun setupMenu() {
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
-
             override fun onPrepareMenu(menu: Menu) {}
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -62,7 +62,7 @@ class LogListFragment : Fragment() {
                 return when (menuItem.itemId) {
                     R.id.clear_table -> {
                         lifecycleScope.launch(Dispatchers.IO) {
-                            logListVM.jobService.clearAllLogs()
+                            jobVM.jobService.clearTerminated()
                         }
                         true
                     }
@@ -72,4 +72,3 @@ class LogListFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }
-

@@ -13,15 +13,15 @@ import com.pydio.android.cells.ui.auth.ServerUrlViewModel
 import com.pydio.android.cells.ui.browse.BookmarksViewModel
 import com.pydio.android.cells.ui.browse.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
-import com.pydio.android.cells.ui.home.JobListViewModel
-import com.pydio.android.cells.ui.home.LogListViewModel
+import com.pydio.android.cells.ui.models.JobListVM
+import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
-import com.pydio.android.cells.ui.model.AccountListVM
-import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
-import com.pydio.android.cells.ui.model.BrowseRemoteVM
-import com.pydio.android.cells.ui.model.MigrationVM
-import com.pydio.android.cells.ui.model.SelectTargetVM
+import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.MigrationVM
+import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transfer.PickFolderViewModel
@@ -160,8 +160,8 @@ val viewModelModule = module {
     viewModel { BookmarksViewModel(get()) }
     viewModel { OfflineRootsViewModel(get(), get(), get(), get()) }
 
-    viewModel { JobListViewModel(get()) }
-    viewModel { LogListViewModel(get()) }
+    viewModel { JobListVM(get()) }
+    viewModel { LogListVM(get()) }
 
     viewModel { BrowseLocalFoldersVM(get()) }
     viewModel { BrowseRemoteVM(get(), get()) }

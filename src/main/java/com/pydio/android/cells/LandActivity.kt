@@ -10,7 +10,7 @@ import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.ui.model.MigrationVM
+import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers

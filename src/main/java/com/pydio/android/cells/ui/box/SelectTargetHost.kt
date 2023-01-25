@@ -14,9 +14,9 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
-import com.pydio.android.cells.ui.model.AccountListVM
-import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
-import com.pydio.android.cells.ui.model.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID

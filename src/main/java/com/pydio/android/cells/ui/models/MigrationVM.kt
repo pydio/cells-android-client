@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.model
+package com.pydio.android.cells.ui.models
 
 import android.content.Context
 import android.content.SharedPreferences

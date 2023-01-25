@@ -17,8 +17,8 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.box.system.AfterLegacyMigration
 import com.pydio.android.cells.ui.box.system.MigrateFromV2
 import com.pydio.android.cells.ui.box.system.PrepareMigration
-import com.pydio.android.cells.ui.model.MigrationVM
-import com.pydio.android.cells.ui.model.Step
+import com.pydio.android.cells.ui.models.MigrationVM
+import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.launch
 

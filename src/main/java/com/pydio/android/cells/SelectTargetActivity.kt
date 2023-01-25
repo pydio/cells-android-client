@@ -16,9 +16,9 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
-import com.pydio.android.cells.ui.model.AccountListVM
-import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
-import com.pydio.android.cells.ui.model.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.android.ext.android.inject

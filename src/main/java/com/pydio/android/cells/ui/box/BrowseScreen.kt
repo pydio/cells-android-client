@@ -7,8 +7,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
-import com.pydio.android.cells.ui.model.BrowseLocalFoldersVM
-import com.pydio.android.cells.ui.model.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 
 private const val logTag = "BrowseScreen.kt"
 

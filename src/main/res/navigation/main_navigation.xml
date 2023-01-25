@@ -160,9 +160,9 @@
 
     <fragment
         android:id="@+id/home_destination"
-        android:name="com.pydio.android.cells.ui.home.LandingFragment"
+        android:name="com.pydio.android.cells.ui.fragments.DefaultFragment"
         android:label="@string/welcome_title"
-        tools:layout="@layout/fragment_landing" />
+        tools:layout="@layout/fragment_default" />
 
     <fragment
         android:id="@+id/transfer_list_destination"
@@ -176,26 +176,26 @@
 
     <fragment
         android:id="@+id/job_list_destination"
-        android:name="com.pydio.android.cells.ui.home.JobListFragment"
+        android:name="com.pydio.android.cells.ui.fragments.JobListFragment"
         android:label="@string/job_list_title"
         tools:layout="@layout/fragment_job_list">
     </fragment>
 
     <fragment
         android:id="@+id/log_list_destination"
-        android:name="com.pydio.android.cells.ui.home.LogListFragment"
+        android:name="com.pydio.android.cells.ui.fragments.LogListFragment"
         android:label="@string/log_list_title"
         tools:layout="@layout/fragment_log_list">
     </fragment>
 
     <fragment
         android:id="@+id/about_destination"
-        android:name="com.pydio.android.cells.ui.home.AboutFragment"
+        android:name="com.pydio.android.cells.ui.fragments.AboutFragment"
         android:label="@string/action_open_about"/>
 
     <fragment
         android:id="@+id/settings_destination"
-        android:name="com.pydio.android.cells.ui.home.SettingsFragment"
+        android:name="com.pydio.android.cells.ui.fragments.SettingsFragment"
         android:label="@string/action_settings"
         tools:layout="@layout/fragment_settings" />
 
