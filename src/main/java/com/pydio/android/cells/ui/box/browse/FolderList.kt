@@ -72,6 +72,7 @@ fun SelectFolderScreen(
     browseLocalVM: BrowseLocalFoldersVM,
     openFolder: (StateID) -> Unit,
     openParentDestination: (StateID) -> Unit,
+    canPost: (StateID) -> Boolean,
     postActivity: (StateID, String?) -> Unit,
     forceRefresh: (stateId: StateID) -> Unit,
 ) {
@@ -97,6 +98,7 @@ fun SelectFolderScreen(
         isLoading = isLoading,
         openFolder = openFolder,
         openParentDestination = openParentDestination,
+        canPost = canPost,
         postActivity = postActivity,
         forceRefresh = forceRefresh,
     )
@@ -111,12 +113,13 @@ fun SelectFolderScreen(
     isLoading: Boolean,
     openFolder: (StateID) -> Unit,
     openParentDestination: (StateID) -> Unit,
+    canPost: (StateID) -> Boolean,
     postActivity: (StateID, String?) -> Unit,
     forceRefresh: (stateId: StateID) -> Unit,
 ) {
     Scaffold(
         topBar = {
-            TopBar(action, stateID, postActivity, Modifier.fillMaxWidth())
+            TopBar(action, stateID, canPost, postActivity, Modifier.fillMaxWidth())
         },
         floatingActionButton = {
             if (Str.notEmpty(stateID.workspace)) {
@@ -200,7 +203,8 @@ private fun FolderList(
 @Composable
 private fun TopBar(
     action: String,
-    stateId: StateID,
+    stateID: StateID,
+    canPost: (StateID) -> Boolean,
     onSelect: (StateID, String?) -> Unit,
     modifier: Modifier
 ) {
@@ -212,7 +216,7 @@ private fun TopBar(
         else -> stringResource(R.string.choose_target_subtitle)
     }
     // TODO configure ellipsize from start (or middle?) rather than from the end
-    val subTitle = stateId.path ?: "${stateId.username}@${stateId.serverHost}"
+    val subTitle = stateID.path ?: "${stateID.username}@${stateID.serverHost}"
 
     Surface(
         color = MaterialTheme.colorScheme.primary,
@@ -239,12 +243,12 @@ private fun TopBar(
                 )
             }
             IconButton(
-                onClick = { onSelect(stateId, null) },
-                enabled = Str.notEmpty(stateId.path)
+                onClick = { onSelect(stateID, null) },
+                enabled = canPost(stateID) // Str.notEmpty(stateId.path)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Select this target")
             }
-            IconButton(onClick = { onSelect(stateId, AppNames.ACTION_CANCEL) }) {
+            IconButton(onClick = { onSelect(stateID, AppNames.ACTION_CANCEL) }) {
                 Icon(Icons.Filled.Close, contentDescription = "Cancel activity")
             }
         }
@@ -360,6 +364,7 @@ private fun TableHeaderPreview() {
         TopBar(
             AppNames.ACTION_UPLOAD,
             state,
+            { _: StateID -> true },
             { _: StateID, _: String? -> },
             Modifier.fillMaxWidth()
         )

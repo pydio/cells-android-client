@@ -58,12 +58,10 @@ class SelectTargetActivity : ComponentActivity() {
                 val uris = rememberSaveable { iUris }
                 val coroutineScope = rememberCoroutineScope()
 
-
                 val browseRemoteVM by viewModel<BrowseRemoteVM>()
                 val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
                 val accountListVM by viewModel<AccountListVM>()
                 val authVM by viewModel<AuthVM>()
-
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE_ID)) {
                     val initialStateID = StateID.fromId(initialStateId)

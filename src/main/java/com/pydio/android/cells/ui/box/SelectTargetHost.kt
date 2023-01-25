@@ -33,12 +33,9 @@ sealed class SelectTargetDestination(val route: String) {
         fun getPathKey() = "stateId"
     }
 
-    // TODO
-    // Login
-    // Logout ?
-
     // TODO add a route that display the newly launched uploads with a "run in background option"
     // TODO add safety checks to prevent forbidden copy-move
+       // --> to finalise we must really pass the node to copy or move rather than its parent
 }
 
 @Composable
@@ -79,6 +76,17 @@ fun SelectTargetHost(
         }
     }
 
+    // Optimistic check to prevent trying to copy move inside itself
+    val canPost: (stateId: StateID) -> Boolean = { stateID ->
+        Log.e(logTag, "Checking can post")
+        Log.e(logTag, "... ${stateID.id} / $initialStateId ")
+        if (action == AppNames.ACTION_UPLOAD) {
+            true
+        } else {
+            !((stateID.id.startsWith(initialStateId) && (stateID.id.length > initialStateId.length)))
+        }
+    }
+
     val forceRefresh: (stateId: StateID) -> Unit = { browseRemoteVM.watch(it) }
 
     val startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
@@ -108,6 +116,7 @@ fun SelectTargetHost(
                 browseLocalVM,
                 open,
                 openParent,
+                canPost,
                 postActivity,
                 forceRefresh,
             )
