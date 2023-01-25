@@ -6,8 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
@@ -17,10 +19,14 @@ import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
 import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.models.AuthVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -42,7 +48,6 @@ class SelectTargetActivity : ComponentActivity() {
 
         val (iAction, iState, iUris) = handleIntent(intent)
         setContent {
-
             SelectTargetApp {
 
                 val ctx = LocalContext.current
@@ -51,10 +56,14 @@ class SelectTargetActivity : ComponentActivity() {
                 val initialAction = rememberSaveable { iAction }
                 val initialStateId = rememberSaveable { iState.id }
                 val uris = rememberSaveable { iUris }
+                val coroutineScope = rememberCoroutineScope()
+
 
                 val browseRemoteVM by viewModel<BrowseRemoteVM>()
                 val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
                 val accountListVM by viewModel<AccountListVM>()
+                val authVM by viewModel<AuthVM>()
+
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE_ID)) {
                     val initialStateID = StateID.fromId(initialStateId)
@@ -70,17 +79,29 @@ class SelectTargetActivity : ComponentActivity() {
                             finishAndRemoveTask()
                         }
                         AppNames.ACTION_LOGIN -> {
-                            val intent = createNextIntent(ctx, currAction, stateID)
-                            // setResult(Activity.RESULT_OK, intent)
-                            startActivity(intent)
+                            coroutineScope.launch {
+                                val session = withContext(Dispatchers.IO) {
+                                    accountListVM.getSession(stateID)
+                                } ?: return@launch
+                                authVM.startAuthProcess(
+                                    ctx,
+                                    coroutineScope,
+                                    session.isLegacy,
+                                    session.url,
+                                    session.tlsMode,
+                                    "select" // TODO review this
+                                )
+                            }
+                            Toast.makeText(
+                                ctx,
+                                "#### Login started for $stateID",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                         AppNames.ACTION_UPLOAD -> {
                             for (uri in uris) {
                                 transferService.enqueueUpload(stateID, uri)
                             }
-//                            Toast
-//                                .makeText(ctx, "#### Launch upload ---- New", Toast.LENGTH_LONG)
-//                                .show()
                             finishAndRemoveTask()
                         }
                         AppNames.ACTION_CANCEL -> {
@@ -151,12 +172,6 @@ class SelectTargetActivity : ComponentActivity() {
             AppNames.ACTION_MOVE -> {
                 intent = Intent(context, MainActivity::class.java)
                 intent.action = AppNames.ACTION_CHOOSE_TARGET
-                intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
-            }
-            // TODO - double check
-            AppNames.ACTION_LOGIN -> {
-                intent = Intent(context, MainActivity::class.java)
-                intent.action = AppNames.ACTION_LOGIN
                 intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
             }
             else -> Log.e(logTag, "Unexpected action: $action")

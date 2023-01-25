@@ -1,12 +1,22 @@
 package com.pydio.android.cells.ui.models
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.AuthActivity
+import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.utils.BackOffTicker
+import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,6 +54,10 @@ class AccountListVM(
 
     init {
         setLoading(true)
+    }
+
+    suspend fun getSession(stateID: StateID): RSessionView? {
+        return accountService.getSession(stateID)
     }
 
     private fun watchAccounts() = vmScope.launch {
@@ -89,7 +103,7 @@ class AccountListVM(
         _isActive = false
     }
 
-    fun setLoading(loading: Boolean) {
+    private fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
 }

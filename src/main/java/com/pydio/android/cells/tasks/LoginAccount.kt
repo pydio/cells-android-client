@@ -13,6 +13,7 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.SessionFactory
 
+@Deprecated("Rather use AuthVM.startAuthProcess()")
 fun loginAccount(
     context: Context,
     authService: AuthService,
