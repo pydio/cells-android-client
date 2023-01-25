@@ -69,27 +69,12 @@ private fun LogListItem(
     }
 }
 
-@Preview
-@Composable
-private fun LogListItemPreview(
-) {
-    CellsTheme {
-        LogListItem(0L, AppNames.ERROR, "0xcafe-babe-babecafe", "status", Modifier)
-    }
-}
-
-//@Composable
-//private fun LogTitle(item: RLog?) {
-private fun getTitle(item: RLog): String {
-    val ts = timestampToString(item.timestamp, "dd-MM HH:mm:ss")
-    val level = item.getLevelString()
-    return "[$level] $ts - Job #${item.callerId}"
-}
-
 @Composable
 private fun LogItemTitle(
-    // item: RLog,
-    timestamp: Long, level: String, callerId: String?, modifier: Modifier = Modifier
+    timestamp: Long,
+    level: String,
+    callerId: String?,
+    modifier: Modifier = Modifier
 ) {
     // return "[$level] $ts - Job #${item.callerId}"
     val ts = timestampToString(timestamp, "dd-MM HH:mm:ss")
@@ -115,4 +100,13 @@ private fun LogItemTitle(
     Text(
         text = text, style = MaterialTheme.typography.bodyMedium, modifier = modifier
     )
+}
+
+@Preview
+@Composable
+private fun LogListItemPreview(
+) {
+    CellsTheme {
+        LogListItem(0L, AppNames.ERROR, "0xcafe-babe-babecafe", "status", Modifier)
+    }
 }

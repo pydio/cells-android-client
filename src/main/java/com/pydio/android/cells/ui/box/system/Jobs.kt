@@ -137,19 +137,19 @@ private fun buildStatusString(
                 withStyle(style = SpanStyle(background = bgColor)) {
                     append(" ${status.uppercase()} ")
                 }
-                append(" at $doneTs: ${message}")
+                append(" at $doneTs: $message")
             }
             status == JobStatus.CANCELLED.id -> {
                 withStyle(style = SpanStyle(background = bgColor)) {
                     append(" ${status.uppercase()} ")
                 }
-                append(" at $doneTs: ${message}")
+                append(" at $doneTs: $message")
             }
             doneTimestamp > 0 -> {
                 withStyle(style = SpanStyle(background = bgColor)) {
                     append(" ${status.uppercase()} ")
                 }
-                append(" at $doneTs: ${message}")
+                append(" at $doneTs: $message")
             }
             startTimestamp > 0 -> {
                 withStyle(style = SpanStyle(background = bgColor)) {
@@ -159,7 +159,7 @@ private fun buildStatusString(
                 if (currentTimestamp() - updateTimestamp < 120) {
                     append(" ${asSinceString(startTimestamp)}\n${progressMessage}")
                 } else {
-                    append(" idle ${asSinceString(updateTimestamp)}\nlast message: ${progressMessage}")
+                    append(" idle ${asSinceString(updateTimestamp)}\nlast message: $progressMessage")
                 }
             }
             else -> {
