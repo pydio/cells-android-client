@@ -35,6 +35,9 @@ fun LogList(
                 callerId = log.callerId,
                 message = log.message ?: "",
                 modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.card_padding))
+                    .wrapContentWidth(Alignment.Start)
             )
         }
     }
@@ -47,18 +50,13 @@ private fun LogListItem(
     callerId: String?,
     message: String,
     modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = dimensionResource(R.dimen.card_padding))
-        .wrapContentWidth(Alignment.Start)
 ) {
-
     Surface(modifier = modifier) {
         Column(
-            modifier = modifier
-                .padding(
-                    horizontal = dimensionResource(R.dimen.card_padding),
-                    vertical = dimensionResource(R.dimen.margin_xsmall)
-                )
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.card_padding),
+                vertical = dimensionResource(R.dimen.margin_xsmall)
+            )
         ) {
             LogItemTitle(
                 timestamp, level, callerId, Modifier

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
@@ -42,7 +41,7 @@ class JobListFragment : Fragment() {
             composeJobList.setContent {
                 val jobs by jobVM.jobs.observeAsState()
                 CellsTheme {
-                    JobList(jobs, Modifier)
+                    JobList(jobs ?: listOf())
                 }
             }
         }

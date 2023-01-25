@@ -36,18 +36,24 @@
     <dimen name="alpha_list_primary">0.87</dimen>
     <dimen name="alpha_list_secondary">0.6</dimen>
 
+    <!-- Lists / Lazy Column Items -->
+    <dimen name="list_item_elevation">1dp</dimen>
+    <dimen name="list_horizontal_padding">5dp</dimen>
+    <dimen name="list_vertical_padding">2dp</dimen>
+    <dimen name="list_item_inner_padding">4dp</dimen>
+
+    <dimen name="list_thumb_size">48dp</dimen>
+    <dimen name="list_thumb_margin">4dp</dimen>
+    <dimen name="list_thumb_decorator_size">8dp</dimen>
+    <dimen name="list_thumb_border_size">0.5dp</dimen>
+
+
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab
         Goes with the clipToPadding=false prop in the recycler layout -->
     <dimen name="recycler_bottom_fab_padding">64dp</dimen>
     <!-- For rounded corners (in dp) -->
     <dimen name="glide_thumb_radius">4dp</dimen>
-    <!-- List Items -->
-    <dimen name="list_item_elevation">2dp</dimen>
-    <dimen name="list_thumb_size">48dp</dimen>
-    <dimen name="list_thumb_margin">4dp</dimen>
-    <dimen name="list_thumb_decorator_size">8dp</dimen>
-    <dimen name="list_thumb_border_size">0.5dp</dimen>
 
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_more_size">32dp</dimen>

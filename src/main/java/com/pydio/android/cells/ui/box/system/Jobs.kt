@@ -14,30 +14,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.debug
+import com.pydio.android.cells.ui.theme.info
+import com.pydio.android.cells.ui.theme.warning
 import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
-import java.util.*
 
 @Composable
-fun JobList(
-    jobs: List<RJob>?,
-    modifier: Modifier = Modifier
-) {
+fun JobList(jobs: List<RJob>) {
+
     LazyColumn(Modifier.fillMaxWidth()) {
-        items(jobs ?: listOf()) { job ->
+
+        items(jobs) { job ->
+
             val jobTitle = "#${job.jobId}: ${job.label}"
             val jobProgress = (job.progress * 100).toFloat().div(job.total)
+
             JobListItem(
                 title = jobTitle,
-                status = getJobStatus(job),
+                status = buildStatusString(job),
                 progress = jobProgress,
-                modifier = modifier
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.list_horizontal_padding),
+                        vertical = dimensionResource(R.dimen.list_vertical_padding)
+                    )
+                    .wrapContentWidth(Alignment.Start)
             )
         }
     }
@@ -46,25 +59,19 @@ fun JobList(
 @Composable
 private fun JobListItem(
     title: String,
-    status: String,
+    status: AnnotatedString,
     progress: Float,
     modifier: Modifier = Modifier
 ) {
-    // TODO add rounded corner on the top right
-    // TODO the progress bar part does not appear / disappear when needed.
+
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_item_elevation),
         modifier = modifier
-            .fillMaxWidth()
-            .padding(all = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
         Column(
-            modifier = modifier
-                .padding(
-                    horizontal = dimensionResource(R.dimen.card_padding),
-                    vertical = dimensionResource(R.dimen.margin_xsmall)
-                )
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = dimensionResource(R.dimen.list_item_inner_padding))
         ) {
             Text(
                 text = title,
@@ -81,54 +88,100 @@ private fun JobListItem(
     }
 }
 
-private fun getJobStatus(job: RJob?): String {
+@Composable
+private fun buildStatusString(job: RJob?): AnnotatedString {
+
     if (job == null) {
-        return "NaN"
+        return buildAnnotatedString { append("NaN") }
     }
 
-    var desc = "${job.status?.uppercase(Locale.getDefault())} "
-    val createdTs = timestampToString(job.creationTimestamp, "dd-MM HH:mm:ss")
-    val startTs = timestampToString(job.startTimestamp, "dd-MM HH:mm:ss")
-    val updatedTs = timestampToString(job.updateTimestamp, "HH:mm:ss")
-    val doneTs = timestampToString(job.doneTimestamp, "dd-MM HH:mm:ss")
-
-    when {
-        job.status == AppNames.JOB_STATUS_ERROR ||
-                job.status == AppNames.JOB_STATUS_ERROR -> {
-            desc += "at $doneTs: ${job.message}"
-            // TODO re-introduce color management
-            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-// setTextColor(resources.getColor(R.color.danger, context.theme))
-// }
-        }
-        job.status == AppNames.JOB_STATUS_CANCELLED -> {
-            desc += "at $doneTs: ${job.message}"
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                setTextColor(resources.getColor(R.color.colorAccent, context.theme))
-//            }
-        }
-
-        job.doneTimestamp > 0 -> {
-            desc += "at $doneTs: ${job.message}"
-        }
-        job.startTimestamp > 0 -> {
-            if (currentTimestamp() - job.updateTimestamp < 120) {
-                desc += "${asSinceString(job.startTimestamp)}\n${job.progressMessage}"
-            } else {
-                desc += "idle ${asSinceString(job.updateTimestamp)}\nlast message: ${job.progressMessage}"
-            }
-        }
-        else -> desc += " waiting since $createdTs"
-    }
-    return desc
+    return buildStatusString(
+        status = job.status ?: JobStatus.NEW.id,
+        creationTimestamp = job.creationTimestamp,
+        doneTimestamp = job.doneTimestamp,
+        updateTimestamp = job.updateTimestamp,
+        startTimestamp = job.startTimestamp,
+        message = job.message ?: "",
+        progressMessage = job.progressMessage ?: "",
+    )
 }
 
+@Composable
+private fun buildStatusString(
+    status: String,
+    creationTimestamp: Long,
+    doneTimestamp: Long,
+    updateTimestamp: Long,
+    startTimestamp: Long,
+    message: String,
+    progressMessage: String,
+): AnnotatedString {
+
+    val bgColor = when (status) {
+        JobStatus.ERROR.id,
+        JobStatus.TIMEOUT.id -> MaterialTheme.colorScheme.error
+        JobStatus.WARNING.id,
+        JobStatus.CANCELLED.id -> warning
+        JobStatus.NEW.id,
+        JobStatus.PROCESSING.id -> debug
+        else -> info
+    }
+
+    val createdTs = timestampToString(creationTimestamp, "dd-MM HH:mm:ss")
+    val doneTs = timestampToString(doneTimestamp, "dd-MM HH:mm:ss")
+
+    val text = buildAnnotatedString {
+        when {
+            status == JobStatus.ERROR.id ||
+                    status == JobStatus.TIMEOUT.id -> {
+                withStyle(style = SpanStyle(background = bgColor)) {
+                    append(" ${status.uppercase()} ")
+                }
+                append(" at $doneTs: ${message}")
+            }
+            status == JobStatus.CANCELLED.id -> {
+                withStyle(style = SpanStyle(background = bgColor)) {
+                    append(" ${status.uppercase()} ")
+                }
+                append(" at $doneTs: ${message}")
+            }
+            doneTimestamp > 0 -> {
+                withStyle(style = SpanStyle(background = bgColor)) {
+                    append(" ${status.uppercase()} ")
+                }
+                append(" at $doneTs: ${message}")
+            }
+            startTimestamp > 0 -> {
+                withStyle(style = SpanStyle(background = bgColor)) {
+                    append(" ${status.uppercase()} ")
+                }
+
+                if (currentTimestamp() - updateTimestamp < 120) {
+                    append(" ${asSinceString(startTimestamp)}\n${progressMessage}")
+                } else {
+                    append(" idle ${asSinceString(updateTimestamp)}\nlast message: ${progressMessage}")
+                }
+            }
+            else -> {
+                withStyle(style = SpanStyle(background = bgColor)) {
+                    append(" ${status.uppercase()} ")
+                }
+                append(" waiting since $createdTs")
+            }
+        }
+    }
+    return text
+}
 
 @Preview
 @Composable
 private fun JobListItemPreview(
 ) {
+    val status = buildAnnotatedString {
+        append("NaN")
+    }
+
     CellsTheme {
-        JobListItem("title", "status", 0.7f, Modifier)
+        JobListItem("title", status, 0.7f, Modifier)
     }
 }
