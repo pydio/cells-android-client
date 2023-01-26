@@ -10,6 +10,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,11 +35,10 @@ import com.pydio.android.cells.utils.timestampToString
 fun JobList(jobs: List<RJob>) {
 
     LazyColumn(Modifier.fillMaxWidth()) {
-
         items(jobs) { job ->
 
             val jobTitle = "#${job.jobId}: ${job.label}"
-            val jobProgress = (job.progress * 100).toFloat().div(job.total)
+            val jobProgress = job.progress.toFloat().div(job.total)
 
             JobListItem(
                 title = jobTitle,
@@ -52,6 +52,7 @@ fun JobList(jobs: List<RJob>) {
                     )
                     .wrapContentWidth(Alignment.Start)
             )
+
         }
     }
 }
@@ -126,7 +127,7 @@ private fun buildStatusString(
         JobStatus.PROCESSING.id -> debug
         else -> info
     }
-
+    val overStyle = SpanStyle(background = bgColor, color = contentColorFor(bgColor))
     val createdTs = timestampToString(creationTimestamp, "dd-MM HH:mm:ss")
     val doneTs = timestampToString(doneTimestamp, "dd-MM HH:mm:ss")
 
@@ -134,25 +135,25 @@ private fun buildStatusString(
         when {
             status == JobStatus.ERROR.id ||
                     status == JobStatus.TIMEOUT.id -> {
-                withStyle(style = SpanStyle(background = bgColor)) {
+                withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" at $doneTs: $message")
             }
             status == JobStatus.CANCELLED.id -> {
-                withStyle(style = SpanStyle(background = bgColor)) {
+                withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" at $doneTs: $message")
             }
             doneTimestamp > 0 -> {
-                withStyle(style = SpanStyle(background = bgColor)) {
+                withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" at $doneTs: $message")
             }
             startTimestamp > 0 -> {
-                withStyle(style = SpanStyle(background = bgColor)) {
+                withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
 
@@ -163,7 +164,7 @@ private fun buildStatusString(
                 }
             }
             else -> {
-                withStyle(style = SpanStyle(background = bgColor)) {
+                withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" waiting since $createdTs")

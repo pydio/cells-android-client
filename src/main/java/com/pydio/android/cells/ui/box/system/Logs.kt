@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,10 +88,11 @@ private fun LogItemTitle(
             AppNames.DEBUG -> com.pydio.android.cells.ui.theme.debug
             else -> com.pydio.android.cells.ui.theme.info
         }
+        val frontColor =  contentColorFor(bgColor)
 
         append(ts)
         append(" ")
-        withStyle(style = SpanStyle(background = bgColor)) {
+        withStyle(style = SpanStyle(background = bgColor, color = frontColor)) {
             append(" ${level.uppercase()} ")
         }
         append(" ")

@@ -391,7 +391,7 @@ class NodeService(
     ): Pair<Long, String?> =
         withContext(Dispatchers.IO) {
 
-            val label = "Account sync for $stateID launched by $caller"
+            val label = "Account sync for $stateID\nLaunched by $caller"
             val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_RESYNC, stateID.toString())
 
             // We first check if a sync is not already running for this account
