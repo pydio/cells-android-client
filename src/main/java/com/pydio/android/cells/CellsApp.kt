@@ -7,14 +7,16 @@ import android.os.Build
 import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
+import com.pydio.android.cells.di.allModules
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.allModules
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -61,7 +63,7 @@ class CellsApp : Application(), KoinComponent {
             modules(allModules)
         }
 
-        appScope.launch { configureWorkers() }
+        appScope.launch { withContext(Dispatchers.IO) { configureWorkers() } }
     }
 
     @Throws(SDKException::class)
@@ -79,6 +81,8 @@ class CellsApp : Application(), KoinComponent {
         instance.packageID = packageName
         instance.name = resources.getString(R.string.app_name)
         instance.clientID = resources.getString(R.string.client_id)
+        // FIXME this is not correct
+        // this is the date when the app has been updated, not the timestamp of the current release
         instance.buildTimestamp = packageInfo.lastUpdateTime
         instance.version = packageInfo.versionName
         instance.versionCode = compatVersionCode(packageInfo)
