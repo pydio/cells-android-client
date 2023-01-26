@@ -34,6 +34,16 @@
             </intent-filter>
         </activity>
 
+<!--        <activity-->
+<!--            android:name=".SampleActivity"-->
+<!--            android:exported="true"-->
+<!--            android:theme="@style/Cells.Md3.SplashScreen">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
         <activity
             android:name=".MigrateActivity"
             android:exported="false" />
