@@ -35,7 +35,7 @@ sealed class SelectTargetDestination(val route: String) {
 
     // TODO add a route that display the newly launched uploads with a "run in background option"
     // TODO add safety checks to prevent forbidden copy-move
-       // --> to finalise we must really pass the node to copy or move rather than its parent
+    // --> to finalise we must really pass the node*s* to copy or move rather than its parent
 }
 
 @Composable
@@ -76,15 +76,17 @@ fun SelectTargetHost(
         }
     }
 
-    // Optimistic check to prevent trying to copy move inside itself
     val canPost: (stateId: StateID) -> Boolean = { stateID ->
-        Log.e(logTag, "Checking can post")
-        Log.e(logTag, "... ${stateID.id} / $initialStateId ")
-        if (action == AppNames.ACTION_UPLOAD) {
-            true
-        } else {
-            !((stateID.id.startsWith(initialStateId) && (stateID.id.length > initialStateId.length)))
-        }
+        true
+//        if (action == AppNames.ACTION_UPLOAD) {
+//            true
+//        } else {
+//            // Optimistic check to prevent trying to copy move inside itself
+//            // TODO this does not work: we get the parent state as initial input
+//            //   (to start from the correct location), we should rather get a list of states
+//            //   that are about to copy / move to provide better behaviour in the select target activity
+//            !((stateID.id.startsWith(initialStateId) && (stateID.id.length > initialStateId.length)))
+//        }
     }
 
     val forceRefresh: (stateId: StateID) -> Unit = { browseRemoteVM.watch(it) }
