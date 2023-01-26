@@ -1,5 +1,6 @@
 package com.pydio.android.cells
 
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -9,21 +10,24 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.tasks.createFolder
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
+import com.pydio.android.cells.ui.box.dialogs.CreateFolder
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.AuthVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,6 +56,9 @@ class SelectTargetActivity : ComponentActivity() {
 
                 val ctx = LocalContext.current
                 val navController = rememberNavController()
+                val showCreateFolderDialog = rememberSaveable { mutableStateOf(false) }
+                val createFolderParent =
+                    rememberSaveable { mutableStateOf(Transport.UNDEFINED_STATE_ID) }
 
                 val initialAction = rememberSaveable { iAction }
                 val initialStateId = rememberSaveable { iState.id }
@@ -106,7 +113,9 @@ class SelectTargetActivity : ComponentActivity() {
                             finishAndRemoveTask()
                         }
                         AppNames.ACTION_CREATE_FOLDER -> {
-                            createFolder(ctx, stateID, nodeService)
+                            createFolderParent.value = stateID.id
+                            showCreateFolderDialog.value = true
+//                            createFolder(ctx, stateID, nodeService)
                         }
                     }
                 }
@@ -120,6 +129,30 @@ class SelectTargetActivity : ComponentActivity() {
                     accountListVM,
                     launchTaskFor,
                 )
+
+                if (showCreateFolderDialog.value) {
+                    val doCreate: (StateID, String) -> Unit = { parentID, name ->
+                        coroutineScope.launch {
+                            val errMsg = nodeService.createFolder(parentID, name)
+                            withContext(Dispatchers.Main) {
+                                if (Str.notEmpty(errMsg)) {
+                                    showMessage(ctx, errMsg!!)
+                                } else {
+                                    browseRemoteVM.watch(parentID)
+                                    showMessage(ctx, "Folder created at ${parentID.file}.")
+                                }
+                            }
+                        }
+                    }
+                    CreateFolder(
+                        parStateID = StateID.fromId(createFolderParent.value),
+                        createFolderAt = { parentId, name ->
+                            doCreate(parentId, name)
+                            showCreateFolderDialog.value = false
+                        },
+                        dismiss = { showCreateFolderDialog.value = false },
+                    )
+                }
             }
         }
     }
