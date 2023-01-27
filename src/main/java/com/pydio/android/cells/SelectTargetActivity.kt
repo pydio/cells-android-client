@@ -24,6 +24,7 @@ import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.AuthVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.TransferVM
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -69,6 +70,7 @@ class SelectTargetActivity : ComponentActivity() {
                 val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
                 val accountListVM by viewModel<AccountListVM>()
                 val authVM by viewModel<AuthVM>()
+                val transferVM by viewModel<TransferVM>()
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE_ID)) {
                     val initialStateID = StateID.fromId(initialStateId)
@@ -107,7 +109,7 @@ class SelectTargetActivity : ComponentActivity() {
                             for (uri in uris) {
                                 transferService.enqueueUpload(stateID, uri)
                             }
-                            finishAndRemoveTask()
+//                            finishAndRemoveTask()
                         }
                         AppNames.ACTION_CANCEL -> {
                             finishAndRemoveTask()
@@ -127,6 +129,7 @@ class SelectTargetActivity : ComponentActivity() {
                     browseLocalVM,
                     browseRemoteVM,
                     accountListVM,
+                    transferVM,
                     launchTaskFor,
                 )
 

@@ -243,7 +243,7 @@ private fun TopBar(
                 )
             }
             IconButton(
-                onClick = { onSelect(stateID, null) },
+                onClick = { onSelect(stateID, action) },
                 enabled = canPost(stateID) // Str.notEmpty(stateId.path)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Select this target")

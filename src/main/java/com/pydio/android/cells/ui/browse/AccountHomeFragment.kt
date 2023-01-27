@@ -132,7 +132,8 @@ class AccountHomeFragment : Fragment() {
         val accounts = withContext(Dispatchers.IO) { accountDao.getAccounts() }
         when (accounts.size) {
             0 -> { // No account: launch registration
-                binding.noAccountButton.text = resources.getText(R.string.welcome_add_account_button)
+                binding.noAccountButton.text =
+                    resources.getText(R.string.welcome_add_account_button)
                 binding.noAccountButton.setOnClickListener {
                     startActivity(Intent(requireActivity(), AuthActivity::class.java))
                 }

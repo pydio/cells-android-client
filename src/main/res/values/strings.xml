@@ -7,6 +7,8 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirm</string>
+    <string name="button_next">Next</string>
+    <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_switch_to_grid_layout">Show as grid</string>
     <string name="button_switch_to_list_layout">Show as list</string>Home

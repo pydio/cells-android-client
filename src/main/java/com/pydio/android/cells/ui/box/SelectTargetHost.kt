@@ -14,9 +14,11 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
+import com.pydio.android.cells.ui.box.system.UploadProgressScreen
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.TransferVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -29,13 +31,18 @@ sealed class SelectTargetDestination(val route: String) {
     object ChooseAccount : SelectTargetDestination("choose-account")
 
     object OpenFolder : SelectTargetDestination("open/{stateId}") {
-        fun createRoute(stateId: StateID) = "open/${stateId.id}"
+        fun createRoute(stateID: StateID) = "open/${stateID.id}"
+        fun getPathKey() = "stateId"
+    }
+
+    object UploadInProgress : SelectTargetDestination("upload-in-progress/{stateId}") {
+        fun createRoute(stateID: StateID) = "upload-in-progress/${stateID.id}"
         fun getPathKey() = "stateId"
     }
 
     // TODO add a route that display the newly launched uploads with a "run in background option"
     // TODO add safety checks to prevent forbidden copy-move
-    // --> to finalise we must really pass the node*s* to copy or move rather than its parent
+    //  --> to finalise we must really pass the node*s* to copy or move rather than its parent
 }
 
 @Composable
@@ -46,6 +53,7 @@ fun SelectTargetHost(
     browseLocalVM: BrowseLocalFoldersVM,
     browseRemoteVM: BrowseRemoteVM,
     accountListVM: AccountListVM,
+    transferVM: TransferVM,
     postActivity: (stateID: StateID, action: String?) -> Unit,
 ) {
 
@@ -76,6 +84,14 @@ fun SelectTargetHost(
         }
     }
 
+    val interceptPost: (StateID, String?) -> Unit = { stateID, currAction ->
+        if (AppNames.ACTION_UPLOAD == currAction) {
+            navController.navigate(SelectTargetDestination.UploadInProgress.createRoute(stateID))
+        }
+        postActivity(stateID, currAction)
+    }
+
+
     val canPost: (stateId: StateID) -> Boolean = { stateID ->
         true
 //        if (action == AppNames.ACTION_UPLOAD) {
@@ -97,7 +113,7 @@ fun SelectTargetHost(
         SelectTargetDestination.ChooseAccount.route
     }
 
-    /* Configure navigation */
+/* Configure navigation */
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -107,6 +123,7 @@ fun SelectTargetHost(
             val login: (StateID) -> Unit = { postActivity(it, AppNames.ACTION_LOGIN) }
             SessionList(accountListVM, open, login)
         }
+
         composable(SelectTargetDestination.OpenFolder.route) { navBackStackEntry ->
             val stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
@@ -119,9 +136,22 @@ fun SelectTargetHost(
                 open,
                 openParent,
                 canPost,
-                postActivity,
+                interceptPost,
                 forceRefresh,
             )
+        }
+
+        composable(SelectTargetDestination.UploadInProgress.route) { navBackStackEntry ->
+            Log.e(logTag, "About to navigate to upload screen")
+            val stateId =
+                navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
+                    ?: Transport.UNDEFINED_STATE_ID
+            val stateID = StateID.fromId(stateId)
+            val currTransfers = transferVM.getCurrentTransfers(stateID).observeAsState()
+            // FIXME we must get the list of transfers and set it here
+            UploadProgressScreen(stateID, currTransfers.value ?: listOf()) {
+                postActivity(stateID, AppNames.ACTION_CANCEL)
+            }
         }
     }
 }

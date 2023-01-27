@@ -35,8 +35,10 @@ import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
+import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
+import com.pydio.android.cells.ui.models.TransferVM
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.transfer.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transfer.PickFolderViewModel
@@ -178,15 +180,17 @@ val viewModelModule = module {
     viewModel { JobListVM(get()) }
     viewModel { LogListVM(get()) }
 
-
-    viewModel { AuthVM(get(), get()) }
-    viewModel { BrowseLocalFoldersVM(get()) }
     viewModel { BrowseRemoteVM(get(), get()) }
-    viewModel { ChooseTargetViewModel(get()) }
+    viewModel { AuthVM(get(), get()) }
+    viewModel { LoginVM(get(), get(), get()) }
+    viewModel { BrowseLocalFoldersVM(get()) }
     viewModel { SelectTargetVM(get()) }
+    viewModel { MigrationVM(get(), get(), get(), get()) }
+    viewModel { TransferVM(get(), get()) }
+
+    viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
-    viewModel { MigrationVM(get(), get(), get(), get()) }
 
 
     viewModel { params -> TransferViewModel(get(), get(), params.get()) }

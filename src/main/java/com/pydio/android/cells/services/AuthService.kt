@@ -54,7 +54,10 @@ class AuthService(authDB: AuthDB) {
             val server = sessionFactory.getServer(serverID)
             // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
                 ?: let {
-                    Log.e(logTag, "could not get server $serverID for SessionFactory with url ${url.id}")
+                    Log.e(
+                        logTag,
+                        "could not get server $serverID for SessionFactory with url ${url.id}"
+                    )
                     return@withContext null
                 }
 
@@ -91,11 +94,12 @@ class AuthService(authDB: AuthDB) {
                 val transport = sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
+                Log.w(logTag, "... Matched the token")
                 accountID = manageRetrievedToken(accountService, transport, token)
+                Log.w(logTag, "... token managed, post clean")
 
                 // Leave OAuth state cacheDB clean
                 authStateDao.delete(oauthState)
-
                 // When creating a new account, we want to put its session on the foreground
                 if (rState.next == NEXT_ACTION_BROWSE) {
                     accountService.openSession(accountID)

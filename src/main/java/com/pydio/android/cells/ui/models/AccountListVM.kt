@@ -1,21 +1,12 @@
 package com.pydio.android.cells.ui.models
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pydio.android.cells.AppKeys
-import com.pydio.android.cells.AuthActivity
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.utils.BackOffTicker
-import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
