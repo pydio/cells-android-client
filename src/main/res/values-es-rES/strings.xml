@@ -51,7 +51,7 @@
     <string name="about_page_copyright">Pydio es una marca registrada de Abstrium SAS.</string>
     <string name="version_name_display">Nombre de la versión: %s</string>
     <string name="version_code_display">Código de la versión: %s</string>
-    <string name="version_date_display">Fecha de la versión: %s</string>
+    <string name="last_update_time_display">Fecha de la versión: %s</string>
     <string name="about_page_get_help">Si no puedes conseguir que esta aplicación funcione correctamente, por favor envía un correo electrónico con una descripción completa del problema al que te enfrentas para que podamos ayudarte.</string>
     <string name="help_button_support">Contactar con el servicio de soporte Pydio</string>
     <string name="open_website_button">Más información en pydio.com</string>

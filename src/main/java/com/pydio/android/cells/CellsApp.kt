@@ -69,21 +69,15 @@ class CellsApp : Application(), KoinComponent {
     @Throws(SDKException::class)
     private fun updateClientData(): String {
 
-        val packageInfo: PackageInfo = try {
-            // Requires API level 33
-            // applicationContext.packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-            applicationContext.packageManager.getPackageInfo(packageName, 0)
-        } catch (e: PackageManager.NameNotFoundException) {
-            throw SDKException("Could not retrieve PackageInfo for $packageName", e)
-        }
+        val packageInfo = internalGetPackageInfo()
 
         val instance = ClientData.getInstance()
         instance.packageID = packageName
         instance.name = resources.getString(R.string.app_name)
         instance.clientID = resources.getString(R.string.client_id)
-        // FIXME this is not correct
         // this is the date when the app has been updated, not the timestamp of the current release
-        instance.buildTimestamp = packageInfo.lastUpdateTime
+        instance.lastUpdateTime = packageInfo.lastUpdateTime
+        // TODO also add a timestamp when releasing
         instance.version = packageInfo.versionName
         instance.versionCode = compatVersionCode(packageInfo)
         instance.platform = getAndroidVersion()
@@ -95,6 +89,25 @@ class CellsApp : Application(), KoinComponent {
     // TODO implement background cleaning, typically:
     //  - states
     //  - upload & downloads
+
+
+    @Suppress("DEPRECATION")
+    // We must explicitly discard warnings when using the old and new version of a given API
+    // like below that is only available in v33+ with old version that has already been deprecated
+    private fun internalGetPackageInfo(): PackageInfo {
+        try {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                applicationContext.packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                applicationContext.packageManager.getPackageInfo(packageName, 0)
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            throw SDKException("Could not retrieve PackageInfo for $packageName", e)
+        }
+    }
 
     @Suppress("DEPRECATION")
     private fun compatVersionCode(packageInfo: PackageInfo): Long {

@@ -39,7 +39,7 @@ fun AboutScreen(
         VersionCard(
             version = data.version,
             code = BuildConfig.VERSION_CODE.toString(),
-            relDate = getTimestampAsString(data.buildTimestamp),
+            lastUpdateTime = getTimestampAsString(data.lastUpdateTime),
             onUriClick = onUriClick,
         )
 
@@ -56,7 +56,7 @@ fun AboutScreen(
 private fun VersionCard(
     version: String,
     code: String,
-    relDate: String,
+    lastUpdateTime: String,
     onUriClick: () -> Unit,
 ) {
     // TODO this had rounded corners
@@ -91,11 +91,11 @@ private fun VersionCard(
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(
-                text = stringResource(R.string.version_date_display, relDate),
+                text = stringResource(R.string.last_update_time_display, lastUpdateTime),
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(
-                text = stringResource(R.string.about_page_copyright, relDate),
+                text = stringResource(R.string.about_page_copyright),
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(

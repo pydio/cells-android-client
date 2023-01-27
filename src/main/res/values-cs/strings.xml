@@ -51,7 +51,7 @@
     <string name="about_page_copyright">Pydio je ochranná známka Abstrium SAS.</string>
     <string name="version_name_display">Název verze: %s</string>
     <string name="version_code_display">Číslo verze: %s</string>
-    <string name="version_date_display">Datum verze: %s</string>
+    <string name="last_update_time_display">Datum verze: %s</string>
     <string name="about_page_get_help">Pokud nemůžete tuto aplikaci přimět ke správnému fungování, prosím pošlete e-mail s úplným popisem problému, kterému čelíte, abychom vám mohli pomoci.</string>
     <string name="help_button_support">Kontaktovat podporu Pydio</string>
     <string name="open_website_button">Další informace na pydio.com</string>

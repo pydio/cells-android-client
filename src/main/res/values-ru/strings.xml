@@ -51,7 +51,7 @@
     <string name="about_page_copyright">Pydio является торговой маркой Abstrium SAS.</string>
     <string name="version_name_display">Имя версии: %s</string>
     <string name="version_code_display">Код версии: %s</string>
-    <string name="version_date_display">Дата версии: %s</string>
+    <string name="last_update_time_display">Дата версии: %s</string>
     <string name="about_page_get_help">Если это приложение работает некорректно, пожалуйста, отправьте нам письмо с полным описанием обнаруженной проблемы, чтобы мы могли вам помочь.</string>
     <string name="help_button_support">Связаться с поддержкой Pydio</string>
     <string name="open_website_button">Больше информации на pydio.com</string>

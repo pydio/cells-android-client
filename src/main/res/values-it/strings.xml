@@ -51,7 +51,7 @@
     <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
     <string name="version_name_display">Version name: %s</string>
     <string name="version_code_display">Version code: %s</string>
-    <string name="version_date_display">Version date: %s</string>
+    <string name="last_update_time_display">Version date: %s</string>
     <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
     <string name="help_button_support">Contact Pydio Support</string>
     <string name="open_website_button">More info on pydio.com</string>

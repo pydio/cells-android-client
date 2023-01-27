@@ -39,7 +39,7 @@ class AboutFragment : Fragment() {
                 format,
                 data.versionCode,
                 data.version,
-                getTimestampAsENString(data.buildTimestamp),
+                getTimestampAsENString(data.lastUpdateTime),
                 getOSCurrentVersion(),
             )
             val summary = "\n\nPlease describe your problem (in English): \n"
