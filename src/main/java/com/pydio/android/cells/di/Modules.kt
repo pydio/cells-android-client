@@ -21,9 +21,6 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.auth.OAuthViewModel
-import com.pydio.android.cells.ui.auth.P8CredViewModel
-import com.pydio.android.cells.ui.auth.ServerUrlViewModel
 import com.pydio.android.cells.ui.browse.BookmarksViewModel
 import com.pydio.android.cells.ui.browse.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
@@ -164,9 +161,8 @@ val serviceModule = module {
 
 val viewModelModule = module {
 
-    viewModel { ServerUrlViewModel(get(), get()) }
-    viewModel { OAuthViewModel(get(), get(), get()) }
-    viewModel { P8CredViewModel(get()) }
+    viewModel { LoginVM(get(), get(), get()) }
+    viewModel { AuthVM(get(), get()) }
     viewModel { AccountListVM(get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
@@ -181,8 +177,6 @@ val viewModelModule = module {
     viewModel { LogListVM(get()) }
 
     viewModel { BrowseRemoteVM(get(), get()) }
-    viewModel { AuthVM(get(), get()) }
-    viewModel { LoginVM(get(), get(), get()) }
     viewModel { BrowseLocalFoldersVM(get()) }
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }

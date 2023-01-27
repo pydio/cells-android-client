@@ -41,15 +41,8 @@ class AuthActivity : ComponentActivity() {
                         lifecycleScope.launch {
                             loginVM.handleOAuthResponse(state, code)
                         }
-
-                        // set processing
-                        // go to
-                        // FIXME
-//                    val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(null)
-//                    findNavController(R.id.auth_fragment_host).navigate(action)
                     }
                 }
-
                 extraUrl != null -> {
                     // TODO double check that browsing is the relevant default here
                     val next: String = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
@@ -60,9 +53,6 @@ class AuthActivity : ComponentActivity() {
                         lifecycleScope.launch {
                             loginVM.toCellsCredentials(extraUrl, next)
                         }
-                        // FIXME Forward to cells
-//                        val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
-//                        findNavController(R.id.auth_fragment_host).navigate(action)
                     }
                 }
                 else -> {

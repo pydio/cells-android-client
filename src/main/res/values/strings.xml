@@ -8,6 +8,7 @@
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_next">Next</string>
+    <string name="button_back">Back</string>
     <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_switch_to_grid_layout">Show as grid</string>
@@ -77,7 +78,10 @@
     <string name="oauth_callback_cancel">Cancel</string>
     <string name="invalid_tls_certificate">Invalid certificate</string>
     <string name="confirm_skip_verify_title">Invalid certificate</string>
-    <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
+    <string name="confirm_skip_verify_desc">Someone could be trying to impersonate the site and you should not continue.\n\n Websites prove their identity via certificates. Your device does not trust %1$s because its certificate issuer is unknown, the certificate is self-signed, or the server is not sending the correct intermediate certificates.\n\n</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
+
     <string name="button_i_understand_the_risks">OK, I understand the risks</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>

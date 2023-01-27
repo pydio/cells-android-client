@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.box
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.box.account.AskServerUrl
 import com.pydio.android.cells.ui.box.account.P8Credentials
 import com.pydio.android.cells.ui.box.account.ProcessAuth
+import com.pydio.android.cells.ui.box.account.SkipVerify
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -28,6 +28,7 @@ private const val logTag = "AuthScreen.kt"
 
 private sealed class AuthDestinations(val route: LoginStep) {
     object ServerURL : AuthDestinations(LoginStep.URL)
+    object CertNotValid : AuthDestinations(LoginStep.SKIP_VERIFY)
     object P8Credentials : AuthDestinations(LoginStep.P8_CRED)
     object Processing : AuthDestinations(LoginStep.OAUTH_FLOW)
 }
@@ -79,6 +80,11 @@ fun AuthHost(
             composable(LoginStep.URL.name) {
                 AskServerUrl(loginVM)
                 loginVM.setCurrentStep(LoginStep.URL)
+            }
+
+            composable(LoginStep.SKIP_VERIFY.name) {
+                SkipVerify(loginVM)
+                loginVM.setCurrentStep(LoginStep.SKIP_VERIFY)
             }
 
             composable(LoginStep.P8_CRED.name) {

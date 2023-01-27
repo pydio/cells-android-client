@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.box.account
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -121,6 +122,61 @@ fun AskServerUrl(
     }
 }
 
+@Composable
+fun SkipVerify(
+    loginVM: LoginVM,
+) {
+    val isProcessing = loginVM.isProcessing.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(R.dimen.card_padding))
+            .wrapContentWidth(Alignment.Start)
+    ) {
+        DefaultTitleText(stringResource(R.string.confirm_skip_verify_title))
+
+        Text(
+            text = stringResource(R.string.confirm_skip_verify_desc),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
+        )
+
+        Row {
+            TextButton(
+                onClick = {
+                    // TODO implement cancel
+                },
+                modifier = Modifier
+                    .weight(.5f)
+                    .padding(all = dimensionResource(R.dimen.margin))
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            ) { Text(stringResource(R.string.confirm_skip_verify_cancel)) }
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        loginVM.confirmSkipVerifyAndPing()
+                    }
+                },
+                modifier = Modifier
+                    .weight(.5f)
+                    .padding(all = dimensionResource(R.dimen.margin))
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            ) { Text(stringResource(R.string.confirm_skip_verify_accept)) }
+        }
+        if (isProcessing.value) {
+            LinearProgressIndicator(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dimensionResource(R.dimen.margin_medium))
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
+
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun P8Credentials(
@@ -209,6 +265,8 @@ fun P8Credentials(
 fun ProcessAuth(
     loginVM: LoginVM,
 ) {
+    val isProcessing = loginVM.isProcessing.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,12 +274,20 @@ fun ProcessAuth(
             .wrapContentWidth(Alignment.Start)
     ) {
         DefaultTitleText("Processing...")
-        LinearProgressIndicator(
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = dimensionResource(R.dimen.margin_medium))
-                .wrapContentWidth(Alignment.CenterHorizontally)
+        Text(
+            text = stringResource(R.string.p8_credentials_desc),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
         )
+
+        if (isProcessing.value) {
+            LinearProgressIndicator(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dimensionResource(R.dimen.margin_medium))
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
     }
 }
 

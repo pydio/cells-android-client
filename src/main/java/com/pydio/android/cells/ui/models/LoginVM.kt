@@ -11,6 +11,7 @@ import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -76,9 +77,9 @@ class LoginVM(
 
     // Handle TLS if necessary
     private val _skipVerify = MutableStateFlow(false)
-    private val _invalidTLS = MutableStateFlow(false)
-    val invalidTLS: StateFlow<Boolean>
-        get() = _invalidTLS
+//    private val _invalidTLS = MutableStateFlow(false)
+//    val invalidTLS: StateFlow<Boolean>
+//        get() = _invalidTLS
 
     // A valid server URL with TLS managed
     private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
@@ -134,45 +135,14 @@ class LoginVM(
     }
 
     // Business methods
-
     suspend fun pingAddress(serverAddress: String) {
         _serverAddress.value = serverAddress
-        switchLoading(true)
-        // First Ping the server and check if address is valid
-        // and distant server has a valid TLS configuration
-        val serverURL = doPing(serverAddress)
-            ?: // Error Message is handled by the doPing
-            return
-
-        Log.e(logTag, "here")
-
-        // ServerURL is OK aka 200 at given URL with correct cert
-        _serverUrl.value = serverURL
-        updateMessage("Address and cert are valid. Registering server...")
-
-        //  tries to register server
-        val server = doRegister(serverURL)
-            ?: // Error messages and states are handled above
-            return
-        updateMessage("")
-        _server.value = server
-        // make progress + 1
-
-        if (server.isLegacy) {
-            _currDestination.value = LoginStep.P8_CRED
-        } else {
-            triggerOAuthProcess(serverURL)
-        }
+        processAddress()
     }
 
-    fun confirmTlsValidationSkip(doSkip: Boolean) {
-        if (doSkip) {
-            _skipVerify.value = true
-            // TODO  recheck that it is now OK
-            //  serverAddress.value?.let { pingAddress(it) }
-        } else {
-            // TODO cancel server and give the user the possibility to enter another address
-        }
+    suspend fun confirmSkipVerifyAndPing() {
+        _skipVerify.value = true
+        processAddress()
     }
 
     fun logToP8(login: String, password: String, captcha: String?) {
@@ -208,6 +178,38 @@ class LoginVM(
     }
 
     // Internal stuff
+    suspend fun processAddress() {
+        if (Str.empty(_serverAddress.value)) {
+            updateErrorMsg("Server address is empty, could not proceed")
+        }
+        switchLoading(true)
+        // First Ping the server and check if address is valid
+        // and distant server has a valid TLS configuration
+        val serverURL = doPing(_serverAddress.value)
+            ?: // Error Message is handled by the doPing
+            return
+
+        Log.e(logTag, "after ping, server URL: $serverURL")
+
+        // ServerURL is OK aka 200 at given URL with correct cert
+        _serverUrl.value = serverURL
+        updateMessage("Address and cert are valid. Registering server...")
+
+        //  tries to register server
+        val server = doRegister(serverURL)
+            ?: // Error messages and states are handled above
+            return
+        updateMessage("")
+        _server.value = server
+        // make progress + 1
+
+        if (server.isLegacy) {
+            _currDestination.value = LoginStep.P8_CRED
+        } else {
+            triggerOAuthProcess(serverURL)
+        }
+    }
+
 
     private suspend fun doPing(serverAddress: String): ServerURL? {
         return withContext(Dispatchers.IO) {
@@ -221,11 +223,12 @@ class LoginVM(
                 updateErrorMsg(e.message ?: "Invalid address, please update")
             } catch (e: SSLException) {
                 updateErrorMsg("Invalid certificate for $serverAddress")
-                Log.e(logTag, "${e.message} - invalid certificate for $serverAddress")
+                Log.e(logTag, "Invalid certificate for $serverAddress: ${e.message}")
 
                 withContext(Dispatchers.Main) {
                     _skipVerify.value = false
-                    _invalidTLS.value = true
+                    // _invalidTLS.value = true
+                    _currDestination.value = LoginStep.SKIP_VERIFY
                 }
                 return@withContext null
             } catch (e: IOException) {
