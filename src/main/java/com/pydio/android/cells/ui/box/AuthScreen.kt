@@ -5,15 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.box.account.AfterSuccessfulLogin
 import com.pydio.android.cells.ui.box.account.AskServerUrl
 import com.pydio.android.cells.ui.box.account.P8Credentials
 import com.pydio.android.cells.ui.box.account.ProcessAuth
@@ -21,8 +25,7 @@ import com.pydio.android.cells.ui.box.account.SkipVerify
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.danger
-import com.pydio.cells.utils.Str
+import kotlinx.coroutines.launch
 
 private const val logTag = "AuthScreen.kt"
 
@@ -30,7 +33,7 @@ private sealed class AuthDestinations(val route: LoginStep) {
     object ServerURL : AuthDestinations(LoginStep.URL)
     object CertNotValid : AuthDestinations(LoginStep.SKIP_VERIFY)
     object P8Credentials : AuthDestinations(LoginStep.P8_CRED)
-    object Processing : AuthDestinations(LoginStep.OAUTH_FLOW)
+    object Processing : AuthDestinations(LoginStep.PROCESS_AUTH)
 }
 
 @Composable
@@ -47,9 +50,12 @@ fun AuthHost(
             Log.e(logTag, "New step received: $it")
             if (it.name != navController.currentDestination?.route) {
                 Log.e(logTag, "Curr dest was: ${navController.currentDestination?.route}")
-                navController.navigate(it.name)
                 if (it == LoginStep.DONE) {
+                    // we don't need to show the "done": Auth has already been done and processed,
+                    // and showing the page adds some useless "blinking".
                     afterAuth(true)
+                } else {
+                    navController.navigate(it.name)
                 }
             }
         }
@@ -64,8 +70,18 @@ fun AuthHost(
         }
     }
 
+    val scope = rememberCoroutineScope()
+    val currAddress = loginVM.serverAddress.collectAsState()
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
+    val isProcessing = loginVM.isProcessing.collectAsState()
+
+    val doPing: (String) -> Unit = { url ->
+        // TODO add sanity checks
+        scope.launch {
+            loginVM.pingAddress()
+        }
+    }
 
     Column {
 
@@ -77,48 +93,73 @@ fun AuthHost(
             startDestination = LoginStep.URL.name,
             modifier = Modifier.weight(.8f)
         ) {
+
             composable(LoginStep.URL.name) {
-                AskServerUrl(loginVM)
+
+                AskServerUrl(
+                    isProcessing = isProcessing.value,
+                    message = message.value,
+                    errMsg = errMsg.value,
+                    urlString = currAddress.value,
+                    setUrl = { loginVM.setAddress(it) },
+                    pingUrl = { doPing(currAddress.value) },
+                    cancel = { afterAuth(false) }
+                )
+
                 loginVM.setCurrentStep(LoginStep.URL)
             }
 
             composable(LoginStep.SKIP_VERIFY.name) {
-                SkipVerify(loginVM)
+
+                SkipVerify(
+                    isProcessing.value,
+                    currAddress.value,
+                    message.value,
+                    errMsg.value,
+                    goBack = { navController.navigateBack() },
+                    accept = { scope.launch { loginVM.confirmSkipVerifyAndPing() } },
+                )
                 loginVM.setCurrentStep(LoginStep.SKIP_VERIFY)
             }
 
             composable(LoginStep.P8_CRED.name) {
-                P8Credentials(loginVM)
+
+                val loginString = rememberSaveable { mutableStateOf("") }
+                val updateLogin: (String) -> Unit = { loginString.value = it }
+                val pwdString = rememberSaveable { mutableStateOf("") }
+                val updatePwd: (String) -> Unit = { pwdString.value = it }
+
+                val launchP8Auth: (String, String, String?) -> Unit = {
+                    // TODO add validation
+                        login, pwd, captcha ->
+                    scope.launch { loginVM.logToP8(login, pwd, captcha) }
+                }
+
+                P8Credentials(
+                    isProcessing.value,
+                    loginString.value,
+                    updateLogin,
+                    pwdString.value,
+                    updatePwd,
+                    message = message.value,
+                    errMsg = errMsg.value,
+                    goBack = { navController.navigateBack() },
+                    launchP8Auth = launchP8Auth,
+                )
                 loginVM.setCurrentStep(LoginStep.P8_CRED)
             }
 
-            composable(LoginStep.OAUTH_FLOW.name) {
-                ProcessAuth(loginVM)
-                loginVM.setCurrentStep(LoginStep.OAUTH_FLOW)
-            }
+            composable(LoginStep.PROCESS_AUTH.name) {
 
-            composable(LoginStep.POST_AUTH.name) {
-                ProcessAuth(loginVM)
-                loginVM.setCurrentStep(LoginStep.POST_AUTH)
+                ProcessAuth(isProcessing.value, message.value)
+                loginVM.setCurrentStep(LoginStep.PROCESS_AUTH)
             }
 
             composable(LoginStep.DONE.name) {
-                ProcessAuth(loginVM)
+                // This page should never be seen.
+                AfterSuccessfulLogin()
                 loginVM.setCurrentStep(LoginStep.DONE)
             }
-        }
-
-        if (Str.notEmpty(message.value)) {
-            Text(
-                text = message.value!!,
-                color = danger
-            )
-        }
-        if (Str.notEmpty(errMsg.value)) {
-            Text(
-                text = errMsg.value!!,
-                color = danger
-            )
         }
     }
 }
@@ -132,5 +173,13 @@ fun AuthApp(content: @Composable () -> Unit) {
         ) {
             content()
         }
+    }
+}
+
+// Kind of hack to be able to navigate back using the navController
+// TODO clean this
+private fun NavController.navigateBack() {
+    if (backQueue.size > 2) {
+        popBackStack()
     }
 }

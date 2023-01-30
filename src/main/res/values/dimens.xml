@@ -48,6 +48,11 @@
     <dimen name="list_thumb_border_size">0.5dp</dimen>
 
 
+    <!-- Material3 Forms -->
+    <dimen name="form_page_padding">16dp</dimen>
+    <dimen name="form_input_horizontal_padding">16dp</dimen>
+    <dimen name="form_input_vertical_padding">8dp</dimen>
+
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab
         Goes with the clipToPadding=false prop in the recycler layout -->

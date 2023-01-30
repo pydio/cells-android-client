@@ -12,25 +12,22 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.MalformedURLException
 import javax.net.ssl.SSLException
 
 enum class LoginStep {
-    URL, SKIP_VERIFY, P8_CRED, OAUTH_FLOW, POST_AUTH, DONE, ERROR
+    URL, SKIP_VERIFY, P8_CRED, PROCESS_AUTH, DONE, ERROR
 }
 
-enum class AfterLogin {
-    ACCOUNTS, BROWSE, TERMINATE, SELECT_TARGET
-}
+//enum class AfterLogin {
+//    ACCOUNTS, BROWSE, TERMINATE, SELECT_TARGET
+//}
 
 /**
  * Main view model for the login process with both Cells and P8.
@@ -43,68 +40,56 @@ class LoginVM(
 ) : ViewModel() {
 
     private val logTag = "LoginVM"
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // UI
+    // Add some delay for the end user to be aware of what is happening under the hood.
+    // TODO remove or reduce
+    private val smoothActionDelay = 750L
+
     // Tracks current page
     private val _currDestination = MutableStateFlow(LoginStep.URL)
-    val currDestination: StateFlow<LoginStep>
-        get() = _currDestination
+    val currDestination: StateFlow<LoginStep> = _currDestination
 
-    // True if a request is currently running
     private val _isProcessing = MutableStateFlow(false)
-    val isProcessing: StateFlow<Boolean>
-        get() = _isProcessing
+    val isProcessing: StateFlow<Boolean> = _isProcessing
 
     private val _message = MutableStateFlow("")
-    val message: StateFlow<String?>
-        get() = _message
+    val message: StateFlow<String?> = _message
 
     private var _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String?>
-        get() = _errorMessage
+    val errorMessage: StateFlow<String?> = _errorMessage
 
+    // Used to trigger an "external call"
     private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
-    val oauthIntent: StateFlow<Intent?>
-        get() = _oauthIntent
+    val oauthIntent: StateFlow<Intent?> = _oauthIntent
 
-    // Business
+    // Business Data: TODO we don't need flows for this variables
     // First step, we have nothing then an address
     private val _serverAddress = MutableStateFlow("")
-    val serverAddress: StateFlow<String>
-        get() = _serverAddress
-
+    val serverAddress: StateFlow<String> = _serverAddress
     // Handle TLS if necessary
     private val _skipVerify = MutableStateFlow(false)
-//    private val _invalidTLS = MutableStateFlow(false)
-//    val invalidTLS: StateFlow<Boolean>
-//        get() = _invalidTLS
 
     // A valid server URL with TLS managed
     private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
-    val serverUrl: StateFlow<ServerURL?>
-        get() = _serverUrl
+    val serverUrl: StateFlow<ServerURL?> = _serverUrl
 
     // Server is a Pydio instance and has already been registered in local repository
     private var _server: MutableStateFlow<Server?> = MutableStateFlow(null)
-    val server: StateFlow<Server?>
-        get() = _server
+    val server: StateFlow<Server?> = _server
 
     // Set upon successful authentication against the remote server
     private val _accountID: MutableStateFlow<String?> = MutableStateFlow(null)
-    val accountID: StateFlow<String?>
-        get() = _accountID
+    val accountID: StateFlow<String?> = _accountID
 
     private var _nextAction = AuthService.NEXT_ACTION_BROWSE
-    val nextAction: String
-        get() = _nextAction
+    val nextAction: String = _nextAction
 
     // UI Methods
     fun after(currStep: LoginStep) {
         val nextStep = when (currStep) {
             LoginStep.URL -> LoginStep.P8_CRED
-            LoginStep.P8_CRED -> LoginStep.POST_AUTH
+            LoginStep.P8_CRED -> LoginStep.PROCESS_AUTH
             else -> LoginStep.URL
         }
         Log.e(logTag, "In after: $nextStep, and ${_currDestination.value}")
@@ -113,15 +98,27 @@ class LoginVM(
 
     fun setCurrentStep(currStep: LoginStep) {
         // Dirty tweak otherwise we have an issue when using the back button of the system
-        _currDestination.value = currStep
-        switchLoading(false)
-        _message.value = ""
+        if (currStep != _currDestination.value) {
+            _currDestination.value = currStep
+            switchLoading(false)
+            _message.value = ""
+        } else {
+            // Tmp log to monitor this behaviour
+            Log.i(logTag, "Skipping state update for same step: $currStep")
+        }
     }
 
     fun toP8Credentials(urlStr: String, next: String) {
         // TODO rather retrieve the Server from the local repo
+        val url = ServerURLImpl.fromJson(urlStr)
         _nextAction = next
-        _serverUrl.value = ServerURLImpl.fromJson(urlStr)
+        _serverUrl.value = url
+        if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
+            _serverAddress.value = url.id
+            if (url.skipVerify()) {
+                _skipVerify.value = true
+            }
+        }
         _currDestination.value = LoginStep.P8_CRED
     }
 
@@ -130,13 +127,23 @@ class LoginVM(
         _nextAction = next
         val url = ServerURLImpl.fromJson(urlStr)
         _serverUrl.value = url
-        _currDestination.value = LoginStep.OAUTH_FLOW
+        if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
+            _serverAddress.value = url.id
+            if (url.skipVerify()) {
+                _skipVerify.value = true
+            }
+        }
+        _currDestination.value = LoginStep.PROCESS_AUTH
         triggerOAuthProcess(url)
     }
 
     // Business methods
-    suspend fun pingAddress(serverAddress: String) {
+    fun setAddress(serverAddress: String) {
         _serverAddress.value = serverAddress
+        _errorMessage.value = ""
+    }
+
+    suspend fun pingAddress() {
         processAddress()
     }
 
@@ -145,21 +152,19 @@ class LoginVM(
         processAddress()
     }
 
-    fun logToP8(login: String, password: String, captcha: String?) {
+    suspend fun logToP8(login: String, password: String, captcha: String?) {
         // TODO validate passed parameters
         switchLoading(true)
-        vmScope.launch {
-            val ok = doP8Auth(login, password, captcha)
-            if (ok) {
-                setCurrentStep(LoginStep.DONE)
-            }
-        }
+        doP8Auth(login, password, captcha)
     }
 
     suspend fun handleOAuthResponse(state: String, code: String) {
-        setCurrentStep(LoginStep.POST_AUTH)
+
+        _currDestination.value = LoginStep.PROCESS_AUTH
+        switchLoading(true)
         updateMessage("Retrieving authentication token...")
         val newAccount = withContext(Dispatchers.IO) {
+            delay(smoothActionDelay)
             authService.handleOAuthResponse(accountService, sessionFactory, state, code)
         } ?: run {
             updateErrorMsg("could not retrieve token from code")
@@ -170,21 +175,23 @@ class LoginVM(
         newAccount.second?.let { _nextAction = it }
         withContext(Dispatchers.IO) {
             accountService.refreshWorkspaceList(newAccount.first)
-            delay(2000)
+            delay(smoothActionDelay)
         }
 
         _accountID.value = newAccount.first
         setCurrentStep(LoginStep.DONE)
     }
 
-    // Internal stuff
-    suspend fun processAddress() {
+    // Internal helpers
+
+    private suspend fun processAddress() {
         if (Str.empty(_serverAddress.value)) {
             updateErrorMsg("Server address is empty, could not proceed")
         }
         switchLoading(true)
-        // First Ping the server and check if address is valid
-        // and distant server has a valid TLS configuration
+        // 1) Ping the server and check if:
+        //   - address is valid
+        //   - distant server has a valid TLS configuration
         val serverURL = doPing(_serverAddress.value)
             ?: // Error Message is handled by the doPing
             return
@@ -195,14 +202,13 @@ class LoginVM(
         _serverUrl.value = serverURL
         updateMessage("Address and cert are valid. Registering server...")
 
-        //  tries to register server
+        //  2) Register the server locally
         val server = doRegister(serverURL)
             ?: // Error messages and states are handled above
             return
-        updateMessage("")
         _server.value = server
-        // make progress + 1
 
+        // 3) Specific login process depending on the remote server type (Cells or P8).
         if (server.isLegacy) {
             _currDestination.value = LoginStep.P8_CRED
         } else {
@@ -210,24 +216,23 @@ class LoginVM(
         }
     }
 
-
     private suspend fun doPing(serverAddress: String): ServerURL? {
         return withContext(Dispatchers.IO) {
-            Log.i(logTag, "Perform real ping to $serverAddress")
+            Log.i(logTag, "Pinging $serverAddress")
+            val tmpURL: ServerURL?
             var newURL: ServerURL? = null
             try {
-                newURL = ServerURLImpl.fromAddress(serverAddress, _skipVerify.value)
-                newURL.ping()
+                tmpURL = ServerURLImpl.fromAddress(serverAddress, _skipVerify.value)
+                tmpURL.ping()
+                newURL = tmpURL
             } catch (e: MalformedURLException) {
-                Log.e(logTag, e.message ?: "Invalid address, please update")
+                Log.e(logTag, "Invalid address: [$serverAddress]. Cause:  ${e.message} ")
                 updateErrorMsg(e.message ?: "Invalid address, please update")
             } catch (e: SSLException) {
                 updateErrorMsg("Invalid certificate for $serverAddress")
                 Log.e(logTag, "Invalid certificate for $serverAddress: ${e.message}")
-
                 withContext(Dispatchers.Main) {
                     _skipVerify.value = false
-                    // _invalidTLS.value = true
                     _currDestination.value = LoginStep.SKIP_VERIFY
                 }
                 return@withContext null
@@ -242,25 +247,26 @@ class LoginVM(
         }
     }
 
-    private suspend fun doRegister(su: ServerURL): Server? = withContext(Dispatchers.IO) {
-        Log.d(logTag, "About to register the server ${su.id}")
-        var newServer: Server? = null
-        try {
-            newServer = sessionFactory.registerServer(su)
+    private suspend fun doRegister(su: ServerURL): Server? {
+        return try {
+            val newServer = withContext(Dispatchers.IO) {
+                sessionFactory.registerServer(su)
+            }
+            newServer
         } catch (e: SDKException) {
-            updateErrorMsg(
-                e.message
-                    ?: "This does not seem to be a Pydio server address, please double check"
-            )
+            val msg = "${su.url.host} does not seem to be a Pydio server"
+            updateErrorMsg("$msg. Please, double-check.")
+            Log.e(logTag, "$msg - Err.${e.code}: ${e.message}")
+            setCurrentStep(LoginStep.URL)
+            null
         }
-        newServer
     }
 
-    private suspend fun doP8Auth(login: String, password: String, captcha: String?): Boolean {
+    private suspend fun doP8Auth(login: String, password: String, captcha: String?) {
         val currURL = serverUrl.value
             ?: run {
                 updateErrorMsg("No server URL defined, cannot start P8 auth process")
-                return false
+                return
             }
 
         val credentials = P8Credentials(login, password, captcha)
@@ -272,17 +278,17 @@ class LoginVM(
             var id: String? = null
             try {
                 id = accountService.signUp(currURL, credentials)
-                updateMessage("Connected, refreshing local state")
-
-                withContext(Dispatchers.Main) {
-                    setCurrentStep(LoginStep.POST_AUTH)
-                }
-
+                delay(smoothActionDelay)
+                updateMessage("Connected, updating local state")
+//                withContext(Dispatchers.Main) {
+//                    setCurrentStep(LoginStep.PROCESS_AUTH)
+//                }
                 accountService.refreshWorkspaceList(id)
-                delay(2000)
+                delay(smoothActionDelay)
             } catch (e: SDKException) {
                 // TODO handle captcha here
                 Log.e(logTag, "${e.code}: ${e.message}")
+                e.printStackTrace()
                 updateErrorMsg(e.message ?: "Invalid credentials, please try again")
             }
             id
@@ -290,28 +296,34 @@ class LoginVM(
 
         if (accountIDStr != null) {
             _accountID.value = accountIDStr
-            return true
+            setCurrentStep(LoginStep.DONE)
         }
-        return false
     }
 
     private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
         updateMessage("Launching OAuth credential flow")
-        vmScope.launch {
+        withContext(Dispatchers.Main) {
             val intent = authService.createOAuthIntent(
                 sessionFactory,
                 serverURL,
-                AuthService.NEXT_ACTION_BROWSE
+                _nextAction,
+                //AuthService.NEXT_ACTION_BROWSE
             )
             Log.e(logTag, "Got an intent for ${intent?.data}")
             _oauthIntent.value = intent
-            // switchLoading(false)
         }
     }
 
     // Helpers
     private fun switchLoading(newState: Boolean) {
         _isProcessing.value = newState
+    }
+
+    private suspend fun updateMessage(msg: String) {
+        withContext(Dispatchers.Main) {
+            _message.value = msg
+            // or yes ?? TODO switchLoading(true)
+        }
     }
 
     private suspend fun updateErrorMsg(msg: String) {
@@ -322,17 +334,9 @@ class LoginVM(
         }
     }
 
-    private suspend fun updateMessage(msg: String) {
-        withContext(Dispatchers.Main) {
-            _message.value = msg
-            // or yes ?? TODO switchLoading(true)
-        }
-    }
-
     override fun onCleared() {
         Log.d(logTag, "onCleared")
         super.onCleared()
-        viewModelJob.cancel()
     }
 
     init {

@@ -1,6 +1,5 @@
 package com.pydio.android.cells
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,8 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.ui.box.AuthApp
 import com.pydio.android.cells.ui.box.AuthHost
-import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.cells.transport.StateID
@@ -31,22 +30,25 @@ class AuthActivity : ComponentActivity() {
 
         if (intent != null) {
             val extraUrl = lazyGet(AppKeys.EXTRA_SERVER_URL)
-            Log.e(logTag, "... Parsing intent for ${intent.action} - $extraUrl")
             when {
+                // Handle call back for OAuth credential flow
                 Intent.ACTION_VIEW == intent.action -> {
                     val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                     val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
                     if (code != null && state != null) {
-                        loginVM.setCurrentStep(LoginStep.OAUTH_FLOW)
+                        loginVM.setCurrentStep(LoginStep.PROCESS_AUTH)
                         lifecycleScope.launch {
                             loginVM.handleOAuthResponse(state, code)
                         }
                     }
                 }
+                // Re-log to an already registered server
                 extraUrl != null -> {
                     // TODO double check that browsing is the relevant default here
                     val next: String = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
                         ?: AuthService.NEXT_ACTION_BROWSE
+                    // We also set the server address in the VM so that back button lands
+                    // on the correct url page
                     if (intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)) {
                         loginVM.toP8Credentials(extraUrl, next)
                     } else {
@@ -56,7 +58,7 @@ class AuthActivity : ComponentActivity() {
                     }
                 }
                 else -> {
-                    Log.e(logTag, "... Unexpected intent: $intent")
+                    Log.w(logTag, "... Unexpected intent: $intent")
                 }
             }
         }
@@ -64,12 +66,16 @@ class AuthActivity : ComponentActivity() {
         val authActivity = this
 
         val afterAuth: (Boolean) -> Unit = {
+            // TODO this is not correctly retrieved if it is *not* a flow, it smells...
             val accId = loginVM.accountID.value
-            if (!it || accId == null) {
+            if (!it) { // Activity canceled by end-user
+                authActivity.finish()
+            } else if (accId == null) {
                 // Auth has failed
                 // TODO handle the case
                 Log.e(logTag, "Could not launch after auth for $accId, flag: $it")
             } else {
+                authActivity.finish()
                 when (loginVM.nextAction) {
                     AuthService.NEXT_ACTION_ACCOUNTS,
                     AuthService.NEXT_ACTION_TERMINATE -> {
@@ -82,12 +88,11 @@ class AuthActivity : ComponentActivity() {
                         startActivity(intent)
                     }
                 }
-                authActivity.finish()
             }
         }
 
         setContent {
-            SelectTargetApp {
+            AuthApp {
                 val navController = rememberNavController()
                 AuthHost(
                     navController = navController,
