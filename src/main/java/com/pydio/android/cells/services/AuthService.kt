@@ -45,38 +45,50 @@ class AuthService(authDB: AuthDB) {
     }
 
     /** Cells' Credentials flow management */
-    suspend fun createOAuthIntent(
+    suspend fun generateOAuthFlowUri(
         sessionFactory: SessionFactory,
         url: ServerURL,
         next: String
-    ): Intent? =
+    ): Uri? =
         withContext(Dispatchers.IO) {
-            val serverID = StateID(url.id).id
-            val server = sessionFactory.getServer(serverID)
-            // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
-                ?: let {
-                    Log.e(
-                        logTag,
-                        "could not get server $serverID for SessionFactory with url ${url.id}"
-                    )
-                    return@withContext null
-                }
+            try {
+                val serverID = StateID(url.id).id
 
-            val oAuthState = generateOAuthState()
-            val uri: Uri = generateUriData(server.oAuthConfig, oAuthState)
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = uri
-            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-            // Register the state to enable the callback
-            val rOAuthState = ROAuthState(
-                state = oAuthState,
-                serverURL = url,
-                next = next,
-                startTimestamp = currentTimestamp()
-            )
-            Log.d(logTag, "About to store OAuth state: $rOAuthState")
-            authStateDao.insert(rOAuthState)
-            intent
+                val server = sessionFactory.getServer(serverID)
+                // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
+                    ?: let {
+                        Log.e(
+                            logTag,
+                            "could not get server $serverID for SessionFactory with url ${url.id}"
+                        )
+                        return@withContext null
+                    }
+
+                val oAuthState = generateOAuthState()
+                val uri: Uri = generateUriData(server.oAuthConfig, oAuthState)
+                // Register the state to enable the callback
+                val rOAuthState = ROAuthState(
+                    state = oAuthState,
+                    serverURL = url,
+                    next = next,
+                    startTimestamp = currentTimestamp()
+                )
+                Log.d(logTag, "About to store OAuth state: $rOAuthState")
+                authStateDao.insert(rOAuthState)
+                return@withContext uri
+
+//                val intent = Intent(Intent.ACTION_VIEW)
+//                intent.data = uri
+//                intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+//                intent
+            } catch (e: SDKException) {
+                Log.e(
+                    logTag,
+                    "could not create intent for ${url.url.host}," +
+                            " cause: ${e.code} - ${e.message}"
+                )
+                return@withContext null
+            }
         }
 
     suspend fun handleOAuthResponse(

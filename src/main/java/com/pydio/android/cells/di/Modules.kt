@@ -27,7 +27,6 @@ import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.models.AuthVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.JobListVM
@@ -162,7 +161,6 @@ val serviceModule = module {
 val viewModelModule = module {
 
     viewModel { LoginVM(get(), get(), get()) }
-    viewModel { AuthVM(get(), get()) }
     viewModel { AccountListVM(get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }

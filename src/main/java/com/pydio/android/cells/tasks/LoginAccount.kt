@@ -35,10 +35,14 @@ fun loginAccount(
             startActivity(context, toAuthIntent, null)
 
         } else {
-            authService.createOAuthIntent(
+            // TODO this might throw an SDK error. handle it or crash.
+            authService.generateOAuthFlowUri(
                 sessionFactory, serverURL, next
             )?.let {
-                startActivity(context, it, null)
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = it
+                intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+                startActivity(context, intent, null)
             } ?: run {
                 Log.e("LoginAccount()", "Could not create OAuth intent for ${serverURL.url}")
             }

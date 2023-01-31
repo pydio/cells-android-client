@@ -11,7 +11,6 @@ import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
-import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -307,11 +306,24 @@ class LoginVM(
     private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
         updateMessage("Launching OAuth credential flow")
         withContext(Dispatchers.Main) {
-            val intent = authService.createOAuthIntent(
-                sessionFactory,
-                serverURL,
-                _nextAction.value,
-            )
+            val uri = try {
+                authService.generateOAuthFlowUri(
+                    sessionFactory,
+                    serverURL,
+                    _nextAction.value,
+                )
+
+            } catch (e: SDKException) {
+                val msg =
+                    "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
+                Log.e(logTag, msg)
+                updateErrorMsg(msg)
+                return@withContext
+            }
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = uri
+            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+
             Log.d(logTag, "Intent created: ${intent?.data}")
             _oauthIntent.value = intent
         }
