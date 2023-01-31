@@ -1,10 +1,12 @@
 package com.pydio.android.cells.ui.box.account
 
 import android.content.res.Configuration
+import android.util.TypedValue
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,15 +39,37 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 
+
 @Composable
 fun AccountList(
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
     doLogin: (stateID: StateID) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(Modifier.fillMaxWidth()) {
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    verticalArrangement: Arrangement.Vertical,
+    modifier: Modifier = Modifier,
+
+    ) {
+
+    val outValue = TypedValue()
+    LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
+    val alpha = outValue.float
+
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = contentPadding,
+        verticalArrangement = verticalArrangement
+
+    ) {
         items(accounts ?: listOf()) { account ->
+            var currModifier = if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                modifier.clickable {
+                    openAccount(StateID(account.username, account.url))
+                }
+            } else {
+                modifier.alpha(alpha)
+            }
+
             AccountListItem(
                 title = "${account.serverLabel()}",
                 login = account.username,
@@ -51,11 +77,7 @@ fun AccountList(
                 authStatus = account.authStatus,
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
                 doLogin = doLogin,
-                modifier = modifier.clickable {
-                    if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                        openAccount(StateID(account.username, account.url))
-                    }
-                }
+                modifier = currModifier
             )
         }
     }
@@ -75,19 +97,20 @@ private fun AccountListItem(
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_item_elevation),
         modifier = modifier
-            .fillMaxWidth()
-            .padding(all = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.CenterHorizontally)
+//            .fillMaxWidth()
+//            .padding(all = dimensionResource(R.dimen.card_padding))
+//            .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
 
-        Row(modifier = Modifier.padding(all = 8.dp)) {
+//        Row(modifier = Modifier.padding(all = 8.dp)) {
+        Row {
 
+            // The icon
             Surface(
                 modifier = Modifier
                     .size(40.dp)
                     // .size(dimensionResource(R.dimen.list_thumb_size))
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                    .background(MaterialTheme.colorScheme.error)
             ) {
 
                 // TODO images are not correctly scaled
@@ -98,7 +121,6 @@ private fun AccountListItem(
                         .fillMaxSize()
                         .size(48.dp)
                         .size(dimensionResource(R.dimen.list_thumb_size))
-                        //.clip(CircleShape)
                         .wrapContentSize(Alignment.Center)
                 )
                 AuthDecorator(
@@ -131,29 +153,30 @@ private fun AccountListItem(
                 )
             }
 
-            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-
-                Surface(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                        .clickable(onClick = {
-                            doLogin(StateID(login, url))
-                        })
-                        .background(MaterialTheme.colorScheme.error)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_baseline_login_24),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .size(48.dp)
-                            .size(dimensionResource(R.dimen.list_thumb_size))
-                            //.clip(CircleShape)
-                            .wrapContentSize(Alignment.Center)
-                    )
-                }
-            }
+            // TODO this does not work yet when remote is Cells (OAuth flow)
+//            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+//
+//                Surface(
+//                    modifier = Modifier
+//                        .size(40.dp)
+//                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+//                        .clickable(onClick = {
+//                            doLogin(StateID(login, url))
+//                        })
+//                        .background(MaterialTheme.colorScheme.error)
+//                ) {
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_baseline_login_24),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .size(48.dp)
+//                            .size(dimensionResource(R.dimen.list_thumb_size))
+//                            //.clip(CircleShape)
+//                            .wrapContentSize(Alignment.Center)
+//                    )
+//                }
+//            }
 
         }
     }
@@ -195,8 +218,7 @@ private fun AuthDecorator(authStatus: String, modifier: Modifier) {
     name = "Dark Mode"
 )
 @Composable
-private fun AccountListItemPreview(
-) {
+private fun AccountListItemPreview() {
     CellsTheme {
         AccountListItem(
             "Cells test server",
@@ -213,4 +235,3 @@ private fun AccountListItemPreview(
         )
     }
 }
-

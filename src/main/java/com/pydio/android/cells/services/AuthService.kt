@@ -32,6 +32,7 @@ class AuthService(authDB: AuthDB) {
 
     companion object {
         const val NEXT_ACTION_BROWSE = "browse_account"
+        const val NEXT_ACTION_SHARE = "share"
         const val NEXT_ACTION_ACCOUNTS = "account_list"
         const val NEXT_ACTION_TERMINATE = "terminate"
     }
@@ -65,6 +66,7 @@ class AuthService(authDB: AuthDB) {
             val uri: Uri = generateUriData(server.oAuthConfig, oAuthState)
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = uri
+            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             // Register the state to enable the callback
             val rOAuthState = ROAuthState(
                 state = oAuthState,
@@ -72,6 +74,7 @@ class AuthService(authDB: AuthDB) {
                 next = next,
                 startTimestamp = currentTimestamp()
             )
+            Log.d(logTag, "About to store OAuth state: $rOAuthState")
             authStateDao.insert(rOAuthState)
             intent
         }
@@ -87,16 +90,16 @@ class AuthService(authDB: AuthDB) {
 
             val rState = authStateDao.get(oauthState)
             if (rState == null) {
-                Log.w(logTag, "Ignored callback with unknown state: ${oauthState}")
+                Log.w(logTag, "Ignored callback with unknown state: $oauthState")
                 return@withContext null
             }
             try {
                 val transport = sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
-                Log.w(logTag, "... Matched the token")
+                Log.d(logTag, "... Matched the token")
                 accountID = manageRetrievedToken(accountService, transport, token)
-                Log.w(logTag, "... token managed, post clean")
+                Log.d(logTag, "... Token managed, post clean. Next action: ${rState.next}")
 
                 // Leave OAuth state cacheDB clean
                 authStateDao.delete(oauthState)

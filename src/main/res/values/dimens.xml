@@ -46,7 +46,7 @@
     <dimen name="list_thumb_margin">4dp</dimen>
     <dimen name="list_thumb_decorator_size">8dp</dimen>
     <dimen name="list_thumb_border_size">0.5dp</dimen>
-
+    <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
 
     <!-- Material3 Forms -->
     <dimen name="form_page_padding">16dp</dimen>

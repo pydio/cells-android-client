@@ -91,7 +91,6 @@ fun SelectTargetHost(
         postActivity(stateID, currAction)
     }
 
-
     val canPost: (stateId: StateID) -> Boolean = { stateID ->
         true
 //        if (action == AppNames.ACTION_UPLOAD) {
@@ -121,7 +120,13 @@ fun SelectTargetHost(
 
         composable(SelectTargetDestination.ChooseAccount.route) {
             val login: (StateID) -> Unit = { postActivity(it, AppNames.ACTION_LOGIN) }
-            SessionList(accountListVM, open, login)
+            val cancel: () -> Unit = {
+                postActivity(
+                    StateID.fromId(Transport.UNDEFINED_STATE_ID),
+                    AppNames.ACTION_CANCEL
+                )
+            }
+            SessionList(accountListVM, open, cancel, login)
         }
 
         composable(SelectTargetDestination.OpenFolder.route) { navBackStackEntry ->
@@ -136,7 +141,7 @@ fun SelectTargetHost(
                 open,
                 openParent,
                 canPost,
-                interceptPost,
+                postActivity = interceptPost,
                 forceRefresh,
             )
         }

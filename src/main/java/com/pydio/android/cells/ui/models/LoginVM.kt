@@ -11,6 +11,7 @@ import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -63,10 +64,11 @@ class LoginVM(
     private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
     val oauthIntent: StateFlow<Intent?> = _oauthIntent
 
-    // Business Data: TODO we don't need flows for this variables
+    // Business Data: TODO we don't need flows for these variables
     // First step, we have nothing then an address
     private val _serverAddress = MutableStateFlow("")
     val serverAddress: StateFlow<String> = _serverAddress
+
     // Handle TLS if necessary
     private val _skipVerify = MutableStateFlow(false)
 
@@ -82,8 +84,9 @@ class LoginVM(
     private val _accountID: MutableStateFlow<String?> = MutableStateFlow(null)
     val accountID: StateFlow<String?> = _accountID
 
-    private var _nextAction = AuthService.NEXT_ACTION_BROWSE
-    val nextAction: String = _nextAction
+    private var _nextAction: MutableStateFlow<String> =
+        MutableStateFlow(AuthService.NEXT_ACTION_BROWSE)
+    val nextAction: StateFlow<String> = _nextAction
 
     // UI Methods
     fun after(currStep: LoginStep) {
@@ -111,7 +114,7 @@ class LoginVM(
     fun toP8Credentials(urlStr: String, next: String) {
         // TODO rather retrieve the Server from the local repo
         val url = ServerURLImpl.fromJson(urlStr)
-        _nextAction = next
+        _nextAction.value = next
         _serverUrl.value = url
         if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
             _serverAddress.value = url.id
@@ -124,7 +127,7 @@ class LoginVM(
 
     suspend fun toCellsCredentials(urlStr: String, next: String) {
         // TODO rather retrieve the Server from the local repo
-        _nextAction = next
+        _nextAction.value = next
         val url = ServerURLImpl.fromJson(urlStr)
         _serverUrl.value = url
         if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
@@ -163,7 +166,7 @@ class LoginVM(
         _currDestination.value = LoginStep.PROCESS_AUTH
         switchLoading(true)
         updateMessage("Retrieving authentication token...")
-        val newAccount = withContext(Dispatchers.IO) {
+        val res = withContext(Dispatchers.IO) {
             delay(smoothActionDelay)
             authService.handleOAuthResponse(accountService, sessionFactory, state, code)
         } ?: run {
@@ -171,14 +174,15 @@ class LoginVM(
             return
         }
 
-        updateMessage("Configuring account...")
-        newAccount.second?.let { _nextAction = it }
+        updateMessage("Updating account info...")
+        // Log.d(logTag, "Configuring account ${StateID.fromId(res.first)} before ${res.second}")
+        res.second?.let { _nextAction.value = it }
         withContext(Dispatchers.IO) {
-            accountService.refreshWorkspaceList(newAccount.first)
+            accountService.refreshWorkspaceList(res.first)
             delay(smoothActionDelay)
         }
 
-        _accountID.value = newAccount.first
+        _accountID.value = res.first
         setCurrentStep(LoginStep.DONE)
     }
 
@@ -306,10 +310,9 @@ class LoginVM(
             val intent = authService.createOAuthIntent(
                 sessionFactory,
                 serverURL,
-                _nextAction,
-                //AuthService.NEXT_ACTION_BROWSE
+                _nextAction.value,
             )
-            Log.e(logTag, "Got an intent for ${intent?.data}")
+            Log.d(logTag, "Intent created: ${intent?.data}")
             _oauthIntent.value = intent
         }
     }

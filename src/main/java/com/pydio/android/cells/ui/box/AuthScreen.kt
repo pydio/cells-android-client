@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.box
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,15 +42,14 @@ fun AuthHost(
     navController: NavHostController,
     loginVM: LoginVM,
     afterAuth: (Boolean) -> Unit,
+    launchOAuth: (Intent) -> Unit,
 ) {
-
-    val ctx = LocalContext.current
 
     LaunchedEffect(true) {
         loginVM.currDestination.collect {
-            Log.e(logTag, "New step received: $it")
             if (it.name != navController.currentDestination?.route) {
-                Log.e(logTag, "Curr dest was: ${navController.currentDestination?.route}")
+                Log.d(logTag, "Curr dest was: ${navController.currentDestination?.route}")
+                Log.d(logTag, "New step is: $it")
                 if (it == LoginStep.DONE) {
                     // we don't need to show the "done": Auth has already been done and processed,
                     // and showing the page adds some useless "blinking".
@@ -64,9 +64,8 @@ fun AuthHost(
     LaunchedEffect(true) {
         loginVM.oauthIntent.collect {
             if (it != null) {
-                Log.d(logTag, "New non null intent received: $it")
-                ctx.startActivity(it)
-            }
+                launchOAuth(it)
+           }
         }
     }
 

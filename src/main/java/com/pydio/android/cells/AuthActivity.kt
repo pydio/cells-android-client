@@ -45,11 +45,14 @@ class AuthActivity : ComponentActivity() {
                 // Re-log to an already registered server
                 extraUrl != null -> {
                     // TODO double check that browsing is the relevant default here
-                    val next: String = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
+                    val next = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
                         ?: AuthService.NEXT_ACTION_BROWSE
-                    // We also set the server address in the VM so that back button lands
-                    // on the correct url page
-                    if (intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)) {
+                    val isLegacy = intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)
+                    Log.d(
+                        logTag, "... Received a re-log cmd with $next flag, " +
+                                "for ${if (isLegacy) "legacy P8" else "Cells"} server at $extraUrl"
+                    )
+                    if (isLegacy) {
                         loginVM.toP8Credentials(extraUrl, next)
                     } else {
                         lifecycleScope.launch {
@@ -66,29 +69,49 @@ class AuthActivity : ComponentActivity() {
         val authActivity = this
 
         val afterAuth: (Boolean) -> Unit = {
+            val next = loginVM.nextAction.value
+            Log.i(logTag, "After auth, success: $it, next action: $next")
+
             // TODO this is not correctly retrieved if it is *not* a flow, it smells...
             val accId = loginVM.accountID.value
             if (!it) { // Activity canceled by end-user
-                authActivity.finish()
+                authActivity.finishAndRemoveTask()
             } else if (accId == null) {
-                // Auth has failed
-                // TODO handle the case
-                Log.e(logTag, "Could not launch after auth for $accId, flag: $it")
+                // Auth has failed // TODO handle the case
+                val msg = "Can't launch action after (successful?) auth, no accountID has been set"
+                Log.e(logTag, msg)
             } else {
-                authActivity.finish()
-                when (loginVM.nextAction) {
+                when (next) {
                     AuthService.NEXT_ACTION_ACCOUNTS,
-                    AuthService.NEXT_ACTION_TERMINATE -> {
-                    } // Do nothing => we return where we launched the auth process
-                    AuthService.NEXT_ACTION_BROWSE -> {
-                        // We have registered a new account and want to browse to it
+                    AuthService.NEXT_ACTION_TERMINATE -> { // We return where we launched the auth process
+                        authActivity.finishAndRemoveTask()
+                    }
+                    AuthService.NEXT_ACTION_SHARE -> { // We return to the share task
+                        // TODO this does not work yet:
+                        //  when we launch the process, we get out of the first share task
+                        //  and did not achieve yet to call it back: we are always in a
+                        //  new share activity within the current task.
+                        val nextIntent = Intent(authActivity, SelectTargetActivity::class.java)
+                        nextIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        Log.i(logTag, "Auth Successful, back to share with $nextIntent")
+                        startActivity(nextIntent)
+                        authActivity.finish()
+                    }
+                    AuthService.NEXT_ACTION_BROWSE -> { // We have registered a new account and want to browse to it
                         val intent = Intent(authActivity, MainActivity::class.java)
                         intent.putExtra(AppKeys.EXTRA_STATE, accId)
                         Log.i(logTag, "Auth Successful, navigating to ${StateID.fromId(accId)}")
                         startActivity(intent)
+                        authActivity.finish()
                     }
                 }
             }
+        }
+
+        val launchOAuth: (Intent) -> Unit = {
+            Log.d(logTag, "Launching OAuth flow with $it")
+            authActivity.startActivity(it)
+            authActivity.finishAndRemoveTask()
         }
 
         setContent {
@@ -97,7 +120,8 @@ class AuthActivity : ComponentActivity() {
                 AuthHost(
                     navController = navController,
                     loginVM = loginVM,
-                    afterAuth = afterAuth
+                    afterAuth = afterAuth,
+                    launchOAuth = launchOAuth,
                 )
             }
         }
