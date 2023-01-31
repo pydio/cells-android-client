@@ -51,14 +51,35 @@ class AccountListVM(
         return accountService.getSession(stateID)
     }
 
+    fun watch() {
+        setLoading(true)
+        pause()
+        resume()
+    }
+
+    fun resume() {
+        if (!_isActive) {
+            _isActive = true
+            currWatcher = watchAccounts()
+        }
+        backOffTicker.resetIndex()
+    }
+
+    fun pause() {
+        currWatcher?.cancel()
+        _isActive = false
+        setLoading(false)
+    }
+
+    // Local helpers
     private fun watchAccounts() = vmScope.launch {
         while (_isActive) {
             doCheckAccounts()
             val nd = backOffTicker.getNextDelay()
-            Log.d(logTag, "... Next delay: $nd")
+            Log.d(logTag, "... Watching accounts, next delay: ${nd}s")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
-        Log.i(logTag, "paused")
+        Log.i(logTag, "pausing the account watch process")
     }
 
     private suspend fun doCheckAccounts() {
@@ -73,28 +94,20 @@ class AccountListVM(
                 }
                 pause()
             } else if (result.first > 0) {
+                Log.e(logTag, "Found ${result.first} change(s)")
                 backOffTicker.resetIndex()
             }
             setLoading(false)
         }
     }
 
-    fun resume(resetBackOffTicker: Boolean) {
-        Log.i(logTag, "resumed")
-        if (!_isActive) {
-            _isActive = true
-            currWatcher = watchAccounts()
-        }
-        if (resetBackOffTicker) {
-            backOffTicker.resetIndex()
-        }
-    }
-
-    fun pause() {
-        _isActive = false
-    }
-
     private fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
+
+    override fun onCleared() {
+        viewModelJob.cancel()
+        super.onCleared()
+    }
+
 }

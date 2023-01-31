@@ -33,6 +33,13 @@ fun SessionList(
 ) {
     val accounts by accountListVM.sessions.observeAsState()
 
+    val interceptOpen: (stateID: StateID) -> Unit = {
+        accountListVM.pause()
+        openAccount(it)
+    }
+
+    accountListVM.watch()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,7 +71,7 @@ fun SessionList(
         content = { innerPadding ->
             AccountList(
                 accounts,
-                openAccount,
+                interceptOpen,
                 login,
                 innerPadding,
                 Arrangement.spacedBy(dimensionResource(R.dimen.list_vertical_padding)),

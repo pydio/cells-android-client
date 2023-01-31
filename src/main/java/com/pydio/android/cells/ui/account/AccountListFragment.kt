@@ -114,7 +114,7 @@ class AccountListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        accountListVM.resume(true)
+        accountListVM.resume()
     }
 
     override fun onPause() {

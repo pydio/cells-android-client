@@ -130,19 +130,27 @@ class AccountServiceImpl(
                     }
                     if (networkService.isConnected()) {
                         try {
-                            // TODO rather use an API health check
-//                            val currClient =
-                            sessionFactory.getUnlockedClient(account.accountID)
-//                            if (!currClient.stillAuthenticated()) {
-//                                // TODO implement finer status check (unauthorized, expired...)
-//                                account.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-//                                accountDao.update(account)
-//                                changes++
-//                            }
+                            // TODO rather use an API health check and implement finer status check (unauthorized, expired...)
+                            // sessionFactory.getUnlockedClient(account.accountID)
+                            val currClient = sessionFactory.getUnlockedClient(account.accountID)
+                            if (!currClient.stillAuthenticated()) {
+                                Log.e(logTag, "${account.accountID} is not connected anymore")
+                                account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                                accountDao.update(account)
+                                val updatedAccount = accountDao.getAccount(account.accountID)
+                                Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
+                                changes++
+                            }
                         } catch (e: SDKException) {
-                            // TODO insure we do not miss anything
-                            Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
-                            e.printStackTrace()
+                            Log.e(logTag,"${account.accountID} is not connected: err #${e.code}")
+                            account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                            accountDao.update(account)
+                            val updatedAccount = accountDao.getAccount(account.accountID)
+                            Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
+//
+//                            Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
+//                            e.printStackTrace()
+                            changes++
                         }
                     } else {
                         Log.w(
@@ -173,7 +181,7 @@ class AccountServiceImpl(
 
     override suspend fun forgetAccount(accountId: String): String? = withContext(Dispatchers.IO) {
         val stateId = StateID.fromId(accountId)
-        Log.d(logTag, "### About to forget $stateId")
+        Log.i(logTag, "### About to forget $stateId")
         try {
             val oldAccount = accountDao.getAccount(accountId)
                 ?: return@withContext null // nothing to forget

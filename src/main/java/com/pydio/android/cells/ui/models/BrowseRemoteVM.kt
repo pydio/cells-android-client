@@ -57,7 +57,7 @@ class BrowseRemoteVM(
         resume()
     }
 
-    fun pause() {
+    private fun pause() {
         _isActive = false
     }
 
@@ -105,7 +105,7 @@ class BrowseRemoteVM(
     }
 
     override fun onCleared() {
-        super.onCleared()
         viewModelJob.cancel()
+        super.onCleared()
     }
 }
