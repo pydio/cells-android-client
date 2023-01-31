@@ -105,7 +105,7 @@ class SelectTargetActivity : ComponentActivity() {
                                 // TODO clean this when implementing custom certificate acceptance.
                                 val serverURL =
                                     ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
-                                val toAuthIntent = Intent(ctx, AuthActivity::class.java)
+                                val toAuthIntent = Intent(ctx, LoginActivity::class.java)
                                 toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
                                 toAuthIntent.putExtra(
                                     AppKeys.EXTRA_SERVER_IS_LEGACY,

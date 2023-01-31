@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.ServerURLImpl
 import kotlinx.coroutines.launch
-import com.pydio.android.cells.AuthActivity
+import com.pydio.android.cells.LoginActivity
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AuthService
@@ -28,7 +28,7 @@ fun loginAccount(
         val serverURL = ServerURLImpl.fromAddress(sessionView.url, sessionView.tlsMode == 1)
 
         if (sessionView.isLegacy) {
-            val toAuthIntent = Intent(context, AuthActivity::class.java)
+            val toAuthIntent = Intent(context, LoginActivity::class.java)
             toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
             toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, true)
             toAuthIntent.putExtra(AppKeys.EXTRA_AFTER_AUTH_ACTION, next)

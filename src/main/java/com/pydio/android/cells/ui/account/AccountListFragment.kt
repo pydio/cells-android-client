@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.AuthActivity
+import com.pydio.android.cells.LoginActivity
 import com.pydio.android.cells.MainActivity
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAccountListBinding
@@ -69,7 +69,7 @@ class AccountListFragment : Fragment() {
         }
 
         binding.newAccountFab.setOnClickListener {
-            val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+            val toAuthIntent = Intent(requireActivity(), LoginActivity::class.java)
             startActivity(toAuthIntent)
         }
 

@@ -18,9 +18,9 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /** Authentication against Cells or Pydio8 */
-class AuthActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
 
-    private val logTag = AuthActivity::class.simpleName
+    private val logTag = LoginActivity::class.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching auth process")

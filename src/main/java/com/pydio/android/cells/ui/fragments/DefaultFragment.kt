@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.AuthActivity
+import com.pydio.android.cells.LoginActivity
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentDefaultBinding
 
@@ -29,7 +29,7 @@ class DefaultFragment : Fragment(), AppNames {
 
         binding.addAccountButton.setOnClickListener {
             // Launch the account activity with a new intent
-            val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+            val toAuthIntent = Intent(requireActivity(), LoginActivity::class.java)
             startActivity(toAuthIntent)
         }
 

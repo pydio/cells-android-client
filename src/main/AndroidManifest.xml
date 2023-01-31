@@ -74,7 +74,7 @@
         </activity>
 
         <activity
-            android:name=".AuthActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/Cells.Md3.LightStatusBar">
             <intent-filter>

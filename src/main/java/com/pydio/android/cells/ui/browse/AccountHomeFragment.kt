@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.AuthActivity
+import com.pydio.android.cells.LoginActivity
 import com.pydio.android.cells.MainNavDirections
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentAccountHomeBinding
@@ -135,7 +135,7 @@ class AccountHomeFragment : Fragment() {
                 binding.noAccountButton.text =
                     resources.getText(R.string.welcome_add_account_button)
                 binding.noAccountButton.setOnClickListener {
-                    startActivity(Intent(requireActivity(), AuthActivity::class.java))
+                    startActivity(Intent(requireActivity(), LoginActivity::class.java))
                 }
             }
             1 -> { // Launch browsing directly
