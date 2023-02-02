@@ -35,6 +35,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -77,6 +78,22 @@ class NodeService(
         )
         // Log.e(logTag, "About to list, query: ${lsQuery.sql}")
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
+    }
+
+    fun lsFlow(stateID: StateID): Flow<List<RTreeNode>> {
+
+        val encoded = prefs.getString(
+            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+        )
+        val (sortByCol, sortByOrder) = parseOrder(encoded)
+        val parPath = stateID.file
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
+                    "AND parent_path = ? " +
+                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
+        )
+        // Log.e(logTag, "About to list, query: ${lsQuery.sql}")
+        return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {

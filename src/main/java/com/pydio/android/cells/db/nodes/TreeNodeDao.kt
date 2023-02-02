@@ -11,6 +11,7 @@ import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.Converters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
@@ -46,6 +47,12 @@ interface TreeNodeDao {
         parentPath: String,
         order: String
     ): LiveData<List<RTreeNode>>
+
+//    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
+    @RawQuery(observedEntities = [RTreeNode::class])
+    fun lsFlow(
+        query: SupportSQLiteQuery
+    ): Flow<List<RTreeNode>>
 
     @RawQuery(observedEntities = [RTreeNode::class])
     fun treeNodeQuery(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
