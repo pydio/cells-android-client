@@ -8,7 +8,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-/** An Live preference that can be observed, using RxJava */
+/** A live preference that can be observed, using RxJava */
 class LivePreference<T> constructor(
     private val updates: Observable<String>,
     private val preferences: SharedPreferences,

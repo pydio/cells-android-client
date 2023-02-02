@@ -90,20 +90,6 @@ class NetworkService constructor(context: Context) {
         }
     }
 
-// TODO moved here from main activity.
-    // Not sure if it still works
-
-// This was in MainActivity.OnCreate method
-//        NetworkStatusHelper(this@MainActivity).observe(this, {
-//            showMessage(
-//                this@MainActivity,
-//                when (it) {
-//                    NetworkStatus.Available -> "Network Connection Established"
-//                    NetworkStatus.Unavailable -> "No Internet"
-//                }
-//            )
-//        })
-
     private fun networkUsage(context: Context) {
         // Get running processes
         // val manager = getSystemService(AppCompatActivity.ACTIVITY_SERVICE) as ActivityManager
