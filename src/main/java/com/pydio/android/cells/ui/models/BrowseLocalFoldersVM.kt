@@ -38,8 +38,8 @@ class BrowseLocalFoldersVM(
     fun setState(stateID: StateID) {
         Log.d(logTag, "--- Updating current state to $stateID")
         _stateID.value = stateID
-        _children = nodeService.listChildFolders(stateID)
-        // _children = nodeService.ls(stateID)
+        //_children = nodeService.listChildFolders(stateID)
+        _children = nodeService.ls(stateID)
     }
 
     @Deprecated("Rather use setState")

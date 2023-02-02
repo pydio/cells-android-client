@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.util.Log
+import android.util.TypedValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -56,6 +58,8 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.box.common.BrowseUpItem
+import com.pydio.android.cells.ui.box.common.getDrawableFromMime
+import com.pydio.android.cells.ui.box.common.isFolder
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.SdkNames
@@ -187,12 +191,20 @@ private fun FolderList(
                 }
             }
             items(children) { oneChild ->
-                FolderItem(
-                    title = getTargetTitle(oneChild.name, oneChild.mime),
-                    desc = getTargetDesc(ctx, oneChild),
-                    modifier = Modifier.clickable {
+
+                val isFolder = isFolder(oneChild.mime)
+                val modifier = if (isFolder) {
+                    Modifier.clickable {
                         openFolder(StateID.fromId(oneChild.encodedState))
                     }
+                } else Modifier
+                SelectFolderItem(
+                    isFolder,
+                    mime = oneChild.mime,
+                    sortName = oneChild.sortName,
+                    title = getTargetTitle(oneChild.name, oneChild.mime),
+                    desc = getTargetDesc(ctx, oneChild),
+                    modifier = modifier,
                 )
             }
         }
@@ -256,14 +268,25 @@ private fun TopBar(
 }
 
 @Composable
-private fun FolderItem(
+private fun SelectFolderItem(
+    isFolder: Boolean,
+    mime: String,
+    sortName: String?,
     title: String,
     desc: String,
     modifier: Modifier = Modifier
 ) {
+    val alpha = if (!isFolder) {
+        val outValue = TypedValue()
+        LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
+        outValue.float
+
+    } else 1f
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .alpha(alpha)
             .padding(all = dimensionResource(R.dimen.card_padding))
             .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
@@ -277,7 +300,7 @@ private fun FolderItem(
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
             ) {
                 Image(
-                    painter = painterResource(R.drawable.file_folder_outline),
+                    painter = painterResource(getDrawableFromMime(mime, sortName)),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -286,15 +309,6 @@ private fun FolderItem(
                         //.clip(CircleShape)
                         .wrapContentSize(Alignment.Center)
                 )
-//                Image(
-//                    painter = painterResource(R.drawable.ic_baseline_check_24),
-//                    contentDescription = null,
-//                    colorFilter = ColorFilter.tint(Color.Green),
-//                    modifier = Modifier // .fillMaxSize()
-//                        //.size(dimensionResource(R.dimen.list_thumb_decorator_size))
-//                        .size(12.dp)
-//                        .wrapContentSize(Alignment.BottomEnd)
-//                )
             }
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
@@ -380,6 +394,13 @@ private fun TableHeaderPreview() {
 @Composable
 private fun FolderItemPreview() {
     CellsTheme {
-        FolderItem("WS on encrypted", "29 October 2020 • 81 MB", Modifier)
+        SelectFolderItem(
+            true,
+            SdkNames.NODE_MIME_FOLDER,
+            "2_WS on encrypted",
+            "WS on encrypted",
+            "29 October 2020 • 81 MB",
+            Modifier
+        )
     }
 }
