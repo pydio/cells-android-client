@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +36,9 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.danger
+import com.pydio.android.cells.ui.theme.ok
+import com.pydio.android.cells.ui.theme.warning
 import com.pydio.cells.transport.StateID
 
 
@@ -95,39 +97,35 @@ private fun AccountListItem(
 ) {
 
     Surface(
-        tonalElevation = dimensionResource(R.dimen.list_item_elevation),
+        tonalElevation = if (isForeground) dimensionResource(R.dimen.list_item_slected_elevation) else 0.dp,
         modifier = modifier
-//            .fillMaxWidth()
-//            .padding(all = dimensionResource(R.dimen.card_padding))
-//            .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
 
-//        Row(modifier = Modifier.padding(all = 8.dp)) {
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
 
             // The icon
             Surface(
+                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
                 modifier = Modifier
-                    .size(40.dp)
-                    // .size(dimensionResource(R.dimen.list_thumb_size))
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.list_thumb_corner_radius)))
+                    .size(48.dp)
+
             ) {
 
-                // TODO images are not correctly scaled
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_person_24),
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .size(48.dp)
                         .size(dimensionResource(R.dimen.list_thumb_size))
-                        .wrapContentSize(Alignment.Center)
+                        .alpha(.8f)
                 )
                 AuthDecorator(
                     authStatus = authStatus,
                     modifier = Modifier
-                        .size(2.dp)
-//                        .size(dimensionResource(R.dimen.list_thumb_decorator_size))
+                        .size(dimensionResource(R.dimen.list_thumb_decorator_size))
                         .wrapContentSize(Alignment.BottomEnd)
                 )
             }
@@ -195,12 +193,12 @@ private fun AuthDecorator(authStatus: String, modifier: Modifier) {
     }
 
     val colorFilter = when (authStatus) {
-        AppNames.AUTH_STATUS_NO_CREDS -> MaterialTheme.colorScheme.error
-        AppNames.AUTH_STATUS_EXPIRED -> MaterialTheme.colorScheme.error
-        AppNames.AUTH_STATUS_UNAUTHORIZED -> MaterialTheme.colorScheme.error
-        AppNames.AUTH_STATUS_REFRESHING -> MaterialTheme.colorScheme.primary // was color.warning
-        AppNames.AUTH_STATUS_CONNECTED -> MaterialTheme.colorScheme.secondary // was color.ok
-        else -> MaterialTheme.colorScheme.error
+        AppNames.AUTH_STATUS_NO_CREDS -> danger
+        AppNames.AUTH_STATUS_EXPIRED -> danger
+        AppNames.AUTH_STATUS_UNAUTHORIZED -> danger
+        AppNames.AUTH_STATUS_REFRESHING -> warning
+        AppNames.AUTH_STATUS_CONNECTED -> ok
+        else -> danger
     }
 
     Image(
@@ -212,6 +210,25 @@ private fun AuthDecorator(authStatus: String, modifier: Modifier) {
 }
 
 @Preview(name = "Light Mode")
+@Composable
+private fun ForegroundAccountListItemPreview() {
+    CellsTheme {
+        AccountListItem(
+            "Cells test server",
+            "lea",
+            "https://example.com",
+//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+//            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
+            authStatus = AppNames.AUTH_STATUS_CONNECTED,
+//            authStatus = AppNames.AUTH_STATUS_EXPIRED,
+//            authStatus = AppNames.AUTH_STATUS_CONNECTED,
+            isForeground = true,
+            {},
+            Modifier
+        )
+    }
+}
+
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     showBackground = true,
@@ -224,12 +241,12 @@ private fun AccountListItemPreview() {
             "Cells test server",
             "lea",
             "https://example.com",
-//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
 //            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
-            authStatus = AppNames.AUTH_STATUS_REFRESHING,
+//            authStatus = AppNames.AUTH_STATUS_CONNECTED,
 //            authStatus = AppNames.AUTH_STATUS_EXPIRED,
 //            authStatus = AppNames.AUTH_STATUS_CONNECTED,
-            isForeground = true,
+            isForeground = false,
             {},
             Modifier
         )

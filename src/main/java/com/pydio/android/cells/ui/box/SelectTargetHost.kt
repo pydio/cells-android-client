@@ -92,7 +92,8 @@ fun SelectTargetHost(
     }
 
     val canPost: (stateId: StateID) -> Boolean = { stateID ->
-        true
+        Str.notEmpty(stateID.workspace)
+        // true
 //        if (action == AppNames.ACTION_UPLOAD) {
 //            true
 //        } else {
@@ -147,7 +148,7 @@ fun SelectTargetHost(
         }
 
         composable(SelectTargetDestination.UploadInProgress.route) { navBackStackEntry ->
-            Log.e(logTag, "About to navigate to upload screen")
+            Log.d(logTag, "About to navigate to upload screen")
             val stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
                     ?: Transport.UNDEFINED_STATE_ID

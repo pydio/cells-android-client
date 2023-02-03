@@ -12,12 +12,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -91,7 +89,7 @@ fun SelectFolderScreen(
         mutableStateOf(stateId)
     }
 
-    Log.i(logTag, "... Notified of state chage for ${StateID.fromId(currState)}")
+    Log.i(logTag, "... Notified of state change for ${StateID.fromId(currState)}")
     browseLocalVM.setState(StateID.fromId(currState))
     val childNodes by browseLocalVM.childNodes.observeAsState()
 
@@ -163,7 +161,7 @@ private fun FolderList(
     // var refreshing by remember() { mutableStateOf(isLoading) }
     // Warning: pullRefresh API is:
     //   - experimental
-    //   - only implemented in meterial 1, for the time being.
+    //   - only implemented in material 1, for the time being.
     Log.d(logTag, "Fist pass, is loading: $refreshing")
 
     val state = rememberPullRefreshState(refreshing, onRefresh = {
@@ -193,7 +191,7 @@ private fun FolderList(
             items(children) { oneChild ->
 
                 val isFolder = isFolder(oneChild.mime)
-                val modifier = if (isFolder) {
+                val currModifier = if (isFolder) {
                     Modifier.clickable {
                         openFolder(StateID.fromId(oneChild.encodedState))
                     }
@@ -204,7 +202,7 @@ private fun FolderList(
                     sortName = oneChild.sortName,
                     title = getTargetTitle(oneChild.name, oneChild.mime),
                     desc = getTargetDesc(ctx, oneChild),
-                    modifier = modifier,
+                    modifier = currModifier,
                 )
             }
         }
@@ -288,26 +286,24 @@ private fun SelectFolderItem(
             .fillMaxWidth()
             .alpha(alpha)
             .padding(all = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.CenterHorizontally)
+//            .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
 
-        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Surface(
-                tonalElevation = dimensionResource(R.dimen.list_item_elevation),
+                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
                 modifier = Modifier
-                    .size(40.dp)
-                    // .size(dimensionResource(R.dimen.list_thumb_size))
+                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
             ) {
                 Image(
                     painter = painterResource(getDrawableFromMime(mime, sortName)),
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .size(48.dp)
                         .size(dimensionResource(R.dimen.list_thumb_size))
-                        //.clip(CircleShape)
-                        .wrapContentSize(Alignment.Center)
                 )
             }
 
@@ -378,7 +374,7 @@ private fun TableHeaderPreview() {
         TopBar(
             AppNames.ACTION_UPLOAD,
             state,
-            { _: StateID -> true },
+            { true },
             { _: StateID, _: String? -> },
             Modifier.fillMaxWidth()
         )

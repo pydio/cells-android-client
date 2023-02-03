@@ -128,16 +128,12 @@ class NodeService(
             SdkNames.NODE_MIME_FOLDER
         else
             SdkNames.NODE_MIME_WS_ROOT
-//        if (parPath == "/") {
-//            Log.e(
-//                logTag,
-//                "unimplemented tweak. Is it OK?  $stateID: parPath: $parPath, mime: $mime"
-//            )
-//        }
         Log.d(logTag, "Listing child folders for $stateID. parPath: [$parPath], mime: $mime")
-//        Log.d(logTag, "Called by:")
-//        Thread.dumpStack()
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
+    }
+
+    fun listWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
+        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
     }
 
     fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {

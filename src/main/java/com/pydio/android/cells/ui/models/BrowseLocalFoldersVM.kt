@@ -8,6 +8,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 
 private val logTag = BrowseRemoteVM::class.simpleName
 
@@ -18,10 +19,6 @@ private val logTag = BrowseRemoteVM::class.simpleName
 class BrowseLocalFoldersVM(
     private val nodeService: NodeService
 ) : ViewModel() {
-
-    /* private val viewModelJob = Job()
-        private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-        private var currWatcher: Job? = null*/
 
     private var _stateID = MutableLiveData<StateID>()
     val stateID: LiveData<StateID>
@@ -38,20 +35,17 @@ class BrowseLocalFoldersVM(
     fun setState(stateID: StateID) {
         Log.d(logTag, "--- Updating current state to $stateID")
         _stateID.value = stateID
-        //_children = nodeService.listChildFolders(stateID)
-        _children = nodeService.ls(stateID)
+
+        _children = if (Str.empty(stateID.workspace)) {
+            nodeService.listWorkspaces(stateID)
+        } else {
+            nodeService.ls(stateID)
+        }
     }
 
-    @Deprecated("Rather use setState")
-    fun afterCreate(stateID: StateID) {
-        Log.d(logTag, "After Create, state ID: $stateID")
-        _children = nodeService.listChildFolders(stateID)
-    }
-
-/*
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-*/
+//    @Deprecated("Rather use setState")
+//    fun afterCreate(stateID: StateID) {
+//        Log.d(logTag, "After Create, state ID: $stateID")
+//        _children = nodeService.listChildFolders(stateID)
+//    }
 }
