@@ -1,0 +1,408 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "5e8da7b7862d1db38b9164b28d89107e",
+    "entities": [
+      {
+        "tableName": "tree_nodes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`encoded_state` TEXT NOT NULL, `uuid` TEXT NOT NULL, `workspace` TEXT NOT NULL, `parent_path` TEXT NOT NULL, `name` TEXT NOT NULL, `mime` TEXT NOT NULL, `etag` TEXT, `size` INTEGER NOT NULL, `remote_mod_ts` INTEGER NOT NULL, `last_check_ts` INTEGER NOT NULL, `local_mod_ts` INTEGER NOT NULL, `local_mod_status` TEXT, `properties` TEXT NOT NULL, `meta` TEXT NOT NULL, `meta_hash` INTEGER NOT NULL, `sort_name` TEXT, `flags` INTEGER NOT NULL, PRIMARY KEY(`encoded_state`))",
+        "fields": [
+          {
+            "fieldPath": "encodedState",
+            "columnName": "encoded_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workspace",
+            "columnName": "workspace",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentPath",
+            "columnName": "parent_path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mime",
+            "columnName": "mime",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteModificationTS",
+            "columnName": "remote_mod_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastCheckTS",
+            "columnName": "last_check_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localModificationTS",
+            "columnName": "local_mod_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localModificationStatus",
+            "columnName": "local_mod_status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "properties",
+            "columnName": "properties",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meta",
+            "columnName": "meta",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metaHash",
+            "columnName": "meta_hash",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortName",
+            "columnName": "sort_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "flags",
+            "columnName": "flags",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "encoded_state"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "local_files",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`encoded_state` TEXT NOT NULL, `type` TEXT NOT NULL, `file` TEXT NOT NULL, `etag` TEXT, `size` INTEGER NOT NULL, `remote_mod_ts` INTEGER NOT NULL, `local_mod_ts` INTEGER NOT NULL, PRIMARY KEY(`encoded_state`, `type`))",
+        "fields": [
+          {
+            "fieldPath": "encodedState",
+            "columnName": "encoded_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "file",
+            "columnName": "file",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteTS",
+            "columnName": "remote_mod_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localTS",
+            "columnName": "local_mod_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "encoded_state",
+            "type"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "offline_roots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`encoded_state` TEXT NOT NULL, `uuid` TEXT NOT NULL, `status` TEXT NOT NULL, `local_mod_ts` INTEGER NOT NULL, `last_check_ts` INTEGER NOT NULL, `message` TEXT, `sort_name` TEXT, `storage` TEXT NOT NULL, PRIMARY KEY(`encoded_state`))",
+        "fields": [
+          {
+            "fieldPath": "encodedState",
+            "columnName": "encoded_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localModificationTS",
+            "columnName": "local_mod_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastCheckTS",
+            "columnName": "last_check_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sortName",
+            "columnName": "sort_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "storage",
+            "columnName": "storage",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "encoded_state"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "transfers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transfer_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `job_id` INTEGER NOT NULL, `encoded_state` TEXT, `type` TEXT NOT NULL, `local_path` TEXT, `byte_size` INTEGER NOT NULL, `mime` TEXT NOT NULL, `etag` TEXT, `multipart` INTEGER NOT NULL, `creation_ts` INTEGER NOT NULL, `start_ts` INTEGER NOT NULL, `update_ts` INTEGER NOT NULL, `done_ts` INTEGER NOT NULL, `status` TEXT, `error` TEXT, `progress` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "transferId",
+            "columnName": "transfer_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encodedState",
+            "columnName": "encoded_state",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localPath",
+            "columnName": "local_path",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "byteSize",
+            "columnName": "byte_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mime",
+            "columnName": "mime",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "multipart",
+            "columnName": "multipart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTimestamp",
+            "columnName": "creation_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTimestamp",
+            "columnName": "start_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updateTimestamp",
+            "columnName": "update_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doneTimestamp",
+            "columnName": "done_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "error",
+            "columnName": "error",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "transfer_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "transfer_cancellation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transfer_id` INTEGER NOT NULL, `encoded_state` TEXT NOT NULL, `owner` TEXT NOT NULL, `request_ts` INTEGER NOT NULL, `also_stop_ancestors` INTEGER NOT NULL, PRIMARY KEY(`transfer_id`))",
+        "fields": [
+          {
+            "fieldPath": "transferId",
+            "columnName": "transfer_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encodedState",
+            "columnName": "encoded_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "owner",
+            "columnName": "owner",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestTimestamp",
+            "columnName": "request_ts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alsoStopAncestors",
+            "columnName": "also_stop_ancestors",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "transfer_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [
+      {
+        "viewName": "RLiveOfflineRoot",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT offline_roots.encoded_state, offline_roots.uuid, offline_roots.status, offline_roots.local_mod_ts, offline_roots.last_check_ts, offline_roots.message, tree_nodes.mime, tree_nodes.name, tree_nodes.size, tree_nodes.etag, tree_nodes.remote_mod_ts, tree_nodes.flags, offline_roots.sort_name FROM offline_roots INNER JOIN tree_nodes ON offline_roots.encoded_state = tree_nodes.encoded_state"
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5e8da7b7862d1db38b9164b28d89107e')"
+    ]
+  }
+}

@@ -156,20 +156,28 @@ fun SelectTargetHost(
 
         composable(SelectTargetDestination.UploadInProgress.route) { navBackStackEntry ->
             Log.d(logTag, "About to navigate to upload screen")
-            val stateId =
-                navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
-                    ?: Transport.UNDEFINED_STATE_ID
-            val currTransfers =
-                transferVM.getCurrentTransfers(StateID.fromId(stateId)).observeAsState()
+
+            // throws an IllegalArgExc:
+            // java.lang.IllegalArgumentException: DerivedState(value=<Not calculated>)@254214545 cannot be saved using the current SaveableStateRegistry. The default implementation only supports types which can be stored inside the Bundle. Please consider implementing a custom Saver for this class and pass it to rememberSaveable().
+//            val stateId = rememberSaveable() {
+//                derivedStateOf {
+//                    navBackStackEntry.arguments
+//                        ?.getString(SelectTargetDestination.UploadInProgress.getPathKey())
+//                        ?: Transport.UNDEFINED_STATE_ID
+//                }
+//            }
+
+            val stateId = navBackStackEntry.arguments
+                ?.getString(SelectTargetDestination.UploadInProgress.getPathKey())
+                ?: Transport.UNDEFINED_STATE_ID
 
             LaunchedEffect(key1 = stateId) {
+                Log.d(logTag, "... In upload root, launching effects for $stateId")
                 accountListVM.pause()
-                browseLocalVM.setState(StateID.fromId(stateId))
-                browseRemoteVM.watch(StateID.fromId(stateId))
+                browseRemoteVM.pause()
             }
 
-            // FIXME we must get the list of transfers and set it here
-            UploadProgressScreen(StateID.fromId(stateId), currTransfers.value ?: listOf()) {
+            UploadProgressScreen(transferVM) {
                 postActivity(StateID.fromId(stateId), AppNames.ACTION_CANCEL)
             }
         }

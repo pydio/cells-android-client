@@ -7,12 +7,16 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.BackOffTicker
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -30,18 +34,19 @@ class BrowseRemoteVM(
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
 
-    private var _stateID = MutableLiveData<StateID>()
+    private val _stateID = MutableStateFlow(StateID(/* serverUrl = */ Transport.UNDEFINED_URL))
+    val stateID: StateFlow<StateID> = _stateID.asStateFlow()
+
     private var _isActive = false
     private val _isLoading = MutableLiveData<Boolean>()
     private val _errorMessage = MutableLiveData<String?>()
 
     init {
-        _stateID.value = unknownStateId
         _isLoading.value = true
     }
 
-    val stateID: LiveData<StateID>
-        get() = _stateID
+//    val stateID: LiveData<StateID>
+//        get() = _stateID
 
     val isLoading: LiveData<Boolean>
         get() = _isLoading
@@ -58,6 +63,7 @@ class BrowseRemoteVM(
     }
 
     fun pause() {
+        Log.e(logTag, "... About to pause remote VM, state: ${stateID.value}")
         _isActive = false
     }
 
@@ -75,15 +81,20 @@ class BrowseRemoteVM(
             doPull()
             val nd = backOffTicker.getNextDelay()
             delay(TimeUnit.SECONDS.toMillis(nd))
-            Log.d(logTag, "... Watching folders at ${stateID.value}, next delay: ${nd}s")
+            val msg = "... Watching folders at ${stateID.value}"
+            if (_isActive) {
+                Log.d(logTag, "$msg, next delay: ${nd}s")
+            } else {
+                Log.d(logTag, "$msg has been stopped, leaving the loop")
+            }
         }
     }
 
     private suspend fun doPull() {
         // TODO clean and add "Cancel feature"
         var result: Pair<Int, String?> = Pair(0, "")
-        stateID.value?.let {
-            if (!unknownStateId.equals(it)) {
+        stateID.value.let {
+            if (unknownStateId != it) {
                 result = if (Str.empty(it.file)) {
                     accountService.refreshWorkspaceList(it.accountId)
                 } else {

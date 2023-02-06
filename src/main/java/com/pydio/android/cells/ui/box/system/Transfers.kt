@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.box.system
 
 import android.text.format.DateUtils
 import android.text.format.Formatter
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -25,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,17 +39,28 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.ui.models.TransferVM
 import com.pydio.android.cells.ui.theme.danger
 import com.pydio.android.cells.ui.theme.ok
 import com.pydio.android.cells.ui.theme.warning
-import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
 private const val logTag = "Transfers.kt"
 
 @Composable
 fun UploadProgressScreen(
-    stateID: StateID,
+    transferVM: TransferVM,
+    dismiss: () -> Unit,
+) {
+    val currTransfers = transferVM.currRecords.observeAsState()
+    UploadProgressScreen(
+        uploads = currTransfers.value ?: listOf(),
+        dismiss = dismiss,
+    )
+}
+
+@Composable
+fun UploadProgressScreen(
     uploads: List<RTransfer>,
     dismiss: () -> Unit,
 ) {
@@ -95,11 +106,8 @@ private fun TransferListItem(
         0f
     }
 
-    val fName = item.getStateId().fileName ?: run {
-        // FIXME it seems that we have a bug in the state ID generation:
-        // user@https://example.com/Baloon.jpg <- we are missing the workspace
-        Log.e(logTag, "no filename for ${item.getStateId()}")
-        "-"
+    val fName = item.getStateId()?.fileName ?: run {
+        "Processing..."
     }
 
     TransferListItem(
@@ -256,7 +264,6 @@ private fun buildStatusString(item: RTransfer): AnnotatedString {
     }
     return text
 }
-
 
 fun isFailed(item: RTransfer): Boolean {
     return Str.notEmpty(item.error)

@@ -9,6 +9,9 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 private val logTag = BrowseRemoteVM::class.simpleName
 
@@ -20,17 +23,20 @@ class BrowseLocalFoldersVM(
     private val nodeService: NodeService
 ) : ViewModel() {
 
-    private var _stateID = MutableLiveData<StateID>()
-    val stateID: LiveData<StateID>
-        get() = _stateID
+//    private var _stateID = MutableLiveData<StateID>()
+//    val stateID: LiveData<StateID>
+//        get() = _stateID
+
+    private val _stateID = MutableStateFlow(StateID(/* serverUrl = */ Transport.UNDEFINED_URL))
+    val stateID: StateFlow<StateID> = _stateID.asStateFlow()
 
     private lateinit var _children: LiveData<List<RTreeNode>>
     val childNodes: LiveData<List<RTreeNode>>
         get() = _children
 
-    init {
-        _stateID.value = StateID(/* serverUrl = */ Transport.UNDEFINED_URL)
-    }
+//    init {
+//        _stateID.value = StateID(/* serverUrl = */ Transport.UNDEFINED_URL)
+//    }
 
     fun setState(stateID: StateID) {
         Log.e(logTag, "--- Updating current state to $stateID")
@@ -42,10 +48,4 @@ class BrowseLocalFoldersVM(
             nodeService.ls(stateID)
         }
     }
-
-//    @Deprecated("Rather use setState")
-//    fun afterCreate(stateID: StateID) {
-//        Log.d(logTag, "After Create, state ID: $stateID")
-//        _children = nodeService.listChildFolders(stateID)
-//    }
 }

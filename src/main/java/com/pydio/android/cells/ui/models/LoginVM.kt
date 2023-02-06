@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.MalformedURLException
@@ -48,20 +49,20 @@ class LoginVM(
 
     // Tracks current page
     private val _currDestination = MutableStateFlow(LoginStep.URL)
-    val currDestination: StateFlow<LoginStep> = _currDestination
+    val currDestination: StateFlow<LoginStep> = _currDestination.asStateFlow()
 
     private val _isProcessing = MutableStateFlow(false)
-    val isProcessing: StateFlow<Boolean> = _isProcessing
+    val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
 
     private val _message = MutableStateFlow("")
-    val message: StateFlow<String?> = _message
+    val message: StateFlow<String?> = _message.asStateFlow()
 
     private var _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String?> = _errorMessage
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     // Used to trigger an "external call"
     private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
-    val oauthIntent: StateFlow<Intent?> = _oauthIntent
+    val oauthIntent: StateFlow<Intent?> = _oauthIntent.asStateFlow()
 
     // Business Data: TODO we don't need flows for these variables
     // First step, we have nothing then an address

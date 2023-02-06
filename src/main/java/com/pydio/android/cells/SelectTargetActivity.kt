@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
 import com.pydio.android.cells.ui.box.dialogs.CreateFolder
@@ -45,7 +44,6 @@ class SelectTargetActivity : ComponentActivity() {
 
     private val logTag = SelectTargetActivity::class.simpleName
 
-    private val transferService: TransferService by inject()
     private val nodeService: NodeService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,14 +114,12 @@ class SelectTargetActivity : ComponentActivity() {
                                     AuthService.NEXT_ACTION_SHARE
                                 )
                                 // We don't want that the login intermediary activity pollute the history of the end user
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
                                 startActivity(toAuthIntent)
                             }
                         }
                         AppNames.ACTION_UPLOAD -> {
-                            for (uri in uris) {
-                                transferService.enqueueUpload(stateID, uri)
-                            }
+                            transferVM.launchUploadAt(stateID, uris)
 //                            finishAndRemoveTask()
                         }
                         AppNames.ACTION_CANCEL -> {
@@ -189,7 +185,7 @@ class SelectTargetActivity : ComponentActivity() {
             }
             Intent.ACTION_SEND -> {
                 val clipData = intent.clipData
-                Log.e(logTag, "Clipdata: $clipData")
+                Log.e(logTag, "Clip Data: $clipData")
                 clipData?.let {
                     actionContext = AppNames.ACTION_UPLOAD
                     clipData.getItemAt(0).uri?.let {

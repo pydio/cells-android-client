@@ -1,6 +1,7 @@
 package com.pydio.android.cells.db.nodes
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -19,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
     views = [
         RLiveOfflineRoot::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class TreeNodeDB : RoomDatabase() {
@@ -52,7 +53,13 @@ abstract class TreeNodeDB : RoomDatabase() {
                     // Old dev version of the DB that has made to the Play store during RC phase
                     .fallbackToDestructiveMigrationFrom(1)
                     // Adding a column in the view necessitates a migration
-                    .addMigrations(MIGRATION_2_3)
+                    // That we do not play anymore (see below)
+                    // .addMigrations(MIGRATION_2_3)
+                    .fallbackToDestructiveMigrationFrom(2)
+                    // Making a column String nullable also necessitates a migration
+                    // that is unnecessary to implement at this time.
+                    .fallbackToDestructiveMigrationFrom(3)
+                    // .addMigrations(MIGRATION_3_4)
                     // Ease downgrade for dev purposes, this should not happen in prod
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()

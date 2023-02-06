@@ -10,6 +10,7 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.pydio.android.cells.db.Converters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
@@ -25,6 +26,9 @@ interface TransferDao {
 
     @Query("SELECT * FROM transfers WHERE encoded_state = :stateId LIMIT 1")
     fun getByState(stateId: String): RTransfer?
+
+    @Query("SELECT * FROM transfers WHERE transfer_id IN (:ids)")
+    fun getCurrents(ids: Set<Long>): LiveData<List<RTransfer>>
 
     @Query("SELECT * FROM transfers WHERE transfer_id = :transferId LIMIT 1")
     fun getById(transferId: Long): RTransfer?

@@ -13,13 +13,13 @@ data class RTransfer(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "transfer_id") val transferId: Long = 0L,
     // When this transfer is part of a larger job
-    @ColumnInfo(name = "job_id") val jobId: Long = 0L,
+    @ColumnInfo(name = "job_id") var jobId: Long = 0L,
     // The corresponding node
-    @ColumnInfo(name = "encoded_state") val encodedState: String,
+    @ColumnInfo(name = "encoded_state") var encodedState: String? = null,
     // Download, upload... see AppNames for updated list of supported values
     @ColumnInfo(name = "type") val type: String,
 
-    @ColumnInfo(name = "local_path") val localPath: String,
+    @ColumnInfo(name = "local_path") var localPath: String? = null,
 
     @ColumnInfo(name = "byte_size") val byteSize: Long,
 
@@ -45,8 +45,8 @@ data class RTransfer(
     @ColumnInfo(name = "progress") var progress: Long = 0,
 ) {
 
-    fun getStateId(): StateID {
-        return StateID.fromId(encodedState)
+    fun getStateId(): StateID? {
+        return encodedState?.let { StateID.fromId(it) }
     }
 
     companion object {
@@ -64,6 +64,23 @@ data class RTransfer(
                 jobId = parentJobId,
                 type = type,
                 localPath = path,
+                byteSize = byteSize,
+                mime = mime,
+                creationTimestamp = currentTimestamp(),
+                status = status,
+            )
+        }
+
+        fun createNew(
+            type: String,
+            byteSize: Long,
+            mime: String,
+            parentJobId: Long = 0L,
+            status: String? = AppNames.JOB_STATUS_NEW,
+        ): RTransfer {
+            return RTransfer(
+                jobId = parentJobId,
+                type = type,
                 byteSize = byteSize,
                 mime = mime,
                 creationTimestamp = currentTimestamp(),

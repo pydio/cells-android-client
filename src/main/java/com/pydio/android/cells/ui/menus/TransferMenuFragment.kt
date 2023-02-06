@@ -71,10 +71,12 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
             when (action) {
                 // Impact remote server
                 AppNames.ACTION_DELETE_RECORD -> {
-                    transferMenuVM.transferService.deleteRecord(
-                        rTransfer.getStateId(),
-                        rTransfer.transferId
-                    )
+                    rTransfer.getStateId()?.let {
+                        transferMenuVM.transferService.deleteRecord(
+                            it,
+                            rTransfer.transferId
+                        )
+                    }
                     moreMenu.dismiss()
                 }
                 // In-app navigation

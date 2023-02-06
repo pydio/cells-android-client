@@ -32,7 +32,7 @@ fun ImageView.setTransferIcon(item: RTransfer?) {
 @BindingAdapter("transferTitle")
 fun TextView.setTransferTitle(item: RTransfer?) {
     item?.let {
-        text = item.getStateId().fileName
+        text = item.getStateId()?.fileName ?: "-"
     }
 }
 
@@ -40,10 +40,10 @@ fun TextView.setTransferTitle(item: RTransfer?) {
 @BindingAdapter("transferText")
 fun TextView.setTransferText(item: RTransfer?) {
     item?.let {
-        val state = item.getStateId()
+//        val state = item.getStateId()
 //        val arrow = if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "->" else "<-"
 //        text = "${state.fileName} $arrow ${state.username}@${state.serverHost}"
-        text = state.fileName
+        text = item.getStateId()?.fileName ?: "-"
     }
 }
 

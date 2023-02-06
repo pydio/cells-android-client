@@ -46,7 +46,8 @@ class TransferListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_transfer_list, container, false)
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_transfer_list, container, false)
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
@@ -70,7 +71,7 @@ class TransferListFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (activeSessionVM.accountId == null){
+                if (activeSessionVM.accountId == null) {
                     Log.e(logTag, "cannot call item selected action, no session VM is active")
                 }
 
@@ -111,11 +112,13 @@ class TransferListFragment : Fragment() {
         when (command) {
             // AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
-                val action = TransferListFragmentDirections.openTransferMenu(
-                    node.encodedState,
-                    node.transferId
-                )
-                findNavController().navigate(action)
+                node.encodedState?.let {
+                    val action = TransferListFragmentDirections.openTransferMenu(
+                        it,
+                        node.transferId
+                    )
+                    findNavController().navigate(action)
+                }
             }
             else -> return // do nothing
         }

@@ -78,6 +78,16 @@ class TransferService(
         return queryTransfersExplicitFilter(stateId, filterByStatus)
     }
 
+    fun getCurrentTransfersRecords(
+        accountID: StateID,
+        transferIds: Set<Long>
+    ): LiveData<List<RTransfer>> {
+        Log.e(logTag, "listing transfers for account $accountID")
+        Log.e(logTag, "... $transferIds")
+
+        return nodeDB(accountID).transferDao().getCurrents(transferIds)
+    }
+
     private fun queryTransfersExplicitFilter(
         stateId: StateID,
         filterByStatus: String
@@ -243,8 +253,8 @@ class TransferService(
             }
             else -> null
         }
-        if (filename == null){
-
+        if (filename == null) {
+            // FIXME why is this empty 
         }
         return filename?.let { childFile(parentFolder, filename) } to null
     }
@@ -302,6 +312,12 @@ class TransferService(
             return@withContext msg
         }
 
+        val localPath = rTransfer.localPath ?: run {
+            val msg = "No local path is defined for $transferId, aborting file DL"
+            Log.w(logTag, msg)
+            return@withContext msg
+        }
+
         val state = StateID.fromId(rTransfer.encodedState)
         val rNode = nodeService.getLocalNode(state)
         if (rNode == null) {
@@ -313,7 +329,7 @@ class TransferService(
 
         Log.d(logTag, "About to download file from $state")
         // Prepare target file
-        val targetFile = File(rTransfer.localPath)
+        val targetFile = File(localPath)
         targetFile.parentFile?.mkdirs()
         var out: FileOutputStream? = null
         try {
@@ -415,7 +431,12 @@ class TransferService(
         return@withContext errorMessage
     }
 
-    private fun dlThumb(state: StateID, rNode: RTreeNode, parPath: String, type: String): Pair<String?, String?> {
+    private fun dlThumb(
+        state: StateID,
+        rNode: RTreeNode,
+        parPath: String,
+        type: String
+    ): Pair<String?, String?> {
         val node = FileNode()
         node.properties = rNode.properties
         node.meta = rNode.meta
@@ -471,7 +492,7 @@ class TransferService(
 
     /** UPLOADS **/
 
-    private fun uploadOne(stateID: StateID) {
+    suspend fun uploadOne(stateID: StateID) = withContext(Dispatchers.IO) {
         val dao = getTransferDao(stateID)
         val uploadRecord = dao.getByState(stateID.id)
             ?: throw IllegalStateException("No transfer record found for $stateID, cannot upload")
@@ -482,11 +503,13 @@ class TransferService(
         // Real upload in single part
         var inputStream: InputStream? = null
         try {
+
+            val state = transferRecord.getStateId()
+                ?: throw IllegalStateException("Cannot start upload with no defined StateID")
+
             // Mark the upload as started
             transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-
             dao.update(transferRecord)
-            val state = transferRecord.getStateId()
             val srcPath =
                 fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
             inputStream = FileInputStream(File(srcPath))
@@ -534,10 +557,13 @@ class TransferService(
 //    }
 
     /**
-     * Does all the dirty work to copy the file from the device to in-app folder
-     * and register a new transfer record in the DB
+     * Register a new upload that has to be processed
      */
-    private fun copyAndRegister(cr: ContentResolver, uri: Uri, parentID: StateID): StateID? {
+    suspend fun register(
+        cr: ContentResolver,
+        uri: Uri,
+        parentID: StateID
+    ): Pair<Long, String> = withContext(Dispatchers.IO) {
         var name: String? = null
         // TODO rather throw an exception 5 lines below if we do not have a valid size
         var size: Long = 1
@@ -550,14 +576,112 @@ class TransferService(
         }
         name = name ?: uri.lastPathSegment!!
         if (Str.empty(name)) {
-            return null
+            return@withContext Pair(-1, "")
         }
 
         val filename = name!!
 
         // Mime Type
         val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
-        Log.d(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
+        Log.e(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
+
+        // TODO should we implement a "clean" of the extensions
+        //   the code below wasn't good enough and led to files named e.g. "img.JPG.jpg".
+        //   Rather doing nothing.
+        /*mimeMap.getExtensionFromMimeType(mime)?.let {
+            //   - retrieve file extension
+            //   - only append if the extension seems to be invalid
+            if (!filename.endsWith(it, true)) {
+                name += ".$it"
+            }
+        }*/
+
+        val rec = RTransfer.createNew(
+            AppNames.TRANSFER_TYPE_UPLOAD,
+            size,
+            mime
+        )
+        return@withContext Pair(nodeDB(parentID).transferDao().insert(rec), filename)
+    }
+
+
+    /**
+     * Make a local copy of the file from the device to an in-app folder in order to
+     * workaround some permission issues
+     * TODO improve this
+     */
+    suspend fun launchCopy(
+        cr: ContentResolver,
+        uri: Uri,
+        parentID: StateID,
+        transferId: Long,
+        filename: String,
+    ): StateID? = withContext(Dispatchers.IO) {
+
+        val dao = getTransferDao(parentID)
+        val uploadRecord = dao.getById(transferId)
+            ?: throw IllegalStateException("No transfer record found for $transferId, cannot upload")
+
+        //   in Cells app storage
+        val fs = fileService
+        val targetStateID = createLocalState(parentID, filename)
+        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
+        val localFile = File(localPath)
+        localFile.parentFile!!.mkdirs()
+
+        // TODO we can also add a progress at this point
+        var inputStream: InputStream? = null
+        var outputStream: OutputStream? = null
+        try {
+            inputStream = cr.openInputStream(uri)
+            outputStream = FileOutputStream(localFile)
+            IoHelpers.pipeRead(inputStream, outputStream)
+        } catch (ioe: IOException) {
+            Log.e(logTag, "could not create local copy of $filename: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        } finally {
+            IoHelpers.closeQuietly(inputStream)
+            IoHelpers.closeQuietly(outputStream)
+        }
+
+        uploadRecord.encodedState = targetStateID.id
+        uploadRecord.localPath = localPath
+        nodeDB(parentID).transferDao().update(uploadRecord)
+        return@withContext targetStateID
+    }
+
+
+    /**
+     * Does all the dirty work to copy the file from the device to an in-app folder
+     * and to register a new transfer record in the DB
+     */
+    @Deprecated("rather use register() then copy()")
+    suspend fun copyAndRegister(
+        cr: ContentResolver,
+        uri: Uri,
+        parentID: StateID
+    ): StateID? = withContext(Dispatchers.IO) {
+        var name: String? = null
+        // TODO rather throw an exception 5 lines below if we do not have a valid size
+        var size: Long = 1
+        cr.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            cursor.moveToFirst()
+            name = cursor.getString(nameIndex)
+            size = cursor.getLong(sizeIndex)
+        }
+        name = name ?: uri.lastPathSegment!!
+        if (Str.empty(name)) {
+            return@withContext null
+        }
+
+        val filename = name!!
+
+        // Mime Type
+        val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
+        Log.e(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
 
         // TODO should we implement a "clean" of the extensions
         //   the code below wasn't good enough and led to files named e.g. "img.JPG.jpg".
@@ -587,7 +711,7 @@ class TransferService(
         } catch (ioe: IOException) {
             Log.e(logTag, "could not create local copy of $filename: ${ioe.message}")
             ioe.printStackTrace()
-            return null
+            return@withContext null
         } finally {
             IoHelpers.closeQuietly(inputStream)
             IoHelpers.closeQuietly(outputStream)
@@ -601,7 +725,8 @@ class TransferService(
             mime
         )
         nodeDB(parentID).transferDao().insert(rec)
-        return targetStateID
+        Log.e(logTag, "... caching done for $filename, MIME: [$mime], size: $size")
+        return@withContext targetStateID
     }
 
     /* Constants and helpers */
@@ -702,6 +827,4 @@ class TransferService(
             i++
         }
     }
-
-
 }
