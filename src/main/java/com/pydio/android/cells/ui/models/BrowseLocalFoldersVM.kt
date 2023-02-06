@@ -33,7 +33,7 @@ class BrowseLocalFoldersVM(
     }
 
     fun setState(stateID: StateID) {
-        Log.d(logTag, "--- Updating current state to $stateID")
+        Log.e(logTag, "--- Updating current state to $stateID")
         _stateID.value = stateID
 
         _children = if (Str.empty(stateID.workspace)) {

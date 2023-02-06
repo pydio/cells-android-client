@@ -1,13 +1,11 @@
 package com.pydio.android.cells.ui.box.browse
 
-import android.content.Context
 import android.content.res.Configuration
-import android.text.format.DateUtils
-import android.text.format.Formatter
 import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,9 +52,11 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.box.common.BrowseUpItem
+import com.pydio.android.cells.ui.box.common.Thumbnail
 import com.pydio.android.cells.ui.box.common.getDrawableFromMime
+import com.pydio.android.cells.ui.box.common.getNodeDesc
+import com.pydio.android.cells.ui.box.common.getNodeTitle
 import com.pydio.android.cells.ui.box.common.isFolder
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -165,7 +165,7 @@ private fun FolderList(
     Log.d(logTag, "Fist pass, is loading: $refreshing")
 
     val state = rememberPullRefreshState(refreshing, onRefresh = {
-        Log.e(logTag, "Force refresh launched")
+        Log.i(logTag, "Force refresh launched")
         forceRefresh(stateID)
     })
 
@@ -195,13 +195,17 @@ private fun FolderList(
                     Modifier.clickable {
                         openFolder(StateID.fromId(oneChild.encodedState))
                     }
-                } else Modifier
+                } else {
+                    Modifier
+                }
+
                 SelectFolderItem(
+                    oneChild,
                     isFolder,
                     mime = oneChild.mime,
                     sortName = oneChild.sortName,
-                    title = getTargetTitle(oneChild.name, oneChild.mime),
-                    desc = getTargetDesc(ctx, oneChild),
+                    title = getNodeTitle(oneChild.name, oneChild.mime),
+                    desc = getNodeDesc(ctx, oneChild),
                     modifier = currModifier,
                 )
             }
@@ -209,6 +213,78 @@ private fun FolderList(
         PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
     }
 }
+
+@Composable
+private fun SelectFolderItem(
+    item: RTreeNode,
+    isFolder: Boolean,
+    mime: String,
+    sortName: String?,
+    title: String,
+    desc: String,
+    modifier: Modifier = Modifier
+) {
+    val alpha = if (!isFolder) {
+        val outValue = TypedValue()
+        LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
+        outValue.float
+
+    } else 1f
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(alpha)
+            .padding(all = dimensionResource(R.dimen.card_padding))
+//            .wrapContentWidth(Alignment.CenterHorizontally)
+    ) {
+
+        Row(
+            // modifier = Modifier.padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+//            Surface(
+//                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+//                modifier = Modifier
+//                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+//                    .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+//            ) {
+//                Image(
+//                    painter = painterResource(getDrawableFromMime(mime, sortName)),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(dimensionResource(R.dimen.list_thumb_size))
+//                )
+//            }
+
+            Thumbnail(item)
+
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
+
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.card_padding),
+                        vertical = dimensionResource(R.dimen.margin_xsmall)
+                    )
+                    .wrapContentWidth(Alignment.Start)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun TopBar(
@@ -265,102 +341,6 @@ private fun TopBar(
     }
 }
 
-@Composable
-private fun SelectFolderItem(
-    isFolder: Boolean,
-    mime: String,
-    sortName: String?,
-    title: String,
-    desc: String,
-    modifier: Modifier = Modifier
-) {
-    val alpha = if (!isFolder) {
-        val outValue = TypedValue()
-        LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
-        outValue.float
-
-    } else 1f
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .alpha(alpha)
-            .padding(all = dimensionResource(R.dimen.card_padding))
-//            .wrapContentWidth(Alignment.CenterHorizontally)
-    ) {
-
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-                modifier = Modifier
-                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-            ) {
-                Image(
-                    painter = painterResource(getDrawableFromMime(mime, sortName)),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_thumb_size))
-                )
-            }
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.card_padding),
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-        }
-    }
-}
-
-private fun getTargetTitle(name: String, mime: String): String {
-    return if (SdkNames.NODE_MIME_RECYCLE == mime) {
-        // Todo rather use a composable here to have resources
-        "Recycle Bin"
-    } else {
-        name
-    }
-}
-
-private fun getTargetDesc(
-    ctx: Context,
-    item: RTreeNode?
-): String {
-    if (item == null) {
-        return "NaN"
-    }
-    if (Str.notEmpty(item.localModificationStatus)) {
-        getMessageFromLocalModifStatus(ctx, item.localModificationStatus!!)?.let {
-            return it
-        }
-    }
-    val mTimeValue = DateUtils.formatDateTime(
-        ctx,
-        item.remoteModificationTS * 1000L,
-        DateUtils.FORMAT_ABBREV_RELATIVE
-    )
-    val sizeValue = Formatter.formatShortFileSize(ctx, item.size)
-    return "$mTimeValue • $sizeValue"
-}
-
 @Preview(name = "Light Mode")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -381,22 +361,22 @@ private fun TableHeaderPreview() {
     }
 }
 
-@Preview(name = "Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode"
-)
-@Composable
-private fun FolderItemPreview() {
-    CellsTheme {
-        SelectFolderItem(
-            true,
-            SdkNames.NODE_MIME_FOLDER,
-            "2_WS on encrypted",
-            "WS on encrypted",
-            "29 October 2020 • 81 MB",
-            Modifier
-        )
-    }
-}
+//@Preview(name = "Light Mode")
+//@Preview(
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    showBackground = true,
+//    name = "Dark Mode"
+//)
+//@Composable
+//private fun FolderItemPreview() {
+//    CellsTheme {
+//        SelectFolderItem(
+//            true,
+//            SdkNames.NODE_MIME_FOLDER,
+//            "2_WS on encrypted",
+//            "WS on encrypted",
+//            "29 October 2020 • 81 MB",
+//            Modifier
+//        )
+//    }
+//}

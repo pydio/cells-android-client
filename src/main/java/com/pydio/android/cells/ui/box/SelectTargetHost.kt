@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -60,26 +61,19 @@ fun SelectTargetHost(
     val currLoadingState by browseRemoteVM.isLoading.observeAsState()
 
     /* Define callbacks */
-    val open: (stateID: StateID) -> Unit = { stateID ->
+    val open: (StateID) -> Unit = { stateID ->
         Log.d(logTag, "in open($stateID)")
-
-        browseRemoteVM.watch(stateID)
-        browseLocalVM.setState(stateID)
-        // selectTargetVM.setCurrentState(stateID)
         val newRoute = SelectTargetDestination.OpenFolder.createRoute(stateID)
         Log.i(logTag, "About to navigate to [$newRoute]")
         navController.navigate(newRoute)
     }
 
-    val openParent: (stateId: StateID) -> Unit = { stateId ->
-        Log.d(logTag, ".... In OpenParent: $stateId - ${stateId.workspace} ")
-        if (Str.empty(stateId.workspace)) {
-            Log.d(logTag, "WS Root")
+    val openParent: (StateID) -> Unit = { stateID ->
+        Log.d(logTag, ".... In OpenParent: $stateID - ${stateID.workspace} ")
+        if (Str.empty(stateID.workspace)) {
             navController.navigate(SelectTargetDestination.ChooseAccount.route)
         } else {
-            Log.d(logTag, "##### Not a root")
-            val parent = stateId.parent()
-            Log.d(logTag, "##### Navigating to $parent")
+            val parent = stateID.parent()
             navController.navigate(SelectTargetDestination.OpenFolder.createRoute(parent))
         }
     }
@@ -91,7 +85,7 @@ fun SelectTargetHost(
         postActivity(stateID, currAction)
     }
 
-    val canPost: (stateId: StateID) -> Boolean = { stateID ->
+    val canPost: (StateID) -> Boolean = { stateID ->
         Str.notEmpty(stateID.workspace)
         // true
 //        if (action == AppNames.ACTION_UPLOAD) {
@@ -105,7 +99,7 @@ fun SelectTargetHost(
 //        }
     }
 
-    val forceRefresh: (stateId: StateID) -> Unit = { browseRemoteVM.watch(it) }
+    val forceRefresh: (StateID) -> Unit = { browseRemoteVM.watch(it) }
 
     val startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
         SelectTargetDestination.OpenFolder.route
@@ -115,18 +109,23 @@ fun SelectTargetHost(
 
 /* Configure navigation */
     NavHost(
-        navController = navController,
-        startDestination = startDestination
+        navController = navController, startDestination = startDestination
     ) {
 
         composable(SelectTargetDestination.ChooseAccount.route) {
+            Log.e(logTag, ".... Open choose account page")
             val login: (StateID) -> Unit = { postActivity(it, AppNames.ACTION_LOGIN) }
             val cancel: () -> Unit = {
                 postActivity(
-                    StateID.fromId(Transport.UNDEFINED_STATE_ID),
-                    AppNames.ACTION_CANCEL
+                    StateID.fromId(Transport.UNDEFINED_STATE_ID), AppNames.ACTION_CANCEL
                 )
             }
+
+            LaunchedEffect(true) {
+                accountListVM.watch()
+                browseRemoteVM.pause()
+            }
+
             SessionList(accountListVM, open, cancel, login)
         }
 
@@ -134,6 +133,14 @@ fun SelectTargetHost(
             val stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
                     ?: initialStateId
+            Log.e(logTag, ".... Open choose *folder* page, with ID: ${StateID.fromId(stateId)}")
+
+            LaunchedEffect(key1 = stateId) {
+                accountListVM.pause()
+                browseLocalVM.setState(StateID.fromId(stateId))
+                browseRemoteVM.watch(StateID.fromId(stateId))
+            }
+
             SelectFolderScreen(
                 action,
                 stateId,
@@ -152,11 +159,18 @@ fun SelectTargetHost(
             val stateId =
                 navBackStackEntry.arguments?.getString(SelectTargetDestination.OpenFolder.getPathKey())
                     ?: Transport.UNDEFINED_STATE_ID
-            val stateID = StateID.fromId(stateId)
-            val currTransfers = transferVM.getCurrentTransfers(stateID).observeAsState()
+            val currTransfers =
+                transferVM.getCurrentTransfers(StateID.fromId(stateId)).observeAsState()
+
+            LaunchedEffect(key1 = stateId) {
+                accountListVM.pause()
+                browseLocalVM.setState(StateID.fromId(stateId))
+                browseRemoteVM.watch(StateID.fromId(stateId))
+            }
+
             // FIXME we must get the list of transfers and set it here
-            UploadProgressScreen(stateID, currTransfers.value ?: listOf()) {
-                postActivity(stateID, AppNames.ACTION_CANCEL)
+            UploadProgressScreen(StateID.fromId(stateId), currTransfers.value ?: listOf()) {
+                postActivity(StateID.fromId(stateId), AppNames.ACTION_CANCEL)
             }
         }
     }
@@ -166,8 +180,7 @@ fun SelectTargetHost(
 fun SelectTargetApp(content: @Composable () -> Unit) {
     CellsTheme {
         Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
             content()
         }

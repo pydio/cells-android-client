@@ -1,10 +1,59 @@
 package com.pydio.android.cells.ui.box.common
 
 import android.webkit.MimeTypeMap
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.cells.api.SdkNames
 import java.io.File
 
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun Thumbnail(item: RTreeNode) {
+
+    val mime = item.mime
+    val sortName = item.sortName
+    val hasThumb = item.hasThumb()
+
+    if (hasThumb) {
+        GlideImage(
+            model = encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB),
+            contentDescription = "A picture",
+            modifier = Modifier
+                .padding(all = dimensionResource(id = R.dimen.card_padding))
+                .size(dimensionResource(R.dimen.list_thumb_size)),
+        )
+    } else {
+        Surface(
+            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+            modifier = Modifier
+                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+        ) {
+            Image(
+                painter = painterResource(getDrawableFromMime(mime, sortName)),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.list_thumb_size))
+            )
+        }
+    }
+
+}
 
 fun betterMime(passedMime: String, sortName: String?): String {
     return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {

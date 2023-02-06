@@ -57,7 +57,7 @@ class BrowseRemoteVM(
         resume()
     }
 
-    private fun pause() {
+    fun pause() {
         _isActive = false
     }
 
