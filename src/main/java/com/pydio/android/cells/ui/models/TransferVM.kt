@@ -13,6 +13,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -42,14 +43,16 @@ class TransferVM(
     val currRecords: LiveData<List<RTransfer>>
         get() = _currRecords
 
-    fun launchUploadAt(stateID: StateID, uris: List<Uri>) {
+    // private val currUploads: MutableMap<Long, UploadState> = HashMap()
+
+    fun launchShareToPydioAt(stateID: StateID, uris: List<Uri>) {
         setAccountID(stateID.account())
         val ids: MutableMap<Long, Pair<String, Uri>> = HashMap()
-
 
         vmScope.launch {
             // First only register the uploads
             for (uri in uris) {
+                Log.e(logTag, "#### processing $uri ")
                 try {
                     val tid = transferService.register(cr, uri, stateID)
                     ids[tid.first] = Pair(tid.second, uri)
@@ -76,23 +79,42 @@ class TransferVM(
         }
     }
 
-//    private suspend fun doOne(parentID: StateID, uri: Uri): StateID? =
-//        withContext(Dispatchers.IO) {
-//            transferService.copyAndRegister(cr, uri, parentID)?.let {
-//                launch {
-//                    transferService.uploadOne(it)
-//                    Log.w(logTag, "... $it ==> upload DONE")
-//                    delay(10000)
-//                }
-//                Log.w(logTag, "... $it ==> upload LAUNCHED")
-//                return@withContext it
-//            } ?: run {
-//                // TODO better error management
-//                Log.e(logTag, "could not upload $uri at $parentID")
-//                return@withContext null
-//            }
-//        }
+    fun pauseOne(transferId: Long) {
+        vmScope.launch {
+            // TODO improve this
+            transferService.cancelTransfer(_accountID, transferId, AppNames.JOB_OWNER_USER)
+        }
+    }
 
+    fun resumeOne(transferId: Long) {
+        vmScope.launch {
+            // TODO improve this
+            transferService.uploadOne(_accountID, transferId)
+        }
+    }
+
+    fun cancelOne(transferId: Long) {
+        vmScope.launch {
+            // TODO improve this
+            transferService.cancelTransfer(_accountID, transferId, AppNames.JOB_OWNER_USER)
+        }
+    }
+
+    fun removeOne(transferId: Long) {
+        vmScope.launch {
+            transferService.deleteRecord(_accountID, transferId)
+        }
+    }
+
+    fun cancelAll() {
+        currIds.value?.forEach {
+            try {
+                cancelOne(it)
+            } catch (e: Exception) {
+                Log.e(logTag, "could not cancel job #$it, cause: ${e.message}")
+            }
+        }
+    }
 
     private fun setAccountID(accountID: StateID) {
         _accountID = accountID
@@ -104,7 +126,6 @@ class TransferVM(
     private fun setIds(ids: Set<Long>) {
         currIds.value = ids
     }
-
 
 //    // TODO re-implement support for filter and sort
 //    private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
@@ -142,6 +163,39 @@ class TransferVM(
         super.onCleared()
         vmJob.cancel()
     }
+
+
+//    // TODO rather retrieve on the properties than on the full object
+//    open inner class ItemState (
+//        private val rTransfer: RTransfer,
+//    )  {
+//
+//        fun isFailed(): Boolean {
+//            return Str.notEmpty(rTransfer.error)
+//        }
+//
+//        fun isDone(): Boolean {
+//            return rTransfer.doneTimestamp > 0
+//        }
+//
+//        val ids: MutableMap<Long, Pair<String, Uri>> = HashMap()
+//
+//    }
+
+    inner class UploadState(
+        val transferId: Long,
+        val uri: Uri,
+        val fname: String,
+    ) {
+        private var _status: String = AppNames.JOB_STATUS_NEW
+        val status: String
+            get() = _status
+
+        fun updateStatus(newStatus: String) {
+            _status = newStatus
+        }
+    }
+
 
 //    private fun reQuery(value: String) {
 //        liveFilterStatus.value = value

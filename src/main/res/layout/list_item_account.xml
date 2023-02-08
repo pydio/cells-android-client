@@ -80,8 +80,8 @@
 
         <ImageView
             android:id="@+id/account_details_button"
-            android:layout_width="@dimen/list_button_size"
-            android:layout_height="@dimen/list_button_size"
+            android:layout_width="@dimen/list_button_size_old"
+            android:layout_height="@dimen/list_button_size_old"
             android:layout_marginStart="@dimen/list_button_margin"
             android:layout_marginTop="@dimen/list_button_padding"
             android:layout_marginEnd="@dimen/list_button_margin"
@@ -95,8 +95,8 @@
 <!--        app:tint="@color/colorAvatarDefault"-->
         <ImageView
             android:id="@+id/account_auth_button"
-            android:layout_width="@dimen/list_button_size"
-            android:layout_height="@dimen/list_button_size"
+            android:layout_width="@dimen/list_button_size_old"
+            android:layout_height="@dimen/list_button_size_old"
             android:layout_marginStart="@dimen/list_button_margin"
             android:layout_marginTop="@dimen/list_button_padding"
             android:layout_marginEnd="@dimen/list_button_margin"
@@ -110,8 +110,8 @@
 
         <ImageView
             android:id="@+id/account_delete_button"
-            android:layout_width="@dimen/list_button_size"
-            android:layout_height="@dimen/list_button_size"
+            android:layout_width="@dimen/list_button_size_old"
+            android:layout_height="@dimen/list_button_size_old"
             android:layout_marginStart="@dimen/list_button_margin"
             android:layout_marginTop="@dimen/list_button_padding"
             android:layout_marginEnd="@dimen/list_button_margin"

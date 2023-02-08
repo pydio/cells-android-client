@@ -491,6 +491,12 @@ class TransferService(
     }
 
     /** UPLOADS **/
+    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
+        val dao = getTransferDao(accountId)
+        val uploadRecord = dao.getById(transferId)
+            ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
+        doUpload(dao, uploadRecord)
+    }
 
     suspend fun uploadOne(stateID: StateID) = withContext(Dispatchers.IO) {
         val dao = getTransferDao(stateID)
@@ -499,9 +505,10 @@ class TransferService(
         doUpload(dao, uploadRecord)
     }
 
-    private fun doUpload(dao: TransferDao, transferRecord: RTransfer) {
-        // Real upload in single part
+    private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) {
+        // Real upload of a single single part
         var inputStream: InputStream? = null
+        var cancelled = false
         try {
 
             val state = transferRecord.getStateId()
@@ -517,30 +524,62 @@ class TransferService(
             Log.d(logTag, "... About to upload file to $state")
 
             val parent = state.parent()
+
+            // Real transfer
+            var errorMessage: String? = null
+            var lastUpdateTS = 0L
+            var byteWritten = 0L
             accountService.getClient(state).upload(
                 inputStream, transferRecord.byteSize,
                 transferRecord.mime, parent.workspace, parent.file, state.fileName,
                 true
             ) { progressL ->
-                transferRecord.progress = progressL
-                transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-                transferRecord.updateTimestamp = currentTimestamp()
-                dao.update(transferRecord)
-                false
+
+                cancelled = dao.hasBeenCancelled(transferRecord.transferId)?.let {
+                    val msg = "Upload cancelled by ${it.owner}"
+                    transferRecord.status = AppNames.JOB_STATUS_CANCELLED
+                    // rTransfer.doneTimestamp = currentTimestamp()
+                    transferRecord.error = msg
+                    errorMessage = msg
+                    // We also reset the number of bytes sent
+                    // TODO this must be improved when we start doing multi-part
+                    transferRecord.progress += byteWritten
+                    true
+                } ?: false
+
+                byteWritten += progressL
+                val newTs = currentTimestamp()
+
+                // We only update the records every seconds)
+                if (newTs - lastUpdateTS >= 1) {
+                    transferRecord.progress += byteWritten
+                    transferRecord.updateTimestamp = newTs
+                    transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                    dao.update(transferRecord)
+                    byteWritten = 0
+                    lastUpdateTS = newTs
+                }
+                cancelled
             }
 
-            transferRecord.error = null
-            transferRecord.doneTimestamp = currentTimestamp()
-            transferRecord.status = AppNames.JOB_STATUS_DONE
+            if (!cancelled) {
+                transferRecord.error = null
+                transferRecord.doneTimestamp = currentTimestamp()
+                transferRecord.status = AppNames.JOB_STATUS_DONE
+                // Also send remaining bits to the progress bar
+                transferRecord.progress += byteWritten
+            }
 
         } catch (e: Exception) {
-            // TODO manage errors correctly
+            // TODO refine error management
             transferRecord.error = e.message
             transferRecord.status = AppNames.JOB_STATUS_ERROR
+            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
             e.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(inputStream)
-            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            if (!cancelled) {
+            }
             dao.update(transferRecord)
         }
     }

@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
-import com.pydio.android.cells.ui.box.system.UploadProgressScreen
+import com.pydio.android.cells.ui.box.system.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -41,7 +41,6 @@ sealed class SelectTargetDestination(val route: String) {
         fun getPathKey() = "stateId"
     }
 
-    // TODO add a route that display the newly launched uploads with a "run in background option"
     // TODO add safety checks to prevent forbidden copy-move
     //  --> to finalise we must really pass the node*s* to copy or move rather than its parent
 }
@@ -101,7 +100,7 @@ fun SelectTargetHost(
 
     val forceRefresh: (StateID) -> Unit = { browseRemoteVM.watch(it) }
 
-    val startDestination = if (initialStateId != Transport.UNDEFINED_STATE_ID) {
+    val startDestination = if (initialStateId != Transport.UNDEFINED_STATE) {
         SelectTargetDestination.OpenFolder.route
     } else {
         SelectTargetDestination.ChooseAccount.route
@@ -113,20 +112,21 @@ fun SelectTargetHost(
     ) {
 
         composable(SelectTargetDestination.ChooseAccount.route) {
-            Log.e(logTag, ".... Open choose account page")
-            val login: (StateID) -> Unit = { postActivity(it, AppNames.ACTION_LOGIN) }
-            val cancel: () -> Unit = {
-                postActivity(
-                    StateID.fromId(Transport.UNDEFINED_STATE_ID), AppNames.ACTION_CANCEL
-                )
-            }
+            Log.d(logTag, ".... Open choose account page")
 
+            // TODO double check this might not be called on the second pass
             LaunchedEffect(true) {
+                Log.e(logTag, ".... Choose account, launching effect")
                 accountListVM.watch()
                 browseRemoteVM.pause()
             }
 
-            SessionList(accountListVM, open, cancel, login)
+            SessionList(
+                accountListVM = accountListVM,
+                openAccount = open,
+                cancel = { postActivity(Transport.UNDEFINED_STATE_ID, AppNames.ACTION_CANCEL) },
+                login = { postActivity(it, AppNames.ACTION_LOGIN) },
+            )
         }
 
         composable(SelectTargetDestination.OpenFolder.route) { navBackStackEntry ->
@@ -169,7 +169,7 @@ fun SelectTargetHost(
 
             val stateId = navBackStackEntry.arguments
                 ?.getString(SelectTargetDestination.UploadInProgress.getPathKey())
-                ?: Transport.UNDEFINED_STATE_ID
+                ?: Transport.UNDEFINED_STATE
 
             LaunchedEffect(key1 = stateId) {
                 Log.d(logTag, "... In upload root, launching effects for $stateId")
@@ -177,7 +177,7 @@ fun SelectTargetHost(
                 browseRemoteVM.pause()
             }
 
-            UploadProgressScreen(transferVM) {
+            UploadProgressList(transferVM) {
                 postActivity(StateID.fromId(stateId), AppNames.ACTION_CANCEL)
             }
         }

@@ -39,17 +39,24 @@
     <!-- Lists / Lazy Column Items -->
     <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
 
-    <dimen name="list_item_slected_elevation">4dp</dimen>
+    <dimen name="list_item_selected_elevation">4dp</dimen>
     <dimen name="list_item_elevation">1dp</dimen>
     <dimen name="list_horizontal_padding">5dp</dimen>
     <dimen name="list_vertical_padding">2dp</dimen>
     <dimen name="list_item_inner_padding">4dp</dimen>
+    <dimen name="list_item_inner_h_padding">8dp</dimen>
+    <dimen name="list_item_inner_v_padding">4dp</dimen>
 
+    <dimen name="list_thumb_bg_size">48dp</dimen>
     <dimen name="list_thumb_size">36dp</dimen>
+    <dimen name="list_thumb_padding">6dp</dimen>
     <dimen name="list_thumb_margin">4dp</dimen>
     <dimen name="list_thumb_elevation">3dp</dimen>
     <dimen name="list_thumb_decorator_size">12dp</dimen>
     <dimen name="list_thumb_corner_radius">4dp</dimen>
+
+    <dimen name="list_button_size">28dp</dimen>
+
 
     <!-- Material3 Forms -->
     <dimen name="form_page_padding">16dp</dimen>
@@ -70,7 +77,7 @@
     <dimen name="list_icon_corner_radius">6dp</dimen>
     <dimen name="list_icon_margin">8dp</dimen>
     <dimen name="list_more_end_margin">6dp</dimen>
-    <dimen name="list_button_size">24dp</dimen>
+    <dimen name="list_button_size_old">24dp</dimen>
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
     <!-- Grid Layout with card view-->

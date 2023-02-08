@@ -2,6 +2,12 @@ package com.pydio.android.cells;
 
 public interface AppNames {
 
+    // OAuth Code Flow when remote is Cells
+    String QUERY_KEY_CODE = "code";
+    String QUERY_KEY_STATE = "state";
+    // For OAuth callback
+    String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
+
     // Network management
     String NETWORK_TYPE_UNMETERED = "Unmetered";
     String NETWORK_TYPE_METERED = "Metered";
@@ -90,21 +96,22 @@ public interface AppNames {
     String FILTER_BY_STATUS = "filter_by_status";
     String JOB_STATUS_NEW = "new";
     String JOB_STATUS_PROCESSING = "processing";
-    String JOB_STATUS_CANCELLED = "cancelled";
     String JOB_STATUS_DONE = "done";
+    String JOB_STATUS_CANCELLING = "cancelling";
+    String JOB_STATUS_CANCELLED = "cancelled";
     String JOB_STATUS_WARNING = "warning";
     String JOB_STATUS_ERROR = "error";
     String JOB_STATUS_TIMEOUT = "timeout";
+    // Short cut used in filtering
     String JOB_STATUS_NO_FILTER = "show_all";
+    // Specific additional status to manage uploads when remote server is not currently available
+    String UPLOAD_STATUS_PRE_PROCESSING = "pre_processing";
+    String UPLOAD_STATUS_LOCALLY_CACHED = "locally_cached";
 
     /* Transfers */
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
 
-    String QUERY_KEY_CODE = "code";
-    String QUERY_KEY_STATE = "state";
-
-    String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
 
     // Workaround to store additional destinations as state
     String CUSTOM_PATH_ACCOUNTS = "/__acounts__";

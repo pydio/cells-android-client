@@ -97,7 +97,7 @@ private fun AccountListItem(
 ) {
 
     Surface(
-        tonalElevation = if (isForeground) dimensionResource(R.dimen.list_item_slected_elevation) else 0.dp,
+        tonalElevation = if (isForeground) dimensionResource(R.dimen.list_item_selected_elevation) else 0.dp,
         modifier = modifier
     ) {
 
