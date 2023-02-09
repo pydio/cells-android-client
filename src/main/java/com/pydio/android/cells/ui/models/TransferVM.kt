@@ -13,11 +13,9 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -66,9 +64,12 @@ class TransferVM(
                 val (currName, currUri) = it.value
                 transferService.launchCopy(cr, currUri, stateID, it.key, currName)?.let {
                     launch {
-                        transferService.uploadOne(it)
-                        Log.w(logTag, "... $it ==> upload DONE")
-                        delay(2000)
+                        try {
+                            transferService.uploadOne(it)
+                            Log.w(logTag, "... $it ==> upload DONE")
+                        } catch (e: Exception) {
+                            Log.e(logTag, "... $it ==> upload FAILED: ${e.message}")
+                        }
                     }
                     Log.w(logTag, "... $it ==> upload LAUNCHED")
                 } ?: run {

@@ -13,7 +13,6 @@ import com.pydio.cells.utils.tests.RemoteServerConfig;
 import com.pydio.cells.utils.tests.TestConfiguration;
 import com.pydio.cells.utils.tests.TestUtils;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,12 +55,13 @@ public class CellsClientTest {
         byte[] content = message.getBytes();
         ByteArrayInputStream source = new ByteArrayInputStream(content);
 
-        Message msg = client.upload(source, content.length, "text/plain", cellsConf.defaultWS, baseDir, fileName, true, (progress) -> {
+//        Message msg =
+                client.upload(source, content.length, "text/plain", cellsConf.defaultWS, baseDir, fileName, true, (progress) -> {
             System.out.printf("\r... %d bytes written\n", progress);
-            return false;
+            return "";
         });
-        Assert.assertNotNull(msg);
-        Assert.assertEquals("SUCCESS", msg.type());
+//        Assert.assertNotNull(msg);
+//        Assert.assertEquals("SUCCESS", msg.type());
 
         // Post with a stat
         FileNode node = client.nodeInfo(cellsConf.defaultWS, file);

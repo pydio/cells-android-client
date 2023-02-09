@@ -539,10 +539,14 @@ class TransferService(
                     true
                 ) { progressL ->
 
+                    byteWritten += progressL
+
                     cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
                         val msg = "Upload cancelled by ${it.owner}"
                         transferRecord.status = AppNames.JOB_STATUS_CANCELLED
                         transferRecord.error = msg
+                        Log.e(logTag, "... ### Cancel requested")
+
                         errorMessage = msg
                         // We also reset the number of bytes sent, relaunching always triggers a full upload.
                         // TODO this must be improved when we start doing multi-part
@@ -550,11 +554,11 @@ class TransferService(
                         msg
                     } ?: ""
 
-                    byteWritten += progressL
+                    // We only update the records every half second and when the upload is not cancelled)
                     val newTs = System.currentTimeMillis()
+                    if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
+                        Log.e(logTag, "... ### transferring  $byteWritten / ${transferRecord.byteSize}")
 
-                    // We only update the records every half second)
-                    if (newTs - lastUpdateTS >= 500) {
                         transferRecord.progress += byteWritten
                         transferRecord.updateTimestamp = newTs
                         transferRecord.status = AppNames.JOB_STATUS_PROCESSING
@@ -565,11 +569,13 @@ class TransferService(
                     cancellationMsg
                 }
 
+                Log.e(logTag, "... ### Done and not cancelled")
                 transferRecord.error = null
                 transferRecord.doneTimestamp = currentTimestamp()
                 transferRecord.status = AppNames.JOB_STATUS_DONE
                 // Also send remaining bits to the progress bar
                 transferRecord.progress += byteWritten
+                Log.e(logTag, "... ${transferRecord.progress} / ${transferRecord.byteSize}")
 
             } catch (e: SDKException) {
                 if (e.code == ErrorCodes.cancelled) {
@@ -581,6 +587,7 @@ class TransferService(
                     //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
                     this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
                 } else {
+                    Log.e(logTag, "... ############# Got an error but not cancelled")
                     throw e
                 }
             } catch (e: Exception) {
