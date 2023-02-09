@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
@@ -43,6 +41,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.ui.box.common.Decorated
+import com.pydio.android.cells.ui.box.common.Type
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.android.cells.ui.theme.danger
@@ -72,6 +72,7 @@ fun TransferListItem(
 
     TransferListItem(
         item.type,
+        item.status ?: AppNames.JOB_STATUS_NEW,
         fName,
         buildStatusString(item),
         progress,
@@ -107,6 +108,7 @@ fun isDone(item: RTransfer): Boolean {
 @Composable
 private fun TransferListItem(
     type: String,
+    status: String,
     title: String,
     desc: AnnotatedString,
     progress: Float,
@@ -136,14 +138,7 @@ private fun TransferListItem(
             )
         ) {
 
-            Surface(
-                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-                modifier = Modifier
-                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-                    .size(dimensionResource(R.dimen.list_thumb_bg_size))
-                    .wrapContentSize(Alignment.Center)
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.list_thumb_corner_radius)))
-            ) {
+            Decorated(Type.JOB, status) {
                 val thumbImg = when (type) {
                     AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsVectorIcons.DownloadFile
                     else -> CellsVectorIcons.UploadFile
@@ -155,8 +150,10 @@ private fun TransferListItem(
                     modifier = Modifier
                         .padding(all = dimensionResource(id = R.dimen.list_thumb_padding))
                         .size(dimensionResource(R.dimen.list_thumb_size))
+                        .alpha(.5f)
                 )
             }
+
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 
@@ -187,26 +184,45 @@ private fun TransferListItem(
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 
-            val btnModifier = when {
-                isActionProcessing -> Modifier.alpha(0.6f)
-                isDone -> Modifier.clickable { remove() }
-                isPaused -> Modifier.clickable { resume() }
-                else -> Modifier.clickable { pause() }
+            val btnVectorImg: ImageVector
+            val btnModifier: Modifier
+
+            when (status) {
+                AppNames.JOB_STATUS_PROCESSING -> {
+                    btnVectorImg = CellsVectorIcons.Pause
+                    btnModifier = Modifier.clickable { pause() }
+                }
+                AppNames.JOB_STATUS_CANCELLED,
+                AppNames.JOB_STATUS_ERROR,
+                -> {
+                    btnVectorImg = CellsVectorIcons.Resume
+                    btnModifier = Modifier.clickable { resume() }
+                }
+                AppNames.JOB_STATUS_DONE -> {
+                    btnVectorImg = CellsVectorIcons.Delete
+                    btnModifier = Modifier.clickable { remove() }
+                }
+                else -> {
+                    btnVectorImg = CellsVectorIcons.Pause
+                    btnModifier = Modifier.alpha(0.6f)
+                }
             }
 
-            val btnVectorImg =
-                if (isDone) CellsVectorIcons.Delete
-                else if (isPaused) CellsVectorIcons.Resume
-                else CellsVectorIcons.Pause
+            Icon(
+                imageVector = btnVectorImg,
+                contentDescription = null,
+                modifier = btnModifier
+                    .size(dimensionResource(R.dimen.list_button_size))
+            )
 
-            Surface(modifier = btnModifier) {
-                Icon(
-                    imageVector = btnVectorImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_button_size))
-                )
-            }
+//            Surface(modifier = btnModifier) {
+//                Icon(
+//                    imageVector = btnVectorImg,
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(dimensionResource(R.dimen.list_button_size))
+//                )
+//            }
 
             val moreModifier = when {
                 isActionProcessing -> Modifier.alpha(0.6f)
@@ -225,6 +241,7 @@ private fun TransferListItem(
     }
 }
 
+// TODO factorize
 @Composable
 fun SmoothLinearProgressIndicator(
     indicatorProgress: Float,
@@ -290,14 +307,37 @@ private fun buildStatusString(item: RTransfer): AnnotatedString {
 }
 
 @SuppressLint("SdCardPath")
-@Preview(name = "TL Item Light")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true,
+    name = "TL Item Light"
+)
+@Composable
+private fun TransferListItemPreview() {
+
+    val dummyTransfer = RTransfer.fromState(
+        encodedState = "alice@https%3A%2F%2Fexample.com@%2Fpersonal-files%2FTest%2FIMG_202172836.jpg",
+        type = AppNames.TRANSFER_TYPE_UPLOAD,
+        path = "/data/user/0/com.pydio.android.Client/files/example.com/local/personal-files/Test/IMG_202172836.jpg",
+        byteSize = 13551193L,
+        mime = "image/jpeg",
+        parentJobId = 0L,
+        status = AppNames.JOB_STATUS_CANCELLED,
+    )
+
+    CellsTheme {
+        TransferListItem(dummyTransfer, { }, { }, { }, { }, Modifier)
+    }
+}
+
+@SuppressLint("SdCardPath")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     showBackground = true,
     name = "TL Item Dark"
 )
 @Composable
-private fun TransferListItemPreview() {
+private fun TransferListItemNightPreview() {
 
     val dummyTransfer = RTransfer.fromState(
         encodedState = "alice@https%3A%2F%2Fexample.com@%2Fpersonal-files%2FTest%2FIMG_202172836.jpg",
@@ -312,6 +352,7 @@ private fun TransferListItemPreview() {
     CellsTheme {
         TransferListItem(
             type = AppNames.TRANSFER_TYPE_UPLOAD,
+            status = AppNames.JOB_STATUS_PROCESSING,
             title = "Title",
             desc = buildStatusString(dummyTransfer),
             progress = .4f,

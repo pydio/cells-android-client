@@ -21,6 +21,7 @@ import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.decodeSortById
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -31,6 +32,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -346,14 +348,14 @@ class TransferService(
             accountService.getClient(state)
                 .download(state.workspace, state.file, out) { progressL ->
                     // TODO also manage parent job cancellation
-                    val cancelled = dao.hasBeenCancelled(rTransfer.transferId)?.let {
+                    val cancellationMsg = dao.hasBeenCancelled(rTransfer.transferId)?.let {
                         val msg = "Download cancelled by ${it.owner}"
                         rTransfer.status = AppNames.JOB_STATUS_CANCELLED
                         rTransfer.doneTimestamp = currentTimestamp()
                         rTransfer.error = msg
                         errorMessage = msg
-                        true
-                    } ?: false
+                        msg
+                    } ?: ""
 
                     byteWritten += progressL
                     val newTs = currentTimestamp()
@@ -370,7 +372,7 @@ class TransferService(
                         byteWritten = 0
                         lastUpdateTS = rTransfer.updateTimestamp
                     }
-                    cancelled
+                    cancellationMsg
                 }
 
             if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
@@ -505,84 +507,95 @@ class TransferService(
         doUpload(dao, uploadRecord)
     }
 
-    private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) {
-        // Real upload of a single single part
-        var inputStream: InputStream? = null
-        var cancelled = false
-        try {
+    private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) =
+        withContext(Dispatchers.IO) {
+            // Real upload of a single single part
+            var inputStream: InputStream? = null
+            var cancellationMsg = ""
+            try {
 
-            val state = transferRecord.getStateId()
-                ?: throw IllegalStateException("Cannot start upload with no defined StateID")
+                val state = transferRecord.getStateId()
+                    ?: throw IllegalStateException("Cannot start upload with no defined StateID")
+                val parent = state.parent()
+                Log.d(logTag, "... About to upload file to $state")
 
-            // Mark the upload as started
-            transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            dao.update(transferRecord)
-            val srcPath =
-                fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
-            inputStream = FileInputStream(File(srcPath))
+                // Mark the upload as started
+                transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                // Also reset in case of restart, to be refined
+                transferRecord.error = null
+                transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                dao.update(transferRecord)
 
-            Log.d(logTag, "... About to upload file to $state")
-
-            val parent = state.parent()
-
-            // Real transfer
-            var errorMessage: String? = null
-            var lastUpdateTS = 0L
-            var byteWritten = 0L
-            accountService.getClient(state).upload(
-                inputStream, transferRecord.byteSize,
-                transferRecord.mime, parent.workspace, parent.file, state.fileName,
-                true
-            ) { progressL ->
-
-                cancelled = dao.hasBeenCancelled(transferRecord.transferId)?.let {
-                    val msg = "Upload cancelled by ${it.owner}"
-                    transferRecord.status = AppNames.JOB_STATUS_CANCELLED
-                    // rTransfer.doneTimestamp = currentTimestamp()
-                    transferRecord.error = msg
-                    errorMessage = msg
-                    // We also reset the number of bytes sent
-                    // TODO this must be improved when we start doing multi-part
-                    transferRecord.progress += byteWritten
+                // Real transfer
+                val srcPath =
+                    fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
+                inputStream = FileInputStream(File(srcPath))
+                var errorMessage: String? = null
+                var lastUpdateTS = 0L
+                var byteWritten = 0L
+                accountService.getClient(state).upload(
+                    inputStream, transferRecord.byteSize,
+                    transferRecord.mime, parent.workspace, parent.file, state.fileName,
                     true
-                } ?: false
+                ) { progressL ->
 
-                byteWritten += progressL
-                val newTs = currentTimestamp()
+                    cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
+                        val msg = "Upload cancelled by ${it.owner}"
+                        transferRecord.status = AppNames.JOB_STATUS_CANCELLED
+                        transferRecord.error = msg
+                        errorMessage = msg
+                        // We also reset the number of bytes sent, relaunching always triggers a full upload.
+                        // TODO this must be improved when we start doing multi-part
+                        transferRecord.progress = 0
+                        msg
+                    } ?: ""
 
-                // We only update the records every seconds)
-                if (newTs - lastUpdateTS >= 1) {
-                    transferRecord.progress += byteWritten
-                    transferRecord.updateTimestamp = newTs
-                    transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-                    dao.update(transferRecord)
-                    byteWritten = 0
-                    lastUpdateTS = newTs
+                    byteWritten += progressL
+                    val newTs = System.currentTimeMillis()
+
+                    // We only update the records every half second)
+                    if (newTs - lastUpdateTS >= 500) {
+                        transferRecord.progress += byteWritten
+                        transferRecord.updateTimestamp = newTs
+                        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                        dao.update(transferRecord)
+                        byteWritten = 0
+                        lastUpdateTS = newTs
+                    }
+                    cancellationMsg
                 }
-                cancelled
-            }
 
-            if (!cancelled) {
                 transferRecord.error = null
                 transferRecord.doneTimestamp = currentTimestamp()
                 transferRecord.status = AppNames.JOB_STATUS_DONE
                 // Also send remaining bits to the progress bar
                 transferRecord.progress += byteWritten
-            }
 
-        } catch (e: Exception) {
-            // TODO refine error management
-            transferRecord.error = e.message
-            transferRecord.status = AppNames.JOB_STATUS_ERROR
-            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            e.printStackTrace()
-        } finally {
-            IoHelpers.closeQuietly(inputStream)
-            if (!cancelled) {
+            } catch (e: SDKException) {
+                if (e.code == ErrorCodes.cancelled) {
+                    Log.e(logTag, "... #################################")
+                    Log.e(logTag, "... #################################")
+                    Log.e(logTag, "... ########## been cancelled, ack message...")
+                    dao.ackCancellation(transferRecord.transferId)
+                    // FIXME there is still some kind of routine leak here...
+                    //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
+                    this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
+                } else {
+                    throw e
+                }
+            } catch (e: Exception) {
+                Log.e(logTag, "... ########### aie aie aie ###########")
+                // TODO refine error management
+                transferRecord.error = e.message
+                transferRecord.status = AppNames.JOB_STATUS_ERROR
+                transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                e.printStackTrace()
+            } finally {
+                Log.e(logTag, "... ########### Finally ###########")
+                IoHelpers.closeQuietly(inputStream)
+                dao.update(transferRecord)
             }
-            dao.update(transferRecord)
         }
-    }
 
 //    suspend fun uploadAllNew() {
 //        serviceScope.launch {
@@ -689,7 +702,6 @@ class TransferService(
         nodeDB(parentID).transferDao().update(uploadRecord)
         return@withContext targetStateID
     }
-
 
     /**
      * Does all the dirty work to copy the file from the device to an in-app folder

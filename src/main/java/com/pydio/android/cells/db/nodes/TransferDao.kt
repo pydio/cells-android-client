@@ -70,4 +70,7 @@ interface TransferDao {
     @Query("DELETE FROM transfer_cancellation WHERE transfer_id = :transferId")
     fun deleteCancellation(transferId: Long)
 
+    @Query("DELETE FROM transfer_cancellation WHERE transfer_id = :transferId")
+    fun ackCancellation(transferId: Long)
+
 }

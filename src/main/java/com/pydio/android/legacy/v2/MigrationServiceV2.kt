@@ -97,12 +97,12 @@ class MigrationServiceV2 : KoinComponent {
                 if (oldValue < 50) {
                     migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
                         jobService.incrementProgress(migrationJob, it, null)
-                        true
+                        ""
                     }
                 } else {
                     migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
                         jobService.incrementProgress(migrationJob, it, null)
-                        true
+                        ""
                     }
                 }
             } catch (e: Exception) {
