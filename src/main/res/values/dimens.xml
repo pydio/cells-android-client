@@ -36,9 +36,18 @@
     <dimen name="alpha_list_primary">0.87</dimen>
     <dimen name="alpha_list_secondary">0.6</dimen>
 
-    <!-- Lists / Lazy Column Items -->
-    <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
+    <!-- Material3 Forms -->
+    <dimen name="form_page_padding">16dp</dimen>
+    <dimen name="form_input_horizontal_padding">16dp</dimen>
+    <dimen name="form_input_vertical_padding">8dp</dimen>
 
+    <!-- **** LISTS **** -->
+
+    <!-- Generic -->
+    <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
+    <dimen name="item_spacer_width">20dp</dimen>
+
+    <!-- Lists / Lazy Column Items -->
     <dimen name="list_item_selected_elevation">4dp</dimen>
     <dimen name="list_item_elevation">1dp</dimen>
     <dimen name="list_horizontal_padding">5dp</dimen>
@@ -57,11 +66,19 @@
 
     <dimen name="list_button_size">28dp</dimen>
 
+    <!-- Grids / LazyGrids items -->
 
-    <!-- Material3 Forms -->
-    <dimen name="form_page_padding">16dp</dimen>
-    <dimen name="form_input_horizontal_padding">16dp</dimen>
-    <dimen name="form_input_vertical_padding">8dp</dimen>
+
+    <!-- Dropdown menu -->
+
+    <!-- Bottom Sheets -->
+    <dimen name="bottom_sheet_header_height">64dp</dimen>
+    <dimen name="bottom_sheet_item_height">54dp</dimen>
+    <dimen name="bottom_sheet_header_h_padding">12dp</dimen>
+    <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
+    <dimen name="bottom_sheet_start_padding">16dp</dimen>
+    <dimen name="bottom_sheet_h_padding">8dp</dimen>
+    <dimen name="bottom_sheet_v_padding">4dp</dimen>
 
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab

@@ -5,12 +5,16 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Delete
@@ -44,15 +48,19 @@ object CellsVectorIcons {
     val Close = Icons.Default.Close
     val Delete = Icons.Outlined.Delete
     val DownloadFile = Icons.Outlined.FileDownload
+    val Edit = Icons.Default.Edit
     val ErrorDecorator = Icons.Default.PriorityHigh
     val ExpandLess = Icons.Rounded.ExpandLess
     val Fullscreen = Icons.Rounded.Fullscreen
     val Grid3x3 = Icons.Rounded.Grid3x3
+    val Link = Icons.Default.Link
     val MoreVert = Icons.Default.MoreVert
+    val OpenLocation = Icons.Default.OpenInBrowser
     val Pause = Icons.Default.Pause
     val Person = Icons.Rounded.Person
     val PlayArrow = Icons.Rounded.PlayArrow
     val Processing = Icons.Outlined.RocketLaunch
+    val Share = Icons.Default.Share
     val Unknown = Icons.Default.QuestionMark
     val Resume = Icons.Default.Replay
     val Search = Icons.Rounded.Search

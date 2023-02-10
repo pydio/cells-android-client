@@ -209,6 +209,8 @@
     <string name="bookmark">Bookmark</string>
     <string name="bookmark_element_content_desc">Bookmark this element</string>
     <string name="delete">Delete</string>
+    <string name="pause">Pause</string>
+    <string name="relaunch">Relaunch</string>
     <string name="empty_recycle">Empty recycle</string>
     <string name="restore_content">Restore</string>
     <string name="permanently_remove">Permanently remove</string>
