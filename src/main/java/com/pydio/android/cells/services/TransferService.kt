@@ -112,8 +112,8 @@ class TransferService(
     }
 
 
-    fun liveTransfer(accountId: StateID, transferId: Long): LiveData<RTransfer?> {
-        return nodeDB(accountId).transferDao().getLiveById(transferId)
+    fun liveTransfer(accountID: StateID, transferID: Long): LiveData<RTransfer?> {
+        return nodeDB(accountID).transferDao().getLiveById(transferID)
     }
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
@@ -125,8 +125,12 @@ class TransferService(
         }
     }
 
-    fun getLiveRecord(accountId: StateID, transferUid: Long): LiveData<RTransfer?> {
-        return getTransferDao(accountId).getLiveById(transferUid)
+    fun getRecord(accountID: StateID, transferID: Long): RTransfer? {
+        return getTransferDao(accountID).getById(transferID)
+    }
+
+    fun getLiveRecord(accountId: StateID, transferID: Long): LiveData<RTransfer?> {
+        return getTransferDao(accountId).getLiveById(transferID)
     }
 
     suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
@@ -557,7 +561,10 @@ class TransferService(
                     // We only update the records every half second and when the upload is not cancelled)
                     val newTs = System.currentTimeMillis()
                     if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
-                        Log.e(logTag, "... ### transferring  $byteWritten / ${transferRecord.byteSize}")
+                        Log.e(
+                            logTag,
+                            "... ### transferring  $byteWritten / ${transferRecord.byteSize}"
+                        )
 
                         transferRecord.progress += byteWritten
                         transferRecord.updateTimestamp = newTs
@@ -577,26 +584,20 @@ class TransferService(
                 transferRecord.progress += byteWritten
                 Log.e(logTag, "... ${transferRecord.progress} / ${transferRecord.byteSize}")
 
-            } catch (e: SDKException) {
-                if (e.code == ErrorCodes.cancelled) {
-                    Log.e(logTag, "... #################################")
-                    Log.e(logTag, "... #################################")
-                    Log.e(logTag, "... ########## been cancelled, ack message...")
+            } catch (e: Exception) {
+                if (e is SDKException && e.code == ErrorCodes.cancelled) {
+                    Log.e(logTag, "... Got cancelled, acknowledging message...")
                     dao.ackCancellation(transferRecord.transferId)
                     // FIXME there is still some kind of routine leak here...
                     //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
                     this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
                 } else {
-                    Log.e(logTag, "... ############# Got an error but not cancelled")
-                    throw e
+                    Log.e(logTag, "... Got an error but it is not a cancel: $e")
+                    // e.printStackTrace()
+                    transferRecord.error = e.message
+                    transferRecord.status = AppNames.JOB_STATUS_ERROR
+                    transferRecord.doneTimestamp = currentTimestamp()
                 }
-            } catch (e: Exception) {
-                Log.e(logTag, "... ########### aie aie aie ###########")
-                // TODO refine error management
-                transferRecord.error = e.message
-                transferRecord.status = AppNames.JOB_STATUS_ERROR
-                transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-                e.printStackTrace()
             } finally {
                 Log.e(logTag, "... ########### Finally ###########")
                 IoHelpers.closeQuietly(inputStream)

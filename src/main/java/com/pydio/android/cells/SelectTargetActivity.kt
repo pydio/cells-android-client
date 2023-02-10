@@ -229,17 +229,17 @@ class SelectTargetActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        Log.e(logTag, "onDestroy")
+        Log.d(logTag, "onDestroy")
         super.onDestroy()
     }
 
     override fun onPause() {
-        Log.e(logTag, "onPause")
+        Log.d(logTag, "onPause")
         super.onPause()
     }
 
     override fun onResume() {
-        Log.e(logTag, "onResume")
+        Log.d(logTag, "onResume")
         super.onResume()
     }
 }

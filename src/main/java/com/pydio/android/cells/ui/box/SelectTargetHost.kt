@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
 import com.pydio.android.cells.ui.box.browse.SessionList
-import com.pydio.android.cells.ui.box.system.UploadProgressList
+import com.pydio.android.cells.ui.box.transfer.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -79,7 +79,13 @@ fun SelectTargetHost(
 
     val interceptPost: (StateID, String?) -> Unit = { stateID, currAction ->
         if (AppNames.ACTION_UPLOAD == currAction) {
-            navController.navigate(SelectTargetDestination.UploadInProgress.createRoute(stateID))
+            navController.navigate(
+                SelectTargetDestination.UploadInProgress.createRoute(stateID),
+            ) {
+                // We insure that the navigation page is first on the back stack
+                // So that the end user cannot launch the upload twice using the back btn
+                popUpTo(SelectTargetDestination.ChooseAccount.route) { inclusive = true }
+            }
         }
         postActivity(stateID, currAction)
     }

@@ -58,7 +58,7 @@ fun TransferListItem(
     pause: () -> Unit,
     resume: () -> Unit,
     remove: () -> Unit,
-    more: () -> Unit,
+    more: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -76,13 +76,11 @@ fun TransferListItem(
         fName,
         buildStatusString(item),
         progress,
-        isDone = isDone(item),
-        isPaused = isPaused(item),
         isActionProcessing = false, // TODO
         pause,
         resume,
         remove,
-        more,
+        more = {more(item.transferId)},
         modifier,
     )
 }
@@ -112,8 +110,6 @@ private fun TransferListItem(
     title: String,
     desc: AnnotatedString,
     progress: Float,
-    isDone: Boolean,
-    isPaused: Boolean,
     isActionProcessing: Boolean,
     pause: () -> Unit,
     resume: () -> Unit,
@@ -262,9 +258,8 @@ fun SmoothLinearProgressIndicator(
     }
 }
 
-
 @Composable
-private fun buildStatusString(item: RTransfer): AnnotatedString {
+fun buildStatusString(item: RTransfer): AnnotatedString {
     val ctx = LocalContext.current
     val bgColor = when (item.status) {
         AppNames.JOB_STATUS_WARNING -> warning
@@ -356,8 +351,6 @@ private fun TransferListItemNightPreview() {
             title = "Title",
             desc = buildStatusString(dummyTransfer),
             progress = .4f,
-            isDone = false,
-            isPaused = true,
             isActionProcessing = false,
             { },
             { },

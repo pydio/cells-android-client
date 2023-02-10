@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Hold a list of recent file transfers for current session.
@@ -78,6 +79,10 @@ class TransferVM(
                 }
             }
         }
+    }
+
+    suspend fun get(transferId: Long): RTransfer? = withContext(Dispatchers.IO) {
+        transferService.getRecord(_accountID, transferId)
     }
 
     fun pauseOne(transferId: Long) {
