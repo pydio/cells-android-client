@@ -4,18 +4,15 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-private val logTag = BrowseRemoteVM::class.simpleName
+private val logTag = AccountHomeVM::class.simpleName
 
 /**
  * Exposes the repository while showing an account Home.
@@ -40,5 +37,14 @@ class AccountHomeVM(
         _accountID.value = accountID
         _wss = accountService.getLiveWsByType(SdkNames.WS_TYPE_DEFAULT, accountID.id)
         _cells = accountService.getLiveWsByType(SdkNames.WS_TYPE_CELL, accountID.id)
+    }
+
+    init {
+        Log.e(logTag, "--- Created")
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.e(logTag, "--- Cleared")
     }
 }

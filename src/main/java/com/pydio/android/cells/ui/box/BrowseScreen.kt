@@ -10,20 +10,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.box.browse.AccountHome
 import com.pydio.android.cells.ui.box.browse.Folder
 import com.pydio.android.cells.ui.box.browse.SelectAccount
-import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "BrowseScreen.kt"
 
@@ -46,15 +45,15 @@ sealed class BrowseDestination(val route: String) {
 
 @Composable
 fun BrowseScreen(
-    navController: NavHostController,
     initialStateID: StateID,
-    accountListVM: AccountListVM,
-    accountHomeVM: AccountHomeVM,
-    browseLocalVM: BrowseLocalFoldersVM,
-    browseRemoteVM: BrowseRemoteVM,
     postActivity: (stateID: StateID, action: String?) -> Unit,
+    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
+    accountListVM: AccountListVM = koinViewModel(),
 ) {
     val ctx = LocalContext.current
+
+
+    val navController = rememberNavController()
 
     val currLoadingState by browseRemoteVM.isLoading.observeAsState()
 
@@ -124,8 +123,6 @@ fun BrowseScreen(
                 openAccounts = openAccounts,
                 openSearch = {},
                 openWorkspace = open,
-                accountHomeVM = accountHomeVM,
-                browseLocalVM = browseLocalVM,
                 browseRemoteVM = browseRemoteVM,
             )
         }
@@ -142,7 +139,6 @@ fun BrowseScreen(
                 openParent = openParent,
                 open = open,
                 openSearch = {},
-                browseLocalVM = browseLocalVM,
                 browseRemoteVM = browseRemoteVM,
             )
         }

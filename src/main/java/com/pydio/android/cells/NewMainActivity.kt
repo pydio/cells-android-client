@@ -38,18 +38,8 @@ class NewMainActivity : ComponentActivity() {
         Log.d(logTag, "onCreate for: $initialStateID")
 
         setContent {
-            val ctx = LocalContext.current
 
             BrowseApp {
-                // val ctx = LocalContext.current
-                val navController = rememberNavController()
-                val coroutineScope = rememberCoroutineScope()
-
-                val browseRemoteVM by viewModel<BrowseRemoteVM>()
-                val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
-                val accountHomeVM by viewModel<AccountHomeVM>()
-                val accountListVM by viewModel<AccountListVM>()
-
 
                 val launchTaskFor: (StateID, String?) -> Unit = { stateID, action ->
                     when (val currAction: String = action ?: "none") {
@@ -60,12 +50,7 @@ class NewMainActivity : ComponentActivity() {
                 }
 
                 BrowseScreen(
-                    navController,
                     initialStateID,
-                    accountListVM,
-                    accountHomeVM,
-                    browseLocalVM,
-                    browseRemoteVM,
                     launchTaskFor,
                 )
             }

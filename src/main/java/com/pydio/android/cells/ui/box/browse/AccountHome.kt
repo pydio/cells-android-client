@@ -43,11 +43,11 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.ui.box.common.getFloatResource
 import com.pydio.android.cells.ui.box.common.getWsThumbVector
 import com.pydio.android.cells.ui.models.AccountHomeVM
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "AccountHome.kt"
 
@@ -58,17 +58,14 @@ fun AccountHome(
     openAccounts: () -> Unit,
     openSearch: () -> Unit,
     openWorkspace: (StateID) -> Unit,
-    accountHomeVM: AccountHomeVM,
-    browseLocalVM: BrowseLocalFoldersVM,
     browseRemoteVM: BrowseRemoteVM,
+    accountHomeVM: AccountHomeVM = koinViewModel(),
 ) {
 
     Log.e(logTag, "... Composing AccountHome for $accountID")
 
     LaunchedEffect(key1 = accountID) {
         Log.e(logTag, "... in AccountHome, launching effect")
-        // TODO ?
-        // accountListVM.pause()
         browseRemoteVM.watch(accountID)
     }
 

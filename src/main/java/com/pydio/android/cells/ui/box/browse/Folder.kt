@@ -42,13 +42,13 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.common.Thumbnail
-import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "Folder.kt"
 
@@ -59,8 +59,8 @@ fun Folder(
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openSearch: () -> Unit,
-    browseLocalVM: BrowseLocalFoldersVM,
     browseRemoteVM: BrowseRemoteVM,
+    browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
 ) {
 
     Log.e(logTag, "... Composing Folder for $stateID")
@@ -71,9 +71,9 @@ fun Folder(
         // accountListVM.pause()
         browseRemoteVM.watch(stateID)
     }
+    val isLoading by browseRemoteVM.isLoading.observeAsState()
 
     browseLocalVM.setState(stateID)
-    val isLoading by browseRemoteVM.isLoading.observeAsState()
     val children by browseLocalVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {
