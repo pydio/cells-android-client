@@ -39,6 +39,8 @@ interface AccountService {
 
     fun getLiveWorkspaces(accountID: String): LiveData<List<RWorkspace>>
 
+    fun getLiveWsByType(type: String, accountID: String): LiveData<List<RWorkspace>>
+
     fun listSessionViews(includeLegacy: Boolean): List<RSessionView>
 
     suspend fun forgetAccount(accountId: String): String?

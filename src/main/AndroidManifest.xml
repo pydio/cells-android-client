@@ -54,6 +54,10 @@
             android:theme="@style/Cells.Md3.LightStatusBar" />
 
         <activity
+            android:name=".NewMainActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".SelectTargetActivity"
             android:exported="true"
             android:theme="@style/Cells.Md3.LightStatusBar">

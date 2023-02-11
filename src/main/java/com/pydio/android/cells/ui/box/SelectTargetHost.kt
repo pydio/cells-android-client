@@ -14,7 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
-import com.pydio.android.cells.ui.box.browse.SessionList
+import com.pydio.android.cells.ui.box.browse.SelectTargetAccount
 import com.pydio.android.cells.ui.box.transfer.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
@@ -112,7 +112,7 @@ fun SelectTargetHost(
         SelectTargetDestination.ChooseAccount.route
     }
 
-/* Configure navigation */
+    // Configure navigation 
     NavHost(
         navController = navController, startDestination = startDestination
     ) {
@@ -127,7 +127,7 @@ fun SelectTargetHost(
                 browseRemoteVM.pause()
             }
 
-            SessionList(
+            SelectTargetAccount(
                 accountListVM = accountListVM,
                 openAccount = open,
                 cancel = { postActivity(Transport.UNDEFINED_STATE_ID, AppNames.ACTION_CANCEL) },

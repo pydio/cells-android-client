@@ -37,6 +37,7 @@
     <string name="action_clear_cache">Clear Cache</string>
 
     <!-- Main Menu (left drawer) -->
+    <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
     <string name="my_workspaces">My Workspaces</string>
     <string name="quick_access">Quick Access</string>

@@ -3,7 +3,6 @@ package com.pydio.android.cells.ui.box.browse
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,15 +15,14 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.account.AccountList
+import com.pydio.android.cells.ui.box.account.TargetAccountList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.transport.StateID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionList(
+fun SelectTargetAccount(
     accountListVM: AccountListVM,
     openAccount: (stateID: StateID) -> Unit,
     cancel: () -> Unit,
@@ -69,7 +67,7 @@ fun SessionList(
             )
         },
         content = { innerPadding ->
-            AccountList(
+            TargetAccountList(
                 accounts,
                 interceptOpen,
                 login,

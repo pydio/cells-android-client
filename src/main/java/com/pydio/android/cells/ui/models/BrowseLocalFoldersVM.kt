@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.models
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
@@ -23,20 +22,12 @@ class BrowseLocalFoldersVM(
     private val nodeService: NodeService
 ) : ViewModel() {
 
-//    private var _stateID = MutableLiveData<StateID>()
-//    val stateID: LiveData<StateID>
-//        get() = _stateID
-
     private val _stateID = MutableStateFlow(StateID(/* serverUrl = */ Transport.UNDEFINED_URL))
     val stateID: StateFlow<StateID> = _stateID.asStateFlow()
 
     private lateinit var _children: LiveData<List<RTreeNode>>
     val childNodes: LiveData<List<RTreeNode>>
         get() = _children
-
-//    init {
-//        _stateID.value = StateID(/* serverUrl = */ Transport.UNDEFINED_URL)
-//    }
 
     fun setState(stateID: StateID) {
         Log.e(logTag, "--- Updating current state to $stateID")

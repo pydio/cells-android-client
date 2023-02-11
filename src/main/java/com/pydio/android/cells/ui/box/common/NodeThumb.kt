@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -17,9 +18,9 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.api.SdkNames
 import java.io.File
-
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -125,5 +126,14 @@ fun getDrawableFromMime(mime: String, sortName: String?): Int {
                 mime == "application/java-archive"
         -> R.drawable.file_zip_outline
         else -> R.drawable.file_outline
+    }
+}
+
+fun getWsThumbVector(sortName: String): ImageVector {
+    // Tweak: we deduce type of ws root from the sort name. Not very clean
+    return when {
+        sortName.startsWith("1_2") -> CellsVectorIcons.MyFilesThumb
+        sortName.startsWith("1_8") -> CellsVectorIcons.CellThumb
+        else -> CellsVectorIcons.WorkspaceThumb
     }
 }

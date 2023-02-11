@@ -1,20 +1,7 @@
 package com.pydio.android.cells.ui.theme
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PriorityHigh
-import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.RocketLaunch
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Delete
@@ -28,7 +15,6 @@ import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.pydio.android.cells.R
@@ -45,16 +31,22 @@ object CellsVectorIcons {
     val ArrowDropUp = Icons.Default.ArrowDropUp
     val Cancel = Icons.Outlined.Cancel
     val Check = Icons.Default.Check
+    val CellThumb = Icons.Default.FolderShared
     val Close = Icons.Default.Close
     val Delete = Icons.Outlined.Delete
     val DownloadFile = Icons.Outlined.FileDownload
     val Edit = Icons.Default.Edit
     val ErrorDecorator = Icons.Default.PriorityHigh
     val ExpandLess = Icons.Rounded.ExpandLess
+    val MyFiles = Icons.Default.FolderShared
     val Fullscreen = Icons.Rounded.Fullscreen
     val Grid3x3 = Icons.Rounded.Grid3x3
     val Link = Icons.Default.Link
+    val Login = Icons.Default.Login
+    val Logout = Icons.Default.Logout
+    val Menu = Icons.Default.Menu
     val MoreVert = Icons.Default.MoreVert
+    val MyFilesThumb = Icons.Default.FolderSpecial
     val OpenLocation = Icons.Default.OpenInBrowser
     val Pause = Icons.Default.Pause
     val Person = Icons.Rounded.Person
@@ -63,8 +55,10 @@ object CellsVectorIcons {
     val Share = Icons.Default.Share
     val Unknown = Icons.Default.QuestionMark
     val Resume = Icons.Default.Replay
-    val Search = Icons.Rounded.Search
+    val Search = Icons.Default.Search
     val Settings = Icons.Rounded.Settings
+    val SwitchAccount = Icons.Default.SwitchAccount
+    val WorkspaceThumb = Icons.Default.Folder
     val UploadFile = Icons.Outlined.UploadFile
 }
 

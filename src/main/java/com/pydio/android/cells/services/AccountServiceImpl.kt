@@ -18,6 +18,7 @@ import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.StateID
@@ -69,6 +70,15 @@ class AccountServiceImpl(
 
     override fun getLiveWorkspaces(accountID: String): LiveData<List<RWorkspace>> =
         workspaceDao.getLiveWorkspaces(accountID)
+
+    override fun getLiveWsByType(type: String, accountID: String)
+            : LiveData<List<RWorkspace>> {
+        return if (type == SdkNames.WS_TYPE_CELL) {
+            workspaceDao.getLiveCells(accountID)
+        } else {
+            workspaceDao.getLiveNotCells(accountID)
+        }
+    }
 
     override val liveActiveSessionView: LiveData<RSessionView?> =
         sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
@@ -142,7 +152,7 @@ class AccountServiceImpl(
                                 changes++
                             }
                         } catch (e: SDKException) {
-                            Log.e(logTag,"${account.accountID} is not connected: err #${e.code}")
+                            Log.e(logTag, "${account.accountID} is not connected: err #${e.code}")
                             account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                             accountDao.update(account)
                             val updatedAccount = accountDao.getAccount(account.accountID)

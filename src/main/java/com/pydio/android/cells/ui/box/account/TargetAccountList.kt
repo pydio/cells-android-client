@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,16 +37,16 @@ import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
-fun AccountList(
+fun TargetAccountList(
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
-    login: (stateID: StateID) -> Unit,
-    logout: (stateID: StateID) -> Unit,
-    forget: (stateID: StateID) -> Unit,
-    modifier: Modifier = Modifier,
+    doLogin: (stateID: StateID) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalArrangement: Arrangement.Vertical,
+    modifier: Modifier = Modifier,
 ) {
+
+    val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -56,38 +55,38 @@ fun AccountList(
 
     ) {
         items(accounts ?: listOf()) { account ->
+            var currModifier = if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                modifier.clickable {
+                    openAccount(StateID(account.username, account.url))
+                }
+            } else {
+                modifier.alpha(alpha)
+            }
 
-            AccountListItem(
+            TargetAccountListItem(
                 title = "${account.serverLabel()}",
-                username = account.username,
+                login = account.username,
                 url = account.url,
                 authStatus = account.authStatus,
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                login = login,
-                logout = logout,
-                forget = forget,
-                modifier = modifier.clickable {
-                    openAccount(StateID(account.username, account.url))
-                }
+                doLogin = doLogin,
+                modifier = currModifier
             )
         }
     }
 }
 
 @Composable
-private fun AccountListItem(
+private fun TargetAccountListItem(
     title: String,
-    username: String,
+    login: String,
     url: String,
     authStatus: String,
     isForeground: Boolean,
-    login: (stateID: StateID) -> Unit,
-    logout: (stateID: StateID) -> Unit,
-    forget: (stateID: StateID) -> Unit,
+    doLogin: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    val buttonAlpha = getFloatResource(LocalContext.current, R.dimen.list_button_alpha)
     Surface(
         tonalElevation = if (isForeground) dimensionResource(R.dimen.list_item_selected_elevation) else 0.dp,
         modifier = modifier
@@ -97,6 +96,7 @@ private fun AccountListItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
+            // The icon
             Decorated(Type.AUTH, authStatus) {
                 Icon(
                     imageVector = CellsVectorIcons.Person,
@@ -123,71 +123,55 @@ private fun AccountListItem(
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = "${username}@${url}",
+                    text = "${login}@${url}",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
 
-            val btnVectorImg: ImageVector
-            val btnModifier: Modifier
-            when (authStatus) {
-                AppNames.AUTH_STATUS_CONNECTED -> {
-                    btnVectorImg = CellsVectorIcons.Logout
-                    btnModifier = Modifier.clickable { logout(StateID(username, url)) }
-                }
-                else -> {
-                    btnVectorImg = CellsVectorIcons.Login
-                    btnModifier = Modifier.clickable { login(StateID(username, url)) }
-                }
-            }
+            // TODO this does not work yet when remote is Cells (OAuth flow)
+//            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+//
+//                Surface(
+//                    modifier = Modifier
+//                        .size(40.dp)
+//                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+//                        .clickable(onClick = {
+//                            doLogin(StateID(login, url))
+//                        })
+//                        .background(MaterialTheme.colorScheme.error)
+//                ) {
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_baseline_login_24),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .size(48.dp)
+//                            .size(dimensionResource(R.dimen.list_thumb_size))
+//                            //.clip(CircleShape)
+//                            .wrapContentSize(Alignment.Center)
+//                    )
+//                }
+//            }
 
-            Surface(
-                modifier = btnModifier
-                    .padding(horizontal = dimensionResource(id = R.dimen.margin_xsmall))
-                    .alpha(buttonAlpha)
-            ) {
-                Icon(
-                    imageVector = btnVectorImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
-                )
-            }
-
-            Surface(
-                modifier = Modifier
-                    .clickable { forget(StateID(username, url)) }
-                    .padding(
-                        start = dimensionResource(id = R.dimen.margin_xsmall),
-                        end = dimensionResource(id = R.dimen.margin_small)
-                    )
-                    .alpha(buttonAlpha)
-            ) {
-                Icon(
-                    imageVector = CellsVectorIcons.Delete,
-                    contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
-                )
-            }
         }
     }
 }
+
 
 @Preview(name = "Light Mode")
 @Composable
 private fun ForegroundAccountListItemPreview() {
     CellsTheme {
-        AccountListItem(
+        TargetAccountListItem(
             "Cells test server",
             "lea",
             "https://example.com",
-            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
 //            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
-//            authStatus = AppNames.AUTH_STATUS_CONNECTED,
+            authStatus = AppNames.AUTH_STATUS_CONNECTED,
 //            authStatus = AppNames.AUTH_STATUS_EXPIRED,
 //            authStatus = AppNames.AUTH_STATUS_CONNECTED,
             isForeground = true,
-            {},
-            {},
             {},
             Modifier
         )
@@ -202,18 +186,16 @@ private fun ForegroundAccountListItemPreview() {
 @Composable
 private fun AccountListItemPreview() {
     CellsTheme {
-        AccountListItem(
+        TargetAccountListItem(
             "Cells test server",
             "lea",
             "https://example.com",
-//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
 //            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
 //            authStatus = AppNames.AUTH_STATUS_CONNECTED,
-            authStatus = AppNames.AUTH_STATUS_EXPIRED,
+//            authStatus = AppNames.AUTH_STATUS_EXPIRED,
 //            authStatus = AppNames.AUTH_STATUS_CONNECTED,
             isForeground = false,
-            {},
-            {},
             {},
             Modifier
         )

@@ -41,6 +41,24 @@
     <dimen name="form_input_horizontal_padding">16dp</dimen>
     <dimen name="form_input_vertical_padding">8dp</dimen>
 
+
+    <!-- **** SCAFFOLD **** -->
+
+    <!-- TopBar -->
+    <dimen name="topbar_horizontal_padding">8dp</dimen>
+    <dimen name="topbar_vertical_padding">4dp</dimen>
+    <!-- Dropdown menu -->
+
+    <!-- Bottom Sheets -->
+    <dimen name="bottom_sheet_header_height">64dp</dimen>
+    <dimen name="bottom_sheet_item_height">54dp</dimen>
+    <dimen name="bottom_sheet_header_h_padding">12dp</dimen>
+    <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
+    <dimen name="bottom_sheet_start_padding">16dp</dimen>
+    <dimen name="bottom_sheet_h_padding">8dp</dimen>
+    <dimen name="bottom_sheet_v_padding">4dp</dimen>
+
+
     <!-- **** LISTS **** -->
 
     <!-- Generic -->
@@ -65,20 +83,11 @@
     <dimen name="list_thumb_corner_radius">4dp</dimen>
 
     <dimen name="list_button_size">28dp</dimen>
+    <item name="list_button_alpha" format="float" type="dimen">.8</item>
 
     <!-- Grids / LazyGrids items -->
 
 
-    <!-- Dropdown menu -->
-
-    <!-- Bottom Sheets -->
-    <dimen name="bottom_sheet_header_height">64dp</dimen>
-    <dimen name="bottom_sheet_item_height">54dp</dimen>
-    <dimen name="bottom_sheet_header_h_padding">12dp</dimen>
-    <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
-    <dimen name="bottom_sheet_start_padding">16dp</dimen>
-    <dimen name="bottom_sheet_h_padding">8dp</dimen>
-    <dimen name="bottom_sheet_v_padding">4dp</dimen>
 
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab

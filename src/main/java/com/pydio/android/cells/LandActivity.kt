@@ -55,7 +55,9 @@ class LandActivity : AppCompatActivity() {
             val accountDao: AccountDao by KoinJavaComponent.inject(AccountDao::class.java)
             val sessionDao: SessionDao by KoinJavaComponent.inject(SessionDao::class.java)
 
-            val intent = Intent(landActivity, MainActivity::class.java)
+            // FIXME temporary
+            // val intent = Intent(landActivity, MainActivity::class.java)
+            val intent = Intent(landActivity, NewMainActivity::class.java)
 
             val landVM = LandViewModel(accountDao, sessionDao, accountService)
             val laterState = landVM.getStartStateID()
