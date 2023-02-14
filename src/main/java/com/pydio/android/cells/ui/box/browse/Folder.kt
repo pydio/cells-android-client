@@ -67,13 +67,11 @@ fun Folder(
 
     LaunchedEffect(key1 = stateID) {
         Log.e(logTag, "... in Folder, launching effect")
-        // TODO ?
-        // accountListVM.pause()
         browseRemoteVM.watch(stateID)
     }
-    val isLoading by browseRemoteVM.isLoading.observeAsState()
 
     browseLocalVM.setState(stateID)
+    val isLoading by browseRemoteVM.isLoading.observeAsState()
     val children by browseLocalVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {
@@ -138,7 +136,6 @@ private fun FolderScaffold(
                 forceRefresh = forceRefresh,
                 modifier = Modifier.padding(padding),
             )
-
         }
     }
 }

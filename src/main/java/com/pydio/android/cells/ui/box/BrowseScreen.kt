@@ -43,6 +43,7 @@ sealed class BrowseDestination(val route: String) {
     // TODO implement other destinations
 }
 
+
 @Composable
 fun BrowseScreen(
     initialStateID: StateID,
@@ -51,7 +52,6 @@ fun BrowseScreen(
     accountListVM: AccountListVM = koinViewModel(),
 ) {
     val ctx = LocalContext.current
-
 
     val navController = rememberNavController()
 

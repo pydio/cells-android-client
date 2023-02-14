@@ -1,54 +1,92 @@
 package com.pydio.android.cells.ui.box.system
 
+import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.common.DefaultTitleText
+import com.pydio.android.cells.ui.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.nav.openExternalURL
+import com.pydio.android.cells.ui.nav.sendSupportEmail
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.cells.transport.ClientData
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    onUriClick: () -> Unit,
-    onEmailClick: () -> Unit,
+    openDrawer: () -> Unit,
+    launchIntent: (Intent, Boolean, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val data = ClientData.getInstance()
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.Start)
-    ) {
-        DefaultTitleText(stringResource(R.string.about_version_title))
-        VersionCard(
-            version = data.version,
-            code = BuildConfig.VERSION_CODE.toString(),
-            lastUpdateTime = getTimestampAsString(data.lastUpdateTime),
-            onUriClick = onUriClick,
-        )
+    val topAppBarState = rememberTopAppBarState()
+    val pydioSiteUrl = stringResource(R.string.main_website)
 
-        DefaultTitleText(stringResource(R.string.about_help_title))
-        MigrateDBCard(
-            stringResource(R.string.about_page_get_help),
-            stringResource(R.string.help_button_support),
-            onEmailClick = onEmailClick,
-        )
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.about_version_title),
+                openDrawer = openDrawer,
+                topAppBarState = topAppBarState
+            )
+        },
+        modifier = modifier
+    ) { innerPadding ->
+
+        val resources = LocalContext.current.resources
+        LazyColumn(
+            contentPadding = innerPadding,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.Start)
+        ) {
+            item {
+                DefaultTitleText(stringResource(R.string.about_version_title))
+                VersionCard(
+                    version = data.version,
+                    code = BuildConfig.VERSION_CODE.toString(),
+                    lastUpdateTime = getTimestampAsString(data.lastUpdateTime),
+                    onUriClick = {
+                        val intent = openExternalURL(pydioSiteUrl)
+                        launchIntent(intent, false, false)
+                    },
+                )
+
+                DefaultTitleText(stringResource(R.string.about_help_title))
+                MigrateDBCard(
+                    stringResource(R.string.about_page_get_help),
+                    stringResource(R.string.help_button_support),
+                    onEmailClick = {
+                        val intent = sendSupportEmail(resources)
+                        launchIntent(intent, false, false)
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -197,7 +235,7 @@ private fun MigrateDBCard(
 @Composable
 private fun AboutScreenPreview() {
     CellsTheme {
-        AboutScreen({}, {})
+        AboutScreen({}, { _, _, _ -> })
     }
 }
 

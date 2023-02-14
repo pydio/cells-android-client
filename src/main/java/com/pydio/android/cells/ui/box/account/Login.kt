@@ -39,7 +39,38 @@ import com.pydio.android.cells.ui.box.common.TitleDescColumnBloc
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
 
-private const val logTag = "Login.kt"
+private const val logTag = "DefaultLoginPage.kt"
+
+//@OptIn(ExperimentalComposeUiApi::class)
+//@Composable
+//fun AskServerUrl(loginVM: LoginViewModelNew) {
+//
+//    // Log.e(logTag, "Nav to Login Step")
+//    val scope = rememberCoroutineScope()
+//    val isProcessing = loginVM.isProcessing.collectAsState()
+//    val currAddress = loginVM.serverAddress.collectAsState()
+//    val message = loginVM.message.collectAsState()
+//    val errMsg = loginVM.errorMessage.collectAsState()
+//
+//    val doPing: (String) -> Unit = { url ->
+//        // TODO add sanity checks
+//        scope.launch {
+//            loginVM.pingAddress()
+//        }
+//    }
+//
+//    AskServerUrl(
+//        isProcessing = isProcessing.value,
+//        message = message.value,
+//        errMsg = errMsg.value,
+//        urlString = currAddress.value,
+//        setUrl = { loginVM.setAddress(it) },
+//        pingUrl = { doPing(currAddress.value) },
+//        cancel = { /*afterAuth(false)*/ }
+//    )
+//
+//}
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -96,57 +127,66 @@ fun AskServerUrl(
     }
 }
 
-@Composable
-fun SkipVerify(
-    isProcessing: Boolean,
-    fqdn: String,
-    message: String?,
-    errMsg: String?,
-    goBack: () -> Unit,
-    accept: () -> Unit,
-) {
+//@Composable
+//fun SkipVerify(loginVM: LoginVM) {
+//
+//    Log.e(logTag, "Nav to Login Step")
+//
+//    val scope = rememberCoroutineScope()
+//    val isProcessing = loginVM.isProcessing.collectAsState()
+//    val currAddress = loginVM.serverAddress.collectAsState()
+//    val message = loginVM.message.collectAsState()
+//    val errMsg = loginVM.errorMessage.collectAsState()
+//
+//    val doPing: (String) -> Unit = { url ->
+//        // TODO add sanity checks
+//        scope.launch {
+//            loginVM.pingAddress()
+//        }
+//    }
+//
+//    SkipVerify(
+//        isProcessing.value,
+//        currAddress.value,
+//        message.value,
+//        errMsg.value,
+//        goBack = { loginVM.navigateBack() },
+//        accept = { scope.launch { loginVM.confirmSkipVerifyAndPing() } },
+//    )
+//}
 
-    val (msg, isError) = if (Str.notEmpty(errMsg)) {
-        Pair(errMsg, true)
-    } else {
-        Pair(message, false)
-    }
-
-    DefaultLoginPage(
-        isProcessing = isProcessing,
-        title = stringResource(R.string.confirm_skip_verify_title),
-        desc = null,
-        message = msg,
-        isErrorMsg = isError,
-    ) {
-
-        val btnMod = Modifier
-            .padding(all = dimensionResource(R.dimen.margin))
-            .wrapContentWidth(Alignment.CenterHorizontally)
-
-        Text(
-            text = stringResource(R.string.confirm_skip_verify_desc, fqdn),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
-        )
-
-        Row {
-            TextButton(
-                onClick = goBack,
-                modifier = btnMod.weight(.5f),
-            ) {
-                Text(stringResource(R.string.confirm_skip_verify_cancel))
-            }
-
-            TextButton(
-                onClick = accept,
-                modifier = btnMod.weight(.5f),
-            ) {
-                Text(stringResource(R.string.confirm_skip_verify_accept))
-            }
-        }
-    }
-}
+//@OptIn(ExperimentalComposeUiApi::class)
+//@Composable
+//fun P8Credentials(loginVM: LoginViewModelNew) {
+//
+//    val scope = rememberCoroutineScope()
+//    val isProcessing = loginVM.isProcessing.collectAsState()
+//    val message = loginVM.message.collectAsState()
+//    val errMsg = loginVM.errorMessage.collectAsState()
+//
+//    val loginString = rememberSaveable { mutableStateOf("") }
+//    val updateLogin: (String) -> Unit = { loginString.value = it }
+//    val pwdString = rememberSaveable { mutableStateOf("") }
+//    val updatePwd: (String) -> Unit = { pwdString.value = it }
+//
+//    val launchP8Auth: (String, String, String?) -> Unit = {
+//        // TODO add validation
+//            login, pwd, captcha ->
+//        scope.launch { loginVM.logToP8(login, pwd, captcha) }
+//    }
+//
+//    P8Credentials(
+//        isProcessing.value,
+//        loginString.value,
+//        updateLogin,
+//        pwdString.value,
+//        updatePwd,
+//        message = message.value,
+//        errMsg = errMsg.value,
+//        goBack = { /*navController.navigateBack()*/ },
+//        launchP8Auth = launchP8Auth,
+//    )
+//}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -234,6 +274,59 @@ fun P8Credentials(
             next = { launchP8Auth(loginString, pwdString, captchaString) },
             isProcessing = isProcessing,
         )
+    }
+}
+
+
+@Composable
+fun SkipVerify(
+    isProcessing: Boolean,
+    fqdn: String,
+    message: String?,
+    errMsg: String?,
+    goBack: () -> Unit,
+    accept: () -> Unit,
+) {
+
+    val (msg, isError) = if (Str.notEmpty(errMsg)) {
+        Pair(errMsg, true)
+    } else {
+        Pair(message, false)
+    }
+
+    DefaultLoginPage(
+        isProcessing = isProcessing,
+        title = stringResource(R.string.confirm_skip_verify_title),
+        desc = null,
+        message = msg,
+        isErrorMsg = isError,
+    ) {
+
+        val btnMod = Modifier
+            .padding(all = dimensionResource(R.dimen.margin))
+            .wrapContentWidth(Alignment.CenterHorizontally)
+
+        Text(
+            text = stringResource(R.string.confirm_skip_verify_desc, fqdn),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
+        )
+
+        Row {
+            TextButton(
+                onClick = goBack,
+                modifier = btnMod.weight(.5f),
+            ) {
+                Text(stringResource(R.string.confirm_skip_verify_cancel))
+            }
+
+            TextButton(
+                onClick = accept,
+                modifier = btnMod.weight(.5f),
+            ) {
+                Text(stringResource(R.string.confirm_skip_verify_accept))
+            }
+        }
     }
 }
 

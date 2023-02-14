@@ -59,7 +59,10 @@ class AboutFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 CellsTheme {
-                    AboutScreen(onUriClick = onUriClick, onEmailClick = onEmailClick)
+                    AboutScreen(
+                        openDrawer = {},
+                        launchIntent = { _, _, _ -> },
+                    )
                 }
             }
         }

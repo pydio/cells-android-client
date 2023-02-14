@@ -24,6 +24,10 @@ import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.browse.BookmarksViewModel
 import com.pydio.android.cells.ui.browse.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
+import com.pydio.android.cells.ui.login.LoginViewModelNew
+import com.pydio.android.cells.ui.login.nav.CellsRouteNavigator
+import com.pydio.android.cells.ui.login.nav.RouteNavigator
+import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountHomeVM
@@ -193,6 +197,12 @@ val viewModelModule = module {
     viewModel { params -> SearchViewModel(params.get(), get()) }
 
     viewModel { CarouselViewModel(get(), get()) }
+
+    // Experimental
+    single<RouteNavigator> { CellsRouteNavigator() }
+    viewModel { StateViewModel(get()) }
+    viewModel { LoginViewModelNew(get(), get(), get()) }
+
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

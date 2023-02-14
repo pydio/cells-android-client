@@ -52,7 +52,6 @@ fun JobList(jobs: List<RJob>) {
                     )
                     .wrapContentWidth(Alignment.Start)
             )
-
         }
     }
 }

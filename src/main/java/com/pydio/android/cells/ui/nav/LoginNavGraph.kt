@@ -1,21 +1,14 @@
-package com.pydio.android.cells.ui.box
+package com.pydio.android.cells.ui.nav
 
 import android.content.Intent
-import android.util.Log
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.pydio.android.cells.ui.box.account.AfterSuccessfulLogin
 import com.pydio.android.cells.ui.box.account.AskServerUrl
 import com.pydio.android.cells.ui.box.account.P8Credentials
@@ -23,73 +16,39 @@ import com.pydio.android.cells.ui.box.account.ProcessAuth
 import com.pydio.android.cells.ui.box.account.SkipVerify
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 
-private const val logTag = "AuthScreen.kt"
+private val logTag = "LoginNavGraph"
 
-private sealed class AuthDestinations(val route: LoginStep) {
-    object ServerURL : AuthDestinations(LoginStep.URL)
-    object CertNotValid : AuthDestinations(LoginStep.SKIP_VERIFY)
-    object P8Credentials : AuthDestinations(LoginStep.P8_CRED)
-    object Processing : AuthDestinations(LoginStep.PROCESS_AUTH)
-}
-
-@Composable
-fun AuthHost(
-    navController: NavHostController,
+@Deprecated("Simple test still kept for a while for the pattern. Do not use.")
+fun NavGraphBuilder.loginNavGraph(
+    navController: NavController,
     loginVM: LoginVM,
     afterAuth: (Boolean) -> Unit,
     launchOAuth: (Intent) -> Unit,
 ) {
 
-    LaunchedEffect(true) {
-        loginVM.currDestination.collect {
-            if (it.name != navController.currentDestination?.route) {
-                Log.d(logTag, "Curr dest was: ${navController.currentDestination?.route}")
-                Log.d(logTag, "New step is: $it")
-                if (it == LoginStep.DONE) {
-                    // we don't need to show the "done": Auth has already been done and processed,
-                    // and showing the page adds some useless "blinking".
-                    afterAuth(true)
-                } else {
-                    navController.navigate(it.name)
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(true) {
-        loginVM.oauthIntent.collect {
-            if (it != null) {
-                launchOAuth(it)
-            }
-        }
-    }
-
-    val scope = rememberCoroutineScope()
-    val currAddress = loginVM.serverAddress.collectAsState()
-    val message = loginVM.message.collectAsState()
-    val errMsg = loginVM.errorMessage.collectAsState()
-    val isProcessing = loginVM.isProcessing.collectAsState()
-
-    val doPing: (String) -> Unit = { url ->
-        // TODO add sanity checks
-        scope.launch {
-            loginVM.pingAddress()
-        }
-    }
-
-
-    // TODO nice linear progress indicator with animated steps that are bound to the current page
-    // LinearProgressIndicator()
-
-    NavHost(
-        navController = navController,
+    navigation(
         startDestination = LoginStep.URL.name,
+        route = CellsDestinations.LOGIN_ROUTE
     ) {
 
         composable(LoginStep.URL.name) {
+
+            Log.e(logTag, "Nav to Login Step")
+            val scope = rememberCoroutineScope()
+            val isProcessing = loginVM.isProcessing.collectAsState()
+            val currAddress = loginVM.serverAddress.collectAsState()
+            val message = loginVM.message.collectAsState()
+            val errMsg = loginVM.errorMessage.collectAsState()
+
+            val doPing: (String) -> Unit = { url ->
+                // TODO add sanity checks
+                scope.launch {
+                    loginVM.pingAddress()
+                }
+            }
 
             AskServerUrl(
                 isProcessing = isProcessing.value,
@@ -106,6 +65,12 @@ fun AuthHost(
 
         composable(LoginStep.SKIP_VERIFY.name) {
 
+            val scope = rememberCoroutineScope()
+            val isProcessing = loginVM.isProcessing.collectAsState()
+            val currAddress = loginVM.serverAddress.collectAsState()
+            val message = loginVM.message.collectAsState()
+            val errMsg = loginVM.errorMessage.collectAsState()
+
             SkipVerify(
                 isProcessing.value,
                 currAddress.value,
@@ -118,6 +83,11 @@ fun AuthHost(
         }
 
         composable(LoginStep.P8_CRED.name) {
+
+            val scope = rememberCoroutineScope()
+            val isProcessing = loginVM.isProcessing.collectAsState()
+            val message = loginVM.message.collectAsState()
+            val errMsg = loginVM.errorMessage.collectAsState()
 
             val loginString = rememberSaveable { mutableStateOf("") }
             val updateLogin: (String) -> Unit = { loginString.value = it }
@@ -146,6 +116,9 @@ fun AuthHost(
 
         composable(LoginStep.PROCESS_AUTH.name) {
 
+            val isProcessing = loginVM.isProcessing.collectAsState()
+            val message = loginVM.message.collectAsState()
+
             ProcessAuth(isProcessing.value, message.value)
             loginVM.setCurrentStep(LoginStep.PROCESS_AUTH)
         }
@@ -155,19 +128,20 @@ fun AuthHost(
             AfterSuccessfulLogin()
             loginVM.setCurrentStep(LoginStep.DONE)
         }
-    }
-}
 
-@Composable
-fun AuthApp(content: @Composable () -> Unit) {
-    CellsTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            content()
-        }
+//        composable("username") { ... }
+//        composable("password") { ... }
+//        composable("registration") { ... }
     }
+
+//    NavHost(
+//        navController = navController,
+//        startDestination = LoginStep.URL.name,
+//    ) {
+//
+//
+//    }
+
 }
 
 // Kind of hack to be able to navigate back using the navController

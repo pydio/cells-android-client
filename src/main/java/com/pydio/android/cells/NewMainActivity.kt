@@ -1,22 +1,22 @@
 package com.pydio.android.cells
 
 
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.BrowseApp
-import com.pydio.android.cells.ui.box.BrowseScreen
-import com.pydio.android.cells.ui.models.AccountHomeVM
-import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
-import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.core.view.WindowCompat
+import com.pydio.android.cells.ui.box.MainHost
+import com.pydio.android.cells.ui.box.UseCellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * Let the end-user choose a target in one of the defined remote servers.
@@ -27,8 +27,9 @@ class NewMainActivity : ComponentActivity() {
 
     private val logTag = NewMainActivity::class.simpleName
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(logTag, "onCreate: launching target selection process")
+        Log.d(logTag, "onCreate: launching new main activity")
         super.onCreate(savedInstanceState)
 
         val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
@@ -37,21 +38,60 @@ class NewMainActivity : ComponentActivity() {
         val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
         Log.d(logTag, "onCreate for: $initialStateID")
 
-        setContent {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-            BrowseApp {
 
-                val launchTaskFor: (StateID, String?) -> Unit = { stateID, action ->
-                    when (val currAction: String = action ?: "none") {
-                        AppNames.ACTION_COPY, AppNames.ACTION_MOVE -> {
-                            finishAndRemoveTask()
+        val launchIntent: (Intent?, Boolean, Boolean) -> Unit =
+            { intent, checkIfKnown, alsoFinishCurrentActivity ->
+                if (intent == null) {
+                    finishAndRemoveTask()
+                } else if (checkIfKnown) {
+                    val resolvedActivity =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            val flag = PackageManager.ResolveInfoFlags
+                                .of(MATCH_DEFAULT_ONLY.toLong())
+                            packageManager.resolveActivity(intent, flag)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
                         }
+                    // TODO better error handling
+                    if (resolvedActivity == null) {
+                        Log.e(logTag, "No Matching handler found for $intent")
+                    }
+                } else {
+                    startActivity(intent)
+                    if (alsoFinishCurrentActivity) {
+                        finishAndRemoveTask()
                     }
                 }
+            }
 
-                BrowseScreen(
+        setContent {
+
+            val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+
+
+            UseCellsTheme {
+//
+//                val navController = rememberNavController()
+//                Scaffold {
+//                    NavigationComponent(navController, it)
+//                }
+//            }
+
+//                val launchTaskFor: (StateID, String?) -> Unit = { stateID, action ->
+//                    when (val currAction: String = action ?: "none") {
+//                        AppNames.ACTION_COPY, AppNames.ACTION_MOVE -> {
+//                            finishAndRemoveTask()
+//                        }
+//                    }
+//                }
+
+                MainHost(
                     initialStateID,
-                    launchTaskFor,
+                    launchIntent,
+                    widthSizeClass,
                 )
             }
         }
