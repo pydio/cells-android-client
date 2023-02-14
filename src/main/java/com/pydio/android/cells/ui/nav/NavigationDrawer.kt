@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.StartingState
+import com.pydio.android.cells.ui.StartingState
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 fun MainDrawerHost(
     startingState: StartingState,
     currAccountID: StateID,
-    switchAccount: (StateID) -> Unit,
+    openAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass
 ) {
@@ -57,7 +57,7 @@ fun MainDrawerHost(
                 currAccountID = currAccountID,
                 currentRoute = navBackStackEntry?.destination?.route,
                 navigateToHome = navigationActions.navigateToHome,
-                navigateToBrowse = navigationActions.navigateToBrowse,
+                navigateToBrowse = { navigationActions.navigateToBrowse(it) },
                 navigateToAccounts = navigationActions.navigateToAccounts,
                 navigateToAbout = systemActions.navigateToAbout,
                 closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } }
@@ -77,7 +77,7 @@ fun MainDrawerHost(
             }
             CellsNavGraph(
                 currAccountID = currAccountID,
-                switchAccount = switchAccount,
+                openAccount = openAccount,
                 isExpandedScreen = isExpandedScreen,
                 navController = navHostController,
                 openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },

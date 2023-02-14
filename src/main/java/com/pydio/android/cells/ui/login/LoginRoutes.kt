@@ -6,7 +6,6 @@ import com.pydio.android.cells.ui.login.screens.AskServerUrl
 import com.pydio.android.cells.ui.login.screens.P8Credentials
 import com.pydio.android.cells.ui.login.screens.ProcessAuth
 import com.pydio.android.cells.ui.login.screens.SkipVerify
-import com.pydio.android.cells.ui.nav.CellsDestinations
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -14,10 +13,11 @@ import org.koin.androidx.compose.koinViewModel
  * Declare all routes for the Login process
  */
 
-private const val prefix = CellsDestinations.LOGIN_ROUTE + "/"
+// TODO double check
+private const val prefix = "login/"
 
 object RouteLoginDone {
-    const val route = "${prefix}done"
+    const val route = "login/done"
 }
 
 object RouteLoginUrl : LoginNavRoute<StateViewModel> {

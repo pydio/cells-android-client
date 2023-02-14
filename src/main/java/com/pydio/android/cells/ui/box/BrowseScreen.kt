@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.box
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -10,10 +9,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.browse.AccountHome
-import com.pydio.android.cells.ui.box.browse.Folder
+import com.pydio.android.cells.ui.browse.BrowseDestination
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -22,24 +19,6 @@ import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "BrowseScreen.kt"
-
-sealed class BrowseDestination(val route: String) {
-
-    // object ChooseAccount : SelectTargetDestination("choose-account")
-
-    object AccountHome : SelectTargetDestination("account/{stateId}") {
-        fun createRoute(stateID: StateID) = "account/${stateID.id}"
-        fun getPathKey() = "stateId"
-    }
-
-    object OpenFolder : SelectTargetDestination("open/{stateId}") {
-        fun createRoute(stateID: StateID) = "open/${stateID.id}"
-        fun getPathKey() = "stateId"
-    }
-
-    // TODO implement other destinations
-}
-
 
 @Composable
 fun BrowseScreen(
@@ -58,7 +37,8 @@ fun BrowseScreen(
 //        initialStateID == Transport.UNDEFINED_STATE_ID
 //        -> BrowseDestination.ChooseAccount.route
         Str.empty(initialStateID.workspace)
-        -> BrowseDestination.AccountHome.createRoute(initialStateID.account())
+//        -> BrowseDestination.AccountHome.createRoute(initialStateID.account())
+        -> BrowseDestination.AccountHome.route
         else
         -> BrowseDestination.OpenFolder.createRoute(initialStateID)
     }
@@ -72,7 +52,7 @@ fun BrowseScreen(
             if (Str.notEmpty(stateID.workspace)) {
                 BrowseDestination.OpenFolder.createRoute(stateID)
             } else {
-                BrowseDestination.AccountHome.createRoute(stateID)
+                BrowseDestination.AccountHome.route
             }
         )
     }
@@ -109,37 +89,37 @@ fun BrowseScreen(
 //            )
 //        }
 
-        composable(BrowseDestination.AccountHome.route) { navBackStackEntry ->
-            val stateId =
-                navBackStackEntry.arguments?.getString(BrowseDestination.AccountHome.getPathKey())
-                    ?: initialStateID.id
-            Log.e(logTag, ".... Open account home with ID: ${StateID.fromId(stateId)}")
-
-            AccountHome(
-                StateID.fromId(stateId),
-                openDrawer = openDrawer,
-                openAccounts = openAccounts,
-                openSearch = {},
-                openWorkspace = open,
-                browseRemoteVM = browseRemoteVM,
-            )
-        }
-
-        composable(BrowseDestination.OpenFolder.route) { navBackStackEntry ->
-            val stateId =
-                navBackStackEntry.arguments?.getString(BrowseDestination.AccountHome.getPathKey())
-                    ?: initialStateID.id
-            Log.e(logTag, ".... Open folder at ${StateID.fromId(stateId)}")
-
-            Folder(
-                StateID.fromId(stateId),
-                openDrawer = openDrawer,
-                openParent = openParent,
-                open = open,
-                openSearch = {},
-                browseRemoteVM = browseRemoteVM,
-            )
-        }
+//        composable(BrowseDestination.AccountHome.route) { navBackStackEntry ->
+//            val stateId =
+//                navBackStackEntry.arguments?.getString(BrowseDestination.AccountHome.getPathKey())
+//                    ?: initialStateID.id
+//            Log.e(logTag, ".... Open account home with ID: ${StateID.fromId(stateId)}")
+//
+//            AccountHome(
+//                StateID.fromId(stateId),
+//                openDrawer = openDrawer,
+//                openAccounts = openAccounts,
+//                openSearch = {},
+//                openWorkspace = open,
+//                browseRemoteVM = browseRemoteVM,
+//            )
+//        }
+//
+//        composable(BrowseDestination.OpenFolder.route) { navBackStackEntry ->
+//            val stateId =
+//                navBackStackEntry.arguments?.getString(BrowseDestination.AccountHome.getPathKey())
+//                    ?: initialStateID.id
+//            Log.e(logTag, ".... Open folder at ${StateID.fromId(stateId)}")
+//
+//            Folder(
+//                StateID.fromId(stateId),
+//                openDrawer = openDrawer,
+//                openParent = openParent,
+//                open = open,
+//                openSearch = {},
+//                browseRemoteVM = browseRemoteVM,
+//            )
+//        }
     }
 }
 

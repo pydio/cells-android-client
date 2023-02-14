@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.account
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,16 +22,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
-import com.pydio.android.cells.ui.box.account.AccountList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectAccount(
+fun AccountsScreen(
     currAccountID: StateID,
     switchAccount: (StateID) -> Unit,
     login: (StateID) -> Unit,
@@ -42,7 +40,7 @@ fun SelectAccount(
 
     val accounts by accountListVM.sessions.observeAsState()
 
-    SelectAccount(
+    AccountsScreen(
         currAccountID = currAccountID,
         accounts = accounts.orEmpty(),
         openAccount = switchAccount,
@@ -56,7 +54,7 @@ fun SelectAccount(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectAccount(
+fun AccountsScreen(
     currAccountID: StateID,
     accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,

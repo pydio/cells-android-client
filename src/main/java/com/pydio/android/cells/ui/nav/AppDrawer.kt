@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.nav
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,8 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 
+private const val logTag = "AppDrawer"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
@@ -39,6 +42,8 @@ fun AppDrawer(
     closeDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    Log.e(logTag, "--- Got a new account: $currAccountID")
     ModalDrawerSheet(modifier) {
         PydioLogo(
             modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp)
@@ -46,21 +51,21 @@ fun AppDrawer(
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.action_home)) },
             icon = { Icon(Icons.Filled.Home, null) },
-            selected = CellsDestinations.HOME_ROUTE == currentRoute,
+            selected = CellsDestinations.Home.route == currentRoute,
             onClick = { navigateToHome(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.action_browse)) },
             icon = { Icon(Icons.Filled.Explore, null) },
-            selected = CellsDestinations.BROWSE_ROUTE == currentRoute,
+            selected = CellsDestinations.Browse.route == currentRoute,
             onClick = { navigateToHome(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
-            label = { Text(stringResource(id = R.string.launch_auth)) },
+            label = { Text(stringResource(id = R.string.switch_account)) },
             icon = { Icon(Icons.Filled.Group, null) },
-            selected = CellsDestinations.LOGIN_ROUTE == currentRoute,
+            selected = CellsDestinations.Accounts.route == currentRoute,
             onClick = { navigateToAccounts();closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
@@ -98,7 +103,7 @@ fun PreviewAppDrawer() {
     CellsTheme {
         AppDrawer(
             currAccountID = Transport.UNDEFINED_STATE_ID,
-            currentRoute = CellsDestinations.HOME_ROUTE,
+            currentRoute = CellsDestinations.Home.route,
             navigateToHome = {},
             navigateToBrowse = {},
             navigateToAccounts = {},

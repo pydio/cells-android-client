@@ -8,26 +8,36 @@ import com.pydio.cells.transport.StateID
 /**
  * Main destinations used in Cells App
  */
-object CellsDestinations {
+sealed class CellsDestinations(val route: String) {
 
-    const val ROOT_ROUTE = "root"
-    const val HOME_ROUTE = "home"
-    const val ACCOUNTS_ROUTE = "accounts"
-    const val SEARCH_ROUTE = "search"
-    const val SHARE_WITH_PYDIO_ROUTE = "share"
+    object Root : CellsDestinations("root")
+    object Home : CellsDestinations("home")
+    object Accounts : CellsDestinations("accounts")
+    object Search : CellsDestinations("search")
+    object ShareWith : CellsDestinations("share")
 
     // Sub routes
-    const val LOGIN_ROUTE = "login"
-    const val BROWSE_ROUTE = "browse"
-    const val SYSTEM_ROUTE = "system"
+    object System : CellsDestinations("system")
+
+
+    object Login : CellsDestinations("login/{accountId}") {
+        val prefix = "login"
+        fun createRoute(accountID: StateID) = "login/${accountID.id}"
+        fun getPathKey() = "accountId"
+    }
+
+    object Browse : CellsDestinations("browse/{accountId}") {
+        fun createRoute(accountID: StateID) = "browse/${accountID.id}"
+        fun getPathKey() = "accountId"
+    }
 }
 
-class CellsNavigationActions(navController: NavHostController) {
+class CellsNavigationActions(private val navController: NavHostController) {
 
     private val logTag = CellsNavigationActions::class.simpleName
 
     val navigateToHome: () -> Unit = {
-        navController.navigate(CellsDestinations.HOME_ROUTE) {
+        navController.navigate(CellsDestinations.Home.route) {
             // Pop up to the start destination of the graph to
             // avoid building up a large stack of destinations
             // on the back stack as users select items
@@ -42,8 +52,8 @@ class CellsNavigationActions(navController: NavHostController) {
     }
 
     val navigateToAccounts: () -> Unit = {
-        navController.navigate(CellsDestinations.ACCOUNTS_ROUTE) {
-            // Remove other screens (TODO :Really?)
+        navController.navigate(CellsDestinations.Accounts.route) {
+            // Remove other screens (TODO: Really?)
             // and only enable one copy for this destination
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
@@ -52,9 +62,9 @@ class CellsNavigationActions(navController: NavHostController) {
         }
     }
 
-    val navigateToBrowse: (StateID) -> Unit = {
-        navController.navigate(CellsDestinations.BROWSE_ROUTE) {
-
+    fun navigateToBrowse(accountID: StateID) {
+        val route = CellsDestinations.Browse.createRoute(accountID)
+        navController.navigate(route) {
             // FIXME
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
@@ -64,22 +74,16 @@ class CellsNavigationActions(navController: NavHostController) {
         }
     }
 
-    val navigateToLogin: (StateID) -> Unit = {
-        Log.e(logTag, "Open Login graph for $it")
-        navController.navigate(CellsDestinations.LOGIN_ROUTE) {
-//            // FIXME
-//            popUpTo(navController.graph.findStartDestination().id) {
-//                saveState = true
-//            }
-//            // Avoid multiple copies of the same destination when selecting the same item again
-//            launchSingleTop = true
-//            // Restore state when selecting again a previously selected item
-//            restoreState = true
+    fun navigateToLogin(accountID: StateID) {
+        val route = CellsDestinations.Login.createRoute(accountID)
+        Log.e(logTag, "Open Login graph for $accountID: $route")
+        navController.navigate(route) {
         }
     }
 
     val navigateToSystem: (StateID?) -> Unit = {
         Log.e(logTag, "Open System graph for $it")
-        navController.navigate(CellsDestinations.SYSTEM_ROUTE) {}
+        navController.navigate(CellsDestinations.System.route) {
+        }
     }
 }

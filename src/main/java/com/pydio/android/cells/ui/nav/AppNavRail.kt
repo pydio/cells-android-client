@@ -40,7 +40,7 @@ fun AppNavRail(
     ) {
         Spacer(Modifier.weight(1f))
         NavigationRailItem(
-            selected = CellsDestinations.HOME_ROUTE == currentRoute,
+            selected = CellsDestinations.Home.route == currentRoute,
             onClick = navigateToHome,
             icon = { Icon(Icons.Filled.Home, stringResource(R.string.action_home)) },
             label = { Text(stringResource(R.string.action_home)) },
@@ -63,7 +63,7 @@ fun AppNavRail(
 fun PreviewAppNavRail() {
     CellsTheme {
         AppNavRail(
-            currentRoute = CellsDestinations.HOME_ROUTE,
+            currentRoute = CellsDestinations.Home.route,
             navigateToHome = {},
             navigateToAbout = {},
         )

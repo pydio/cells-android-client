@@ -12,9 +12,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.view.WindowCompat
-import com.pydio.android.cells.ui.box.MainHost
-import com.pydio.android.cells.ui.box.StartingState
-import com.pydio.android.cells.ui.box.UseCellsTheme
+import com.pydio.android.cells.ui.MainHost
+import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID

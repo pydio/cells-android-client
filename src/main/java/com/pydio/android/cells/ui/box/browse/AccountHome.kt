@@ -54,7 +54,7 @@ private const val logTag = "AccountHome.kt"
 @Composable
 fun AccountHome(
     accountID: StateID,
-    openDrawer: (StateID) -> Unit,
+    openDrawer: () -> Unit,
     openAccounts: () -> Unit,
     openSearch: () -> Unit,
     openWorkspace: (StateID) -> Unit,
@@ -86,7 +86,7 @@ fun AccountHome(
         workspaces = workspaces ?: listOf(),
         cells = cells ?: listOf(),
         isLoading = isLoading ?: true,
-        openDrawer = { openDrawer(accountID) },
+        openDrawer = openDrawer,
         openAccounts = openAccounts,
         openWorkspace = openWorkspace,
         openSearch = openSearch,

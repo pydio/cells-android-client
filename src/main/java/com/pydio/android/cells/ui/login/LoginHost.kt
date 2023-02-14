@@ -7,7 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.StartingState
+import com.pydio.android.cells.ui.StartingState
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "LoginHost"

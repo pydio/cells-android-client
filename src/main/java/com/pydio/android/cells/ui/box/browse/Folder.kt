@@ -55,7 +55,7 @@ private const val logTag = "Folder.kt"
 @Composable
 fun Folder(
     stateID: StateID,
-    openDrawer: (StateID) -> Unit,
+    openDrawer: () -> Unit,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openSearch: () -> Unit,
@@ -83,7 +83,7 @@ fun Folder(
         stateID = stateID,
         label = stateID.fileName ?: stateID.workspace,
         children = children ?: listOf(),
-        openDrawer = { openDrawer(stateID) },
+        openDrawer = openDrawer,
         openParent = openParent,
         open = open,
         openSearch = openSearch,

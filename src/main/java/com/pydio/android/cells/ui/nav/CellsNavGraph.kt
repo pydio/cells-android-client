@@ -12,23 +12,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.StartingState
-import com.pydio.android.cells.ui.box.browse.SelectAccount
+import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.account.AccountsScreen
+import com.pydio.android.cells.ui.browse.BrowseHost
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 
-private val logTag = "CellsNavGraph"
+private const val logTag = "CellsNavGraph"
 
 @Composable
 fun CellsNavGraph(
     currAccountID: StateID,
-    switchAccount: (StateID) -> Unit,
+    openAccount: (StateID) -> Unit,
     isExpandedScreen: Boolean,
     navController: NavHostController = rememberNavController(),
-    openDrawer: () -> Unit = {},
+    openDrawer: () -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     startingState: StartingState,
 ) {
@@ -48,17 +49,28 @@ fun CellsNavGraph(
         Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
         if (Str.notEmpty(startingState.destination)) {
             when {
-                startingState.destination!!.startsWith(CellsDestinations.LOGIN_ROUTE)
-                -> navController.navigate(CellsDestinations.LOGIN_ROUTE)
+                startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
+                -> navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
             }
         } else {
             Log.e(logTag, "########## No defined destination, computing a new one")
             when (currAccountID) {
                 Transport.UNDEFINED_STATE_ID ->
-                    navController.navigate(CellsDestinations.ACCOUNTS_ROUTE) {
-                        popUpTo(CellsDestinations.HOME_ROUTE) { inclusive = true }
+                    navController.navigate(CellsDestinations.Accounts.route) {
+                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
                     }
-                else -> navController.navigate(CellsDestinations.BROWSE_ROUTE)
+                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = currAccountID) {
+        // FIXME not good enough if we navigate to the home of the account and back here
+        //  we are not redirected to the account home if we click on the **SAME** account
+        Log.e(logTag, "########## Launching side effect 222 for ${currAccountID})")
+        if (currAccountID != Transport.UNDEFINED_STATE_ID) {
+            navController.navigate(CellsDestinations.Browse.createRoute(currAccountID)) {
+                popUpTo(CellsDestinations.Home.route) { inclusive = true }
             }
         }
     }
@@ -69,14 +81,12 @@ fun CellsNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = CellsDestinations.HOME_ROUTE,
-        // startDestination = startDestination,
-        route = CellsDestinations.ROOT_ROUTE
+        startDestination = CellsDestinations.Home.route,
+        route = CellsDestinations.Root.route
     ) {
 
-        composable(CellsDestinations.HOME_ROUTE) {
+        composable(CellsDestinations.Home.route) {
             Column {
-
                 Button(onClick = openDrawer) {
                     Text("Open Drawer")
                 }
@@ -84,30 +94,39 @@ fun CellsNavGraph(
             }
         }
 
-        composable(CellsDestinations.BROWSE_ROUTE) {
-            Text("Browse")
-        }
-
-        composable(CellsDestinations.LOGIN_ROUTE) {
-            LoginHost(
-                startingState = startingState,
-                launchIntent = launchIntent,
-                back = { navController.popBackStack() },
-            )
-        }
-
-        composable(CellsDestinations.ACCOUNTS_ROUTE) {
-            Log.e(logTag, "... Will navigate to accounts, expanded screen: $isExpandedScreen")
-
-            SelectAccount(
+        composable(CellsDestinations.Accounts.route) {
+            AccountsScreen(
                 currAccountID,
-                switchAccount = switchAccount,
+                switchAccount = openAccount,
                 login = login,
                 back = { navController.popBackStack() },
                 contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 ),
+            )
+        }
+
+        composable(CellsDestinations.Login.route) { bse ->
+            val stateId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
+                ?: Transport.UNDEFINED_STATE
+            LoginHost(
+                // FIXME also rely on the state ID
+                startingState = startingState,
+                launchIntent = launchIntent,
+                back = { navController.popBackStack() },
+            )
+        }
+
+        composable(CellsDestinations.Browse.route) { bse ->
+            val accId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
+                ?: currAccountID.id // FIXME undefined should not be allowed here
+            val accountID = StateID.fromId(accId)
+            BrowseHost(
+                accountID = accountID,
+                openAccounts = { navigationActions.navigateToAccounts },
+                back = { navController.popBackStack() },
+                openDrawer = openDrawer
             )
         }
 

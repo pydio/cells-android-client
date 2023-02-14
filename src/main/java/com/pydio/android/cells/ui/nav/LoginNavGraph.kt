@@ -31,7 +31,7 @@ fun NavGraphBuilder.loginNavGraph(
 
     navigation(
         startDestination = LoginStep.URL.name,
-        route = CellsDestinations.LOGIN_ROUTE
+        route = CellsDestinations.Home.route
     ) {
 
         composable(LoginStep.URL.name) {

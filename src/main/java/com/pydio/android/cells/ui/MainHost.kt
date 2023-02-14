@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box
+package com.pydio.android.cells.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -18,8 +18,11 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
+
+private const val logTag = "MainHost.kt"
 
 @Composable
 fun MainHost(
@@ -33,16 +36,17 @@ fun MainHost(
     val currAccountID = rememberSaveable(stateSaver = stateIDSaver) {
         mutableStateOf(Transport.UNDEFINED_STATE_ID)
     }
-    val switchAccount: (StateID) -> Unit = {
+    val openAccount: (StateID) -> Unit = {
         currAccountID.value = it
+        Log.e(logTag, "--- Open Account: $it")
     }
 
     MainDrawerHost(
-        startingState,
-        currAccountID.value,
-        switchAccount,
-        launchIntent,
-        widthSizeClass
+        startingState = startingState,
+        currAccountID = currAccountID.value,
+        openAccount = openAccount,
+        launchIntent = launchIntent,
+        widthSizeClass = widthSizeClass
     )
 }
 

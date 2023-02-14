@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.account
+package com.pydio.android.cells.ui.account
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
