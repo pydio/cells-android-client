@@ -18,6 +18,7 @@ private const val logTag = "LoginHost"
 @Composable
 fun LoginHost(
     currAccount: StateID,
+    openAccount: (StateID) -> Unit,
     startingState: StartingState,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit
@@ -72,6 +73,9 @@ fun LoginHost(
                 code = startingState.code!!,
             )
             if (res) {
+                loginVM.accountId.value?.let {
+                    openAccount(StateID.fromId(it))
+                }
                 // FIXME
                 navController.popBackStack(RouteLoginUrl.route, true)
                 // TODO handle next action

@@ -111,8 +111,8 @@ fun CellsNavGraph(
             val stateId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
                 ?: Transport.UNDEFINED_STATE
             LoginHost(
-                // FIXME also rely on the state ID
                 currAccount = StateID.fromId(stateId),
+                openAccount = openAccount,
                 startingState = startingState,
                 launchIntent = launchIntent,
                 back = { navController.popBackStack() },

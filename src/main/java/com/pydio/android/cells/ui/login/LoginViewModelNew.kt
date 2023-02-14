@@ -77,8 +77,8 @@ class LoginViewModelNew(
     val server: StateFlow<Server?> = _server
 
     // Set upon successful authentication against the remote server
-    private val _accountID: MutableStateFlow<String?> = MutableStateFlow(null)
-    val accountID: StateFlow<String?> = _accountID
+    private val _accountId: MutableStateFlow<String?> = MutableStateFlow(null)
+    val accountId: StateFlow<String?> = _accountId
 
     private var _nextAction: MutableStateFlow<String> =
         MutableStateFlow(AuthService.NEXT_ACTION_BROWSE)
@@ -222,7 +222,7 @@ class LoginViewModelNew(
             res
         }
 
-        _accountID.value = res.first
+        _accountId.value = res.first
 
         return Str.empty(res2.second)
     }
@@ -349,7 +349,7 @@ class LoginViewModelNew(
         }
 
         return if (accountIDStr != null) {
-            _accountID.value = accountIDStr
+            _accountId.value = accountIDStr
             true
             // FIXME
             // setCurrentStep(LoginStep.DONE)
