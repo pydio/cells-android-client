@@ -8,6 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.StartingState
+import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "LoginHost"
@@ -15,6 +17,7 @@ private const val logTag = "LoginHost"
 /** Main host for the navigation between login screens */
 @Composable
 fun LoginHost(
+    currAccount: StateID,
     startingState: StartingState,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit
@@ -43,8 +46,25 @@ fun LoginHost(
         }
     }
 
-    LaunchedEffect(key1 = startingState) {
-        if (RouteLoginProcessAuth.route == startingState.destination) {
+    LaunchedEffect(key1 = currAccount, key2 = startingState) {
+
+        if (currAccount != Transport.UNDEFINED_STATE_ID) {
+            // We are in the case of a relog
+            loginVM.getSessionView(currAccount)?.let { sessionView ->
+                // FIXME implement next
+                loginVM.toCellsCredentials(sessionView, "browse")
+
+                // TODO also pop until home to prevent coming back on the server Url screen
+                //    when the user clicks back
+                if (sessionView.isLegacy) {
+                    navController.navigate(RouteLoginP8Credentials.route) {}
+                } else {
+                    navController.navigate(RouteLoginProcessAuth.route) {}
+                }
+            }
+        } else if (RouteLoginProcessAuth.route == startingState.destination) {
+            // OAuth flow Callback
+
             // We assume that the check on code and state auth has already been done at this point
             navController.navigate(RouteLoginProcessAuth.route)
             val res = loginVM.handleOAuthResponse(

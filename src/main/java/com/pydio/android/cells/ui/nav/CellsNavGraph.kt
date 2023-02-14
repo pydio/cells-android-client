@@ -112,6 +112,7 @@ fun CellsNavGraph(
                 ?: Transport.UNDEFINED_STATE
             LoginHost(
                 // FIXME also rely on the state ID
+                currAccount = StateID.fromId(stateId),
                 startingState = startingState,
                 launchIntent = launchIntent,
                 back = { navController.popBackStack() },

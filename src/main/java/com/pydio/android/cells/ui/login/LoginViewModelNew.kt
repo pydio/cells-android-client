@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.SessionFactory
@@ -12,6 +13,7 @@ import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -65,6 +67,10 @@ class LoginViewModelNew(
     // A valid server URL with TLS managed
     private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
     val serverUrl: StateFlow<ServerURL?> = _serverUrl
+
+    // Used when relogging a P8 Server
+    private val _username: MutableStateFlow<String?> = MutableStateFlow(null)
+    val username: StateFlow<String?> = _username
 
     // Server is a Pydio instance and has already been registered in local repository
     private var _server: MutableStateFlow<Server?> = MutableStateFlow(null)
@@ -149,6 +155,10 @@ class LoginViewModelNew(
     }
 
 
+    suspend fun getSessionView(accountID: StateID): RSessionView? = withContext(Dispatchers.IO) {
+        accountService.getSession(accountID)
+    }
+
     // FIXME to re-add direct login to P8 feature
 
 //    fun toP8Credentials(urlStr: String, next: String) : String {
@@ -178,6 +188,17 @@ class LoginViewModelNew(
             }
         }
         triggerOAuthProcess(url)
+    }
+
+    suspend fun toCellsCredentials(sessionView: RSessionView, next: String) {
+        _nextAction.value = next
+        val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
+        _serverUrl.value = url
+        if (sessionView.isLegacy){
+            _username.value = sessionView.username
+        } else {
+            triggerOAuthProcess(url)
+        }
     }
 
     suspend fun handleOAuthResponse(state: String, code: String): Boolean {
