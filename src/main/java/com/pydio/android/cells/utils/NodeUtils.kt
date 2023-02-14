@@ -2,13 +2,21 @@ package com.pydio.android.cells.utils
 
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.compose.runtime.saveable.Saver
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.transport.StateID
 
 private const val NODE_UTILS = "NodeUtils"
+
+// Utility to make the stateID savable
+val stateIDSaver = Saver<StateID, String>(
+    save = { stateID -> stateID.id },
+    restore = { id -> StateID.fromId(id) },
+)
 
 fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): Boolean {
     // TODO rather use this when debugging is over.
@@ -26,7 +34,7 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
         return false
     }
 
-    if (!legacy)  { // We can rely on the ETag if remote is a Cells leaf node.
+    if (!legacy) { // We can rely on the ETag if remote is a Cells leaf node.
         isEqual = remote.eTag != null
         if (!isEqual) {
             Log.d(NODE_UTILS, "Differ: no remote eTag")
@@ -91,40 +99,6 @@ fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
     return true
 }
 
-
-//fun getAppMime(context: Context, name: String): String {
-//    val filename = name.lowercase()
-//
-//    return if (filename.contains(".doc") || filename.contains(".docx")) {
-//        "application/msword"
-//    } else if (filename.contains(".pdf")) {
-//        "application/pdf"
-//    } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-//        "application/vnd.ms-powerpoint"
-//    } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-//        "application/vnd.ms-excel"
-//    } else if (filename.contains(".rtf")) {
-//        "application/rtf"
-//    } else if (filename.contains(".wav") || filename.contains(".mp3")) {
-//        "audio/x-wav"
-//    } else if (filename.contains(".ogg") || filename.contains(".flac")) {
-//        "audio/*"
-//    } else if (filename.contains(".gif")) {
-//        "image/gif"
-//    } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-//        "image/jpeg"
-//    } else if (filename.contains(".txt")) {
-//        "text/plain"
-//    } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename
-//            .contains(".mpeg") || filename.contains(".mpe") || filename
-//            .contains(".mp4") || filename.contains(".avi")
-//    ) {
-//        "video/*"
-//    } else {
-//        "*/*"
-//    }
-//}
-
 fun isPreViewable(element: RTreeNode): Boolean {
     return if (element.mime.startsWith("image/") ||
         // TODO remove this once the mime has been cleaned
@@ -150,4 +124,3 @@ fun getMimeType(url: String, fallback: String = SdkNames.NODE_MIME_DEFAULT): Str
     }
     return fallback
 }
-

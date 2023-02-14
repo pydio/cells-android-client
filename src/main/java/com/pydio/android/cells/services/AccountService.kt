@@ -35,19 +35,25 @@ interface AccountService {
 
     fun getLiveSessions(): LiveData<List<RSessionView>>
 
-    fun getLiveSession(accountID: String): LiveData<RSessionView?>
+    fun getLiveSession(accountId: String): LiveData<RSessionView?>
 
-    fun getLiveWorkspaces(accountID: String): LiveData<List<RWorkspace>>
+    fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>>
 
     fun getLiveWsByType(type: String, accountID: String): LiveData<List<RWorkspace>>
 
     fun listSessionViews(includeLegacy: Boolean): List<RSessionView>
 
+    @Deprecated("Rather use method with the StateID")
     suspend fun forgetAccount(accountId: String): String?
 
-    suspend fun logoutAccount(accountID: String): String?
+    suspend fun forgetAccount(accountID: StateID): String?
 
-    suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?>
+    @Deprecated("Rather use method with the StateID")
+    suspend fun logoutAccount(accountId: String): String?
+
+    suspend fun logoutAccount(accountID: StateID): String?
+
+    suspend fun refreshWorkspaceList(accountId: String): Pair<Int, String?>
 
     suspend fun checkRegisteredAccounts(): Pair<Int, String?>
 

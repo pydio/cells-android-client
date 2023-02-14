@@ -20,44 +20,45 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.ui.box.StartingState
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainNavDrawer(
-    initialStateID: StateID,
+fun MainDrawerHost(
+    startingState: StartingState,
+    currAccountID: StateID,
+    switchAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    navController: NavController,
     widthSizeClass: WindowWidthSizeClass
 ) {
-    val navController = rememberNavController()
-    val navigationActions = remember(navController) {
-        CellsNavigationActions(navController)
-    }
-    val systemActions = remember(navController) {
-        SystemNavigationActions(navController)
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute =
-        navBackStackEntry?.destination?.route ?: CellsDestinations.HOME_ROUTE
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
+    val coroutineScope = rememberCoroutineScope()
+
+    val navHostController = rememberNavController()
+    val navigationActions = remember(navHostController) {
+        CellsNavigationActions(navHostController)
+    }
+    val systemActions = remember(navHostController) {
+        SystemNavigationActions(navHostController)
+    }
+
+    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+
     ModalNavigationDrawer(
         drawerContent = {
             AppDrawer(
-                currentRoute = currentRoute,
+                currAccountID = currAccountID,
+                currentRoute = navBackStackEntry?.destination?.route,
                 navigateToHome = navigationActions.navigateToHome,
                 navigateToBrowse = navigationActions.navigateToBrowse,
-                navigateToLogin = navigationActions.navigateToLogin,
+                navigateToAccounts = navigationActions.navigateToAccounts,
                 navigateToAbout = systemActions.navigateToAbout,
                 closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } }
             )
@@ -69,16 +70,19 @@ fun MainNavDrawer(
         Row {
             if (isExpandedScreen) { // When we are on a tablet
                 AppNavRail(
-                    currentRoute = currentRoute,
+                    currentRoute = navBackStackEntry?.destination?.route,
                     navigateToHome = navigationActions.navigateToHome,
                     navigateToAbout = systemActions.navigateToAbout,
                 )
             }
             CellsNavGraph(
+                currAccountID = currAccountID,
+                switchAccount = switchAccount,
                 isExpandedScreen = isExpandedScreen,
-                launchIntent = launchIntent,
-                navController = navController,
+                navController = navHostController,
                 openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
+                launchIntent = launchIntent,
+                startingState = startingState,
             )
         }
     }

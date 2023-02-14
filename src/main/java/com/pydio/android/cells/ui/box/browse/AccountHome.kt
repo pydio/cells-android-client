@@ -199,7 +199,6 @@ private fun HomeList(
     }
 }
 
-
 @Composable
 private fun HomeItem(
     sortName: String,
@@ -303,7 +302,7 @@ private fun HomeHeader(
 private fun FolderTopBar(
     title: String,
     openDrawer: () -> Unit,
-    openSearch: () -> Unit,
+    openSearch: (() -> Unit)?,
     modifier: Modifier
 ) {
     Surface(
@@ -335,11 +334,13 @@ private fun FolderTopBar(
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
-            IconButton(onClick = { openSearch() }) {
-                Icon(
-                    CellsVectorIcons.Search,
-                    contentDescription = stringResource(id = R.string.action_search)
-                )
+            if (openSearch != null) {
+                IconButton(onClick = { openSearch() }) {
+                    Icon(
+                        CellsVectorIcons.Search,
+                        contentDescription = stringResource(id = R.string.action_search)
+                    )
+                }
             }
         }
     }

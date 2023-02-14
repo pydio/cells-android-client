@@ -229,7 +229,7 @@ private fun NodeItem(
 }
 
 @Composable
-private fun FolderTopBar(
+fun FolderTopBar(
     title: String,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,

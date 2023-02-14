@@ -22,7 +22,7 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 
 @Composable
 fun AppNavRail(
-    currentRoute: String,
+    currentRoute: String?,
     navigateToHome: () -> Unit,
     navigateToAbout: () -> Unit,
     modifier: Modifier = Modifier
@@ -40,14 +40,14 @@ fun AppNavRail(
     ) {
         Spacer(Modifier.weight(1f))
         NavigationRailItem(
-            selected = currentRoute == CellsDestinations.HOME_ROUTE,
+            selected = CellsDestinations.HOME_ROUTE == currentRoute,
             onClick = navigateToHome,
             icon = { Icon(Icons.Filled.Home, stringResource(R.string.action_home)) },
             label = { Text(stringResource(R.string.action_home)) },
             alwaysShowLabel = false
         )
         NavigationRailItem(
-            selected = currentRoute == SystemDestinations.ABOUT_ROUTE,
+            selected = SystemDestinations.ABOUT_ROUTE == currentRoute,
             onClick = navigateToAbout,
             icon = { Icon(Icons.Default.Help, stringResource(R.string.action_open_about)) },
             label = { Text(stringResource(R.string.action_open_about)) },

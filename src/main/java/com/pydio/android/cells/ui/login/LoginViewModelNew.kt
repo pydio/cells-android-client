@@ -177,13 +177,11 @@ class LoginViewModelNew(
                 _skipVerify.value = true
             }
         }
-        // FIXME _currDestination.value = LoginStep.PROCESS_AUTH
         triggerOAuthProcess(url)
     }
 
-    suspend fun handleOAuthResponse(state: String, code: String) {
+    suspend fun handleOAuthResponse(state: String, code: String): Boolean {
 
-        // FIXME _currDestination.value = LoginStep.PROCESS_AUTH
         switchLoading(true)
         updateMessage("Retrieving authentication token...")
         val res = withContext(Dispatchers.IO) {
@@ -191,19 +189,21 @@ class LoginViewModelNew(
             authService.handleOAuthResponse(accountService, sessionFactory, state, code)
         } ?: run {
             updateErrorMsg("could not retrieve token from code")
-            return
+            return false
         }
 
         updateMessage("Updating account info...")
         // Log.d(logTag, "Configuring account ${StateID.fromId(res.first)} before ${res.second}")
         res.second?.let { _nextAction.value = it }
-        withContext(Dispatchers.IO) {
-            accountService.refreshWorkspaceList(res.first)
+        val res2 = withContext(Dispatchers.IO) {
+            val res = accountService.refreshWorkspaceList(res.first)
             delay(smoothActionDelay)
+            res
         }
 
         _accountID.value = res.first
-        // FIXME setCurrentStep(LoginStep.DONE)
+
+        return Str.empty(res2.second)
     }
 
     // Internal helpers
@@ -235,14 +235,13 @@ class LoginViewModelNew(
 
         // 3) Specific login process depending on the remote server type (Cells or P8).
         if (server.isLegacy) {
-            return P8CredsRouteLogin.route
-            // navigateTo(P8CredsRoute.route)
-            //  TODO  _currDestination.value = LoginStep.P8_CRED
+            return RouteLoginP8Credentials.route
         } else {
             viewModelScope.launch {
                 triggerOAuthProcess(serverURL)
             }
-            return null
+            // FIXME this is not satisfying: error won't be processed correctly
+            return RouteLoginProcessAuth.route
         }
     }
 

@@ -71,6 +71,20 @@ class AccountListVM(
         setLoading(false)
     }
 
+    fun forgetAccount(stateID: StateID) {
+        // FIXME we rather want to use a larger scope to insure the process is not stopped while processing
+        vmScope.launch {
+            accountService.forgetAccount(stateID)
+        }
+    }
+
+    fun logoutAccount(stateID: StateID) {
+        // This is less problematic (see above), we only remove the credentials from the local keystore
+        vmScope.launch {
+            accountService.logoutAccount(stateID)
+        }
+    }
+
     // Local helpers
     private fun watchAccounts() = vmScope.launch {
         while (_isActive) {

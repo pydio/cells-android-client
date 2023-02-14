@@ -51,12 +51,13 @@ class MigrationVM(
         get() = _migrationJob
 
     init {
-        Log.e(logTag, "After Init: $this")
-
+        Log.d(logTag, "After Init: $this")
     }
 
     override fun onCleared() {
-        Log.e(logTag, "Before destroy: $this")
+        // useless: this does nothing
+        // super.onCleared()
+        Log.d(logTag, "About to clear view model: $this")
     }
 
     fun needsMigration(context: Context): Boolean {

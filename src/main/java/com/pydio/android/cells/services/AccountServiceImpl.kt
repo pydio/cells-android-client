@@ -65,11 +65,11 @@ class AccountServiceImpl(
 
     override fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
-    override fun getLiveSession(accountID: String): LiveData<RSessionView?> =
-        sessionViewDao.getLiveSession(accountID)
+    override fun getLiveSession(accountId: String): LiveData<RSessionView?> =
+        sessionViewDao.getLiveSession(accountId)
 
-    override fun getLiveWorkspaces(accountID: String): LiveData<List<RWorkspace>> =
-        workspaceDao.getLiveWorkspaces(accountID)
+    override fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
+        workspaceDao.getLiveWorkspaces(accountId)
 
     override fun getLiveWsByType(type: String, accountID: String)
             : LiveData<List<RWorkspace>> {
@@ -189,54 +189,62 @@ class AccountServiceImpl(
         fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
-    override suspend fun forgetAccount(accountId: String): String? = withContext(Dispatchers.IO) {
-        val stateId = StateID.fromId(accountId)
-        Log.i(logTag, "### About to forget $stateId")
+    override suspend fun forgetAccount(accountId: String): String? {
+        return forgetAccount(StateID.fromId(accountId))
+    }
+
+    override suspend fun forgetAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
+        //val stateId = StateID.fromId(accountId)
+        Log.i(logTag, "### About to forget $accountID")
         try {
-            val oldAccount = accountDao.getAccount(accountId)
+            val oldAccount = accountDao.getAccount(accountID.id)
                 ?: return@withContext null // nothing to forget
 
-            val dirName = treeNodeRepository.sessions[accountId]?.dirName
-                ?: throw IllegalStateException("No record found for $stateId")
+            val dirName = treeNodeRepository.sessions[accountID.id]?.dirName
+                ?: throw IllegalStateException("No record found for $accountID")
 
             // Downloaded files
-            fileService.cleanAllLocalFiles(stateId, dirName)
+            fileService.cleanAllLocalFiles(accountID, dirName)
             // Credentials
-            authService.forgetCredentials(stateId, oldAccount.isLegacy)
+            authService.forgetCredentials(accountID, oldAccount.isLegacy)
             // Remove rows in the account tables
-            sessionDao.forgetSession(accountId)
-            workspaceDao.forgetAccount(accountId)
-            accountDao.forgetAccount(accountId)
-            treeNodeRepository.closeNodeDb(stateId.accountId)
+            sessionDao.forgetSession(accountID.id)
+            workspaceDao.forgetAccount(accountID.id)
+            accountDao.forgetAccount(accountID.id)
+            treeNodeRepository.closeNodeDb(accountID.accountId)
 
             // Update local caches
             treeNodeRepository.refreshSessionCache()
 
-            Log.i(logTag, "### $stateId has been forgotten")
+            Log.i(logTag, "### $accountID has been forgotten")
             return@withContext null
         } catch (e: Exception) {
-            val msg = "Could not delete account ${StateID.fromId(accountId)}"
+            val msg = "Could not delete account $accountID"
             logException(logTag, msg, e)
             return@withContext msg
         }
     }
 
-    override suspend fun logoutAccount(accountID: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun logoutAccount(accountId: String): String? {
+        return logoutAccount(StateID.fromId(accountId))
+    }
+
+    override suspend fun logoutAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            accountDao.getAccount(accountID)?.let {
+            accountDao.getAccount(accountID.id)?.let {
                 Log.i(logTag, "About to logout $accountID")
                 Log.i(logTag, "Calling stack:")
                 Thread.dumpStack()
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
 
-                authService.forgetCredentials(StateID.fromId(accountID), it.isLegacy)
+                authService.forgetCredentials(accountID, it.isLegacy)
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 accountDao.update(it)
                 return@withContext null
             }
         } catch (e: Exception) {
-            val msg = "Could not delete credentials for ${StateID.fromId(accountID)}"
+            val msg = "Could not delete credentials for $accountID}"
             logException(logTag, msg, e)
             return@withContext msg
         }
@@ -279,9 +287,9 @@ class AccountServiceImpl(
         return@withContext false
     }
 
-    override suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?> =
+    override suspend fun refreshWorkspaceList(accountId: String): Pair<Int, String?> =
         withContext(Dispatchers.IO) {
-            val accountID = StateID.fromId(accountIDStr)
+            val accountID = StateID.fromId(accountId)
             try {
                 val client: Client = getClient(accountID)
                 val wsDiff = WorkspaceDiff(accountID, client)

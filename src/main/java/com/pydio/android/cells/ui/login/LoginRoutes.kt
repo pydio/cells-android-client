@@ -6,6 +6,7 @@ import com.pydio.android.cells.ui.login.screens.AskServerUrl
 import com.pydio.android.cells.ui.login.screens.P8Credentials
 import com.pydio.android.cells.ui.login.screens.ProcessAuth
 import com.pydio.android.cells.ui.login.screens.SkipVerify
+import com.pydio.android.cells.ui.nav.CellsDestinations
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -13,13 +14,15 @@ import org.koin.androidx.compose.koinViewModel
  * Declare all routes for the Login process
  */
 
-object DoneRoute {
-    val route = "done"
+private const val prefix = CellsDestinations.LOGIN_ROUTE + "/"
+
+object RouteLoginDone {
+    const val route = "${prefix}done"
 }
 
-object UrlRouteLogin : LoginNavRoute<StateViewModel> {
+object RouteLoginUrl : LoginNavRoute<StateViewModel> {
 
-    override val route = "url"
+    override val route = "${prefix}url"
 
     @Composable
     override fun viewModel(): StateViewModel = koinViewModel()
@@ -32,9 +35,9 @@ object UrlRouteLogin : LoginNavRoute<StateViewModel> {
     ) = AskServerUrl(viewModel, loginVM, navigateTo)
 }
 
-object SkipVerifyRouteLogin : LoginNavRoute<StateViewModel> {
+object RouteLoginSkipVerify : LoginNavRoute<StateViewModel> {
 
-    override val route = "skip-verify"
+    override val route = "${prefix}skip-verify"
 
     @Composable
     override fun viewModel(): StateViewModel = koinViewModel()
@@ -47,9 +50,9 @@ object SkipVerifyRouteLogin : LoginNavRoute<StateViewModel> {
     ) = SkipVerify(viewModel, loginVM, navigateTo)
 }
 
-object P8CredsRouteLogin : LoginNavRoute<StateViewModel> {
+object RouteLoginP8Credentials : LoginNavRoute<StateViewModel> {
 
-    override val route = "p8-credentials"
+    override val route = "${prefix}p8-credentials"
 
     @Composable
     override fun viewModel(): StateViewModel = koinViewModel()
@@ -62,9 +65,9 @@ object P8CredsRouteLogin : LoginNavRoute<StateViewModel> {
     ) = P8Credentials(viewModel, loginVM, navigateTo)
 }
 
-object ProcessAuthRouteLogin : LoginNavRoute<StateViewModel> {
+object RouteLoginProcessAuth : LoginNavRoute<StateViewModel> {
 
-    override val route = "process-auth"
+    override val route = "${prefix}process-auth"
 
     @Composable
     override fun viewModel(): StateViewModel = koinViewModel()

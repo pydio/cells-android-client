@@ -29,10 +29,12 @@ import com.pydio.cells.transport.StateID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
-    currentRoute: String,
+    currAccountID: StateID,
+    currentRoute: String?,
     navigateToHome: () -> Unit,
     navigateToBrowse: (StateID) -> Unit,
-    navigateToLogin: (StateID) -> Unit,
+    navigateToAccounts: () -> Unit,
+//    navigateToLogin: (StateID) -> Unit,
     navigateToAbout: () -> Unit,
     closeDrawer: () -> Unit,
     modifier: Modifier = Modifier
@@ -44,32 +46,28 @@ fun AppDrawer(
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.action_home)) },
             icon = { Icon(Icons.Filled.Home, null) },
-            selected = currentRoute == CellsDestinations.HOME_ROUTE,
+            selected = CellsDestinations.HOME_ROUTE == currentRoute,
             onClick = { navigateToHome(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.action_browse)) },
             icon = { Icon(Icons.Filled.Explore, null) },
-            selected = currentRoute == CellsDestinations.BROWSE_ROUTE,
+            selected = CellsDestinations.BROWSE_ROUTE == currentRoute,
             onClick = { navigateToHome(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.launch_auth)) },
             icon = { Icon(Icons.Filled.Group, null) },
-            selected = currentRoute == CellsDestinations.LOGIN_ROUTE,
-            onClick = {
-                // FIXME
-                navigateToLogin(Transport.UNDEFINED_STATE_ID)
-                closeDrawer()
-            },
+            selected = CellsDestinations.LOGIN_ROUTE == currentRoute,
+            onClick = { navigateToAccounts();closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(id = R.string.action_open_about)) },
             icon = { Icon(Icons.Filled.ListAlt, null) },
-            selected = currentRoute == SystemDestinations.ABOUT_ROUTE,
+            selected = SystemDestinations.ABOUT_ROUTE == currentRoute,
             onClick = { navigateToAbout(); closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
@@ -99,10 +97,11 @@ private fun PydioLogo(modifier: Modifier = Modifier) {
 fun PreviewAppDrawer() {
     CellsTheme {
         AppDrawer(
+            currAccountID = Transport.UNDEFINED_STATE_ID,
             currentRoute = CellsDestinations.HOME_ROUTE,
             navigateToHome = {},
             navigateToBrowse = {},
-            navigateToLogin = {},
+            navigateToAccounts = {},
             navigateToAbout = {},
             closeDrawer = { }
         )

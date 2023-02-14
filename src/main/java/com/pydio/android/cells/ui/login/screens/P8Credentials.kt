@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.common.FormBottomButtons
 import com.pydio.android.cells.ui.box.common.FormInput
-import com.pydio.android.cells.ui.login.DoneRoute
+import com.pydio.android.cells.ui.login.RouteLoginDone
 import com.pydio.android.cells.ui.login.LoginViewModelNew
 import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -136,7 +136,7 @@ fun P8Credentials(
         scope.launch {
             val res = loginVM.logToP8(login, pwd, captcha)
             if (res) {
-                navigateTo(DoneRoute.route)
+                navigateTo(RouteLoginDone.route)
             } // else do nothing: error message has already been displayed and we stay on the page
         }
     }

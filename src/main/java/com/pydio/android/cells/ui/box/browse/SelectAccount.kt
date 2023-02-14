@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.box.browse
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -18,15 +19,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.box.account.AccountList
 import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectAccount(
-    accountListVM: AccountListVM,
+    currAccountID: StateID,
+    switchAccount: (StateID) -> Unit,
+    login: (StateID) -> Unit,
+    back: () -> Unit,
+    accountListVM: AccountListVM = koinViewModel(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+
+    val accounts by accountListVM.sessions.observeAsState()
+
+    SelectAccount(
+        currAccountID = currAccountID,
+        accounts = accounts.orEmpty(),
+        openAccount = switchAccount,
+        back = back,
+        registerNew = { login(Transport.UNDEFINED_STATE_ID) },
+        login = login,
+        logout = { accountListVM.logoutAccount(it) },
+        forget = { accountListVM.forgetAccount(it) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectAccount(
+    currAccountID: StateID,
+    accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
     back: () -> Unit,
     registerNew: () -> Unit,
@@ -35,7 +67,11 @@ fun SelectAccount(
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val accounts by accountListVM.sessions.observeAsState()
+
+    val confirmForget: (stateID: StateID) -> Unit = {
+        // TODO implement dialog validation
+        forget(it)
+    }
 
     Scaffold(
         topBar = {
@@ -77,11 +113,12 @@ fun SelectAccount(
         },
         content = { innerPadding ->
             AccountList(
+                currAccountID,
                 accounts,
                 openAccount,
                 login,
                 logout,
-                forget,
+                confirmForget,
                 modifier,
                 innerPadding,
                 Arrangement.spacedBy(dimensionResource(R.dimen.list_vertical_padding)),
