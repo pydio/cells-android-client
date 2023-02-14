@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse
+package com.pydio.android.cells.ui.browsexml
 
 import android.content.Intent
 import android.os.Bundle

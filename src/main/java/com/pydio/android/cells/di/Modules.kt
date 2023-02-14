@@ -21,9 +21,9 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.browse.BookmarksViewModel
-import com.pydio.android.cells.ui.browse.BrowseFolderViewModel
-import com.pydio.android.cells.ui.browse.OfflineRootsViewModel
+import com.pydio.android.cells.ui.browsexml.BookmarksViewModel
+import com.pydio.android.cells.ui.browsexml.BrowseFolderViewModel
+import com.pydio.android.cells.ui.browsexml.OfflineRootsViewModel
 import com.pydio.android.cells.ui.login.LoginViewModelNew
 import com.pydio.android.cells.ui.login.nav.CellsRouteNavigator
 import com.pydio.android.cells.ui.login.nav.RouteNavigator

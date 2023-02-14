@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse
+package com.pydio.android.cells.ui.browsexml
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

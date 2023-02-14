@@ -97,7 +97,7 @@
 
     <fragment
         android:id="@+id/account_home_destination"
-        android:name="com.pydio.android.cells.ui.browse.AccountHomeFragment"
+        android:name="com.pydio.android.cells.ui.browsexml.AccountHomeFragment"
         tools:layout="@layout/fragment_account_home">
         <argument
             android:name="state"
@@ -108,7 +108,7 @@
      we set in the "onResume" callback typically when the more dialog opens and closes -->
     <fragment
         android:id="@+id/browse_folder_destination"
-        android:name="com.pydio.android.cells.ui.browse.BrowseFolderFragment"
+        android:name="com.pydio.android.cells.ui.browsexml.BrowseFolderFragment"
         tools:layout="@layout/fragment_browse_folder">
         <argument
             android:name="state"
@@ -120,7 +120,7 @@
 
     <fragment
         android:id="@+id/bookmark_list_destination"
-        android:name="com.pydio.android.cells.ui.browse.BookmarksFragment"
+        android:name="com.pydio.android.cells.ui.browsexml.BookmarksFragment"
         android:label="@string/action_open_bookmarks"
         tools:layout="@layout/fragment_bookmark_list">
         <action
@@ -130,7 +130,7 @@
 
     <fragment
         android:id="@+id/offline_root_list_destination"
-        android:name="com.pydio.android.cells.ui.browse.OfflineRootsFragment"
+        android:name="com.pydio.android.cells.ui.browsexml.OfflineRootsFragment"
         android:label="@string/action_open_offline_roots"
         tools:layout="@layout/fragment_offline_root_list">
         <action
