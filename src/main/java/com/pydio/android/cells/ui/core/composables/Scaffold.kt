@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.common
+package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
 import androidx.compose.material3.ExperimentalMaterial3Api

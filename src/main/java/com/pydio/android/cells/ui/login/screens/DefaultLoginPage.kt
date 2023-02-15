@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.common.TitleDescColumnBloc
+import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
 import com.pydio.cells.utils.Str
 
 private const val logTag = "DefaultLoginPage.kt"

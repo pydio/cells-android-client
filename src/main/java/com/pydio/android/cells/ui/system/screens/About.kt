@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.common.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.nav.openExternalURL
 import com.pydio.android.cells.ui.nav.sendSupportEmail

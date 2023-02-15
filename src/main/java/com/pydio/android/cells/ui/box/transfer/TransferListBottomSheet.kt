@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.ui.box.common.BottomSheetContent
-import com.pydio.android.cells.ui.box.common.BottomSheetHeader
-import com.pydio.android.cells.ui.box.common.Item
+import com.pydio.android.cells.ui.core.composables.BottomSheetContent
+import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
+import com.pydio.android.cells.ui.core.composables.Item
 import com.pydio.android.cells.ui.box.system.buildStatusString
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID

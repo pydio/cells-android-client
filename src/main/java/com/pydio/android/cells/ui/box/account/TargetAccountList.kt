@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
-import com.pydio.android.cells.ui.box.common.Decorated
-import com.pydio.android.cells.ui.box.common.Type
-import com.pydio.android.cells.ui.box.common.getFloatResource
+import com.pydio.android.cells.ui.core.composables.Decorated
+import com.pydio.android.cells.ui.core.composables.Type
+import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID

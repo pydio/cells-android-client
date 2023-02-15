@@ -47,11 +47,11 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.box.common.BrowseUpItem
-import com.pydio.android.cells.ui.box.common.Thumbnail
-import com.pydio.android.cells.ui.box.common.getNodeDesc
-import com.pydio.android.cells.ui.box.common.getNodeTitle
-import com.pydio.android.cells.ui.box.common.isFolder
+import com.pydio.android.cells.ui.core.composables.BrowseUpItem
+import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.core.composables.getNodeDesc
+import com.pydio.android.cells.ui.core.composables.getNodeTitle
+import com.pydio.android.cells.ui.core.composables.isFolder
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
@@ -86,7 +86,7 @@ fun SelectFolderScreen(
     browseLocalVM.setState(StateID.fromId(currState))
     val childNodes by browseLocalVM.childNodes.observeAsState()
 
-    SelectFolderScreen(
+    SelectFolderScaffold(
         action = action,
         stateID = StateID.fromId(currState),
         children = childNodes ?: listOf(),
@@ -101,7 +101,7 @@ fun SelectFolderScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectFolderScreen(
+private fun SelectFolderScaffold(
     action: String,
     stateID: StateID,
     children: List<RTreeNode>,
@@ -277,7 +277,6 @@ private fun SelectFolderItem(
         }
     }
 }
-
 
 @Composable
 private fun TopBar(

@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
-import com.pydio.android.cells.ui.box.common.DefaultTopBar
+import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID

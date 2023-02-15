@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.common
+package com.pydio.android.cells.ui.core.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

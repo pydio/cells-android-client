@@ -3,7 +3,7 @@ package com.pydio.android.cells.ui.nav
 import android.content.Intent
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.pydio.android.cells.ui.box.common.extraTopPadding
+import com.pydio.android.cells.ui.core.composables.extraTopPadding
 import com.pydio.android.cells.ui.box.system.AboutScreen
 import com.pydio.cells.utils.Log
 

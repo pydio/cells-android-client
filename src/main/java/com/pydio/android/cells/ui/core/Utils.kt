@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.common
+package com.pydio.android.cells.ui.core
 
 import android.content.Context
 import android.content.res.Resources

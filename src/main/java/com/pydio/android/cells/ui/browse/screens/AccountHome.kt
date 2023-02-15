@@ -38,9 +38,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.ui.box.common.DefaultTopBar
-import com.pydio.android.cells.ui.box.common.getFloatResource
-import com.pydio.android.cells.ui.box.common.getWsThumbVector
+import com.pydio.android.cells.ui.core.composables.DefaultTopBar
+import com.pydio.android.cells.ui.core.getFloatResource
+import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme

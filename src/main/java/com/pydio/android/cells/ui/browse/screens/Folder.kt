@@ -3,15 +3,11 @@ package com.pydio.android.cells.ui.browse.screens
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
@@ -38,11 +34,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.box.common.DefaultTopBar
-import com.pydio.android.cells.ui.box.common.Thumbnail
+import com.pydio.android.cells.ui.browse.composables.NodeItem
+import com.pydio.android.cells.ui.browse.composables.getNodeDesc
+import com.pydio.android.cells.ui.browse.composables.getNodeTitle
+import com.pydio.android.cells.ui.core.composables.BrowseUpItem
+import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -129,6 +127,7 @@ private fun FolderScaffold(
         Column {
             FolderContent(
                 refreshing = isLoading,
+                stateID = stateID,
                 children = children,
                 openParent = openParent,
                 open = open,
@@ -144,6 +143,7 @@ private fun FolderScaffold(
 @Composable
 private fun FolderContent(
     refreshing: Boolean,
+    stateID: StateID,
     children: List<RTreeNode>,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
@@ -151,30 +151,40 @@ private fun FolderContent(
     forceRefresh: () -> Unit,
     modifier: Modifier,
 ) {
-    val ctx = LocalContext.current
-
     // var refreshing by remember() { mutableStateOf(isLoading) }
     // Warning: pullRefresh API is:
     //   - experimental
     //   - only implemented in material 1, for the time being.
-    Log.d(logTag, "Fist pass, is loading: $refreshing")
-
     val state = rememberPullRefreshState(refreshing, onRefresh = {
         Log.i(logTag, "Force refresh launched")
         forceRefresh()
     })
 
-    Box(modifier.pullRefresh(state)) {
+    val context = LocalContext.current
 
+    Box(modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxWidth()) {
+            if (Str.notEmpty(stateID.path)) {
+                item {
+                    val parentDescription = when {
+                        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+                        else -> stringResource(R.string.parent_folder)
+                    }
+                    BrowseUpItem(
+                        parentDescription,
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { openParent(stateID) }
+                    )
+                }
+            }
             items(children) { node ->
                 NodeItem(
-                    node,
-                    node.mime,
-                    node.sortName,
-                    // FIXME
-                    node.getStateID().fileName,
-                    "Implement me",
+                    item = node,
+                    mime = node.mime,
+                    sortName = node.sortName,
+                    title = getNodeTitle(name = node.name, mime = node.mime),
+                    desc = getNodeDesc(context, node.remoteModificationTS, node.size),
                     modifier = Modifier.clickable { open(node.getStateID()) },
                 )
             }
@@ -183,50 +193,6 @@ private fun FolderContent(
     }
 }
 
-@Composable
-private fun NodeItem(
-    item: RTreeNode,
-    mime: String,
-    sortName: String?,
-    title: String,
-    desc: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = dimensionResource(R.dimen.card_padding))
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            Thumbnail(item)
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.card_padding),
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun FolderTopBar(

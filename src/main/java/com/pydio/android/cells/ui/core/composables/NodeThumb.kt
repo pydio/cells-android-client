@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.common
+package com.pydio.android.cells.ui.core.composables
 
 import android.webkit.MimeTypeMap
 import androidx.compose.foundation.Image

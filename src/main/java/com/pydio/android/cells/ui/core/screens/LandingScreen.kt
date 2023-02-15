@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box
+package com.pydio.android.cells.ui.core.screens
 
 import android.util.Log
 import androidx.compose.foundation.Image

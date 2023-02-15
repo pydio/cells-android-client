@@ -22,7 +22,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.common.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.theme.CellsTheme
 
 @Composable

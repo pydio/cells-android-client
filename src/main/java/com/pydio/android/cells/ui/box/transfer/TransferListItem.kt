@@ -41,8 +41,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.ui.box.common.Decorated
-import com.pydio.android.cells.ui.box.common.Type
+import com.pydio.android.cells.ui.core.composables.Decorated
+import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.android.cells.ui.theme.danger

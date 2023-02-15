@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box
+package com.pydio.android.cells.ui.system
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +22,7 @@ import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.launch
 
-// private const val logTag = "MigrationScreen.kt"
+// private const val logTag = "MigrationHost.kt"
 
 private sealed class Destinations(val route: String) {
     object PrepareMigration : Destinations("prepare-migration")

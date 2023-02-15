@@ -1,9 +1,6 @@
 package com.pydio.android.cells.ui.nav
 
 import android.content.Intent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -15,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseHost
+import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -33,12 +31,6 @@ fun CellsNavGraph(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     startingState: StartingState,
 ) {
-
-//    if (startingState.destination?.startsWith(CellsDestinations.LOGIN_ROUTE) == true) {
-//        startingState.destination!!
-//    } else {
-//        ?: CellsDestinations.HOME_ROUTE
-//    }
 
     val navigationActions = remember(navController) {
         CellsNavigationActions(navController)
@@ -86,12 +78,14 @@ fun CellsNavGraph(
     ) {
 
         composable(CellsDestinations.Home.route) {
-            Column {
-                Button(onClick = openDrawer) {
-                    Text("Open Drawer")
-                }
-                Text("Home")
-            }
+            NoAccount(
+                openDrawer = { openDrawer() },
+                addAccount = {
+                    navController.navigate(
+                        CellsDestinations.Login.createRoute(Transport.UNDEFINED_STATE_ID)
+                    )
+                },
+            )
         }
 
         composable(CellsDestinations.Accounts.route) {
