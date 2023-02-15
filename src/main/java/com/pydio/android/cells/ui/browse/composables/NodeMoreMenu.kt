@@ -30,6 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.CellsActions
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.box.dialogs.CreateFolder
 import com.pydio.android.cells.ui.browse.MoreMenuVM
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
@@ -44,71 +46,57 @@ import org.koin.androidx.compose.koinViewModel
 
 private val logTag = "NodeMoreMenu.kt"
 
-@Composable
-fun NodeMoreMenu(
-    stateID: StateID?,
-    onClick: (Boolean, String?, StateID?) -> Unit,
-    treeNodeVM: MoreMenuVM = koinViewModel(),
-) {
-
-    val item: MutableState<RTreeNode?> = remember {
-        mutableStateOf(null)
-    }
-
-    LaunchedEffect(key1 = stateID) {
-        stateID?.let {
-            val currNode = treeNodeVM.getTreeNode(stateID) ?: run {
-                Log.e(logTag, "No node found for $stateID, aborting")
-                onClick(true, null, null)
-                null
-            }
-            item.value = currNode
-        }
-    }
-
-    if (stateID != null) {
-        item.value?.let {
-            NodeMoreMenuDialogs(
-                stateID = stateID,
-                item = it,
-                onClick = onClick,
-                moreMenuVM = treeNodeVM
-            )
-        } ?: run {
-            // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
-            // when no item is defined (This is the case at the beginning when we launch the Side Effect)
-            Spacer(modifier = Modifier.height(1.dp))
-        }
-    } else {
-        Spacer(modifier = Modifier.height(1.dp)) // Same cause same consequence, see above. There might be a cleaner way to do
-    }
-}
-
+/** Add the more menu **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NodeMoreMenuDialogs(
-    stateID: StateID,
-    item: RTreeNode,
-    onClick: (Boolean, String?, StateID?) -> Unit,
-    moreMenuVM: MoreMenuVM,
+fun WrapWithActions(
+    isLoading: Boolean,
+    actionDone: () -> Unit,
+    toOpenStateID: StateID?,
+    sheetState: ModalBottomSheetState,
+    content: @Composable () -> Unit,
+) {
+    FolderWithDialogs(
+        isLoading = isLoading,
+        actionDone = actionDone,
+        toOpenStateID = toOpenStateID,
+        sheetState = sheetState,
+        content = content
+    )
+}
+
+/** Add the more menu **/
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FolderWithDialogs(
+    isLoading: Boolean,
+    actionDone: () -> Unit,
+    toOpenStateID: StateID?,
+    sheetState: ModalBottomSheetState,
+    moreMenuVM: MoreMenuVM = koinViewModel(),
+    content: @Composable () -> Unit,
 ) {
 
     val navController = rememberNavController()
+
     val launch: (CellsActions) -> Unit = { it ->
         navController.navigate(it.id)
     }
 
     Scaffold { innerPadding ->
         NavHost(navController, "content", Modifier.padding(innerPadding)) {
+
             composable("content") {
-                // This content fills the area provided to the NavHost
-                NodeMoreMenu(
-                    stateID,
-                    item,
-                    launch,
-                    moreMenuVM,
+                // Fills the area provided to the NavHost
+                FolderWithMoreMenu(
+                    toOpenStateID = toOpenStateID,
+                    sheetState = sheetState,
+                    launch = launch,
+                    moreMenuVM = moreMenuVM,
+                    content = content
                 )
             }
+
             dialog(CellsActions.DOWNLOAD_TO_DEVICE.id) {
                 Log.e(logTag, "About to open dialog for DL")
                 CreateFolder(
@@ -117,6 +105,7 @@ private fun NodeMoreMenuDialogs(
                     dismiss = { navController.popBackStack() },
                 )
             }
+
             dialog(CellsActions.RENAME.id) {
                 Log.e(logTag, "About to open dialog for ** RENAME **")
                 CreateFolder(
@@ -129,51 +118,79 @@ private fun NodeMoreMenuDialogs(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CreateFolder(
+private fun FolderWithMoreMenu(
+    toOpenStateID: StateID?,
+    sheetState: ModalBottomSheetState,
+    launch: (CellsActions) -> Unit,
     moreMenuVM: MoreMenuVM,
-    stateID: StateID,
-    dismiss: () -> Unit,
+    content: @Composable () -> Unit,
+) {
 
-    ) {
+    ModalBottomSheetLayout(
+        sheetContent = { NodeMoreMenuData(toOpenStateID, launch, moreMenuVM) },
+        modifier = Modifier,
+        sheetState = sheetState,
+        content = content,
+    )
+}
 
-    val doCreate: (StateID, String) -> Unit = { parentID, name ->
-        moreMenuVM.createFolder(parentID, name)
-        // TODO do we want a feed back?
-//                if (Str.notEmpty(errMsg)) {
-//                    showMessage(ctx, errMsg!!)
-//                } else {
-//                    browseRemoteVM.watch(parentID) // This force resets the backoff ticker
-//                    showMessage(ctx, "Folder created at ${parentID.file}.")
-//                }
+@Composable
+fun NodeMoreMenuData(
+    toOpenStateID: StateID?,
+    launch: (CellsActions) -> Unit,
+    moreMenuVM: MoreMenuVM
+) {
+    val item: MutableState<RTreeNode?> = remember {
+        mutableStateOf(null)
     }
 
-    CreateFolder(
-        parStateID = stateID,
-        createFolderAt = { parentId, name ->
-            doCreate(parentId, name)
-            dismiss()
-        },
-        dismiss = { dismiss },
-    )
+    LaunchedEffect(key1 = toOpenStateID) {
+        toOpenStateID?.let {
+            val currNode = moreMenuVM.getTreeNode(it) ?: run {
+                Log.e(logTag, "No node found for $it, aborting")
+                // actionDone() TODO do something?
+                null
+            }
+            Log.e(
+                logTag, "## After effect, treeNode $currNode for ${currNode?.getStateID() ?: "NaN"}"
+            )
+            item.value = currNode
+        }
+    }
+
+    // TODO
+    //  we have to provide early a dummy content otherwise, without the check, the app crashes.
+    //  And the more menu is not defined for WS roots
+    if (toOpenStateID != null && toOpenStateID.parentPath != null && item.value != null) {
+        val mi = item.value!!
+        Log.e(logTag, "## ABOUT TO COMPOSE FOR $mi, ${mi.getStateID()}")
+        NodeMoreMenuView(
+            stateID = toOpenStateID,
+            rTreeNode = mi,
+            launch = launch,
+        )
+    } else {
+        // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
+        // when no item is defined (This is the case at the beginning when we launch the Side Effect)
+        Log.e(logTag, "## No more menu for $toOpenStateID}")
+        Spacer(modifier = Modifier.height(1.dp))
+    }
 }
 
 
 @Composable
-private fun NodeMoreMenu(
+private fun NodeMoreMenuView(
     stateID: StateID,
-    item: RTreeNode,
+    rTreeNode: RTreeNode,
     launch: (CellsActions) -> Unit,
-    treeNodeVM: MoreMenuVM,
 ) {
-
-    val context = LocalContext.current
 
     // TODO handle case for:
     //    recycle
     //    inside recycle
     //    when offline
-
 
     val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
     val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
@@ -181,9 +198,9 @@ private fun NodeMoreMenu(
     LazyColumn(Modifier.fillMaxWidth()) {
         item {
             BottomSheetHeader(
-                thumb = { Thumbnail(item) },
-                title = item.getStateID().fileName,
-                desc = item.parentPath,
+                thumb = { Thumbnail(rTreeNode) },
+                title = stateID.fileName ?: "",
+                desc = stateID.parentPath,
             )
         }
         item {
@@ -281,6 +298,35 @@ private fun NodeMoreMenu(
 ////            )
 //        }
     }
+}
+
+@Composable
+private fun CreateFolder(
+    moreMenuVM: MoreMenuVM,
+    stateID: StateID,
+    dismiss: () -> Unit,
+
+    ) {
+
+    val doCreate: (StateID, String) -> Unit = { parentID, name ->
+        moreMenuVM.createFolder(parentID, name)
+        // TODO do we want a feed back?
+//                if (Str.notEmpty(errMsg)) {
+//                    showMessage(ctx, errMsg!!)
+//                } else {
+//                    browseRemoteVM.watch(parentID) // This force resets the backoff ticker
+//                    showMessage(ctx, "Folder created at ${parentID.file}.")
+//                }
+    }
+
+    CreateFolder(
+        parStateID = stateID,
+        createFolderAt = { parentId, name ->
+            doCreate(parentId, name)
+            dismiss()
+        },
+        dismiss = { dismiss() },
+    )
 }
 
 @Preview(showBackground = true)

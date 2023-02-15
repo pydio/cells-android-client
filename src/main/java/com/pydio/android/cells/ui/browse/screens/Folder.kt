@@ -40,11 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.composables.NodeItem
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenu
+import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
@@ -60,6 +59,7 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "Folder.kt"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Folder(
     stateID: StateID,
@@ -86,61 +86,8 @@ fun Folder(
         browseRemoteVM.watch(stateID)
     }
 
-    FolderWithDialogs(
-        isLoading = isLoading ?: true,
-        stateID = stateID,
-        children = children ?: listOf(),
-        openDrawer = openDrawer,
-        openParent = openParent,
-        open = open,
-        openSearch = openSearch,
-        forceRefresh = forceRefresh,
-    )
-}
-
-/** Add the more menu **/
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FolderWithDialogs(
-    isLoading: Boolean,
-    stateID: StateID,
-    children: List<RTreeNode>,
-    openParent: (StateID) -> Unit,
-    open: (StateID) -> Unit,
-    forceRefresh: () -> Unit,
-    openDrawer: () -> Unit,
-    openSearch: () -> Unit,
-) {
-
-    FolderWithMoreMenu(
-        isLoading = isLoading,
-        stateID = stateID,
-        children = children,
-        openDrawer = openDrawer,
-        openParent = openParent,
-        open = open,
-        openSearch = openSearch,
-        forceRefresh = forceRefresh,
-    )
-}
-
-
-/** Add the more menu **/
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FolderWithMoreMenu(
-    isLoading: Boolean,
-    stateID: StateID,
-    children: List<RTreeNode>,
-    openParent: (StateID) -> Unit,
-    open: (StateID) -> Unit,
-    forceRefresh: () -> Unit,
-    openDrawer: () -> Unit,
-    openSearch: () -> Unit,
-) {
-
+    // We handle the state of the more menu here, not optimal...
     val scope = rememberCoroutineScope()
-
     val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val childState: MutableState<StateID?> = remember {
         mutableStateOf(null)
@@ -153,28 +100,24 @@ private fun FolderWithMoreMenu(
         }
     }
 
-    val doAction: (Boolean, String?, StateID?) -> Unit = { hide, action, nextStateID ->
+    val actionDone: () -> Unit = {
         scope.launch {
-            when (action) {
-                // TODO
-            }
             childState.value = null
-            if (hide) state.hide()
+            state.hide()
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetContent = {
-            NodeMoreMenu(childState.value, doAction)
-        },
-        modifier = Modifier,
-        state
+    WrapWithActions(
+        isLoading = isLoading ?: true,
+        actionDone = actionDone,
+        toOpenStateID = childState.value,
+        sheetState = state,
     ) {
-        FolderScaffold(
-            isLoading = isLoading,
+        FolderPage(
+            isLoading = isLoading ?: true,
             label = stateID.fileName ?: stateID.workspace,// FIXME
             stateID = stateID,
-            children = children,
+            children = children ?: listOf(),
             openDrawer = openDrawer,
             openSearch = openSearch,
             openParent = openParent,
@@ -187,7 +130,7 @@ private fun FolderWithMoreMenu(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FolderScaffold(
+private fun FolderPage(
     isLoading: Boolean,
     stateID: StateID,
     label: String,
@@ -277,7 +220,10 @@ private fun FolderList(
                     sortName = node.sortName,
                     title = getNodeTitle(name = node.name, mime = node.mime),
                     desc = getNodeDesc(context, node.remoteModificationTS, node.size),
-                    more = { openMoreMenu(node.getStateID()) },
+                    more = {
+                        Log.e(logTag, "#### About to call more for: ${node.getStateID()}")
+                        openMoreMenu(node.getStateID())
+                    },
                     modifier = Modifier.clickable { open(node.getStateID()) },
                 )
             }
