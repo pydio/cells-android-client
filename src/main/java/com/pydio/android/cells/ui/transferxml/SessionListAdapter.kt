@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.transfer
+package com.pydio.android.cells.ui.transferxml
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

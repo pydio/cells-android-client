@@ -25,22 +25,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 
+
 /** Data for a given item in the BottomSheet */
-class Item(
+
+interface IMenuItem {
+    fun onClick()
+}
+
+class SimpleMenuItem(
     val icon: ImageVector,
     val title: String,
     val onClick: () -> Unit,
-)
+) : IMenuItem {
+    override fun onClick() {
+        onClick()
+    }
+}
 
 @Composable
 fun BottomSheetContent(
     header: @Composable () -> Unit,
-    items: List<Item>,
+    simpleMenuItems: List<SimpleMenuItem>,
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
@@ -57,7 +68,7 @@ fun BottomSheetContent(
                 thickness = 1.dp,
             )
         }
-        items(items) { item ->
+        items(simpleMenuItems) { item ->
             BottomSheetListItem(
                 icon = item.icon,
                 title = item.title,
@@ -84,6 +95,23 @@ fun BottomSheetHeader(
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
+    BottomSheetHeader(
+        thumb = { Icon(imageVector = icon, contentDescription = title, tint = tint) },
+        title = title,
+        desc = desc,
+        tint,
+        bgColor,
+    )
+}
+
+@Composable
+fun BottomSheetHeader(
+    thumb: @Composable () -> Unit,
+    title: String,
+    desc: String,
+    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,12 +126,7 @@ fun BottomSheetHeader(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = tint
-            )
-
+            thumb()
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
 
             Column(
@@ -119,11 +142,16 @@ fun BottomSheetHeader(
                     text = title,
                     color = tint,
                     style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
+
                 Text(
                     text = desc,
                     color = tint,
                     style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -168,11 +196,11 @@ fun BottomSheetContentPreview() {
             context, title, Toast.LENGTH_SHORT
         ).show()
     }
-    val items: List<Item> = listOf(
-        Item(CellsVectorIcons.Share, "Share") { onClick("Share") },
-        Item(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
-        Item(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
-        Item(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
+    val simpleMenuItems: List<SimpleMenuItem> = listOf(
+        SimpleMenuItem(CellsVectorIcons.Share, "Share") { onClick("Share") },
+        SimpleMenuItem(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
+        SimpleMenuItem(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
+        SimpleMenuItem(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
     )
 
     BottomSheetContent(
@@ -185,7 +213,7 @@ fun BottomSheetContentPreview() {
                 bgColor = bg,
             )
         },
-        items,
+        simpleMenuItems,
         tint = tint,
         bgColor = bg,
     )

@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.transfer
+package com.pydio.android.cells.ui.transfer
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
@@ -14,24 +14,27 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
-import com.pydio.android.cells.ui.core.composables.Item
-import com.pydio.android.cells.ui.box.system.buildStatusString
+import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
-fun TransferBottomSheet(item: RTransfer?, onClick: (String, Long) -> Unit) {
+fun TransferBottomSheet(
+    item: RTransfer?,
+    onClick: (String, Long) -> Unit
+) {
     if (item == null) {
         // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
         // when no item is defined (default case at starting point)
         Spacer(modifier = Modifier.height(1.dp))
         return
     }
-    val items: MutableList<Item> = mutableListOf()
+
+    val simpleMenuItems: MutableList<SimpleMenuItem> = mutableListOf()
 
     if (AppNames.JOB_STATUS_PROCESSING == item.status) {
-        items.add(
-            Item(
+        simpleMenuItems.add(
+            SimpleMenuItem(
                 CellsVectorIcons.Pause,
                 stringResource(id = R.string.pause)
             ) { onClick(AppNames.ACTION_CANCEL, item.transferId) },
@@ -40,8 +43,8 @@ fun TransferBottomSheet(item: RTransfer?, onClick: (String, Long) -> Unit) {
     if (AppNames.JOB_STATUS_CANCELLED == item.status
         || AppNames.JOB_STATUS_ERROR == item.status
     ) {
-        items.add(
-            Item(
+        simpleMenuItems.add(
+            SimpleMenuItem(
                 CellsVectorIcons.Resume,
                 stringResource(id = R.string.relaunch)
             ) { onClick(AppNames.ACTION_RESTART, item.transferId) },
@@ -51,15 +54,15 @@ fun TransferBottomSheet(item: RTransfer?, onClick: (String, Long) -> Unit) {
         || AppNames.JOB_STATUS_CANCELLED == item.status
         || AppNames.JOB_STATUS_ERROR == item.status
     ) {
-        items.add(
-            Item(
+        simpleMenuItems.add(
+            SimpleMenuItem(
                 CellsVectorIcons.Delete,
                 stringResource(id = R.string.delete)
             ) { onClick(AppNames.ACTION_DELETE_RECORD, item.transferId) },
         )
     }
-    items.add(
-        Item(
+    simpleMenuItems.add(
+        SimpleMenuItem(
             CellsVectorIcons.OpenLocation,
             stringResource(id = R.string.open_parent_in_workspaces)
         ) { onClick(AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES, item.transferId) },
@@ -74,7 +77,7 @@ fun TransferBottomSheet(item: RTransfer?, onClick: (String, Long) -> Unit) {
             title = (item.encodedState?.let { StateID.fromId(it).toString() } ?: ""),
             desc = buildStatusString(item).text
         )
-    }, items)
+    }, simpleMenuItems)
 }
 
 
@@ -87,11 +90,11 @@ fun TransferBottomSheetPreview() {
             context, title, Toast.LENGTH_SHORT
         ).show()
     }
-    val items: List<Item> = listOf(
-        Item(CellsVectorIcons.Share, "Share") { onClick("Share") },
-        Item(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
-        Item(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
-        Item(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
+    val simpleMenuItems: List<SimpleMenuItem> = listOf(
+        SimpleMenuItem(CellsVectorIcons.Share, "Share") { onClick("Share") },
+        SimpleMenuItem(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
+        SimpleMenuItem(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
+        SimpleMenuItem(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
     )
 
     BottomSheetContent(
@@ -102,6 +105,6 @@ fun TransferBottomSheetPreview() {
                 desc = "45MB, started at 5.54 AM, 46% done"
             )
         },
-        items
+        simpleMenuItems
     )
 }

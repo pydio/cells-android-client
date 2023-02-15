@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.transfer
+package com.pydio.android.cells.ui.transferxml
 
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.AccountService

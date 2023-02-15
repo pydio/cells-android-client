@@ -3,14 +3,17 @@ package com.pydio.android.cells.ui.browse.composables
 import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.api.SdkNames
 
 @Composable
@@ -32,6 +36,7 @@ fun NodeItem(
     sortName: String?,
     title: String,
     desc: String,
+    more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -50,7 +55,7 @@ fun NodeItem(
 
             Column(
                 modifier = modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .padding(
                         horizontal = dimensionResource(R.dimen.card_padding),
                         vertical = dimensionResource(R.dimen.margin_xsmall)
@@ -64,6 +69,20 @@ fun NodeItem(
                 Text(
                     text = desc,
                     style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+//            val moreModifier = when {
+//                isActionProcessing -> Modifier.alpha(0.6f)
+//                else -> Modifier.clickable { more() }
+//            }
+
+            Surface(Modifier.clickable { more() }) {
+                Icon(
+                    imageVector = CellsVectorIcons.MoreVert,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.list_button_size))
                 )
             }
         }

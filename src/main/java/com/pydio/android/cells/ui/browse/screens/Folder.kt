@@ -26,8 +26,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,7 +40,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.browse.TreeNodeVM
 import com.pydio.android.cells.ui.browse.composables.NodeItem
+import com.pydio.android.cells.ui.browse.composables.TreeNodeBottomSheet
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
@@ -47,6 +56,7 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "Folder.kt"
@@ -77,10 +87,9 @@ fun Folder(
         browseRemoteVM.watch(stateID)
     }
 
-    FolderScaffold(
+    FolderWithMoreMenu(
         isLoading = isLoading ?: true,
         stateID = stateID,
-        label = stateID.fileName ?: stateID.workspace,
         children = children ?: listOf(),
         openDrawer = openDrawer,
         openParent = openParent,
@@ -90,6 +99,69 @@ fun Folder(
     )
 }
 
+/** Add the more menu **/
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun FolderWithMoreMenu(
+    isLoading: Boolean,
+    stateID: StateID,
+    children: List<RTreeNode>,
+    openParent: (StateID) -> Unit,
+    open: (StateID) -> Unit,
+    forceRefresh: () -> Unit,
+    openDrawer: () -> Unit,
+    openSearch: () -> Unit,
+    treeNodeVM: TreeNodeVM = koinViewModel(),
+) {
+
+    val scope = rememberCoroutineScope()
+
+    val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val childState: MutableState<RTreeNode?> = remember {
+        mutableStateOf(null)
+    }
+
+    val openMoreMenu: (StateID) -> Unit = { childID ->
+        scope.launch {
+            val currNode = treeNodeVM.getTreeNode(childID) ?: run {
+                Log.e(logTag, "No node found for $childID, aborting")
+                return@launch
+            }
+            childState.value = currNode
+            state.expand()
+        }
+    }
+
+    val doAction: (String, StateID) -> Unit = { action, stateID ->
+        scope.launch {
+            when (action) {
+                // TODO
+            }
+            childState.value = null
+            state.hide()
+        }
+    }
+
+    ModalBottomSheetLayout(
+        sheetContent = { TreeNodeBottomSheet(treeNodeVM, childState.value, doAction) },
+        modifier = Modifier,
+        state
+    ) {
+        FolderScaffold(
+            isLoading = isLoading,
+            label = stateID.fileName ?: stateID.workspace,// FIXME
+            stateID = stateID,
+            children = children,
+            openDrawer = openDrawer,
+            openSearch = openSearch,
+            openParent = openParent,
+            openMoreMenu = openMoreMenu,
+            open = open,
+            forceRefresh = forceRefresh,
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderScaffold(
@@ -97,15 +169,13 @@ private fun FolderScaffold(
     stateID: StateID,
     label: String,
     children: List<RTreeNode>,
-    openDrawer: () -> Unit,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
+    openDrawer: () -> Unit,
+    openMoreMenu: (StateID) -> Unit,
     openSearch: () -> Unit,
     forceRefresh: () -> Unit,
 ) {
-
-    val import: () -> Unit = {}
-    val showMore: (StateID) -> Unit = {}
 
     Scaffold(
         topBar = {
@@ -118,20 +188,19 @@ private fun FolderScaffold(
         floatingActionButton = {
             if (Str.notEmpty(stateID.workspace)) {
                 FloatingActionButton(
-                    onClick = { import() }
+                    onClick = { /*TODO*/ }
                 ) { Icon(Icons.Filled.Add, /* TODO */ contentDescription = "") }
             }
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
-
         Column {
-            FolderContent(
+            FolderList(
                 refreshing = isLoading,
                 stateID = stateID,
                 children = children,
                 openParent = openParent,
                 open = open,
-                showMore = showMore,
+                openMoreMenu = openMoreMenu,
                 forceRefresh = forceRefresh,
                 modifier = Modifier.padding(padding),
             )
@@ -141,13 +210,13 @@ private fun FolderScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun FolderContent(
+private fun FolderList(
     refreshing: Boolean,
     stateID: StateID,
     children: List<RTreeNode>,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
-    showMore: (StateID) -> Unit,
+    openMoreMenu: (StateID) -> Unit,
     forceRefresh: () -> Unit,
     modifier: Modifier,
 ) {
@@ -185,6 +254,7 @@ private fun FolderContent(
                     sortName = node.sortName,
                     title = getNodeTitle(name = node.name, mime = node.mime),
                     desc = getNodeDesc(context, node.remoteModificationTS, node.size),
+                    more = { openMoreMenu(node.getStateID()) },
                     modifier = Modifier.clickable { open(node.getStateID()) },
                 )
             }

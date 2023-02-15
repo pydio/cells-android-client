@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.system
+package com.pydio.android.cells.ui.transfer
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration

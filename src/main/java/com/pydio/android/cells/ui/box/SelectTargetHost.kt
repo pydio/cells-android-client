@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.browse.screens.SelectFolderScreen
 import com.pydio.android.cells.ui.browse.screens.SelectTargetAccount
-import com.pydio.android.cells.ui.box.transfer.UploadProgressList
+import com.pydio.android.cells.ui.transfer.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM

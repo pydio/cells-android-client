@@ -1,12 +1,14 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.webkit.MimeTypeMap
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,7 +35,7 @@ fun Thumbnail(item: RTreeNode) {
     if (hasThumb) {
         GlideImage(
             model = encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB),
-            contentDescription = "A picture",
+            contentDescription = "${item.name} thumbnail",
             modifier = Modifier
                 .padding(all = dimensionResource(id = R.dimen.card_padding))
                 .size(dimensionResource(R.dimen.list_thumb_size)),
@@ -74,10 +76,10 @@ fun isFolder(mime: String): Boolean {
             || mime == SdkNames.NODE_MIME_RECYCLE
 }
 
-fun getDrawableFromMime(mime: String, sortName: String?): Int {
-    // TODO enrich with more specific icons for files depending on the mime
+fun getDrawableFromMime(originalMime: String, sortName: String?): Int {
 
-    val mime = betterMime(mime, sortName)
+    // TODO enrich with more specific icons for files depending on the mime
+    val mime = betterMime(originalMime, sortName)
 
     return when {
         // WS Types
@@ -137,3 +139,8 @@ fun getWsThumbVector(sortName: String): ImageVector {
         else -> CellsVectorIcons.WorkspaceThumb
     }
 }
+
+//@Composable
+//fun getTreeNodeIcon(): ImageVector {
+//
+//}

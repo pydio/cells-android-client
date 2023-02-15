@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.transfer
+package com.pydio.android.cells.ui.transfer
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -27,7 +27,6 @@ import com.pydio.android.cells.ui.box.beta.bottomsheet.mixed.BottomSheetScaffold
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.box.system.TransferListItem
 import com.pydio.android.cells.ui.models.TransferVM
 import kotlinx.coroutines.launch
 
@@ -137,7 +136,6 @@ fun UploadProgressList(
         }
     }
 }
-
 
 @Composable
 fun UploadProgressList2(
