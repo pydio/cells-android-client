@@ -75,7 +75,6 @@ class StartingState(val stateID: StateID) {
 
     // Share with Pydio
     var uris: MutableList<Uri> = mutableListOf()
-
 }
 
 // Converts a StartingState object which we don't know how to save to a Map<String, String> which we can save

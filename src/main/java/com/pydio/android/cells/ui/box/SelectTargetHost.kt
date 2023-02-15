@@ -13,8 +13,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.ui.box.browse.SelectFolderScreen
-import com.pydio.android.cells.ui.box.browse.SelectTargetAccount
+import com.pydio.android.cells.ui.browse.screens.SelectFolderScreen
+import com.pydio.android.cells.ui.browse.screens.SelectTargetAccount
 import com.pydio.android.cells.ui.box.transfer.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM

@@ -4,24 +4,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
+import com.pydio.android.cells.ui.box.common.DefaultTopBar
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -54,7 +50,7 @@ fun AccountsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountsScreen(
+private fun AccountsScreen(
     currAccountID: StateID,
     accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
@@ -72,33 +68,7 @@ fun AccountsScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Choose an account",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { back() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.button_back)
-                        )
-                    }
-                },
-                actions = {
-//                    IconButton(onClick = { /* doSomething() */ }) {
-//                        Icon(
-//                            imageVector = Icons.Filled.MoreVert,
-//                            contentDescription = "More options"
-//                        )
-//                    }
-                }
-            )
-        },
+        topBar = { DefaultTopBar(title = "Choose an account", back = back) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { registerNew() }

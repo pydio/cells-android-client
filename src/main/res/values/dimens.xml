@@ -45,6 +45,7 @@
     <!-- **** SCAFFOLD **** -->
 
     <!-- TopBar -->
+    <dimen name="expanded_screen_extra_top_padding">8dp</dimen>
     <dimen name="topbar_horizontal_padding">8dp</dimen>
     <dimen name="topbar_vertical_padding">4dp</dimen>
     <!-- Dropdown menu -->

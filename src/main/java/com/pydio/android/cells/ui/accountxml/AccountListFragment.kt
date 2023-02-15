@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.account
+package com.pydio.android.cells.ui.accountxml
 
 import android.content.Intent
 import android.os.Bundle

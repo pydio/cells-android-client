@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.account
+package com.pydio.android.cells.ui.accountxml
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -1,16 +1,16 @@
 package com.pydio.android.cells.ui.nav
 
 import android.content.Intent
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.box.common.extraTopPadding
 import com.pydio.android.cells.ui.box.system.AboutScreen
 import com.pydio.cells.utils.Log
 
 /**
  * Main destinations used in Cells App
  */
-private val logTag = "SystemNavGraph"
+private const val logTag = "SystemNavGraph"
 
 fun NavGraphBuilder.systemNavGraph(
     isExpandedScreen: Boolean,
@@ -25,9 +25,10 @@ fun NavGraphBuilder.systemNavGraph(
             openDrawer = openDrawer,
             launchIntent = launchIntent,
             contentPadding = rememberContentPaddingForScreen(
-                additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                additionalTop = extraTopPadding(isExpandedScreen),
                 excludeTop = !isExpandedScreen
             ),
         )
     }
 }
+

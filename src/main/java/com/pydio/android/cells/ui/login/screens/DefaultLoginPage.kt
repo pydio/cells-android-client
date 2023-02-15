@@ -71,28 +71,3 @@ fun DefaultLoginPage(
         }
     }
 }
-
-//@Composable
-//fun AfterSuccessfulLogin() {
-//
-//    DefaultLoginPage(
-//        isProcessing = true,
-//        title = "Success",
-//        desc = null,
-//        message = "You are now connected. Redirecting.",
-//    ) {
-//        Surface(
-//            modifier = Modifier
-//                .size(240.dp)
-//                .fillMaxWidth()
-//                .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-//                .wrapContentWidth(Alignment.CenterHorizontally)
-//        ) {
-//            Image(
-//                painterResource(R.drawable.pydio_logo),
-//                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-//                contentDescription = null
-//            )
-//        }
-//    }
-//}

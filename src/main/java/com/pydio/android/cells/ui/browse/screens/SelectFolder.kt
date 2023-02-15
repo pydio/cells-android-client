@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log

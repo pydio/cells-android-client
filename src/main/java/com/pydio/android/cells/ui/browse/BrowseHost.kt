@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.box.browse.AccountHome
-import com.pydio.android.cells.ui.box.browse.Folder
+import com.pydio.android.cells.ui.browse.screens.AccountHome
+import com.pydio.android.cells.ui.browse.screens.Folder
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str

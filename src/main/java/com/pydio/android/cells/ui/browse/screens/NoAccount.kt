@@ -1,7 +1,6 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.browse.screens
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -26,12 +25,7 @@ fun NoAccount(
 
     Scaffold(
         topBar = {
-            DefaultTopBar(
-                stringResource(id = R.string.welcome_title),
-                openDrawer = { openDrawer(null) },
-                null,
-                Modifier.fillMaxWidth()
-            )
+            DefaultTopBar(stringResource(R.string.welcome_title), openDrawer = { openDrawer(null) })
         },
         floatingActionButton = {
             FloatingActionButton(

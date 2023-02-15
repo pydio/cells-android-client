@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.box.common.DefaultTopBar
 import com.pydio.android.cells.ui.box.common.Thumbnail
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -110,11 +111,10 @@ private fun FolderScaffold(
 
     Scaffold(
         topBar = {
-            FolderTopBar(
-                label,
-                openDrawer,
-                openSearch,
-                Modifier.fillMaxWidth()
+            DefaultTopBar(
+                title = label,
+                openDrawer = openDrawer,
+                openSearch = openSearch,
             )
         },
         floatingActionButton = {

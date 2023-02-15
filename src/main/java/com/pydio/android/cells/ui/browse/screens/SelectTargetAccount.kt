@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.browse.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons

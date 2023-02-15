@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.browse
+package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
@@ -21,7 +21,6 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -35,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.ui.box.common.DefaultTopBar
 import com.pydio.android.cells.ui.box.common.getFloatResource
 import com.pydio.android.cells.ui.box.common.getWsThumbVector
 import com.pydio.android.cells.ui.models.AccountHomeVM
@@ -62,8 +61,6 @@ fun AccountHome(
     accountHomeVM: AccountHomeVM = koinViewModel(),
 ) {
 
-    Log.e(logTag, "... Composing AccountHome for $accountID")
-
     LaunchedEffect(key1 = accountID) {
         Log.e(logTag, "... in AccountHome, launching effect")
         browseRemoteVM.watch(accountID)
@@ -75,14 +72,14 @@ fun AccountHome(
     val cells by accountHomeVM.cells.observeAsState()
 
     // FIXME - rather display server label if available
-    val label = "$accountID - Home"
+    val title = "$accountID - Home"
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(accountID)
     }
 
-    AccountHome(
+    AccHomeScaffold(
         stateID = accountID,
-        label,
+        title = title,
         workspaces = workspaces ?: listOf(),
         cells = cells ?: listOf(),
         isLoading = isLoading ?: true,
@@ -96,9 +93,9 @@ fun AccountHome(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountHome(
+private fun AccHomeScaffold(
     stateID: StateID,
-    label: String,
+    title: String,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
     isLoading: Boolean,
@@ -110,11 +107,10 @@ fun AccountHome(
 ) {
     Scaffold(
         topBar = {
-            FolderTopBar(
-                label,
-                openDrawer,
-                openSearch,
-                Modifier.fillMaxWidth()
+            DefaultTopBar(
+                title = title,
+                openDrawer = openDrawer,
+                openSearch = openSearch,
             )
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
@@ -247,7 +243,6 @@ private fun HomeItem(
     }
 }
 
-
 @Composable
 private fun HomeHeader(
     username: String,
@@ -298,54 +293,6 @@ private fun HomeHeader(
     }
 }
 
-@Composable
-private fun FolderTopBar(
-    title: String,
-    openDrawer: () -> Unit,
-    openSearch: (() -> Unit)?,
-    modifier: Modifier
-) {
-    Surface(
-        modifier = modifier
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.topbar_horizontal_padding),
-                    vertical = dimensionResource(R.dimen.topbar_vertical_padding),
-                )
-        ) {
-            IconButton(
-                onClick = { openDrawer() },
-                enabled = true
-            ) {
-                Icon(
-                    CellsVectorIcons.Menu,
-                    contentDescription = stringResource(id = R.string.open_drawer)
-                )
-            }
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            if (openSearch != null) {
-                IconButton(onClick = { openSearch() }) {
-                    Icon(
-                        CellsVectorIcons.Search,
-                        contentDescription = stringResource(id = R.string.action_search)
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Preview(name = "HomeHeader Light Mode")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -363,22 +310,3 @@ private fun HomeHeaderPreview() {
         )
     }
 }
-
-@Preview(name = "Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode"
-)
-@Composable
-private fun TopBarPreview() {
-    CellsTheme {
-        FolderTopBar(
-            "Pydio Cells server",
-            { },
-            { },
-            Modifier.fillMaxWidth()
-        )
-    }
-}
-
