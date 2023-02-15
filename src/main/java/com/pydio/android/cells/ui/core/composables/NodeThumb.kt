@@ -1,14 +1,12 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.webkit.MimeTypeMap
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -20,7 +18,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.SdkNames
 import java.io.File
 
@@ -134,9 +132,9 @@ fun getDrawableFromMime(originalMime: String, sortName: String?): Int {
 fun getWsThumbVector(sortName: String): ImageVector {
     // Tweak: we deduce type of ws root from the sort name. Not very clean
     return when {
-        sortName.startsWith("1_2") -> CellsVectorIcons.MyFilesThumb
-        sortName.startsWith("1_8") -> CellsVectorIcons.CellThumb
-        else -> CellsVectorIcons.WorkspaceThumb
+        sortName.startsWith("1_2") -> CellsIcons.MyFilesThumb
+        sortName.startsWith("1_8") -> CellsIcons.CellThumb
+        else -> CellsIcons.WorkspaceThumb
     }
 }
 

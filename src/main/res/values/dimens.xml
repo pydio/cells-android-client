@@ -57,7 +57,7 @@
     <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
     <dimen name="bottom_sheet_start_padding">16dp</dimen>
     <dimen name="bottom_sheet_h_padding">8dp</dimen>
-    <dimen name="bottom_sheet_v_padding">4dp</dimen>
+    <dimen name="bottom_sheet_v_padding">12dp</dimen>
 
 
     <!-- **** LISTS **** -->

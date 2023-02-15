@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +38,7 @@ fun DefaultTopBar(
             if (back != null) {
                 IconButton(onClick = { back() }) {
                     Icon(
-                        imageVector = CellsVectorIcons.ArrowBack,
+                        imageVector = CellsIcons.ArrowBack,
                         contentDescription = stringResource(id = R.string.button_back)
                     )
                 }
@@ -48,7 +48,7 @@ fun DefaultTopBar(
                     enabled = true
                 ) {
                     Icon(
-                        CellsVectorIcons.Menu,
+                        CellsIcons.Menu,
                         contentDescription = stringResource(id = R.string.open_drawer)
                     )
                 }
@@ -58,7 +58,7 @@ fun DefaultTopBar(
             if (openSearch != null) {
                 IconButton(onClick = { openSearch() }) {
                     Icon(
-                        CellsVectorIcons.Search,
+                        CellsIcons.Search,
                         contentDescription = stringResource(id = R.string.action_search)
                     )
                 }

@@ -21,7 +21,7 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.browse.TreeNodeVM
+import com.pydio.android.cells.ui.browse.MoreMenuVM
 import com.pydio.android.cells.ui.browsexml.BookmarksViewModel
 import com.pydio.android.cells.ui.browsexml.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browsexml.OfflineRootsViewModel
@@ -169,7 +169,7 @@ val viewModelModule = module {
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }
 
-    viewModel { TreeNodeVM(get()) }
+    viewModel { MoreMenuVM(get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }

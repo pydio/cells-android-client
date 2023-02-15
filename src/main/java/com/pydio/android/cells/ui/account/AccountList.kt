@@ -34,7 +34,7 @@ import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
@@ -101,7 +101,7 @@ private fun AccountListItem(
 
             Decorated(Type.AUTH, authStatus) {
                 Icon(
-                    imageVector = CellsVectorIcons.Person,
+                    imageVector = CellsIcons.Person,
                     contentDescription = null,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.list_thumb_size))
@@ -134,11 +134,11 @@ private fun AccountListItem(
             val btnModifier: Modifier
             when (authStatus) {
                 AppNames.AUTH_STATUS_CONNECTED -> {
-                    btnVectorImg = CellsVectorIcons.Logout
+                    btnVectorImg = CellsIcons.Logout
                     btnModifier = Modifier.clickable { logout(StateID(username, url)) }
                 }
                 else -> {
-                    btnVectorImg = CellsVectorIcons.Login
+                    btnVectorImg = CellsIcons.Login
                     btnModifier = Modifier.clickable { login(StateID(username, url)) }
                 }
             }
@@ -165,7 +165,7 @@ private fun AccountListItem(
                     .alpha(buttonAlpha)
             ) {
                 Icon(
-                    imageVector = CellsVectorIcons.Delete,
+                    imageVector = CellsIcons.Delete,
                     contentDescription = null,
                     modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
                 )

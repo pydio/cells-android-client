@@ -43,17 +43,16 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.browse.TreeNodeVM
 import com.pydio.android.cells.ui.browse.composables.NodeItem
-import com.pydio.android.cells.ui.browse.composables.TreeNodeBottomSheet
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenu
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -87,7 +86,7 @@ fun Folder(
         browseRemoteVM.watch(stateID)
     }
 
-    FolderWithMoreMenu(
+    FolderWithDialogs(
         isLoading = isLoading ?: true,
         stateID = stateID,
         children = children ?: listOf(),
@@ -100,7 +99,34 @@ fun Folder(
 }
 
 /** Add the more menu **/
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FolderWithDialogs(
+    isLoading: Boolean,
+    stateID: StateID,
+    children: List<RTreeNode>,
+    openParent: (StateID) -> Unit,
+    open: (StateID) -> Unit,
+    forceRefresh: () -> Unit,
+    openDrawer: () -> Unit,
+    openSearch: () -> Unit,
+) {
+
+    FolderWithMoreMenu(
+        isLoading = isLoading,
+        stateID = stateID,
+        children = children,
+        openDrawer = openDrawer,
+        openParent = openParent,
+        open = open,
+        openSearch = openSearch,
+        forceRefresh = forceRefresh,
+    )
+}
+
+
+/** Add the more menu **/
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderWithMoreMenu(
     isLoading: Boolean,
@@ -111,39 +137,36 @@ private fun FolderWithMoreMenu(
     forceRefresh: () -> Unit,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
-    treeNodeVM: TreeNodeVM = koinViewModel(),
 ) {
 
     val scope = rememberCoroutineScope()
 
     val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val childState: MutableState<RTreeNode?> = remember {
+    val childState: MutableState<StateID?> = remember {
         mutableStateOf(null)
     }
 
     val openMoreMenu: (StateID) -> Unit = { childID ->
         scope.launch {
-            val currNode = treeNodeVM.getTreeNode(childID) ?: run {
-                Log.e(logTag, "No node found for $childID, aborting")
-                return@launch
-            }
-            childState.value = currNode
+            childState.value = childID
             state.expand()
         }
     }
 
-    val doAction: (String, StateID) -> Unit = { action, stateID ->
+    val doAction: (Boolean, String?, StateID?) -> Unit = { hide, action, nextStateID ->
         scope.launch {
             when (action) {
                 // TODO
             }
             childState.value = null
-            state.hide()
+            if (hide) state.hide()
         }
     }
 
     ModalBottomSheetLayout(
-        sheetContent = { TreeNodeBottomSheet(treeNodeVM, childState.value, doAction) },
+        sheetContent = {
+            NodeMoreMenu(childState.value, doAction)
+        },
         modifier = Modifier,
         state
     ) {
@@ -287,7 +310,7 @@ fun FolderTopBar(
                 enabled = true
             ) {
                 Icon(
-                    CellsVectorIcons.Menu,
+                    CellsIcons.Menu,
                     contentDescription = stringResource(id = R.string.open_drawer)
                 )
             }
@@ -302,7 +325,7 @@ fun FolderTopBar(
             }
             IconButton(onClick = { openSearch() }) {
                 Icon(
-                    CellsVectorIcons.Search,
+                    CellsIcons.Search,
                     contentDescription = stringResource(id = R.string.action_search)
                 )
             }

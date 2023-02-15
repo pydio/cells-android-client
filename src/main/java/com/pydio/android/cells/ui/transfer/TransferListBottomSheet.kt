@@ -15,7 +15,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
@@ -35,7 +35,7 @@ fun TransferBottomSheet(
     if (AppNames.JOB_STATUS_PROCESSING == item.status) {
         simpleMenuItems.add(
             SimpleMenuItem(
-                CellsVectorIcons.Pause,
+                CellsIcons.Pause,
                 stringResource(id = R.string.pause)
             ) { onClick(AppNames.ACTION_CANCEL, item.transferId) },
         )
@@ -45,7 +45,7 @@ fun TransferBottomSheet(
     ) {
         simpleMenuItems.add(
             SimpleMenuItem(
-                CellsVectorIcons.Resume,
+                CellsIcons.Resume,
                 stringResource(id = R.string.relaunch)
             ) { onClick(AppNames.ACTION_RESTART, item.transferId) },
         )
@@ -56,14 +56,14 @@ fun TransferBottomSheet(
     ) {
         simpleMenuItems.add(
             SimpleMenuItem(
-                CellsVectorIcons.Delete,
+                CellsIcons.Delete,
                 stringResource(id = R.string.delete)
             ) { onClick(AppNames.ACTION_DELETE_RECORD, item.transferId) },
         )
     }
     simpleMenuItems.add(
         SimpleMenuItem(
-            CellsVectorIcons.OpenLocation,
+            CellsIcons.OpenLocation,
             stringResource(id = R.string.open_parent_in_workspaces)
         ) { onClick(AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES, item.transferId) },
     )
@@ -71,8 +71,8 @@ fun TransferBottomSheet(
     BottomSheetContent({
         BottomSheetHeader(
             icon = when (item.type) {
-                AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsVectorIcons.DownloadFile
-                else -> CellsVectorIcons.UploadFile
+                AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsIcons.DownloadFile
+                else -> CellsIcons.UploadFile
             },
             title = (item.encodedState?.let { StateID.fromId(it).toString() } ?: ""),
             desc = buildStatusString(item).text
@@ -91,16 +91,16 @@ fun TransferBottomSheetPreview() {
         ).show()
     }
     val simpleMenuItems: List<SimpleMenuItem> = listOf(
-        SimpleMenuItem(CellsVectorIcons.Share, "Share") { onClick("Share") },
-        SimpleMenuItem(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
-        SimpleMenuItem(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
-        SimpleMenuItem(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
+        SimpleMenuItem(CellsIcons.Share, "Share") { onClick("Share") },
+        SimpleMenuItem(CellsIcons.Link, "Get Link") { onClick("Get Link") },
+        SimpleMenuItem(CellsIcons.Edit, "Edit") { onClick("Edit") },
+        SimpleMenuItem(CellsIcons.Delete, "Delete") { onClick("Delete") },
     )
 
     BottomSheetContent(
         {
             BottomSheetHeader(
-                icon = CellsVectorIcons.Processing,
+                icon = CellsIcons.Processing,
                 title = "My Transfer of jpg.pdf",
                 desc = "45MB, started at 5.54 AM, 46% done"
             )

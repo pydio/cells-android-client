@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 
 
 /** Data for a given item in the BottomSheet */
@@ -197,16 +197,16 @@ fun BottomSheetContentPreview() {
         ).show()
     }
     val simpleMenuItems: List<SimpleMenuItem> = listOf(
-        SimpleMenuItem(CellsVectorIcons.Share, "Share") { onClick("Share") },
-        SimpleMenuItem(CellsVectorIcons.Link, "Get Link") { onClick("Get Link") },
-        SimpleMenuItem(CellsVectorIcons.Edit, "Edit") { onClick("Edit") },
-        SimpleMenuItem(CellsVectorIcons.Delete, "Delete") { onClick("Delete") },
+        SimpleMenuItem(CellsIcons.Share, "Share") { onClick("Share") },
+        SimpleMenuItem(CellsIcons.Link, "Get Link") { onClick("Get Link") },
+        SimpleMenuItem(CellsIcons.Edit, "Edit") { onClick("Edit") },
+        SimpleMenuItem(CellsIcons.Delete, "Delete") { onClick("Delete") },
     )
 
     BottomSheetContent(
         {
             BottomSheetHeader(
-                icon = CellsVectorIcons.Processing,
+                icon = CellsIcons.Processing,
                 title = "My Transfer of jpg.pdf",
                 desc = "45MB, started at 5.54 AM, 46% done",
                 tint = tint,
@@ -225,7 +225,7 @@ fun BottomSheetListItemPreview() {
     val bg = MaterialTheme.colorScheme.surfaceVariant
     val tint = MaterialTheme.colorScheme.onSurfaceVariant
     BottomSheetListItem(
-        icon = CellsVectorIcons.Processing,
+        icon = CellsIcons.Processing,
         title = "Share",
         onItemClick = { },
         tint = tint,

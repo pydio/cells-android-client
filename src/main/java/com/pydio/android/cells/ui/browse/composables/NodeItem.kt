@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.Thumbnail
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.SdkNames
 
 @Composable
@@ -79,7 +79,7 @@ fun NodeItem(
 
             Surface(Modifier.clickable { more() }) {
                 Icon(
-                    imageVector = CellsVectorIcons.MoreVert,
+                    imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.list_button_size))

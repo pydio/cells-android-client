@@ -10,3 +10,9 @@ enum class JobStatus(val id: String) {
     TIMEOUT("timeout"),
     NO_FILTER("no filter"),
 }
+
+
+enum class CellsActions(val id: String) {
+    DOWNLOAD_TO_DEVICE("download_to_device"),
+    RENAME("rename"),
+}

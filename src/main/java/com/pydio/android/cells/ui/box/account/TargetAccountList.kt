@@ -33,7 +33,7 @@ import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
@@ -99,7 +99,7 @@ private fun TargetAccountListItem(
             // The icon
             Decorated(Type.AUTH, authStatus) {
                 Icon(
-                    imageVector = CellsVectorIcons.Person,
+                    imageVector = CellsIcons.Person,
                     contentDescription = null,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.list_thumb_size))

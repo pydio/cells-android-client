@@ -58,6 +58,7 @@ public interface AppNames {
     String ACTION_COPY = KEY_PREFIX_ + "copy";
     String ACTION_MOVE = KEY_PREFIX_ + "move";
     String ACTION_UPLOAD = KEY_PREFIX_ + "upload";
+    String ACTION_DOWNLOAD = KEY_PREFIX_ + "dowload";
     String ACTION_CREATE_FOLDER = KEY_PREFIX_ + "createfolder";
 
     String ACTION_OPEN_PARENT_IN_WORKSPACES = KEY_PREFIX_ + "openparentinworkspaces";

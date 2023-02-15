@@ -44,7 +44,7 @@ import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
@@ -285,7 +285,7 @@ private fun HomeHeader(
                 .alpha(buttonAlpha)
         ) {
             Icon(
-                imageVector = CellsVectorIcons.SwitchAccount,
+                imageVector = CellsIcons.SwitchAccount,
                 contentDescription = null,
                 modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
             )

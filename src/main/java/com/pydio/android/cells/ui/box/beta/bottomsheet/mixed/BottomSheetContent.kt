@@ -21,14 +21,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 
 @Composable
 fun BottomSheetContent() {
     val context = LocalContext.current
     Column {
         BottomSheetListItem(
-            icon = CellsVectorIcons.Share,
+            icon = CellsIcons.Share,
             title = "Share",
             onItemClick = { title ->
                 Toast.makeText(
@@ -38,7 +38,7 @@ fun BottomSheetContent() {
                 ).show()
             })
         BottomSheetListItem(
-            icon = CellsVectorIcons.Link,
+            icon = CellsIcons.Link,
             title = "Get link",
             onItemClick = { title ->
                 Toast.makeText(
@@ -48,7 +48,7 @@ fun BottomSheetContent() {
                 ).show()
             })
         BottomSheetListItem(
-            icon = CellsVectorIcons.Edit,
+            icon = CellsIcons.Edit,
             title = "Edit name",
             onItemClick = { title ->
                 Toast.makeText(
@@ -58,7 +58,7 @@ fun BottomSheetContent() {
                 ).show()
             })
         BottomSheetListItem(
-            icon = CellsVectorIcons.Delete,
+            icon = CellsIcons.Delete,
             title = "Delete collection",
             onItemClick = { title ->
                 Toast.makeText(
@@ -95,5 +95,5 @@ fun BottomSheetListItem(icon: ImageVector, title: String, onItemClick: (String) 
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetListItemPreview() {
-    BottomSheetListItem(icon = CellsVectorIcons.Processing, title = "Share", onItemClick = { })
+    BottomSheetListItem(icon = CellsIcons.Processing, title = "Share", onItemClick = { })
 }

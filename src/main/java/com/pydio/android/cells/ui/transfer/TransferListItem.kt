@@ -44,7 +44,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.danger
 import com.pydio.android.cells.ui.theme.ok
 import com.pydio.android.cells.ui.theme.warning
@@ -136,8 +136,8 @@ private fun TransferListItem(
 
             Decorated(Type.JOB, status) {
                 val thumbImg = when (type) {
-                    AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsVectorIcons.DownloadFile
-                    else -> CellsVectorIcons.UploadFile
+                    AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsIcons.DownloadFile
+                    else -> CellsIcons.UploadFile
                 }
 
                 Icon(
@@ -185,21 +185,21 @@ private fun TransferListItem(
 
             when (status) {
                 AppNames.JOB_STATUS_PROCESSING -> {
-                    btnVectorImg = CellsVectorIcons.Pause
+                    btnVectorImg = CellsIcons.Pause
                     btnModifier = Modifier.clickable { pause() }
                 }
                 AppNames.JOB_STATUS_CANCELLED,
                 AppNames.JOB_STATUS_ERROR,
                 -> {
-                    btnVectorImg = CellsVectorIcons.Resume
+                    btnVectorImg = CellsIcons.Resume
                     btnModifier = Modifier.clickable { resume() }
                 }
                 AppNames.JOB_STATUS_DONE -> {
-                    btnVectorImg = CellsVectorIcons.Delete
+                    btnVectorImg = CellsIcons.Delete
                     btnModifier = Modifier.clickable { remove() }
                 }
                 else -> {
-                    btnVectorImg = CellsVectorIcons.Pause
+                    btnVectorImg = CellsIcons.Pause
                     btnModifier = Modifier.alpha(0.6f)
                 }
             }
@@ -227,7 +227,7 @@ private fun TransferListItem(
 
             Surface(modifier = moreModifier) {
                 Icon(
-                    imageVector = CellsVectorIcons.MoreVert,
+                    imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.list_button_size))

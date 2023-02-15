@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.theme.CellsVectorIcons
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.danger
 import com.pydio.android.cells.ui.theme.ok
 import com.pydio.android.cells.ui.theme.warning
@@ -67,11 +67,11 @@ fun Decorated(
 private fun JobDecorator(status: String, modifier: Modifier) {
 
     val imageId = when (status) {
-        AppNames.JOB_STATUS_PROCESSING -> CellsVectorIcons.Processing
-        AppNames.JOB_STATUS_ERROR -> CellsVectorIcons.ErrorDecorator
-        AppNames.JOB_STATUS_CANCELLED -> CellsVectorIcons.Pause
-        AppNames.JOB_STATUS_DONE -> CellsVectorIcons.Check
-        else -> CellsVectorIcons.Unknown
+        AppNames.JOB_STATUS_PROCESSING -> CellsIcons.Processing
+        AppNames.JOB_STATUS_ERROR -> CellsIcons.ErrorDecorator
+        AppNames.JOB_STATUS_CANCELLED -> CellsIcons.Pause
+        AppNames.JOB_STATUS_DONE -> CellsIcons.Check
+        else -> CellsIcons.Unknown
     }
 
     val color = when (status) {
