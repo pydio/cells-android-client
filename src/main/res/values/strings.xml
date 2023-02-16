@@ -249,6 +249,7 @@
     <string name="content_description_media">Preview of the content</string>
     <string name="dialog_create_folder_title">Create folder</string>
     <string name="dialog_create_folder_positive_btn">Create</string>
+    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
     <string name="confirm_move_to_recycle_title">Confirm deletion</string>
     <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
     <plurals name="confirm_multi_move_to_recycle_desc">

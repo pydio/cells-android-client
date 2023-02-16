@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.dialogs
+package com.pydio.android.cells.ui.core.composables.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
@@ -16,7 +16,7 @@ import com.pydio.android.cells.R
 import com.pydio.cells.transport.StateID
 
 @Composable
-fun CreateFolder(
+fun AskForFolderName(
     parStateID: StateID,
     createFolderAt: (parStateID: StateID, name: String) -> Unit,
     dismiss: () -> Unit
@@ -29,7 +29,7 @@ fun CreateFolder(
 
     AlertDialog(
         title = { Text(stringResource(R.string.dialog_create_folder_title)) },
-        text = { DialogContent(folderName.value, updateValue) },
+        text = { AskForNameContent(folderName.value, updateValue) },
         confirmButton = {
             TextButton(
                 onClick = {
@@ -57,7 +57,7 @@ fun CreateFolder(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogContent(value: String, updateValue: (String) -> Unit) {
+private fun AskForNameContent(value: String, updateValue: (String) -> Unit) {
     Column {
 //        Text(stringResource(R.string.dialog_create_folder_title))
 //        Divider()
@@ -65,7 +65,7 @@ fun DialogContent(value: String, updateValue: (String) -> Unit) {
             value = value,
             onValueChange = { updateValue(it) },
             supportingText = {
-                Text("Please enter a name for the new folder")
+                Text(stringResource(R.string.dialog_create_folder_support_text))
             },
         )
     }

@@ -19,7 +19,7 @@ import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.box.SelectTargetApp
 import com.pydio.android.cells.ui.box.SelectTargetHost
-import com.pydio.android.cells.ui.box.dialogs.CreateFolder
+import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -158,7 +158,7 @@ class SelectTargetActivity : ComponentActivity() {
                             }
                         }
                     }
-                    CreateFolder(
+                    AskForFolderName(
                         parStateID = StateID.fromId(createFolderParent.value),
                         createFolderAt = { parentId, name ->
                             doCreate(parentId, name)

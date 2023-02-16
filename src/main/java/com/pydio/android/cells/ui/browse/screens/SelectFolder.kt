@@ -56,6 +56,8 @@ import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.androidx.compose.getKoin
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "SelectFolder.kt"
 
@@ -66,7 +68,7 @@ fun SelectFolderScreen(
     isLoading: Boolean,
     browseLocalVM: BrowseLocalFoldersVM,
     openFolder: (StateID) -> Unit,
-    openParentDestination: (StateID) -> Unit,
+    openParentDestination: (StateID) -> Unit, // TODO merge the 2 methods
     canPost: (StateID) -> Boolean,
     postActivity: (StateID, String?) -> Unit,
     forceRefresh: (stateId: StateID) -> Unit,
@@ -99,9 +101,38 @@ fun SelectFolderScreen(
     )
 }
 
+@Composable
+fun SelectFolderPage(
+    action: String,
+    stateID: StateID,
+    isLoading: Boolean,
+    browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
+    openFolder: (StateID) -> Unit,
+    openParent: (StateID) -> Unit,
+    canPost: (StateID) -> Boolean,
+    postAction: (StateID, String?) -> Unit,
+    forceRefresh: (stateId: StateID) -> Unit,
+) {
+
+    browseLocalVM.setState(stateID)
+    val childNodes by browseLocalVM.childNodes.observeAsState()
+
+    SelectFolderScaffold(
+        action = action,
+        stateID = stateID,
+        children = childNodes ?: listOf(),
+        isLoading = isLoading,
+        openFolder = openFolder,
+        openParentDestination = openParent,
+        canPost = canPost,
+        postActivity = postAction,
+        forceRefresh = forceRefresh,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SelectFolderScaffold(
+fun SelectFolderScaffold(
     action: String,
     stateID: StateID,
     children: List<RTreeNode>,
@@ -146,7 +177,7 @@ private fun FolderList(
     refreshing: Boolean,
     openFolder: (StateID) -> Unit,
     openParent: (StateID) -> Unit,
-    forceRefresh: (stateId: StateID) -> Unit,
+    forceRefresh: (StateID) -> Unit,
     modifier: Modifier,
 ) {
     val ctx = LocalContext.current

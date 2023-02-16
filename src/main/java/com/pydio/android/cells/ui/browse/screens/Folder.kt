@@ -100,9 +100,12 @@ fun Folder(
         }
     }
 
-    val actionDone: () -> Unit = {
+    val actionDone: (Boolean) -> Unit = {
         scope.launch {
             childState.value = null
+            if (it) { // Also reset backoff ticker
+                browseRemoteVM.watch(stateID)
+            }
             state.hide()
         }
     }

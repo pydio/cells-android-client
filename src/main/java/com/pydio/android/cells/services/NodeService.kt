@@ -974,7 +974,7 @@ class NodeService(
 //            targetFile
 //        }
 
-    private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
+    suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
             val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext

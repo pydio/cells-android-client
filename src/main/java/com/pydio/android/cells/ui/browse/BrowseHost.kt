@@ -20,9 +20,9 @@ sealed class BrowseDestination(val route: String) {
 
     object AccountHome : BrowseDestination("account-home")
 
-    object OpenFolder : BrowseDestination("open/{stateId}") {
+    object OpenFolder : BrowseDestination("open/{state-id}") {
         fun createRoute(stateID: StateID) = "open/${stateID.id}"
-        fun getPathKey() = "stateId"
+        fun getPathKey() = "state-id"
     }
 
     // TODO implement other destinations

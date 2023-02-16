@@ -2,6 +2,8 @@ package com.pydio.android.cells.ui.browse.composables
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -27,31 +30,41 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.CellsActions
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.NodeAction
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetState
-import com.pydio.android.cells.ui.box.dialogs.CreateFolder
 import com.pydio.android.cells.ui.browse.MoreMenuVM
+import com.pydio.android.cells.ui.browse.screens.SelectFolderPage
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
-private val logTag = "NodeMoreMenu.kt"
+private const val logTag = "NodeMoreMenu.kt"
+
+private const val FOLDER_MAIN_CONTENT = "folder-main-content"
+private const val STATE_ID_KEY = "state-id"
+private const val STATE_ID_SUFFIX = "/{state-id}"
+private fun route(action: NodeAction): String {
+    return "${action.id}$STATE_ID_SUFFIX"
+}
+
 
 /** Add the more menu **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WrapWithActions(
     isLoading: Boolean,
-    actionDone: () -> Unit,
+    actionDone: (Boolean) -> Unit,
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
     content: @Composable () -> Unit,
@@ -70,7 +83,7 @@ fun WrapWithActions(
 @Composable
 private fun FolderWithDialogs(
     isLoading: Boolean,
-    actionDone: () -> Unit,
+    actionDone: (Boolean) -> Unit,
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
     moreMenuVM: MoreMenuVM = koinViewModel(),
@@ -79,15 +92,101 @@ private fun FolderWithDialogs(
 
     val navController = rememberNavController()
 
-    val launch: (CellsActions) -> Unit = { it ->
-        navController.navigate(it.id)
+    // We must keep a reference to the latest chosen node for contracts
+    val currentID: MutableState<StateID> = rememberSaveable(stateSaver = stateIDSaver) {
+        mutableStateOf(Transport.UNDEFINED_STATE_ID)
+    }
+    val currentAction: MutableState<String?> = rememberSaveable {
+        mutableStateOf(null)
     }
 
-    Scaffold { innerPadding ->
-        NavHost(navController, "content", Modifier.padding(innerPadding)) {
+    val closeDialog: (Boolean) -> Unit = {
+        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        if (it) {
+            actionDone(true)
+        }
+    }
 
-            composable("content") {
-                // Fills the area provided to the NavHost
+    val destinationPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(),
+        onResult = { uri ->
+            Log.e(logTag, "Got a destination for ${currentID.value}")
+            if (currentID.value != Transport.UNDEFINED_STATE_ID) {
+                uri?.let {
+                    moreMenuVM.download(currentID.value, uri)
+                }
+            }
+            actionDone(true)
+        }
+    )
+
+    val launch: (NodeAction) -> Unit = { it ->
+        if (toOpenStateID == null) {// this should never happen
+            Log.e(logTag, "Trying to launch an action on a null stateID, aborting...")
+        } else {
+            Log.e(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
+            when (it) {
+                NodeAction.DOWNLOAD_TO_DEVICE -> {
+                    if (currentID.value == Transport.UNDEFINED_STATE_ID) {
+                        destinationPicker.launch(toOpenStateID.fileName)
+                        currentID.value = toOpenStateID
+                    }
+                }
+                NodeAction.COPY_TO -> {
+                    currentAction.value = AppNames.ACTION_COPY
+                    val initialRoute =
+                        "${NodeAction.SELECT_TARGET_FOLDER.id}/${toOpenStateID.parent().id}"
+                    navController.navigate(initialRoute)
+                }
+                NodeAction.MOVE_TO -> {
+                    currentAction.value = AppNames.ACTION_MOVE
+                    val initialRoute =
+                        "${NodeAction.SELECT_TARGET_FOLDER.id}/${toOpenStateID.parent().id}"
+                    navController.navigate(initialRoute)
+                }
+                else -> navController.navigate("${it.id}/${toOpenStateID.id}")
+            }
+        }
+    }
+
+
+    val copyMoveAction: (StateID, String?) -> Unit = { targetStateID, action ->
+        Log.e(logTag, "Do Copy/Move for $targetStateID")
+        when (action) {
+                AppNames.ACTION_CANCEL -> closeDialog(false)
+            else -> {
+
+                closeDialog(true)
+            }
+
+        }
+    }
+
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(),
+        onResult = { uri ->
+            Log.e(logTag, "Got a destination for ${currentID.value}")
+            if (currentID.value != Transport.UNDEFINED_STATE_ID) {
+                uri?.let {
+                    moreMenuVM.download(currentID.value, uri)
+                }
+            }
+        }
+    )
+
+
+//    val imagePicker = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetContent(),
+//        onResult = { uri ->
+//            // TODO
+//        }
+//    )
+
+
+    Scaffold { innerPadding ->
+        NavHost(navController, FOLDER_MAIN_CONTENT, Modifier.padding(innerPadding)) {
+
+            composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
                 FolderWithMoreMenu(
                     toOpenStateID = toOpenStateID,
                     sheetState = sheetState,
@@ -97,22 +196,62 @@ private fun FolderWithDialogs(
                 )
             }
 
-            dialog(CellsActions.DOWNLOAD_TO_DEVICE.id) {
-                Log.e(logTag, "About to open dialog for DL")
-                CreateFolder(
-                    moreMenuVM,
-                    stateID = Transport.UNDEFINED_STATE_ID,
-                    dismiss = { navController.popBackStack() },
+            composable(route(NodeAction.SELECT_TARGET_FOLDER)) { navBackStackEntry ->
+                val stateId = StateID.fromId(
+                    navBackStackEntry.arguments?.getString(STATE_ID_KEY)
+                        ?: run {
+                            Log.e(logTag, "... cannot navigate with no state ID")
+                            return@composable
+                        })
+
+                val action = currentAction.value ?: run {
+                    Log.e(logTag, "... cannot for selection with no action set")
+                    return@composable
+                }
+                Log.e(logTag, ".... Open choose *folder* page, with ID: $stateId}")
+
+                SelectFolderPage(
+                    action = action,
+                    stateID = stateId,
+                    isLoading = false, // TODO
+                    openFolder = {
+                        val route = "${NodeAction.SELECT_TARGET_FOLDER.id}/${it.id}"
+                        navController.navigate(route)
+                    },
+                    openParent = {
+                        val route = "${NodeAction.SELECT_TARGET_FOLDER.id}/${it.parent().id}"
+                        navController.navigate(route)
+                    },
+                    canPost = { true }, // TODO also
+                    postAction = copyMoveAction,
+                    forceRefresh = {/*TODO */ },
                 )
             }
 
-            dialog(CellsActions.RENAME.id) {
-                Log.e(logTag, "About to open dialog for ** RENAME **")
-                CreateFolder(
+            dialog(route(NodeAction.RENAME)) { navBackStackEntry ->
+                val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
+                    ?: run {
+                        Log.e(logTag, "... trying to open dialog with no state ID ")
+                        return@dialog
+                    }
+                TreeNodeRename(
                     moreMenuVM,
-                    stateID = Transport.UNDEFINED_STATE_ID,
-                    dismiss = { navController.popBackStack() },
+                    stateID = StateID.fromId(stateId),
+                    dismiss = closeDialog
                 )
+            }
+
+            dialog(route(NodeAction.DELETE)) { navBackStackEntry ->
+                val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
+                    ?: run {
+                        Log.e(logTag, "... trying to open dialog with no state ID ")
+                        // TODO do we have to dismiss something
+//                        LaunchedEffect(true) { // This should never happen anyway
+//                            navController.popBackStack(BrowseDestination.AccountHome.route, false)
+//                        }
+                        return@dialog
+                    }
+                ConfirmDeletion(moreMenuVM, StateID.fromId(stateId), closeDialog)
             }
         }
     }
@@ -123,7 +262,7 @@ private fun FolderWithDialogs(
 private fun FolderWithMoreMenu(
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
-    launch: (CellsActions) -> Unit,
+    launch: (NodeAction) -> Unit,
     moreMenuVM: MoreMenuVM,
     content: @Composable () -> Unit,
 ) {
@@ -139,7 +278,7 @@ private fun FolderWithMoreMenu(
 @Composable
 fun NodeMoreMenuData(
     toOpenStateID: StateID?,
-    launch: (CellsActions) -> Unit,
+    launch: (NodeAction) -> Unit,
     moreMenuVM: MoreMenuVM
 ) {
     val item: MutableState<RTreeNode?> = remember {
@@ -154,7 +293,8 @@ fun NodeMoreMenuData(
                 null
             }
             Log.e(
-                logTag, "## After effect, treeNode $currNode for ${currNode?.getStateID() ?: "NaN"}"
+                logTag,
+                "## After effect, treeNode $currNode for ${currNode?.getStateID() ?: "NaN"}"
             )
             item.value = currNode
         }
@@ -179,12 +319,11 @@ fun NodeMoreMenuData(
     }
 }
 
-
 @Composable
 private fun NodeMoreMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
-    launch: (CellsActions) -> Unit,
+    launch: (NodeAction) -> Unit,
 ) {
 
     // TODO handle case for:
@@ -212,20 +351,22 @@ private fun NodeMoreMenuView(
                 thickness = 1.dp,
             )
         }
-        item {
-            BottomSheetListItem(
-                icon = CellsIcons.DownloadToDevice,
-                title = stringResource(R.string.download_to_device),
-                onItemClick = { launch(CellsActions.DOWNLOAD_TO_DEVICE) },
-                tint = tint,
-                bgColor = bgColor,
-            )
+        if (rTreeNode.isFile()) {
+            item {
+                BottomSheetListItem(
+                    icon = CellsIcons.DownloadToDevice,
+                    title = stringResource(R.string.download_to_device),
+                    onItemClick = { launch(NodeAction.DOWNLOAD_TO_DEVICE) },
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+            }
         }
         item {
             BottomSheetListItem(
                 icon = CellsIcons.Rename,
                 title = stringResource(R.string.rename),
-                onItemClick = { launch(CellsActions.RENAME) },
+                onItemClick = { launch(NodeAction.RENAME) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -234,7 +375,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.CopyTo,
                 title = stringResource(R.string.copy_to),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.COPY_TO) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -243,7 +384,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.MoveTo,
                 title = stringResource(R.string.move_to),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.MOVE_TO) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -253,7 +394,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.Link,
                 title = stringResource(R.string.public_link),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.CREATE_SHARE) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -263,7 +404,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.KeepOffline,
                 title = stringResource(R.string.keep_offline),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.TOGGLE_OFFLINE) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -273,7 +414,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.Bookmark,
                 title = stringResource(R.string.bookmark),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.TOGGLE_BOOKMARK) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -282,7 +423,7 @@ private fun NodeMoreMenuView(
             BottomSheetListItem(
                 icon = CellsIcons.Delete,
                 title = stringResource(R.string.delete),
-                onItemClick = { /* TODO */ },
+                onItemClick = { launch(NodeAction.DELETE) },
                 tint = tint,
                 bgColor = bgColor,
             )
@@ -298,35 +439,6 @@ private fun NodeMoreMenuView(
 ////            )
 //        }
     }
-}
-
-@Composable
-private fun CreateFolder(
-    moreMenuVM: MoreMenuVM,
-    stateID: StateID,
-    dismiss: () -> Unit,
-
-    ) {
-
-    val doCreate: (StateID, String) -> Unit = { parentID, name ->
-        moreMenuVM.createFolder(parentID, name)
-        // TODO do we want a feed back?
-//                if (Str.notEmpty(errMsg)) {
-//                    showMessage(ctx, errMsg!!)
-//                } else {
-//                    browseRemoteVM.watch(parentID) // This force resets the backoff ticker
-//                    showMessage(ctx, "Folder created at ${parentID.file}.")
-//                }
-    }
-
-    CreateFolder(
-        parStateID = stateID,
-        createFolderAt = { parentId, name ->
-            doCreate(parentId, name)
-            dismiss()
-        },
-        dismiss = { dismiss() },
-    )
 }
 
 @Preview(showBackground = true)
