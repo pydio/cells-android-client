@@ -149,17 +149,24 @@ private fun FolderWithDialogs(
         }
     }
 
-
     val copyMoveAction: (StateID, String?) -> Unit = { targetStateID, action ->
         Log.e(logTag, "Do Copy/Move for $targetStateID")
         when (action) {
-                AppNames.ACTION_CANCEL -> closeDialog(false)
+            AppNames.ACTION_CANCEL -> closeDialog(false)
             else -> {
-
+                when (currentAction.value) {
+                    AppNames.ACTION_MOVE -> {
+                        moreMenuVM.moveTo(toOpenStateID!!, targetStateID)
+                    }
+                    AppNames.ACTION_COPY -> {
+                        moreMenuVM.copyTo(toOpenStateID!!, targetStateID)
+                    }
+                }
                 closeDialog(true)
             }
-
         }
+        // Reset local copyMove Action state
+        currentAction.value = null
     }
 
     rememberLauncherForActivityResult(
@@ -173,15 +180,6 @@ private fun FolderWithDialogs(
             }
         }
     )
-
-
-//    val imagePicker = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent(),
-//        onResult = { uri ->
-//            // TODO
-//        }
-//    )
-
 
     Scaffold { innerPadding ->
         NavHost(navController, FOLDER_MAIN_CONTENT, Modifier.padding(innerPadding)) {
