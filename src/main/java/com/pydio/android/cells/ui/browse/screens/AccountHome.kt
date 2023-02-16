@@ -8,17 +8,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +39,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,12 +47,12 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
-import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
+import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
@@ -65,14 +73,15 @@ fun AccountHome(
         Log.e(logTag, "... in AccountHome, launching effect")
         browseRemoteVM.watch(accountID)
     }
-
     val isLoading by browseRemoteVM.isLoading.observeAsState()
     accountHomeVM.setState(accountID)
+
+    val sessionView by accountHomeVM.currSession.observeAsState()
     val workspaces by accountHomeVM.wss.observeAsState()
     val cells by accountHomeVM.cells.observeAsState()
 
-    // FIXME - rather display server label if available
-    val title = "$accountID - Home"
+    val title = sessionView?.serverLabel() ?: "${accountID.serverUrl} - Home"
+
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(accountID)
     }
@@ -115,7 +124,7 @@ private fun AccHomeScaffold(
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
 
-        Column {
+        Column(Modifier.padding(padding)) {
 
             HomeHeader(
                 username = stateID.username,
@@ -124,13 +133,21 @@ private fun AccHomeScaffold(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Divider(
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_h_padding))
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
+                thickness = 1.dp,
+            )
+
             HomeList(
                 refreshing = isLoading,
                 workspaces = workspaces,
                 cells = cells,
                 open = openWorkspace,
                 forceRefresh = forceRefresh,
-                modifier = Modifier.padding(padding),
+                modifier = Modifier.fillMaxWidth(), // padding(padding),
             )
 
         }
@@ -161,37 +178,100 @@ private fun HomeList(
     })
 
     Box(modifier.pullRefresh(state)) {
-        LazyColumn(Modifier.fillMaxWidth()) {
+        LazyVerticalGrid(
 
-            item {
-                // FIXME
-                Text(text = "Workspaces")
+            // TODO make this more generic for big screens also
+            // columns = GridCells.Adaptive(minSize = 128.dp)
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+
+        ) {
+
+            // FIXME (and the 2nd header too)
+            if (workspaces.isNotEmpty()) {
+                item(span = {
+                    // LazyGridItemSpanScope:
+                    // maxLineSpan
+                    GridItemSpan(maxLineSpan)
+                }) {
+                    Text(text = "Workspaces")
+                }
+                items(workspaces, key = { it.encodedState }) { ws ->
+                    HomeCardItem(
+                        ws.sortName ?: "",
+                        ws.label ?: "",
+                        ws.description ?: "",
+                        modifier = Modifier.clickable { open(ws.getStateID()) },
+                    )
+                }
             }
 
-            items(workspaces) { ws ->
-                HomeItem(
-                    ws.sortName ?: "",
-                    ws.label ?: "",
-                    ws.description ?: "",
-                    modifier = Modifier.clickable { open(ws.getStateID()) },
-                )
+            if (cells.isNotEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(text = "Cells")
+                }
+                items(cells, key = { it.encodedState }) { ws ->
+                    HomeCardItem(
+                        ws.sortName ?: "",
+                        ws.label ?: "",
+                        ws.description ?: "",
+                        modifier = Modifier.clickable { open(ws.getStateID()) },
+                    )
+                }
             }
 
-            item {
-                // FIXME
-                Text(text = "Cells")
-            }
-
-            items(cells) { ws ->
-                HomeItem(
-                    ws.sortName ?: "",
-                    ws.label ?: "",
-                    ws.description ?: "",
-                    modifier = Modifier.clickable { open(ws.getStateID()) },
-                )
+            if (workspaces.isEmpty() && cells.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(text = "Nothing to show (yet...)")
+                }
             }
         }
         PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+    }
+}
+
+@Composable
+private fun HomeCardItem(
+    sortName: String,
+    title: String,
+    desc: String,
+    modifier: Modifier = Modifier
+) {
+
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp
+        ),
+        modifier = modifier
+    ) {
+
+        Surface(
+            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+            modifier = Modifier
+                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+                .defaultMinSize(
+                    minHeight = dimensionResource(id = R.dimen.grid_ws_image_size),
+                    minWidth = dimensionResource(id = R.dimen.grid_ws_image_size),
+                )
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+        ) {
+            Icon(
+                imageVector = getWsThumbVector(sortName),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.list_thumb_size))
+            )
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text(
+            text = desc,
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 
@@ -255,7 +335,6 @@ private fun HomeHeader(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -271,7 +350,7 @@ private fun HomeHeader(
             )
             Text(
                 text = address,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
 

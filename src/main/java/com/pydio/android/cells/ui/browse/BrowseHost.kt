@@ -41,10 +41,9 @@ fun BrowseHost(
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
 ) {
 
-    val ctx = LocalContext.current
-
     val navController = rememberNavController()
     val currLoadingState by browseRemoteVM.isLoading.observeAsState()
+    val ctx = LocalContext.current
 
     val open: (StateID) -> Unit = { stateID ->
         navController.navigate(
@@ -60,6 +59,10 @@ fun BrowseHost(
         val parent = stateID.parent()
         open(parent)
     }
+
+//    val openAccounts: () -> Unit = {
+//        navController.navigate(BrowseDestination.AccountHome.route)
+//    }
 
     NavHost(
         navController = navController,

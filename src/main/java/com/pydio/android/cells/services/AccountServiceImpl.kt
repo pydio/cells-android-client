@@ -68,6 +68,9 @@ class AccountServiceImpl(
     override fun getLiveSession(accountId: String): LiveData<RSessionView?> =
         sessionViewDao.getLiveSession(accountId)
 
+    override fun getLiveSession(accountID: StateID): LiveData<RSessionView?> =
+        sessionViewDao.getLiveSession(accountID.id)
+
     override fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
         workspaceDao.getLiveWorkspaces(accountId)
 

@@ -31,7 +31,6 @@ fun CellsNavGraph(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     startingState: StartingState,
 ) {
-
     val navigationActions = remember(navController) {
         CellsNavigationActions(navController)
     }
@@ -119,7 +118,9 @@ fun CellsNavGraph(
             val accountID = StateID.fromId(accId)
             BrowseHost(
                 accountID = accountID,
-                openAccounts = { navigationActions.navigateToAccounts },
+                openAccounts = {
+                    navigationActions.navigateToAccounts()
+                },
                 back = { navController.popBackStack() },
                 openDrawer = openDrawer
             )

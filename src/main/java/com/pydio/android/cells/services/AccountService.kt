@@ -35,6 +35,9 @@ interface AccountService {
 
     fun getLiveSessions(): LiveData<List<RSessionView>>
 
+    fun getLiveSession(accountID: StateID): LiveData<RSessionView?>
+
+    @Deprecated("Rather use method with the StateID")
     fun getLiveSession(accountId: String): LiveData<RSessionView?>
 
     fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>>
