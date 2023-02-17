@@ -3,10 +3,7 @@ package com.pydio.android.cells.ui.browse
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -51,13 +48,9 @@ fun BrowseHost(
 ) {
 
     val navController = rememberNavController()
-    val currLoadingState by browseRemoteVM.isLoading.observeAsState()
-    val ctx = LocalContext.current
-
     val scope = rememberCoroutineScope()
 
     val open: (StateID) -> Unit = { stateID ->
-
         scope.launch {
             var route = BrowseDestination.AccountHome.route
             if (Str.notEmpty(stateID.workspace)) {
@@ -71,13 +64,14 @@ fun BrowseHost(
                 } else if (item.isPreViewable()) {
                     route = BrowseDestination.OpenCarousel.createRoute(stateID)
                 } else {
-                    // TODO launch external view
+                    // FIXME launch external view
                     Log.e(logTag, "Implement me - not a viewable file for $stateID, aborting")
                     return@launch
                 }
             }
-            Log.i(logTag, "About to navigate to $route")
-            navController.navigate(route)
+            navController.navigate(route) {
+                launchSingleTop = true
+            }
         }
     }
 
@@ -86,18 +80,13 @@ fun BrowseHost(
         open(parent)
     }
 
-//    val openAccounts: () -> Unit = {
-//        navController.navigate(BrowseDestination.AccountHome.route)
-//    }
-
     NavHost(
         navController = navController,
         startDestination = BrowseDestination.AccountHome.route
     ) {
 
         composable(BrowseDestination.AccountHome.route) {
-            Log.e(logTag, ".... Open account home for $accountID")
-
+            Log.i(logTag, ".... Open account home for $accountID")
             AccountHome(
                 accountID,
                 openDrawer = openDrawer,
@@ -113,13 +102,11 @@ fun BrowseHost(
                 navBackStackEntry.arguments?.getString(BrowseDestination.OpenFolder.getPathKey())
 
             if (stateId == null) {
+                // This should never happen, we fall back on account home
                 Log.e(logTag, "... trying to browse with no state ID for $accountID")
                 LaunchedEffect(key1 = accountID) {
-                    // This should never happen
-                    // We fall back on account home
                     navController.popBackStack(BrowseDestination.AccountHome.route, false)
                 }
-
             } else {
                 Folder(
                     StateID.fromId(stateId),
@@ -133,18 +120,13 @@ fun BrowseHost(
         }
 
         composable(BrowseDestination.OpenCarousel.route) { navBackStackEntry ->
-
-            val stateId =
-                navBackStackEntry.arguments?.getString(BrowseDestination.OpenCarousel.getPathKey())
-
-            if (stateId == null) {
-                // Log.e(logTag, "... trying to browse with no state ID for $accountID")
+            val stateId = navBackStackEntry.arguments
+                ?.getString(BrowseDestination.OpenCarousel.getPathKey())
+            if (stateId == null) { // Fall back as (unnecessary) failsafe
                 LaunchedEffect(key1 = accountID) {
                     // This should never happen
-                    // We fall back on account home
                     navController.popBackStack(BrowseDestination.AccountHome.route, false)
                 }
-
             } else {
                 Carousel(
                     StateID.fromId(stateId),

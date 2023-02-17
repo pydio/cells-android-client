@@ -21,13 +21,12 @@ fun LoginHost(
     openAccount: (StateID) -> Unit,
     startingState: StartingState,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    back: () -> Unit
+    back: () -> Unit,
+    navController: NavHostController = rememberNavController()
 ) {
 
-    // WARNING: this is a NavController **inside** another one
-    val navController: NavHostController = rememberNavController()
-
     val loginVM: LoginViewModelNew = koinViewModel()
+
     val afterAuth: (Boolean) -> Unit = {
         val next = loginVM.nextAction.value
         Log.i(logTag, "After auth, success: $it, next action: $next")
@@ -48,7 +47,6 @@ fun LoginHost(
     }
 
     LaunchedEffect(key1 = currAccount, key2 = startingState) {
-
         if (currAccount != Transport.UNDEFINED_STATE_ID) {
             // We are in the case of a relog
             loginVM.getSessionView(currAccount)?.let { sessionView ->
@@ -87,12 +85,6 @@ fun LoginHost(
         }
     }
 
-//    val launchOAuth: (Intent) -> Unit = {
-//        Log.d(logTag, "Launching OAuth flow with $it")
-//        launchIntent(it, false, false)
-//        // authActivity.finishAndRemoveTask()
-//    }
-
     val navigateTo: (String?) -> Unit = { dest ->
         if (dest == null) {
             val res = navController.navigateUp()
@@ -102,12 +94,6 @@ fun LoginHost(
             }
         } else if (RouteLoginDone.route == dest) {
             afterAuth(true)
-//            val res = navController.navigateUp()
-//            Log.e(logTag, "... Got a back request, could process: $res")
-//            if (!res) {
-//                back()
-//            }
-//            launchIntent(null, false, false)
         } else {
             Log.e(logTag, "... Got a nav request for $dest")
             navController.navigate(dest)

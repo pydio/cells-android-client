@@ -31,10 +31,12 @@ fun CellsNavGraph(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     startingState: StartingState,
 ) {
+
     val navigationActions = remember(navController) {
         CellsNavigationActions(navController)
     }
 
+    // FIXME rework this for both: OAuth Callback & App launch
     LaunchedEffect(key1 = startingState) {
         Log.e(logTag, "########## Launching side effect for ${startingState.destination})")
         Log.e(logTag, "##########     with stateID: ${startingState.stateID}")

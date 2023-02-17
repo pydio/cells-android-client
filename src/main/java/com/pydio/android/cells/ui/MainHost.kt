@@ -16,7 +16,6 @@ import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.nav.MainDrawerHost
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.stateIDSaver
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
@@ -34,8 +33,9 @@ fun MainHost(
 ) {
 
     val currAccountID = rememberSaveable(stateSaver = stateIDSaver) {
-        mutableStateOf(Transport.UNDEFINED_STATE_ID)
+        mutableStateOf(startingState.stateID)
     }
+
     val openAccount: (StateID) -> Unit = {
         currAccountID.value = it
         Log.e(logTag, "--- Open Account: $it")
@@ -79,8 +79,8 @@ class StartingState(val stateID: StateID) {
 
 // Converts a StartingState object which we don't know how to save to a Map<String, String> which we can save
 val StartingStateSaver = Saver<StartingState, Map<String, String>>(
-    save = { startingState ->
 
+    save = { startingState ->
         val currMap = mutableMapOf<String, String>()
         currMap[StartingState.Key.STATE_ID.name] = startingState.stateID.id
         startingState.destination?.let {
@@ -100,6 +100,7 @@ val StartingStateSaver = Saver<StartingState, Map<String, String>>(
         }
         currMap
     },
+
     restore = { values ->
         val stateID = StateID.fromId(values[StartingState.Key.STATE_ID.name])
         val startingState = StartingState(stateID)
@@ -117,7 +118,6 @@ val StartingStateSaver = Saver<StartingState, Map<String, String>>(
                 startingState.uris.add(Uri.parse(it))
             }
         }
-
         startingState
     }
 )

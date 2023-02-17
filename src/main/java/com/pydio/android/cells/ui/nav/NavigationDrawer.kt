@@ -35,21 +35,20 @@ fun MainDrawerHost(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass
 ) {
-
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
     val coroutineScope = rememberCoroutineScope()
 
     val navHostController = rememberNavController()
+    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+
     val navigationActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
     val systemActions = remember(navHostController) {
         SystemNavigationActions(navHostController)
     }
-
-    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -69,6 +68,7 @@ fun MainDrawerHost(
     ) {
         Row {
             if (isExpandedScreen) { // When we are on a tablet
+                // FIXME this is only partially implemented
                 AppNavRail(
                     currentRoute = navBackStackEntry?.destination?.route,
                     navigateToHome = navigationActions.navigateToHome,
