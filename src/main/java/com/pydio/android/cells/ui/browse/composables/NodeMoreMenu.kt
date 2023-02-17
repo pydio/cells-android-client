@@ -312,7 +312,7 @@ fun NodeMoreMenuData(
     } else {
         // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
         // when no item is defined (This is the case at the beginning when we launch the Side Effect)
-        Log.e(logTag, "## No more menu for $toOpenStateID}")
+        Log.d(logTag, "## No more menu for $toOpenStateID")
         Spacer(modifier = Modifier.height(1.dp))
     }
 }

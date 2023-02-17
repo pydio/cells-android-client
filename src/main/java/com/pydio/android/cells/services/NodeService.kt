@@ -76,7 +76,7 @@ class NodeService(
                     "AND parent_path = ? " +
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
-        // Log.e(logTag, "About to list, query: ${lsQuery.sql}")
+        // Log.e(logTag, "About to list, query: ${lsQuery.sql} - file: $parPath")
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 

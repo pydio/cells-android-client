@@ -230,7 +230,7 @@ class OfflineRootsFragment : Fragment() {
 
     inner class OfflineRootObserver : Observer<List<RLiveOfflineRoot>> {
 
-        override fun onChanged(it: List<RLiveOfflineRoot>?) {
+        override fun onChanged(it: List<RLiveOfflineRoot>) {
             it?.let {
                 wrapSubmit(it)
             }

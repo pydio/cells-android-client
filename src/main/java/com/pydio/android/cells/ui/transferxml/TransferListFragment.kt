@@ -126,7 +126,7 @@ class TransferListFragment : Fragment() {
 
     inner class TransferObserver : Observer<List<RTransfer>> {
 
-        override fun onChanged(transfers: List<RTransfer>?) {
+        override fun onChanged(transfers: List<RTransfer>) {
             transfers?.let {
                 if (it.isEmpty()) {
                     var msg = resources.getString(R.string.no_transfer_for_account)

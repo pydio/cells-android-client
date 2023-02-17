@@ -401,7 +401,7 @@ class BrowseFolderFragment : Fragment() {
     }
 
     inner class ChildObserver : Observer<List<RTreeNode>> {
-        override fun onChanged(it: List<RTreeNode>?) {
+        override fun onChanged(it: List<RTreeNode>) {
             // Log.e(logTag, "children changed, it: ${it?.size}")
             it?.let {
                 if (it.isEmpty()) {

@@ -21,6 +21,8 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
+import com.pydio.android.cells.ui.browse.BrowseHostVM
+import com.pydio.android.cells.ui.browse.CarouselVM
 import com.pydio.android.cells.ui.browse.MoreMenuVM
 import com.pydio.android.cells.ui.browsexml.BookmarksViewModel
 import com.pydio.android.cells.ui.browsexml.BrowseFolderViewModel
@@ -76,7 +78,6 @@ val dbModule = module {
             .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
-
 
     // Auth DB
     single {
@@ -170,6 +171,8 @@ val viewModelModule = module {
     viewModel { AccountListVM(get()) }
 
     viewModel { MoreMenuVM(get()) }
+    viewModel { BrowseHostVM(get()) }
+    viewModel { CarouselVM(get(), get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }

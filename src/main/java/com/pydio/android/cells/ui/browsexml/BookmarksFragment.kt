@@ -190,7 +190,7 @@ class BookmarksFragment : Fragment() {
 
     inner class BookmarkObserver : Observer<List<RTreeNode>> {
 
-        override fun onChanged(it: List<RTreeNode>?) {
+        override fun onChanged(it: List<RTreeNode>) {
             it?.let {
                 if (it.isEmpty()) {
                     val msg = when {
