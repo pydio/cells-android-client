@@ -13,7 +13,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.nav.MainDrawerHost
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.transport.StateID
@@ -24,7 +23,7 @@ import org.koin.androidx.compose.koinViewModel
 private const val logTag = "MainHost.kt"
 
 @Composable
-fun MainHost(
+fun MainApp(
     startingState: StartingState,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
@@ -41,7 +40,7 @@ fun MainHost(
         Log.e(logTag, "--- Open Account: $it")
     }
 
-    MainDrawerHost(
+    NavHostWithDrawer(
         startingState = startingState,
         currAccountID = currAccountID.value,
         openAccount = openAccount,

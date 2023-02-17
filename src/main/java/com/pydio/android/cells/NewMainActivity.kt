@@ -12,7 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.view.WindowCompat
-import com.pydio.android.cells.ui.MainHost
+import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
@@ -44,7 +44,7 @@ class NewMainActivity : ComponentActivity() {
 //                val currState = rememberSaveable(stateSaver = StartingStateSaver) {
 //                    mutableStateOf(startingState)
 //                }
-                MainHost(
+                MainApp(
                     // currState.value,
                     startingState,
                     this::launchIntent,

@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui
 
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -9,11 +9,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseHost
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.login.LoginHost
+import com.pydio.android.cells.ui.nav.CellsDestinations
+import com.pydio.android.cells.ui.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.nav.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
