@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,6 +25,7 @@ fun DefaultTopBar(
     back: (() -> Unit)? = null,
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
     TopAppBar(

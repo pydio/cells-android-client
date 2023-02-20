@@ -18,6 +18,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
     override fun onActive() {
+        Log.i(logTag, "onActive()")
         super.onActive()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -168,7 +169,6 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     }
 }
 
-
 sealed class NetworkStatus {
     object Unmetered : NetworkStatus()
     object Metered : NetworkStatus()
@@ -206,5 +206,3 @@ sealed class NetworkStatus {
 //        }
 //    }
 //}
-
-

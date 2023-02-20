@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.account
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +46,7 @@ fun AccountsScreen(
         login = login,
         logout = { accountListVM.logoutAccount(it) },
         forget = { accountListVM.forgetAccount(it) },
+        contentPadding = contentPadding,
     )
 }
 
@@ -60,6 +62,7 @@ private fun AccountsScreen(
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
     val confirmForget: (stateID: StateID) -> Unit = {
@@ -79,6 +82,7 @@ private fun AccountsScreen(
                 )
             }
         },
+        modifier = Modifier.padding(contentPadding),
         content = { innerPadding ->
             AccountList(
                 currAccountID,
