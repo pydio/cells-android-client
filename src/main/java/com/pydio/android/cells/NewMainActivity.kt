@@ -36,7 +36,9 @@ class NewMainActivity : ComponentActivity() {
         val startingState = handleInput(savedInstanceState)
         Log.d(logTag, "onCreate for: ${startingState.stateID}")
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // TODO rework this
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
