@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -98,7 +97,7 @@ fun TreeNodeRename(
     dismiss: (Boolean) -> Unit,
 ) {
     val doRename: (StateID, String) -> Unit = { srcID, name ->
-        moreMenuVM.renameNode(srcID, name)
+        moreMenuVM.rename(srcID, name)
     }
 
     AskForNewName(
@@ -122,7 +121,7 @@ fun ConfirmDeletion(
         title = stringResource(id = R.string.confirm_move_to_recycle_title),
         desc = stringResource(id = R.string.confirm_move_to_recycle_desc, stateID.fileName),
         confirm = {
-            moreMenuVM.deleteNode(stateID)
+            moreMenuVM.delete(stateID)
             dismiss(true)
         },
         dismiss = { dismiss(false) },
@@ -140,7 +139,7 @@ fun ConfirmPermanentDeletion(
         title = stringResource(id = R.string.confirm_permanent_deletion_title),
         desc = stringResource(id = R.string.confirm_permanent_deletion_desc, stateID.fileName),
         confirm = {
-            moreMenuVM.deleteNode(stateID) // TODO this should be enough
+            moreMenuVM.delete(stateID) // TODO this should be enough
             dismiss(true)
         },
         dismiss = { dismiss(false) },

@@ -172,7 +172,7 @@ private fun FolderWithDialogs(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { taken ->
             if (taken) {
-                moreMenuVM.importPhoto()
+                moreMenuVM.uploadPhoto()
             } else {
                 moreMenuVM.cancelPhoto()
             }
@@ -262,7 +262,7 @@ private fun FolderWithDialogs(
                     actionDone(true)
                 }
                 is NodeAction.RestoreFromTrash -> {
-                    moreMenuVM.restoreFromtrash(toOpenStateID)
+                    moreMenuVM.restoreFromTrash(toOpenStateID)
                     actionDone(true)
                 }
                 else -> navController.navigate("${it.id}/${toOpenStateID.id}")
