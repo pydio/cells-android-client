@@ -53,18 +53,18 @@
     <!-- Bottom Sheets -->
     <dimen name="bottom_sheet_header_height">64dp</dimen>
     <dimen name="bottom_sheet_item_height">54dp</dimen>
-    <dimen name="bottom_sheet_header_h_padding">12dp</dimen>
+    <dimen name="bottom_sheet_header_h_padding">8dp</dimen>
     <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
     <dimen name="bottom_sheet_start_padding">16dp</dimen>
-    <dimen name="bottom_sheet_h_padding">8dp</dimen>
-    <dimen name="bottom_sheet_v_padding">12dp</dimen>
-
+    <dimen name="bottom_sheet_item_h_padding">8dp</dimen>
+    <dimen name="bottom_sheet_v_spacing">6dp</dimen>
+    <dimen name="bottom_sheet_v_padding">6dp</dimen>
 
     <!-- **** LISTS **** -->
 
     <!-- Generic -->
     <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
-    <dimen name="item_spacer_width">20dp</dimen>
+    <dimen name="item_spacer_width">12dp</dimen>
 
     <!-- Lists / Lazy Column Items -->
     <dimen name="list_item_selected_elevation">4dp</dimen>

@@ -5,11 +5,19 @@ import androidx.compose.ui.graphics.Color
 // v3.0 Styles
 
 // TODO rather put the colors in a class.
+
 object CellsColor {
+
     val ok = Color(0xFF219600)
     val warning = Color(0xFFFF9800)
     val danger = Color(0xFFBA1B1B)
+
+    val flagBookmark = Color(0xFFFF9800)
+    val flagOffline = Color(0xFF607D8B)
+    val flagShare = Color(0xFF009688)
+
 }
+
 val ok = Color(0xFF219600)
 val warning = Color(0xFFFF9800)
 val danger = Color(0xFFBA1B1B)
