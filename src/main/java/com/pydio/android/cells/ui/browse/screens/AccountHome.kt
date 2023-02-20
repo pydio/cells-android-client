@@ -135,7 +135,7 @@ private fun AccHomeScaffold(
 
             Divider(
                 modifier = Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_h_padding))
+                    .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
                     .fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
                 thickness = 1.dp,

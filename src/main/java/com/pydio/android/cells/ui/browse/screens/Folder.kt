@@ -42,6 +42,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.browse.composables.MoreMenuType
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
@@ -89,20 +90,20 @@ fun Folder(
     // We handle the state of the more menu here, not optimal...
     val scope = rememberCoroutineScope()
     val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val childState: MutableState<StateID?> = remember {
-        mutableStateOf(null)
+    val childState: MutableState<Pair<MoreMenuType, StateID?>> = remember {
+        mutableStateOf(Pair(MoreMenuType.NONE, null))
     }
 
-    val openMoreMenu: (StateID) -> Unit = { childID ->
+    val openMoreMenu: (MoreMenuType, StateID) -> Unit = { type, childID ->
         scope.launch {
-            childState.value = childID
+            childState.value = Pair(type, childID)
             state.expand()
         }
     }
 
     val actionDone: (Boolean) -> Unit = {
         scope.launch {
-            childState.value = null
+            childState.value = Pair(MoreMenuType.NONE, null)
             if (it) { // Also reset backoff ticker
                 browseRemoteVM.watch(stateID)
             }
@@ -113,7 +114,8 @@ fun Folder(
     WrapWithActions(
         isLoading = isLoading ?: true,
         actionDone = actionDone,
-        toOpenStateID = childState.value,
+        type = childState.value.first,
+        toOpenStateID = childState.value.second,
         sheetState = state,
     ) {
         FolderPage(
@@ -141,7 +143,7 @@ private fun FolderPage(
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openDrawer: () -> Unit,
-    openMoreMenu: (StateID) -> Unit,
+    openMoreMenu: (MoreMenuType, StateID) -> Unit,
     openSearch: () -> Unit,
     forceRefresh: () -> Unit,
 ) {
@@ -157,7 +159,7 @@ private fun FolderPage(
         floatingActionButton = {
             if (Str.notEmpty(stateID.workspace)) {
                 FloatingActionButton(
-                    onClick = { /*TODO*/ }
+                    onClick = { openMoreMenu(MoreMenuType.CREATE, stateID) }
                 ) { Icon(Icons.Filled.Add, /* TODO */ contentDescription = "") }
             }
         },
@@ -169,7 +171,7 @@ private fun FolderPage(
                 children = children,
                 openParent = openParent,
                 open = open,
-                openMoreMenu = openMoreMenu,
+                openMoreMenu = { openMoreMenu(MoreMenuType.MORE, it) },
                 forceRefresh = forceRefresh,
                 modifier = Modifier.padding(padding),
             )
@@ -222,9 +224,16 @@ private fun FolderList(
                     mime = node.mime,
                     sortName = node.sortName,
                     title = getNodeTitle(name = node.name, mime = node.mime),
-                    desc = getNodeDesc(context, node.remoteModificationTS, node.size),
+                    desc = getNodeDesc(
+                        context,
+                        node.remoteModificationTS,
+                        node.size,
+                        node.localModificationStatus
+                    ),
+                    isBookmarked = node.isBookmarked(),
+                    isOfflineRoot = node.isOfflineRoot(),
+                    isShared = node.isShared(),
                     more = {
-                        Log.e(logTag, "#### About to call more for: ${node.getStateID()}")
                         openMoreMenu(node.getStateID())
                     },
                     modifier = Modifier.clickable { open(node.getStateID()) },

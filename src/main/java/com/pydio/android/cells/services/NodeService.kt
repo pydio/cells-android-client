@@ -236,23 +236,65 @@ class NodeService(
     }
 
     /* Calls to query both the cache and the remote server */
-    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-        val stateID = rTreeNode.getStateID()
+//    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+//        val stateID = rTreeNode.getStateID()
+//        toggleBookmark(stateID)
+//    }
+
+    suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
         try {
-            getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked())
-            rTreeNode.setBookmarked(!rTreeNode.isBookmarked())
-            rTreeNode.localModificationTS = currentTimestamp()
-            nodeDB(stateID).treeNodeDao().update(rTreeNode)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
+            node.setBookmarked(newState)
+            node.localModificationTS = currentTimestamp()
+            nodeDB(stateID).treeNodeDao().update(node)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
-            return@withContext null
+            return@withContext
         } catch (ioe: IOException) {
             Log.e(logTag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
-            return@withContext null
+            return@withContext
         }
     }
 
+    suspend fun removeShare(stateID: StateID) = withContext(Dispatchers.IO) {
+        try {
+            val client = getClient(stateID)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            if (client.isLegacy) {
+                client.unshare(stateID.workspace, stateID.file)
+            } else {
+                node.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                    client.unshare(stateID.workspace, it)
+                }
+            }
+        } catch (se: SDKException) {
+            Log.e(logTag, "could remove link for " + stateID.id)
+        } catch (ioe: IOException) {
+            Log.e(logTag, "could remove link for ${stateID}: ${ioe.message}")
+            return@withContext
+        }
+    }
+
+
+    suspend fun createShare(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            // We still put default values. TODO implement user defined details
+            return@withContext getClient(stateID).share(
+                stateID.workspace, stateID.file, stateID.fileName,
+                "Created on ${currentTimestampAsString()}",
+                null, true, true
+            )
+        } catch (se: SDKException) {
+            Log.e(logTag, "could create link for " + stateID.id)
+        } catch (ioe: IOException) {
+            Log.e(logTag, "could create link for ${stateID}: ${ioe.message}")
+        }
+        return@withContext null
+    }
+
+    @Deprecated("Rather use createShare() and removeShare()")
     suspend fun toggleShared(rTreeNode: RTreeNode): String? = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
@@ -285,18 +327,18 @@ class NodeService(
         return@withContext null
     }
 
-    suspend fun toggleOffline(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-        val stateID = rTreeNode.getStateID()
+    suspend fun toggleOffline(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
         try {
-            if (rTreeNode.isOfflineRoot()) {
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            if (node.isOfflineRoot()) {
                 removeOfflineRoot(stateID)
             } else {
-                updateOfflineRoot(rTreeNode)
+                updateOfflineRoot(node)
             }
         } catch (e: Exception) {
             Log.e(logTag, "could update offline sync status for ${stateID}: ${e.message}")
             e.printStackTrace()
-            return@withContext null
+            return@withContext
         }
     }
 
@@ -335,7 +377,7 @@ class NodeService(
         }
 
     // TODO finalize this: we should try to move already existing cache file and index
-    //   rather than deleting / recreating the offline root
+//   rather than deleting / recreating the offline root
     suspend fun moveOfflineRoot(rTreeNode: RTreeNode, offlineRoot: ROfflineRoot) =
         withContext(Dispatchers.IO) {
             val stateID = rTreeNode.getStateID()
@@ -736,7 +778,7 @@ class NodeService(
             return@withContext null
         }
 
-    // Handle communication with the remote server to refresh locally stored data.
+// Handle communication with the remote server to refresh locally stored data.
 
     /**
      * Retrieve the meta of all readable nodes that are at the passed stateID.

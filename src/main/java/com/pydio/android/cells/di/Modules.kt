@@ -172,7 +172,7 @@ val viewModelModule = module {
     viewModel { AccountListVM(get()) }
 
     viewModel { ConnectionVM(get()) }
-    viewModel { MoreMenuVM(get()) }
+    viewModel { MoreMenuVM(get(), get(), get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
 
@@ -197,7 +197,6 @@ val viewModelModule = module {
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }
     viewModel { PickFolderViewModel(get(), get()) }
-
 
     viewModel { params -> TransferViewModel(get(), get(), params.get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }

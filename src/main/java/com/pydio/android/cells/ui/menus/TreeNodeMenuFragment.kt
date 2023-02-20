@@ -517,7 +517,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     doDismiss()
                 }
                 ACTION_TOGGLE_BOOKMARK -> {
-                    nodeService.toggleBookmark(node)
+//                    nodeService.toggleBookmark(node)
                     doDismiss()
                 }
                 ACTION_TOGGLE_SHARED -> {
@@ -570,7 +570,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     doDismiss()
                 }
                 ACTION_TOGGLE_OFFLINE -> {
-                    nodeService.toggleOffline(node)
+//                    nodeService.toggleOffline(node)
                     doDismiss()
                 }
                 ACTION_FORCE_RESYNC -> {

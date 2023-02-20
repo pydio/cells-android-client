@@ -40,6 +40,7 @@ object CellsIcons {
     val CopyTo = Icons.Default.FileCopy
     val CreateFolder = Icons.Default.CreateNewFolder
     val Delete = Icons.Outlined.Delete
+    val DeleteForever = Icons.Default.DeleteForever
     val DownloadFile = Icons.Outlined.FileDownload
     val DownloadToDevice = Icons.Outlined.CloudDownload
     val Edit = Icons.Default.Edit

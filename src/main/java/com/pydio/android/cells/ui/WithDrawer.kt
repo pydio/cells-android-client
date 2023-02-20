@@ -80,7 +80,12 @@ fun NavHostWithDrawer(
                     navigateToAbout = systemActions.navigateToAbout,
                 )
             }
-            WithInternetBanner {
+            WithInternetBanner(
+                contentPadding = rememberContentPaddingForScreen(
+                    additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                    excludeTop = !isExpandedScreen
+                )
+            ) {
                 CellsNavGraph(
                     currAccountID = currAccountID,
                     openAccount = openAccount,

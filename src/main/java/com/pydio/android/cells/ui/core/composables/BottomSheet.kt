@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,23 +18,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsIcons
 
-
 /** Data for a given item in the BottomSheet */
-
 interface IMenuItem {
     fun onClick()
 }
@@ -55,14 +60,17 @@ fun BottomSheetContent(
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
-    LazyColumn(Modifier.fillMaxWidth()) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
         item {
             header()
         }
         item {
             Divider(
                 modifier = Modifier
-                    .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_h_padding))
+                    .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
                     .fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
                 thickness = 1.dp,
@@ -121,21 +129,23 @@ fun BottomSheetHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = dimensionResource(R.dimen.bottom_sheet_h_padding),
-                    vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
+                    horizontal = dimensionResource(R.dimen.bottom_sheet_header_h_padding),
+                    vertical = dimensionResource(R.dimen.bottom_sheet_header_v_padding),
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             thumb()
+
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
 
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.card_padding),
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
+//                    .padding(
+//                        horizontal = dimensionResource(R.dimen.card_padding),
+//                        vertical = dimensionResource(R.dimen.margin_xsmall)
+//                    )
                     .wrapContentWidth(Alignment.Start)
             ) {
                 Text(
@@ -170,11 +180,12 @@ fun BottomSheetListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onItemClick)
-            .height(dimensionResource(R.dimen.bottom_sheet_item_height))
             .background(color = bgColor)
             .padding(
-                horizontal = dimensionResource(R.dimen.bottom_sheet_h_padding),
-//                vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
+                horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding),
+                // Warning: this is only the "inner" padding of the menu item.
+                // See also parent's vertical spacing
+                vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -183,6 +194,61 @@ fun BottomSheetListItem(
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
         Text(text = title, color = tint)
     }
+}
+
+@Composable
+fun BottomSheetListItemWithToggle(
+    icon: ImageVector,
+    title: String,
+    tint: Color,
+    bgColor: Color,
+    isSelected: Boolean,
+    onItemClick: (Boolean) -> Unit
+) {
+    // FIXME: we want to also keep the state at this level so that the user has a direct feedback
+    //  in the more menu when he launches a remote call. It does not work yet.
+    val localSelected = remember<MutableState<Boolean>> {
+        mutableStateOf(isSelected)
+    }
+    // val scope = rememberCoroutineScope()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = { onItemClick(!isSelected) })
+            .background(color = bgColor)
+            .padding(
+                horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding),
+//                 vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Icon(imageVector = icon, contentDescription = title, tint = tint)
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
+        Text(
+            text = title,
+            color = tint,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            modifier = Modifier.semantics { contentDescription = title },
+            checked = isSelected,
+            onCheckedChange = { localSelected.value = it; onItemClick(it) }
+        )
+    }
+}
+
+
+@Composable
+fun BottomSheetDivider(color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
+    Divider(
+        modifier = Modifier
+            .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
+            .fillMaxWidth(),
+        color = color.copy(alpha = .6f),
+        thickness = 1.dp,
+    )
 }
 
 @Preview(showBackground = true)
