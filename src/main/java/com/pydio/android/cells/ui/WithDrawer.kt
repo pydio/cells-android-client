@@ -29,12 +29,14 @@ import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.nav.SystemNavigationActions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState,
     currAccountID: StateID,
+    connectionVM: ConnectionVM = koinViewModel(),
     openAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass
@@ -81,7 +83,8 @@ fun NavHostWithDrawer(
                 )
             }
             WithInternetBanner(
-                contentPadding = rememberContentPaddingForScreen(
+            connectionVM = connectionVM,
+            contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 )

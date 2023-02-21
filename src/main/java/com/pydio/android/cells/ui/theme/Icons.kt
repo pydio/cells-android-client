@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.PersonOff
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.rounded.Add
@@ -62,6 +63,7 @@ object CellsIcons {
     val MyFiles = Icons.Default.FolderShared
     val MyFilesThumb = Icons.Default.FolderSpecial
     val NoInternet = Icons.Default.CloudOff
+    val NoValidCredentials = Icons.Outlined.PersonOff
     val OpenLocation = Icons.Default.OpenInBrowser
     val Pause = Icons.Default.Pause
     val Person = Icons.Rounded.Person

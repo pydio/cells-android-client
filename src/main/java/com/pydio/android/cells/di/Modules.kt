@@ -171,7 +171,7 @@ val viewModelModule = module {
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }
 
-    viewModel { ConnectionVM(get()) }
+    viewModel { ConnectionVM(get(), get()) }
     viewModel { MoreMenuVM(get(), get(), get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
