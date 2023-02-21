@@ -16,6 +16,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.Dp
@@ -27,7 +28,7 @@ import com.pydio.android.cells.ui.nav.AppDrawer
 import com.pydio.android.cells.ui.nav.AppNavRail
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.nav.SystemNavigationActions
-import com.pydio.cells.transport.StateID
+import com.pydio.cells.api.Transport
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -35,11 +36,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState,
-    currAccountID: StateID,
-    connectionVM: ConnectionVM = koinViewModel(),
-    openAccount: (StateID) -> Unit,
+//    currAccountID: StateID,
+//    openAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    widthSizeClass: WindowWidthSizeClass
+    widthSizeClass: WindowWidthSizeClass,
+    connectionVM: ConnectionVM = koinViewModel(),
 ) {
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
@@ -49,6 +50,15 @@ fun NavHostWithDrawer(
 
     val navHostController = rememberNavController()
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+
+    val activeSessionView = connectionVM.sessionView.observeAsState()
+
+//
+//    val openAccount: (StateID) -> Unit = {
+//        currAccountID.value = it
+//        Log.e(logTag, "--- Open Account: $it")
+//    }
+
 
     val navigationActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
@@ -60,7 +70,8 @@ fun NavHostWithDrawer(
     ModalNavigationDrawer(
         drawerContent = {
             AppDrawer(
-                currAccountID = currAccountID,
+                currAccountID = activeSessionView.value?.getStateID()
+                    ?: Transport.UNDEFINED_STATE_ID,
                 currentRoute = navBackStackEntry?.destination?.route,
                 navigateToHome = navigationActions.navigateToHome,
                 navigateToBrowse = { navigationActions.navigateToBrowse(it) },
@@ -83,15 +94,15 @@ fun NavHostWithDrawer(
                 )
             }
             WithInternetBanner(
-            connectionVM = connectionVM,
-            contentPadding = rememberContentPaddingForScreen(
+                connectionVM = connectionVM,
+                contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 )
             ) {
                 CellsNavGraph(
-                    currAccountID = currAccountID,
-                    openAccount = openAccount,
+                    currAccountID = activeSessionView.value?.getStateID()
+                        ?: Transport.UNDEFINED_STATE_ID,
                     isExpandedScreen = isExpandedScreen,
                     navController = navHostController,
                     openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },

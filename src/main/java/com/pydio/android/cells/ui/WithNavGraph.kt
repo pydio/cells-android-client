@@ -26,7 +26,7 @@ private const val logTag = "CellsNavGraph"
 @Composable
 fun CellsNavGraph(
     currAccountID: StateID,
-    openAccount: (StateID) -> Unit,
+    // openAccount: (StateID) -> Unit,
     isExpandedScreen: Boolean,
     navController: NavHostController = rememberNavController(),
     openDrawer: () -> Unit,
@@ -70,9 +70,17 @@ fun CellsNavGraph(
         }
     }
 
-    val login: (StateID) -> Unit = {
-        navigationActions.navigateToLogin(it)
+
+    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
+        when (action) {
+            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
+            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
+        }
     }
+
+//    val login: (StateID) -> Unit = {
+//        navigationActions.navigateToLogin(it)
+//    }
 
     NavHost(
         navController = navController,
@@ -94,8 +102,7 @@ fun CellsNavGraph(
         composable(CellsDestinations.Accounts.route) {
             AccountsScreen(
                 currAccountID,
-                switchAccount = openAccount,
-                login = login,
+                navigateTo = navigateTo,
                 back = { navController.popBackStack() },
                 contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
@@ -109,7 +116,8 @@ fun CellsNavGraph(
                 ?: Transport.UNDEFINED_STATE
             LoginHost(
                 currAccount = StateID.fromId(stateId),
-                openAccount = openAccount,
+                // FIXME rather forward the navigateTo() method
+                openAccount = { navigateTo(CellsDestinations.Browse.route, it) },
                 startingState = startingState,
                 launchIntent = launchIntent,
                 back = { navController.popBackStack() },

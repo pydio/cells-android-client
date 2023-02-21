@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -20,30 +21,40 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountsScreen(
     currAccountID: StateID,
-    switchAccount: (StateID) -> Unit,
-    login: (StateID) -> Unit,
+    navigateTo: (String, StateID) -> Unit,
+    // login: (StateID) -> Unit,
     back: () -> Unit,
     accountListVM: AccountListVM = koinViewModel(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
+    val scope = rememberCoroutineScope()
     val accounts by accountListVM.sessions.observeAsState()
 
+    // TODO handle errors
     AccountsScreen(
         currAccountID = currAccountID,
         accounts = accounts.orEmpty(),
-        openAccount = switchAccount,
+        openAccount = {
+            scope.launch {
+                accountListVM.openSession(it)?.let {
+                    navigateTo(CellsDestinations.Browse.route, it.getStateID())
+                }
+            }
+        },
         back = back,
-        registerNew = { login(Transport.UNDEFINED_STATE_ID) },
-        login = login,
+        registerNew = { navigateTo(CellsDestinations.Login.route, Transport.UNDEFINED_STATE_ID) },
+        login = { navigateTo(CellsDestinations.Login.route, it) },
         logout = { accountListVM.logoutAccount(it) },
         forget = { accountListVM.forgetAccount(it) },
         contentPadding = contentPadding,

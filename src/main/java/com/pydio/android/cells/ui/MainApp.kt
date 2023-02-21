@@ -27,23 +27,23 @@ fun MainApp(
     startingState: StartingState,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
-    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
-    accountListVM: AccountListVM = koinViewModel(),
+//    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
+//    accountListVM: AccountListVM = koinViewModel(),
 ) {
 
-    val currAccountID = rememberSaveable(stateSaver = stateIDSaver) {
-        mutableStateOf(startingState.stateID)
-    }
-
-    val openAccount: (StateID) -> Unit = {
-        currAccountID.value = it
-        Log.e(logTag, "--- Open Account: $it")
-    }
+//    val currAccountID = rememberSaveable(stateSaver = stateIDSaver) {
+//        mutableStateOf(startingState.stateID)
+//    }
+//
+//    val openAccount: (StateID) -> Unit = {
+//        currAccountID.value = it
+//        Log.e(logTag, "--- Open Account: $it")
+//    }
 
     NavHostWithDrawer(
         startingState = startingState,
-        currAccountID = currAccountID.value,
-        openAccount = openAccount,
+//        currAccountID = currAccountID.value,
+//        openAccount = openAccount,
         launchIntent = launchIntent,
         widthSizeClass = widthSizeClass
     )

@@ -43,7 +43,8 @@ class ConnectionVM(
 //    private val _accountID = MutableStateFlow(Transport.UNDEFINED_STATE_ID)
 //    val accountID: StateFlow<StateID> = _accountID
 
-//    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
+    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
+
 //    fun isConnected(networkType: String?): Boolean =
 //        networkType?.let { networkService.isConnected(it) } ?: true
 
@@ -51,7 +52,7 @@ class ConnectionVM(
 //        networkType?.let { networkService.isLimited(it) } ?: false
 
     val sessionStatusFlow: Flow<SessionStatus>
-        get() = accountService.liveActiveSessionView.asFlow()
+        get() = sessionView.asFlow()
             .combine(liveNetwork.asFlow()) { activeSession, currType ->
                 Log.e(logTag, "Executing switch map with network type: $currType")
                 // we first check the network type

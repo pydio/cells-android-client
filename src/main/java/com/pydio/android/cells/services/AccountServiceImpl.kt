@@ -59,12 +59,13 @@ class AccountServiceImpl(
         return !isLegacy(stateId)
     }
 
-    override suspend fun getSession(stateId: StateID): RSessionView? {
-        return sessionViewDao.getSession(stateId.accountId)
+    override suspend fun getSession(stateID: StateID): RSessionView? {
+        return sessionViewDao.getSession(stateID.accountId)
     }
 
     override fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
+    @Deprecated("Rather use method with the StateID")
     override fun getLiveSession(accountId: String): LiveData<RSessionView?> =
         sessionViewDao.getLiveSession(accountId)
 
@@ -192,6 +193,7 @@ class AccountServiceImpl(
         fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
+    @Deprecated("Rather use method with the StateID")
     override suspend fun forgetAccount(accountId: String): String? {
         return forgetAccount(StateID.fromId(accountId))
     }
@@ -228,6 +230,7 @@ class AccountServiceImpl(
         }
     }
 
+    @Deprecated("Rather use method with the StateID")
     override suspend fun logoutAccount(accountId: String): String? {
         return logoutAccount(StateID.fromId(accountId))
     }
@@ -257,29 +260,37 @@ class AccountServiceImpl(
      * Sets the lifecycle_state of a given session to "foreground".
      * WARNING: no check is done on the passed accountID.
      */
-    override suspend fun openSession(accountID: String) {
+    @Deprecated("Rather use method with the StateID")
+    override suspend fun openSession(accountId: String) {
+        return withContext(Dispatchers.IO) {
+            openSession(StateID.fromId(accountId))
+        }
+    }
+
+    override suspend fun openSession(accountID: StateID): RSessionView? {
         return withContext(Dispatchers.IO) {
 
-            // First put other opened sessions in the background
+            // Check if a session with this ISD exists
+            val newSession = sessionDao.getSession(accountID.id)
+                ?: run {
+                    Log.e(logTag, "No session found for $accountID")
+                    return@withContext null
+                }
+
+            // Put other opened sessions in background
             val tmpSessions = sessionDao.listAllForegroundSessions()
             for (currSession in tmpSessions) {
                 currSession.lifecycleState = AppNames.LIFECYCLE_STATE_BACKGROUND
                 sessionDao.update(currSession)
             }
 
-            val openSession = sessionDao.getSession(accountID)
-
-            if (openSession == null) {
-                // should never happen
-                Log.e(logTag, "No session found for $accountID")
-//                openSession = fromAccountID(accountID)
-//                accountDB.sessionDao().insert(openSession)
-            } else {
-                openSession.lifecycleState = AppNames.LIFECYCLE_STATE_FOREGROUND
-                sessionDao.update(openSession)
-            }
+            // Update session state and return corresponding session view
+            newSession.lifecycleState = AppNames.LIFECYCLE_STATE_FOREGROUND
+            sessionDao.update(newSession)
+            return@withContext getSession(accountID)
         }
     }
+
 
     override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         val isConnected = networkService.isConnected()

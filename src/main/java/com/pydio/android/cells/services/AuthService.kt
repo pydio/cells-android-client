@@ -1,6 +1,5 @@
 package com.pydio.android.cells.services
 
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.pydio.android.cells.db.auth.AuthDB

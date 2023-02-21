@@ -19,9 +19,12 @@ interface AccountService {
 
     suspend fun registerAccount(username: String, server: Server, authStatus: String): StateID
 
-    suspend fun getSession(stateId: StateID): RSessionView?
+    suspend fun getSession(stateID: StateID): RSessionView?
 
-    suspend fun openSession(accountID: String)
+    @Deprecated("Rather use method with the StateID")
+    suspend fun openSession(accountId: String)
+
+    suspend fun openSession(accountID: StateID) : RSessionView?
 
     suspend fun isLegacy(stateId: StateID): Boolean
 

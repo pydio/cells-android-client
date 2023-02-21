@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -24,8 +24,8 @@ class AccountListVM(
 ) : ViewModel() {
 
     private val logTag = AccountListVM::class.simpleName
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+//    private var viewModelJob = Job()
+//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private var _sessions = accountService.getLiveSessions()
     val sessions: LiveData<List<RSessionView>>
@@ -72,21 +72,23 @@ class AccountListVM(
     }
 
     fun forgetAccount(stateID: StateID) {
-        // FIXME we rather want to use a larger scope to insure the process is not stopped while processing
-        vmScope.launch {
+        viewModelScope.launch {
             accountService.forgetAccount(stateID)
         }
     }
 
+    suspend fun openSession(stateID: StateID): RSessionView? {
+        return accountService.openSession(stateID)
+    }
+
     fun logoutAccount(stateID: StateID) {
-        // This is less problematic (see above), we only remove the credentials from the local keystore
-        vmScope.launch {
+        viewModelScope.launch {
             accountService.logoutAccount(stateID)
         }
     }
 
     // Local helpers
-    private fun watchAccounts() = vmScope.launch {
+    private fun watchAccounts() = viewModelScope.launch {
         while (_isActive) {
             doCheckAccounts()
             val nd = backOffTicker.getNextDelay()
@@ -120,8 +122,8 @@ class AccountListVM(
     }
 
     override fun onCleared() {
-        viewModelJob.cancel()
+        // viewModelJob.cancel()
         super.onCleared()
+        Log.i(logTag, "AccountListVM cleared")
     }
-
 }
