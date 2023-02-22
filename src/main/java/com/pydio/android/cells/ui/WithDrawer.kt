@@ -83,11 +83,12 @@ fun NavHostWithDrawer(
                 currAccountID = activeSessionView.value?.getStateID()
                     ?: Transport.UNDEFINED_STATE_ID,
                 currentRoute = navBackStackEntry?.destination?.route,
+                connectionVM = connectionVM,
                 navigateToHome = navigationActions.navigateToHome,
                 navigateToBrowse = { navigationActions.navigateToBrowse(it) },
                 navigateToAccounts = navigationActions.navigateToAccounts,
                 navigateToAbout = systemActions.navigateToAbout,
-                closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } }
+                closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
             )
         },
         drawerState = sizeAwareDrawerState,

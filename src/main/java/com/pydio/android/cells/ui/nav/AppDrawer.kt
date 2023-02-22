@@ -3,11 +3,13 @@ package com.pydio.android.cells.ui.nav
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -15,16 +17,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.ConnectionVM
+import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
+import com.pydio.android.cells.ui.core.composables.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.getWsThumbVector
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 
 private const val logTag = "AppDrawer"
@@ -34,48 +44,143 @@ private const val logTag = "AppDrawer"
 fun AppDrawer(
     currAccountID: StateID,
     currentRoute: String?,
+    connectionVM: ConnectionVM,
     navigateToHome: () -> Unit,
     navigateToBrowse: (StateID) -> Unit,
     navigateToAccounts: () -> Unit,
 //    navigateToLogin: (StateID) -> Unit,
     navigateToAbout: () -> Unit,
     closeDrawer: () -> Unit,
-    modifier: Modifier = Modifier
+//     modifier: Modifier = Modifier,
+    // windowInsets: WindowInsets
 ) {
 
+    val defaultPadding = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+
+    val wss = connectionVM.wss.observeAsState()
+    val cells = connectionVM.cells.observeAsState()
+
     Log.d(logTag, "--- Got a new account: $currAccountID")
-    ModalDrawerSheet(modifier) {
-        PydioLogo(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(id = R.string.action_home)) },
-            icon = { Icon(Icons.Filled.Home, null) },
-            selected = CellsDestinations.Home.route == currentRoute,
-            onClick = { navigateToHome(); closeDrawer() },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(id = R.string.action_browse)) },
-            icon = { Icon(Icons.Filled.Explore, null) },
-            selected = CellsDestinations.Browse.route == currentRoute,
-            onClick = { navigateToHome(); closeDrawer() },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(id = R.string.switch_account)) },
-            icon = { Icon(Icons.Filled.Group, null) },
-            selected = CellsDestinations.Accounts.route == currentRoute,
-            onClick = { navigateToAccounts();closeDrawer() },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(id = R.string.action_open_about)) },
-            icon = { Icon(Icons.Filled.ListAlt, null) },
-            selected = SystemDestinations.ABOUT_ROUTE == currentRoute,
-            onClick = { navigateToAbout(); closeDrawer() },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        )
+    ModalDrawerSheet(
+        windowInsets = WindowInsets.systemBars
+            //.only(if (excludeTop) WindowInsetsSides.Bottom else WindowInsetsSides.Vertical)
+            .add(WindowInsets(bottom = 12.dp))
+    ) {
+
+        LazyColumn {
+
+            item {
+
+                PydioLogo(
+                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp)
+                )
+
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_offline_roots),
+                    icon = CellsIcons.KeepOfflineOld,
+                    selected = false, // TODO CellsDestinations.Offline.route == currentRoute,
+                    onClick = { closeDrawer() }, // TODO CellsDestinations.Offline.route == currentRoute,
+                    modifier = defaultPadding
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_bookmarks),
+                    icon = CellsIcons.Bookmark,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_transfers),
+                    icon = CellsIcons.Transfers,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+
+                BottomSheetDivider()
+
+                DefaultTitleText(stringResource(R.string.my_workspaces))
+                wss.value?.listIterator()?.forEach {
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = false, // TODO
+                        onClick = { closeDrawer() }, // TODO
+                        modifier = defaultPadding
+                    )
+                }
+                cells.value?.listIterator()?.forEach {
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = false, // TODO
+                        onClick = { closeDrawer() }, // TODO
+                        modifier = defaultPadding
+                    )
+                }
+
+                BottomSheetDivider()
+
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_settings),
+                    icon = CellsIcons.Settings,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_clear_cache),
+                    icon = CellsIcons.EmptyRecycle,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_jobs),
+                    icon = CellsIcons.Jobs,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_logs),
+                    icon = CellsIcons.Logs,
+                    selected = false, // TODO
+                    onClick = { closeDrawer() }, // TODO
+                    modifier = defaultPadding
+                )
+
+//        MyNavigationDrawerItem(
+//            label = stringResource(id = R.string.action_home),
+//            icon = Icons.Filled.Home,
+//            selected = CellsDestinations.Home.route == currentRoute,
+//            onClick = { navigateToHome(); closeDrawer() },
+//            modifier = defaultPadding
+//        )
+//        MyNavigationDrawerItem(
+//            label = stringResource(id = R.string.action_browse),
+//            icon = Icons.Filled.Explore,
+//            selected = CellsDestinations.Browse.route == currentRoute,
+//            onClick = { navigateToHome(); closeDrawer() },
+//            modifier = defaultPadding,
+//        )
+//        MyNavigationDrawerItem(
+//            label = stringResource(id = R.string.switch_account),
+//            icon = Icons.Filled.Group,
+//            selected = CellsDestinations.Accounts.route == currentRoute,
+//            onClick = { navigateToAccounts();closeDrawer() },
+//            modifier = defaultPadding
+//        )
+//        BottomSheetDivider()
+                MyNavigationDrawerItem(
+                    label = stringResource(id = R.string.action_open_about),
+                    icon = Icons.Filled.ListAlt,
+                    selected = SystemDestinations.ABOUT_ROUTE == currentRoute,
+                    onClick = { navigateToAbout(); closeDrawer() },
+                    modifier = defaultPadding,
+                )
+            }
+        }
     }
 }
 
@@ -87,13 +192,29 @@ private fun PydioLogo(modifier: Modifier = Modifier) {
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
-//        Spacer(Modifier.width(8.dp))
-//        Icon(
-//            painter = painterResource(R.drawable.ic_jetnews_wordmark),
-//            contentDescription = stringResource(R.string.app_name),
-//            tint = MaterialTheme.colorScheme.onSurfaceVariant
-//        )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyNavigationDrawerItem(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+) {
+    NavigationDrawerItem(
+        label = { Text(label) },
+        icon = { Icon(icon, label) },
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier.height(dimensionResource(id = R.dimen.menu_item_height)),
+        shape = ShapeDefaults.Small,
+    )
+    //    badge: (@Composable () -> Unit)? = null,
+    //    colors: NavigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
+    //    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 }
 
 @Preview("Drawer contents")
@@ -101,14 +222,14 @@ private fun PydioLogo(modifier: Modifier = Modifier) {
 @Composable
 fun PreviewAppDrawer() {
     CellsTheme {
-        AppDrawer(
-            currAccountID = Transport.UNDEFINED_STATE_ID,
-            currentRoute = CellsDestinations.Home.route,
-            navigateToHome = {},
-            navigateToBrowse = {},
-            navigateToAccounts = {},
-            navigateToAbout = {},
-            closeDrawer = { }
-        )
+//        AppDrawer(
+//            currAccountID = Transport.UNDEFINED_STATE_ID,
+//            currentRoute = CellsDestinations.Home.route,
+//            navigateToHome = {},
+//            navigateToBrowse = {},
+//            navigateToAccounts = {},
+//            navigateToAbout = {},
+//            closeDrawer = { }
+//        )
     }
 }

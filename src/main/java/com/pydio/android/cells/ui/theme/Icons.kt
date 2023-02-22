@@ -8,6 +8,9 @@ import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.FolderShared
+import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material.icons.outlined.PersonOff
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.UploadFile
@@ -35,7 +38,7 @@ object CellsIcons {
     val Bookmark = Icons.Default.Star
     val Cancel = Icons.Outlined.Cancel
     val Check = Icons.Default.Check
-    val CellThumb = Icons.Default.FolderShared
+    val CellThumb = Icons.Outlined.FolderShared
     val ClearCache = Icons.Default.FolderDelete
     val Close = Icons.Default.Close
     val CopyTo = Icons.Default.FileCopy
@@ -51,17 +54,19 @@ object CellsIcons {
     val Fullscreen = Icons.Rounded.Fullscreen
     val Grid3x3 = Icons.Rounded.Grid3x3
     val ImportFile = Icons.Default.Backup
+    val Jobs = Icons.Default.WorkHistory
     val KeepOffline = Icons.Default.DownloadForOffline
     val KeepOfflineOld = Icons.Default.FileDownloadDone
     val Link = Icons.Default.Link
     val Login = Icons.Default.Login
     val Logout = Icons.Default.Logout
+    val Logs = Icons.Default.Build
     val Menu = Icons.Default.Menu
     val Metered = Icons.Default.NetworkCheck
     val MoreVert = Icons.Default.MoreVert
     val MoveTo = Icons.Default.DriveFileMove
     val MyFiles = Icons.Default.FolderShared
-    val MyFilesThumb = Icons.Default.FolderSpecial
+    val MyFilesThumb = Icons.Outlined.FolderSpecial
     val NoInternet = Icons.Default.CloudOff
     val NoValidCredentials = Icons.Outlined.PersonOff
     val OpenLocation = Icons.Default.OpenInBrowser
@@ -82,7 +87,7 @@ object CellsIcons {
     val Transfers = Icons.Default.ImportExport
     val Unknown = Icons.Default.QuestionMark
     val UploadFile = Icons.Outlined.UploadFile
-    val WorkspaceThumb = Icons.Default.Folder
+    val WorkspaceThumb = Icons.Outlined.Folder
 }
 
 object CellsDrawableIcons {

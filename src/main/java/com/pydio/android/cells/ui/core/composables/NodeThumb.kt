@@ -47,9 +47,6 @@ fun Thumbnail(item: RTreeNode) {
                 contentDescription = "${item.name} thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
-//                modifier = Modifier
-//                    // .padding(all = dimensionResource(id = R.dimen.card_padding))
-//                    .size(dimensionResource(R.dimen.list_thumb_size)),
             )
         }
     } else {
@@ -67,7 +64,6 @@ fun Thumbnail(item: RTreeNode) {
             )
         }
     }
-
 }
 
 fun betterMime(passedMime: String, sortName: String?): String {
@@ -146,8 +142,8 @@ fun getDrawableFromMime(originalMime: String, sortName: String?): Int {
 fun getWsThumbVector(sortName: String): ImageVector {
     // Tweak: we deduce type of ws root from the sort name. Not very clean
     return when {
-        sortName.startsWith("1_2") -> CellsIcons.MyFilesThumb
-        sortName.startsWith("1_8") -> CellsIcons.CellThumb
+        sortName.startsWith("1_2") || sortName.startsWith("2_") -> CellsIcons.MyFilesThumb
+        sortName.startsWith("1_8") || sortName.startsWith("8_") -> CellsIcons.CellThumb
         else -> CellsIcons.WorkspaceThumb
     }
 }

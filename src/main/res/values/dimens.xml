@@ -135,6 +135,7 @@
 
     <!-- Menus -->
     <dimen name="menu_header_icon">42dp</dimen>
+    <dimen name="menu_item_height">36dp</dimen>
     <dimen name="header_icon">32dp</dimen>
     <dimen name="menu_icon">24dp</dimen>
     <dimen name="menu_margin">8dp</dimen>
