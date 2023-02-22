@@ -3,7 +3,6 @@ package com.pydio.android.cells.ui.browse.composables
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,19 +16,17 @@ import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
 
-private const val logTag = "RecycleMoreMenuView"
+private const val logTag = "CreateMenuView"
 
 @Composable
 fun CreateMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color,
+    bgColor: Color,
 ) {
-    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
         modifier = Modifier.fillMaxWidth()

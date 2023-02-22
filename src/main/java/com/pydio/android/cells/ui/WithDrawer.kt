@@ -26,16 +26,19 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.nav.AppDrawer
 import com.pydio.android.cells.ui.nav.AppNavRail
+import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.nav.SystemNavigationActions
 import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavHostWithDrawer(
-    startingState: StartingState,
+    startingState: StartingState?,
+    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 //    currAccountID: StateID,
 //    openAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
@@ -67,6 +70,13 @@ fun NavHostWithDrawer(
         SystemNavigationActions(navHostController)
     }
 
+    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
+        when (action) {
+            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
+            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
+        }
+    }
+
     ModalNavigationDrawer(
         drawerContent = {
             AppDrawer(
@@ -95,6 +105,7 @@ fun NavHostWithDrawer(
             }
             WithInternetBanner(
                 connectionVM = connectionVM,
+                navigateTo = navigateTo,
                 contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
@@ -103,11 +114,13 @@ fun NavHostWithDrawer(
                 CellsNavGraph(
                     currAccountID = activeSessionView.value?.getStateID()
                         ?: Transport.UNDEFINED_STATE_ID,
+                    startingState = startingState,
+                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                     isExpandedScreen = isExpandedScreen,
                     navController = navHostController,
+                    navigateTo = navigateTo,
                     openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
                     launchIntent = launchIntent,
-                    startingState = startingState,
                 )
             }
         }

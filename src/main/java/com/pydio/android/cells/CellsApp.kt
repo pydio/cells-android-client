@@ -90,7 +90,6 @@ class CellsApp : Application(), KoinComponent {
     //  - states
     //  - upload & downloads
 
-
     @Suppress("DEPRECATION")
     // We must explicitly discard warnings when using the old and new version of a given API
     // like below that is only available in v33+ with old version that has already been deprecated

@@ -1,82 +1,113 @@
 package com.pydio.android.cells.ui
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseHost
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.login.LoginHost
+import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.nav.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
-import com.pydio.cells.utils.Str
 
 private const val logTag = "CellsNavGraph"
 
 @Composable
 fun CellsNavGraph(
     currAccountID: StateID,
-    // openAccount: (StateID) -> Unit,
+    startingState: StartingState?,
+    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     isExpandedScreen: Boolean,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
+    navigateTo: (String, StateID) -> Unit,
+    // openAccount: (StateID) -> Unit,
     openDrawer: () -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    startingState: StartingState,
 ) {
 
     val navigationActions = remember(navController) {
         CellsNavigationActions(navController)
     }
 
-    // FIXME rework this for both: OAuth Callback & App launch
-    LaunchedEffect(key1 = startingState) {
-        Log.e(logTag, "########## Launching side effect for ${startingState.destination})")
-        Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
-        if (Str.notEmpty(startingState.destination)) {
-            when {
-                startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
-                -> navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
-            }
-        } else {
-            Log.e(logTag, "########## No defined destination, computing a new one")
-            when (currAccountID) {
-                Transport.UNDEFINED_STATE_ID ->
-                    navController.navigate(CellsDestinations.Accounts.route) {
-                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
+//    val alreadyDone = rememberSaveable {
+//        mutableStateOf(false)
+//    }
+//    val preventRunning = rememberSaveable {
+//        mutableStateOf(false)
+//    }
+
+    if (startingState != null) {
+        Log.e(logTag, "########## Got a starting state)")
+        LaunchedEffect(key1 = startingState.destination) {
+            Log.e(logTag, "########## Launching side effect for ${startingState.destination})")
+            Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
+            if (startingState.destination?.isNotEmpty() == true) {
+                when {
+                    startingState.destination == RouteLoginProcessAuth.route
+                    -> {
+                        // TODO check if startingState.state = state has already been consumed
+                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                     }
-                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
+                    startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
+                    -> {
+                        // TODO When do we pass here?
+                        Thread.dumpStack()
+                        Log.e(logTag, "##########   Got a login destination, see above")
+                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+                    }
+                    else -> // FIXME not sure it works
+                            startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                }
+            } else {
+                startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+            }
+            }
+    } else {
+        LaunchedEffect(key1 = currAccountID) {
+            // FIXME not good enough if we navigate to the home of the account and back here
+            //  we are not redirected to the account home if we click on the **SAME** account
+            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
+                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
+                navController.navigate(CellsDestinations.Browse.createRoute(currAccountID)) {
+                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
+                }
             }
         }
     }
 
-    LaunchedEffect(key1 = currAccountID) {
-        // FIXME not good enough if we navigate to the home of the account and back here
-        //  we are not redirected to the account home if we click on the **SAME** account
-        Log.e(logTag, "########## Launching side effect 222 for ${currAccountID})")
-        if (currAccountID != Transport.UNDEFINED_STATE_ID) {
-            navController.navigate(CellsDestinations.Browse.createRoute(currAccountID)) {
-                popUpTo(CellsDestinations.Home.route) { inclusive = true }
-            }
-        }
-    }
+    // FIXME rework this for both: OAuth Callback & App launch
+
+//        } else {
+//            Log.e(logTag, "########## No defined destination, computing a new one")
+//            when (currAccountID) {
+//                Transport.UNDEFINED_STATE_ID ->
+//                    navController.navigate(CellsDestinations.Accounts.route) {
+//                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
+//                    }
+//                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
+//            }
+//        }
+//    }
 
 
-    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
-        when (action) {
-            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
-            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
-        }
-    }
+//    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
+//        when (action) {
+//            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
+//            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
+//        }
+//    }
 
 //    val login: (StateID) -> Unit = {
 //        navigationActions.navigateToLogin(it)
@@ -119,6 +150,7 @@ fun CellsNavGraph(
                 // FIXME rather forward the navigateTo() method
                 openAccount = { navigateTo(CellsDestinations.Browse.route, it) },
                 startingState = startingState,
+                startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                 launchIntent = launchIntent,
                 back = { navController.popBackStack() },
             )

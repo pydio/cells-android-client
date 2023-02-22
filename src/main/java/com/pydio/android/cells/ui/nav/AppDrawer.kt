@@ -43,7 +43,7 @@ fun AppDrawer(
     modifier: Modifier = Modifier
 ) {
 
-    Log.e(logTag, "--- Got a new account: $currAccountID")
+    Log.d(logTag, "--- Got a new account: $currAccountID")
     ModalDrawerSheet(modifier) {
         PydioLogo(
             modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp)

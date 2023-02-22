@@ -28,8 +28,8 @@ fun RecycleParentMoreMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color,
+    bgColor: Color,
 ) {
 //    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
@@ -62,8 +62,8 @@ fun RecycleMoreMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color,
+    bgColor: Color,
 ) {
 //     Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(

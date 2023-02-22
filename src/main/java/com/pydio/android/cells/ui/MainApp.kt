@@ -20,11 +20,12 @@ import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "MainHost.kt"
+private const val logTag = "MainApp.kt"
 
 @Composable
 fun MainApp(
-    startingState: StartingState,
+    startingState: StartingState?,
+    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 //    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
@@ -42,6 +43,7 @@ fun MainApp(
 
     NavHostWithDrawer(
         startingState = startingState,
+        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
 //        currAccountID = currAccountID.value,
 //        openAccount = openAccount,
         launchIntent = launchIntent,

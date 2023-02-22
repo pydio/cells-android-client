@@ -35,7 +35,7 @@ class ConnectionVM(
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
     enum class SessionStatus {
-        NO_INTERNET, NOT_LOGGED_IN, ROAMING, METERED, OK
+        NO_INTERNET, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
     }
 
     private val liveNetwork = networkService.networkType
@@ -54,7 +54,7 @@ class ConnectionVM(
     val sessionStatusFlow: Flow<SessionStatus>
         get() = sessionView.asFlow()
             .combine(liveNetwork.asFlow()) { activeSession, currType ->
-                Log.e(logTag, "Executing switch map with network type: $currType")
+                Log.d(logTag, "Executing switch map with network type: $currType")
                 // we first check the network type
                 var newStatus = when (currType) {
                     AppNames.NETWORK_TYPE_UNKNOWN,
@@ -70,12 +70,14 @@ class ConnectionVM(
                 }
 
                 // We then refine based on the current foreground session
-                Log.e(logTag, " Got a status: $newStatus")
+                Log.d(logTag, " Got a status: $newStatus")
                 activeSession?.let {
                     Log.e(logTag, " Got a Session view: ${it.getStateID()}")
-                    if (newStatus != SessionStatus.NO_INTERNET
-                        && it.authStatus != AppNames.AUTH_STATUS_CONNECTED
+                    if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED
                     ) {
+                        if (newStatus != SessionStatus.NO_INTERNET) {
+                            newStatus = SessionStatus.CAN_RELOG
+                        } else
                         // TODO refine, we have following sessions status:
                         // AUTH_STATUS_NEW, AUTH_STATUS_NO_CREDS, AUTH_STATUS_UNAUTHORIZED
                         // AUTH_STATUS_EXPIRED, AUTH_STATUS_REFRESHING, AUTH_STATUS_CONNECTED

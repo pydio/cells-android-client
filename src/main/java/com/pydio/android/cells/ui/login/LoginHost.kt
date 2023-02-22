@@ -19,7 +19,8 @@ private const val logTag = "LoginHost"
 fun LoginHost(
     currAccount: StateID,
     openAccount: (StateID) -> Unit,
-    startingState: StartingState,
+    startingState: StartingState?,
+    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit,
     navController: NavHostController = rememberNavController()
@@ -30,8 +31,15 @@ fun LoginHost(
     val afterAuth: (Boolean) -> Unit = {
         val next = loginVM.nextAction.value
         Log.i(logTag, "After auth, success: $it, next action: $next")
-        navController.popBackStack(RouteLoginUrl.route, true)
+        navController.popBackStack(RouteLoginStarting.route, true)
         // TODO handle next action
+
+        Log.e(logTag, "Printing the back stack:")
+        var i = 0
+        navController.backQueue.forEach { nbse ->
+            Log.e(logTag, "#${i.inc()}: ${nbse}")
+
+        }
         Log.e(logTag, "After nav, curr destination: ${navController.currentDestination}")
         if (navController.currentDestination == null) {
             back()
@@ -47,40 +55,55 @@ fun LoginHost(
     }
 
     LaunchedEffect(key1 = currAccount, key2 = startingState) {
-        if (currAccount != Transport.UNDEFINED_STATE_ID) {
-            // We are in the case of a relog
-            loginVM.getSessionView(currAccount)?.let { sessionView ->
-                // FIXME implement next
-                loginVM.toCellsCredentials(sessionView, "browse")
+        startingState?.let { state ->
+            if (RouteLoginProcessAuth.route == state.destination) {
+                // OAuth flow Callback
+                // We assume that the check on code and state auth has already been done at this point
+                navController.navigate(RouteLoginProcessAuth.route)
+                val res = loginVM.handleOAuthResponse(
+                    state = state.state!!,
+                    code = state.code!!,
+                )
+                if (res) {
 
-                // TODO also pop until home to prevent coming back on the server Url screen
-                //    when the user clicks back
-                if (sessionView.isLegacy) {
-                    navController.navigate(RouteLoginP8Credentials.route) {}
-                } else {
-                    navController.navigate(RouteLoginProcessAuth.route) {}
+                    loginVM.accountId.value?.let {
+                        val stateID = StateID.fromId(it)
+                        openAccount(stateID)
+                        startingStateHasBeenProcessed(null, stateID)
+                    } ?: run {
+                        startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                    }
+                    // FIXME
+                    navController.popBackStack(RouteLoginUrl.route, true)
+                    // TODO handle next action
+                    Log.e(
+                        logTag,
+                        "After nav, curr destination: ${navController.currentDestination}"
+                    )
+                    if (navController.currentDestination == null) {
+                        back()
+                    }
                 }
             }
-        } else if (RouteLoginProcessAuth.route == startingState.destination) {
-            // OAuth flow Callback
+        } ?: run {
+            if (currAccount != Transport.UNDEFINED_STATE_ID) {
 
-            // We assume that the check on code and state auth has already been done at this point
-            navController.navigate(RouteLoginProcessAuth.route)
-            val res = loginVM.handleOAuthResponse(
-                state = startingState.state!!,
-                code = startingState.code!!,
-            )
-            if (res) {
-                loginVM.accountId.value?.let {
-                    openAccount(StateID.fromId(it))
+                // We are in the case of a relog
+                loginVM.getSessionView(currAccount)?.let { sessionView ->
+                    // FIXME implement next
+                    loginVM.toCellsCredentials(sessionView, "browse")
+
+                    // TODO also pop until home to prevent coming back on the server Url screen
+                    //    when the user clicks back
+                    if (sessionView.isLegacy) {
+                        navController.navigate(RouteLoginP8Credentials.route) {}
+                    } else {
+                        navController.navigate(RouteLoginProcessAuth.route) {}
+                    }
                 }
-                // FIXME
-                navController.popBackStack(RouteLoginUrl.route, true)
-                // TODO handle next action
-                Log.e(logTag, "After nav, curr destination: ${navController.currentDestination}")
-                if (navController.currentDestination == null) {
-                    back()
-                }
+            } else {
+                // register a new account
+                navController.navigate(RouteLoginUrl.route) {}
             }
         }
     }
@@ -103,8 +126,9 @@ fun LoginHost(
 
     NavHost(
         navController = navController,
-        startDestination = RouteLoginUrl.route,
+        startDestination = RouteLoginStarting.route,
     ) {
+        RouteLoginStarting.composable(this, navController, loginVM, navigateTo)
         RouteLoginUrl.composable(this, navController, loginVM, navigateTo)
         RouteLoginSkipVerify.composable(this, navController, loginVM, navigateTo)
         RouteLoginP8Credentials.composable(this, navController, loginVM, navigateTo)

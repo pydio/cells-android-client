@@ -3,8 +3,10 @@ package com.pydio.android.cells.ui.browse.composables
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -19,10 +21,10 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
+import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItemWithToggle
-import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
@@ -34,15 +36,13 @@ fun NodeMoreMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
+    tint: Color,
+    bgColor: Color,
 ) {
+    // TODO handle case when offline
 
-    // TODO handle case for:
-    //    recycle
-    //    inside recycle
-    //    when offline
-
-    val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
-    val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
+//    val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+//    val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
@@ -185,6 +185,7 @@ fun NodeMoreMenuView(
                 tint = tint,
                 bgColor = bgColor,
             )
+            Spacer(modifier = Modifier.size(50.dp))
         }
 
         // Still TODO add a larger bottom padding

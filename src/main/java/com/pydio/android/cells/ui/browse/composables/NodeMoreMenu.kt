@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -134,18 +136,10 @@ private fun FolderWithDialogs(
         }
     }
 
-//    val closeDialog: (Boolean, Boolean) -> Unit = { done, delayClosing ->
     val closeDialog: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         if (done) {
-//            if (delayClosing) {
-//                scope.launch {
-//                    delay(1000)
-//                    actionDone(true)
-//                }
-//            } else {
             actionDone(true)
-//            }
         }
     }
 
@@ -161,6 +155,7 @@ private fun FolderWithDialogs(
             actionDone(true)
         }
     )
+
     val fileImporter = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris ->
@@ -168,6 +163,7 @@ private fun FolderWithDialogs(
             actionDone(true)
         }
     )
+    
     val photoTaker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { taken ->
@@ -432,10 +428,14 @@ private fun FolderWithMoreMenu(
     content: @Composable () -> Unit,
 ) {
 
+    val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
+
     ModalBottomSheetLayout(
-        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, moreMenuVM) },
+        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, moreMenuVM, tint, bgColor) },
         modifier = Modifier,
         sheetState = sheetState,
+        sheetBackgroundColor = bgColor,
         content = content,
     )
 }
@@ -445,7 +445,9 @@ fun NodeMoreMenuData(
     type: MoreMenuType,
     toOpenStateID: StateID?,
     launch: (NodeAction) -> Unit,
-    moreMenuVM: MoreMenuVM
+    moreMenuVM: MoreMenuVM,
+    tint: Color,
+    bgColor: Color,
 ) {
     val item: MutableState<RTreeNode?> = remember {
         mutableStateOf(null)
@@ -476,22 +478,30 @@ fun NodeMoreMenuData(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
+                tint = tint,
+                bgColor = bgColor,
             )
             myItem.isInRecycle() -> RecycleMoreMenuView(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
+                tint = tint,
+                bgColor = bgColor,
             )
             type == MoreMenuType.CREATE -> CreateMenuView(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
+                tint = tint,
+                bgColor = bgColor,
             )
             else ->
                 NodeMoreMenuView(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
+                    tint = tint,
+                    bgColor = bgColor,
                 )
         }
 

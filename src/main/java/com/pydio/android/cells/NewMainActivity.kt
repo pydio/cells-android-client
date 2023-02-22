@@ -11,6 +11,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.view.WindowCompat
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
@@ -33,22 +35,33 @@ class NewMainActivity : ComponentActivity() {
         Log.d(logTag, "onCreate: launching new main activity")
         super.onCreate(savedInstanceState)
 
-        val startingState = handleInput(savedInstanceState)
-        Log.d(logTag, "onCreate for: ${startingState.stateID}")
+        val startingState = handleIntent(savedInstanceState)
+        Log.d(logTag, "onCreate for: ${startingState?.stateID}")
 
         // TODO rework this
         // WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
         setContent {
+
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+            val intentHasBeenProcessed = rememberSaveable() {
+                mutableStateOf(startingState == null)
+            }
+
+            val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+                intentHasBeenProcessed.value = true
+            }
+
+
             UseCellsTheme {
 //                val currState = rememberSaveable(stateSaver = StartingStateSaver) {
 //                    mutableStateOf(startingState)
 //                }
                 MainApp(
                     // currState.value,
-                    startingState,
+                    if (intentHasBeenProcessed.value) null else startingState,
+                    startingStateHasBeenProcessed,
                     this::launchIntent,
                     widthSizeClass,
                 )
@@ -85,13 +98,19 @@ class NewMainActivity : ComponentActivity() {
         }
     }
 
-    private fun handleInput(savedInstanceState: Bundle?): StartingState {
-
+    private fun handleIntent(savedInstanceState: Bundle?): StartingState? {
+        Log.e(logTag, "########################################")
+        Log.e(logTag, "Handle Intent: $intent")
         if (intent == null) { // we then rely on saved state or defaults
-            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
-            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
-            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
-            return StartingState(initialStateID)
+
+            // TO BE REFINED we assume we have no starting state in such case
+            return null
+
+//            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
+//            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
+//            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
+//            return StartingState(initialStateID)
+
         }
 
         // Intent is not null

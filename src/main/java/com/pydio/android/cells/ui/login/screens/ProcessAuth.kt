@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -65,12 +64,10 @@ fun ProcessAuth(
     loginVM: LoginViewModelNew,
     navigateTo: (String?) -> Unit,
 ) {
-
-    val scope = rememberCoroutineScope()
+//    val scope = rememberCoroutineScope()
     val message = loginVM.message.collectAsState()
 
     // FIXME trigger Nav when auth has been done
-
     ProcessAuth(
         isProcessing = true,
         message = message.value

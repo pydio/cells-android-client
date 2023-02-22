@@ -20,6 +20,20 @@ object RouteLoginDone {
     const val route = "login/done"
 }
 
+object RouteLoginStarting : LoginNavRoute<StateViewModel> {
+    override val route = "${prefix}starting"
+
+    @Composable
+    override fun viewModel(): StateViewModel = koinViewModel()
+
+    @Composable
+    override fun Content(
+        viewModel: StateViewModel,
+        loginVM: LoginViewModelNew,
+        navigateTo: (String?) -> Unit,
+    ) = AskServerUrl(viewModel, loginVM, navigateTo)
+}
+
 object RouteLoginUrl : LoginNavRoute<StateViewModel> {
 
     override val route = "${prefix}url"
