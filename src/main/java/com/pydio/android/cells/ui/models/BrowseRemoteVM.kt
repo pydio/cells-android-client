@@ -24,6 +24,11 @@ import java.util.concurrent.TimeUnit
 private val unknownStateId = StateID("https://example.com")
 private val logTag = BrowseRemoteVM::class.simpleName
 
+enum class LoadingState {
+    STARTING, PROCESSING, IDLE
+}
+
+
 class BrowseRemoteVM(
     private val accountService: AccountService,
     private val nodeService: NodeService
@@ -38,25 +43,22 @@ class BrowseRemoteVM(
     val stateID: StateFlow<StateID> = _stateID.asStateFlow()
 
     private var _isActive = false
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _loadingState = MutableLiveData<LoadingState>()
     private val _errorMessage = MutableLiveData<String?>()
 
     init {
-        _isLoading.value = true
+        _loadingState.value = LoadingState.STARTING
     }
 
-//    val stateID: LiveData<StateID>
-//        get() = _stateID
-
-    val isLoading: LiveData<Boolean>
-        get() = _isLoading
+    val loadingState: LiveData<LoadingState>
+        get() = _loadingState
 
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    fun watch(newStateID: StateID) {
-        _isLoading.value = true
+    fun watch(newStateID: StateID, isForceRefresh: Boolean) {
         pause()
+        _loadingState.value = if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
         currWatcher?.cancel()
         _stateID.value = newStateID
         resume()
@@ -65,6 +67,7 @@ class BrowseRemoteVM(
     fun pause() {
         Log.e(logTag, "... About to pause remote VM, state: ${stateID.value}")
         _isActive = false
+        _loadingState.value = LoadingState.IDLE
     }
 
     fun resume() {
@@ -111,7 +114,7 @@ class BrowseRemoteVM(
             if (result.first > 0) { // At least one change => reset backoff ticker
                 backOffTicker.resetIndex()
             }
-            _isLoading.value = false
+            _loadingState.value = LoadingState.IDLE
         }
     }
 

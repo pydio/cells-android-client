@@ -82,7 +82,7 @@ class SelectTargetActivity : ComponentActivity() {
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE)) {
                     val initialStateID = StateID.fromId(initialStateId)
                     browseLocalVM.setState(initialStateID)
-                    browseRemoteVM.watch(initialStateID)
+                    browseRemoteVM.watch(initialStateID, false)
                 }
 
                 val launchTaskFor: (StateID, String?) -> Unit = { stateID, action ->
@@ -152,7 +152,7 @@ class SelectTargetActivity : ComponentActivity() {
                                 if (Str.notEmpty(errMsg)) {
                                     showMessage(ctx, errMsg!!)
                                 } else {
-                                    browseRemoteVM.watch(parentID) // This force resets the backoff ticker
+                                    browseRemoteVM.watch(parentID, true) // This force resets the backoff ticker
                                     showMessage(ctx, "Folder created at ${parentID.file}.")
                                 }
                             }

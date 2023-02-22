@@ -34,6 +34,7 @@ import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLay
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.browse.MoreMenuVM
 import com.pydio.android.cells.ui.browse.screens.SelectFolderPage
+import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.api.Transport
@@ -88,7 +89,7 @@ sealed class NodeAction(val id: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WrapWithActions(
-    isLoading: Boolean,
+    loadingState: LoadingState,
     actionDone: (Boolean) -> Unit,
     type: MoreMenuType,
     toOpenStateID: StateID?,
@@ -96,7 +97,7 @@ fun WrapWithActions(
     content: @Composable () -> Unit,
 ) {
     FolderWithDialogs(
-        isLoading = isLoading,
+//        isLoading = isLoading,
         actionDone = actionDone,
         type = type,
         toOpenStateID = toOpenStateID,
@@ -109,7 +110,7 @@ fun WrapWithActions(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderWithDialogs(
-    isLoading: Boolean,
+//    isLoading: Boolean,
     actionDone: (Boolean) -> Unit,
     type: MoreMenuType,
     toOpenStateID: StateID?,
@@ -163,7 +164,7 @@ private fun FolderWithDialogs(
             actionDone(true)
         }
     )
-    
+
     val photoTaker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { taken ->
@@ -329,7 +330,7 @@ private fun FolderWithDialogs(
                 SelectFolderPage(
                     action = action,
                     stateID = stateId,
-                    isLoading = false, // TODO
+                    loadingStatus = LoadingState.IDLE, // FIXME
                     openFolder = {
                         val route = "${NodeAction.SelectTargetFolder.id}/${it.id}"
                         navController.navigate(route)

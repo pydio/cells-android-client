@@ -15,12 +15,13 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.browse.screens.SelectFolderScreen
 import com.pydio.android.cells.ui.browse.screens.SelectTargetAccount
-import com.pydio.android.cells.ui.transfer.UploadProgressList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.ui.models.TransferVM
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.transfer.UploadProgressList
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -57,7 +58,7 @@ fun SelectTargetHost(
     postActivity: (stateID: StateID, action: String?) -> Unit,
 ) {
 
-    val currLoadingState by browseRemoteVM.isLoading.observeAsState()
+    val currLoadingState by browseRemoteVM.loadingState.observeAsState()
 
     /* Define callbacks */
     val open: (StateID) -> Unit = { stateID ->
@@ -104,7 +105,7 @@ fun SelectTargetHost(
 //        }
     }
 
-    val forceRefresh: (StateID) -> Unit = { browseRemoteVM.watch(it) }
+    val forceRefresh: (StateID) -> Unit = { browseRemoteVM.watch(it, true) }
 
     val startDestination = if (initialStateId != Transport.UNDEFINED_STATE) {
         SelectTargetDestination.OpenFolder.route
@@ -144,13 +145,13 @@ fun SelectTargetHost(
             LaunchedEffect(key1 = stateId) {
                 accountListVM.pause()
                 browseLocalVM.setState(StateID.fromId(stateId))
-                browseRemoteVM.watch(StateID.fromId(stateId))
+                browseRemoteVM.watch(StateID.fromId(stateId), false)
             }
 
             SelectFolderScreen(
                 action,
                 stateId,
-                currLoadingState ?: true,
+                currLoadingState ?: LoadingState.STARTING,
                 browseLocalVM,
                 open,
                 openParent,

@@ -51,6 +51,7 @@ import com.pydio.android.cells.ui.core.composables.BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
@@ -76,15 +77,15 @@ fun Folder(
 
     LaunchedEffect(key1 = stateID) {
         Log.e(logTag, "... in Folder, launching effect")
-        browseRemoteVM.watch(stateID)
+        browseRemoteVM.watch(stateID, false)
     }
 
     browseLocalVM.setState(stateID)
-    val isLoading by browseRemoteVM.isLoading.observeAsState()
+    val loadingState by browseRemoteVM.loadingState.observeAsState()
     val children by browseLocalVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {
-        browseRemoteVM.watch(stateID)
+        browseRemoteVM.watch(stateID, true)
     }
 
     // We handle the state of the more menu here, not optimal...
@@ -105,21 +106,21 @@ fun Folder(
         scope.launch {
             childState.value = Pair(MoreMenuType.NONE, null)
             if (it) { // Also reset backoff ticker
-                browseRemoteVM.watch(stateID)
+                browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
             }
             state.hide()
         }
     }
 
     WrapWithActions(
-        isLoading = isLoading ?: true,
+        loadingState = loadingState ?: LoadingState.STARTING,
         actionDone = actionDone,
         type = childState.value.first,
         toOpenStateID = childState.value.second,
         sheetState = state,
     ) {
         FolderPage(
-            isLoading = isLoading ?: true,
+            loadingState = loadingState ?: LoadingState.STARTING,
             label = stateID.fileName ?: stateID.workspace,// FIXME
             stateID = stateID,
             children = children ?: listOf(),
@@ -136,7 +137,7 @@ fun Folder(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderPage(
-    isLoading: Boolean,
+    loadingState: LoadingState,
     stateID: StateID,
     label: String,
     children: List<RTreeNode>,
@@ -166,7 +167,7 @@ private fun FolderPage(
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
         Column {
             FolderList(
-                refreshing = isLoading,
+                loadingState = loadingState,
                 stateID = stateID,
                 children = children,
                 openParent = openParent,
@@ -182,7 +183,7 @@ private fun FolderPage(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun FolderList(
-    refreshing: Boolean,
+    loadingState: LoadingState,
     stateID: StateID,
     children: List<RTreeNode>,
     openParent: (StateID) -> Unit,
@@ -195,7 +196,7 @@ private fun FolderList(
     // Warning: pullRefresh API is:
     //   - experimental
     //   - only implemented in material 1, for the time being.
-    val state = rememberPullRefreshState(refreshing, onRefresh = {
+    val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
         Log.i(logTag, "Force refresh launched")
         forceRefresh()
     })
@@ -240,7 +241,11 @@ private fun FolderList(
                 )
             }
         }
-        PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(
+            loadingState == LoadingState.PROCESSING,
+            state,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

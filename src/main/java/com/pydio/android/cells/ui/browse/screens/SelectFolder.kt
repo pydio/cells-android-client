@@ -53,10 +53,10 @@ import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.isFolder
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import org.koin.androidx.compose.getKoin
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "SelectFolder.kt"
@@ -65,7 +65,7 @@ private const val logTag = "SelectFolder.kt"
 fun SelectFolderScreen(
     action: String,
     stateId: String,
-    isLoading: Boolean,
+    loadingStatus: LoadingState,
     browseLocalVM: BrowseLocalFoldersVM,
     openFolder: (StateID) -> Unit,
     openParentDestination: (StateID) -> Unit, // TODO merge the 2 methods
@@ -92,7 +92,7 @@ fun SelectFolderScreen(
         action = action,
         stateID = StateID.fromId(currState),
         children = childNodes ?: listOf(),
-        isLoading = isLoading,
+        loadingStatus = loadingStatus,
         openFolder = openFolder,
         openParentDestination = openParentDestination,
         canPost = canPost,
@@ -105,7 +105,7 @@ fun SelectFolderScreen(
 fun SelectFolderPage(
     action: String,
     stateID: StateID,
-    isLoading: Boolean,
+    loadingStatus: LoadingState,
     browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
     openFolder: (StateID) -> Unit,
     openParent: (StateID) -> Unit,
@@ -121,7 +121,7 @@ fun SelectFolderPage(
         action = action,
         stateID = stateID,
         children = childNodes ?: listOf(),
-        isLoading = isLoading,
+        loadingStatus = loadingStatus,
         openFolder = openFolder,
         openParentDestination = openParent,
         canPost = canPost,
@@ -136,7 +136,7 @@ fun SelectFolderScaffold(
     action: String,
     stateID: StateID,
     children: List<RTreeNode>,
-    isLoading: Boolean,
+    loadingStatus: LoadingState,
     openFolder: (StateID) -> Unit,
     openParentDestination: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
@@ -159,7 +159,7 @@ fun SelectFolderScaffold(
             action = action,
             stateID = stateID,
             children = children,
-            refreshing = isLoading,
+            loadingStatus = loadingStatus,
             openFolder = openFolder,
             openParent = openParentDestination,
             forceRefresh = forceRefresh,
@@ -174,7 +174,7 @@ private fun FolderList(
     action: String,
     stateID: StateID,
     children: List<RTreeNode>,
-    refreshing: Boolean,
+    loadingStatus: LoadingState,
     openFolder: (StateID) -> Unit,
     openParent: (StateID) -> Unit,
     forceRefresh: (StateID) -> Unit,
@@ -186,9 +186,9 @@ private fun FolderList(
     // Warning: pullRefresh API is:
     //   - experimental
     //   - only implemented in material 1, for the time being.
-    Log.d(logTag, "Fist pass, is loading: $refreshing")
+    Log.d(logTag, "Fist pass, status: $loadingStatus")
 
-    val state = rememberPullRefreshState(refreshing, onRefresh = {
+    val state = rememberPullRefreshState(loadingStatus == LoadingState.PROCESSING, onRefresh = {
         Log.i(logTag, "Force refresh launched")
         forceRefresh(stateID)
     })
@@ -234,7 +234,11 @@ private fun FolderList(
                 )
             }
         }
-        PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(
+            loadingStatus == LoadingState.PROCESSING,
+            state,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

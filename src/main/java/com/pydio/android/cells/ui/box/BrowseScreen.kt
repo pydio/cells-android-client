@@ -31,7 +31,7 @@ fun BrowseScreen(
 
     val navController = rememberNavController()
 
-    val currLoadingState by browseRemoteVM.isLoading.observeAsState()
+    val currLoadingState by browseRemoteVM.loadingState.observeAsState()
 
     val startDestination = when {
 //        initialStateID == Transport.UNDEFINED_STATE_ID

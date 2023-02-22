@@ -51,6 +51,7 @@ import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
@@ -71,9 +72,9 @@ fun AccountHome(
 
     LaunchedEffect(key1 = accountID) {
         Log.e(logTag, "... in AccountHome, launching effect")
-        browseRemoteVM.watch(accountID)
+        browseRemoteVM.watch(accountID, false)
     }
-    val isLoading by browseRemoteVM.isLoading.observeAsState()
+    val loadingState by browseRemoteVM.loadingState.observeAsState()
     accountHomeVM.setState(accountID)
 
     val sessionView by accountHomeVM.currSession.observeAsState()
@@ -83,7 +84,7 @@ fun AccountHome(
     val title = sessionView?.serverLabel() ?: "${accountID.serverUrl} - Home"
 
     val forceRefresh: () -> Unit = {
-        browseRemoteVM.watch(accountID)
+        browseRemoteVM.watch(accountID, true)
     }
 
     AccHomeScaffold(
@@ -91,7 +92,7 @@ fun AccountHome(
         title = title,
         workspaces = workspaces ?: listOf(),
         cells = cells ?: listOf(),
-        isLoading = isLoading ?: true,
+        loadingState = loadingState ?: LoadingState.STARTING,
         openDrawer = openDrawer,
         openAccounts = openAccounts,
         openWorkspace = openWorkspace,
@@ -107,7 +108,7 @@ private fun AccHomeScaffold(
     title: String,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
-    isLoading: Boolean,
+    loadingState: LoadingState,
     openDrawer: () -> Unit,
     openAccounts: () -> Unit,
     openWorkspace: (StateID) -> Unit,
@@ -142,7 +143,7 @@ private fun AccHomeScaffold(
             )
 
             HomeList(
-                refreshing = isLoading,
+                loadingState = loadingState,
                 workspaces = workspaces,
                 cells = cells,
                 open = openWorkspace,
@@ -157,7 +158,7 @@ private fun AccHomeScaffold(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun HomeList(
-    refreshing: Boolean,
+    loadingState: LoadingState,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
     open: (StateID) -> Unit,
@@ -170,9 +171,9 @@ private fun HomeList(
     // Warning: pullRefresh API is:
     //   - experimental
     //   - only implemented in material 1, for the time being.
-    Log.d(logTag, "Fist pass, is loading: $refreshing")
+    Log.d(logTag, "Fist pass, is loading: $loadingState")
 
-    val state = rememberPullRefreshState(refreshing, onRefresh = {
+    val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
         Log.i(logTag, "Force refresh launched")
         forceRefresh()
     })
@@ -227,7 +228,7 @@ private fun HomeList(
                 }
             }
         }
-        PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(loadingState == LoadingState.PROCESSING, state, Modifier.align(Alignment.TopCenter))
     }
 }
 
