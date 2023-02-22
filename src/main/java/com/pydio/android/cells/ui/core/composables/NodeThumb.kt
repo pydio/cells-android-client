@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -18,6 +19,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.SdkNames
 import java.io.File
@@ -31,13 +33,25 @@ fun Thumbnail(item: RTreeNode) {
     val hasThumb = item.hasThumb()
 
     if (hasThumb) {
-        GlideImage(
-            model = encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB),
-            contentDescription = "${item.name} thumbnail",
+        Surface(
+            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.card_padding))
-                .size(dimensionResource(R.dimen.list_thumb_size)),
-        )
+                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+        ) {
+            LoadingAnimation(
+                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
+            )
+            GlideImage(
+                model = encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB),
+                contentDescription = "${item.name} thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
+//                modifier = Modifier
+//                    // .padding(all = dimensionResource(id = R.dimen.card_padding))
+//                    .size(dimensionResource(R.dimen.list_thumb_size)),
+            )
+        }
     } else {
         Surface(
             tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
@@ -49,7 +63,7 @@ fun Thumbnail(item: RTreeNode) {
                 painter = painterResource(getDrawableFromMime(mime, sortName)),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.list_thumb_size))
+                    .size(dimensionResource(R.dimen.list_thumb_icon_size))
             )
         }
     }
@@ -138,7 +152,3 @@ fun getWsThumbVector(sortName: String): ImageVector {
     }
 }
 
-//@Composable
-//fun getTreeNodeIcon(): ImageVector {
-//
-//}

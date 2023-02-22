@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -46,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.getFloatResource
@@ -180,13 +183,12 @@ private fun HomeList(
 
     Box(modifier.pullRefresh(state)) {
         LazyVerticalGrid(
-
             // TODO make this more generic for big screens also
             // columns = GridCells.Adaptive(minSize = 128.dp)
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(dimensionResource(R.dimen.grid_layout_card_margin)),
         ) {
 
             // FIXME (and the 2nd header too)
@@ -196,7 +198,7 @@ private fun HomeList(
                     // maxLineSpan
                     GridItemSpan(maxLineSpan)
                 }) {
-                    Text(text = "Workspaces")
+                    DefaultTitleText(text = "Workspaces")
                 }
                 items(workspaces, key = { it.encodedState }) { ws ->
                     HomeCardItem(
@@ -228,7 +230,11 @@ private fun HomeList(
                 }
             }
         }
-        PullRefreshIndicator(loadingState == LoadingState.PROCESSING, state, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(
+            loadingState == LoadingState.PROCESSING,
+            state,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -241,11 +247,11 @@ private fun HomeCardItem(
 ) {
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
+            defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
         ),
-        modifier = modifier
+        modifier = modifier.wrapContentSize(align = Alignment.Center)
     ) {
 
         Surface(

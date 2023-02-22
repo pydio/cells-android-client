@@ -8,11 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,11 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
@@ -55,13 +51,13 @@ fun NodeItem(
             .padding(all = dimensionResource(R.dimen.card_padding))
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_thumb_margin)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
             Thumbnail(item)
 
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
+//             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 
             Column(
                 modifier = modifier
@@ -82,13 +78,7 @@ fun NodeItem(
                 )
             }
 
-//            val moreModifier = when {
-//                isActionProcessing -> Modifier.alpha(0.6f)
-//                else -> Modifier.clickable { more() }
-//            }
-
-
-            if (isBookmarked){
+            if (isBookmarked) {
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_star_border_24),
                     colorFilter = ColorFilter.tint(CellsColor.flagBookmark),
@@ -97,7 +87,7 @@ fun NodeItem(
                     // contentScale = ContentScale.Crop,
                 )
             }
-            if (isShared){
+            if (isShared) {
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_link_24),
                     colorFilter = ColorFilter.tint(CellsColor.flagShare),
@@ -105,7 +95,7 @@ fun NodeItem(
                     modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator))
                 )
             }
-            if (isOfflineRoot){
+            if (isOfflineRoot) {
                 Image(
                     painter = painterResource(R.drawable.ic_outline_download_done_24),
                     colorFilter = ColorFilter.tint(CellsColor.flagOffline),
@@ -113,25 +103,6 @@ fun NodeItem(
                     modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator))
                 )
             }
-
-//            Icon(
-//                imageVector = CellsIcons.,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(dimensionResource(R.dimen.list_button_size))
-//            )
-//            Icon(
-//                imageVector = CellsIcons.MoreVert,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(dimensionResource(R.dimen.list_button_size))
-//            )
-//            Icon(
-//                imageVector = CellsIcons.MoreVert,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(dimensionResource(R.dimen.list_button_size))
-//            )
 
             Surface(Modifier.clickable { more() }) {
                 Icon(

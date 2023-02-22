@@ -70,6 +70,7 @@ object CellsIcons {
     val PlayArrow = Icons.Rounded.PlayArrow
     val Processing = Icons.Outlined.RocketLaunch
     val QRCode = Icons.Default.QrCode
+    val Refresh = Icons.Default.Refresh
     val Rename = Icons.Outlined.DriveFileRenameOutline
     val RestoreFromTrash = Icons.Default.RestoreFromTrash
     val Resume = Icons.Default.Replay
