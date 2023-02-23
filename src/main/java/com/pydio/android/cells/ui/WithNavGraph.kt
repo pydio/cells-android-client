@@ -208,6 +208,8 @@ fun CellsNavGraph(
                                 )
                                 return@launch
                             }
+                        } else if (it == Transport.UNDEFINED_STATE_ID) {
+                            route = CellsDestinations.Accounts.route
                         } else {
                             route = BrowseDestinations.Open.createRoute(it)
                         }

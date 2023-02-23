@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.browse
 
 import android.util.Log
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.browse.screens.AccountHome
@@ -65,13 +64,12 @@ fun NavGraphBuilder.browseNavGraph(
             AccountHome(
                 stateID,
                 openDrawer = openDrawer,
-                openAccounts = {}, // TODO openAccounts,
+                openAccounts = { open(Transport.UNDEFINED_STATE_ID) },
                 openSearch = {},
                 openWorkspace = open,
                 browseRemoteVM = browseRemoteVM,
             )
         }
-
     }
 
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
