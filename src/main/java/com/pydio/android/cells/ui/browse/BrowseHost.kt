@@ -44,7 +44,7 @@ fun BrowseHost(
     back: () -> Unit,
     openDrawer: () -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
-    browseHostVM: BrowseHostVM = koinViewModel(),
+   // browseHostVM: BrowseHostVM = koinViewModel(),
 ) {
 
     val navController = rememberNavController()
@@ -54,7 +54,7 @@ fun BrowseHost(
         scope.launch {
             var route = BrowseDestination.AccountHome.route
             if (Str.notEmpty(stateID.workspace)) {
-                val item = browseHostVM.getTreeNode(stateID) ?: run {
+                val item = browseRemoteVM.getTreeNode(stateID) ?: run {
                     // We cannot navigate to an unknown node item
                     Log.e(logTag, "No TreeNode found for $stateID in local repo, aborting")
                     return@launch

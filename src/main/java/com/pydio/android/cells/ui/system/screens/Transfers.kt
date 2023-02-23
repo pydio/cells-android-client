@@ -26,49 +26,45 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.transfer.TransferBottomSheet
 import com.pydio.android.cells.ui.transfer.TransferListItem
-import com.pydio.cells.transport.StateID
+import com.pydio.android.cells.ui.transfer.TransfersVM
 import kotlinx.coroutines.launch
-
 
 private const val logTag = "TransferScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransferScreen(
-    accountID: StateID,
-    uploadsVM: UploadsVM,
+//    accountID: StateID,
+    transfersVM: TransfersVM,
     openDrawer: () -> Unit,
 ) {
 
-    val currTransfers = uploadsVM.currRecords.observeAsState()
+    val currTransfers = transfersVM.currRecords.observeAsState()
 
     WithBottomSheet(
-        uploadsVM,
+        transfersVM,
         transfers = currTransfers.value ?: listOf(),
         openDrawer = openDrawer,
-        pauseOne = uploadsVM::pauseOne,
-        resumeOne = uploadsVM::resumeOne,
-        removeOne = uploadsVM::removeOne,
-        cancelOne = uploadsVM::cancelOne,
-        cancelAll = uploadsVM::cancelAll,
+        pauseOne = transfersVM::pauseOne,
+        resumeOne = transfersVM::resumeOne,
+        removeOne = transfersVM::removeOne,
+        cancelOne = transfersVM::cancelOne,
     )
 }
 
 @Composable
 @ExperimentalMaterial3Api
 private fun WithBottomSheet(
-    uploadsVM: UploadsVM,
+    uploadsVM: TransfersVM,
     transfers: List<RTransfer>,
     openDrawer: () -> Unit,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
     cancelOne: (Long) -> Unit,
-    cancelAll: () -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()

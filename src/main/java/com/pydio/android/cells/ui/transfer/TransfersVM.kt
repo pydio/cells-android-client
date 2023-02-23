@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.transfer
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +12,9 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Hold a list of recent file transfers for current session.
@@ -30,8 +31,6 @@ class TransfersVM(
 
     val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
 
-    private val currIds: MutableLiveData<Set<Long>> = MutableLiveData<Set<Long>>(mutableSetOf());
-
     val currAccountId: LiveData<StateID?>
         get() = Transformations.map(sessionView) { currSessionView ->
             currSessionView?.accountID?.let { StateID.fromId(it) }
@@ -46,6 +45,12 @@ class TransfersVM(
             transferService.queryTransfers(stateID)
         }
 
+    suspend fun get(transferId: Long): RTransfer? = withContext(Dispatchers.IO) {
+        transferService.getRecord(
+            currAccountId.value?.account() ?: Transport.UNDEFINED_STATE_ID,
+            transferId
+        )
+    }
 
     fun pauseOne(transferId: Long) {
         currAccountId.value?.let {

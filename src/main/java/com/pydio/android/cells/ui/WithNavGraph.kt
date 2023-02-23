@@ -4,9 +4,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,7 +16,7 @@ import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
-import com.pydio.android.cells.ui.nav.systemNavGraph
+import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 

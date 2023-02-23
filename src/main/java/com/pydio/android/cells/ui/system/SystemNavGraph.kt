@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.system
 
 import android.content.Intent
 import androidx.compose.material3.Text
@@ -12,8 +12,10 @@ import com.pydio.android.cells.ui.system.screens.JobScreen
 import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
+import com.pydio.android.cells.ui.nav.SystemDestinations
 import com.pydio.android.cells.ui.rememberContentPaddingForScreen
 import com.pydio.android.cells.ui.system.screens.TransferScreen
+import com.pydio.android.cells.ui.transfer.TransfersVM
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
@@ -60,9 +62,8 @@ fun NavGraphBuilder.systemNavGraph(
     }
 
     composable(SystemDestinations.TRANSFERS_ROUTE) {
-//        val jobVM: JobListVM = koinViewModel()
-//        val jobs by jobVM.jobs.observeAsState()
-//        TransferScreen(jobs ?: listOf())
+        val transfersVM: TransfersVM = koinViewModel()
+        TransferScreen(transfersVM, openDrawer)
     }
 
     composable(SystemDestinations.CLEAR_CACHE_ROUTE) {

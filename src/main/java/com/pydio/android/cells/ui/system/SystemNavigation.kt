@@ -3,9 +3,9 @@ package com.pydio.android.cells.ui.nav
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
-/**
- * Generic system destinations for Cells App
- */
+private val logTag = "SystemNavigation"
+
+/** Defines the System and Settings destinations **/
 object SystemDestinations {
     const val ABOUT_ROUTE = "about"
     const val SETTINGS_ROUTE = "settings"
@@ -15,7 +15,6 @@ object SystemDestinations {
     const val CLEAR_CACHE_ROUTE = "clear-cache"
 }
 
-private val logTag = "SystemNavGraph"
 
 class SystemNavigationActions(navController: NavHostController) {
 

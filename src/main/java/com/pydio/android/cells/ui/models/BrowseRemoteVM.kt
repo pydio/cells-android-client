@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.utils.BackOffTicker
@@ -62,6 +63,10 @@ class BrowseRemoteVM(
         currWatcher?.cancel()
         _stateID.value = newStateID
         resume()
+    }
+
+    suspend fun getTreeNode(stateID: StateID): RTreeNode? {
+        return nodeService.getLocalNode(stateID)
     }
 
     fun pause() {
