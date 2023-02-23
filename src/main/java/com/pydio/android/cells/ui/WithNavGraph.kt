@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,6 +23,8 @@ import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "CellsNavGraph"
@@ -43,6 +46,8 @@ fun CellsNavGraph(
     val navigationActions = remember(navController) {
         CellsNavigationActions(navController)
     }
+
+    val scope = rememberCoroutineScope()
 
 //    val alreadyDone = rememberSaveable {
 //        mutableStateOf(false)
@@ -164,49 +169,55 @@ fun CellsNavGraph(
             back = { navController.popBackStack() },
             openDrawer,
             open = {
-                // TODO better handle case for parent
-                //  by comparing with penultimate elements of the backStack
-                Log.e(logTag, "### Opening state at $it, Backstack: ")
+                // Kind of tweak: we check if the target node is the penultimate
+                // element of the backStack, in such case we consider it is a back:
+                // the end user has clicked on parent() and was "simply" browsing
+                Log.d(logTag, "### Opening state at $it, Backstack: ")
                 val bq = navController.backQueue
-                var i = 0
-                navController.backQueue.forEach {
-                    val stateID = lazyID(it)
-                    Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
-
-                }
+//                var i = 0
+//                navController.backQueue.forEach {
+//                    val stateID = lazyID(it)
+//                    Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
+//
+//                }
                 var isEffectiveBack = false
                 if (bq.size > 1) {
                     val penultimateID = lazyID(bq[bq.size - 2])
-                    val second = lazyID(bq[1])
                     isEffectiveBack = penultimateID == it
-                    Log.e(logTag, "### $second")
-                    Log.e(logTag, "### $penultimateID <?> $it")
                 }
-                Log.e(logTag, "### is effective back: $isEffectiveBack")
-
                 if (isEffectiveBack) {
                     navController.popBackStack()
                 } else {
-                    navController.navigate(
-                        BrowseDestinations.Open.createRoute(it)
-                    )
+                    scope.launch {
+                        var route = BrowseDestinations.Open.route
+                        if (Str.notEmpty(it.workspace)) {
+                            val item = browseRemoteVM.getTreeNode(it) ?: run {
+                                // We cannot navigate to an unknown node item
+                                Log.e(logTag, "No TreeNode found for $it in local repo, aborting")
+                                return@launch
+                            }
+                            if (item.isFolder()) {
+                                route = BrowseDestinations.Open.createRoute(it)
+                            } else if (item.isPreViewable()) {
+                                route = BrowseDestinations.OpenCarousel.createRoute(it)
+                            } else {
+                                // FIXME launch external view
+                                Log.e(
+                                    logTag,
+                                    "Implement me - not a viewable file for $it, aborting"
+                                )
+                                return@launch
+                            }
+                        } else {
+                            route = BrowseDestinations.Open.createRoute(it)
+                        }
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    }
                 }
             },
         )
-
-//        composable(CellsDestinations.Browse.route) { bse ->
-//            val accId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
-//                ?: currAccountID.id // FIXME undefined should not be allowed here
-//            val accountID = StateID.fromId(accId)
-//            BrowseHost(
-//                accountID = accountID,
-//                openAccounts = {
-//                    navigationActions.navigateToAccounts()
-//                },
-//                back = { navController.popBackStack() },
-//                openDrawer = openDrawer
-//            )
-//        }
 
         systemNavGraph(
             isExpandedScreen,

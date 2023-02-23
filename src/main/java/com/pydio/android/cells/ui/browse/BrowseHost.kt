@@ -43,7 +43,6 @@ fun NavGraphBuilder.browseNavGraph(
     openDrawer: () -> Unit,
     open: (StateID) -> Unit,
 //    isExpandedScreen: Boolean,
-
 ) {
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
@@ -58,7 +57,6 @@ fun NavGraphBuilder.browseNavGraph(
             Folder(
                 stateID,
                 openDrawer = openDrawer,
-//                openParent = {}, // TODO
                 open = open,
                 openSearch = {}, // TODO
                 browseRemoteVM = browseRemoteVM,
@@ -74,23 +72,6 @@ fun NavGraphBuilder.browseNavGraph(
             )
         }
 
-
-//        if (stateID == Transport.UNDEFINED_STATE_ID) {
-//            // This should never happen, we fall back on account home
-//            Log.e(logTag, "... trying to browse with no state ID for $stateID")
-//            LaunchedEffect(key1 = accountID) {
-//                navController.popBackStack(BrowseDestination.AccountHome.route, false)
-//            }
-//        } else {
-//            Folder(
-//                StateID.fromId(stateId),
-//                openDrawer = openDrawer,
-//                openParent = openParent,
-//                open = open,
-//                openSearch = {},
-//                browseRemoteVM = browseRemoteVM,
-//            )
-//        }
     }
 
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
