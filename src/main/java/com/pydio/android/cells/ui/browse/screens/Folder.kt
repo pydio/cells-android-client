@@ -66,7 +66,7 @@ private const val logTag = "Folder.kt"
 fun Folder(
     stateID: StateID,
     openDrawer: () -> Unit,
-    openParent: (StateID) -> Unit,
+//    openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openSearch: () -> Unit,
     browseRemoteVM: BrowseRemoteVM,
@@ -126,7 +126,7 @@ fun Folder(
             children = children ?: listOf(),
             openDrawer = openDrawer,
             openSearch = openSearch,
-            openParent = openParent,
+            openParent = { open(stateID.parent()) },
             openMoreMenu = openMoreMenu,
             open = open,
             forceRefresh = forceRefresh,

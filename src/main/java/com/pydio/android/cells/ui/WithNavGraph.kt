@@ -10,15 +10,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.account.AccountsScreen
-import com.pydio.android.cells.ui.browse.BrowseHost
+import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
+import com.pydio.android.cells.ui.core.lazyID
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "CellsNavGraph"
 
@@ -33,6 +37,7 @@ fun CellsNavGraph(
     // openAccount: (StateID) -> Unit,
     openDrawer: () -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
 ) {
 
     val navigationActions = remember(navController) {
@@ -66,19 +71,19 @@ fun CellsNavGraph(
                         navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                     }
                     else -> // FIXME not sure it works
-                            startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                        startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
                 }
             } else {
                 startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
             }
-            }
+        }
     } else {
         LaunchedEffect(key1 = currAccountID) {
             // FIXME not good enough if we navigate to the home of the account and back here
             //  we are not redirected to the account home if we click on the **SAME** account
             if (currAccountID != Transport.UNDEFINED_STATE_ID) {
                 Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
-                navController.navigate(CellsDestinations.Browse.createRoute(currAccountID)) {
+                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
                     popUpTo(CellsDestinations.Home.route) { inclusive = true }
                 }
             }
@@ -146,7 +151,7 @@ fun CellsNavGraph(
             LoginHost(
                 currAccount = StateID.fromId(stateId),
                 // FIXME rather forward the navigateTo() method
-                openAccount = { navigateTo(CellsDestinations.Browse.route, it) },
+                openAccount = { navigateTo(BrowseDestinations.Open.route, it) },
                 startingState = startingState,
                 startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                 launchIntent = launchIntent,
@@ -154,19 +159,54 @@ fun CellsNavGraph(
             )
         }
 
-        composable(CellsDestinations.Browse.route) { bse ->
-            val accId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
-                ?: currAccountID.id // FIXME undefined should not be allowed here
-            val accountID = StateID.fromId(accId)
-            BrowseHost(
-                accountID = accountID,
-                openAccounts = {
-                    navigationActions.navigateToAccounts()
-                },
-                back = { navController.popBackStack() },
-                openDrawer = openDrawer
-            )
-        }
+        browseNavGraph(
+            browseRemoteVM = browseRemoteVM,
+            back = { navController.popBackStack() },
+            openDrawer,
+            open = {
+                // TODO better handle case for parent
+                //  by comparing with penultimate elements of the backStack
+                Log.e(logTag, "### Opening state at $it, Backstack: ")
+                val bq = navController.backQueue
+                var i = 0
+                navController.backQueue.forEach {
+                    val stateID = lazyID(it)
+                    Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
+
+                }
+                var isEffectiveBack = false
+                if (bq.size > 1) {
+                    val penultimateID = lazyID(bq[bq.size - 2])
+                    val second = lazyID(bq[1])
+                    isEffectiveBack = penultimateID == it
+                    Log.e(logTag, "### $second")
+                    Log.e(logTag, "### $penultimateID <?> $it")
+                }
+                Log.e(logTag, "### is effective back: $isEffectiveBack")
+
+                if (isEffectiveBack) {
+                    navController.popBackStack()
+                } else {
+                    navController.navigate(
+                        BrowseDestinations.Open.createRoute(it)
+                    )
+                }
+            },
+        )
+
+//        composable(CellsDestinations.Browse.route) { bse ->
+//            val accId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
+//                ?: currAccountID.id // FIXME undefined should not be allowed here
+//            val accountID = StateID.fromId(accId)
+//            BrowseHost(
+//                accountID = accountID,
+//                openAccounts = {
+//                    navigationActions.navigateToAccounts()
+//                },
+//                back = { navController.popBackStack() },
+//                openDrawer = openDrawer
+//            )
+//        }
 
         systemNavGraph(
             isExpandedScreen,

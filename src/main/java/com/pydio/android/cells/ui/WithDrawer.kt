@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.nav.AppDrawer
 import com.pydio.android.cells.ui.nav.AppNavRail
@@ -73,7 +74,7 @@ fun NavHostWithDrawer(
     val navigateTo: (String, StateID) -> Unit = { action, stateID ->
         when (action) {
             CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
-            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
+            BrowseDestinations.Open.route -> navigationActions.navigateToBrowse(stateID)
         }
     }
 

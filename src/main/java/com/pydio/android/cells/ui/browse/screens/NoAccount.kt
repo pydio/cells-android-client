@@ -19,13 +19,13 @@ import com.pydio.cells.transport.StateID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoAccount(
-    openDrawer: (StateID?) -> Unit,
+    openDrawer: () -> Unit,
     addAccount: () -> Unit,
 ) {
 
     Scaffold(
         topBar = {
-            DefaultTopBar(stringResource(R.string.welcome_title), openDrawer = { openDrawer(null) })
+            DefaultTopBar(stringResource(R.string.welcome_title), openDrawer = openDrawer)
         },
         floatingActionButton = {
             FloatingActionButton(

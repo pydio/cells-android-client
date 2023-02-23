@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.nav
 import android.util.Log
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.cells.transport.StateID
 
 /**
@@ -17,7 +18,7 @@ sealed class CellsDestinations(val route: String) {
     object ShareWith : CellsDestinations("share")
 
     // Sub routes
-    object System : CellsDestinations("system")
+    // object System : CellsDestinations("system")
 
 
     object Login : CellsDestinations("login/{accountId}") {
@@ -25,11 +26,11 @@ sealed class CellsDestinations(val route: String) {
         fun createRoute(accountID: StateID) = "login/${accountID.id}"
         fun getPathKey() = "accountId"
     }
-
-    object Browse : CellsDestinations("browse/{accountId}") {
-        fun createRoute(accountID: StateID) = "browse/${accountID.id}"
-        fun getPathKey() = "accountId"
-    }
+//
+//    object Browse : CellsDestinations("browse/{accountId}") {
+//        fun createRoute(accountID: StateID) = "browse/${accountID.id}"
+//        fun getPathKey() = "accountId"
+//    }
 }
 
 class CellsNavigationActions(private val navController: NavHostController) {
@@ -62,8 +63,8 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-    fun navigateToBrowse(accountID: StateID) {
-        val route = CellsDestinations.Browse.createRoute(accountID)
+    fun navigateToBrowse(stateID: StateID) {
+        val route = BrowseDestinations.Open.createRoute(stateID)
         navController.navigate(route) {
             // FIXME
             popUpTo(navController.graph.findStartDestination().id) {
@@ -81,9 +82,9 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-    val navigateToSystem: (StateID?) -> Unit = {
-        Log.e(logTag, "Open System graph for $it")
-        navController.navigate(CellsDestinations.System.route) {
-        }
-    }
+//    val navigateToSystem: (StateID?) -> Unit = {
+//        Log.e(logTag, "Open System graph for $it")
+//        navController.navigate(CellsDestinations.System.route) {
+//        }
+//    }
 }
