@@ -18,7 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentLogListBinding
-import com.pydio.android.cells.ui.box.system.LogList
+import com.pydio.android.cells.ui.system.screens.LogList
 import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class LogListFragment : Fragment() {
             composeLogList.setContent {
                 val logs by logListVM.logs.observeAsState()
                 CellsTheme {
-                    LogList(logs, Modifier)
+//                    LogList(logs ?: listOf() , Modifier)
                 }
             }
         }

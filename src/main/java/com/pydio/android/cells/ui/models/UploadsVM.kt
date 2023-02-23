@@ -22,12 +22,12 @@ import kotlinx.coroutines.withContext
 /**
  * Hold a list of recent file transfers for current session.
  */
-class TransferVM(
+class UploadsVM(
     prefs: CellsPreferences,
     val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = TransferVM::class.simpleName
+    private val logTag = UploadsVM::class.simpleName
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 

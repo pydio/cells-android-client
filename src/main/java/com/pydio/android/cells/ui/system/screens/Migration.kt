@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.system
+package com.pydio.android.cells.ui.system.screens
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState

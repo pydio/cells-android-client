@@ -43,8 +43,9 @@ import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
-import com.pydio.android.cells.ui.models.TransferVM
+import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.search.SearchViewModel
+import com.pydio.android.cells.ui.transfer.TransfersVM
 import com.pydio.android.cells.ui.transferxml.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transferxml.PickFolderViewModel
 import com.pydio.android.cells.ui.transferxml.PickSessionViewModel
@@ -192,7 +193,8 @@ val viewModelModule = module {
     viewModel { BrowseLocalFoldersVM(get()) }
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }
-    viewModel { TransferVM(get(), get()) }
+    viewModel { UploadsVM(get(), get()) }
+    viewModel { TransfersVM(get(), get()) }
 
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }

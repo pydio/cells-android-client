@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.box.system
+package com.pydio.android.cells.ui.system.screens
 
 import android.content.Intent
 import android.content.res.Configuration

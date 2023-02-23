@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,8 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
+import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.AccountHomeVM
@@ -184,28 +183,32 @@ private fun HomeList(
     Box(modifier.pullRefresh(state)) {
         LazyVerticalGrid(
             // TODO make this more generic for big screens also
-            // columns = GridCells.Adaptive(minSize = 128.dp)
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            columns = GridCells.Adaptive(minSize = 128.dp),
+            // columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(dimensionResource(R.dimen.grid_layout_card_margin)),
         ) {
 
-            // FIXME (and the 2nd header too)
             if (workspaces.isNotEmpty()) {
                 item(span = {
                     // LazyGridItemSpanScope:
                     // maxLineSpan
                     GridItemSpan(maxLineSpan)
                 }) {
-                    DefaultTitleText(text = "Workspaces")
+                    MainTitleText(
+                        text = "Workspaces",
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
                 items(workspaces, key = { it.encodedState }) { ws ->
                     HomeCardItem(
                         ws.sortName ?: "",
                         ws.label ?: "",
                         ws.description ?: "",
-                        modifier = Modifier.clickable { open(ws.getStateID()) },
+                        modifier = Modifier
+                            .wrapContentSize(align = Alignment.Center)
+                            .clickable { open(ws.getStateID()) },
                     )
                 }
             }
@@ -251,18 +254,15 @@ private fun HomeCardItem(
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
         ),
-        modifier = modifier.wrapContentSize(align = Alignment.Center)
+        modifier = modifier
     ) {
 
         Surface(
             tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-                .defaultMinSize(
-                    minHeight = dimensionResource(id = R.dimen.grid_ws_image_size),
-                    minWidth = dimensionResource(id = R.dimen.grid_ws_image_size),
-                )
+                .size(dimensionResource(id = R.dimen.grid_ws_image_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+                .wrapContentSize(Alignment.Center)
         ) {
             Icon(
                 imageVector = getWsThumbVector(sortName),
@@ -271,14 +271,21 @@ private fun HomeCardItem(
                     .size(dimensionResource(R.dimen.list_thumb_size))
             )
         }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-            text = desc,
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Column(
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.grid_ws_content_h_padding),
+            )
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+
     }
 }
 
@@ -393,6 +400,23 @@ private fun HomeHeaderPreview() {
             "https://www.example.com",
             { },
             Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview(name = "HomeCard Light Mode")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "HomeCard Dark Mode"
+)
+@Composable
+private fun HomeCardPreview() {
+    CellsTheme {
+        HomeCardItem(
+            "2_",
+            "alice",
+            "https://www.example.com",
         )
     }
 }

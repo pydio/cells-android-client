@@ -19,7 +19,7 @@ import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.LoadingState
-import com.pydio.android.cells.ui.models.TransferVM
+import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.transfer.UploadProgressList
 import com.pydio.cells.api.Transport
@@ -54,7 +54,7 @@ fun SelectTargetHost(
     browseLocalVM: BrowseLocalFoldersVM,
     browseRemoteVM: BrowseRemoteVM,
     accountListVM: AccountListVM,
-    transferVM: TransferVM,
+    uploadsVM: UploadsVM,
     postActivity: (stateID: StateID, action: String?) -> Unit,
 ) {
 
@@ -184,7 +184,7 @@ fun SelectTargetHost(
                 browseRemoteVM.pause()
             }
 
-            UploadProgressList(transferVM) {
+            UploadProgressList(uploadsVM) {
                 postActivity(StateID.fromId(stateId), AppNames.ACTION_CANCEL)
             }
         }

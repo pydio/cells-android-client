@@ -80,14 +80,11 @@ fun NavHostWithDrawer(
     ModalNavigationDrawer(
         drawerContent = {
             AppDrawer(
-                currAccountID = activeSessionView.value?.getStateID()
-                    ?: Transport.UNDEFINED_STATE_ID,
                 currentRoute = navBackStackEntry?.destination?.route,
                 connectionVM = connectionVM,
-                navigateToHome = navigationActions.navigateToHome,
+                cellsNavigationActions = navigationActions,
+                systemNavigationActions = systemActions,
                 navigateToBrowse = { navigationActions.navigateToBrowse(it) },
-                navigateToAccounts = navigationActions.navigateToAccounts,
-                navigateToAbout = systemActions.navigateToAbout,
                 closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
             )
         },

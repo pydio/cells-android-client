@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.system.AboutScreen
+import com.pydio.android.cells.ui.system.screens.AboutScreen
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString

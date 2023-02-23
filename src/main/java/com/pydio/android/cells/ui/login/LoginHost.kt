@@ -65,7 +65,6 @@ fun LoginHost(
                     code = state.code!!,
                 )
                 if (res) {
-
                     loginVM.accountId.value?.let {
                         val stateID = StateID.fromId(it)
                         openAccount(stateID)

@@ -1,20 +1,25 @@
-package com.pydio.android.cells.ui.box.system
+package com.pydio.android.cells.ui.system.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.ui.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.debug
 import com.pydio.android.cells.ui.theme.info
@@ -31,10 +37,39 @@ import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobList(jobs: List<RJob>) {
+fun JobScreen(
+    jobs: List<RJob>,
+    openDrawer: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val topAppBarState = rememberTopAppBarState()
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.job_list_title),
+                openDrawer = openDrawer,
+                topAppBarState = topAppBarState
+            )
+        },
+        modifier = modifier
+    ) { innerPadding ->
+        JobList(jobs, innerPadding)
+    }
+}
 
-    LazyColumn(Modifier.fillMaxWidth()) {
+@Composable
+fun JobList(
+    jobs: List<RJob>,
+    innerPadding: PaddingValues
+) {
+
+    LazyColumn(
+        Modifier
+            .fillMaxWidth()
+            .padding(innerPadding)
+    ) {
         items(jobs) { job ->
 
             val jobTitle = "#${job.jobId}: ${job.label}"

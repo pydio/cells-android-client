@@ -4,10 +4,15 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
 /**
- * Main destinations used in Cells App
+ * Generic system destinations for Cells App
  */
 object SystemDestinations {
     const val ABOUT_ROUTE = "about"
+    const val SETTINGS_ROUTE = "settings"
+    const val LOGS_ROUTE = "logs"
+    const val JOBS_ROUTE = "jobs"
+    const val TRANSFERS_ROUTE = "transfers"
+    const val CLEAR_CACHE_ROUTE = "clear-cache"
 }
 
 private val logTag = "SystemNavGraph"
@@ -24,5 +29,44 @@ class SystemNavigationActions(navController: NavHostController) {
         }
     }
 
+    val navigateToLogs: () -> Unit = {
+        navController.navigate(SystemDestinations.LOGS_ROUTE) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val navigateToJobs: () -> Unit = {
+        navController.navigate(SystemDestinations.JOBS_ROUTE) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val navigateToTransfers: () -> Unit = {
+        navController.navigate(SystemDestinations.TRANSFERS_ROUTE) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val navigateToClearCache: () -> Unit = {
+        navController.navigate(SystemDestinations.CLEAR_CACHE_ROUTE) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
 }

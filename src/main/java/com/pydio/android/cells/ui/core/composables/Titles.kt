@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import com.pydio.android.cells.R
@@ -63,18 +64,17 @@ fun DefaultTitleText(
 @Composable
 fun MainTitleText(
     text: String,
-    modifier: Modifier = Modifier
-//        .fillMaxWidth()
-//         .padding(horizontal = dimensionResource(R.dimen.card_padding))
-        .padding(top = dimensionResource(R.dimen.margin_header))
+    modifier: Modifier = Modifier.padding(
+        top = dimensionResource(R.dimen.margin_medium),
+        start = dimensionResource(R.dimen.margin_header)
+    ),
+    color: Color = MaterialTheme.colorScheme.primary,
 ) {
     Text(
         text = text.uppercase(),
-        color = MaterialTheme.colorScheme.primary,
+        color = color,
         style = MaterialTheme.typography.titleLarge,
-        modifier = modifier
-//            .wrapContentWidth(Alignment.CenterHorizontally)
-            .alpha(.9f)
+        modifier = modifier.alpha(.9f)
     )
 }
 

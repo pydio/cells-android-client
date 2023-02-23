@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.FolderShared
 import androidx.compose.material.icons.outlined.FolderSpecial
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PersonOff
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.UploadFile
@@ -30,6 +31,7 @@ import com.pydio.android.cells.R
  */
 
 object CellsIcons {
+    val About = Icons.Outlined.Info
     val AccountCircle = Icons.Outlined.AccountCircle
     val Add = Icons.Rounded.Add
     val ArrowBack = Icons.Rounded.ArrowBack

@@ -27,7 +27,7 @@ import com.pydio.android.cells.ui.box.beta.bottomsheet.mixed.BottomSheetScaffold
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.TransferVM
+import com.pydio.android.cells.ui.models.UploadsVM
 import kotlinx.coroutines.launch
 
 private const val logTag = "UploadProgressList"
@@ -35,27 +35,27 @@ private const val logTag = "UploadProgressList"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadProgressList(
-    transferVM: TransferVM,
+    uploadsVM: UploadsVM,
     runInBackground: () -> Unit,
 ) {
-    val currTransfers = transferVM.currRecords.observeAsState()
+    val currTransfers = uploadsVM.currRecords.observeAsState()
 
     UploadProgressList(
-        transferVM,
+        uploadsVM,
         uploads = currTransfers.value ?: listOf(),
         runInBackground = runInBackground,
-        pauseOne = transferVM::pauseOne,
-        resumeOne = transferVM::resumeOne,
-        removeOne = transferVM::removeOne,
-        cancelOne = transferVM::cancelOne,
-        cancelAll = transferVM::cancelAll,
+        pauseOne = uploadsVM::pauseOne,
+        resumeOne = uploadsVM::resumeOne,
+        removeOne = uploadsVM::removeOne,
+        cancelOne = uploadsVM::cancelOne,
+        cancelAll = uploadsVM::cancelAll,
     )
 }
 
 @Composable
 @ExperimentalMaterial3Api
 fun UploadProgressList(
-    transferVM: TransferVM,
+    uploadsVM: UploadsVM,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
     pauseOne: (Long) -> Unit,
@@ -74,7 +74,7 @@ fun UploadProgressList(
 
     val openScaffold: (Long) -> Unit = { transferId ->
         scope.launch {
-            val currTransfer = transferVM.get(transferId) ?: run {
+            val currTransfer = uploadsVM.get(transferId) ?: run {
                 Log.e(logTag, "No transfer found with ID $transferId, aborting")
                 return@launch
             }

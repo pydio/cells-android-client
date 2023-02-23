@@ -14,9 +14,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.pydio.android.cells.ui.box.system.AfterLegacyMigration
-import com.pydio.android.cells.ui.box.system.MigrateFromV2
-import com.pydio.android.cells.ui.box.system.PrepareMigration
+import com.pydio.android.cells.ui.system.screens.AfterLegacyMigration
+import com.pydio.android.cells.ui.system.screens.MigrateFromV2
+import com.pydio.android.cells.ui.system.screens.PrepareMigration
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.theme.CellsTheme

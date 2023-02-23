@@ -17,7 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentJobListBinding
-import com.pydio.android.cells.ui.box.system.JobList
+import com.pydio.android.cells.ui.system.screens.JobList
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class JobListFragment : Fragment() {
             composeJobList.setContent {
                 val jobs by jobVM.jobs.observeAsState()
                 CellsTheme {
-                    JobList(jobs ?: listOf())
+                 //    JobList(jobs ?: listOf())
                 }
             }
         }

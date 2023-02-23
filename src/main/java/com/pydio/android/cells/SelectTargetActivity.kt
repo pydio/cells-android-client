@@ -23,7 +23,7 @@ import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.TransferVM
+import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ServerURLImpl
@@ -77,7 +77,7 @@ class SelectTargetActivity : ComponentActivity() {
                 val browseRemoteVM by viewModel<BrowseRemoteVM>()
                 val browseLocalVM by viewModel<BrowseLocalFoldersVM>()
                 val accountListVM by viewModel<AccountListVM>()
-                val transferVM by viewModel<TransferVM>()
+                val uploadsVM by viewModel<UploadsVM>()
 
                 if (!initialStateId.equals(Transport.UNDEFINED_STATE)) {
                     val initialStateID = StateID.fromId(initialStateId)
@@ -119,7 +119,7 @@ class SelectTargetActivity : ComponentActivity() {
                             }
                         }
                         AppNames.ACTION_UPLOAD -> {
-                            transferVM.launchShareToPydioAt(stateID, uris)
+                            uploadsVM.launchShareToPydioAt(stateID, uris)
 //                            finishAndRemoveTask()
                         }
                         AppNames.ACTION_CANCEL -> {
@@ -140,7 +140,7 @@ class SelectTargetActivity : ComponentActivity() {
                     browseLocalVM,
                     browseRemoteVM,
                     accountListVM,
-                    transferVM,
+                    uploadsVM,
                     launchTaskFor,
                 )
 

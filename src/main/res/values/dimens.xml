@@ -126,6 +126,7 @@
     <dimen name="grid_ws_icon_size">24dp</dimen>
     <dimen name="grid_ws_icon_margin">24dp</dimen>
     <dimen name="grid_ws_icon_inner_size">8dp</dimen>
+    <dimen name="grid_ws_content_h_padding">8dp</dimen>
     <dimen name="grid_ws_card_elevation">4dp</dimen>
     <dimen name="grid_ws_card_max_elevation">8dp</dimen>
 
