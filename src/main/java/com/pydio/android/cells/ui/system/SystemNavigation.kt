@@ -48,16 +48,6 @@ class SystemNavigationActions(navController: NavHostController) {
         }
     }
 
-    val navigateToTransfers: () -> Unit = {
-        navController.navigate(SystemDestinations.TRANSFERS_ROUTE) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
-
     val navigateToClearCache: () -> Unit = {
         navController.navigate(SystemDestinations.CLEAR_CACHE_ROUTE) {
             popUpTo(navController.graph.findStartDestination().id) {
@@ -67,5 +57,16 @@ class SystemNavigationActions(navController: NavHostController) {
             restoreState = true
         }
     }
+
+    //    val navigateToTransfers: () -> Unit = {
+//        navController.navigate(SystemDestinations.TRANSFERS_ROUTE) {
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                saveState = true
+//            }
+//            launchSingleTop = true
+//            restoreState = true
+//        }
+//    }
+
 
 }

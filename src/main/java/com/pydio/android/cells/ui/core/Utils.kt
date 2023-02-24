@@ -1,13 +1,15 @@
 package com.pydio.android.cells.ui.core
 
 import android.content.Context
+import android.util.Log
 import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
+
+private const val logTag = "core.utils"
 
 fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     val outValue = TypedValue()
@@ -15,10 +17,10 @@ fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     return outValue.float
 }
 
-fun lazyID(navBackStackEntry: NavBackStackEntry): StateID {
-    return navBackStackEntry.arguments?.getString(BrowseDestinations.Open.getPathKey())
+fun lazyID(navBackStackEntry: NavBackStackEntry?): StateID {
+    return navBackStackEntry?.arguments?.getString(BrowseDestinations.Open.getPathKey())
         ?.let {
-            Log.e("LazyID", " ... found: $it")
+            Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
             StateID.fromId(it)
         }
         ?: Transport.UNDEFINED_STATE_ID

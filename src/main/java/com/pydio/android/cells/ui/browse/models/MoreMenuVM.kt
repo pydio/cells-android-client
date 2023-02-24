@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse
+package com.pydio.android.cells.ui.browse.models
 
 import android.content.Context
 import android.net.Uri

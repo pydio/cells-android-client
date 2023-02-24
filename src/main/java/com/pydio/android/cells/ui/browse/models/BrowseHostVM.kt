@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse
+package com.pydio.android.cells.ui.browse.models
 
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTreeNode

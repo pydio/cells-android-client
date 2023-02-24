@@ -24,6 +24,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.core.composables.Thumbnail
@@ -56,8 +57,6 @@ fun NodeItem(
         ) {
 
             Thumbnail(item)
-
-//             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 
             Column(
                 modifier = modifier
@@ -115,6 +114,107 @@ fun NodeItem(
         }
     }
 }
+
+@Composable
+fun OfflineRootItem(
+    item: RLiveOfflineRoot,
+    title: String,
+    desc: String,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    OfflineRootItem(
+        item.encodedState,
+        item.sortName,
+        item.name,
+        title,
+        desc,
+        item.mime,
+        item.etag,
+        item.hasThumb(),
+        item.isBookmarked(),
+        item.isShared(),
+        more = more,
+    )
+}
+
+@Composable
+fun OfflineRootItem(
+    encodedState: String,
+    sortName: String?,
+    name: String,
+    title: String,
+    desc: String,
+    mime: String,
+    etag: String?,
+    hasThumb: Boolean,
+    isBookmarked: Boolean,
+    isShared: Boolean,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = dimensionResource(R.dimen.card_padding))
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_thumb_margin)),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            Thumbnail(encodedState, sortName, name, mime, etag, hasThumb)
+
+            Column(
+                modifier = modifier
+                    .weight(1f)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.card_padding),
+                        vertical = dimensionResource(R.dimen.margin_xsmall)
+                    )
+                    .wrapContentWidth(Alignment.Start)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+            if (isBookmarked) {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_star_border_24),
+                    colorFilter = ColorFilter.tint(CellsColor.flagBookmark),
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator)),
+                    contentDescription = ""
+                    // contentScale = ContentScale.Crop,
+                )
+            }
+            if (isShared) {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_link_24),
+                    colorFilter = ColorFilter.tint(CellsColor.flagShare),
+                    contentDescription = "",
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator))
+                )
+            }
+
+            Surface(Modifier.clickable { more() }) {
+                Icon(
+                    imageVector = CellsIcons.MoreVert,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.list_button_size))
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun getNodeTitle(name: String, mime: String): String {

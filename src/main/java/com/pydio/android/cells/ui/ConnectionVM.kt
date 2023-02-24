@@ -13,6 +13,7 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -39,7 +40,10 @@ class ConnectionVM(
     private val liveNetwork = networkService.networkType
 
     val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
-
+    val currAccountID: LiveData<StateID?>
+        get() = Transformations.map(sessionView) { currSessionView ->
+            currSessionView?.accountID?.let { StateID.fromId(it) }
+        }
     val sessionStatusFlow: Flow<SessionStatus>
         get() = getSessionFlow()
 

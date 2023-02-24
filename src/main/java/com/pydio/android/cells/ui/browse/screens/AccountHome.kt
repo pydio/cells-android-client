@@ -89,7 +89,7 @@ fun AccountHome(
         browseRemoteVM.watch(accountID, true)
     }
 
-    AccHomeScaffold(
+    OfflineScaffold(
         stateID = accountID,
         title = title,
         workspaces = workspaces ?: listOf(),
@@ -105,7 +105,7 @@ fun AccountHome(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AccHomeScaffold(
+private fun OfflineScaffold(
     stateID: StateID,
     title: String,
     workspaces: List<RWorkspace>,
@@ -144,7 +144,7 @@ private fun AccHomeScaffold(
                 thickness = 1.dp,
             )
 
-            HomeList(
+            OfflineRootList(
                 loadingState = loadingState,
                 workspaces = workspaces,
                 cells = cells,
@@ -159,7 +159,7 @@ private fun AccHomeScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun HomeList(
+private fun OfflineRootList(
     loadingState: LoadingState,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,

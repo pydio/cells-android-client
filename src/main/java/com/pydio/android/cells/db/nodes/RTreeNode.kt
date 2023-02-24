@@ -107,7 +107,6 @@ data class RTreeNode(
         return flags and flag == flag
     }
 
-
     fun toFileNode(): FileNode {
         // TODO double check: we might drop some info that we have missed on first draft implementation
         //   Rather directly use the properties

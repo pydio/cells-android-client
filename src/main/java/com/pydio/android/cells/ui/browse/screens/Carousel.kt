@@ -26,7 +26,7 @@ import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.browse.CarouselVM
+import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.absoluteValue

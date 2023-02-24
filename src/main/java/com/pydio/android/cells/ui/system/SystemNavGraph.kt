@@ -7,15 +7,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.core.composables.extraTopPadding
-import com.pydio.android.cells.ui.system.screens.AboutScreen
-import com.pydio.android.cells.ui.system.screens.JobScreen
-import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.nav.SystemDestinations
 import com.pydio.android.cells.ui.rememberContentPaddingForScreen
-import com.pydio.android.cells.ui.system.screens.TransferScreen
-import com.pydio.android.cells.ui.transfer.TransfersVM
+import com.pydio.android.cells.ui.system.screens.AboutScreen
+import com.pydio.android.cells.ui.system.screens.JobScreen
+import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
@@ -59,11 +57,6 @@ fun NavGraphBuilder.systemNavGraph(
             logs = logs ?: listOf(),
             openDrawer = openDrawer,
         )
-    }
-
-    composable(SystemDestinations.TRANSFERS_ROUTE) {
-        val transfersVM: TransfersVM = koinViewModel()
-        TransferScreen(transfersVM, openDrawer)
     }
 
     composable(SystemDestinations.CLEAR_CACHE_ROUTE) {

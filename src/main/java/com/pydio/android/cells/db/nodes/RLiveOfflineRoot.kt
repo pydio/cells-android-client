@@ -3,8 +3,9 @@ package com.pydio.android.cells.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
-import com.pydio.cells.transport.StateID
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.Converters
+import com.pydio.cells.transport.StateID
 
 @DatabaseView(
     "SELECT offline_roots.encoded_state, " +
@@ -60,6 +61,22 @@ data class RLiveOfflineRoot(
 
     fun isFolder(): Boolean {
         return RTreeNode.isFolderFromMime(mime)
+    }
+
+    fun hasThumb(): Boolean {
+        return isFlag(AppNames.FLAG_HAS_THUMB)
+    }
+
+    fun isBookmarked(): Boolean {
+        return isFlag(AppNames.FLAG_BOOKMARK)
+    }
+
+    fun isShared(): Boolean {
+        return isFlag(AppNames.FLAG_SHARE)
+    }
+
+    private fun isFlag(flag: Int): Boolean {
+        return flags and flag == flag
     }
 
     fun isContentEquals(

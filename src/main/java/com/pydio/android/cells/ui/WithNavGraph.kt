@@ -56,9 +56,9 @@ fun CellsNavGraph(
 //    }
 
     if (startingState != null) {
-        Log.e(logTag, "########## Got a starting state)")
+        Log.e(logTag, "########## Got a starting state")
         LaunchedEffect(key1 = startingState.destination) {
-            Log.e(logTag, "########## Launching side effect for ${startingState.destination})")
+            Log.e(logTag, "########## Launching side effect for ${startingState.destination}")
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
             if (startingState.destination?.isNotEmpty() == true) {
                 when {

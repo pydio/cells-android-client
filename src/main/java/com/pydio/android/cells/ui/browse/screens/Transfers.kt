@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.system.screens
+package com.pydio.android.cells.ui.browse.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,23 +26,24 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.transfer.TransferBottomSheet
 import com.pydio.android.cells.ui.transfer.TransferListItem
-import com.pydio.android.cells.ui.transfer.TransfersVM
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
 private const val logTag = "TransferScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransferScreen(
-//    accountID: StateID,
-    transfersVM: TransfersVM,
+fun Transfers(
     openDrawer: () -> Unit,
+    open: (StateID) -> Unit,
+    transfersVM: TransfersVM,
 ) {
 
-    val currTransfers = transfersVM.currRecords.observeAsState()
+    val currTransfers = transfersVM.transfers.observeAsState()
 
     WithBottomSheet(
         transfersVM,

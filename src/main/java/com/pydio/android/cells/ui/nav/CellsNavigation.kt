@@ -7,7 +7,7 @@ import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.cells.transport.StateID
 
 /**
- * Main destinations used in Cells App
+ * Main generic destinations used in Cells App
  */
 sealed class CellsDestinations(val route: String) {
 
@@ -17,20 +17,11 @@ sealed class CellsDestinations(val route: String) {
     object Search : CellsDestinations("search")
     object ShareWith : CellsDestinations("share")
 
-    // Sub routes
-    // object System : CellsDestinations("system")
-
-
     object Login : CellsDestinations("login/{accountId}") {
         val prefix = "login"
         fun createRoute(accountID: StateID) = "login/${accountID.id}"
         fun getPathKey() = "accountId"
     }
-//
-//    object Browse : CellsDestinations("browse/{accountId}") {
-//        fun createRoute(accountID: StateID) = "browse/${accountID.id}"
-//        fun getPathKey() = "accountId"
-//    }
 }
 
 class CellsNavigationActions(private val navController: NavHostController) {

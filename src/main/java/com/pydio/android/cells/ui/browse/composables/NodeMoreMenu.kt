@@ -32,7 +32,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetState
-import com.pydio.android.cells.ui.browse.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.MoreMenuVM
 import com.pydio.android.cells.ui.browse.screens.SelectFolderPage
 import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.utils.showMessage

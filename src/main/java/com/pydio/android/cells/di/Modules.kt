@@ -22,9 +22,11 @@ import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.ConnectionVM
-import com.pydio.android.cells.ui.browse.BrowseHostVM
-import com.pydio.android.cells.ui.browse.CarouselVM
-import com.pydio.android.cells.ui.browse.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.browse.models.BrowseHostVM
+import com.pydio.android.cells.ui.browse.models.CarouselVM
+import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browsexml.BookmarksViewModel
 import com.pydio.android.cells.ui.browsexml.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browsexml.OfflineRootsViewModel
@@ -45,7 +47,7 @@ import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.search.SearchViewModel
-import com.pydio.android.cells.ui.transfer.TransfersVM
+import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.transferxml.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transferxml.PickFolderViewModel
 import com.pydio.android.cells.ui.transferxml.PickSessionViewModel
@@ -174,6 +176,9 @@ val viewModelModule = module {
 
     viewModel { ConnectionVM(get(), get()) }
     viewModel { MoreMenuVM(get(), get(), get()) }
+
+    viewModel { BookmarksVM(get()) }
+    viewModel { OfflineVM(get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
 

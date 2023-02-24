@@ -3,38 +3,24 @@ package com.pydio.android.cells.ui.browse
 import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.browse.models.OfflineVM
+import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.screens.AccountHome
+import com.pydio.android.cells.ui.browse.screens.Bookmarks
 import com.pydio.android.cells.ui.browse.screens.Carousel
 import com.pydio.android.cells.ui.browse.screens.Folder
 import com.pydio.android.cells.ui.browse.screens.NoAccount
+import com.pydio.android.cells.ui.browse.screens.OfflineRoots
+import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "BrowseNavGraph"
-
-sealed class BrowseDestinations(val route: String) {
-
-    fun getPathKey() = "state-id"
-
-    object Open : BrowseDestinations("open/{state-id}") {
-        fun createRoute(stateID: StateID) = "open/${stateID.id}"
-    }
-
-    object OpenCarousel : BrowseDestinations("carousel/{state-id}") {
-        fun createRoute(stateID: StateID) = "carousel/${stateID.id}"
-    }
-
-    object Bookmarks : BrowseDestinations("bookmarks/{state-id}") {
-        fun createRoute(stateID: StateID) = "bookmarks/${stateID.id}"
-    }
-
-    object OfflineRoots : BrowseDestinations("offline-roots/{state-id}") {
-        fun createRoute(stateID: StateID) = "offline-roots/${stateID.id}"
-    }
-}
 
 fun NavGraphBuilder.browseNavGraph(
     browseRemoteVM: BrowseRemoteVM,
@@ -92,68 +78,62 @@ fun NavGraphBuilder.browseNavGraph(
 //            )
 //        }
     }
+
+    composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
+        val stateID = lazyID(navBackStackEntry)
+        Log.e(logTag, ".... ## In BrowseDestinations.Offline at $stateID")
+        if (stateID == Transport.UNDEFINED_STATE_ID) {
+            Log.e(logTag, "Cannot open OfflineRoots with no ID")
+            back()
+        } else {
+            val offlineVM: OfflineVM = koinViewModel()
+            offlineVM.afterCreate(stateID.account())
+            OfflineRoots(
+                stateID,
+                openDrawer = openDrawer,
+                openSearch = {},
+                open = open,
+                browseRemoteVM = browseRemoteVM,
+                offlineVM = offlineVM,
+            )
+        }
+    }
+
+    composable(BrowseDestinations.Bookmarks.route) { navBackStackEntry ->
+        val stateID = lazyID(navBackStackEntry)
+        Log.e(logTag, ".... ## In BrowseDestinations.Bookmarks at $stateID")
+        if (stateID == Transport.UNDEFINED_STATE_ID) {
+            Log.e(logTag, "Cannot open bookmarks with no ID")
+            back()
+        } else {
+            val bookmarksVM: BookmarksVM = koinViewModel()
+            bookmarksVM.afterCreate(stateID.account())
+            Bookmarks(
+                stateID,
+                openDrawer = openDrawer,
+                openSearch = {},
+                open = open,
+                browseRemoteVM = browseRemoteVM,
+                bookmarksVM = bookmarksVM,
+            )
+        }
+    }
+
+    composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
+        val stateID = lazyID(navBackStackEntry)
+        Log.e(logTag, ".... ## In BrowseDestinations.Transfers at $stateID")
+        if (stateID == Transport.UNDEFINED_STATE_ID) {
+            Log.e(logTag, "Cannot open Transfers with no ID")
+            back()
+        } else {
+            val transfersVM: TransfersVM = koinViewModel()
+            transfersVM.afterCreate(stateID.account())
+            Transfers(
+                transfersVM = transfersVM,
+                openDrawer = openDrawer,
+                open = open,
+            )
+        }
+    }
+
 }
-
-
-//
-///** Main host for the navigation while browsing a given account */
-//@Composable
-//fun BrowseHost(
-//    accountID: StateID,
-//    openAccounts: () -> Unit,
-//    back: () -> Unit,
-//    openDrawer: () -> Unit,
-//    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
-//   // browseHostVM: BrowseHostVM = koinViewModel(),
-//) {
-//
-//    val navController = rememberNavController()
-//    val scope = rememberCoroutineScope()
-//
-//    val open: (StateID) -> Unit = { stateID ->
-//        scope.launch {
-//            var route = BrowseDestination.AccountHome.route
-//            if (Str.notEmpty(stateID.workspace)) {
-//                val item = browseRemoteVM.getTreeNode(stateID) ?: run {
-//                    // We cannot navigate to an unknown node item
-//                    Log.e(logTag, "No TreeNode found for $stateID in local repo, aborting")
-//                    return@launch
-//                }
-//                if (item.isFolder()) {
-//                    route = BrowseDestination.OpenFolder.createRoute(stateID)
-//                } else if (item.isPreViewable()) {
-//                    route = BrowseDestination.OpenCarousel.createRoute(stateID)
-//                } else {
-//                    // FIXME launch external view
-//                    Log.e(logTag, "Implement me - not a viewable file for $stateID, aborting")
-//                    return@launch
-//                }
-//            }
-//            navController.navigate(route) {
-//                launchSingleTop = true
-//            }
-//        }
-//    }
-//
-//    val openParent: (StateID) -> Unit = { stateID ->
-//        val parent = stateID.parent()
-//        open(parent)
-//    }
-//
-//    NavHost(
-//        navController = navController,
-//        startDestination = BrowseDestination.AccountHome.route
-//    ) {
-
-//    composable(BrowseDestinations.AccountHome.route) { navBackStackEntry ->
-//        val stateId = lazyID(navBackStackEntry)
-//        Log.i(logTag, ".... Open account home for $stateId")
-//        AccountHome(
-//            stateId,
-//            openDrawer = openDrawer,
-//            openAccounts = {}, // TODO openAccounts,
-//            openSearch = {},
-//            openWorkspace = open,
-//            browseRemoteVM = browseRemoteVM,
-//        )
-//    }

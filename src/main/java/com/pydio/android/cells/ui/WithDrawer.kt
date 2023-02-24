@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
+import com.pydio.android.cells.ui.core.lazyID
 import com.pydio.android.cells.ui.nav.AppDrawer
 import com.pydio.android.cells.ui.nav.AppNavRail
 import com.pydio.android.cells.ui.nav.CellsDestinations
@@ -35,7 +37,6 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-
 
 private const val logTag = "NavHostWithDrawer"
 
@@ -62,6 +63,9 @@ fun NavHostWithDrawer(
     val navigationActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
+    val browseActions = remember(navHostController) {
+        BrowseNavigationActions(navHostController)
+    }
     val systemActions = remember(navHostController) {
         SystemNavigationActions(navHostController)
     }
@@ -79,11 +83,12 @@ fun NavHostWithDrawer(
     ModalNavigationDrawer(
         drawerContent = {
             AppDrawer(
-                currentRoute = navBackStackEntry?.destination?.route,
+                currRoute = navBackStackEntry?.destination?.route,
+                currSelectedID = lazyID(navBackStackEntry),
                 connectionVM = connectionVM,
-                cellsNavigationActions = navigationActions,
-                systemNavigationActions = systemActions,
-                navigateToBrowse = { navigationActions.navigateToBrowse(it) },
+                cellsNavActions = navigationActions,
+                systemNavActions = systemActions,
+                browseNavActions = browseActions,
                 closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
             )
         },

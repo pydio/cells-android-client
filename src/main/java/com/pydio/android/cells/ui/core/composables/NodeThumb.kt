@@ -27,10 +27,20 @@ import java.io.File
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Thumbnail(item: RTreeNode) {
+    Thumbnail(item.encodedState, item.sortName, item.name, item.mime, item.etag, item.hasThumb())
+}
 
-    val mime = item.mime
-    val sortName = item.sortName
-    val hasThumb = item.hasThumb()
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun Thumbnail(
+    encodedState: String,
+    sortName: String?,
+    name: String,
+    mime: String,
+    etag: String?,
+    hasThumb: Boolean,
+) {
 
     if (hasThumb) {
         Surface(
@@ -43,8 +53,8 @@ fun Thumbnail(item: RTreeNode) {
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
             GlideImage(
-                model = encodeModel(item, AppNames.LOCAL_FILE_TYPE_THUMB),
-                contentDescription = "${item.name} thumbnail",
+                model = encodeModel(encodedState, etag, AppNames.LOCAL_FILE_TYPE_THUMB),
+                contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
@@ -65,6 +75,7 @@ fun Thumbnail(item: RTreeNode) {
         }
     }
 }
+
 
 fun betterMime(passedMime: String, sortName: String?): String {
     return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {

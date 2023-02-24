@@ -312,6 +312,7 @@
     <string name="folder_icon_description">Folder icon</string>
     <string name="empty_content_icon_description">Empty list icon</string>
 
+    <string name="choose_account">Choose an account</string>
     <string name="switch_account">Switch account</string>
     <string name="switch_workspace">Switch workspace</string>
     <string name="parent_folder">Parent folder</string>

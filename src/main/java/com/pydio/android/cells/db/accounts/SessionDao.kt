@@ -39,7 +39,6 @@ interface SessionDao {
     /**
      * Convenience method to insure we reset all sessions to be in the background before
      * putting one live.
-     * // TODO rather return not paused sessions
      */
     @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState")
     fun listAllForegroundSessions(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): List<RSession>
