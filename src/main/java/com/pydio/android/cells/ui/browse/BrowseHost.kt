@@ -46,7 +46,7 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyID(navBackStackEntry)
-        Log.i(logTag, ".... Open node at $stateID")
+        Log.e(logTag, ".... ## In BrowseDestinations.open at $stateID")
         if (stateID == Transport.UNDEFINED_STATE_ID) {
             NoAccount(
                 openDrawer = openDrawer,

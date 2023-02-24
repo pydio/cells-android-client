@@ -56,8 +56,8 @@ class CellsNavigationActions(private val navController: NavHostController) {
         navController.navigate(CellsDestinations.Accounts.route) {
             // Remove other screens (TODO: Really?)
             // and only enable one copy for this destination
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+            popUpTo(CellsDestinations.Accounts.route) {
+//                saveState = true
             }
             launchSingleTop = true
         }
@@ -66,12 +66,7 @@ class CellsNavigationActions(private val navController: NavHostController) {
     fun navigateToBrowse(stateID: StateID) {
         val route = BrowseDestinations.Open.createRoute(stateID)
         navController.navigate(route) {
-            // FIXME
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
             launchSingleTop = true
-            restoreState = true
         }
     }
 
@@ -81,10 +76,4 @@ class CellsNavigationActions(private val navController: NavHostController) {
         navController.navigate(route) {
         }
     }
-
-//    val navigateToSystem: (StateID?) -> Unit = {
-//        Log.e(logTag, "Open System graph for $it")
-//        navController.navigate(CellsDestinations.System.route) {
-//        }
-//    }
 }

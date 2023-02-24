@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -35,13 +36,14 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+
+private const val logTag = "NavHostWithDrawer"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
-//    currAccountID: StateID,
-//    openAccount: (StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
     connectionVM: ConnectionVM = koinViewModel(),
@@ -57,13 +59,6 @@ fun NavHostWithDrawer(
 
     val activeSessionView = connectionVM.sessionView.observeAsState()
 
-//
-//    val openAccount: (StateID) -> Unit = {
-//        currAccountID.value = it
-//        Log.e(logTag, "--- Open Account: $it")
-//    }
-
-
     val navigationActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
@@ -72,9 +67,12 @@ fun NavHostWithDrawer(
     }
 
     val navigateTo: (String, StateID) -> Unit = { action, stateID ->
-        when (action) {
-            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
-            BrowseDestinations.Open.route -> navigationActions.navigateToBrowse(stateID)
+        Log.e(logTag, "Got a navigateTo() call: $action - $stateID")
+        when {
+            action.startsWith(CellsDestinations.Login.route)
+            -> navigationActions.navigateToLogin(stateID)
+            action.startsWith(BrowseDestinations.Open.route)
+            -> navigationActions.navigateToBrowse(stateID)
         }
     }
 

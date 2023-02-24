@@ -39,7 +39,6 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun AccountList(
-    currAccountID: StateID,
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
     login: (stateID: StateID) -> Unit,
@@ -63,8 +62,8 @@ fun AccountList(
                 username = account.username,
                 url = account.url,
                 authStatus = account.authStatus,
-                isForeground = currAccountID == account.getStateID(),
-                // isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
+                // isForeground = currAccountID == account.getStateID(),
+                isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
                 login = login,
                 logout = logout,
                 forget = forget,

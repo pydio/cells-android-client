@@ -37,7 +37,6 @@ fun CellsNavGraph(
     isExpandedScreen: Boolean,
     navController: NavHostController,
     navigateTo: (String, StateID) -> Unit,
-    // openAccount: (StateID) -> Unit,
     openDrawer: () -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
@@ -82,18 +81,19 @@ fun CellsNavGraph(
                 startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
             }
         }
-    } else {
-        LaunchedEffect(key1 = currAccountID) {
-            // FIXME not good enough if we navigate to the home of the account and back here
-            //  we are not redirected to the account home if we click on the **SAME** account
-            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
-                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
-                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
-                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
-                }
-            }
-        }
     }
+//    else {
+//        LaunchedEffect(key1 = currAccountID) {
+//            // FIXME not good enough if we navigate to the home of the account and back here
+//            //  we are not redirected to the account home if we click on the **SAME** account
+//            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
+//                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
+//                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
+//                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
+//                }
+//            }
+//        }
+//    }
 
     // FIXME rework this for both: OAuth Callback & App launch
 
@@ -140,9 +140,8 @@ fun CellsNavGraph(
 
         composable(CellsDestinations.Accounts.route) {
             AccountsScreen(
-                currAccountID,
                 navigateTo = navigateTo,
-                back = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
@@ -169,10 +168,12 @@ fun CellsNavGraph(
             back = { navController.popBackStack() },
             openDrawer,
             open = {
+                Log.e(logTag, "### Calling open for $it")
+
                 // Kind of tweak: we check if the target node is the penultimate
                 // element of the backStack, in such case we consider it is a back:
                 // the end user has clicked on parent() and was "simply" browsing
-                Log.d(logTag, "### Opening state at $it, Backstack: ")
+                // Log.d(logTag, "### Opening state at $it, Backstack: ")
                 val bq = navController.backQueue
 //                var i = 0
 //                navController.backQueue.forEach {
@@ -183,14 +184,18 @@ fun CellsNavGraph(
                 var isEffectiveBack = false
                 if (bq.size > 1) {
                     val penultimateID = lazyID(bq[bq.size - 2])
-                    isEffectiveBack = penultimateID == it
+                    isEffectiveBack = penultimateID == it && it != Transport.UNDEFINED_STATE_ID
                 }
                 if (isEffectiveBack) {
+                    Log.e(logTag, "isEffectiveBack: $it")
                     navController.popBackStack()
                 } else {
+                    Log.e(logTag, "Workspace is not empty: $it")
                     scope.launch {
                         var route = BrowseDestinations.Open.route
                         if (Str.notEmpty(it.workspace)) {
+                            Log.e(logTag, "Before launch, $it")
+
                             val item = browseRemoteVM.getTreeNode(it) ?: run {
                                 // We cannot navigate to an unknown node item
                                 Log.e(logTag, "No TreeNode found for $it in local repo, aborting")
@@ -213,6 +218,7 @@ fun CellsNavGraph(
                         } else {
                             route = BrowseDestinations.Open.createRoute(it)
                         }
+                        Log.e(logTag,"About to navigate, route: $route")
                         navController.navigate(route) {
                             launchSingleTop = true
                         }

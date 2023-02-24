@@ -25,35 +25,36 @@ import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+
+
+private const val logTag = "AccountsScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountsScreen(
-    currAccountID: StateID,
     navigateTo: (String, StateID) -> Unit,
-    // login: (StateID) -> Unit,
-    back: () -> Unit,
+    openDrawer: () -> Unit,
     accountListVM: AccountListVM = koinViewModel(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-
     val scope = rememberCoroutineScope()
     val accounts by accountListVM.sessions.observeAsState()
 
     // TODO handle errors
     AccountsScreen(
-        currAccountID = currAccountID,
         accounts = accounts.orEmpty(),
         openAccount = {
             scope.launch {
                 accountListVM.openSession(it)?.let {
+                    Log.e(logTag, "About to open session for: $it")
                     navigateTo(BrowseDestinations.Open.route, it.getStateID())
                 }
             }
         },
-        back = back,
+        openDrawer = openDrawer,
         registerNew = { navigateTo(CellsDestinations.Login.route, Transport.UNDEFINED_STATE_ID) },
         login = { navigateTo(CellsDestinations.Login.route, it) },
         logout = { accountListVM.logoutAccount(it) },
@@ -65,10 +66,9 @@ fun AccountsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AccountsScreen(
-    currAccountID: StateID,
     accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
-    back: () -> Unit,
+    openDrawer: () -> Unit,
     registerNew: () -> Unit,
     login: (stateID: StateID) -> Unit,
     logout: (stateID: StateID) -> Unit,
@@ -83,7 +83,7 @@ private fun AccountsScreen(
     }
 
     Scaffold(
-        topBar = { DefaultTopBar(title = "Choose an account", back = back) },
+        topBar = { DefaultTopBar(title = "Choose an account", openDrawer = openDrawer) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { registerNew() }
@@ -97,7 +97,6 @@ private fun AccountsScreen(
         modifier = Modifier.padding(contentPadding),
         content = { innerPadding ->
             AccountList(
-                currAccountID,
                 accounts,
                 openAccount,
                 login,
