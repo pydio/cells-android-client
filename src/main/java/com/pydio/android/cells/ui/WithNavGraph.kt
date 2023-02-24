@@ -20,6 +20,8 @@ import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.nav.CellsDestinations
 import com.pydio.android.cells.ui.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.share.ShareHelper
+import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -38,6 +40,7 @@ fun CellsNavGraph(
     navController: NavHostController,
     navigateTo: (String, StateID) -> Unit,
     openDrawer: () -> Unit,
+    launchTaskFor  : (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
 ) {
@@ -218,13 +221,20 @@ fun CellsNavGraph(
                         } else {
                             route = BrowseDestinations.Open.createRoute(it)
                         }
-                        Log.e(logTag,"About to navigate, route: $route")
+                        Log.e(logTag, "About to navigate, route: $route")
                         navController.navigate(route) {
                             launchSingleTop = true
                         }
                     }
                 }
             },
+        )
+
+        shareNavGraph(
+            browseRemoteVM = browseRemoteVM,
+            helper = ShareHelper(navController, launchTaskFor),
+            back = { navController.popBackStack() },
+             // open = { _ -> }
         )
 
         systemNavGraph(

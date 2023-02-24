@@ -135,5 +135,4 @@ fun NavGraphBuilder.browseNavGraph(
             )
         }
     }
-
 }

@@ -46,6 +46,7 @@ fun NavHostWithDrawer(
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+    launchTaskFor  : (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
     connectionVM: ConnectionVM = koinViewModel(),
 ) {
@@ -121,6 +122,7 @@ fun NavHostWithDrawer(
                     isExpandedScreen = isExpandedScreen,
                     navController = navHostController,
                     navigateTo = navigateTo,
+                    launchTaskFor= launchTaskFor,
                     openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
                     launchIntent = launchIntent,
                 )

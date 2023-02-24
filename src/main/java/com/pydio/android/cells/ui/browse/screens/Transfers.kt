@@ -28,8 +28,8 @@ import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetVal
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.nav.DefaultTopAppBar
-import com.pydio.android.cells.ui.transfer.TransferBottomSheet
-import com.pydio.android.cells.ui.transfer.TransferListItem
+import com.pydio.android.cells.ui.share.TransferBottomSheet
+import com.pydio.android.cells.ui.share.TransferListItem
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 

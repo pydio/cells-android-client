@@ -33,7 +33,6 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
-import com.pydio.android.cells.ui.browse.screens.SelectFolderPage
 import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
@@ -267,7 +266,7 @@ private fun FolderWithDialogs(
         }
     }
 
-    val copyMoveAction: (StateID, String?) -> Unit = { targetStateID, action ->
+    val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
         Log.e(logTag, "Do Copy/Move for $targetStateID")
         when (action) {
             AppNames.ACTION_CANCEL -> closeDialog(false)
@@ -327,21 +326,18 @@ private fun FolderWithDialogs(
                 }
                 Log.e(logTag, ".... Open choose *folder* page, with ID: $stateId}")
 
-                SelectFolderPage(
+                CreateFolderPage(
                     action = action,
                     stateID = stateId,
                     loadingStatus = LoadingState.IDLE, // FIXME
-                    openFolder = {
+                    forceRefresh = {/*TODO */ },
+                    open = {
+                        // TODO rather use route function
                         val route = "${NodeAction.SelectTargetFolder.id}/${it.id}"
                         navController.navigate(route)
                     },
-                    openParent = {
-                        val route = "${NodeAction.SelectTargetFolder.id}/${it.parent().id}"
-                        navController.navigate(route)
-                    },
                     canPost = { true }, // TODO also
-                    postAction = copyMoveAction,
-                    forceRefresh = {/*TODO */ },
+                    doAction = copyMoveAction,
                 )
             }
 

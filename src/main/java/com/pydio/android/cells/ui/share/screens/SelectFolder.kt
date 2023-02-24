@@ -1,7 +1,6 @@
-package com.pydio.android.cells.ui.browse.screens
+package com.pydio.android.cells.ui.share.screens
 
 import android.content.res.Configuration
-import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,8 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,6 +50,7 @@ import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.isFolder
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.LoadingState
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
@@ -63,94 +61,65 @@ private const val logTag = "SelectFolder.kt"
 
 @Composable
 fun SelectFolderScreen(
-    action: String,
-    stateId: String,
-    loadingStatus: LoadingState,
-    browseLocalVM: BrowseLocalFoldersVM,
-    openFolder: (StateID) -> Unit,
-    openParentDestination: (StateID) -> Unit, // TODO merge the 2 methods
-    canPost: (StateID) -> Boolean,
-    postActivity: (StateID, String?) -> Unit,
-    forceRefresh: (stateId: StateID) -> Unit,
-) {
-    val currState by rememberSaveable {
-        // This does not work yet: after create is always called and every thing recomposed
-        // even when the stateID is unchanged.
-        /*derivedStateOf {
-            Log.i(logTag, "... Re-computing currState for ${StateID.fromId(stateId)}")
-            StateID.fromId(stateId).id
-        }
-      */  // OR
-        mutableStateOf(stateId)
-    }
-
-    Log.i(logTag, "... Notified of state change for ${StateID.fromId(currState)}")
-    browseLocalVM.setState(StateID.fromId(currState))
-    val childNodes by browseLocalVM.childNodes.observeAsState()
-
-    SelectFolderScaffold(
-        action = action,
-        stateID = StateID.fromId(currState),
-        children = childNodes ?: listOf(),
-        loadingStatus = loadingStatus,
-        openFolder = openFolder,
-        openParentDestination = openParentDestination,
-        canPost = canPost,
-        postActivity = postActivity,
-        forceRefresh = forceRefresh,
-    )
-}
-
-@Composable
-fun SelectFolderPage(
-    action: String,
     stateID: StateID,
-    loadingStatus: LoadingState,
+    browseRemoteVM: BrowseRemoteVM,
+    open: (StateID) -> Unit,
+    doAction: (String, StateID) -> Unit,
     browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
-    openFolder: (StateID) -> Unit,
-    openParent: (StateID) -> Unit,
-    canPost: (StateID) -> Boolean,
-    postAction: (StateID, String?) -> Unit,
-    forceRefresh: (stateId: StateID) -> Unit,
 ) {
 
     browseLocalVM.setState(stateID)
+
+    val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
     val childNodes by browseLocalVM.childNodes.observeAsState()
 
+    val forceRefresh: () -> Unit = {
+        browseRemoteVM.watch(stateID, true)
+    }
+
+    val canPost: (StateID) -> Boolean = {
+        // FIXME also check permissions on remote server
+        stateID.workspace.isNotBlank()
+    }
+
     SelectFolderScaffold(
-        action = action,
+        loadingStatus = loadingStatus.value,
+        action = AppNames.ACTION_UPLOAD,
         stateID = stateID,
         children = childNodes ?: listOf(),
-        loadingStatus = loadingStatus,
-        openFolder = openFolder,
-        openParentDestination = openParent,
-        canPost = canPost,
-        postActivity = postAction,
         forceRefresh = forceRefresh,
+        open = open,
+        canPost = canPost,
+        doAction = doAction,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFolderScaffold(
+    loadingStatus: LoadingState,
     action: String,
     stateID: StateID,
     children: List<RTreeNode>,
-    loadingStatus: LoadingState,
-    openFolder: (StateID) -> Unit,
-    openParentDestination: (StateID) -> Unit,
+    forceRefresh: () -> Unit,
+    open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
-    postActivity: (StateID, String?) -> Unit,
-    forceRefresh: (stateId: StateID) -> Unit,
+    doAction: (String, StateID) -> Unit,
 ) {
     Scaffold(
         topBar = {
-            TopBar(action, stateID, canPost, postActivity, Modifier.fillMaxWidth())
+            // FIXME we must add options to the top bar
+            TopBar(
+                action,
+                stateID = stateID,
+                canPost = canPost,
+                onSelect = doAction,
+            )
         },
         floatingActionButton = {
             if (Str.notEmpty(stateID.workspace)) {
                 FloatingActionButton(
-                    onClick = { postActivity(stateID, AppNames.ACTION_CREATE_FOLDER) }
+                    onClick = { doAction(AppNames.ACTION_CREATE_FOLDER, stateID) }
                 ) { Icon(Icons.Filled.Add, contentDescription = "Create folder") }
             }
         },
@@ -160,9 +129,8 @@ fun SelectFolderScaffold(
             stateID = stateID,
             children = children,
             loadingStatus = loadingStatus,
-            openFolder = openFolder,
-            openParent = openParentDestination,
             forceRefresh = forceRefresh,
+            open = open,
             modifier = Modifier.padding(padding),
         )
     }
@@ -175,29 +143,23 @@ private fun FolderList(
     stateID: StateID,
     children: List<RTreeNode>,
     loadingStatus: LoadingState,
-    openFolder: (StateID) -> Unit,
-    openParent: (StateID) -> Unit,
-    forceRefresh: (StateID) -> Unit,
+    forceRefresh: () -> Unit,
+    open: (StateID) -> Unit,
     modifier: Modifier,
 ) {
     val ctx = LocalContext.current
 
-    // var refreshing by remember() { mutableStateOf(isLoading) }
-    // Warning: pullRefresh API is:
-    //   - experimental
-    //   - only implemented in material 1, for the time being.
-    Log.d(logTag, "Fist pass, status: $loadingStatus")
-
-    val state = rememberPullRefreshState(loadingStatus == LoadingState.PROCESSING, onRefresh = {
-        Log.i(logTag, "Force refresh launched")
-        forceRefresh(stateID)
-    })
+    val state = rememberPullRefreshState(
+        loadingStatus == LoadingState.PROCESSING,
+        onRefresh = { forceRefresh() },
+    )
 
     Box(modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxWidth()) {
             // For the time being we only support intra workspace copy / move
             // We so reduce the "up" row visibility at the WS level when in such situation
             if (Str.notEmpty(stateID.fileName) || action == AppNames.ACTION_UPLOAD) {
+
                 item {
                     val parentDescription = when {
                         Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
@@ -208,17 +170,15 @@ private fun FolderList(
                         parentDescription,
                         Modifier
                             .fillMaxWidth()
-                            .clickable { openParent(stateID) }
+                            .clickable { open(stateID.parent()) }
                     )
+
                 }
             }
             items(children) { oneChild ->
-
                 val isFolder = isFolder(oneChild.mime)
                 val currModifier = if (isFolder) {
-                    Modifier.clickable {
-                        openFolder(StateID.fromId(oneChild.encodedState))
-                    }
+                    Modifier.clickable { open(oneChild.getStateID()) }
                 } else {
                     Modifier
                 }
@@ -273,20 +233,6 @@ private fun SelectFolderItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-//            Surface(
-//                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-//                modifier = Modifier
-//                    .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-//                    .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-//            ) {
-//                Image(
-//                    painter = painterResource(getDrawableFromMime(mime, sortName)),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(dimensionResource(R.dimen.list_thumb_size))
-//                )
-//            }
-
             Thumbnail(item)
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
@@ -318,9 +264,11 @@ private fun TopBar(
     action: String,
     stateID: StateID,
     canPost: (StateID) -> Boolean,
-    onSelect: (StateID, String?) -> Unit,
-    modifier: Modifier
+    onSelect: (String, StateID) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth()
 ) {
+
+//     val title = stringResource(R.string.choose_target_for_share_title)
 
     val title = when (action) {
         AppNames.ACTION_UPLOAD -> stringResource(R.string.choose_target_for_share_title)
@@ -356,12 +304,12 @@ private fun TopBar(
                 )
             }
             IconButton(
-                onClick = { onSelect(stateID, action) },
-                enabled = canPost(stateID) // Str.notEmpty(stateId.path)
+                onClick = { onSelect(action, stateID) },
+                enabled = canPost(stateID)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Select this target")
             }
-            IconButton(onClick = { onSelect(stateID, AppNames.ACTION_CANCEL) }) {
+            IconButton(onClick = { onSelect(AppNames.ACTION_CANCEL, stateID) }) {
                 Icon(Icons.Filled.Close, contentDescription = "Cancel activity")
             }
         }
@@ -379,10 +327,10 @@ private fun TableHeaderPreview() {
     val state = StateID("lucy", "http://example.com", "/all-files/dummy")
     CellsTheme {
         TopBar(
-            AppNames.ACTION_UPLOAD,
+            "",
             state,
             { true },
-            { _: StateID, _: String? -> },
+            { _, _ -> },
             Modifier.fillMaxWidth()
         )
     }

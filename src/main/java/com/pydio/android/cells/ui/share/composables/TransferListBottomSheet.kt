@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.transfer
+package com.pydio.android.cells.ui.share
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer

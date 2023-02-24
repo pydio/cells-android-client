@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.transfer
+package com.pydio.android.cells.ui.share.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -28,6 +28,8 @@ import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLay
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.UploadsVM
+import com.pydio.android.cells.ui.share.TransferBottomSheet
+import com.pydio.android.cells.ui.share.TransferListItem
 import kotlinx.coroutines.launch
 
 private const val logTag = "UploadProgressList"
@@ -86,9 +88,15 @@ fun UploadProgressList(
     val doAction: (String, Long) -> Unit = { action, transferId ->
         scope.launch {
             when (action) {
-                AppNames.ACTION_CANCEL -> {pauseOne(transferId)}
-                AppNames.ACTION_RESTART -> {resumeOne(transferId)}
-                AppNames.ACTION_DELETE_RECORD -> {removeOne(transferId)}
+                AppNames.ACTION_CANCEL -> {
+                    pauseOne(transferId)
+                }
+                AppNames.ACTION_RESTART -> {
+                    resumeOne(transferId)
+                }
+                AppNames.ACTION_DELETE_RECORD -> {
+                    removeOne(transferId)
+                }
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
                     // TODO
                 }
@@ -136,51 +144,3 @@ fun UploadProgressList(
         }
     }
 }
-
-@Composable
-fun UploadProgressList2(
-    uploads: List<RTransfer>,
-    runInBackground: () -> Unit,
-    pauseOne: (Long) -> Unit,
-    resumeOne: (Long) -> Unit,
-    removeOne: (Long) -> Unit,
-    cancelOne: (Long) -> Unit,
-    cancelAll: () -> Unit,
-) {
-    BottomSheetScaffoldDecorator { openFor ->
-
-        Column {
-            LazyColumn(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(uploads) { upload ->
-                    TransferListItem(
-                        upload,
-                        pause = { pauseOne(upload.transferId) },
-                        resume = { resumeOne(upload.transferId) },
-                        remove = { removeOne(upload.transferId) },
-                        more = { openFor(upload.transferId) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = dimensionResource(R.dimen.card_padding))
-                            .wrapContentWidth(Alignment.Start)
-                    )
-                }
-            }
-
-            TextButton(
-                onClick = {
-                    runInBackground()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = dimensionResource(R.dimen.margin))
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            ) { Text(stringResource(R.string.button_run_in_background)) }
-        }
-    }
-}
-
-

@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
-import com.pydio.android.cells.ui.box.SelectTargetApp
+import com.pydio.android.cells.ui.UseCellsTheme
 
 /**
  * Test new components should not be enabled when shipping to production
@@ -39,7 +39,7 @@ class SampleActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-            SelectTargetApp {
+            UseCellsTheme {
 
                 val ctx = LocalContext.current
                 val showDialog1 = remember { mutableStateOf(false) }

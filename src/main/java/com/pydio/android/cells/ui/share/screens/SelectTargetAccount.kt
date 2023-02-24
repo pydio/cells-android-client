@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.screens
+package com.pydio.android.cells.ui.share.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
@@ -19,11 +19,12 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.account.TargetAccountList
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTargetAccount(
-    accountListVM: AccountListVM,
+    accountListVM: AccountListVM = koinViewModel(),
     openAccount: (stateID: StateID) -> Unit,
     cancel: () -> Unit,
     login: (stateID: StateID) -> Unit,

@@ -1,5 +1,6 @@
 package com.pydio.android.cells
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
@@ -14,13 +15,18 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.view.WindowCompat
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Main entry point for the Cells Application: we first handle the bundle / intent and then
@@ -53,6 +59,49 @@ class NewMainActivity : ComponentActivity() {
                 intentHasBeenProcessed.value = true
             }
 
+            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+                when (action) {
+                    AppNames.ACTION_CANCEL -> {
+                        finishAndRemoveTask()
+                    }
+
+//                    AppNames.ACTION_LOGIN -> {
+//                        // TODO this does not work when remote is Cells and we have to perform the OAuth flow.
+//                        //    we haven't found yet a way to call back this task once the process has succeed.
+//                        coroutineScope.launch {
+//                            val session = withContext(Dispatchers.IO) {
+//                                accountListVM.getSession(stateID)
+//                            } ?: return@launch
+//
+//                            // TODO clean this when implementing custom certificate acceptance.
+//                            val serverURL =
+//                                ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
+//                            val toAuthIntent = Intent(ctx, LoginActivity::class.java)
+//                            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
+//                            toAuthIntent.putExtra(
+//                                AppKeys.EXTRA_SERVER_IS_LEGACY,
+//                                session.isLegacy
+//                            )
+//                            toAuthIntent.putExtra(
+//                                AppKeys.EXTRA_AFTER_AUTH_ACTION,
+//                                AuthService.NEXT_ACTION_SHARE
+//                            )
+//                            // We don't want that the login intermediary activity pollute the history of the end user
+//                            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+//                            startActivity(toAuthIntent)
+//                        }
+//                    }
+//                    AppNames.ACTION_UPLOAD -> {
+//                        uploadsVM.launchShareToPydioAt(stateID, uris)
+////                            finishAndRemoveTask()
+//                    }
+//                    AppNames.ACTION_CREATE_FOLDER -> {
+//                        createFolderParent.value = stateID.id
+//                        showCreateFolderDialog.value = true
+////                            createFolder(ctx, stateID, nodeService)
+//                    }
+                }
+            }
 
             UseCellsTheme {
 //                val currState = rememberSaveable(stateSaver = StartingStateSaver) {
@@ -63,6 +112,7 @@ class NewMainActivity : ComponentActivity() {
                     if (intentHasBeenProcessed.value) null else startingState,
                     startingStateHasBeenProcessed,
                     this::launchIntent,
+                    launchTaskFor =launchTaskFor,
                     widthSizeClass,
                 )
             }

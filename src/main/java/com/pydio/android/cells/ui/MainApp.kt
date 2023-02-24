@@ -7,18 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
-import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "MainApp.kt"
 
@@ -27,6 +20,7 @@ fun MainApp(
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+    launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 //    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
 //    accountListVM: AccountListVM = koinViewModel(),
@@ -47,7 +41,8 @@ fun MainApp(
 //        currAccountID = currAccountID.value,
 //        openAccount = openAccount,
         launchIntent = launchIntent,
-        widthSizeClass = widthSizeClass
+        launchTaskFor = launchTaskFor,
+        widthSizeClass = widthSizeClass,
     )
 }
 
