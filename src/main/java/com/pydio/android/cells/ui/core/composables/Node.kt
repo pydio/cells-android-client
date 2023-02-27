@@ -4,7 +4,7 @@ import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
+import com.pydio.android.cells.ui.aaLegacy.bindings.getMessageFromLocalModifStatus
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.utils.Str
 

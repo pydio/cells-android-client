@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.bindings.getMessageFromLocalModifStatus
+import com.pydio.android.cells.ui.aaLegacy.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons

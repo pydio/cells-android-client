@@ -18,7 +18,7 @@ import com.pydio.android.cells.databinding.FragmentSearchBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.browsexml.NodeListAdapter
+import com.pydio.android.cells.ui.aaLegacy.browsexml.NodeListAdapter
 import com.pydio.android.cells.ui.menus.TreeNodeMenuFragment
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.android.cells.utils.showMessage

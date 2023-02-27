@@ -23,7 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.AuthApp
+import com.pydio.android.cells.ui.aaLegacy.box.AuthApp
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
 

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.ui.viewer.CarouselViewModel
+import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope

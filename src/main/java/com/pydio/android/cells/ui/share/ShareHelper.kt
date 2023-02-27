@@ -15,18 +15,8 @@ class ShareHelper(
     private val startingState: StartingState?,
     private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
-
     private val logTag = ShareHelper::class.simpleName
     private val navigation = ShareNavigation(navController)
-
-    // TODO do it more elegantly, this is the come back of the call back hell for the time being
-    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
-        // TODO parameters are useless for now
-        // Prevent double upload of the same file
-        startingStateHasBeenProcessed(null, stateID)
-        // then display the upload list
-        navigation.toTransfers(stateID, jobID)
-    }
 
     /* Define callbacks */
     fun open(stateID: StateID) {
@@ -50,21 +40,6 @@ class ShareHelper(
         }
     }
 
-//    fun interceptPost(currAction: String, stateID: StateID) {
-//        Log.e(logTag, "... Post: $currAction - $stateID")
-//        if (AppNames.ACTION_UPLOAD == currAction) {
-//            navController.navigate(
-//                ShareDestination.UploadInProgress.createRoute(stateID),
-//            ) {
-//                // We insure that the navigation page is first on the back stack
-//                // So that the end user cannot launch the upload twice using the back btn
-//                popUpTo(ShareDestination.ChooseAccount.route) { inclusive = true }
-//            }
-//        } else {
-//            launchTaskFor(currAction, stateID)
-//        }
-//    }
-
     fun startUpload(shareVM: ShareVM, stateID: StateID) {
         startingState?.let {
             shareVM.launchPost(
@@ -76,6 +51,16 @@ class ShareHelper(
             Log.e(logTag, "... No defined URIs, cannot post at $stateID")
         }
     }
+
+    // TODO do it more elegantly, this is the come back of the call back hell for the time being
+    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
+        // TODO parameters are useless for now
+        // Prevent double upload of the same file
+        startingStateHasBeenProcessed(null, stateID)
+        // then display the upload list
+        navigation.toTransfers(stateID, jobID)
+    }
+
 
     fun canPost(stateID: StateID): Boolean {
         // TODO also check permissions on remote server

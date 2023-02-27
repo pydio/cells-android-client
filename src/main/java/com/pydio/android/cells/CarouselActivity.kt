@@ -22,7 +22,7 @@ import com.bumptech.glide.RequestBuilder
 import com.pydio.android.cells.databinding.ActivityCarouselBinding
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.viewer.CarouselViewModel
+import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

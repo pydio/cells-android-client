@@ -68,11 +68,11 @@ fun SelectFolderScreen(
     canPost: (StateID) -> Boolean,
     startUpload: (ShareVM, StateID) -> Unit,
     doAction: (String, StateID) -> Unit,
-    // browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
 ) {
 
-    shareVM.afterCreate(stateID)
     val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
+
+    shareVM.afterCreate(stateID)
     val childNodes by shareVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {

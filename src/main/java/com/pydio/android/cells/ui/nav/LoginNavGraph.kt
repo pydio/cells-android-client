@@ -9,11 +9,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.pydio.android.cells.ui.box.account.AfterSuccessfulLogin
-import com.pydio.android.cells.ui.box.account.AskServerUrl
-import com.pydio.android.cells.ui.box.account.P8Credentials
-import com.pydio.android.cells.ui.box.account.ProcessAuth
-import com.pydio.android.cells.ui.box.account.SkipVerify
+import com.pydio.android.cells.ui.aaLegacy.box.account.AfterSuccessfulLogin
+import com.pydio.android.cells.ui.aaLegacy.box.account.AskServerUrl
+import com.pydio.android.cells.ui.aaLegacy.box.account.P8Credentials
+import com.pydio.android.cells.ui.aaLegacy.box.account.ProcessAuth
+import com.pydio.android.cells.ui.aaLegacy.box.account.SkipVerify
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.cells.utils.Log

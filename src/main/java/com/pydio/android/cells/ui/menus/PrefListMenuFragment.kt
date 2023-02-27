@@ -15,7 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.MoreMenuPrefBinding
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.ui.bindings.convertDpToPixel
+import com.pydio.android.cells.ui.aaLegacy.bindings.convertDpToPixel
 import org.koin.android.ext.android.inject
 
 /**

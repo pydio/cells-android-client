@@ -21,13 +21,13 @@
     <!-- Destinations -->
     <fragment
         android:id="@+id/choose_session_destination"
-        android:name="com.pydio.android.cells.ui.transferxml.PickSessionFragment"
+        android:name="com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionFragment"
         tools:layout="@layout/fragment_pick_session" />
     <!--     android:label="@string/pick_up_session"-->
 
     <fragment
         android:id="@+id/choose_folder_destination"
-        android:name="com.pydio.android.cells.ui.transferxml.PickFolderFragment"
+        android:name="com.pydio.android.cells.ui.aaLegacy.transferxml.PickFolderFragment"
         tools:layout="@layout/fragment_pick_folder">
         <argument
             android:name="state"

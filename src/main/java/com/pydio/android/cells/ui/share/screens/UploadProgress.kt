@@ -23,9 +23,9 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
-import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
-import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.TransferBottomSheet
 import com.pydio.android.cells.ui.share.TransferListItem

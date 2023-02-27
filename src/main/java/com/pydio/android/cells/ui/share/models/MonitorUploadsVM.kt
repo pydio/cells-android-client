@@ -18,20 +18,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Hold a list of recent file transfers for current session.
- */
+/** Hold a list of file uploads for the given accountID and JobID */
 class MonitorUploadsVM(
     prefs: CellsPreferences,
     val transferService: TransferService,
 ) : ViewModel() {
 
     private val logTag = MonitorUploadsVM::class.simpleName
+
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
-
-    // TODO rather inject this
-    private val cr = CellsApp.instance.contentResolver
 
     private lateinit var _accountID: StateID
     private var _jobID: Long = 0L

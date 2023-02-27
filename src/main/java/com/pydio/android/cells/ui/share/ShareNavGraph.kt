@@ -59,7 +59,7 @@ fun NavGraphBuilder.shareNavGraph(
     composable(ShareDestination.UploadInProgress.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry, ShareDestination.UploadInProgress.getStateIdKey())
         val jobID = lazyUID(nbsEntry)
-        Log.i(logTag, ".... ShareDestination.UploadInProgress for $jobID")
+        Log.i(logTag, ".... ShareDestination.UploadInProgress for #$jobID @ $stateID")
         val monitorUploadsVM: MonitorUploadsVM = koinViewModel()
         monitorUploadsVM.afterCreate(stateID, jobID)
         UploadProgressList(monitorUploadsVM) {

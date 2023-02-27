@@ -28,7 +28,7 @@ import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.bindings.getWsIconForMenu
+import com.pydio.android.cells.ui.aaLegacy.bindings.getWsIconForMenu
 import com.pydio.android.cells.ui.home.clearCache
 import com.pydio.android.cells.ui.search.SearchFragment
 import com.pydio.android.cells.utils.showMessage

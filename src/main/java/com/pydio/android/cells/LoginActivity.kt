@@ -8,8 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.ui.box.AuthApp
-import com.pydio.android.cells.ui.box.AuthHost
+import com.pydio.android.cells.ui.aaLegacy.box.AuthApp
+import com.pydio.android.cells.ui.aaLegacy.box.AuthHost
 import com.pydio.android.cells.ui.models.LoginStep
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.cells.transport.StateID
