@@ -17,7 +17,7 @@ import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.nav.CellsDestinations
+import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
@@ -79,44 +79,6 @@ fun CellsNavGraph(
             }
         }
     }
-//    else {
-//        LaunchedEffect(key1 = currAccountID) {
-//            // FIXME not good enough if we navigate to the home of the account and back here
-//            //  we are not redirected to the account home if we click on the **SAME** account
-//            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
-//                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
-//                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
-//                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
-//                }
-//            }
-//        }
-//    }
-
-    // FIXME rework this for both: OAuth Callback & App launch
-
-//        } else {
-//            Log.e(logTag, "########## No defined destination, computing a new one")
-//            when (currAccountID) {
-//                Transport.UNDEFINED_STATE_ID ->
-//                    navController.navigate(CellsDestinations.Accounts.route) {
-//                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
-//                    }
-//                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
-//            }
-//        }
-//    }
-
-
-//    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
-//        when (action) {
-//            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
-//            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
-//        }
-//    }
-
-//    val login: (StateID) -> Unit = {
-//        navigationActions.navigateToLogin(it)
-//    }
 
     NavHost(
         navController = navController,
@@ -244,3 +206,44 @@ fun CellsNavGraph(
         )
     }
 }
+
+
+//    else {
+//        LaunchedEffect(key1 = currAccountID) {
+//            // FIXME not good enough if we navigate to the home of the account and back here
+//            //  we are not redirected to the account home if we click on the **SAME** account
+//            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
+//                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
+//                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
+//                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
+//                }
+//            }
+//        }
+//    }
+
+// FIXME rework this for both: OAuth Callback & App launch
+
+//        } else {
+//            Log.e(logTag, "########## No defined destination, computing a new one")
+//            when (currAccountID) {
+//                Transport.UNDEFINED_STATE_ID ->
+//                    navController.navigate(CellsDestinations.Accounts.route) {
+//                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
+//                    }
+//                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
+//            }
+//        }
+//    }
+
+
+//    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
+//        when (action) {
+//            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
+//            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
+//        }
+//    }
+
+//    val login: (StateID) -> Unit = {
+//        navigationActions.navigateToLogin(it)
+//    }
+

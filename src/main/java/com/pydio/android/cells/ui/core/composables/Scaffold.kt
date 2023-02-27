@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 

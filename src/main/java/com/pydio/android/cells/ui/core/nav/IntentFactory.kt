@@ -1,9 +1,8 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.core.nav
 
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
-import android.util.Log
 import com.pydio.android.cells.R
 import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString

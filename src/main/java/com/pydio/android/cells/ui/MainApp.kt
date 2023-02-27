@@ -13,7 +13,7 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "MainApp.kt"
+private const val logTag = "MainApp"
 
 @Composable
 fun MainApp(
@@ -22,28 +22,16 @@ fun MainApp(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
-//    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
-//    accountListVM: AccountListVM = koinViewModel(),
 ) {
-
-//    val currAccountID = rememberSaveable(stateSaver = stateIDSaver) {
-//        mutableStateOf(startingState.stateID)
-//    }
-//
-//    val openAccount: (StateID) -> Unit = {
-//        currAccountID.value = it
-//        Log.e(logTag, "--- Open Account: $it")
-//    }
 
     NavHostWithDrawer(
         startingState = startingState,
         startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-//        currAccountID = currAccountID.value,
-//        openAccount = openAccount,
         launchIntent = launchIntent,
         launchTaskFor = launchTaskFor,
         widthSizeClass = widthSizeClass,
     )
+
 }
 
 @Composable

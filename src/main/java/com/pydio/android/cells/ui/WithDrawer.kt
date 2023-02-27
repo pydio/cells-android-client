@@ -28,11 +28,11 @@ import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.nav.AppDrawer
-import com.pydio.android.cells.ui.nav.AppNavRail
-import com.pydio.android.cells.ui.nav.CellsDestinations
-import com.pydio.android.cells.ui.nav.CellsNavigationActions
-import com.pydio.android.cells.ui.nav.SystemNavigationActions
+import com.pydio.android.cells.ui.core.nav.AppDrawer
+import com.pydio.android.cells.ui.core.nav.AppNavRail
+import com.pydio.android.cells.ui.core.nav.CellsDestinations
+import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch

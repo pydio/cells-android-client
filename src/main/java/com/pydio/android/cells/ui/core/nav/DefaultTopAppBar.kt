@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.core.nav
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon

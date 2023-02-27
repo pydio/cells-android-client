@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.core.nav
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
@@ -35,6 +35,8 @@ import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
+import com.pydio.android.cells.ui.system.SystemDestinations
+import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
@@ -147,28 +149,28 @@ fun AppDrawer(
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_settings),
                     icon = CellsIcons.Settings,
-                    selected = false, // TODO
-                    onClick = { closeDrawer() }, // TODO
+                    selected = SystemDestinations.SETTINGS_ROUTE == currRoute,
+                    onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
                     modifier = defaultPadding
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_clear_cache),
                     icon = CellsIcons.EmptyRecycle,
-                    selected = false, // TODO
+                    selected = SystemDestinations.CLEAR_CACHE_ROUTE == currRoute,
                     onClick = { systemNavActions.navigateToClearCache(); closeDrawer() },
                     modifier = defaultPadding
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_jobs),
                     icon = CellsIcons.Jobs,
-                    selected = false, // TODO
+                    selected = SystemDestinations.JOBS_ROUTE == currRoute,
                     onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
                     modifier = defaultPadding
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_logs),
                     icon = CellsIcons.Logs,
-                    selected = false, // TODO
+                    selected = SystemDestinations.LOGS_ROUTE == currRoute,
                     onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
                     modifier = defaultPadding
                 )

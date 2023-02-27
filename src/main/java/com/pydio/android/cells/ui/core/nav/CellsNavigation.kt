@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.core.nav
 
 import android.util.Log
 import androidx.navigation.NavGraph.Companion.findStartDestination

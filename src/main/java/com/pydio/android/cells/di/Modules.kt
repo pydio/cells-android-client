@@ -56,6 +56,8 @@ import com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionViewModel
 import com.pydio.android.cells.ui.aaLegacy.transferxml.TransferViewModel
 import com.pydio.android.cells.ui.aaLegacy.utils.DownloadViewModel
 import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
+import com.pydio.android.cells.ui.system.models.HouseKeepingVM
+import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
 import com.pydio.cells.api.Transport
@@ -178,6 +180,9 @@ val viewModelModule = module {
 
     viewModel { ConnectionVM(get(), get()) }
     viewModel { MoreMenuVM(get(), get(), get()) }
+
+    viewModel { SettingsVM(get()) }
+    viewModel { HouseKeepingVM(get()) }
 
     viewModel { BookmarksVM(get()) }
     viewModel { OfflineVM(get()) }

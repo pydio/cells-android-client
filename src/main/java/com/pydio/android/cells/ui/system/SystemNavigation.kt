@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.nav
+package com.pydio.android.cells.ui.system
 
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -11,7 +11,6 @@ object SystemDestinations {
     const val SETTINGS_ROUTE = "settings"
     const val LOGS_ROUTE = "logs"
     const val JOBS_ROUTE = "jobs"
-    const val TRANSFERS_ROUTE = "transfers"
     const val CLEAR_CACHE_ROUTE = "clear-cache"
 }
 
@@ -27,6 +26,13 @@ class SystemNavigationActions(navController: NavHostController) {
             restoreState = true
         }
     }
+
+    val navigateToSettings: () -> Unit = {
+        navController.navigate(SystemDestinations.SETTINGS_ROUTE) {
+            launchSingleTop = true
+        }
+    }
+
 
     val navigateToLogs: () -> Unit = {
         navController.navigate(SystemDestinations.LOGS_ROUTE) {
@@ -58,15 +64,7 @@ class SystemNavigationActions(navController: NavHostController) {
         }
     }
 
-    //    val navigateToTransfers: () -> Unit = {
-//        navController.navigate(SystemDestinations.TRANSFERS_ROUTE) {
-//            popUpTo(navController.graph.findStartDestination().id) {
-//                saveState = true
-//            }
-//            launchSingleTop = true
-//            restoreState = true
-//        }
-//    }
-
-
+    val back: () -> Unit = {
+        navController.popBackStack()
+    }
 }

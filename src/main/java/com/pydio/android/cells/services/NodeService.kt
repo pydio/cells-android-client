@@ -726,13 +726,13 @@ class NodeService(
         }
     }
 
-    suspend fun createFolder(parentId: StateID, folderName: String) =
+    suspend fun createFolder(parentID: StateID, folderName: String) =
         withContext(Dispatchers.IO) {
             try {
-                getClient(parentId).mkdir(parentId.workspace, parentId.file, folderName)
+                getClient(parentID).mkdir(parentID.workspace, parentID.file, folderName)
             } catch (e: SDKException) {
-                val msg = "could not create folder at ${parentId.path}"
-                handleSdkException(parentId, msg, e)
+                val msg = "could not create folder at ${parentID.path}"
+                handleSdkException(parentID, msg, e)
                 return@withContext msg
             }
             return@withContext null
@@ -843,17 +843,13 @@ class NodeService(
         }
     }
 
-//    private suspend fun statRemoteNode(stateID: StateID): Stats? {
-//        try {
-//            return getClient(stateID).stats(stateID.workspace, stateID.file, true)
-//        } catch (e: SDKException) {
-//            handleSdkException(stateID, "could not stat at $stateID", e)
-//        }
-//        return null
-//    }
+    @Deprecated("Rather use the method with the StateID")
+    suspend fun clearAccountCache(stateId: String): String? = withContext(Dispatchers.IO) {
+        return@withContext clearAccountCache(StateID.fromId(stateId).account())
+    }
 
-    suspend fun clearAccountCache(stateID: String): String? = withContext(Dispatchers.IO) {
-        val accountID = StateID.fromId(stateID).account()
+    suspend fun clearAccountCache(accountID: StateID): String? = withContext(Dispatchers.IO) {
+        // val accountID = StateID.fromId(stateID).account()
         try {
             // First delete corresponding files
             fileService.cleanFileCacheFor(accountID)

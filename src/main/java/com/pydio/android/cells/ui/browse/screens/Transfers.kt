@@ -27,7 +27,7 @@ import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBotto
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.models.TransfersVM
-import com.pydio.android.cells.ui.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.share.TransferBottomSheet
 import com.pydio.android.cells.ui.share.TransferListItem
 import com.pydio.cells.transport.StateID

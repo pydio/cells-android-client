@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RLog
-import com.pydio.android.cells.ui.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.timestampToString
 
