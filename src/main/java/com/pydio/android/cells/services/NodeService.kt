@@ -277,7 +277,6 @@ class NodeService(
         }
     }
 
-
     suspend fun createShare(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             // We still put default values. TODO implement user defined details

@@ -110,7 +110,7 @@
         <!--            </intent-filter>-->
         <!--        </activity>-->
 
-        <activity android:name=".CarouselActivity" />
+<!--        <activity android:name=".CarouselActivity" />-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -29,7 +29,6 @@ import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.aaLegacy.bindings.getWsIconForMenu
-import com.pydio.android.cells.ui.home.clearCache
 import com.pydio.android.cells.ui.search.SearchFragment
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
@@ -230,7 +229,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.clear_cache -> {
                 activeSessionVM.sessionView.value?.let { session ->
-                    clearCache(binding.root.context, session.accountID, nodeService)
+                    // clearCache(binding.root.context, session.accountID, nodeService)
                     done = true
                 }
             }

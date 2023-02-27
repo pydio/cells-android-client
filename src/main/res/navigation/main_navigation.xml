@@ -44,12 +44,6 @@
         android:id="@+id/launch_download"
         app:destination="@id/download_dialog_destination" />
 
-
-    <!-- TODO implement this -->
-    <!--    <action-->
-    <!--        android:id="@+id/open_pick_folder"-->
-    <!--        app:destination="@id/pick_folder_destination" />-->
-
     <action
         android:id="@+id/search_edit_view"
         app:destination="@id/search_destination" />

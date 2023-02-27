@@ -1,6 +1,5 @@
 package com.pydio.android.cells
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
@@ -15,19 +14,14 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.view.WindowCompat
-import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
-import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Main entry point for the Cells Application: we first handle the bundle / intent and then
@@ -105,16 +99,12 @@ class NewMainActivity : ComponentActivity() {
             }
 
             UseCellsTheme {
-//                val currState = rememberSaveable(stateSaver = StartingStateSaver) {
-//                    mutableStateOf(startingState)
-//                }
                 MainApp(
-                    // currState.value,
-                    if (intentHasBeenProcessed.value) null else startingState,
-                    startingStateHasBeenProcessed,
-                    this::launchIntent,
-                    launchTaskFor =launchTaskFor,
-                    widthSizeClass,
+                    startingState = if (intentHasBeenProcessed.value) null else startingState,
+                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                    launchIntent = this::launchIntent,
+                    launchTaskFor = launchTaskFor,
+                    widthSizeClass = widthSizeClass,
                 )
             }
         }
