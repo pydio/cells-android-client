@@ -93,7 +93,6 @@ fun NavGraphBuilder.browseNavGraph(
                 openDrawer = openDrawer,
                 openSearch = {},
                 open = open,
-                browseRemoteVM = browseRemoteVM,
                 offlineVM = offlineVM,
             )
         }

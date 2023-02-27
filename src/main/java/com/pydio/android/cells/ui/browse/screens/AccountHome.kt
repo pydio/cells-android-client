@@ -53,7 +53,7 @@ import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.LoadingState
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID

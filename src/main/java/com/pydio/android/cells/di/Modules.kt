@@ -22,15 +22,21 @@ import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.ConnectionVM
+import com.pydio.android.cells.ui.aaLegacy.browsexml.BookmarksViewModel
+import com.pydio.android.cells.ui.aaLegacy.browsexml.BrowseFolderViewModel
+import com.pydio.android.cells.ui.aaLegacy.browsexml.OfflineRootsViewModel
+import com.pydio.android.cells.ui.aaLegacy.transferxml.ChooseTargetViewModel
+import com.pydio.android.cells.ui.aaLegacy.transferxml.PickFolderViewModel
+import com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionViewModel
+import com.pydio.android.cells.ui.aaLegacy.transferxml.TransferViewModel
+import com.pydio.android.cells.ui.aaLegacy.utils.DownloadViewModel
+import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
-import com.pydio.android.cells.ui.aaLegacy.browsexml.BookmarksViewModel
-import com.pydio.android.cells.ui.aaLegacy.browsexml.BrowseFolderViewModel
-import com.pydio.android.cells.ui.aaLegacy.browsexml.OfflineRootsViewModel
 import com.pydio.android.cells.ui.login.LoginViewModelNew
 import com.pydio.android.cells.ui.login.nav.CellsRouteNavigator
 import com.pydio.android.cells.ui.login.nav.RouteNavigator
@@ -50,12 +56,6 @@ import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM
-import com.pydio.android.cells.ui.aaLegacy.transferxml.ChooseTargetViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.PickFolderViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.TransferViewModel
-import com.pydio.android.cells.ui.aaLegacy.utils.DownloadViewModel
-import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.cells.api.Server
@@ -185,7 +185,7 @@ val viewModelModule = module {
     viewModel { HouseKeepingVM(get()) }
 
     viewModel { BookmarksVM(get()) }
-    viewModel { OfflineVM(get()) }
+    viewModel { OfflineVM(get(), get(), get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
     viewModel { ShareVM(get(), get(), get()) }

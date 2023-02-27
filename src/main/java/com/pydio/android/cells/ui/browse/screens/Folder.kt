@@ -51,7 +51,7 @@ import com.pydio.android.cells.ui.core.composables.BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.LoadingState
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID

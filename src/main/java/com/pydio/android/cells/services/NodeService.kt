@@ -27,6 +27,7 @@ import com.pydio.cells.api.Client
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.Transport
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
@@ -215,7 +216,11 @@ class NodeService(
         }
 
     suspend fun getLocalNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
-        nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+        if (stateID == Transport.UNDEFINED_STATE_ID) {
+            null
+        } else {
+            nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+        }
     }
 
     suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =

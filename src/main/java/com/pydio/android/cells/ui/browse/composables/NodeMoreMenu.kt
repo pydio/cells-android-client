@@ -33,7 +33,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
-import com.pydio.android.cells.ui.models.LoadingState
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.api.Transport
@@ -55,6 +55,7 @@ private fun route(action: NodeAction): String {
 enum class MoreMenuType {
     NONE,
     MORE,
+    OFFLINE,
     CREATE,
 }
 
@@ -82,6 +83,10 @@ sealed class NodeAction(val id: String) {
     object PermanentlyRemove : NodeAction("permanently_remove")
     object EmptyRecycle : NodeAction("empty_recycle")
     object SelectTargetFolder : NodeAction("select_target_folder")
+
+    object ForceResync : NodeAction("force_re_sync")
+    object OpenParentLocation : NodeAction("open_parent_location")
+
 }
 
 /** Add the more menu **/
@@ -200,6 +205,16 @@ private fun FolderWithDialogs(
         } else {
             Log.e(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
             when (it) {
+                is NodeAction.OpenParentLocation -> {
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                }
+                is NodeAction.ForceResync -> {
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                    Log.e(logTag, "#### IMPLEMENT ME!!")
+                }
                 is NodeAction.DownloadToDevice -> {
                     if (currentID.value == Transport.UNDEFINED_STATE_ID) {
                         destinationPicker.launch(toOpenStateID.fileName)
@@ -299,6 +314,7 @@ private fun FolderWithDialogs(
     )
 
     Scaffold { innerPadding ->
+
         NavHost(navController, FOLDER_MAIN_CONTENT, Modifier.padding(innerPadding)) {
 
             composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
@@ -486,6 +502,13 @@ fun NodeMoreMenuData(
                 bgColor = bgColor,
             )
             type == MoreMenuType.CREATE -> CreateMenuView(
+                stateID = toOpenStateID,
+                rTreeNode = myItem,
+                launch = launch,
+                tint = tint,
+                bgColor = bgColor,
+            )
+            type == MoreMenuType.OFFLINE -> OfflineMoreMenuView(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,

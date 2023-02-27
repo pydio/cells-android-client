@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -24,11 +25,6 @@ import java.util.concurrent.TimeUnit
 
 private val unknownStateId = StateID("https://example.com")
 private val logTag = BrowseRemoteVM::class.simpleName
-
-enum class LoadingState {
-    STARTING, PROCESSING, IDLE
-}
-
 
 class BrowseRemoteVM(
     private val accountService: AccountService,

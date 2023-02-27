@@ -70,6 +70,8 @@ class JobService(runtimeDB: RuntimeDB) {
 
     fun get(jobId: Long): RJob? = jobDao.getById(jobId)
 
+    fun getLiveJob(jobId: Long): LiveData<RJob?> = jobDao.getLiveById(jobId)
+
     fun getMostRecentRunning(template: String): LiveData<RJob?> {
         return jobDao.getMostRecentRunning(template)
     }

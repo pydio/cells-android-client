@@ -55,7 +55,8 @@
 
         <activity
             android:name=".NewMainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Cells.Md3.LightStatusBar" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
