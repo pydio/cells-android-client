@@ -39,7 +39,20 @@ class AppCredentialService(
 
     // TODO insure this is a clean way to call suspending method from the *JAVA* parent class.
     override fun refreshToken(id: String, transport: Transport): Token? {
+
         val token = runBlocking(Dispatchers.IO) {
+            Log.e(logTag, "Launched blocking refresh token for ${transport.id}")
+            // First ping the server: we can use the refresh token only once.
+            try {
+                transport.server.serverURL.ping()
+            } catch (e: Exception) {
+                Log.e(
+                    logTag,
+                    "Could ping remote server, aborting refresh token for ${transport.id}: ${e.message}"
+                )
+                e.printStackTrace()
+                return@runBlocking null
+            }
             try {
                 doRefreshToken(id, transport)
             } catch (e: Exception) {
