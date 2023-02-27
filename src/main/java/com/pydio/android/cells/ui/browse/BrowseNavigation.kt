@@ -35,5 +35,4 @@ class BrowseNavigationActions(private val navController: NavHostController) {
             launchSingleTop = true
         }
     }
-
 }

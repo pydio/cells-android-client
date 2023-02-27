@@ -48,7 +48,7 @@ fun AppNavRail(
             alwaysShowLabel = false
         )
         NavigationRailItem(
-            selected = SystemDestinations.ABOUT_ROUTE == currentRoute,
+            selected = SystemDestinations.About.route == currentRoute,
             onClick = navigateToAbout,
             icon = { Icon(Icons.Default.Help, stringResource(R.string.action_open_about)) },
             label = { Text(stringResource(R.string.action_open_about)) },

@@ -7,6 +7,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import com.pydio.android.cells.ui.core.composables.extraTopPadding
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.rememberContentPaddingForScreen
@@ -17,7 +18,6 @@ import com.pydio.android.cells.ui.system.screens.ConfirmClearCache
 import com.pydio.android.cells.ui.system.screens.JobScreen
 import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.android.cells.ui.system.screens.SettingsRoot
-import com.pydio.cells.api.Transport
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
@@ -33,7 +33,7 @@ fun NavGraphBuilder.systemNavGraph(
     back: () -> Unit,
 ) {
 
-    composable(SystemDestinations.ABOUT_ROUTE) {
+    composable(SystemDestinations.About.route) {
         Log.e(logTag, "... Will navigate to About, expanded screen: $isExpandedScreen")
         AboutScreen(
             openDrawer = openDrawer,
@@ -45,7 +45,7 @@ fun NavGraphBuilder.systemNavGraph(
         )
     }
 
-    composable(SystemDestinations.JOBS_ROUTE) {
+    composable(SystemDestinations.Jobs.route) {
         val jobVM: JobListVM = koinViewModel()
         val jobs by jobVM.jobs.observeAsState()
         JobScreen(
@@ -54,7 +54,7 @@ fun NavGraphBuilder.systemNavGraph(
         )
     }
 
-    composable(SystemDestinations.LOGS_ROUTE) {
+    composable(SystemDestinations.Logs.route) {
         val logVM: LogListVM = koinViewModel()
         val logs by logVM.logs.observeAsState()
         LogScreen(
@@ -63,16 +63,16 @@ fun NavGraphBuilder.systemNavGraph(
         )
     }
 
-    dialog(SystemDestinations.CLEAR_CACHE_ROUTE) {
+    dialog(SystemDestinations.ClearCache.route) { nbsEntry ->
+        val stateID = lazyStateID(nbsEntry)
         val houseKeepingVM: HouseKeepingVM = koinViewModel()
-        ConfirmClearCache(Transport.UNDEFINED_STATE_ID, houseKeepingVM) {
+        ConfirmClearCache(stateID, houseKeepingVM) {
             back()
         }
     }
 
-    dialog(SystemDestinations.SETTINGS_ROUTE) {
+    composable(SystemDestinations.Settings.route) {
         val settingsVM: SettingsVM = koinViewModel()
-
         SettingsRoot(
             settingsVM,
         )

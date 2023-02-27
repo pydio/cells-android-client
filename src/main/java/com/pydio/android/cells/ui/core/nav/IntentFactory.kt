@@ -8,9 +8,6 @@ import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.cells.transport.ClientData
 
-class IntentFactory {
-}
-
 fun openExternalURL(urlStr : String) : Intent{
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(urlStr)
