@@ -27,6 +27,7 @@ import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
+import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browsexml.BookmarksViewModel
 import com.pydio.android.cells.ui.browsexml.BrowseFolderViewModel
 import com.pydio.android.cells.ui.browsexml.OfflineRootsViewModel
@@ -47,7 +48,8 @@ import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.models.UploadsVM
 import com.pydio.android.cells.ui.search.SearchViewModel
-import com.pydio.android.cells.ui.browse.models.TransfersVM
+import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
+import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.transferxml.ChooseTargetViewModel
 import com.pydio.android.cells.ui.transferxml.PickFolderViewModel
 import com.pydio.android.cells.ui.transferxml.PickSessionViewModel
@@ -181,6 +183,8 @@ val viewModelModule = module {
     viewModel { OfflineVM(get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
+    viewModel { ShareVM(get(), get(), get()) }
+    viewModel { MonitorUploadsVM(get(), get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }
@@ -216,7 +220,6 @@ val viewModelModule = module {
     single<RouteNavigator> { CellsRouteNavigator() }
     viewModel { StateViewModel(get()) }
     viewModel { LoginViewModelNew(get(), get(), get()) }
-
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

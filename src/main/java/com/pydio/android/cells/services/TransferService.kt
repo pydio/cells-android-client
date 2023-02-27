@@ -80,6 +80,16 @@ class TransferService(
         return queryTransfersExplicitFilter(stateId, filterByStatus)
     }
 
+    fun getTransfersRecordsForJob(
+        accountID: StateID,
+        jobID: Long
+    ): LiveData<List<RTransfer>> {
+        val id =
+            if (jobID < 1) -2 else jobID // tweak to insure we return no jobs when no job ID has been explicitly set
+        return nodeDB(accountID).transferDao().getByJobId(id)
+    }
+
+
     fun getCurrentTransfersRecords(
         accountID: StateID,
         transferIds: Set<Long>
@@ -622,7 +632,8 @@ class TransferService(
     suspend fun register(
         cr: ContentResolver,
         uri: Uri,
-        parentID: StateID
+        parentID: StateID,
+        parentJobID: Long = -1,
     ): Pair<Long, String> = withContext(Dispatchers.IO) {
         var name: String? = null
         // TODO rather throw an exception 5 lines below if we do not have a valid size
@@ -659,7 +670,8 @@ class TransferService(
         val rec = RTransfer.createNew(
             AppNames.TRANSFER_TYPE_UPLOAD,
             size,
-            mime
+            mime,
+            parentJobId = parentJobID,
         )
         return@withContext Pair(nodeDB(parentID).transferDao().insert(rec), filename)
     }

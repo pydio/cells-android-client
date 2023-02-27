@@ -23,11 +23,10 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.ui.box.beta.bottomsheet.mixed.BottomSheetScaffoldDecorator
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.UploadsVM
+import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.TransferBottomSheet
 import com.pydio.android.cells.ui.share.TransferListItem
 import kotlinx.coroutines.launch
@@ -37,7 +36,7 @@ private const val logTag = "UploadProgressList"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadProgressList(
-    uploadsVM: UploadsVM,
+    uploadsVM: MonitorUploadsVM,
     runInBackground: () -> Unit,
 ) {
     val currTransfers = uploadsVM.currRecords.observeAsState()
@@ -57,7 +56,7 @@ fun UploadProgressList(
 @Composable
 @ExperimentalMaterial3Api
 fun UploadProgressList(
-    uploadsVM: UploadsVM,
+    uploadsVM: MonitorUploadsVM,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
     pauseOne: (Long) -> Unit,

@@ -1,52 +1,85 @@
 package com.pydio.android.cells.ui.share
 
 import android.util.Log
-import androidx.navigation.NavController
-import com.pydio.android.cells.AppNames
+import androidx.navigation.NavHostController
+import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.share.models.ShareVM
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
 class ShareHelper(
-    private val navController: NavController,
-    private val launchTaskFor: (String, StateID) -> Unit,
+    private val navController: NavHostController,
+    val launchTaskFor: (String, StateID) -> Unit,
+    private val startingState: StartingState?,
+    private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
 
     private val logTag = ShareHelper::class.simpleName
+    private val navigation = ShareNavigation(navController)
+
+    // TODO do it more elegantly, this is the come back of the call back hell for the time being
+    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
+        // TODO parameters are useless for now
+        // Prevent double upload of the same file
+        startingStateHasBeenProcessed(null, stateID)
+        // then display the upload list
+        navigation.toTransfers(stateID, jobID)
+    }
 
     /* Define callbacks */
     fun open(stateID: StateID) {
-        Log.d(logTag, "in open($stateID)")
-        val newRoute = ShareDestination.OpenFolder.createRoute(stateID)
-        Log.i(logTag, "About to navigate to [$newRoute]")
-        navController.navigate(newRoute)
-    }
-
-    fun openParent(stateID: StateID) {
-        Log.d(logTag, ".... In OpenParent: $stateID - ${stateID.workspace} ")
-        if (Str.empty(stateID.workspace)) {
-            navController.navigate(ShareDestination.ChooseAccount.route)
-        } else {
-            val parent = stateID.parent()
-            navController.navigate(ShareDestination.OpenFolder.createRoute(parent))
+        Log.d(logTag, "... Calling open for $stateID")
+        // Tweak to keep the back stack lean
+        val bq = navController.backQueue
+        var isEffectiveBack = false
+        if (bq.size > 1) {
+            val penultimateID = lazyStateID(bq[bq.size - 2])
+            isEffectiveBack = penultimateID == stateID && Transport.UNDEFINED_STATE_ID != stateID
         }
-    }
-
-    fun interceptPost(currAction: String, stateID: StateID) {
-
-        if (AppNames.ACTION_UPLOAD == currAction) {
-            navController.navigate(
-                ShareDestination.UploadInProgress.createRoute(stateID),
-            ) {
-                // We insure that the navigation page is first on the back stack
-                // So that the end user cannot launch the upload twice using the back btn
-                popUpTo(ShareDestination.ChooseAccount.route) { inclusive = true }
+        if (isEffectiveBack) {
+            Log.d(logTag, "isEffectiveBack: $stateID")
+            navigation.back()
+        } else {
+            if (stateID == Transport.UNDEFINED_STATE_ID) {
+                navigation.toAccounts()
+            } else {
+                navigation.toFolder(stateID)
             }
         }
-        launchTaskFor(currAction, stateID)
     }
 
-    fun canPost(stateID: StateID) {
-        Str.notEmpty(stateID.workspace)
+//    fun interceptPost(currAction: String, stateID: StateID) {
+//        Log.e(logTag, "... Post: $currAction - $stateID")
+//        if (AppNames.ACTION_UPLOAD == currAction) {
+//            navController.navigate(
+//                ShareDestination.UploadInProgress.createRoute(stateID),
+//            ) {
+//                // We insure that the navigation page is first on the back stack
+//                // So that the end user cannot launch the upload twice using the back btn
+//                popUpTo(ShareDestination.ChooseAccount.route) { inclusive = true }
+//            }
+//        } else {
+//            launchTaskFor(currAction, stateID)
+//        }
+//    }
+
+    fun startUpload(shareVM: ShareVM, stateID: StateID) {
+        startingState?.let {
+            shareVM.launchPost(
+                stateID,
+                it.uris
+            ) { afterLaunchUpload(stateID, it) }
+
+        } ?: run {
+            Log.e(logTag, "... No defined URIs, cannot post at $stateID")
+        }
+    }
+
+    fun canPost(stateID: StateID): Boolean {
+        // TODO also check permissions on remote server
+        return Str.notEmpty(stateID.workspace)
         // true
 //        if (action == AppNames.ACTION_UPLOAD) {
 //            true
@@ -59,9 +92,8 @@ class ShareHelper(
 //        }
     }
 
-    fun forceRefresh(it: StateID) {
-        // FIXME
-        // browseRemoteVM.watch(it, true)
-    }
-
+//    fun forceRefresh(it: StateID) {
+//        // FIXME
+//        // browseRemoteVM.watch(it, true)
+//    }
 }

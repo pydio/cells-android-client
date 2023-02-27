@@ -20,6 +20,7 @@ import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
+import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
@@ -210,6 +211,27 @@ class NewMainActivity : ComponentActivity() {
 //                    }
 //                }
 //            }
+            Intent.ACTION_SEND == intent.action -> {
+                val clipData = intent.clipData
+                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+                clipData?.let {
+                    startingState.destination = ShareDestination.ChooseAccount.route
+                    clipData.getItemAt(0).uri?.let {
+                        startingState.uris.add(it)
+                    }
+                }
+            }
+            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
+                val tmpClipData = intent.clipData
+                tmpClipData?.let { clipData ->
+                    startingState.destination = ShareDestination.ChooseAccount.route
+                    for (i in 0 until clipData.itemCount) {
+                        clipData.getItemAt(i).uri?.let {
+                            startingState.uris.add(it)
+                        }
+                    }
+                }
+            }
             else -> {
                 Log.w(logTag, "... Unexpected intent: $intent")
             }

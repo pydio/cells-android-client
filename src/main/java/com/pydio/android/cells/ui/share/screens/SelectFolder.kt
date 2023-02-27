@@ -49,13 +49,13 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.isFolder
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.LoadingState
+import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "SelectFolder.kt"
 
@@ -63,23 +63,28 @@ private const val logTag = "SelectFolder.kt"
 fun SelectFolderScreen(
     stateID: StateID,
     browseRemoteVM: BrowseRemoteVM,
+    shareVM: ShareVM,
     open: (StateID) -> Unit,
+    canPost: (StateID) -> Boolean,
+    startUpload: (ShareVM, StateID) -> Unit,
     doAction: (String, StateID) -> Unit,
-    browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
+    // browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
 ) {
 
-    browseLocalVM.setState(stateID)
-
+    shareVM.afterCreate(stateID)
     val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
-    val childNodes by browseLocalVM.childNodes.observeAsState()
+    val childNodes by shareVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(stateID, true)
     }
 
-    val canPost: (StateID) -> Boolean = {
-        // FIXME also check permissions on remote server
-        stateID.workspace.isNotBlank()
+    val interceptAction: (String, StateID) -> Unit = { action, stateID ->
+        if (AppNames.ACTION_UPLOAD == action) {
+            startUpload(shareVM, stateID)
+        } else {
+            doAction(action, stateID)
+        }
     }
 
     SelectFolderScaffold(
@@ -90,7 +95,7 @@ fun SelectFolderScreen(
         forceRefresh = forceRefresh,
         open = open,
         canPost = canPost,
-        doAction = doAction,
+        doAction = interceptAction,
     )
 }
 
@@ -166,13 +171,17 @@ private fun FolderList(
                         Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                         else -> stringResource(R.string.parent_folder)
                     }
+                    val targetID = if (Str.empty(stateID.workspace)) {
+                        Transport.UNDEFINED_STATE_ID
+                    } else {
+                        stateID.parent()
+                    }
                     BrowseUpItem(
                         parentDescription,
                         Modifier
                             .fillMaxWidth()
-                            .clickable { open(stateID.parent()) }
+                            .clickable { open(targetID) }
                     )
-
                 }
             }
             items(children) { oneChild ->

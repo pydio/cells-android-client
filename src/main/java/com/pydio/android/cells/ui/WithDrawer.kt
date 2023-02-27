@@ -27,7 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
-import com.pydio.android.cells.ui.core.lazyID
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.nav.AppDrawer
 import com.pydio.android.cells.ui.nav.AppNavRail
 import com.pydio.android.cells.ui.nav.CellsDestinations
@@ -61,13 +61,13 @@ fun NavHostWithDrawer(
 
     val activeSessionView = connectionVM.sessionView.observeAsState()
 
-    val navigationActions = remember(navHostController) {
+    val cellsNavActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
-    val browseActions = remember(navHostController) {
+    val browseNavActions = remember(navHostController) {
         BrowseNavigationActions(navHostController)
     }
-    val systemActions = remember(navHostController) {
+    val systemNavActions = remember(navHostController) {
         SystemNavigationActions(navHostController)
     }
 
@@ -75,9 +75,9 @@ fun NavHostWithDrawer(
         Log.e(logTag, "Got a navigateTo() call: $action - $stateID")
         when {
             action.startsWith(CellsDestinations.Login.route)
-            -> navigationActions.navigateToLogin(stateID)
+            -> cellsNavActions.navigateToLogin(stateID)
             action.startsWith(BrowseDestinations.Open.route)
-            -> navigationActions.navigateToBrowse(stateID)
+            -> cellsNavActions.navigateToBrowse(stateID)
         }
     }
 
@@ -85,11 +85,11 @@ fun NavHostWithDrawer(
         drawerContent = {
             AppDrawer(
                 currRoute = navBackStackEntry?.destination?.route,
-                currSelectedID = lazyID(navBackStackEntry),
+                currSelectedID = lazyStateID(navBackStackEntry),
                 connectionVM = connectionVM,
-                cellsNavActions = navigationActions,
-                systemNavActions = systemActions,
-                browseNavActions = browseActions,
+                cellsNavActions = cellsNavActions,
+                systemNavActions = systemNavActions,
+                browseNavActions = browseNavActions,
                 closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
             )
         },
@@ -102,8 +102,8 @@ fun NavHostWithDrawer(
                 // FIXME this is only partially implemented
                 AppNavRail(
                     currentRoute = navBackStackEntry?.destination?.route,
-                    navigateToHome = navigationActions.navigateToHome,
-                    navigateToAbout = systemActions.navigateToAbout,
+                    navigateToHome = cellsNavActions.navigateToHome,
+                    navigateToAbout = systemNavActions.navigateToAbout,
                 )
             }
             WithInternetBanner(

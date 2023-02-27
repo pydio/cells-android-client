@@ -6,8 +6,10 @@ import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 
 private const val logTag = "core.utils"
 
@@ -17,11 +19,32 @@ fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     return outValue.float
 }
 
-fun lazyID(navBackStackEntry: NavBackStackEntry?): StateID {
-    return navBackStackEntry?.arguments?.getString(BrowseDestinations.Open.getPathKey())
+fun lazyStateID(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = BrowseDestinations.Open.getPathKey(),
+): StateID {
+    return navBackStackEntry?.arguments?.getString(key)
         ?.let {
             Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
             StateID.fromId(it)
         }
-        ?: Transport.UNDEFINED_STATE_ID
+        ?: run {
+            Log.w(logTag, " ... No stateID found in backstack entry, for key $key")
+            Transport.UNDEFINED_STATE_ID
+        }
+}
+
+fun lazyUID(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = ShareDestination.UploadInProgress.getUidKey(),
+): Long {
+    val stringValue = navBackStackEntry?.arguments?.getString(key)
+    if (Str.notEmpty(stringValue)) {
+        try {
+            return stringValue!!.toLong()
+        } catch (nfe: NumberFormatException) {
+            Log.e(logTag, "Un-valid jobID format: [$stringValue]")
+        }
+    }
+    return 0L
 }

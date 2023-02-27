@@ -4,7 +4,6 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -14,12 +13,12 @@ import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
-import com.pydio.android.cells.ui.core.lazyID
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.nav.CellsDestinations
-import com.pydio.android.cells.ui.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
@@ -40,23 +39,12 @@ fun CellsNavGraph(
     navController: NavHostController,
     navigateTo: (String, StateID) -> Unit,
     openDrawer: () -> Unit,
-    launchTaskFor  : (String, StateID) -> Unit,
+    launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
 ) {
 
-    val navigationActions = remember(navController) {
-        CellsNavigationActions(navController)
-    }
-
     val scope = rememberCoroutineScope()
-
-//    val alreadyDone = rememberSaveable {
-//        mutableStateOf(false)
-//    }
-//    val preventRunning = rememberSaveable {
-//        mutableStateOf(false)
-//    }
 
     if (startingState != null) {
         Log.e(logTag, "########## Got a starting state")
@@ -77,6 +65,12 @@ fun CellsNavGraph(
                         Log.e(logTag, "##########   Got a login destination, see above")
                         navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                     }
+                    startingState.destination == ShareDestination.ChooseAccount.route
+                    -> {
+                        // TODO check if startingState.state = state has already been consumed
+                        navController.navigate(ShareDestination.ChooseAccount.route)
+                    }
+
                     else -> // FIXME not sure it works
                         startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
                 }
@@ -186,7 +180,7 @@ fun CellsNavGraph(
 //                }
                 var isEffectiveBack = false
                 if (bq.size > 1) {
-                    val penultimateID = lazyID(bq[bq.size - 2])
+                    val penultimateID = lazyStateID(bq[bq.size - 2])
                     isEffectiveBack = penultimateID == it && it != Transport.UNDEFINED_STATE_ID
                 }
                 if (isEffectiveBack) {
@@ -232,9 +226,14 @@ fun CellsNavGraph(
 
         shareNavGraph(
             browseRemoteVM = browseRemoteVM,
-            helper = ShareHelper(navController, launchTaskFor),
+            helper = ShareHelper(
+                navController,
+                launchTaskFor,
+                startingState,
+                startingStateHasBeenProcessed
+            ),
             back = { navController.popBackStack() },
-             // open = { _ -> }
+            // open = { _ -> }
         )
 
         systemNavGraph(

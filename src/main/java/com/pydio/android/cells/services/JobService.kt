@@ -36,17 +36,17 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getById(jobId)
     }
 
-    fun create(
+    suspend fun create(
         owner: String,
         template: String,
         label: String,
         parentId: Long = -1,
         maxSteps: Long = -1
-    ): Long {
+    ): Long = withContext(Dispatchers.IO) {
         val newJob = RJob.create(owner, template, label, parentId)
         newJob.total = maxSteps
         newJob.updateTimestamp = currentTimestamp()
-        return jobDao.insert(newJob)
+        return@withContext jobDao.insert(newJob)
     }
 
     suspend fun launched(jobId: Long): String? = withContext(Dispatchers.IO) {
@@ -107,14 +107,18 @@ class JobService(runtimeDB: RuntimeDB) {
         jobDao.update(job)
     }
 
-    fun clearTerminated(){
-     jobDao.clearTerminatedJobs()
+    fun clearTerminated() {
+        jobDao.clearTerminatedJobs()
     }
 
     /* MANAGE LOGS */
 
     fun listLogs(): LiveData<List<RLog>> {
         return logDao.getLiveLogs()
+    }
+
+    fun clearAllLogs() {
+        logDao.clearLogs()
     }
 
     // Shortcut for logging
@@ -146,9 +150,5 @@ class JobService(runtimeDB: RuntimeDB) {
                 logDao.insert(log)
             }
         }
-
-    fun clearAllLogs(){
-        logDao.clearLogs()
-    }
 
 }

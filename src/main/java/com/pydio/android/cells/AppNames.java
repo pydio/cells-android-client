@@ -91,6 +91,7 @@ public interface AppNames {
     String JOB_TEMPLATE_RESYNC = "sync-%s";
     String JOB_TEMPLATE_MIGRATION_V2 = "migration-v2";
     String JOB_TEMPLATE_CLEAN = "clean";
+    String JOB_TEMPLATE_SHARE = "share";
 
     String JOB_SORT_BY_DEFAULT = "creation_ts_desc";
     // Status: Warning, same value list must be defined in the res/values/arrays.xml file
