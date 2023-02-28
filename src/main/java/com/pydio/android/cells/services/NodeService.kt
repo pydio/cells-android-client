@@ -235,7 +235,6 @@ class NodeService(
             }
         }
 
-
     suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =
         withContext(Dispatchers.IO) {
             return@withContext if (query == null) {

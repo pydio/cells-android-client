@@ -1,7 +1,9 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -93,6 +95,72 @@ fun DefaultTopBar(
                     )
                 }
             }
+        }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarWithMoreMenu(
+    title: String,
+    back: (() -> Unit)? = null,
+    openDrawer: (() -> Unit)? = null,
+    openSearch: (() -> Unit)? = null,
+    isShown: Boolean,
+    showMenu: (Boolean) -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            if (back != null) {
+                IconButton(onClick = { back() }) {
+                    Icon(
+                        imageVector = CellsIcons.ArrowBack,
+                        contentDescription = stringResource(id = R.string.button_back)
+                    )
+                }
+            } else if (openDrawer != null) {
+                IconButton(
+                    onClick = { openDrawer() },
+                    enabled = true
+                ) {
+                    Icon(
+                        CellsIcons.Menu,
+                        contentDescription = stringResource(id = R.string.open_drawer)
+                    )
+                }
+            }
+        },
+        actions = {
+            if (openSearch != null) {
+                IconButton(onClick = { openSearch() }) {
+                    Icon(
+                        CellsIcons.Search,
+                        contentDescription = stringResource(id = R.string.action_search)
+                    )
+                }
+            }
+            IconButton(onClick = { showMenu(!isShown) }) {
+                Icon(
+                    CellsIcons.MoreVert,
+                    contentDescription = stringResource(R.string.open_more_menu)
+                )
+            }
+            DropdownMenu(
+                expanded = isShown,
+                onDismissRequest = { showMenu(false) },
+                content = content
+            )
         }
     )
 }

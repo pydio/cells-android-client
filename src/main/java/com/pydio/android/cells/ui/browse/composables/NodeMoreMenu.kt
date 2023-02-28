@@ -74,6 +74,10 @@ sealed class NodeAction(val id: String) {
 
     object ForceResync : NodeAction("force_re_sync")
     object OpenInApp : NodeAction("open_in_app")
+
+    object AsList:  NodeAction("as_list")
+    object AsGrid:  NodeAction("as_grid")
+    object AsSmallerGrid:  NodeAction("as_smaller_grid")
 }
 
 /** Add the more menu **/

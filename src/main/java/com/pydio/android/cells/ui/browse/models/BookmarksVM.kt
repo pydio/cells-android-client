@@ -6,19 +6,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.reactive.LiveSharedPreferences
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 private val logTag = OfflineVM::class.simpleName
 
 /** Expose methods used by bookmark pages */
 class BookmarksVM(
+    private val prefs: CellsPreferences,
     //  private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {
@@ -27,6 +37,55 @@ class BookmarksVM(
     private val _errorMessage = MutableLiveData<String?>()
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
+
+    private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
+
+    private val _layout = MutableStateFlow(ListLayout.LIST)
+    val layout: StateFlow<ListLayout> = _layout.asStateFlow()
+
+    private val liveDisplayType: MutableLiveData<String> = liveSharedPreferences.getString(
+        AppKeys.CURR_RECYCLER_LAYOUT,
+        AppNames.RECYCLER_LAYOUT_LIST
+    )
+
+    private val liveSortBy: MutableLiveData<String> = liveSharedPreferences.getString(
+        AppKeys.CURR_RECYCLER_ORDER,
+        AppNames.DEFAULT_SORT_BY
+    )
+
+    private var _oldLayout = prefs.getString(
+        AppKeys.CURR_RECYCLER_LAYOUT,
+        AppNames.RECYCLER_LAYOUT_LIST
+    )
+
+    init {
+        viewModelScope.launch {
+            liveSharedPreferences.getString(
+                AppKeys.CURR_RECYCLER_LAYOUT,
+                AppNames.RECYCLER_LAYOUT_LIST
+            ).asFlow().collect {
+                if (it != _layout.value.name) {
+                    val newValue = try {
+                        ListLayout.valueOf(it)
+                    } catch (e: IllegalArgumentException) {
+                        ListLayout.LIST
+                    }
+                    _layout.value = newValue
+                }
+            }
+//            liveSharedPreferences.getString(
+//                AppKeys.TRANSFER_SORT_BY,
+//                AppNames.JOB_SORT_BY_DEFAULT
+//            ).asFlow().collect {
+//                //it?.let {
+//                if (it != oldSortBy) {
+//                    oldSortBy = it
+//                    reQuery(it)
+//                }
+//                // }
+//            }
+        }
+    }
 
     private val _accountID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
     val bookmarks: LiveData<List<RTreeNode>>
@@ -61,6 +120,10 @@ class BookmarksVM(
             launchProcessing()
             done(nodeService.refreshBookmarks(stateID))
         }
+    }
+
+    fun setListLayout(listLayout: ListLayout) {
+        prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {

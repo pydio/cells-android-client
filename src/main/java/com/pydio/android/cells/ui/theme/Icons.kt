@@ -38,6 +38,9 @@ object CellsIcons {
     val ArrowBack = Icons.Rounded.ArrowBack
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
+    val AsGrid = Icons.Default.GridView
+    val AsList = Icons.Default.ViewList
+    val AsSmallerGrid = Icons.Default.ViewCompact
     val Bookmark = Icons.Outlined.Star
     val Cancel = Icons.Outlined.Cancel
     val Check = Icons.Default.Check

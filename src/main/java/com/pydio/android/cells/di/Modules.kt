@@ -34,6 +34,7 @@ import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
+import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
@@ -45,7 +46,6 @@ import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
@@ -184,7 +184,7 @@ val viewModelModule = module {
     viewModel { SettingsVM(get()) }
     viewModel { HouseKeepingVM(get()) }
 
-    viewModel { BookmarksVM(get()) }
+    viewModel { BookmarksVM(get(), get()) }
     viewModel { OfflineVM(get(), get(), get()) }
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
