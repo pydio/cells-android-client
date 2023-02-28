@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
@@ -50,6 +51,7 @@ import com.pydio.android.cells.ui.browse.models.MoreMenuVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
+import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.getJobStatus
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.asAgoString
@@ -226,7 +228,7 @@ private fun OfflineRootList(
         ) {
             if (runningJob != null) {
                 item {
-                    val percentage = (runningJob.progress * 100).toFloat().div(runningJob.total)
+                    val percentage = (runningJob.progress).toFloat().div(runningJob.total)
                     SyncStatus(
                         desc = getJobStatus(item = runningJob),
                         progress = percentage,
@@ -244,21 +246,17 @@ private fun OfflineRootList(
                 )
             }
         }
-        if (runningJob != null) {
-            PullRefreshIndicator(
-                refreshing = loadingState == LoadingState.PROCESSING,
-                state = state,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-        }
+        PullRefreshIndicator(
+            refreshing = loadingState == LoadingState.PROCESSING,
+            state = state,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
 @Composable
 private fun SyncStatus(
     desc: String,
-//    title: String,
-//    desc: AnnotatedString,
     progress: Float,
     modifier: Modifier = Modifier
 ) {
@@ -276,9 +274,20 @@ private fun SyncStatus(
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (progress == -1f) {
-                LinearProgressIndicator()
-            } else if (progress >= 0 && progress < 1) {
-                LinearProgressIndicator(progress = progress)
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dimensionResource(id = R.dimen.margin_small))
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            } else if (progress in 0.0..1.0) {
+                SmoothLinearProgressIndicator(
+                    indicatorProgress = progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dimensionResource(id = R.dimen.margin_small))
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
             }
         }
     }

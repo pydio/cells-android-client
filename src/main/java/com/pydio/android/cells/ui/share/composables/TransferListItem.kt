@@ -43,6 +43,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
+import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.danger
@@ -234,27 +235,6 @@ private fun TransferListItem(
                 )
             }
         }
-    }
-}
-
-// TODO factorize
-@Composable
-fun SmoothLinearProgressIndicator(
-    indicatorProgress: Float,
-    modifier: Modifier = Modifier
-) {
-    var progress by remember { mutableStateOf(0f) }
-    val progressAnimDuration = 1000 // we update progress in the db every second
-    val progressAnimation by animateFloatAsState(
-        targetValue = indicatorProgress,
-        animationSpec = tween(durationMillis = progressAnimDuration, easing = FastOutSlowInEasing)
-    )
-    LinearProgressIndicator(
-        modifier = modifier,
-        progress = progressAnimation
-    )
-    LaunchedEffect(indicatorProgress) {
-        progress = indicatorProgress
     }
 }
 
