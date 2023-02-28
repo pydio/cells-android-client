@@ -10,9 +10,9 @@ class BrowseNavigationActions(private val navController: NavHostController) {
 
     fun toBrowse(stateID: StateID) {
         val route = BrowseDestinations.Open.createRoute(stateID)
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
+        navController.navigate(route)
+        // We don't want the single top flag when browsing otherwise the native back button does not work
+//        {launchSingleTop = true}
     }
 
     fun toOfflineRoots(stateID: StateID) {

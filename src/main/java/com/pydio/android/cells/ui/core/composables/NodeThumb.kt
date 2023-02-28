@@ -30,7 +30,6 @@ fun Thumbnail(item: RTreeNode) {
     Thumbnail(item.encodedState, item.sortName, item.name, item.mime, item.etag, item.hasThumb())
 }
 
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Thumbnail(
@@ -38,7 +37,7 @@ fun Thumbnail(
     sortName: String?,
     name: String,
     mime: String,
-    etag: String?,
+    eTag: String?,
     hasThumb: Boolean,
 ) {
 
@@ -53,7 +52,7 @@ fun Thumbnail(
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
             GlideImage(
-                model = encodeModel(encodedState, etag, AppNames.LOCAL_FILE_TYPE_THUMB),
+                model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
                 contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
@@ -76,7 +75,6 @@ fun Thumbnail(
     }
 }
 
-
 fun betterMime(passedMime: String, sortName: String?): String {
     return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
@@ -85,6 +83,7 @@ fun betterMime(passedMime: String, sortName: String?): String {
     } else passedMime
 }
 
+@Deprecated("Rather use RTreeNode.hasThumb()")
 fun isFolder(mime: String): Boolean {
 
     return mime == SdkNames.WS_TYPE_PERSONAL

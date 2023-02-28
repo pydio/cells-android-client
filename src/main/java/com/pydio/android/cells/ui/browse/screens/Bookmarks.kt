@@ -26,9 +26,9 @@ import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 
 private const val logTag = "Bookmarks.kt"
@@ -127,8 +127,6 @@ private fun OfflineRootList(
             items(bookmarks) { node ->
                 NodeItem(
                     item = node,
-                    mime = node.mime,
-                    sortName = node.sortName,
                     title = getNodeTitle(name = node.name, mime = node.mime),
                     desc = getNodeDesc(
                         context,
@@ -136,9 +134,6 @@ private fun OfflineRootList(
                         node.size,
                         node.localModificationStatus
                     ),
-                    isBookmarked = node.isBookmarked(),
-                    isOfflineRoot = node.isOfflineRoot(),
-                    isShared = node.isShared(),
                     more = {
                         openMoreMenu(node.getStateID())
                     },

@@ -36,10 +36,38 @@ import com.pydio.cells.utils.Str
 @Composable
 fun NodeItem(
     item: RTreeNode,
-    mime: String,
-    sortName: String?,
     title: String,
     desc: String,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NodeItem(
+        title = title,
+        desc = desc,
+        encodedState = item.encodedState,
+        name = item.name,
+        sortName = item.sortName,
+        mime = item.mime,
+        eTag = item.etag,
+        hasThumb = item.hasThumb(),
+        isBookmarked = item.isBookmarked(),
+        isOfflineRoot = item.isOfflineRoot(),
+        isShared = item.isShared(),
+        more = more,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun NodeItem(
+    title: String,
+    desc: String,
+    encodedState: String,
+    name: String,
+    sortName: String?,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
     isBookmarked: Boolean,
     isOfflineRoot: Boolean,
     isShared: Boolean,
@@ -56,7 +84,7 @@ fun NodeItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Thumbnail(item)
+            Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
 
             Column(
                 modifier = modifier
@@ -125,17 +153,18 @@ fun OfflineRootItem(
 ) {
 
     OfflineRootItem(
-        item.encodedState,
-        item.sortName,
-        item.name,
-        title,
-        desc,
-        item.mime,
-        item.etag,
-        item.hasThumb(),
-        item.isBookmarked(),
-        item.isShared(),
+        encodedState = item.encodedState,
+        sortName = item.sortName,
+        name = item.name,
+        title = title,
+        desc = desc,
+        mime = item.mime,
+        eTag = item.etag,
+        hasThumb = item.hasThumb(),
+        isBookmarked = item.isBookmarked(),
+        isShared = item.isShared(),
         more = more,
+        modifier = modifier,
     )
 }
 
@@ -147,12 +176,12 @@ fun OfflineRootItem(
     title: String,
     desc: String,
     mime: String,
-    etag: String?,
+    eTag: String?,
     hasThumb: Boolean,
     isBookmarked: Boolean,
     isShared: Boolean,
     more: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
     Surface(
         modifier = modifier
@@ -164,7 +193,7 @@ fun OfflineRootItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Thumbnail(encodedState, sortName, name, mime, etag, hasThumb)
+            Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
 
             Column(
                 modifier = modifier
@@ -214,7 +243,6 @@ fun OfflineRootItem(
         }
     }
 }
-
 
 @Composable
 fun getNodeTitle(name: String, mime: String): String {

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.services.JobService
@@ -40,10 +41,6 @@ class OfflineVM(
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
 
-    //    val loadingState: LiveData<LoadingState>
-//        get() = _loadingState
-//    val errorMessage: LiveData<String?>
-//        get() = _errorMessage
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
         get() = Transformations.switchMap(
             _accountID
@@ -71,57 +68,106 @@ class OfflineVM(
         _accountID.value = accountID
     }
 
-    fun forceRefresh() {
-        _errorMessage.value = null
-        Log.e(logTag, "Setting loading state to idle")
+    suspend fun getNode(stateID: StateID): RTreeNode? {
+        return nodeService.getLocalNode(stateID)
+    }
+
+    fun removeFromOffline(stateID: StateID) {
+        viewModelScope.launch {
+            nodeService.toggleOffline(stateID, false)
+        }
+    }
+
+    fun forceFullSync() {
+        val currAccount = _accountID.value
+        val (ok, msg) = canLaunchSync(currAccount)
+        if (ok) {
+            _errorMessage.value = null
+        } else {
+            _errorMessage.value = msg
+            return
+        }
+
+        Log.e(logTag, "Setting loading state to PROCESSING")
         _loadingState.value = LoadingState.PROCESSING
         viewModelScope.launch {
-            doForceRefresh()
+            doForceAccountSync(currAccount!!) // we insure the current account value is valid in the sanity check
             // TODO handle errors
-            Log.e(logTag, "Setting loading state to idle")
-            withContext(Dispatchers.Main){
+            Log.e(logTag, "Setting loading state to IDLE")
+            withContext(Dispatchers.Main) {
                 _loadingState.value = LoadingState.IDLE
             }
         }
     }
 
-    private suspend fun doForceRefresh() {
-        when (networkService.networkStatus) {
+    fun forceSync(stateID: StateID) {
+        val (ok, msg) = canLaunchSync(stateID)
+        if (ok) {
+            _errorMessage.value = null
+        } else {
+            _errorMessage.value = msg
+            return
+        }
+
+        Log.e(logTag, "Setting loading state to PROCESSING")
+        _loadingState.value = LoadingState.PROCESSING
+        viewModelScope.launch {
+            doForceSingleRootSync(stateID)
+            Log.e(logTag, "Setting loading state to IDLE")
+            withContext(Dispatchers.Main) {
+                _loadingState.value = LoadingState.IDLE
+            }
+        }
+    }
+
+    private fun canLaunchSync(stateID: StateID?): Pair<Boolean, String?> {
+        return when (networkService.networkStatus) {
             is NetworkStatus.Metered -> {
                 // TODO implement settings to force accept this user story
-                _errorMessage.value = "Preventing re-sync on metered network"
+                Pair(false, "Preventing re-sync on metered network")
             }
             is NetworkStatus.Roaming -> {
                 // TODO implement settings to force accept this user story
-                _errorMessage.value = "Preventing re-sync when on roaming network"
+                Pair(false, "Preventing re-sync when on roaming network")
             }
             is NetworkStatus.Unavailable, is NetworkStatus.Unknown -> {
-                _errorMessage.value = "Cannot launch re-sync with no internet connection"
+                Pair(false, "Cannot launch re-sync with no internet connection")
             }
             is NetworkStatus.Unmetered -> {
-                _accountID.value?.let { accID ->
-                    if (accID != Transport.UNDEFINED_STATE_ID) {
-                        val (jobID, error) = nodeService.prepareAccountSync(
-                            accID,
-                            AppNames.JOB_OWNER_USER
-                        )
-
-                        if (Str.notEmpty(error)) {
-                            _errorMessage.value = error
-                        } else {
-                            _syncJobID.value = jobID
-                            jobService.launched(jobID)
-                            CellsApp.instance.appScope.launch {
-                                nodeService.performAccountSync(
-                                    accID,
-                                    jobID,
-                                    CellsApp.instance.applicationContext
-                                )
-                            }
-                        }
+                return stateID?.let {
+                    if (it != Transport.UNDEFINED_STATE_ID) {
+                        Pair(true, null)
+                    } else {
+                        Pair(false, "Cannot launch re-sync without choosing a target")
                     }
-                }
+                } ?: Pair(false, "Cannot launch re-sync without choosing a target")
             }
+        }
+    }
+
+    private fun doForceSingleRootSync(stateID: StateID) {
+        CellsApp.instance.appScope.launch {
+            nodeService.syncOfflineRoot(stateID)
+        }
+    }
+
+    private suspend fun doForceAccountSync(accID: StateID) {
+
+        val (jobID, error) = nodeService.prepareAccountSync(accID, AppNames.JOB_OWNER_USER)
+
+        if (Str.notEmpty(error)) {
+            _errorMessage.value = error
+            return
+        }
+
+        _syncJobID.value = jobID
+        jobService.launched(jobID)
+        CellsApp.instance.appScope.launch {
+            nodeService.performAccountSync(
+                accID,
+                jobID,
+                CellsApp.instance.applicationContext
+            )
         }
     }
 }

@@ -6,33 +6,29 @@ import android.content.Context
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.browse.models.MoreMenuType
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
@@ -49,14 +45,6 @@ private const val STATE_ID_KEY = "state-id"
 private const val STATE_ID_SUFFIX = "/{state-id}"
 private fun route(action: NodeAction): String {
     return "${action.id}$STATE_ID_SUFFIX"
-}
-
-
-enum class MoreMenuType {
-    NONE,
-    MORE,
-    OFFLINE,
-    CREATE,
 }
 
 sealed class NodeAction(val id: String) {
@@ -86,7 +74,6 @@ sealed class NodeAction(val id: String) {
 
     object ForceResync : NodeAction("force_re_sync")
     object OpenParentLocation : NodeAction("open_parent_location")
-
 }
 
 /** Add the more menu **/
@@ -203,18 +190,8 @@ private fun FolderWithDialogs(
         if (toOpenStateID == null) {// this should never happen
             Log.e(logTag, "Trying to launch an action on a null stateID, aborting...")
         } else {
-            Log.e(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
+            Log.i(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
             when (it) {
-                is NodeAction.OpenParentLocation -> {
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                }
-                is NodeAction.ForceResync -> {
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                    Log.e(logTag, "#### IMPLEMENT ME!!")
-                }
                 is NodeAction.DownloadToDevice -> {
                     if (currentID.value == Transport.UNDEFINED_STATE_ID) {
                         destinationPicker.launch(toOpenStateID.fileName)
@@ -451,85 +428,4 @@ private fun FolderWithMoreMenu(
         sheetBackgroundColor = bgColor,
         content = content,
     )
-}
-
-@Composable
-fun NodeMoreMenuData(
-    type: MoreMenuType,
-    toOpenStateID: StateID?,
-    launch: (NodeAction) -> Unit,
-    moreMenuVM: MoreMenuVM,
-    tint: Color,
-    bgColor: Color,
-) {
-    val item: MutableState<RTreeNode?> = remember {
-        mutableStateOf(null)
-    }
-
-    LaunchedEffect(key1 = toOpenStateID) {
-        toOpenStateID?.let {
-            val currNode = moreMenuVM.getTreeNode(it) ?: run {
-                Log.e(logTag, "No node found for $it, aborting")
-                // actionDone() TODO do something?
-                null
-            }
-            Log.e(
-                logTag,
-                "## After effect, treeNode $currNode for ${currNode?.getStateID() ?: "NaN"}"
-            )
-            item.value = currNode
-        }
-    }
-
-    // We have to provide early a dummy content when not enough data to build a menu is present.
-    if (toOpenStateID != null && toOpenStateID.parentPath != null && item.value != null) {
-        val myItem = item.value!!
-        Log.e(logTag, "## ABOUT TO COMPOSE FOR $myItem, ${myItem.getStateID()}")
-
-        when {
-            myItem.isRecycle() -> RecycleParentMoreMenuView(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            myItem.isInRecycle() -> RecycleMoreMenuView(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            type == MoreMenuType.CREATE -> CreateMenuView(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            type == MoreMenuType.OFFLINE -> OfflineMoreMenuView(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            else ->
-                NodeMoreMenuView(
-                    stateID = toOpenStateID,
-                    rTreeNode = myItem,
-                    launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
-                )
-        }
-
-
-    } else {
-        // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
-        // when no item is defined (This is the case at the beginning when we launch the Side Effect)
-        Log.d(logTag, "## No more menu for $toOpenStateID")
-        Spacer(modifier = Modifier.height(1.dp))
-    }
 }

@@ -81,7 +81,7 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        Log.e(logTag, ".... ## In BrowseDestinations.Offline at $stateID")
+        Log.i(logTag, "... In BrowseDestinations.Offline at $stateID")
         if (stateID == Transport.UNDEFINED_STATE_ID) {
             Log.e(logTag, "Cannot open OfflineRoots with no ID")
             back()
@@ -89,11 +89,10 @@ fun NavGraphBuilder.browseNavGraph(
             val offlineVM: OfflineVM = koinViewModel()
             offlineVM.afterCreate(stateID.account())
             OfflineRoots(
-                stateID,
+                offlineVM = offlineVM,
                 openDrawer = openDrawer,
                 openSearch = {},
                 open = open,
-                offlineVM = offlineVM,
             )
         }
     }

@@ -123,9 +123,9 @@ class NodeService(
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
         // We use the file param (that includes WS) to be able to also list workspaces roots
-        var parPath = stateID.file ?: "" // initialise with an empty String when null for queries
+        val parPath = stateID.file ?: "" // initialise with an empty String when null for queries
 
-        var mime = if (Str.notEmpty(parPath))
+        val mime = if (Str.notEmpty(parPath))
             SdkNames.NODE_MIME_FOLDER
         else
             SdkNames.NODE_MIME_WS_ROOT
@@ -159,7 +159,6 @@ class NodeService(
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode, isDiffRoot: Boolean = false) =
         withContext(Dispatchers.IO) {
-            // Log.e(logTag, "upserting node: ${newNode.getStateID()}")
 
             val state = newNode.getStateID()
             val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
@@ -178,20 +177,20 @@ class NodeService(
                     }
                 }
             }
-            var addr: String? = null
+            var address: String? = null
             val isShared =
                 newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
             if (isShared) {
                 val client = accountService.getClient(state)
                 if (client.isLegacy) {
-                    addr = client.getShareAddress(state.workspace, state.file)
+                    address = client.getShareAddress(state.workspace, state.file)
                 } else {
                     newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                        addr = client.getShareAddress(state.workspace, it)
+                        address = client.getShareAddress(state.workspace, it)
                     }
                 }
             }
-            newNode.setShared(isShared, addr)
+            newNode.setShared(isShared, address)
 
             newNode.localModificationTS = newNode.remoteModificationTS
             newNode.localModificationStatus = null
@@ -335,9 +334,13 @@ class NodeService(
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             if (node.isOfflineRoot()) {
-                removeOfflineRoot(stateID)
+                if (!newState) {
+                    removeOfflineRoot(stateID)
+                }
             } else {
-                updateOfflineRoot(node)
+                if (newState) {
+                    updateOfflineRoot(node)
+                }
             }
         } catch (e: Exception) {
             Log.e(logTag, "could update offline sync status for ${stateID}: ${e.message}")
@@ -561,14 +564,18 @@ class NodeService(
             return@withContext changeNb
         }
 
-    @OptIn(ExperimentalTime::class)
+    @Deprecated("Rather use method with StateID")
     suspend fun syncOfflineRoot(rTreeNode: RTreeNode): Int = withContext(Dispatchers.IO) {
+        return@withContext syncOfflineRoot(rTreeNode.getStateID())
+    }
 
-        val stateID = rTreeNode.getStateID()
+    @OptIn(ExperimentalTime::class)
+    suspend fun syncOfflineRoot(stateID: StateID): Int = withContext(Dispatchers.IO) {
+
         val caller = AppNames.JOB_OWNER_USER
 
         val dao = nodeDB(stateID).offlineRootDao()
-        val offlineRoot = dao.get(rTreeNode.encodedState) ?: let {
+        val offlineRoot = dao.get(stateID.id) ?: let {
             Log.w(logTag, "Could not find offline root for $stateID, aborting")
             return@withContext 0
         }
@@ -599,7 +606,6 @@ class NodeService(
         jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
 
         return@withContext changeNb
-
     }
 
     private fun hasExistingJob(
@@ -918,7 +924,7 @@ class NodeService(
     /**
      * Returns the local file to be opened if it exists, optionally after checking
      * if it is still up to date based on:
-     * - modif time
+     * - modification time
      * - e-tag
      * - size
      */

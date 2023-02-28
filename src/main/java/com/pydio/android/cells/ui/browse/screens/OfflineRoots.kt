@@ -42,12 +42,12 @@ import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBotto
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.browse.composables.MoreMenuType
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.OfflineRootItem
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
+import com.pydio.android.cells.ui.browse.models.MoreMenuType
 import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
@@ -65,23 +65,37 @@ private const val logTag = "OfflineRoots.kt"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfflineRoots(
-    accountID: StateID,
+    offlineVM: OfflineVM,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
     open: (StateID) -> Unit,
-    offlineVM: OfflineVM,
 ) {
-
     val scope = rememberCoroutineScope()
     val loadingState by offlineVM.loadingState.observeAsState()
 
     val roots = offlineVM.offlineRoots.observeAsState()
     val currJob = offlineVM.syncJob.observeAsState()
 
-    val localOpen: (StateID) -> Unit = {
-        // TODO
-        open(it)
-        // put the checks to see what we open here
+    val downloadToDevice: (StateID) -> Unit = { stateID ->
+        // TODO implement this
+
+    }
+
+    val localOpen: (StateID) -> Unit = { stateID ->
+        Log.e(logTag, "#### Local open")
+        scope.launch {
+            offlineVM.getNode(stateID)?.let {
+                Log.e(logTag, "#### We have a state $it")
+                if (it.isFolder()) {
+                    open(stateID)
+                } else if (it.isPreViewable()) {
+                    // TODO
+                    // Open carousel for offline nodes
+                } else {
+                    // TODO open in external app
+                }
+            }
+        }
     }
 
     val moreMenuState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -103,17 +117,50 @@ fun OfflineRoots(
         }
     }
 
+    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+        when (action) {
+            is NodeAction.OpenParentLocation -> {
+                moreMenuDone()
+                scope.launch {
+                    offlineVM.getNode(stateID)?.let {
+                        if (it.isFolder()) {
+                            open(stateID)
+                        } else {
+                            open(stateID.parent())
+                        }
+                    }
+                }
+            }
+            is NodeAction.ForceResync -> {
+                offlineVM.forceSync(stateID)
+                moreMenuDone()
+            }
+            is NodeAction.DownloadToDevice -> {
+                downloadToDevice(stateID)
+                moreMenuDone()
+            }
+            is NodeAction.ToggleOffline -> {
+                offlineVM.removeFromOffline(stateID)
+                moreMenuDone()
+            }
+            else -> {
+                Log.e(logTag, "Unknown action $action for $stateID")
+                moreMenuDone()
+            }
+        }
+    }
+
     OfflineScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
         runningJob = currJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
         roots = roots.value ?: listOf(),
-        openDrawer = openDrawer,
         openSearch = openSearch,
-        moreMenu = Triple(moreMenuState, moreMenuData.value, openMoreMenu),
-        moreMenuDone = moreMenuDone,
-        forceRefresh = offlineVM::forceRefresh,
+        openDrawer = openDrawer,
+        forceRefresh = offlineVM::forceFullSync,
         open = localOpen,
+        launch = launch,
+        moreMenu = Triple(moreMenuState, moreMenuData.value, openMoreMenu),
     )
 }
 
@@ -124,32 +171,17 @@ private fun OfflineScaffold(
     runningJob: RJob?,
     title: String,
     roots: List<RLiveOfflineRoot>,
-    openDrawer: () -> Unit,
     openSearch: () -> Unit,
-    moreMenu: Triple<ModalBottomSheetState, StateID, (StateID) -> Unit>,
-    moreMenuDone: () -> Unit,
+    openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
+    launch: (NodeAction, StateID) -> Unit,
+    moreMenu: Triple<ModalBottomSheetState, StateID, (StateID) -> Unit>,
 ) {
 
     val moreMenuVM: MoreMenuVM = koinViewModel()
-
-    val launch: (NodeAction) -> Unit = { it ->
-        when (it) {
-            is NodeAction.OpenParentLocation -> {
-                Log.e(logTag, "#### IMPLEMENT NodeAction.OpenParentLocation")
-                moreMenuDone()
-            }
-            is NodeAction.ForceResync -> {
-                Log.e(logTag, "#### IMPLEMENT NodeAction.ForceResync")
-                moreMenuDone()
-            }
-            else -> {
-                Log.e(logTag, "#### UNKNOWN ACTION")
-                moreMenuDone()
-            }
-        }
-    }
+    val tint = MaterialTheme.colorScheme.onSurface
+    val bgColor = MaterialTheme.colorScheme.surface
 
     Scaffold(
         topBar = {
@@ -160,29 +192,28 @@ private fun OfflineScaffold(
             )
         },
     ) { padding ->
-
         ModalBottomSheetLayout(
             sheetContent = {
                 NodeMoreMenuData(
-                    MoreMenuType.OFFLINE,
-                    moreMenu.second,
-                    launch,
-                    moreMenuVM,
-                    MaterialTheme.colorScheme.onSurface,
-                    MaterialTheme.colorScheme.surface,
+                    type = MoreMenuType.OFFLINE,
+                    toOpenStateID = moreMenu.second,
+                    launch = { launch(it, moreMenu.second) },
+                    moreMenuVM = moreMenuVM,
+                    tint = tint,
+                    bgColor = bgColor,
                 )
             },
             modifier = Modifier,
             sheetState = moreMenu.first,
-//            sheetBackgroundColor = bgColor,
+            sheetBackgroundColor = bgColor,
         ) {
             OfflineRootList(
                 loadingState = loadingState,
                 runningJob = runningJob,
                 roots = roots,
                 forceRefresh = forceRefresh,
-                open = open,
                 openMoreMenu = moreMenu.third,
+                open = open,
                 padding = padding,
                 modifier = Modifier.fillMaxWidth(), // padding(padding),
             )
@@ -197,13 +228,11 @@ private fun OfflineRootList(
     runningJob: RJob?,
     roots: List<RLiveOfflineRoot>,
     forceRefresh: () -> Unit,
-    open: (StateID) -> Unit,
     openMoreMenu: (StateID) -> Unit,
+    open: (StateID) -> Unit,
     padding: PaddingValues,
     modifier: Modifier,
 ) {
-
-    val context = LocalContext.current
 
     val state = rememberPullRefreshState(
         refreshing = loadingState == LoadingState.PROCESSING,
@@ -214,14 +243,6 @@ private fun OfflineRootList(
     )
 
     Box(modifier.pullRefresh(state)) {
-//        Column {
-//            if (runningJob != null) {
-//                SyncStatus(
-//                    desc = getJobStatus(item = runningJob),
-//                    progress = -1f,
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//            }
         LazyColumn(
             contentPadding = padding,
             modifier = Modifier.fillMaxWidth()
@@ -305,7 +326,6 @@ private fun getDesc(item: RLiveOfflineRoot): String {
     val sizeValue = Formatter.formatShortFileSize(context, item.size)
     return "$prefix: $mTimeValue • $sizeValue"
 }
-
 
 @Preview(name = "SyncStatus Light Mode")
 @Preview(
