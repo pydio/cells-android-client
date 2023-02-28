@@ -1,5 +1,7 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +18,7 @@ import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -68,8 +71,27 @@ class OfflineVM(
         _accountID.value = accountID
     }
 
+    /** Exposed Business Methods **/
+
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
+    }
+
+    suspend fun viewFile(context: Context, stateID: StateID) {
+        getNode(stateID)?.let { node ->
+            // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
+            //    re-implement finer check of the current context (typically metered state)
+            //    user choices.
+            nodeService.getLocalFile(node, true)?.let { file ->
+                externallyView(context, file, node)
+            }
+        }
+    }
+
+    fun download(stateID: StateID, uri: Uri) {
+        viewModelScope.launch {
+            nodeService.saveToSharedStorage(stateID, uri)
+        }
     }
 
     fun removeFromOffline(stateID: StateID) {

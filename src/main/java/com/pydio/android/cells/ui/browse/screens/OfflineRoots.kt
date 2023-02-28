@@ -3,6 +3,8 @@ package com.pydio.android.cells.ui.browse.screens
 import android.content.res.Configuration
 import android.text.format.Formatter
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,10 +78,7 @@ fun OfflineRoots(
     val roots = offlineVM.offlineRoots.observeAsState()
     val currJob = offlineVM.syncJob.observeAsState()
 
-    val downloadToDevice: (StateID) -> Unit = { stateID ->
-        // TODO implement this
-
-    }
+    val context = LocalContext.current
 
     val localOpen: (StateID) -> Unit = { stateID ->
         Log.e(logTag, "#### Local open")
@@ -88,11 +87,10 @@ fun OfflineRoots(
                 Log.e(logTag, "#### We have a state $it")
                 if (it.isFolder()) {
                     open(stateID)
-                } else if (it.isPreViewable()) {
-                    // TODO
-                    // Open carousel for offline nodes
+//                } else if (it.isPreViewable()) {
+                    // TODO (since v2) Open carousel for offline nodes
                 } else {
-                    // TODO open in external app
+                    offlineVM.viewFile(context, stateID)
                 }
             }
         }
@@ -102,7 +100,6 @@ fun OfflineRoots(
     val moreMenuData: MutableState<StateID> = remember {
         mutableStateOf(Transport.UNDEFINED_STATE_ID)
     }
-
     val openMoreMenu: (StateID) -> Unit = { stateID ->
         scope.launch {
             moreMenuData.value = stateID
@@ -117,9 +114,24 @@ fun OfflineRoots(
         }
     }
 
+    val destinationPicker = rememberLauncherForActivityResult(
+        // TODO we have the mime of the file to download to device
+        //    but this is no trivial implementation: the contract must then be both
+        //    dynamic AND remembered.
+        contract = ActivityResultContracts.CreateDocument(),
+        onResult = { uri ->
+            if (moreMenuData.value != Transport.UNDEFINED_STATE_ID) {
+                uri?.let {
+                    offlineVM.download(moreMenuData.value, uri)
+                }
+            }
+            moreMenuDone()
+        }
+    )
+
     val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
         when (action) {
-            is NodeAction.OpenParentLocation -> {
+            is NodeAction.OpenInApp -> {
                 moreMenuDone()
                 scope.launch {
                     offlineVM.getNode(stateID)?.let {
@@ -136,8 +148,8 @@ fun OfflineRoots(
                 moreMenuDone()
             }
             is NodeAction.DownloadToDevice -> {
-                downloadToDevice(stateID)
-                moreMenuDone()
+                destinationPicker.launch(stateID.fileName)
+                // Done is called by the destination picker callback
             }
             is NodeAction.ToggleOffline -> {
                 offlineVM.removeFromOffline(stateID)

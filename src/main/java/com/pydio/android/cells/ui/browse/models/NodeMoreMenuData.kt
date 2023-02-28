@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.composables.BookmarkMoreMenuView
 import com.pydio.android.cells.ui.browse.composables.CreateMenuView
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuView
@@ -26,6 +27,7 @@ enum class MoreMenuType {
     NONE,
     MORE,
     OFFLINE,
+    BOOKMARK,
     CREATE,
 }
 
@@ -91,6 +93,13 @@ fun NodeMoreMenuData(
                 tint = tint,
                 bgColor = bgColor,
             )
+            type == MoreMenuType.BOOKMARK -> BookmarkMoreMenuView(
+                stateID = toOpenStateID,
+                rTreeNode = myItem,
+                launch = launch,
+                tint = tint,
+                bgColor = bgColor,
+            )
             else ->
                 NodeMoreMenuView(
                     stateID = toOpenStateID,
@@ -100,8 +109,6 @@ fun NodeMoreMenuData(
                     bgColor = bgColor,
                 )
         }
-
-
     } else {
         // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
         // when no item is defined (This is the case at the beginning when we launch the Side Effect)

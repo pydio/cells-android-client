@@ -73,7 +73,7 @@ sealed class NodeAction(val id: String) {
     object SelectTargetFolder : NodeAction("select_target_folder")
 
     object ForceResync : NodeAction("force_re_sync")
-    object OpenParentLocation : NodeAction("open_parent_location")
+    object OpenInApp : NodeAction("open_in_app")
 }
 
 /** Add the more menu **/

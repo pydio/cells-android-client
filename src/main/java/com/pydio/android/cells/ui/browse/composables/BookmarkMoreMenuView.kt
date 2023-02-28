@@ -17,17 +17,17 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "OfflineMoreMenuView"
+private const val logTag = "BookmarkMoreMenuView"
 
 @Composable
-fun OfflineMoreMenuView(
+fun BookmarkMoreMenuView(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
     tint: Color,
     bgColor: Color,
 ) {
-//    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
+
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
         modifier = Modifier.fillMaxWidth()
@@ -41,15 +41,6 @@ fun OfflineMoreMenuView(
         }
         item { BottomSheetDivider() }
 
-        item {
-            BottomSheetListItem(
-                icon = CellsIcons.Refresh,
-                title = stringResource(R.string.force_resync),
-                onItemClick = { launch(NodeAction.ForceResync) },
-                tint = tint,
-                bgColor = bgColor,
-            )
-        }
         item {
             BottomSheetListItem(
                 icon = CellsIcons.OpenLocation,
@@ -76,13 +67,12 @@ fun OfflineMoreMenuView(
         }
         item {
             BottomSheetListItem(
-                icon = CellsIcons.KeepOffline,
-                title = stringResource(R.string.remove_from_offline),
-                onItemClick = { launch(NodeAction.ToggleOffline(false)) },
+                icon = CellsIcons.Bookmark,
+                title = stringResource(R.string.remove_bookmark),
+                onItemClick = { launch(NodeAction.ToggleBookmark(false)) },
                 tint = tint,
                 bgColor = bgColor,
             )
         }
     }
 }
-

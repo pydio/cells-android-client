@@ -8,15 +8,14 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
-import com.pydio.cells.api.SdkNames
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import com.pydio.android.cells.BuildConfig
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import java.io.File
-
 
 const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
 const val DEFAULT_FILE_PROVIDER_ID =
@@ -32,7 +31,9 @@ fun showLongMessage(context: Context, message: String) {
 
 /**
  * Open current file with the viewer provided by Android OS.
- *  TODO insure the user can choose the opening app, see: https://developer.android.com/guide/components/intents-filters#ForceChooser
+ *  TODO insure the user can choose the opening app,
+ *    see: https://developer.android.com/guide/components/intents-filters#ForceChooser
+ *    and https://developer.android.com/training/basics/intents/sending
  */
 fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
     val logTag = "externallyView"
@@ -67,11 +68,10 @@ fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
     val chooser: Intent = Intent.createChooser(viewIntent, title)
     try {
         startActivity(context, chooser, null)
-        if (BuildConfig.DEBUG) {
-            // TODO Debug only, remove
-            val msg = "Opened ${file.name} with external viewer"
-            Log.e(logTag, "Intent success: $msg")
-        }
+//        if (BuildConfig.DEBUG) { // Debug only
+//            val msg = "Opened ${file.name} with external viewer"
+//            Log.e(logTag, "Intent success: $msg")
+//        }
         return true
     } catch (e: ActivityNotFoundException) {
         showMessage(context, "No app found to open ${file.name}")
@@ -100,28 +100,3 @@ fun dumpBackStack(caller: String?, manager: FragmentManager) {
     Log.i(caller, "Back stack entry count: $count")
     Log.i(caller, "Previous entry: $entry")
 }
-
-
-//fun downloadToDevice(context: Context, file: File, node: RTreeNode): Intent {
-//
-//    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
-//
-//    var mime = node.mime
-//    if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-//        mime = getMimeType(node.name)
-//    }
-//
-//    return Intent().setAction(Intent.ACTION_VIEW)
-//        .setDataAndType(uri, mime)
-//        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//}
-
-//fun openWith(context: Context, file: File, node: RTreeNode): Intent {
-//
-//    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
-//
-//    return Intent().setAction(Intent.ACTION_VIEW)
-//        .setDataAndType(uri, "*/*")
-//        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//}

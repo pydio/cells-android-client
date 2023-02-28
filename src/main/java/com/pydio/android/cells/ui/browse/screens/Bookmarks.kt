@@ -1,6 +1,8 @@
 package com.pydio.android.cells.ui.browse.screens
 
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,27 +14,44 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.browse.models.MoreMenuType
+import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "Bookmarks.kt"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Bookmarks(
     accountID: StateID,
@@ -42,43 +61,123 @@ fun Bookmarks(
     browseRemoteVM: BrowseRemoteVM,
     bookmarksVM: BookmarksVM,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val loadingState by browseRemoteVM.loadingState.observeAsState()
-
-    val forceRefresh: () -> Unit = {
-        browseRemoteVM.watch(accountID, true)
-    }
 
     val bookmarks = bookmarksVM.bookmarks.observeAsState()
 
-    val openInWorkspaces: (StateID) -> Unit = {
-        // TODO
-        // put the checks to see what we open here
+    val forceRefresh: () -> Unit = {
+        bookmarksVM.forceRefresh(accountID)
     }
 
-    OfflineScaffold(
-        title = stringResource(id = R.string.action_open_bookmarks),
+    val localOpen: (StateID) -> Unit = { stateID ->
+        scope.launch {
+            bookmarksVM.getNode(stateID)?.let {
+                if (it.isFolder()) {
+                    open(stateID)
+//                } else if (it.isPreViewable()) {
+                    // TODO (since v2) Open carousel for bookmark nodes
+                } else {
+                    bookmarksVM.viewFile(context, stateID)
+                }
+            }
+        }
+    }
+
+    val moreMenuState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val moreMenuData: MutableState<StateID> = remember {
+        mutableStateOf(Transport.UNDEFINED_STATE_ID)
+    }
+    val openMoreMenu: (StateID) -> Unit = { stateID ->
+        scope.launch {
+            moreMenuData.value = stateID
+            moreMenuState.expand()
+        }
+    }
+
+    val moreMenuDone: () -> Unit = {
+        scope.launch {
+            moreMenuState.hide()
+            moreMenuData.value = Transport.UNDEFINED_STATE_ID
+        }
+    }
+
+    val destinationPicker = rememberLauncherForActivityResult(
+        // TODO we have the mime of the file to download to device
+        //    but this is no trivial implementation: the contract must then be both
+        //    dynamic AND remembered.
+        contract = ActivityResultContracts.CreateDocument(),
+        onResult = { uri ->
+            if (moreMenuData.value != Transport.UNDEFINED_STATE_ID) {
+                uri?.let {
+                    bookmarksVM.download(moreMenuData.value, uri)
+                }
+            }
+            moreMenuDone()
+        }
+    )
+
+    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+        when (action) {
+            is NodeAction.OpenInApp -> {
+                moreMenuDone()
+                scope.launch {
+                    bookmarksVM.getNode(stateID)?.let {
+                        if (it.isFolder()) {
+                            open(stateID)
+                        } else {
+                            open(stateID.parent())
+                        }
+                    }
+                }
+            }
+            is NodeAction.DownloadToDevice -> {
+                destinationPicker.launch(stateID.fileName)
+                // Done is called by the destination picker callback
+            }
+            is NodeAction.ToggleBookmark -> {
+                bookmarksVM.removeBookmark(stateID)
+                moreMenuDone()
+            }
+            else -> {
+                Log.e(logTag, "Unknown action $action for $stateID")
+                moreMenuDone()
+            }
+        }
+    }
+
+    BookmarkScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
-        stateID = accountID,
+        title = stringResource(id = R.string.action_open_bookmarks),
         bookmarks = bookmarks.value ?: listOf(),
-        openDrawer = openDrawer,
         openSearch = openSearch,
+        openDrawer = openDrawer,
         forceRefresh = forceRefresh,
-        openInWorkspaces = openInWorkspaces,
+        open = localOpen,
+        launch = launch,
+        moreMenu = Triple(moreMenuState, moreMenuData.value, openMoreMenu),
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OfflineScaffold(
-    title: String,
+private fun BookmarkScaffold(
     loadingState: LoadingState,
-    stateID: StateID,
+    title: String,
     bookmarks: List<RTreeNode>,
-    openDrawer: () -> Unit,
     openSearch: () -> Unit,
+    openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
-    openInWorkspaces: (StateID) -> Unit,
+    open: (StateID) -> Unit,
+    launch: (NodeAction, StateID) -> Unit,
+    moreMenu: Triple<ModalBottomSheetState, StateID, (StateID) -> Unit>,
 ) {
+
+    val moreMenuVM: MoreMenuVM = koinViewModel()
+    val tint = MaterialTheme.colorScheme.onSurface
+    val bgColor = MaterialTheme.colorScheme.surface
+
     Scaffold(
         topBar = {
             DefaultTopBar(
@@ -88,26 +187,43 @@ private fun OfflineScaffold(
             )
         },
     ) { padding ->
-        OfflineRootList(
-            loadingState = loadingState,
-            bookmarks = bookmarks,
-            forceRefresh = forceRefresh,
-            open = { }, // TODO
-            openMoreMenu = { }, // TODO
-            padding = padding,
-            modifier = Modifier.fillMaxWidth(), // padding(padding),
-        )
+        ModalBottomSheetLayout(
+            sheetContent = {
+                NodeMoreMenuData(
+                    type = MoreMenuType.BOOKMARK,
+                    toOpenStateID = moreMenu.second,
+                    launch = { launch(it, moreMenu.second) },
+                    moreMenuVM = moreMenuVM,
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+            },
+            modifier = Modifier,
+            sheetState = moreMenu.first,
+            sheetBackgroundColor = bgColor,
+        ) {
+
+            BookmarkList(
+                loadingState = loadingState,
+                bookmarks = bookmarks,
+                forceRefresh = forceRefresh,
+                openMoreMenu = moreMenu.third,
+                open = open,
+                padding = padding,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun OfflineRootList(
+private fun BookmarkList(
     loadingState: LoadingState,
     bookmarks: List<RTreeNode>,
     forceRefresh: () -> Unit,
-    open: (StateID) -> Unit,
     openMoreMenu: (StateID) -> Unit,
+    open: (StateID) -> Unit,
     padding: PaddingValues,
     modifier: Modifier,
 ) {
@@ -116,7 +232,10 @@ private fun OfflineRootList(
 
     val state = rememberPullRefreshState(
         loadingState == LoadingState.PROCESSING,
-        onRefresh = { Log.i(logTag, "Force refresh launched");forceRefresh() },
+        onRefresh = {
+            Log.i(logTag, "Force refresh launched")
+            forceRefresh()
+        },
     )
 
     Box(modifier.pullRefresh(state)) {
@@ -150,69 +269,3 @@ private fun OfflineRootList(
     }
 }
 
-//
-//
-//@Composable
-//private fun BookmarkItem(
-//    sortName: String,
-//    title: String,
-//    desc: String,
-//    modifier: Modifier = Modifier
-//) {
-//
-//    Card(
-//        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
-//        elevation = CardDefaults.cardElevation(
-//            defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
-//        ),
-//        modifier = modifier
-//    ) {
-//
-//        Surface(
-//            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-//            modifier = Modifier
-//                .size(dimensionResource(id = R.dimen.grid_ws_image_size))
-//                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-//                .wrapContentSize(Alignment.Center)
-//        ) {
-//            Icon(
-//                imageVector = getWsThumbVector(sortName),
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(dimensionResource(R.dimen.list_thumb_size))
-//            )
-//        }
-//        Column(
-//            modifier = Modifier.padding(
-//                horizontal = dimensionResource(R.dimen.grid_ws_content_h_padding),
-//            )
-//        ) {
-//            Text(
-//                text = title,
-//                style = MaterialTheme.typography.titleMedium,
-//            )
-//            Text(
-//                text = desc,
-//                style = MaterialTheme.typography.bodyMedium,
-//            )
-//        }
-//
-//    }
-//}
-//
-//@Preview(name = "Bookmark Light Mode")
-//@Preview(
-//    uiMode = Configuration.UI_MODE_NIGHT_YES,
-//    showBackground = true,
-//    name = "Bookmark Dark Mode"
-//)
-//@Composable
-//private fun BookmarkItemPreview() {
-//    CellsTheme {
-//        BookmarkItem(
-//            "2_",
-//            "alice",
-//            "https://www.example.com",
-//        )
-//    }
-//}

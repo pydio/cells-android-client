@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PersonOff
 import androidx.compose.material.icons.outlined.RocketLaunch
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -37,7 +38,7 @@ object CellsIcons {
     val ArrowBack = Icons.Rounded.ArrowBack
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
-    val Bookmark = Icons.Default.Star
+    val Bookmark = Icons.Outlined.Star
     val Cancel = Icons.Outlined.Cancel
     val Check = Icons.Default.Check
     val CellThumb = Icons.Outlined.FolderShared
