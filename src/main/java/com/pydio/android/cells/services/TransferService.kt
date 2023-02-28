@@ -287,7 +287,7 @@ class TransferService(
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
-            val rNode = nodeService.getLocalNode(state)
+            val rNode = nodeService.getNode(state)
             if (rNode == null) {
                 // No node found, aborting
                 val errorMessage = "No node found for $state, aborting file DL"
@@ -335,7 +335,7 @@ class TransferService(
         }
 
         val state = StateID.fromId(rTransfer.encodedState)
-        val rNode = nodeService.getLocalNode(state)
+        val rNode = nodeService.getNode(state)
         if (rNode == null) {
             // No node found, aborting
             errorMessage = "No node found for $state, aborting file DL"

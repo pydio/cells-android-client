@@ -47,8 +47,8 @@ class AccountServiceImpl(
     private val sessionViewDao: SessionViewDao = accountDB.sessionViewDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
-    override fun getClient(stateId: StateID): Client {
-        return sessionFactory.getUnlockedClient(stateId.accountId)
+    override fun getClient(stateID: StateID): Client {
+        return sessionFactory.getUnlockedClient(stateID.accountId)
     }
 
     override suspend fun isLegacy(stateId: StateID): Boolean {
@@ -74,6 +74,9 @@ class AccountServiceImpl(
 
     override fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
         workspaceDao.getLiveWorkspaces(accountId)
+
+    override fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> =
+        workspaceDao.getLiveWorkspace(stateID.id)
 
     override fun getLiveWsByType(type: String, accountID: String)
             : LiveData<List<RWorkspace>> {
@@ -121,7 +124,11 @@ class AccountServiceImpl(
         return state
     }
 
-    override fun listSessionViews(includeLegacy: Boolean): List<RSessionView> {
+    override suspend fun getWorkspace(stateID: StateID): RWorkspace? = withContext(Dispatchers.IO) {
+        workspaceDao.getWorkspace(stateID.id)
+    }
+
+    override suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView> {
         return if (includeLegacy) {
             sessionViewDao.getSessions()
         } else {

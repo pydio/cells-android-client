@@ -30,7 +30,7 @@ class MoreMenuVM(
 ) : ViewModel() {
 
     suspend fun getTreeNode(stateID: StateID): RTreeNode? {
-        return nodeService.getLocalNode(stateID)
+        return nodeService.getNode(stateID)
     }
 
     // Fire and forget in viewModelScope
@@ -185,7 +185,7 @@ class MoreMenuVM(
     }
 
     suspend fun getShareLink(stateID: StateID): String? = withContext(Dispatchers.IO) {
-        nodeService.getLocalNode(stateID)?.getShareAddress()
+        nodeService.getNode(stateID)?.getShareAddress()
     }
 
 }

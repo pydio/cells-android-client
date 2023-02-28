@@ -12,6 +12,6 @@ class BrowseHostVM(
     private val nodeService: NodeService
 ) : ViewModel() {
     suspend fun getTreeNode(stateID: StateID): RTreeNode? {
-        return nodeService.getLocalNode(stateID)
+        return nodeService.getNode(stateID)
     }
 }

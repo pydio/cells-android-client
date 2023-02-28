@@ -45,7 +45,7 @@ import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
+import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.JobListVM
 import com.pydio.android.cells.ui.models.LogListVM
@@ -204,7 +204,7 @@ val viewModelModule = module {
 
     viewModel { AccountHomeVM(get()) }
     viewModel { BrowseRemoteVM(get(), get()) }
-    viewModel { BrowseLocalFoldersVM(get()) }
+    viewModel { FolderVM(get()) }
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }
     viewModel { UploadsVM(get(), get()) }

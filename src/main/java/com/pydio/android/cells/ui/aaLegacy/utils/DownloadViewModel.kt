@@ -78,7 +78,7 @@ class DownloadViewModel(
                     _isProcessing = false
                     return@launch
                 }
-                _success.value = nodeService.getLocalNode(stateID)
+                _success.value = nodeService.getNode(stateID)
             }
         }
     }

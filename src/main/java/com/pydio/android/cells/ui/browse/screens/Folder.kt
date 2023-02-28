@@ -27,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,18 +48,17 @@ import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
+import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.MoreMenuType
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
-import com.pydio.android.cells.ui.models.BrowseLocalFoldersVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "Folder.kt"
 
@@ -66,26 +67,47 @@ private const val logTag = "Folder.kt"
 fun Folder(
     stateID: StateID,
     openDrawer: () -> Unit,
-//    openParent: (StateID) -> Unit,
-    open: (StateID) -> Unit,
     openSearch: () -> Unit,
+    open: (StateID) -> Unit,
     browseRemoteVM: BrowseRemoteVM,
-    browseLocalVM: BrowseLocalFoldersVM = koinViewModel(),
+    folderVM: FolderVM,
 ) {
-
-    Log.e(logTag, "... Composing Folder for $stateID")
-
     LaunchedEffect(key1 = stateID) {
         Log.e(logTag, "... in Folder, launching effect")
         browseRemoteVM.watch(stateID, false)
     }
 
-    browseLocalVM.setState(stateID)
     val loadingState by browseRemoteVM.loadingState.observeAsState()
-    val children by browseLocalVM.childNodes.observeAsState()
-
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(stateID, true)
+    }
+
+    val children by folderVM.childNodes.observeAsState()
+
+    val treeNode by folderVM.treeNode.collectAsState()
+    val workspace by folderVM.workspace.collectAsState()
+
+    val binLabel = stringResource(R.string.recycle_bin_label)
+
+    val label by remember(key1 = treeNode, key2 = workspace) {
+        derivedStateOf {
+            var tmpLabel = stateID.fileName ?: workspace?.label ?: stateID.workspace
+            if (treeNode?.isRecycle() == true) {
+                tmpLabel = binLabel
+            }
+            tmpLabel
+        }
+    }
+//    val showFAB = Str.notEmpty(stateID.workspace) && !folderVM.isInRecycle()
+//    Log.e(logTag, "After computing show fab: $showFAB")
+    val showFAB by remember(key1 = treeNode) {
+        derivedStateOf {
+            val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
+            // This is never the case -> useless check
+            // val isNotAccountHome = Str.notEmpty(stateID.workspace)
+            Log.e(logTag, "Derived state of show fab: $inRecycle")
+            !inRecycle
+        }
     }
 
     // We handle the state of the more menu here, not optimal...
@@ -94,7 +116,6 @@ fun Folder(
     val childState: MutableState<Pair<MoreMenuType, StateID?>> = remember {
         mutableStateOf(Pair(MoreMenuType.NONE, null))
     }
-
     val openMoreMenu: (MoreMenuType, StateID) -> Unit = { type, childID ->
         scope.launch {
             childState.value = Pair(type, childID)
@@ -121,9 +142,10 @@ fun Folder(
     ) {
         FolderPage(
             loadingState = loadingState ?: LoadingState.STARTING,
-            label = stateID.fileName ?: stateID.workspace,// FIXME
+            label = label,
             stateID = stateID,
             children = children ?: listOf(),
+            showFAB = showFAB,
             openDrawer = openDrawer,
             openSearch = openSearch,
             openParent = { open(stateID.parent()) },
@@ -141,6 +163,7 @@ private fun FolderPage(
     stateID: StateID,
     label: String,
     children: List<RTreeNode>,
+    showFAB: Boolean,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openDrawer: () -> Unit,
@@ -158,10 +181,13 @@ private fun FolderPage(
             )
         },
         floatingActionButton = {
-            if (Str.notEmpty(stateID.workspace)) {
-                FloatingActionButton(
-                    onClick = { openMoreMenu(MoreMenuType.CREATE, stateID) }
-                ) { Icon(Icons.Filled.Add, /* TODO */ contentDescription = "") }
+            if (showFAB) {
+                FloatingActionButton(onClick = { openMoreMenu(MoreMenuType.CREATE, stateID) }) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = stringResource(id = R.string.fab_transformation_sheet_behavior)
+                    )
+                }
             }
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
@@ -192,10 +218,9 @@ private fun FolderList(
     forceRefresh: () -> Unit,
     modifier: Modifier,
 ) {
-    // var refreshing by remember() { mutableStateOf(isLoading) }
-    // Warning: pullRefresh API is:
+    // WARNING: pullRefresh API is:
     //   - experimental
-    //   - only implemented in material 1, for the time being.
+    //   - only implemented in material "1" for the time being.
     val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
         Log.i(logTag, "Force refresh launched")
         forceRefresh()
@@ -243,7 +268,6 @@ private fun FolderList(
         )
     }
 }
-
 
 @Composable
 fun FolderTopBar(

@@ -432,7 +432,7 @@ class MigrationServiceV2 : KoinComponent {
         }
     }
 
-    private fun cleanLegacyFiles(context: Context) {
+    private suspend fun cleanLegacyFiles(context: Context) {
         // Deletes all old DB files
         for (name in oldDbNames) {
             rmDB(context, name)

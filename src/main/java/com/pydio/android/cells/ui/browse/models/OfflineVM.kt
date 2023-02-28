@@ -69,7 +69,7 @@ class OfflineVM(
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getLocalNode(stateID)
+        return nodeService.getNode(stateID)
     }
 
     fun removeFromOffline(stateID: StateID) {

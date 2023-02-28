@@ -10,6 +10,7 @@ import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.ROfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -146,6 +147,10 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
     }
 
+    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> {
+        return accountService.getLiveWorkspace(stateID)
+    }
+
     fun getLiveNodes(stateIDs: List<StateID>): LiveData<List<RTreeNode>> {
         if (stateIDs.isEmpty()) {
             throw java.lang.IllegalStateException("Cannot retrieve live nodes without at least one ID")
@@ -155,6 +160,22 @@ class NodeService(
     }
 
     /* Communicate with the DB using suspend functions */
+
+    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
+        if (stateID == Transport.UNDEFINED_STATE_ID) {
+            null
+        } else {
+            nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+        }
+    }
+
+    suspend fun getWorkspace(stateID: StateID): RWorkspace? {
+        return if (stateID == Transport.UNDEFINED_STATE_ID) {
+            null
+        } else {
+            accountService.getWorkspace(stateID)
+        }
+    }
 
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode, isDiffRoot: Boolean = false) =
@@ -214,13 +235,6 @@ class NodeService(
             }
         }
 
-    suspend fun getLocalNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
-            null
-        } else {
-            nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-        }
-    }
 
     suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =
         withContext(Dispatchers.IO) {
@@ -1123,7 +1137,7 @@ class NodeService(
                 // We already insert found nodes in the cache to ease following user action
                 for (node in nodes) {
                     // Log.e(logTag, "handling query result for ${node.getStateID()} ")
-                    getLocalNode(node.getStateID())?.let {
+                    getNode(node.getStateID())?.let {
                         // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
                     } ?: upsertNode(node)
                 }
