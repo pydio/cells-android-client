@@ -14,10 +14,10 @@ import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginHost
 import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
@@ -142,11 +142,14 @@ fun CellsNavGraph(
 //                }
                 var isEffectiveBack = false
                 if (bq.size > 1) {
+                    val targetEntry = bq[bq.size - 2]
                     val penultimateID = lazyStateID(bq[bq.size - 2])
-                    isEffectiveBack = penultimateID == it && it != Transport.UNDEFINED_STATE_ID
+                    isEffectiveBack =
+                        BrowseDestinations.Open.isCurrent(targetEntry.destination.route)
+                                && penultimateID == it && it != Transport.UNDEFINED_STATE_ID
                 }
                 if (isEffectiveBack) {
-                    Log.e(logTag, "isEffectiveBack: $it")
+                    Log.e(logTag, "Open node at $it is Effective Back")
                     navController.popBackStack()
                 } else {
                     Log.e(logTag, "Workspace is not empty: $it")
