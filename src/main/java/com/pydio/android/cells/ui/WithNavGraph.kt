@@ -134,12 +134,12 @@ fun CellsNavGraph(
                 // the end user has clicked on parent() and was "simply" browsing
                 // Log.d(logTag, "### Opening state at $it, Backstack: ")
                 val bq = navController.backQueue
-//                var i = 0
-//                navController.backQueue.forEach {
-//                    val stateID = lazyID(it)
-//                    Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
-//
-//                }
+                // var i = 0
+                // navController.backQueue.forEach {
+                //     val stateID = lazyStateID(it)
+                //     Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
+
+                // }
                 var isEffectiveBack = false
                 if (bq.size > 1) {
                     val targetEntry = bq[bq.size - 2]
@@ -152,12 +152,9 @@ fun CellsNavGraph(
                     Log.e(logTag, "Open node at $it is Effective Back")
                     navController.popBackStack()
                 } else {
-                    Log.e(logTag, "Workspace is not empty: $it")
                     scope.launch {
                         var route = BrowseDestinations.Open.route
                         if (Str.notEmpty(it.workspace)) {
-                            Log.e(logTag, "Before launch, $it")
-
                             val item = browseRemoteVM.getTreeNode(it) ?: run {
                                 // We cannot navigate to an unknown node item
                                 Log.e(logTag, "No TreeNode found for $it in local repo, aborting")
@@ -180,10 +177,7 @@ fun CellsNavGraph(
                         } else {
                             route = BrowseDestinations.Open.createRoute(it)
                         }
-                        Log.e(logTag, "About to navigate, route: $route")
-                        navController.navigate(route) {
-                            launchSingleTop = true
-                        }
+                        navController.navigate(route)
                     }
                 }
             },
