@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui
 
-
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -111,5 +110,4 @@ class ConnectionVM(
         }
         .flowOn(Dispatchers.Default)
         .conflate()
-
 }

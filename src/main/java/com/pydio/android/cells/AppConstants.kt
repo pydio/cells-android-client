@@ -11,3 +11,6 @@ enum class JobStatus(val id: String) {
     NO_FILTER("no filter"),
 }
 
+enum class RemoteType {
+    P8, CELLS
+}

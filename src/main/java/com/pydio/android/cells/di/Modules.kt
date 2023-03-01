@@ -41,6 +41,7 @@ import com.pydio.android.cells.ui.browse.models.PreferencesVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.LoginViewModelNew
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.login.nav.CellsRouteNavigator
 import com.pydio.android.cells.ui.login.nav.RouteNavigator
 import com.pydio.android.cells.ui.login.nav.StateViewModel
@@ -178,6 +179,7 @@ val serviceModule = module {
 
 val viewModelModule = module {
 
+    viewModel { NewLoginVM(get(), get(), get()) }
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }
 

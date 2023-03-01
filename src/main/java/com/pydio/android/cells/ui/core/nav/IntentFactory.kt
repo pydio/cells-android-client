@@ -8,13 +8,13 @@ import com.pydio.android.cells.utils.getOSCurrentVersion
 import com.pydio.android.cells.utils.getTimestampAsENString
 import com.pydio.cells.transport.ClientData
 
-fun openExternalURL(urlStr : String) : Intent{
+fun openExternalURL(urlStr: String): Intent {
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(urlStr)
     return intent
 }
 
-fun sendSupportEmail(resources: Resources) : Intent {
+fun sendSupportEmail(resources: Resources): Intent {
     val data = ClientData.getInstance()
     val format = resources.getString(R.string.app_info)
     val appInfo = String.format(

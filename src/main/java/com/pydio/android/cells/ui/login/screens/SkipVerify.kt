@@ -17,7 +17,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.login.LoginViewModelNew
+import com.pydio.android.cells.ui.login.LoginHelper
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
@@ -79,8 +80,8 @@ fun SkipVerify(
 
 @Composable
 fun SkipVerify(
-    stateVM: StateViewModel,
-    loginVM: LoginViewModelNew,
+    helper: LoginHelper,
+    loginVM: NewLoginVM,
     navigateTo: (String?) -> Unit,
 ) {
 

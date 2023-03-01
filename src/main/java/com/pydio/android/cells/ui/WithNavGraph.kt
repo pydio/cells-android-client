@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -15,8 +16,11 @@ import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
-import com.pydio.android.cells.ui.login.LoginHost
-import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
+import com.pydio.android.cells.ui.login.LoginDestinations
+import com.pydio.android.cells.ui.login.LoginHelper
+import com.pydio.android.cells.ui.login.LoginNavigation
+import com.pydio.android.cells.ui.login.loginNavGraph
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
@@ -37,14 +41,18 @@ fun CellsNavGraph(
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     isExpandedScreen: Boolean,
     navController: NavHostController,
-    navigateTo: (String, StateID) -> Unit,
+    navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
+    loginVM: NewLoginVM = koinViewModel(),
 ) {
 
     val scope = rememberCoroutineScope()
+    val loginNavActions = remember(navController) {
+        LoginNavigation(navController)
+    }
 
     if (startingState != null) {
         Log.e(logTag, "########## Got a starting state")
@@ -53,17 +61,20 @@ fun CellsNavGraph(
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
             if (startingState.destination?.isNotEmpty() == true) {
                 when {
-                    startingState.destination == RouteLoginProcessAuth.route
+                    LoginDestinations.ProcessAuth.isCurrent(startingState.destination)
                     -> {
                         // TODO check if startingState.state = state has already been consumed
-                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+                        // navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+                        loginNavActions.processAuth(startingState.stateID)
                     }
-                    startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
+                    LoginDestinations.isCurrent(startingState.destination)
+                    // startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
                     -> {
                         // TODO When do we pass here?
                         Thread.dumpStack()
                         Log.e(logTag, "##########   Got a login destination, see above")
-                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+//                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+                        loginNavActions.askUrl()
                     }
                     startingState.destination == ShareDestination.ChooseAccount.route
                     -> {
@@ -90,9 +101,7 @@ fun CellsNavGraph(
             NoAccount(
                 openDrawer = { openDrawer() },
                 addAccount = {
-                    navController.navigate(
-                        CellsDestinations.Login.createRoute(Transport.UNDEFINED_STATE_ID)
-                    )
+                    loginNavActions.askUrl()
                 },
             )
         }
@@ -105,20 +114,6 @@ fun CellsNavGraph(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 ),
-            )
-        }
-
-        composable(CellsDestinations.Login.route) { bse ->
-            val stateId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
-                ?: Transport.UNDEFINED_STATE
-            LoginHost(
-                currAccount = StateID.fromId(stateId),
-                // FIXME rather forward the navigateTo() method
-                openAccount = { navigateTo(BrowseDestinations.Open.route, it) },
-                startingState = startingState,
-                startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                launchIntent = launchIntent,
-                back = { navController.popBackStack() },
             )
         }
 
@@ -182,6 +177,37 @@ fun CellsNavGraph(
                 }
             },
         )
+
+//        composable(CellsDestinations.Login.route) { bse ->
+//            val stateId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
+//                ?: Transport.UNDEFINED_STATE
+//            LoginHost(
+//                currAccount = StateID.fromId(stateId),
+//                // FIXME rather forward the navigateTo() method
+//                openAccount = { navigateTo(BrowseDestinations.Open.route, it) },
+//                startingState = startingState,
+//                startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+//                launchIntent = launchIntent,
+//                back = { navController.popBackStack() },
+//            )
+//        }
+
+
+        loginNavGraph(
+            loginVM = loginVM,
+            helper = LoginHelper(
+                navController,
+                loginVM,
+                navigateTo,
+                launchTaskFor,
+                startingState,
+                startingStateHasBeenProcessed
+            ),
+ //            navigateTo = {navigateTo(it)}, // FIXME
+            // open = { _ -> }
+        )
+
+
 
         shareNavGraph(
             browseRemoteVM = browseRemoteVM,

@@ -19,8 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.common.FormBottomButtons
 import com.pydio.android.cells.ui.box.common.FormInput
-import com.pydio.android.cells.ui.login.LoginViewModelNew
 import com.pydio.android.cells.ui.login.RouteLoginDone
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.launch
@@ -117,8 +117,8 @@ fun P8Credentials(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun P8Credentials(
-    stateVM: StateViewModel,
-    loginVM: LoginViewModelNew,
+    stateVM: StateViewModel?,
+    loginVM: NewLoginVM,
     navigateTo: (String?) -> Unit,
 ) {
 

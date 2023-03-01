@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.login
+package com.pydio.android.cells.ui.login.models
 
 import android.content.Intent
 import android.util.Log
@@ -8,6 +8,7 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.SessionFactory
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
@@ -26,13 +27,13 @@ import java.io.IOException
 import java.net.MalformedURLException
 import javax.net.ssl.SSLException
 
-class LoginViewModelNew(
+class NewLoginVM(
     private val authService: AuthService,
     private val sessionFactory: SessionFactory,
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = LoginViewModelNew::class.simpleName
+    private val logTag = NewLoginVM::class.simpleName
 
     // UI
     // Add some delay for the end user to be aware of what is happening under the hood.
@@ -68,6 +69,7 @@ class LoginViewModelNew(
     private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
     val serverUrl: StateFlow<ServerURL?> = _serverUrl
 
+
     // Used when relogging a P8 Server
     private val _username: MutableStateFlow<String?> = MutableStateFlow(null)
     val username: StateFlow<String?> = _username
@@ -84,6 +86,16 @@ class LoginViewModelNew(
         MutableStateFlow(AuthService.NEXT_ACTION_BROWSE)
     val nextAction: StateFlow<String> = _nextAction
 
+    private fun restoreDefaults() {
+        _serverAddress.value = ""
+        _skipVerify.value = false
+        _serverUrl.value = null
+        _username.value = null
+        _server.value = null
+        _accountId.value = null
+        _nextAction.value = AuthService.NEXT_ACTION_BROWSE
+    }
+
     // UI Methods
     fun switchLoading(newState: Boolean) {
         if (newState) { // also remove old error message when we start a new processing
@@ -92,44 +104,14 @@ class LoginViewModelNew(
         _isProcessing.value = newState
     }
 
-//    fun after2(currStep: LoginStep) {
-//
-//        when (currStep) {
-//            LoginStep.URL -> navigateTo(P8CredsRoute.route)
-//            LoginStep.P8_CRED -> navigateTo(P8CredsRoute.route) // FIXME LoginStep.PROCESS_AUTH
-//            // FIXME else -> LoginStep.URL
-//            else -> return // Do nothing for the time being
-//        }
-//    }
-
-
-//    fun after(currStep: LoginStep) {
-//        val nextStep = when (currStep) {
-//            LoginStep.URL -> LoginStep.P8_CRED
-//            LoginStep.P8_CRED -> LoginStep.PROCESS_AUTH
-//            else -> LoginStep.URL
-//        }
-//        Log.e(logTag, "After: $currStep, going to ${nextStep}")
-//
-//
-//
-//        _currDestination.value = nextStep
-//    }
-
-//    fun setCurrentStep(currStep: LoginStep) {
-//        // Dirty tweak otherwise we have an issue when using the back button of the system
-//        if (currStep != _currDestination.value) {
-//            _currDestination.value = currStep
-//            switchLoading(false)
-//            _message.value = ""
-//        } else {
-//            // Tmp log to monitor this behaviour
-//            Log.i(logTag, "Skipping state update for same step: $currStep")
-//        }
-//    }
-
-
     // Business methods
+
+    // Restore all defaults: the view model is persisted between 2 login process if no restart has happened
+    suspend fun flush() {
+        resetMessages()
+        restoreDefaults()
+    }
+
     fun setAddress(serverAddress: String) {
         _serverAddress.value = serverAddress.trim()
         _errorMessage.value = ""
@@ -194,7 +176,7 @@ class LoginViewModelNew(
         _nextAction.value = next
         val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
         _serverUrl.value = url
-        if (sessionView.isLegacy){
+        if (sessionView.isLegacy) {
             _username.value = sessionView.username
         } else {
             triggerOAuthProcess(url)
@@ -254,18 +236,17 @@ class LoginViewModelNew(
             return null
         _server.value = server
 
-        return null // FIXME
-        //
-//        // 3) Specific login process depending on the remote server type (Cells or P8).
-//        if (server.isLegacy) {
-//            return RouteLoginP8Credentials.route
-//        } else {
-//            viewModelScope.launch {
-//                triggerOAuthProcess(serverURL)
-//            }
-//            // FIXME this is not satisfying: error won't be processed correctly
-//            return RouteLoginProcessAuth.route
-//        }
+        val serverID = StateID(server.url())
+        // 3) Specific login process depending on the remote server type (Cells or P8).
+        if (server.isLegacy) {
+            return LoginDestinations.P8Credentials.createRoute(serverID)
+        } else {
+            viewModelScope.launch {
+                triggerOAuthProcess(serverURL)
+            }
+            // FIXME this is not satisfying: error won't be processed correctly
+            return LoginDestinations.ProcessAuth.createRoute(serverID)
+        }
     }
 
     private suspend fun doPing(serverAddress: String): ServerURL? {
@@ -360,29 +341,54 @@ class LoginViewModelNew(
     }
 
     private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
+//        updateMessage("Launching OAuth credential flow")
+//        withContext(Dispatchers.Main) {
+//            val uri = try {
+//                authService.generateOAuthFlowUri(
+//                    sessionFactory,
+//                    serverURL,
+//                    _nextAction.value,
+//                )
+//
+//            } catch (e: SDKException) {
+//                val msg =
+//                    "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
+//                Log.e(logTag, msg)
+//                updateErrorMsg(msg)
+//                return@withContext
+//            }
+//            val intent = Intent(Intent.ACTION_VIEW)
+//            intent.data = uri
+//            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+
+        val intent = newOAuthIntent(serverURL)
+        Log.d(logTag, "Intent created: ${intent?.data}")
+        _oauthIntent.value = intent
+
+    }
+
+    suspend fun newOAuthIntent(serverURL: ServerURL): Intent? = withContext(Dispatchers.Main) {
         updateMessage("Launching OAuth credential flow")
-        withContext(Dispatchers.Main) {
-            val uri = try {
-                authService.generateOAuthFlowUri(
-                    sessionFactory,
-                    serverURL,
-                    _nextAction.value,
-                )
+        val uri = try {
+            authService.generateOAuthFlowUri(
+                sessionFactory,
+                serverURL,
+                _nextAction.value,
+            )
 
-            } catch (e: SDKException) {
-                val msg =
-                    "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
-                Log.e(logTag, msg)
-                updateErrorMsg(msg)
-                return@withContext
-            }
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = uri
-            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-
-            Log.d(logTag, "Intent created: ${intent?.data}")
-            _oauthIntent.value = intent
+        } catch (e: SDKException) {
+            val msg =
+                "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
+            Log.e(logTag, msg)
+            updateErrorMsg(msg)
+            return@withContext null
         }
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = uri
+        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+
+        Log.e(logTag, "Intent created: ${intent.data}")
+        return@withContext intent
     }
 
     private suspend fun updateMessage(msg: String) {
@@ -395,6 +401,14 @@ class LoginViewModelNew(
     private suspend fun updateErrorMsg(msg: String) {
         withContext(Dispatchers.Main) {
             _errorMessage.value = msg
+            _message.value = ""
+            switchLoading(false)
+        }
+    }
+
+    private suspend fun resetMessages() {
+        withContext(Dispatchers.Main) {
+            _errorMessage.value = ""
             _message.value = ""
             switchLoading(false)
         }

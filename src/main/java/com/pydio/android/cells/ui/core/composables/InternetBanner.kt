@@ -23,10 +23,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.ConnectionVM
-import com.pydio.android.cells.ui.core.nav.CellsDestinations
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 
 private enum class Status {
@@ -37,7 +38,7 @@ private enum class Status {
 fun WithInternetBanner(
     contentPadding: PaddingValues,
     connectionVM: ConnectionVM, // = koinViewModel(),
-    navigateTo: (String, StateID) -> Unit,
+    navigateTo: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
 //    val network = connectionVM.liveNetwork.observeAsState()
@@ -75,7 +76,12 @@ fun WithInternetBanner(
                     type = Status.WARNING,
                     onClick = {
                         connectionVM.sessionView.value?.let {
-                            navigateTo(CellsDestinations.Login.route, it.getStateID())
+                            val route = if (it.isLegacy) {
+                                LoginDestinations.P8Credentials.createRoute(it.getStateID())
+                            } else {
+                                LoginDestinations.ProcessAuth.createRoute(it.getStateID())
+                            }
+                            navigateTo(route)
                         }
                     }
                 )

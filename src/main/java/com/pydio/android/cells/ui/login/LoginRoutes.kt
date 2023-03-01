@@ -20,77 +20,77 @@ object RouteLoginDone {
     const val route = "login/done"
 }
 
-object RouteLoginStarting : LoginNavRoute<StateViewModel> {
-    override val route = "${prefix}starting"
-
-    @Composable
-    override fun viewModel(): StateViewModel = koinViewModel()
-
-    @Composable
-    override fun Content(
-        viewModel: StateViewModel,
-        loginVM: LoginViewModelNew,
-        navigateTo: (String?) -> Unit,
-    ) = AskServerUrl(viewModel, loginVM, navigateTo)
-}
-
-object RouteLoginUrl : LoginNavRoute<StateViewModel> {
-
-    override val route = "${prefix}url"
-
-    @Composable
-    override fun viewModel(): StateViewModel = koinViewModel()
-
-    @Composable
-    override fun Content(
-        viewModel: StateViewModel,
-        loginVM: LoginViewModelNew,
-        navigateTo: (String?) -> Unit,
-    ) = AskServerUrl(viewModel, loginVM, navigateTo)
-}
-
-object RouteLoginSkipVerify : LoginNavRoute<StateViewModel> {
-
-    override val route = "${prefix}skip-verify"
-
-    @Composable
-    override fun viewModel(): StateViewModel = koinViewModel()
-
-    @Composable
-    override fun Content(
-        viewModel: StateViewModel,
-        loginVM: LoginViewModelNew,
-        navigateTo: (String?) -> Unit,
-    ) = SkipVerify(viewModel, loginVM, navigateTo)
-}
-
-object RouteLoginP8Credentials : LoginNavRoute<StateViewModel> {
-
-    override val route = "${prefix}p8-credentials"
-
-    @Composable
-    override fun viewModel(): StateViewModel = koinViewModel()
-
-    @Composable
-    override fun Content(
-        viewModel: StateViewModel,
-        loginVM: LoginViewModelNew,
-        navigateTo: (String?) -> Unit
-    ) = P8Credentials(viewModel, loginVM, navigateTo)
-}
-
-object RouteLoginProcessAuth : LoginNavRoute<StateViewModel> {
-
-    override val route = "${prefix}process-auth"
-
-    @Composable
-    override fun viewModel(): StateViewModel = koinViewModel()
-
-    @Composable
-    override fun Content(
-        viewModel: StateViewModel,
-        loginVM: LoginViewModelNew,
-        navigateTo: (String?) -> Unit
-    ) = ProcessAuth(viewModel, loginVM, navigateTo)
-}
-
+//object RouteLoginStarting : LoginNavRoute<StateViewModel> {
+//    override val route = "${prefix}starting"
+//
+//    @Composable
+//    override fun viewModel(): StateViewModel = koinViewModel()
+//
+//    @Composable
+//    override fun Content(
+//        viewModel: StateViewModel,
+//        loginVM: LoginViewModelNew,
+//        navigateTo: (String?) -> Unit,
+//    ) = AskServerUrl(viewModel, loginVM, navigateTo)
+//}
+//
+//object RouteLoginUrl : LoginNavRoute<StateViewModel> {
+//
+//    override val route = "${prefix}url"
+//
+//    @Composable
+//    override fun viewModel(): StateViewModel = koinViewModel()
+//
+//    @Composable
+//    override fun Content(
+//        viewModel: StateViewModel,
+//        loginVM: LoginViewModelNew,
+//        navigateTo: (String?) -> Unit,
+//    ) = AskServerUrl(viewModel, loginVM, navigateTo)
+//}
+//
+//object RouteLoginSkipVerify : LoginNavRoute<StateViewModel> {
+//
+//    override val route = "${prefix}skip-verify"
+//
+//    @Composable
+//    override fun viewModel(): StateViewModel = koinViewModel()
+//
+//    @Composable
+//    override fun Content(
+//        viewModel: StateViewModel,
+//        loginVM: LoginViewModelNew,
+//        navigateTo: (String?) -> Unit,
+//    ) = SkipVerify(viewModel, loginVM, navigateTo)
+//}
+//
+//object RouteLoginP8Credentials : LoginNavRoute<StateViewModel> {
+//
+//    override val route = "${prefix}p8-credentials"
+//
+//    @Composable
+//    override fun viewModel(): StateViewModel = koinViewModel()
+//
+//    @Composable
+//    override fun Content(
+//        viewModel: StateViewModel,
+//        loginVM: LoginViewModelNew,
+//        navigateTo: (String?) -> Unit
+//    ) = P8Credentials(viewModel, loginVM, navigateTo)
+//}
+//
+//object RouteLoginProcessAuth : LoginNavRoute<StateViewModel> {
+//
+//    override val route = "${prefix}process-auth"
+//
+//    @Composable
+//    override fun viewModel(): StateViewModel = koinViewModel()
+//
+//    @Composable
+//    override fun Content(
+//        viewModel: StateViewModel,
+//        loginVM: LoginViewModelNew,
+//        navigateTo: (String?) -> Unit
+//    ) = ProcessAuth(viewModel, loginVM, navigateTo)
+//}
+//

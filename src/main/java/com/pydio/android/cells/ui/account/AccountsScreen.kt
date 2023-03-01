@@ -21,21 +21,18 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.models.AccountListVM
-import com.pydio.android.cells.ui.core.nav.CellsDestinations
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-
 private const val logTag = "AccountsScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountsScreen(
-    navigateTo: (String, StateID) -> Unit,
+    navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
     accountListVM: AccountListVM = koinViewModel(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -50,13 +47,22 @@ fun AccountsScreen(
             scope.launch {
                 accountListVM.openSession(it)?.let {
                     Log.e(logTag, "About to open session for: $it")
-                    navigateTo(BrowseDestinations.Open.route, it.getStateID())
+                    navigateTo(BrowseDestinations.Open.createRoute(it.getStateID()))
                 }
             }
         },
         openDrawer = openDrawer,
-        registerNew = { navigateTo(CellsDestinations.Login.route, Transport.UNDEFINED_STATE_ID) },
-        login = { navigateTo(CellsDestinations.Login.route, it) },
+        registerNew = {
+            navigateTo(LoginDestinations.AskUrl.createRoute())
+        },
+        login = { stateID, isLegacy ->
+            val route = if (isLegacy) {
+                LoginDestinations.P8Credentials.createRoute(stateID)
+            } else {
+                LoginDestinations.ProcessAuth.createRoute(stateID)
+            }
+            navigateTo(route)
+        },
         logout = { accountListVM.logoutAccount(it) },
         forget = { accountListVM.forgetAccount(it) },
         contentPadding = contentPadding,
@@ -70,7 +76,7 @@ private fun AccountsScreen(
     openAccount: (stateID: StateID) -> Unit,
     openDrawer: () -> Unit,
     registerNew: () -> Unit,
-    login: (stateID: StateID) -> Unit,
+    login: (stateID: StateID, isLegacy: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,

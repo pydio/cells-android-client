@@ -17,10 +17,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.common.FormBottomButtons
 import com.pydio.android.cells.ui.box.common.FormInput
-import com.pydio.android.cells.ui.login.LoginViewModelNew
+import com.pydio.android.cells.ui.login.LoginHelper
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
+
+private const val logTag = "AskServerUrl"
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -75,12 +79,10 @@ fun AskServerUrl(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AskServerUrl(
-    stateVM: StateViewModel,
-    loginVM: LoginViewModelNew,
-    navigateTo: (String?) -> Unit,
+    helper: LoginHelper,
+    loginVM: NewLoginVM,
 ) {
 
     // Log.e(logTag, "Nav to Login Step")
@@ -94,7 +96,8 @@ fun AskServerUrl(
         // TODO add sanity checks
         scope.launch {
             val res = loginVM.pingAddress()
-            navigateTo(res)
+            Log.e(logTag, "After ping, res: $res")
+            res?.let { helper.afterPing(it) }
         }
     }
 
@@ -105,7 +108,7 @@ fun AskServerUrl(
         urlString = currAddress.value,
         setUrl = { loginVM.setAddress(it) },
         pingUrl = { doPing(currAddress.value) },
-        cancel = { navigateTo(null) }
+        cancel = { helper.back() }
     )
 }
 

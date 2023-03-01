@@ -17,7 +17,7 @@ import androidx.core.view.WindowCompat
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
-import com.pydio.android.cells.ui.login.RouteLoginProcessAuth
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -167,7 +167,7 @@ class NewMainActivity : ComponentActivity() {
                 val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                 val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
                 if (code != null && state != null) {
-                    startingState.destination = RouteLoginProcessAuth.route
+                    startingState.destination = LoginDestinations.ProcessAuth.route
                     startingState.code = code
                     startingState.state = state
                 } else {

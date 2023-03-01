@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.core.nav
 
-import android.util.Log
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ui.browse.BrowseDestinations
@@ -17,11 +16,11 @@ sealed class CellsDestinations(val route: String) {
     object Search : CellsDestinations("search")
     object ShareWith : CellsDestinations("share")
 
-    object Login : CellsDestinations("login/{accountId}") {
-        val prefix = "login"
-        fun createRoute(accountID: StateID) = "login/${accountID.id}"
-        fun getPathKey() = "accountId"
-    }
+//    object Login : CellsDestinations("login/{accountId}") {
+//        val prefix = "login"
+//        fun createRoute(accountID: StateID) = "login/${accountID.id}"
+//        fun getPathKey() = "accountId"
+//    }
 }
 
 class CellsNavigationActions(private val navController: NavHostController) {
@@ -61,10 +60,10 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-    fun navigateToLogin(accountID: StateID) {
-        val route = CellsDestinations.Login.createRoute(accountID)
-        Log.e(logTag, "Open Login graph for $accountID: $route")
-        navController.navigate(route) {
-        }
-    }
+//    fun navigateToLogin(accountID: StateID) {
+//        val route = CellsDestinations.Login.createRoute(accountID)
+//        Log.e(logTag, "Open Login graph for $accountID: $route")
+//        navController.navigate(route) {
+//        }
+//    }
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.RemoteType
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
@@ -41,7 +42,7 @@ import com.pydio.cells.transport.StateID
 fun AccountList(
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
-    login: (stateID: StateID) -> Unit,
+    login: (stateID: StateID, isLegacy: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
@@ -64,8 +65,8 @@ fun AccountList(
                 authStatus = account.authStatus,
                 // isForeground = currAccountID == account.getStateID(),
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                login = login,
-                logout = logout,
+                login = { login(account.getStateID(), account.isLegacy) },
+                logout = { logout(account.getStateID()) },
                 forget = forget,
                 modifier = modifier.clickable {
                     openAccount(StateID(account.username, account.url))
@@ -82,8 +83,8 @@ private fun AccountListItem(
     url: String,
     authStatus: String,
     isForeground: Boolean,
-    login: (stateID: StateID) -> Unit,
-    logout: (stateID: StateID) -> Unit,
+    login: () -> Unit,
+    logout: () -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -134,11 +135,11 @@ private fun AccountListItem(
             when (authStatus) {
                 AppNames.AUTH_STATUS_CONNECTED -> {
                     btnVectorImg = CellsIcons.Logout
-                    btnModifier = Modifier.clickable { logout(StateID(username, url)) }
+                    btnModifier = Modifier.clickable { logout() }
                 }
                 else -> {
                     btnVectorImg = CellsIcons.Login
-                    btnModifier = Modifier.clickable { login(StateID(username, url)) }
+                    btnModifier = Modifier.clickable { login() }
                 }
             }
 

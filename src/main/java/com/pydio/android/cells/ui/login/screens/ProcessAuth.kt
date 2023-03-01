@@ -9,21 +9,30 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.login.LoginViewModelNew
-import com.pydio.android.cells.ui.login.nav.StateViewModel
+import com.pydio.android.cells.ui.login.LoginDestinations
+import com.pydio.android.cells.ui.login.LoginHelper
+import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProcessAuth(
@@ -60,14 +69,18 @@ fun ProcessAuth(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProcessAuth(
-    stateVM: StateViewModel,
-    loginVM: LoginViewModelNew,
-    navigateTo: (String?) -> Unit,
+    stateID: StateID,
+    loginVM: NewLoginVM,
+    helper: LoginHelper,
 ) {
 //    val scope = rememberCoroutineScope()
     val message = loginVM.message.collectAsState()
+    val context = LocalContext.current
 
-    // FIXME trigger Nav when auth has been done
+    LaunchedEffect(key1 = stateID, helper.startingState) {
+        helper.processAuth(context, stateID)
+    }
+
     ProcessAuth(
         isProcessing = true,
         message = message.value

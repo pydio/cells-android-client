@@ -30,8 +30,8 @@ import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.AppDrawer
 import com.pydio.android.cells.ui.core.nav.AppNavRail
-import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -46,7 +46,7 @@ fun NavHostWithDrawer(
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    launchTaskFor  : (String, StateID) -> Unit,
+    launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
     connectionVM: ConnectionVM = koinViewModel(),
 ) {
@@ -64,6 +64,9 @@ fun NavHostWithDrawer(
     val cellsNavActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
+    val loginNavActions = remember(navHostController) {
+        LoginNavigation(navHostController)
+    }
     val browseNavActions = remember(navHostController) {
         BrowseNavigationActions(navHostController)
     }
@@ -71,14 +74,21 @@ fun NavHostWithDrawer(
         SystemNavigationActions(navHostController)
     }
 
-    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
-        Log.e(logTag, "Got a navigateTo() call: $action - $stateID")
-        when {
-            action.startsWith(CellsDestinations.Login.route)
-            -> cellsNavActions.navigateToLogin(stateID)
-            action.startsWith(BrowseDestinations.Open.route)
-            -> cellsNavActions.navigateToBrowse(stateID)
-        }
+    val navigateTo: (String) -> Unit = { route ->
+        Log.e(logTag, "Got a navigateTo() call: $route")
+        navHostController.navigate(route)
+//
+//        when {
+//            action.startsWith("login/")
+//            -> {
+//                navHostController.navigate(action)
+////                Log.e(logTag, "Got a call to login: $action")
+////                Thread.dumpStack()
+////                loginNavActions.askUrl()
+//            }
+//            action.startsWith(BrowseDestinations.Open.route)
+//            -> cellsNavActions.navigateToBrowse(stateID)
+
     }
 
     ModalNavigationDrawer(
@@ -122,7 +132,7 @@ fun NavHostWithDrawer(
                     isExpandedScreen = isExpandedScreen,
                     navController = navHostController,
                     navigateTo = navigateTo,
-                    launchTaskFor= launchTaskFor,
+                    launchTaskFor = launchTaskFor,
                     openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
                     launchIntent = launchIntent,
                 )
