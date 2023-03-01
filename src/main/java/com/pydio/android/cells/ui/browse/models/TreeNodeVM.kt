@@ -6,7 +6,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
 
-private val logTag = MoreMenuVM::class.simpleName
+private val logTag = NodeActionsVM::class.simpleName
 
 /**  Simply provides access to the DB to retrieve basic single objects from the DB */
 class TreeNodeVM(

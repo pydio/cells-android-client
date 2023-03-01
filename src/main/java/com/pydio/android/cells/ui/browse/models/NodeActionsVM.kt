@@ -7,7 +7,6 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
@@ -20,18 +19,14 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-private val logTag = MoreMenuVM::class.simpleName
+private val logTag = NodeActionsVM::class.simpleName
 
 /**  Centralize methods to manage a TreeNode */
-class MoreMenuVM(
+class NodeActionsVM(
     private val nodeService: NodeService,
     private val fileService: FileService,
     private val transferService: TransferService,
 ) : ViewModel() {
-
-    suspend fun getTreeNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID)
-    }
 
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
@@ -187,5 +182,4 @@ class MoreMenuVM(
     suspend fun getShareLink(stateID: StateID): String? = withContext(Dispatchers.IO) {
         nodeService.getNode(stateID)?.getShareAddress()
     }
-
 }

@@ -40,22 +40,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.composables.GridNodeItem
-import com.pydio.android.cells.ui.browse.composables.MoreMenuState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
-import com.pydio.android.cells.ui.browse.menus.SortByMenu
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
+import com.pydio.android.cells.ui.browse.menus.MoreMenuState
+import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
-import com.pydio.android.cells.ui.browse.models.MoreMenuType
-import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.Transport
@@ -99,10 +99,10 @@ fun Bookmarks(
     }
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val nodeMoreMenuData: MutableState<Pair<MoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(MoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID))
+    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
+        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID))
     }
-    val openMoreMenu: (MoreMenuType, StateID) -> Unit = { type, stateID ->
+    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
         scope.launch {
             nodeMoreMenuData.value = Pair(type, stateID)
             sheetState.expand()
@@ -112,7 +112,7 @@ fun Bookmarks(
     val moreMenuDone: () -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(MoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID)
+            nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID)
         }
     }
 
@@ -240,7 +240,7 @@ private fun BookmarkScaffold(
             text = { Text(label) },
             onClick = {
                 moreMenuState.openMoreMenu(
-                    MoreMenuType.SORT_BY,
+                    NodeMoreMenuType.SORT_BY,
                     Transport.UNDEFINED_STATE_ID
                 )
                 showMenu(false)
@@ -263,7 +263,7 @@ private fun BookmarkScaffold(
 
         ModalBottomSheetLayout(
             sheetContent = {
-                if (moreMenuState.type == MoreMenuType.SORT_BY) {
+                if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
                         done = { launch(NodeAction.SortBy, Transport.UNDEFINED_STATE_ID) },
                         tint = tint,
@@ -271,7 +271,7 @@ private fun BookmarkScaffold(
                     )
                 } else {
                     NodeMoreMenuData(
-                        type = MoreMenuType.BOOKMARK,
+                        type = NodeMoreMenuType.BOOKMARK,
                         toOpenStateID = moreMenuState.stateID,
                         launch = { launch(it, moreMenuState.stateID) },
                         tint = tint,
@@ -288,7 +288,7 @@ private fun BookmarkScaffold(
                 listLayout = listLayout,
                 bookmarks = bookmarks,
                 forceRefresh = forceRefresh,
-                openMoreMenu = { moreMenuState.openMoreMenu(MoreMenuType.BOOKMARK, it) },
+                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, it) },
                 open = open,
                 padding = padding,
                 modifier = Modifier.fillMaxWidth(),

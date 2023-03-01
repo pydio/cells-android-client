@@ -31,7 +31,7 @@ import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.absoluteValue
 
-private const val logTag = "Carousel.kt"
+private const val logTag = "Carousel"
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable

@@ -24,11 +24,9 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
-import com.pydio.android.cells.ui.browse.models.MoreMenuType
-import com.pydio.android.cells.ui.browse.models.MoreMenuVM
-import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
@@ -88,7 +86,7 @@ sealed class NodeAction(val id: String) {
 fun WrapWithActions(
     loadingState: LoadingState,
     actionDone: (Boolean) -> Unit,
-    type: MoreMenuType,
+    type: NodeMoreMenuType,
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
     content: @Composable () -> Unit,
@@ -109,10 +107,10 @@ fun WrapWithActions(
 private fun FolderWithDialogs(
 //    isLoading: Boolean,
     actionDone: (Boolean) -> Unit,
-    type: MoreMenuType,
+    type: NodeMoreMenuType,
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
-    moreMenuVM: MoreMenuVM = koinViewModel(),
+    nodeActionsVM: NodeActionsVM = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
 
@@ -147,7 +145,7 @@ private fun FolderWithDialogs(
             Log.e(logTag, "Got a destination for ${currentID.value}")
             if (currentID.value != Transport.UNDEFINED_STATE_ID) {
                 uri?.let {
-                    moreMenuVM.download(currentID.value, uri)
+                    nodeActionsVM.download(currentID.value, uri)
                 }
             }
             actionDone(true)
@@ -157,7 +155,7 @@ private fun FolderWithDialogs(
     val fileImporter = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris ->
-            toOpenStateID?.let { moreMenuVM.importFiles(it, uris) }
+            toOpenStateID?.let { nodeActionsVM.importFiles(it, uris) }
             actionDone(true)
         }
     )
@@ -166,9 +164,9 @@ private fun FolderWithDialogs(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { taken ->
             if (taken) {
-                moreMenuVM.uploadPhoto()
+                nodeActionsVM.uploadPhoto()
             } else {
-                moreMenuVM.cancelPhoto()
+                nodeActionsVM.cancelPhoto()
             }
             actionDone(taken)
         }
@@ -179,7 +177,7 @@ private fun FolderWithDialogs(
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         toOpenStateID?.let {
             scope.launch {
-                val link = moreMenuVM.getShareLink(it)
+                val link = nodeActionsVM.getShareLink(it)
                 if (clipboard != null && link != null) {
                     val clip = ClipData.newPlainText(it.fileName, link)
                     clipboard.setPrimaryClip(clip)
@@ -213,7 +211,7 @@ private fun FolderWithDialogs(
                 is NodeAction.TakePicture -> {
                     // For this command we rather store the state in the view model
                     scope.launch {
-                        moreMenuVM.preparePhoto(context, toOpenStateID)?.also {
+                        nodeActionsVM.preparePhoto(context, toOpenStateID)?.also {
                             photoTaker.launch(it)
                         }
                     }
@@ -231,20 +229,20 @@ private fun FolderWithDialogs(
                     navController.navigate(initialRoute)
                 }
                 is NodeAction.ToggleOffline -> {
-                    moreMenuVM.toggleOffline(toOpenStateID, it.isChecked)
+                    nodeActionsVM.toggleOffline(toOpenStateID, it.isChecked)
                     delayedDone(true)
                 }
                 is NodeAction.ToggleBookmark -> {
-                    moreMenuVM.toggleBookmark(toOpenStateID, it.isChecked)
+                    nodeActionsVM.toggleBookmark(toOpenStateID, it.isChecked)
                     delayedDone(true)
                 }
                 is NodeAction.CreateShare -> {
-                    moreMenuVM.createShare(toOpenStateID)
+                    nodeActionsVM.createShare(toOpenStateID)
                     copyLinkToClipboard()
                     delayedDone(true)
                 }
                 is NodeAction.ShareWith -> {
-                    moreMenuVM.createShare(toOpenStateID)
+                    nodeActionsVM.createShare(toOpenStateID)
                     actionDone(true)
                 }
                 is NodeAction.CopyToClipboard -> {
@@ -252,11 +250,11 @@ private fun FolderWithDialogs(
                     actionDone(true)
                 }
                 is NodeAction.RemoveLink -> {
-                    moreMenuVM.removeShare(toOpenStateID)
+                    nodeActionsVM.removeShare(toOpenStateID)
                     actionDone(true)
                 }
                 is NodeAction.RestoreFromTrash -> {
-                    moreMenuVM.restoreFromTrash(toOpenStateID)
+                    nodeActionsVM.restoreFromTrash(toOpenStateID)
                     actionDone(true)
                 }
                 else -> navController.navigate("${it.id}/${toOpenStateID.id}")
@@ -271,10 +269,10 @@ private fun FolderWithDialogs(
             else -> {
                 when (currentAction.value) {
                     AppNames.ACTION_MOVE -> {
-                        moreMenuVM.moveTo(toOpenStateID!!, targetStateID)
+                        nodeActionsVM.moveTo(toOpenStateID!!, targetStateID)
                     }
                     AppNames.ACTION_COPY -> {
-                        moreMenuVM.copyTo(toOpenStateID!!, targetStateID)
+                        nodeActionsVM.copyTo(toOpenStateID!!, targetStateID)
                     }
                 }
                 closeDialog(true)
@@ -290,7 +288,7 @@ private fun FolderWithDialogs(
             Log.e(logTag, "Got a destination for ${currentID.value}")
             if (currentID.value != Transport.UNDEFINED_STATE_ID) {
                 uri?.let {
-                    moreMenuVM.download(currentID.value, uri)
+                    nodeActionsVM.download(currentID.value, uri)
                 }
             }
         }
@@ -346,7 +344,7 @@ private fun FolderWithDialogs(
                         return@dialog
                     }
                 TreeNodeRename(
-                    moreMenuVM,
+                    nodeActionsVM,
                     stateID = StateID.fromId(stateId),
                     dismiss = { closeDialog(it) }
                 )
@@ -359,7 +357,7 @@ private fun FolderWithDialogs(
                         return@dialog
                     }
                 ShowQRCode(
-                    moreMenuVM,
+                    nodeActionsVM,
                     stateID = StateID.fromId(stateId),
                     dismiss = { closeDialog(true) }
                 )
@@ -376,7 +374,7 @@ private fun FolderWithDialogs(
                         return@dialog
                     }
                 ConfirmDeletion(
-                    moreMenuVM,
+                    nodeActionsVM,
                     StateID.fromId(stateId)
                 ) { closeDialog(it) }
             }
@@ -385,7 +383,7 @@ private fun FolderWithDialogs(
                 val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
                     ?: run { Log.e(logTag, "... Permanently remove with no ID");return@dialog }
                 ConfirmPermanentDeletion(
-                    moreMenuVM,
+                    nodeActionsVM,
                     StateID.fromId(stateId)
                 ) { closeDialog(it) }
             }
@@ -394,7 +392,7 @@ private fun FolderWithDialogs(
                 val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
                     ?: run { Log.e(logTag, "... Permanently remove with no ID");return@dialog }
                 ConfirmEmptyRecycle(
-                    moreMenuVM,
+                    nodeActionsVM,
                     StateID.fromId(stateId)
                 ) { closeDialog(it) }
             }
@@ -403,7 +401,7 @@ private fun FolderWithDialogs(
                 val stateId = entry.arguments?.getString(STATE_ID_KEY)
                     ?: run { Log.e(logTag, "... Nav to CreateFolder, no stateID ");return@dialog }
                 CreateFolder(
-                    moreMenuVM,
+                    nodeActionsVM,
                     stateID = StateID.fromId(stateId),
                     dismiss = { closeDialog(it) }
                 )
@@ -415,7 +413,7 @@ private fun FolderWithDialogs(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderWithMoreMenu(
-    type: MoreMenuType,
+    type: NodeMoreMenuType,
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
     launch: (NodeAction) -> Unit,

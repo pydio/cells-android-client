@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.models
+package com.pydio.android.cells.ui.browse.composables
 
 import android.util.Log
 import androidx.compose.foundation.layout.Spacer
@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.menus.BookmarkMenu
 import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
 import com.pydio.android.cells.ui.browse.menus.OfflineMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleParentMenu
 import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
+import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
@@ -26,9 +26,11 @@ import org.koin.core.parameter.parametersOf
 
 private const val logTag = "NodeMoreMenuData"
 
-enum class MoreMenuType {
+enum class NodeMoreMenuType {
     NONE,
-    MORE,
+    MORE, // <- this one is the default
+    TRANSFERS,
+    SEARCH,
     OFFLINE,
     BOOKMARK,
     CREATE,
@@ -37,10 +39,9 @@ enum class MoreMenuType {
 
 @Composable
 fun NodeMoreMenuData(
-    type: MoreMenuType,
+    type: NodeMoreMenuType,
     toOpenStateID: StateID?,
     launch: (NodeAction) -> Unit,
-    // moreMenuVM: MoreMenuVM,
     tint: Color,
     bgColor: Color,
 ) {
@@ -49,7 +50,6 @@ fun NodeMoreMenuData(
     }
 
     val stateID: StateID = toOpenStateID ?: Transport.UNDEFINED_STATE_ID
-
     val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(stateID) })
 
     LaunchedEffect(key1 = toOpenStateID) {
@@ -87,21 +87,21 @@ fun NodeMoreMenuData(
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.CREATE -> CreateOrImportMenu(
+            type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.OFFLINE -> OfflineMenu(
+            type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.BOOKMARK -> BookmarkMenu(
+            type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,

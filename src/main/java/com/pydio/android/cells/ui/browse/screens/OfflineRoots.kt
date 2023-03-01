@@ -40,21 +40,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetLayout
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetState
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.OfflineRootItem
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
-import com.pydio.android.cells.ui.browse.models.MoreMenuType
-import com.pydio.android.cells.ui.browse.models.MoreMenuVM
-import com.pydio.android.cells.ui.browse.models.NodeMoreMenuData
+import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.getJobStatus
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.asAgoString
 import com.pydio.cells.api.Transport
@@ -191,7 +191,7 @@ private fun OfflineScaffold(
     moreMenu: Triple<ModalBottomSheetState, StateID, (StateID) -> Unit>,
 ) {
 
-    val moreMenuVM: MoreMenuVM = koinViewModel()
+    val nodeActionsVM: NodeActionsVM = koinViewModel()
     val tint = MaterialTheme.colorScheme.onSurface
     val bgColor = MaterialTheme.colorScheme.surface
 
@@ -207,7 +207,7 @@ private fun OfflineScaffold(
         ModalBottomSheetLayout(
             sheetContent = {
                 NodeMoreMenuData(
-                    type = MoreMenuType.OFFLINE,
+                    type = NodeMoreMenuType.OFFLINE,
                     toOpenStateID = moreMenu.second,
                     launch = { launch(it, moreMenu.second) },
                     tint = tint,

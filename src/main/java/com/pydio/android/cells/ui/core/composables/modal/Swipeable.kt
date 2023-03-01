@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal
+package com.pydio.android.cells.ui.core.composables.modal
 
 /*
  * Copyright 2020 The Android Open Source Project
@@ -48,9 +48,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.SwipeableDefaults.StandardResistanceFactor
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.SwipeableDefaults.VelocityThreshold
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.SwipeableDefaults.resistanceConfig
+import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.StandardResistanceFactor
+import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.VelocityThreshold
+import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.resistanceConfig
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter

@@ -35,7 +35,7 @@ import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
-import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.PreferencesVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
@@ -182,7 +182,7 @@ val viewModelModule = module {
     viewModel { AccountListVM(get()) }
 
     viewModel { ConnectionVM(get(), get()) }
-    viewModel { MoreMenuVM(get(), get(), get()) }
+    viewModel { NodeActionsVM(get(), get(), get()) }
     viewModel { parameters -> TreeNodeVM(stateID = parameters.get(), get()) }
     // or Constructor DSL
     // viewModelOf(::TreeNodeVM)

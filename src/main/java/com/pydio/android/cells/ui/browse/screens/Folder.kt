@@ -43,14 +43,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.ModalBottomSheetValue
-import com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.models.FolderVM
-import com.pydio.android.cells.ui.browse.models.MoreMenuType
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
@@ -114,10 +114,10 @@ fun Folder(
     // We handle the state of the more menu here, not optimal...
     val scope = rememberCoroutineScope()
     val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val childState: MutableState<Pair<MoreMenuType, StateID?>> = remember {
-        mutableStateOf(Pair(MoreMenuType.NONE, null))
+    val childState: MutableState<Pair<NodeMoreMenuType, StateID?>> = remember {
+        mutableStateOf(Pair(NodeMoreMenuType.NONE, null))
     }
-    val openMoreMenu: (MoreMenuType, StateID) -> Unit = { type, childID ->
+    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, childID ->
         scope.launch {
             childState.value = Pair(type, childID)
             state.expand()
@@ -126,7 +126,7 @@ fun Folder(
 
     val actionDone: (Boolean) -> Unit = {
         scope.launch {
-            childState.value = Pair(MoreMenuType.NONE, null)
+            childState.value = Pair(NodeMoreMenuType.NONE, null)
             if (it) { // Also reset backoff ticker
                 browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
             }
@@ -168,7 +168,7 @@ private fun FolderPage(
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openDrawer: () -> Unit,
-    openMoreMenu: (MoreMenuType, StateID) -> Unit,
+    openMoreMenu: (NodeMoreMenuType, StateID) -> Unit,
     openSearch: () -> Unit,
     forceRefresh: () -> Unit,
 ) {
@@ -183,7 +183,7 @@ private fun FolderPage(
         },
         floatingActionButton = {
             if (showFAB) {
-                FloatingActionButton(onClick = { openMoreMenu(MoreMenuType.CREATE, stateID) }) {
+                FloatingActionButton(onClick = { openMoreMenu(NodeMoreMenuType.CREATE, stateID) }) {
                     Icon(
                         Icons.Filled.Add,
                         contentDescription = stringResource(id = R.string.fab_transformation_sheet_behavior)
@@ -199,7 +199,7 @@ private fun FolderPage(
                 children = children,
                 openParent = openParent,
                 open = open,
-                openMoreMenu = { openMoreMenu(MoreMenuType.MORE, it) },
+                openMoreMenu = { openMoreMenu(NodeMoreMenuType.MORE, it) },
                 forceRefresh = forceRefresh,
                 modifier = Modifier.padding(padding),
             )

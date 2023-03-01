@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-private val logTag = OfflineVM::class.simpleName
+// private val logTag = OfflineVM::class.simpleName
 
 /** Expose methods used by bookmark pages */
 class BookmarksVM(
@@ -43,16 +43,6 @@ class BookmarksVM(
     val layout: StateFlow<ListLayout> = _layout.asStateFlow()
 
 //    private val liveDisplayType: MutableLiveData<String> = liveSharedPreferences.getString(
-//        AppKeys.CURR_RECYCLER_LAYOUT,
-//        AppNames.RECYCLER_LAYOUT_LIST
-//    )
-//
-//    private val liveSortBy: MutableLiveData<String> = liveSharedPreferences.getString(
-//        AppKeys.CURR_RECYCLER_ORDER,
-//        AppNames.DEFAULT_SORT_BY
-//    )
-//
-//    private var _oldLayout = prefs.getString(
 //        AppKeys.CURR_RECYCLER_LAYOUT,
 //        AppNames.RECYCLER_LAYOUT_LIST
 //    )

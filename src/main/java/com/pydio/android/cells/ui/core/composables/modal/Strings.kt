@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.aaLegacy.box.beta.bottomsheet.modal
+package com.pydio.android.cells.ui.core.composables.modal
 
 /*
  * Copyright 2021 The Android Open Source Project

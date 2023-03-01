@@ -27,7 +27,7 @@ import androidx.compose.ui.window.SecureFlagPolicy
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.browse.models.MoreMenuVM
+import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForConfirmation
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForNewName
@@ -38,12 +38,12 @@ private const val logTag = "NodeActionDialogs.kt"
 
 @Composable
 fun CreateFolder(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
     val doCreate: (StateID, String) -> Unit = { parentID, name ->
-        moreMenuVM.createFolder(parentID, name)
+        nodeActionsVM.createFolder(parentID, name)
         // TODO implement a user feedback via flows
 //                if (Str.notEmpty(errMsg)) {
 //                    showMessage(ctx, errMsg!!)
@@ -92,12 +92,12 @@ fun CreateFolder(
 
 @Composable
 fun TreeNodeRename(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
     val doRename: (StateID, String) -> Unit = { srcID, name ->
-        moreMenuVM.rename(srcID, name)
+        nodeActionsVM.rename(srcID, name)
     }
 
     AskForNewName(
@@ -112,7 +112,7 @@ fun TreeNodeRename(
 
 @Composable
 fun ConfirmDeletion(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
@@ -121,7 +121,7 @@ fun ConfirmDeletion(
         title = stringResource(id = R.string.confirm_move_to_recycle_title),
         desc = stringResource(id = R.string.confirm_move_to_recycle_desc, stateID.fileName),
         confirm = {
-            moreMenuVM.delete(stateID)
+            nodeActionsVM.delete(stateID)
             dismiss(true)
         },
         dismiss = { dismiss(false) },
@@ -130,7 +130,7 @@ fun ConfirmDeletion(
 
 @Composable
 fun ConfirmPermanentDeletion(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
@@ -139,7 +139,7 @@ fun ConfirmPermanentDeletion(
         title = stringResource(id = R.string.confirm_permanent_deletion_title),
         desc = stringResource(id = R.string.confirm_permanent_deletion_desc, stateID.fileName),
         confirm = {
-            moreMenuVM.delete(stateID) // TODO this should be enough
+            nodeActionsVM.delete(stateID) // TODO this should be enough
             dismiss(true)
         },
         dismiss = { dismiss(false) },
@@ -148,7 +148,7 @@ fun ConfirmPermanentDeletion(
 
 @Composable
 fun ConfirmEmptyRecycle(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
@@ -157,7 +157,7 @@ fun ConfirmEmptyRecycle(
         title = stringResource(id = R.string.confirm_permanent_deletion_title),
         desc = stringResource(id = R.string.confirm_empty_recycle_message, stateID.fileName),
         confirm = {
-            moreMenuVM.emptyRecycle(stateID) // TODO this should be enough
+            nodeActionsVM.emptyRecycle(stateID) // TODO this should be enough
             dismiss(true)
         },
         dismiss = { dismiss(false) },
@@ -166,7 +166,7 @@ fun ConfirmEmptyRecycle(
 
 @Composable
 fun ShowQRCode(
-    moreMenuVM: MoreMenuVM,
+    nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: () -> Unit,
 ) {
@@ -182,7 +182,7 @@ fun ShowQRCode(
     val writer = QRCodeWriter()
     LaunchedEffect(stateID) {
         Log.e(logTag, "in launched effect")
-        moreMenuVM.getShareLink(stateID)?.let {
+        nodeActionsVM.getShareLink(stateID)?.let {
             val bitMatrix = writer.encode(
                 it,
                 BarcodeFormat.QR_CODE,
