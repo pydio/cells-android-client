@@ -79,11 +79,7 @@ fun NodeItem(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = dimensionResource(R.dimen.card_padding))
-    ) {
+    Surface(modifier = modifier) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_thumb_margin)),
             verticalAlignment = Alignment.CenterVertically,

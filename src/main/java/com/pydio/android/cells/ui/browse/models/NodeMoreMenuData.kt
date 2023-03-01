@@ -19,7 +19,10 @@ import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuView
 import com.pydio.android.cells.ui.browse.composables.OfflineMoreMenuView
 import com.pydio.android.cells.ui.browse.composables.RecycleMoreMenuView
 import com.pydio.android.cells.ui.browse.composables.RecycleParentMoreMenuView
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val logTag = "NodeMoreMenuData"
 
@@ -29,6 +32,7 @@ enum class MoreMenuType {
     OFFLINE,
     BOOKMARK,
     CREATE,
+    SORT_BY,
 }
 
 @Composable
@@ -36,13 +40,17 @@ fun NodeMoreMenuData(
     type: MoreMenuType,
     toOpenStateID: StateID?,
     launch: (NodeAction) -> Unit,
-    moreMenuVM: MoreMenuVM,
+    // moreMenuVM: MoreMenuVM,
     tint: Color,
     bgColor: Color,
 ) {
     val item: MutableState<RTreeNode?> = remember {
         mutableStateOf(null)
     }
+
+    val stateID: StateID = toOpenStateID ?: Transport.UNDEFINED_STATE_ID
+
+    val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(stateID) })
 
     LaunchedEffect(key1 = toOpenStateID) {
         toOpenStateID?.let {

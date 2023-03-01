@@ -210,7 +210,6 @@ private fun OfflineScaffold(
                     type = MoreMenuType.OFFLINE,
                     toOpenStateID = moreMenu.second,
                     launch = { launch(it, moreMenu.second) },
-                    moreMenuVM = moreMenuVM,
                     tint = tint,
                     bgColor = bgColor,
                 )

@@ -113,6 +113,45 @@ fun BottomSheetHeader(
 }
 
 @Composable
+fun GenericBottomSheetHeader(
+    icon: ImageVector,
+    title: String,
+    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+) {
+
+    Row(
+        modifier = Modifier
+            .background(color = bgColor)
+            .padding(
+                horizontal = dimensionResource(R.dimen.bottom_sheet_header_h_padding),
+                vertical = dimensionResource(R.dimen.bottom_sheet_header_v_padding),
+            )
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Icon(imageVector = icon, contentDescription = title, tint = tint)
+
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentWidth(Alignment.Start)
+        ) {
+            Text(
+                text = title,
+                color = tint,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
 fun BottomSheetHeader(
     thumb: @Composable () -> Unit,
     title: String,
@@ -170,7 +209,7 @@ fun BottomSheetHeader(
 
 @Composable
 fun BottomSheetListItem(
-    icon: ImageVector,
+    icon: ImageVector?,
     title: String,
     tint: Color,
     bgColor: Color,
@@ -190,8 +229,10 @@ fun BottomSheetListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Icon(imageVector = icon, contentDescription = title, tint = tint)
-        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
+        icon?.let {
+            Icon(imageVector = it, contentDescription = title, tint = tint)
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
+        }
         Text(text = title, color = tint)
     }
 }

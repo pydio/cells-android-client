@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
-private const val logTag = "Folder.kt"
+private const val logTag = "Folder"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,7 +207,7 @@ private fun FolderPage(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun FolderList(
     loadingState: LoadingState,
@@ -244,7 +245,7 @@ private fun FolderList(
                     )
                 }
             }
-            items(children) { node ->
+            items(children, key = { it.encodedState }) { node ->
                 NodeItem(
                     item = node,
                     title = getNodeTitle(name = node.name, mime = node.mime),
@@ -257,7 +258,11 @@ private fun FolderList(
                     more = {
                         openMoreMenu(node.getStateID())
                     },
-                    modifier = Modifier.clickable { open(node.getStateID()) },
+                    modifier = Modifier
+                        .padding(all = dimensionResource(R.dimen.card_padding))
+                        .fillMaxWidth()
+                        .clickable { open(node.getStateID()) }
+                        // .animateItemPlacement(),
                 )
             }
         }

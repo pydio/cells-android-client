@@ -29,7 +29,6 @@ private val logTag = OfflineVM::class.simpleName
 /** Expose methods used by bookmark pages */
 class BookmarksVM(
     private val prefs: CellsPreferences,
-    //  private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {
 
@@ -43,20 +42,20 @@ class BookmarksVM(
     private val _layout = MutableStateFlow(ListLayout.LIST)
     val layout: StateFlow<ListLayout> = _layout.asStateFlow()
 
-    private val liveDisplayType: MutableLiveData<String> = liveSharedPreferences.getString(
-        AppKeys.CURR_RECYCLER_LAYOUT,
-        AppNames.RECYCLER_LAYOUT_LIST
-    )
-
-    private val liveSortBy: MutableLiveData<String> = liveSharedPreferences.getString(
-        AppKeys.CURR_RECYCLER_ORDER,
-        AppNames.DEFAULT_SORT_BY
-    )
-
-    private var _oldLayout = prefs.getString(
-        AppKeys.CURR_RECYCLER_LAYOUT,
-        AppNames.RECYCLER_LAYOUT_LIST
-    )
+//    private val liveDisplayType: MutableLiveData<String> = liveSharedPreferences.getString(
+//        AppKeys.CURR_RECYCLER_LAYOUT,
+//        AppNames.RECYCLER_LAYOUT_LIST
+//    )
+//
+//    private val liveSortBy: MutableLiveData<String> = liveSharedPreferences.getString(
+//        AppKeys.CURR_RECYCLER_ORDER,
+//        AppNames.DEFAULT_SORT_BY
+//    )
+//
+//    private var _oldLayout = prefs.getString(
+//        AppKeys.CURR_RECYCLER_LAYOUT,
+//        AppNames.RECYCLER_LAYOUT_LIST
+//    )
 
     init {
         viewModelScope.launch {
@@ -73,17 +72,6 @@ class BookmarksVM(
                     _layout.value = newValue
                 }
             }
-//            liveSharedPreferences.getString(
-//                AppKeys.TRANSFER_SORT_BY,
-//                AppNames.JOB_SORT_BY_DEFAULT
-//            ).asFlow().collect {
-//                //it?.let {
-//                if (it != oldSortBy) {
-//                    oldSortBy = it
-//                    reQuery(it)
-//                }
-//                // }
-//            }
         }
     }
 

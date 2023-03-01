@@ -88,6 +88,7 @@ object CellsIcons {
     val Search = Icons.Default.Search
     val Settings = Icons.Rounded.Settings
     val Share = Icons.Default.Share
+    val SortBy = Icons.Default.Sort
     val SwitchAccount = Icons.Default.SwitchAccount
     val TakePicture = Icons.Default.PhotoCamera
     val Transfers = Icons.Default.ImportExport

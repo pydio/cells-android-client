@@ -43,9 +43,17 @@ private const val logTag = "NodeMoreMenu.kt"
 private const val FOLDER_MAIN_CONTENT = "folder-main-content"
 private const val STATE_ID_KEY = "state-id"
 private const val STATE_ID_SUFFIX = "/{state-id}"
+
 private fun route(action: NodeAction): String {
     return "${action.id}$STATE_ID_SUFFIX"
 }
+
+class MoreMenuState @OptIn(ExperimentalMaterial3Api::class) constructor(
+    val type: MoreMenuType,
+    val sheetState: ModalBottomSheetState,
+    val stateID: StateID,
+    val openMoreMenu: (MoreMenuType, StateID) -> Unit,
+)
 
 sealed class NodeAction(val id: String) {
     object DownloadToDevice : NodeAction("download_to_device")
@@ -75,9 +83,10 @@ sealed class NodeAction(val id: String) {
     object ForceResync : NodeAction("force_re_sync")
     object OpenInApp : NodeAction("open_in_app")
 
-    object AsList:  NodeAction("as_list")
-    object AsGrid:  NodeAction("as_grid")
-    object AsSmallerGrid:  NodeAction("as_smaller_grid")
+    object SortBy : NodeAction("sort_by")
+    object AsList : NodeAction("as_list")
+    object AsGrid : NodeAction("as_grid")
+    object AsSmallerGrid : NodeAction("as_smaller_grid")
 }
 
 /** Add the more menu **/
@@ -426,7 +435,7 @@ private fun FolderWithMoreMenu(
     val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
 
     ModalBottomSheetLayout(
-        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, moreMenuVM, tint, bgColor) },
+        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor) },
         modifier = Modifier,
         sheetState = sheetState,
         sheetBackgroundColor = bgColor,

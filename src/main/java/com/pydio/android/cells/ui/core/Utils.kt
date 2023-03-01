@@ -25,11 +25,11 @@ fun lazyStateID(
 ): StateID {
     return navBackStackEntry?.arguments?.getString(key)
         ?.let {
-            Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
+            // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
             StateID.fromId(it)
         }
         ?: run {
-            Log.w(logTag, " ... No stateID found in backstack entry, for key $key")
+            // Log.w(logTag, " ... No stateID found in backstack entry, for key $key")
             Transport.UNDEFINED_STATE_ID
         }
 }

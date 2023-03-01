@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.browse.models.PreferencesVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.screens.AccountHome
@@ -115,7 +116,7 @@ fun NavGraphBuilder.browseNavGraph(
             Bookmarks(
                 stateID,
                 openDrawer = openDrawer,
-                openSearch = {},
+                // openSearch = {},
                 open = open,
                 browseRemoteVM = browseRemoteVM,
                 bookmarksVM = bookmarksVM,
