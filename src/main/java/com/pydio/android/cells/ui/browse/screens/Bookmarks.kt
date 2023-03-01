@@ -47,7 +47,7 @@ import com.pydio.android.cells.ui.browse.composables.GridNodeItem
 import com.pydio.android.cells.ui.browse.composables.MoreMenuState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
-import com.pydio.android.cells.ui.browse.composables.SortByMoreMenuView
+import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
@@ -264,7 +264,7 @@ private fun BookmarkScaffold(
         ModalBottomSheetLayout(
             sheetContent = {
                 if (moreMenuState.type == MoreMenuType.SORT_BY) {
-                    SortByMoreMenuView(
+                    SortByMenu(
                         done = { launch(NodeAction.SortBy, Transport.UNDEFINED_STATE_ID) },
                         tint = tint,
                         bgColor = bgColor,

@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.composables
+package com.pydio.android.cells.ui.browse.menus
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
@@ -32,7 +33,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
 @Composable
-fun NodeMoreMenuView(
+fun SingleNodeMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
@@ -187,16 +188,6 @@ fun NodeMoreMenuView(
             )
             Spacer(modifier = Modifier.size(50.dp))
         }
-
-        // Still TODO add a larger bottom padding
-//        item {
-//            Text(" . ")
-////            Spacer(
-////                modifier = Modifier
-////                    .fillMaxWidth()
-////                    .height(12.dp),
-////            )
-//        }
     }
 }
 

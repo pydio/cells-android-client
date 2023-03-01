@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.composables
+package com.pydio.android.cells.ui.browse.menus
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,10 +20,10 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "SortByMoreMenuView"
+private const val logTag = "SortByMenu"
 
 @Composable
-fun SortByMoreMenuView(
+fun SortByMenu(
     done: () -> Unit,
     tint: Color,
     bgColor: Color,
@@ -52,7 +52,7 @@ fun SortByMoreMenuView(
                     icon = null,
                     title = labels[i],
                     onItemClick = {
-                        Log.e(logTag, "New order: ${keys[i]}")
+                        Log.d(logTag, "New order: ${keys[i]}")
                         preferencesVM.setSortBy(keys[i])
                         done()
                     },

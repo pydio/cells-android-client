@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.composables
+package com.pydio.android.cells.ui.browse.menus
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +10,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
@@ -17,10 +18,10 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "BookmarkMoreMenuView"
+// private const val logTag = "BookmarkMenu"
 
 @Composable
-fun BookmarkMoreMenuView(
+fun BookmarkMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,

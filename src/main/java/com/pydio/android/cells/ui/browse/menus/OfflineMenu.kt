@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.composables
+package com.pydio.android.cells.ui.browse.menus
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +10,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
@@ -17,16 +18,17 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "CreateMenuView"
+private const val logTag = "OfflineMoreMenuView"
 
 @Composable
-fun CreateMenuView(
+fun OfflineMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
     tint: Color,
     bgColor: Color,
 ) {
+//    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
         modifier = Modifier.fillMaxWidth()
@@ -42,27 +44,42 @@ fun CreateMenuView(
 
         item {
             BottomSheetListItem(
-                icon = CellsIcons.CreateFolder,
-                title = stringResource(R.string.create_folder),
-                onItemClick = { launch(NodeAction.CreateFolder) },
+                icon = CellsIcons.Refresh,
+                title = stringResource(R.string.force_resync),
+                onItemClick = { launch(NodeAction.ForceResync) },
                 tint = tint,
                 bgColor = bgColor,
             )
         }
         item {
             BottomSheetListItem(
-                icon = CellsIcons.ImportFile,
-                title = stringResource(R.string.import_files),
-                onItemClick = { launch(NodeAction.ImportFile) },
+                icon = CellsIcons.OpenLocation,
+                title = if (rTreeNode.isFile()) {
+                    stringResource(R.string.open_parent_in_workspaces)
+                } else {
+                    stringResource(R.string.open_in_workspaces)
+                },
+                onItemClick = { launch(NodeAction.OpenInApp) },
                 tint = tint,
                 bgColor = bgColor,
             )
         }
+        if (rTreeNode.isFile()) {
+            item {
+                BottomSheetListItem(
+                    icon = CellsIcons.DownloadToDevice,
+                    title = stringResource(R.string.download_to_device),
+                    onItemClick = { launch(NodeAction.DownloadToDevice) },
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+            }
+        }
         item {
             BottomSheetListItem(
-                icon = CellsIcons.TakePicture,
-                title = stringResource(R.string.take_picture),
-                onItemClick = { launch(NodeAction.TakePicture) },
+                icon = CellsIcons.KeepOffline,
+                title = stringResource(R.string.remove_from_offline),
+                onItemClick = { launch(NodeAction.ToggleOffline(false)) },
                 tint = tint,
                 bgColor = bgColor,
             )

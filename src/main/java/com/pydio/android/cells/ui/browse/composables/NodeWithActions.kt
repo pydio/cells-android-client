@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "NodeMoreMenu.kt"
+private const val logTag = "NodeWithActions.kt"
 
 private const val FOLDER_MAIN_CONTENT = "folder-main-content"
 private const val STATE_ID_KEY = "state-id"
@@ -47,13 +47,6 @@ private const val STATE_ID_SUFFIX = "/{state-id}"
 private fun route(action: NodeAction): String {
     return "${action.id}$STATE_ID_SUFFIX"
 }
-
-class MoreMenuState @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val type: MoreMenuType,
-    val sheetState: ModalBottomSheetState,
-    val stateID: StateID,
-    val openMoreMenu: (MoreMenuType, StateID) -> Unit,
-)
 
 sealed class NodeAction(val id: String) {
     object DownloadToDevice : NodeAction("download_to_device")
@@ -313,7 +306,6 @@ private fun FolderWithDialogs(
                     toOpenStateID = toOpenStateID,
                     sheetState = sheetState,
                     launch = launch,
-                    moreMenuVM = moreMenuVM,
                     content = content
                 )
             }
@@ -427,7 +419,6 @@ private fun FolderWithMoreMenu(
     toOpenStateID: StateID?,
     sheetState: ModalBottomSheetState,
     launch: (NodeAction) -> Unit,
-    moreMenuVM: MoreMenuVM,
     content: @Composable () -> Unit,
 ) {
 

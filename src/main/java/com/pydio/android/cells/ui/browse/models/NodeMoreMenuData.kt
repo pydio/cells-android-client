@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.browse.composables.BookmarkMoreMenuView
-import com.pydio.android.cells.ui.browse.composables.CreateMenuView
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuView
-import com.pydio.android.cells.ui.browse.composables.OfflineMoreMenuView
-import com.pydio.android.cells.ui.browse.composables.RecycleMoreMenuView
-import com.pydio.android.cells.ui.browse.composables.RecycleParentMoreMenuView
+import com.pydio.android.cells.ui.browse.menus.BookmarkMenu
+import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
+import com.pydio.android.cells.ui.browse.menus.OfflineMenu
+import com.pydio.android.cells.ui.browse.menus.RecycleMenu
+import com.pydio.android.cells.ui.browse.menus.RecycleParentMenu
+import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
@@ -73,35 +73,35 @@ fun NodeMoreMenuData(
         Log.e(logTag, "## ABOUT TO COMPOSE FOR $myItem, ${myItem.getStateID()}")
 
         when {
-            myItem.isRecycle() -> RecycleParentMoreMenuView(
+            myItem.isRecycle() -> RecycleParentMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            myItem.isInRecycle() -> RecycleMoreMenuView(
+            myItem.isInRecycle() -> RecycleMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.CREATE -> CreateMenuView(
+            type == MoreMenuType.CREATE -> CreateOrImportMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.OFFLINE -> OfflineMoreMenuView(
+            type == MoreMenuType.OFFLINE -> OfflineMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
                 tint = tint,
                 bgColor = bgColor,
             )
-            type == MoreMenuType.BOOKMARK -> BookmarkMoreMenuView(
+            type == MoreMenuType.BOOKMARK -> BookmarkMenu(
                 stateID = toOpenStateID,
                 rTreeNode = myItem,
                 launch = launch,
@@ -109,7 +109,7 @@ fun NodeMoreMenuData(
                 bgColor = bgColor,
             )
             else ->
-                NodeMoreMenuView(
+                SingleNodeMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
