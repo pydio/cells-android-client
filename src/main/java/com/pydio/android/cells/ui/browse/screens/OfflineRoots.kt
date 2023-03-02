@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -63,6 +65,7 @@ import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
+import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.getJobStatus
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
@@ -222,27 +225,27 @@ private fun OfflineScaffold(
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
 
         // TODO not yet fully implemented see below.
-//        if (listLayout == ListLayout.GRID) {
-//            val label = stringResource(R.string.button_switch_to_list_layout)
-//            DropdownMenuItem(
-//                text = { Text(label) },
-//                onClick = {
-//                    launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
-//                    showMenu(false)
-//                },
-//                leadingIcon = { Icon(CellsIcons.AsList, label) },
-//            )
-//        } else {
-//            val label = stringResource(R.string.button_switch_to_grid_layout)
-//            DropdownMenuItem(
-//                text = { Text(label) },
-//                onClick = {
-//                    launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
-//                    showMenu(false)
-//                },
-//                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
-//            )
-//        }
+        if (listLayout == ListLayout.GRID) {
+            val label = stringResource(R.string.button_switch_to_list_layout)
+            DropdownMenuItem(
+                text = { Text(label) },
+                onClick = {
+                    launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
+                    showMenu(false)
+                },
+                leadingIcon = { Icon(CellsIcons.AsList, label) },
+            )
+        } else {
+            val label = stringResource(R.string.button_switch_to_grid_layout)
+            DropdownMenuItem(
+                text = { Text(label) },
+                onClick = {
+                    launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
+                    showMenu(false)
+                },
+                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
+            )
+        }
 
         val label = stringResource(R.string.button_open_sort_by)
         DropdownMenuItem(
@@ -329,91 +332,104 @@ private fun OfflineRootList(
         },
     )
 
-    Box(modifier.pullRefresh(state)) {
-        when (listLayout) {
-            ListLayout.GRID -> {
-                LazyVerticalGrid(
-                    // TODO make this more generic for big screens also
-                    columns = GridCells.Adaptive(minSize = 128.dp),
-                    // columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = padding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+    WithLoadingListBackground(
+        loadingState = loadingState,
+        isEmpty = roots.isEmpty(),
+        // TODO also handle if server is unreachable
+        canRefresh = true,
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-                    // FIXME this is not yet done:
-                    //  - prepare offline node item composable for grids
-                    //  - also handle spanning of the header
-                    //  - re-enable option in the action menu
-                    if (runningJob != null) {
-                        item {
-                            val percentage =
-                                (runningJob.progress).toFloat().div(runningJob.total)
-                            SyncStatus(
-                                desc = getJobStatus(item = runningJob),
-                                progress = percentage,
-                                modifier = Modifier.fillMaxWidth()
+        Box(modifier.pullRefresh(state)) {
+            when (listLayout) {
+                ListLayout.GRID -> {
+                    LazyVerticalGrid(
+                        // TODO make this more generic for big screens also
+                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        // columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        // FIXME this is not yet done:
+                        //  - prepare offline node item composable for grids
+                        //  - also handle spanning of the header
+                        //  - re-enable option in the action menu
+                        if (runningJob != null) {
+
+                            item(span = { GridItemSpan(2) }) {
+                                val percentage =
+                                    (runningJob.progress).toFloat().div(runningJob.total)
+                                SyncStatus(
+                                    desc = getJobStatus(item = runningJob),
+                                    progress = percentage,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+
+                        items(roots) { offlineRoot ->
+                            OfflineRootItem(
+                                item = offlineRoot,
+                                title = getNodeTitle(
+                                    name = offlineRoot.name,
+                                    mime = offlineRoot.mime
+                                ),
+                                desc = getDesc(offlineRoot),
+                                more = { openMoreMenu(offlineRoot.getStateID()) },
+                                modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
                             )
                         }
                     }
-
-                    items(roots) { offlineRoot ->
-                        OfflineRootItem(
-                            item = offlineRoot,
-                            title = getNodeTitle(name = offlineRoot.name, mime = offlineRoot.mime),
-                            desc = getDesc(offlineRoot),
-                            more = { openMoreMenu(offlineRoot.getStateID()) },
-                            modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
-                        )
-                    }
                 }
-            }
-            else -> {
+                else -> {
 
-                LazyColumn(
-                    contentPadding = padding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (runningJob != null) {
+                    LazyColumn(
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (runningJob != null) {
+                            item {
+                                val percentage =
+                                    (runningJob.progress).toFloat().div(runningJob.total)
+                                SyncStatus(
+                                    desc = getJobStatus(item = runningJob),
+                                    progress = percentage,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                        items(roots) { offlineRoot ->
+                            OfflineRootItem(
+                                item = offlineRoot,
+                                title = getNodeTitle(
+                                    name = offlineRoot.name,
+                                    mime = offlineRoot.mime
+                                ),
+                                desc = getDesc(offlineRoot),
+                                more = { openMoreMenu(offlineRoot.getStateID()) },
+                                modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
+                            )
+                        }
                         item {
-                            val percentage =
-                                (runningJob.progress).toFloat().div(runningJob.total)
-                            SyncStatus(
-                                desc = getJobStatus(item = runningJob),
-                                progress = percentage,
-                                modifier = Modifier.fillMaxWidth()
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
                             )
                         }
                     }
-                    items(roots) { offlineRoot ->
-                        OfflineRootItem(
-                            item = offlineRoot,
-                            title = getNodeTitle(
-                                name = offlineRoot.name,
-                                mime = offlineRoot.mime
-                            ),
-                            desc = getDesc(offlineRoot),
-                            more = { openMoreMenu(offlineRoot.getStateID()) },
-                            modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
-                        )
-                    }
-                    item {
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
-                        )
-                    }
                 }
             }
+
+            PullRefreshIndicator(
+                refreshing = loadingState == LoadingState.PROCESSING,
+                state = state,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
-
-        PullRefreshIndicator(
-            refreshing = loadingState == LoadingState.PROCESSING,
-            state = state,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
     }
 }
 

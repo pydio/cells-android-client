@@ -47,34 +47,36 @@ fun WithLoadingListBackground(
         modifier = modifier
 // .background(CellsColor.warning)
     ) {
-        if (loadingState == LoadingState.STARTING) {
-            Box(
-                modifier = Modifier.fillMaxSize()
+        if (isEmpty) {
+            if (loadingState == LoadingState.STARTING) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
 //                     .background(CellsColor.danger)
-            ) {
-                StartingIndicator(
-                    desc = stringResource(R.string.loading_message),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(.5f)
-                )
-            }
-        } else if (isEmpty) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-                //         .background(CellsColor.ok)
-            ) {
-                EmptyList(
-                    desc = if (canRefresh) {
-                        stringResource(R.string.empty_folder)
-                    } else {
-                        stringResource(R.string.empty_cache) + "\n" +
-                                stringResource(R.string.server_unreachable)
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(.5f)
-                )
+                ) {
+                    StartingIndicator(
+                        desc = stringResource(R.string.loading_message),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(.5f)
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                    //         .background(CellsColor.ok)
+                ) {
+                    EmptyList(
+                        desc = if (canRefresh) {
+                            stringResource(R.string.empty_folder)
+                        } else {
+                            stringResource(R.string.empty_cache) + "\n" +
+                                    stringResource(R.string.server_unreachable)
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(.5f)
+                    )
+                }
             }
         }
         content()

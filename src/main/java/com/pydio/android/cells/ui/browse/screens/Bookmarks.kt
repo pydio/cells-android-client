@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -53,6 +54,7 @@ import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
+import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
@@ -318,68 +320,77 @@ private fun BookmarkList(
             forceRefresh()
         },
     )
+    WithLoadingListBackground(
+        loadingState = loadingState,
+        isEmpty = bookmarks.isEmpty(),
+        // TODO also handle if server is unreachable
+        canRefresh = true,
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-    Box(modifier.pullRefresh(state)) {
+        Box(modifier.pullRefresh(state)) {
 
-        when (listLayout) {
-            ListLayout.GRID -> {
-                LazyVerticalGrid(
-                    // TODO make this more generic for big screens also
-                    columns = GridCells.Adaptive(minSize = 128.dp),
-                    // columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = padding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(
-                        items = bookmarks,
-                        key = { it.encodedState }) { node ->
-                        GridNodeItem(
-                            item = node,
-                            title = getNodeTitle(name = node.name, mime = node.mime),
-                            desc = getNodeDesc(
-                                context,
-                                node.remoteModificationTS,
-                                node.size,
-                                node.localModificationStatus
-                            ),
-                            more = {
-                                openMoreMenu(node.getStateID())
-                            },
-                            modifier = Modifier.clickable { open(node.getStateID()) },
-                        )
+            when (listLayout) {
+                ListLayout.GRID -> {
+                    LazyVerticalGrid(
+                        // TODO make this more generic for big screens also
+                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        // columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(
+                            items = bookmarks,
+                            key = { it.encodedState }) { node ->
+                            GridNodeItem(
+                                item = node,
+                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                desc = getNodeDesc(
+                                    context,
+                                    node.remoteModificationTS,
+                                    node.size,
+                                    node.localModificationStatus
+                                ),
+                                more = {
+                                    openMoreMenu(node.getStateID())
+                                },
+                                modifier = Modifier.clickable { open(node.getStateID()) },
+                            )
+                        }
                     }
                 }
-            } else -> {
-                LazyColumn(
-                    contentPadding = padding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(bookmarks) { node ->
-                        NodeItem(
-                            item = node,
-                            title = getNodeTitle(name = node.name, mime = node.mime),
-                            desc = getNodeDesc(
-                                context,
-                                node.remoteModificationTS,
-                                node.size,
-                                node.localModificationStatus
-                            ),
-                            more = {
-                                openMoreMenu(node.getStateID())
-                            },
-                            modifier = Modifier.clickable { open(node.getStateID()) },
-                        )
+                else -> {
+                    LazyColumn(
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(bookmarks) { node ->
+                            NodeItem(
+                                item = node,
+                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                desc = getNodeDesc(
+                                    context,
+                                    node.remoteModificationTS,
+                                    node.size,
+                                    node.localModificationStatus
+                                ),
+                                more = {
+                                    openMoreMenu(node.getStateID())
+                                },
+                                modifier = Modifier.clickable { open(node.getStateID()) },
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        PullRefreshIndicator(
-            loadingState == LoadingState.PROCESSING,
-            state,
-            Modifier.align(Alignment.TopCenter)
-        )
+            PullRefreshIndicator(
+                loadingState == LoadingState.PROCESSING,
+                state,
+                Modifier.align(Alignment.TopCenter)
+            )
+        }
     }
 }

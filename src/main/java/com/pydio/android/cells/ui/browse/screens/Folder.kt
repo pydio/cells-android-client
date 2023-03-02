@@ -346,13 +346,13 @@ private fun FolderList(
 
     val context = LocalContext.current
 
-//    WithLoadingListBackground(
-//        loadingState = loadingState,
-//        isEmpty = children.isEmpty(),
-//        // TODO also handle if server is unreachable
-//        canRefresh = true,
-//        modifier = Modifier.fillMaxSize()
-//    ) {
+    WithLoadingListBackground(
+        loadingState = loadingState,
+        isEmpty = children.isEmpty(),
+        // TODO also handle if server is unreachable
+        canRefresh = true,
+        modifier = Modifier.fillMaxSize()
+    ) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -472,27 +472,7 @@ private fun FolderList(
                 state,
                 Modifier.align(Alignment.TopCenter)
             )
-//        }
-
-
-//        Box(
-//            Modifier
-//                .fillMaxSize()
-//                .background(CellsColor.danger.copy(alpha = .1f))
-//                .pullRefresh(state)
-//        ) {
-//            LazyColumn(
-//                modifier = Modifier.fillMaxWidth(),
-//                contentPadding = padding
-//            ) {
-//
-//            }
-//            PullRefreshIndicator(
-//                loadingState == LoadingState.PROCESSING,
-//                state,
-//                Modifier.align(Alignment.TopCenter)
-//            )
-//        }
+        }
     }
 }
 
