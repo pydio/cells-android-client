@@ -3,13 +3,23 @@ package com.pydio.android.cells.ui.browse.screens
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -17,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,28 +46,37 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
-import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.browse.composables.GridNodeItem
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
+import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
+import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
-import com.pydio.android.cells.ui.core.composables.DefaultTopBar
+import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
+import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
+import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -73,8 +93,11 @@ fun Folder(
     browseRemoteVM: BrowseRemoteVM,
     folderVM: FolderVM,
 ) {
+
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = stateID) {
-        Log.e(logTag, "... in Folder, launching effect")
+        Log.e(logTag, "... in Folder, launching effect for $stateID")
         browseRemoteVM.watch(stateID, false)
     }
 
@@ -83,10 +106,11 @@ fun Folder(
         browseRemoteVM.watch(stateID, true)
     }
 
-    val children by folderVM.childNodes.observeAsState()
+    val listLayout by folderVM.layout.collectAsState()
 
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
+    val children by folderVM.childNodes.observeAsState()
 
     val binLabel = stringResource(R.string.recycle_bin_label)
 
@@ -99,91 +123,182 @@ fun Folder(
             tmpLabel
         }
     }
-//    val showFAB = Str.notEmpty(stateID.workspace) && !folderVM.isInRecycle()
-//    Log.e(logTag, "After computing show fab: $showFAB")
+
     val showFAB by remember(key1 = treeNode) {
         derivedStateOf {
             val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
             // This is never the case -> useless check
             // val isNotAccountHome = Str.notEmpty(stateID.workspace)
-            Log.e(logTag, "Derived state of show fab: $inRecycle")
+            Log.d(logTag, "Derived state of show fab: ${!inRecycle}")
             !inRecycle
         }
     }
 
-    // We handle the state of the more menu here, not optimal...
-    val scope = rememberCoroutineScope()
-    val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val childState: MutableState<Pair<NodeMoreMenuType, StateID?>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.NONE, null))
+    // State for the more Menus
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
+        mutableStateOf(Pair(NodeMoreMenuType.NONE, Transport.UNDEFINED_STATE_ID))
     }
-    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, childID ->
+    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
-            childState.value = Pair(type, childID)
-            state.expand()
+            Log.e(logTag, "About to open $type more menu for $currID")
+            nodeMoreMenuData.value = Pair(type, currID)
+            sheetState.expand()
         }
     }
 
     val actionDone: (Boolean) -> Unit = {
         scope.launch {
-            childState.value = Pair(NodeMoreMenuType.NONE, null)
             if (it) { // Also reset backoff ticker
                 browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
             }
-            state.hide()
+            sheetState.hide()
+            nodeMoreMenuData.value = Pair(NodeMoreMenuType.NONE, Transport.UNDEFINED_STATE_ID)
         }
     }
+
+    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+        when (action) {
+            is NodeAction.AsGrid -> {
+                folderVM.setListLayout(ListLayout.GRID)
+                actionDone(true)
+            }
+            is NodeAction.AsList -> {
+                folderVM.setListLayout(ListLayout.LIST)
+                actionDone(true)
+            }
+            is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
+                actionDone(true)
+            }
+            else -> {
+                Log.e(logTag, "Unknown action $action for $stateID")
+                actionDone(false)
+            }
+        }
+    }
+
+//    val actionDone: (Boolean) -> Unit = {
+//        scope.launch {
+//            childState.value = Pair(NodeMoreMenuType.NONE, null)
+//            if (it) { // Also reset backoff ticker
+//                browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
+//            }
+//            state.hide()
+//        }
+//    }
 
     WrapWithActions(
         loadingState = loadingState ?: LoadingState.STARTING,
         actionDone = actionDone,
-        type = childState.value.first,
-        toOpenStateID = childState.value.second,
-        sheetState = state,
+        type = nodeMoreMenuData.value.first,
+        toOpenStateID = nodeMoreMenuData.value.second,
+        sheetState = sheetState,
     ) {
-        FolderPage(
+        FolderScaffold(
             loadingState = loadingState ?: LoadingState.STARTING,
+            listLayout = listLayout,
+            showFAB = showFAB,
             label = label,
             stateID = stateID,
             children = children ?: listOf(),
-            showFAB = showFAB,
+            forceRefresh = forceRefresh,
             openDrawer = openDrawer,
             openSearch = openSearch,
             openParent = { open(stateID.parent()) },
-            openMoreMenu = openMoreMenu,
             open = open,
-            forceRefresh = forceRefresh,
+            launch = launch,
+            moreMenuState = MoreMenuState(
+                nodeMoreMenuData.value.first,
+                sheetState,
+                nodeMoreMenuData.value.second,
+                openMoreMenu
+            )
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FolderPage(
+private fun FolderScaffold(
     loadingState: LoadingState,
-    stateID: StateID,
-    label: String,
-    children: List<RTreeNode>,
+    listLayout: ListLayout,
     showFAB: Boolean,
+    label: String,
+    stateID: StateID,
+    children: List<RTreeNode>,
+    forceRefresh: () -> Unit,
+    openDrawer: () -> Unit,
+    openSearch: () -> Unit,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
-    openDrawer: () -> Unit,
-    openMoreMenu: (NodeMoreMenuType, StateID) -> Unit,
-    openSearch: () -> Unit,
-    forceRefresh: () -> Unit,
+    launch: (NodeAction, StateID) -> Unit,
+    moreMenuState: MoreMenuState,
 ) {
+
+    var isShown by remember { mutableStateOf(false) }
+    val showMenu: (Boolean) -> Unit = {
+        if (it != isShown) {
+            isShown = it
+        }
+    }
+
+    val actionMenuContent: @Composable ColumnScope.() -> Unit = {
+
+        if (listLayout == ListLayout.GRID) {
+            val label = stringResource(R.string.button_switch_to_list_layout)
+            DropdownMenuItem(
+                text = { Text(label) },
+                onClick = {
+                    launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
+                    showMenu(false)
+                },
+                leadingIcon = { Icon(CellsIcons.AsList, label) },
+            )
+        } else {
+            val label = stringResource(R.string.button_switch_to_grid_layout)
+            DropdownMenuItem(
+                text = { Text(label) },
+                onClick = {
+                    launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
+                    showMenu(false)
+                },
+                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
+            )
+        }
+
+        val label = stringResource(R.string.button_open_sort_by)
+        DropdownMenuItem(
+            text = { Text(label) },
+            onClick = {
+                moreMenuState.openMoreMenu(
+                    NodeMoreMenuType.SORT_BY,
+                    stateID
+                )
+                showMenu(false)
+            },
+            leadingIcon = { Icon(CellsIcons.SortBy, label) },
+        )
+    }
 
     Scaffold(
         topBar = {
-            DefaultTopBar(
+            TopBarWithMoreMenu(
                 title = label,
                 openDrawer = openDrawer,
                 openSearch = openSearch,
+                isActionMenuShown = isShown,
+                showMenu = showMenu,
+                content = actionMenuContent
             )
         },
         floatingActionButton = {
             if (showFAB) {
-                FloatingActionButton(onClick = { openMoreMenu(NodeMoreMenuType.CREATE, stateID) }) {
+                FloatingActionButton(onClick = {
+                    moreMenuState.openMoreMenu(
+                        NodeMoreMenuType.CREATE,
+                        stateID
+                    )
+                }) {
                     Icon(
                         Icons.Filled.Add,
                         contentDescription = stringResource(id = R.string.fab_transformation_sheet_behavior)
@@ -195,13 +310,14 @@ private fun FolderPage(
         Column {
             FolderList(
                 loadingState = loadingState,
+                listLayout = listLayout,
                 stateID = stateID,
                 children = children,
                 openParent = openParent,
                 open = open,
-                openMoreMenu = { openMoreMenu(NodeMoreMenuType.MORE, it) },
+                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, it) },
                 forceRefresh = forceRefresh,
-                modifier = Modifier.padding(padding),
+                padding = padding,
             )
         }
     }
@@ -211,13 +327,14 @@ private fun FolderPage(
 @Composable
 private fun FolderList(
     loadingState: LoadingState,
+    listLayout: ListLayout,
     stateID: StateID,
     children: List<RTreeNode>,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openMoreMenu: (StateID) -> Unit,
     forceRefresh: () -> Unit,
-    modifier: Modifier,
+    padding: PaddingValues,
 ) {
     // WARNING: pullRefresh API is:
     //   - experimental
@@ -229,48 +346,153 @@ private fun FolderList(
 
     val context = LocalContext.current
 
-    Box(modifier.pullRefresh(state)) {
-        LazyColumn(Modifier.fillMaxWidth()) {
-            if (Str.notEmpty(stateID.path)) {
-                item {
-                    val parentDescription = when {
-                        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
-                        else -> stringResource(R.string.parent_folder)
+//    WithLoadingListBackground(
+//        loadingState = loadingState,
+//        isEmpty = children.isEmpty(),
+//        // TODO also handle if server is unreachable
+//        canRefresh = true,
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(CellsColor.danger.copy(alpha = .1f))
+                .pullRefresh(state)
+        ) {
+
+            when (listLayout) {
+                ListLayout.GRID -> {
+                    LazyVerticalGrid(
+                        // TODO make this more generic for big screens also
+                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        // columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        if (Str.notEmpty(stateID.path)) {
+                            item {
+                                val parentDescription = when {
+                                    Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+                                    else -> stringResource(R.string.parent_folder)
+                                }
+                                BrowseUpItem(
+                                    parentDescription,
+                                    Modifier
+                                        .fillMaxWidth()
+                                        // .height(dimensionResource(id = R.dimen.list_up_item_height))
+                                        .clickable { openParent(stateID) }
+                                )
+                            }
+                        }
+                        items(children, key = { it.encodedState }) { node ->
+                            GridNodeItem(
+                                item = node,
+                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                desc = getNodeDesc(
+                                    context,
+                                    node.remoteModificationTS,
+                                    node.size,
+                                    node.localModificationStatus
+                                ),
+                                more = {
+                                    openMoreMenu(node.getStateID())
+                                },
+                                modifier = Modifier
+                                    .padding(all = dimensionResource(R.dimen.card_padding))
+                                    .fillMaxWidth()
+                                    .clickable { open(node.getStateID()) }
+                                // .animateItemPlacement(),
+                            )
+                        }
+                        item {
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
+                            )
+                        }
                     }
-                    BrowseUpItem(
-                        parentDescription,
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { openParent(stateID) }
-                    )
+                }
+                else -> {
+                    LazyColumn(
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (Str.notEmpty(stateID.path)) {
+                            item {
+                                val parentDescription = when {
+                                    Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+                                    else -> stringResource(R.string.parent_folder)
+                                }
+                                BrowseUpItem(
+                                    parentDescription,
+                                    Modifier
+                                        .fillMaxWidth()
+                                        // .height(dimensionResource(id = R.dimen.list_up_item_height))
+                                        .clickable { openParent(stateID) }
+                                )
+                            }
+                        }
+                        items(children, key = { it.encodedState }) { node ->
+                            NodeItem(
+                                item = node,
+                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                desc = getNodeDesc(
+                                    context,
+                                    node.remoteModificationTS,
+                                    node.size,
+                                    node.localModificationStatus
+                                ),
+                                more = {
+                                    openMoreMenu(node.getStateID())
+                                },
+                                modifier = Modifier
+                                    .padding(all = dimensionResource(R.dimen.card_padding))
+                                    .fillMaxWidth()
+                                    .clickable { open(node.getStateID()) }
+                                // .animateItemPlacement(),
+                            )
+                        }
+                        item {
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
+                            )
+                        }
+                    }
                 }
             }
-            items(children, key = { it.encodedState }) { node ->
-                NodeItem(
-                    item = node,
-                    title = getNodeTitle(name = node.name, mime = node.mime),
-                    desc = getNodeDesc(
-                        context,
-                        node.remoteModificationTS,
-                        node.size,
-                        node.localModificationStatus
-                    ),
-                    more = {
-                        openMoreMenu(node.getStateID())
-                    },
-                    modifier = Modifier
-                        .padding(all = dimensionResource(R.dimen.card_padding))
-                        .fillMaxWidth()
-                        .clickable { open(node.getStateID()) }
-                        // .animateItemPlacement(),
-                )
-            }
-        }
-        PullRefreshIndicator(
-            loadingState == LoadingState.PROCESSING,
-            state,
-            Modifier.align(Alignment.TopCenter)
-        )
+
+            PullRefreshIndicator(
+                loadingState == LoadingState.PROCESSING,
+                state,
+                Modifier.align(Alignment.TopCenter)
+            )
+//        }
+
+
+//        Box(
+//            Modifier
+//                .fillMaxSize()
+//                .background(CellsColor.danger.copy(alpha = .1f))
+//                .pullRefresh(state)
+//        ) {
+//            LazyColumn(
+//                modifier = Modifier.fillMaxWidth(),
+//                contentPadding = padding
+//            ) {
+//
+//            }
+//            PullRefreshIndicator(
+//                loadingState == LoadingState.PROCESSING,
+//                state,
+//                Modifier.align(Alignment.TopCenter)
+//            )
+//        }
     }
 }
 

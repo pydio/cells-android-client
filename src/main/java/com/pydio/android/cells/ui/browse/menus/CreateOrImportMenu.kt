@@ -36,7 +36,7 @@ fun CreateOrImportMenu(
             BottomSheetHeader(
                 thumb = { Thumbnail(rTreeNode) },
                 title = stateID.fileName ?: "",
-                desc = stateID.parentPath,
+                desc = stateID.parentPath ?: "", // TODO provide WS Label or AccountID ?
             )
         }
         item { BottomSheetDivider() }

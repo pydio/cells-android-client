@@ -54,6 +54,7 @@ object CellsIcons {
     val DownloadFile = Icons.Outlined.FileDownload
     val DownloadToDevice = Icons.Outlined.CloudDownload
     val Edit = Icons.Default.Edit
+    val EmptyFolder = Icons.Outlined.Folder
     val EmptyRecycle = Icons.Default.DeleteForever
     val ErrorDecorator = Icons.Default.PriorityHigh
     val ExpandLess = Icons.Rounded.ExpandLess

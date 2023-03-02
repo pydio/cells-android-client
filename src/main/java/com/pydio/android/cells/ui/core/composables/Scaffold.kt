@@ -107,7 +107,7 @@ fun TopBarWithMoreMenu(
     back: (() -> Unit)? = null,
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
-    isShown: Boolean,
+    isActionMenuShown: Boolean,
     showMenu: (Boolean) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -150,14 +150,14 @@ fun TopBarWithMoreMenu(
                     )
                 }
             }
-            IconButton(onClick = { showMenu(!isShown) }) {
+            IconButton(onClick = { showMenu(!isActionMenuShown) }) {
                 Icon(
                     CellsIcons.MoreVert,
                     contentDescription = stringResource(R.string.open_more_menu)
                 )
             }
             DropdownMenu(
-                expanded = isShown,
+                expanded = isActionMenuShown,
                 onDismissRequest = { showMenu(false) },
                 content = content
             )

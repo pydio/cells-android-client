@@ -7,10 +7,9 @@ import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.share.screens.SelectFolderScaffold
 import com.pydio.cells.transport.StateID
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CreateFolderPage(
+fun SelectFolderPage(
     action: String,
     stateID: StateID,
     loadingStatus: LoadingState,
@@ -18,11 +17,10 @@ fun CreateFolderPage(
     open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
     doAction: (String, StateID) -> Unit,
-    browseLocalVM: FolderVM = koinViewModel(),
+    folderVM: FolderVM,
 ) {
 
-    browseLocalVM.setState(stateID)
-    val childNodes by browseLocalVM.childNodes.observeAsState()
+    val childNodes by folderVM.childNodes.observeAsState()
 
     SelectFolderScaffold(
         loadingStatus = loadingStatus,

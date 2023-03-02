@@ -82,6 +82,18 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
+    fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
+
+        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy)
+        val parPath = stateID.file
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
+                    "AND parent_path = ? " +
+                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
+        )
+        return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
+    }
+
     fun lsFlow(stateID: StateID): Flow<List<RTreeNode>> {
 
         val encoded = prefs.getString(

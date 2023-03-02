@@ -193,8 +193,11 @@ val viewModelModule = module {
     viewModel { SettingsVM(get()) }
     viewModel { HouseKeepingVM(get()) }
 
-    viewModel { BookmarksVM(get(), get()) }
-    viewModel { OfflineVM(get(), get(), get()) }
+    // viewModel { BookmarksVM(get(), get()) }
+    viewModelOf(::BookmarksVM)
+    // viewModel { OfflineVM(get(), get(), get()) }
+    viewModelOf(::OfflineVM)
+
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
     viewModel { ShareVM(get(), get(), get()) }
@@ -213,7 +216,9 @@ val viewModelModule = module {
 
     viewModel { AccountHomeVM(get()) }
     viewModel { BrowseRemoteVM(get(), get()) }
-    viewModel { FolderVM(get()) }
+//    viewModel { FolderVM(get()) }
+    viewModelOf(::FolderVM)
+
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }
     viewModel { UploadsVM(get(), get()) }

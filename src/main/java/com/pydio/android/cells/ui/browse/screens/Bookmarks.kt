@@ -254,7 +254,7 @@ private fun BookmarkScaffold(
             TopBarWithMoreMenu(
                 title = title,
                 openDrawer = openDrawer,
-                isShown = isShown,
+                isActionMenuShown = isShown,
                 showMenu = showMenu,
                 content = actionMenuContent
             )
@@ -351,8 +351,7 @@ private fun BookmarkList(
                         )
                     }
                 }
-            }
-            else -> {
+            } else -> {
                 LazyColumn(
                     contentPadding = padding,
                     modifier = Modifier.fillMaxWidth()

@@ -42,11 +42,6 @@ class BookmarksVM(
     private val _layout = MutableStateFlow(ListLayout.LIST)
     val layout: StateFlow<ListLayout> = _layout.asStateFlow()
 
-//    private val liveDisplayType: MutableLiveData<String> = liveSharedPreferences.getString(
-//        AppKeys.CURR_RECYCLER_LAYOUT,
-//        AppNames.RECYCLER_LAYOUT_LIST
-//    )
-
     init {
         viewModelScope.launch {
             liveSharedPreferences.getString(

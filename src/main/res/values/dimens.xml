@@ -74,6 +74,7 @@
     <dimen name="list_item_inner_padding">4dp</dimen>
     <dimen name="list_item_inner_h_padding">8dp</dimen>
     <dimen name="list_item_inner_v_padding">4dp</dimen>
+    <dimen name="list_up_item_height">48dp</dimen>
 
     <dimen name="list_thumb_bg_size">48dp</dimen>
     <dimen name="list_thumb_size">48dp</dimen>
@@ -94,7 +95,7 @@
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab
         Goes with the clipToPadding=false prop in the recycler layout -->
-    <dimen name="recycler_bottom_fab_padding">64dp</dimen>
+    <dimen name="recycler_bottom_fab_padding">76dp</dimen>
     <!-- For rounded corners (in dp) -->
     <dimen name="glide_thumb_radius">4dp</dimen>
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +25,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 @Composable
 fun LoadingAnimation(
     modifier: Modifier = Modifier,
-    circleColor: Color = Color.Magenta.copy(alpha = .3f),
+    circleColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = .3f),
     animationDelay: Int = 2000
 ) {
 

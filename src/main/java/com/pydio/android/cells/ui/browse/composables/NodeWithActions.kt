@@ -24,10 +24,12 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
 import com.pydio.cells.api.Transport
@@ -35,6 +37,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val logTag = "NodeWithActions.kt"
 
@@ -257,6 +260,9 @@ private fun FolderWithDialogs(
                     nodeActionsVM.restoreFromTrash(toOpenStateID)
                     actionDone(true)
                 }
+                is NodeAction.SortBy -> {
+                    actionDone(true)
+                }
                 else -> navController.navigate("${it.id}/${toOpenStateID.id}")
             }
         }
@@ -308,23 +314,24 @@ private fun FolderWithDialogs(
                 )
             }
 
-            composable(route(NodeAction.SelectTargetFolder)) { navBackStackEntry ->
-                val stateId = StateID.fromId(
-                    navBackStackEntry.arguments?.getString(STATE_ID_KEY)
-                        ?: run {
-                            Log.e(logTag, "... cannot navigate with no state ID")
-                            return@composable
-                        })
+            composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
+                val stateID = lazyStateID(nbsEntry)
+                if (stateID == Transport.UNDEFINED_STATE_ID) {
+                    Log.e(logTag, "... cannot navigate with no state ID")
+                    return@composable
+                }
 
                 val action = currentAction.value ?: run {
                     Log.e(logTag, "... cannot for selection with no action set")
                     return@composable
                 }
-                Log.e(logTag, ".... Open choose *folder* page, with ID: $stateId}")
+                Log.e(logTag, ".... Open choose *folder* page, with ID: $stateID}")
 
-                CreateFolderPage(
+                val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+
+                SelectFolderPage(
                     action = action,
-                    stateID = stateId,
+                    stateID = stateID,
                     loadingStatus = LoadingState.IDLE, // FIXME
                     forceRefresh = {/*TODO */ },
                     open = {
@@ -334,6 +341,7 @@ private fun FolderWithDialogs(
                     },
                     canPost = { true }, // TODO also
                     doAction = copyMoveAction,
+                    folderVM = folderVM,
                 )
             }
 

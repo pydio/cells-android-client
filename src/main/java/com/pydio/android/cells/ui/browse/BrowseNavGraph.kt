@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
-import com.pydio.android.cells.ui.browse.models.PreferencesVM
+import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.screens.AccountHome
@@ -15,12 +15,12 @@ import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.browse.screens.OfflineRoots
 import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val logTag = "BrowseNavGraph"
 
@@ -42,8 +42,7 @@ fun NavGraphBuilder.browseNavGraph(
             )
         } else if (Str.notEmpty(stateID.workspace)) {
 
-            val folderVM: FolderVM = koinViewModel()
-            folderVM.setState(stateID)
+            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
 
             Folder(
                 stateID,

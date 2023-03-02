@@ -18,6 +18,7 @@ import com.pydio.android.cells.ui.browse.menus.OfflineMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleParentMenu
 import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
+import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -59,68 +60,74 @@ fun NodeMoreMenuData(
                 // actionDone() TODO do something?
                 null
             }
-            Log.e(
-                logTag,
-                "## After effect, treeNode $currNode for ${currNode?.getStateID() ?: "NaN"}"
-            )
+            Log.e(logTag, "## After effect, found a node for $it - $currNode")
+            Log.e(logTag, "## Parent Path: ${it.parentPath} - $currNode")
             item.value = currNode
         }
     }
 
     // We have to provide early a dummy content when not enough data to build a menu is present.
-    if (toOpenStateID != null && toOpenStateID.parentPath != null && item.value != null) {
-        val myItem = item.value!!
-        Log.e(logTag, "## ABOUT TO COMPOSE FOR $myItem, ${myItem.getStateID()}")
+    if (toOpenStateID != null && toOpenStateID.workspace != null) {
 
-        when {
-            myItem.isRecycle() -> RecycleParentMenu(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            myItem.isInRecycle() -> RecycleMenu(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
-                stateID = toOpenStateID,
-                rTreeNode = myItem,
-                launch = launch,
-                tint = tint,
-                bgColor = bgColor,
-            )
-            else ->
-                SingleNodeMenu(
+        item.value?.let { myItem ->
+
+            Log.e(logTag, "## Choosing MenuView with type $type for $toOpenStateID }")
+
+            when {
+                myItem.isRecycle() -> RecycleParentMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
                     tint = tint,
                     bgColor = bgColor,
                 )
+                myItem.isInRecycle() -> RecycleMenu(
+                    stateID = toOpenStateID,
+                    rTreeNode = myItem,
+                    launch = launch,
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+                type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
+                    stateID = toOpenStateID,
+                    rTreeNode = myItem,
+                    launch = launch,
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+                type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
+                    stateID = toOpenStateID,
+                    rTreeNode = myItem,
+                    launch = launch,
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+                type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
+                    stateID = toOpenStateID,
+                    rTreeNode = myItem,
+                    launch = launch,
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+                type == NodeMoreMenuType.SORT_BY -> SortByMenu(
+                    done = { launch(NodeAction.SortBy) },
+                    tint = tint,
+                    bgColor = bgColor,
+                )
+                else ->
+                    SingleNodeMenu(
+                        stateID = toOpenStateID,
+                        rTreeNode = myItem,
+                        launch = launch,
+                        tint = tint,
+                        bgColor = bgColor,
+                    )
+            }
         }
-    } else {
-        // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
-        // when no item is defined (This is the case at the beginning when we launch the Side Effect)
-        Log.d(logTag, "## No more menu for $toOpenStateID")
-        Spacer(modifier = Modifier.height(1.dp))
     }
+    // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
+    // when no item is defined (This is the case at the beginning when we launch the Side Effect)
+    // Log.d(logTag, "## No more menu for $toOpenStateID")
+    Spacer(modifier = Modifier.height(1.dp))
+
 }
