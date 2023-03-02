@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.login
+package com.pydio.android.cells.ui.login.aaLegacy
 
 import androidx.compose.runtime.Composable
 import com.pydio.android.cells.ui.login.nav.StateViewModel

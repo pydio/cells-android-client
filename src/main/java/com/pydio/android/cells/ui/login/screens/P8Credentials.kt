@@ -19,9 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.box.common.FormBottomButtons
 import com.pydio.android.cells.ui.box.common.FormInput
-import com.pydio.android.cells.ui.login.RouteLoginDone
+import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
-import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.launch
 
@@ -117,9 +116,9 @@ fun P8Credentials(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun P8Credentials(
-    stateVM: StateViewModel?,
+    helper: LoginHelper,
     loginVM: NewLoginVM,
-    navigateTo: (String?) -> Unit,
+    //navigateTo: (String?) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -133,15 +132,6 @@ fun P8Credentials(
     val pwdString = rememberSaveable { mutableStateOf("") }
     val updatePwd: (String) -> Unit = { pwdString.value = it }
 
-    val launchP8Auth: (String, String, String?) -> Unit = { login, pwd, captcha ->
-        scope.launch {
-            val res = loginVM.logToP8(login, pwd, captcha)
-            if (res) {
-                navigateTo(RouteLoginDone.route)
-            } // else do nothing: error message has already been displayed and we stay on the page
-        }
-    }
-
     P8Credentials(
         isProcessing.value,
         loginString.value,
@@ -150,8 +140,12 @@ fun P8Credentials(
         updatePwd,
         message = message.value,
         errMsg = errMsg.value,
-        goBack = { navigateTo(null) },
-        launchP8Auth = launchP8Auth,
+        goBack = { scope.launch { helper.back() } },
+        launchP8Auth = { login, pwd, captcha ->
+            scope.launch {
+                helper.launchP8Auth(login, pwd, captcha)
+            }
+        },
     )
 }
 

@@ -6,13 +6,13 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
 
 class LoginHelper(
     private val navController: NavHostController,
@@ -25,21 +25,47 @@ class LoginHelper(
     private val logTag = LoginHelper::class.simpleName
     private val navigation = LoginNavigation(navController)
 
-    fun back() {
+    fun cancel() {
         navController.popBackStack()
+        loginVM.flush()
+    }
+
+    suspend fun back() {
+        val bq = navController.backQueue
+        var i = 0
+        navController.backQueue.forEach {
+            val stateID = lazyStateID(it)
+            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+        }
+        var isFirstLoginPage = true
+        if (bq.size > 1) {
+            val penEntry = bq[bq.size - 2]
+            val penultimateID = lazyStateID(penEntry)
+            val penRoute = penEntry.destination.route
+            if (LoginDestinations.isCurrent(penRoute)) {
+                // penultimate route is still in the login subgraph
+                isFirstLoginPage = false
+            }
+        }
+        if (isFirstLoginPage) { // back is then a cancellation of the current login process
+            cancel()
+        } else {
+            loginVM.resetMessages()
+            navController.popBackStack()
+        }
     }
 
     fun afterPing(res: String) {
         navigateTo(res)
     }
 
-    private suspend fun afterOAuth(stateID: StateID) {
-        Log.e(logTag, "#########################")
-        Log.e(logTag, "After Oauth: $stateID")
-        val route = BrowseDestinations.Open.createRoute(stateID)
-        startingStateHasBeenProcessed(null, stateID)
-        loginVM.flush()
-        navigateTo(route)
+    suspend fun launchP8Auth(login: String, pwd: String, captcha: String?) {
+        val stateID = loginVM.logToP8(login, pwd, captcha)
+        if (stateID != null) {
+            // Login has been successful,
+            // We clean after ourselves and leave the login subgraph
+            afterAuth(stateID)
+        } // else do nothing: error message has already been displayed and we stay on the page
     }
 
     suspend fun processAuth(context: Context, stateID: StateID) {
@@ -55,8 +81,8 @@ class LoginHelper(
                 if (res) {
                     Log.i(logTag, "OAuth OK - ${loginVM.accountId.value}")
                     loginVM.accountId.value?.let {
-                        val stateID = StateID.fromId(it)
-                        afterOAuth(stateID)
+                        val currID = StateID.fromId(it)
+                        afterAuth(currID)
                     } ?: run {
                         // TODO better error handling
                         startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
@@ -65,6 +91,7 @@ class LoginHelper(
             }
         } ?: run {
             if (stateID != Transport.UNDEFINED_STATE_ID) {
+
                 // The user wants to login again in an expired already registered account
                 loginVM.getSessionView(stateID)?.let { sessionView ->
                     // FIXME implement next
@@ -75,12 +102,27 @@ class LoginHelper(
                             ContextCompat.startActivity(context, intent, null)
                         }
                     }
+                } ?: run {
+                    Log.e(logTag, "Launching OAuth Process with no session view for $stateID")
+                    // FIXME handle self-signed scenario
+                    val url = ServerURLImpl.fromAddress(stateID.serverUrl, false)
+                    val intent = loginVM.newOAuthIntent(url)
+                    intent?.let {
+                        withContext(Dispatchers.Main) {
+                            ContextCompat.startActivity(context, intent, null)
+                        }
+                    }
                 }
-//                    loginVM.toCellsCredentials(sessionView, "browse")
-//                    // TODO also pop until home to prevent coming back on the server Url screen
-                //    when the user clicks back
             }
         }
     }
 
+    private fun afterAuth(stateID: StateID) {
+        Log.e(logTag, "#########################")
+        Log.e(logTag, "After Oauth: $stateID")
+        val route = BrowseDestinations.Open.createRoute(stateID)
+        startingStateHasBeenProcessed(null, stateID)
+        loginVM.flush()
+        navigateTo(route)
+    }
 }

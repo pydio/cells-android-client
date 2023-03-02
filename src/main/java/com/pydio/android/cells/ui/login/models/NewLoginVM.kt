@@ -53,9 +53,9 @@ class NewLoginVM(
     private var _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    // Used to trigger an "external call"
-    private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
-    val oauthIntent: StateFlow<Intent?> = _oauthIntent.asStateFlow()
+//    // Used to trigger an "external call"
+//    private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
+//    val oauthIntent: StateFlow<Intent?> = _oauthIntent.asStateFlow()
 
     // Business Data: TODO we don't need flows for these variables
     // First step, we have nothing then an address
@@ -68,7 +68,6 @@ class NewLoginVM(
     // A valid server URL with TLS managed
     private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
     val serverUrl: StateFlow<ServerURL?> = _serverUrl
-
 
     // Used when relogging a P8 Server
     private val _username: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -96,20 +95,15 @@ class NewLoginVM(
         _nextAction.value = AuthService.NEXT_ACTION_BROWSE
     }
 
-    // UI Methods
-    fun switchLoading(newState: Boolean) {
-        if (newState) { // also remove old error message when we start a new processing
-            _errorMessage.value = ""
-        }
-        _isProcessing.value = newState
-    }
 
     // Business methods
 
     // Restore all defaults: the view model is persisted between 2 login process if no restart has happened
-    suspend fun flush() {
-        resetMessages()
-        restoreDefaults()
+    fun flush() {
+        viewModelScope.launch {
+            resetMessages()
+            restoreDefaults()
+        }
     }
 
     fun setAddress(serverAddress: String) {
@@ -117,7 +111,16 @@ class NewLoginVM(
         _errorMessage.value = ""
     }
 
+    @Deprecated("Rather use call with argument")
     suspend fun pingAddress(): String? {
+        val res = processAddress()
+        if (Str.notEmpty(res)) {
+            _message.value = ""
+        }
+        return res
+    }
+
+    suspend fun pingAddress(url: String): String? {
         val res = processAddress()
         if (Str.notEmpty(res)) {
             _message.value = ""
@@ -130,7 +133,7 @@ class NewLoginVM(
         return pingAddress()
     }
 
-    suspend fun logToP8(login: String, password: String, captcha: String?): Boolean {
+    suspend fun logToP8(login: String, password: String, captcha: String?): StateID? {
         // TODO validate passed parameters
         switchLoading(true)
         return doP8Auth(login, password, captcha)
@@ -158,30 +161,6 @@ class NewLoginVM(
 //        // _currDestination.value = LoginStep.P8_CRED
 //    }
 
-    suspend fun toCellsCredentials(urlStr: String, next: String) {
-        // TODO rather retrieve the Server from the local repo
-        _nextAction.value = next
-        val url = ServerURLImpl.fromJson(urlStr)
-        _serverUrl.value = url
-        if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
-            _serverAddress.value = url.id
-            if (url.skipVerify()) {
-                _skipVerify.value = true
-            }
-        }
-        triggerOAuthProcess(url)
-    }
-
-    suspend fun toCellsCredentials(sessionView: RSessionView, next: String) {
-        _nextAction.value = next
-        val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
-        _serverUrl.value = url
-        if (sessionView.isLegacy) {
-            _username.value = sessionView.username
-        } else {
-            triggerOAuthProcess(url)
-        }
-    }
 
     suspend fun handleOAuthResponse(state: String, code: String): Boolean {
 
@@ -238,12 +217,13 @@ class NewLoginVM(
 
         val serverID = StateID(server.url())
         // 3) Specific login process depending on the remote server type (Cells or P8).
-        if (server.isLegacy) {
-            return LoginDestinations.P8Credentials.createRoute(serverID)
+        switchLoading(false)
+        return if (server.isLegacy) {
+            LoginDestinations.P8Credentials.createRoute(serverID)
         } else {
-            viewModelScope.launch {
-                triggerOAuthProcess(serverURL)
-            }
+//            viewModelScope.launch {
+//                triggerOAuthProcess(serverURL)
+//            }
             // FIXME this is not satisfying: error won't be processed correctly
             return LoginDestinations.ProcessAuth.createRoute(serverID)
         }
@@ -299,11 +279,11 @@ class NewLoginVM(
         }
     }
 
-    private suspend fun doP8Auth(login: String, password: String, captcha: String?): Boolean {
+    private suspend fun doP8Auth(login: String, password: String, captcha: String?): StateID? {
         val currURL = serverUrl.value
             ?: run {
                 updateErrorMsg("No server URL defined, cannot start P8 auth process")
-                return false
+                return null
             }
 
         val credentials = P8Credentials(login, password, captcha)
@@ -333,39 +313,18 @@ class NewLoginVM(
 
         return if (accountIDStr != null) {
             _accountId.value = accountIDStr
-            true
-            // FIXME
-            // setCurrentStep(LoginStep.DONE)
+            StateID.fromId(accountIDStr)
         } else
-            return false
+            return null
     }
 
-    private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
-//        updateMessage("Launching OAuth credential flow")
-//        withContext(Dispatchers.Main) {
-//            val uri = try {
-//                authService.generateOAuthFlowUri(
-//                    sessionFactory,
-//                    serverURL,
-//                    _nextAction.value,
-//                )
+//    private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
 //
-//            } catch (e: SDKException) {
-//                val msg =
-//                    "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
-//                Log.e(logTag, msg)
-//                updateErrorMsg(msg)
-//                return@withContext
-//            }
-//            val intent = Intent(Intent.ACTION_VIEW)
-//            intent.data = uri
-//            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-
-        val intent = newOAuthIntent(serverURL)
-        Log.d(logTag, "Intent created: ${intent?.data}")
-        _oauthIntent.value = intent
-
-    }
+//        val intent = newOAuthIntent(serverURL)
+//        Log.d(logTag, "Intent created: ${intent?.data}")
+//        _oauthIntent.value = intent
+//
+//    }
 
     suspend fun newOAuthIntent(serverURL: ServerURL): Intent? = withContext(Dispatchers.Main) {
         updateMessage("Launching OAuth credential flow")
@@ -391,6 +350,15 @@ class NewLoginVM(
         return@withContext intent
     }
 
+
+    // UI Methods
+    private fun switchLoading(newState: Boolean) {
+        if (newState) { // also remove old error message when we start a new processing
+            _errorMessage.value = ""
+        }
+        _isProcessing.value = newState
+    }
+
     private suspend fun updateMessage(msg: String) {
         withContext(Dispatchers.Main) {
             _message.value = msg
@@ -406,7 +374,7 @@ class NewLoginVM(
         }
     }
 
-    private suspend fun resetMessages() {
+    suspend fun resetMessages() {
         withContext(Dispatchers.Main) {
             _errorMessage.value = ""
             _message.value = ""

@@ -16,9 +16,6 @@ private const val logTag = "loginNavGraph"
 fun NavGraphBuilder.loginNavGraph(
     helper: LoginHelper,
     loginVM: NewLoginVM,
-//    back: () -> Unit,
-//    navigateTo: (String) -> Unit,
-    // open: (StateID) -> Unit,
 //    isExpandedScreen: Boolean,
 ) {
 
@@ -40,18 +37,18 @@ fun NavGraphBuilder.loginNavGraph(
         AskServerUrl(helper = helper, loginVM = loginVM)
     }
 
-//    composable(LoginDestinations.SkipVerify.route) { nbsEntry ->
-//        val stateID = lazyStateID(nbsEntry)
-//        Log.e(logTag, "... Starting SkipVerify activity for $stateID")
-//        SkipVerify(helper = helper, loginVM = loginVM)
-//    }
-//
-//    composable(LoginDestinations.P8Credentials.route) { nbsEntry ->
-//        val stateID = lazyStateID(nbsEntry)
-//        Log.e(logTag, "... Starting P8Credentials activity for $stateID")
-//        P8Credentials(stateVM = null, loginVM = loginVM, navigateTo = navigateTo)
-//    }
-//
+    composable(LoginDestinations.SkipVerify.route) { nbsEntry ->
+        val stateID = lazyStateID(nbsEntry)
+        Log.e(logTag, "... Starting SkipVerify activity for $stateID")
+        SkipVerify(helper = helper, loginVM = loginVM)
+    }
+
+    composable(LoginDestinations.P8Credentials.route) { nbsEntry ->
+        val stateID = lazyStateID(nbsEntry)
+        Log.e(logTag, "... Starting P8Credentials activity for $stateID")
+        P8Credentials(helper = helper, loginVM = loginVM)
+    }
+
     composable(LoginDestinations.ProcessAuth.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         Log.e(logTag, "... Starting ProcessAuth activity for $stateID")

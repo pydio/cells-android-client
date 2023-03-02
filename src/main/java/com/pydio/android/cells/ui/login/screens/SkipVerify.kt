@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.login.screens
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -19,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
-import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -82,30 +80,20 @@ fun SkipVerify(
 fun SkipVerify(
     helper: LoginHelper,
     loginVM: NewLoginVM,
-    navigateTo: (String?) -> Unit,
+    // navigateTo: (String?) -> Unit,
 ) {
-
-    Log.e(logTag, "Nav to Login Step")
-
     val scope = rememberCoroutineScope()
     val isProcessing = loginVM.isProcessing.collectAsState()
     val currAddress = loginVM.serverAddress.collectAsState()
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
 
-    val doPing: (String) -> Unit = { url ->
-        // TODO add sanity checks
-        scope.launch {
-            loginVM.pingAddress()
-        }
-    }
-
     SkipVerify(
         isProcessing.value,
         currAddress.value,
         message.value,
         errMsg.value,
-        goBack = { navigateTo(null) },
+        goBack = { scope.launch { helper.back() } },
         accept = { scope.launch { loginVM.confirmSkipVerifyAndPing() } },
     )
 }

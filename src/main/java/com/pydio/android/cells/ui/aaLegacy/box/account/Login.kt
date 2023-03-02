@@ -122,8 +122,7 @@ fun AskServerUrl(
             nextBtnLabel = stringResource(id = R.string.button_next),
             next = { pingUrl(urlString) },
             isProcessing = isProcessing,
-
-            )
+        )
     }
 }
 

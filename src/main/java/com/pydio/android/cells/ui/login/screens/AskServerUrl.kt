@@ -19,7 +19,6 @@ import com.pydio.android.cells.ui.box.common.FormBottomButtons
 import com.pydio.android.cells.ui.box.common.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
-import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
@@ -108,7 +107,7 @@ fun AskServerUrl(
         urlString = currAddress.value,
         setUrl = { loginVM.setAddress(it) },
         pingUrl = { doPing(currAddress.value) },
-        cancel = { helper.back() }
+        cancel = { helper.cancel() }
     )
 }
 

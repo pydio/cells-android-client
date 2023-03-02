@@ -1,9 +1,8 @@
-package com.pydio.android.cells.ui.login
+package com.pydio.android.cells.ui.login.aaLegacy
 
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AuthService
@@ -20,7 +19,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.MalformedURLException

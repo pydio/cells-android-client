@@ -85,8 +85,10 @@ fun FormBottomButtons(
             Button(
                 onClick = back,
                 modifier = btnMod.weight(.5f),
-                enabled = !isProcessing,
-            ) {
+                // TODO double check always "enable" is the correct choice for the cancel button
+                enabled = true,
+                //                enabled = !isProcessing,
+           ) {
                 Text(backBtnLabel)
             }
 
@@ -101,7 +103,8 @@ fun FormBottomButtons(
             OutlinedButton(
                 onClick = back,
                 modifier = btnMod.weight(.5f),
-                enabled = !isProcessing,
+                // See above
+                enabled = true,
             ) {
                 Text(backBtnLabel)
             }

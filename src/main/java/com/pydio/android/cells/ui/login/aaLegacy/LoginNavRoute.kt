@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.login
+package com.pydio.android.cells.ui.login.aaLegacy
 
 import android.util.Log
 import androidx.compose.runtime.Composable

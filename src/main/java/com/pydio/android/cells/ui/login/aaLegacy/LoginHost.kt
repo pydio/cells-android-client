@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.login.aaLegacy.LoginViewModelNew
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
@@ -112,8 +113,8 @@ fun LoginHost(
             if (!res) {
                 back()
             }
-        } else if (RouteLoginDone.route == dest) {
-            afterAuth(true)
+//        } else if (RouteLoginDone.route == dest) {
+//            afterAuth(true)
         } else {
             Log.e(logTag, "... Got a nav request for $dest")
             navController.navigate(dest)
