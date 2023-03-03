@@ -313,7 +313,7 @@ private fun OfflineScaffold(
                 end = dimensionResource(id = R.dimen.margin),
             )
 
-            OfflineRootList(
+            AccountHomeList(
                 loadingState = loadingState,
                 listLayout = listLayout,
                 runningJob = runningJob,
@@ -330,7 +330,7 @@ private fun OfflineScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun OfflineRootList(
+private fun AccountHomeList(
     loadingState: LoadingState,
     listLayout: ListLayout,
     runningJob: RJob?,

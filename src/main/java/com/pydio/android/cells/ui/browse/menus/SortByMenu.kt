@@ -5,14 +5,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.browse.models.PreferencesVM
+import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.GenericBottomSheetHeader
@@ -27,12 +28,12 @@ fun SortByMenu(
     done: () -> Unit,
     tint: Color,
     bgColor: Color,
-    preferencesVM: PreferencesVM = koinViewModel()
+    sortByMenuVM: SortByMenuVM = koinViewModel()
 ) {
     val keys = stringArrayResource(R.array.order_by_values)
     val labels = stringArrayResource(R.array.order_by_labels)
 
-    val selectedOrder = preferencesVM.sortBy.collectAsState()
+    val selectedOrder = sortByMenuVM.sortBy.observeAsState(initial = AppNames.DEFAULT_SORT_BY)
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
@@ -53,7 +54,7 @@ fun SortByMenu(
                     title = labels[i],
                     onItemClick = {
                         Log.d(logTag, "New order: ${keys[i]}")
-                        preferencesVM.setSortBy(keys[i])
+                        sortByMenuVM.setSortBy(keys[i])
                         done()
                     },
                     tint = if (selected) MaterialTheme.colorScheme.inverseOnSurface else tint,

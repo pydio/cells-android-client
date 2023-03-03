@@ -31,13 +31,14 @@ import com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionViewModel
 import com.pydio.android.cells.ui.aaLegacy.transferxml.TransferViewModel
 import com.pydio.android.cells.ui.aaLegacy.utils.DownloadViewModel
 import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
+import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
-import com.pydio.android.cells.ui.browse.models.PreferencesVM
+import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.aaLegacy.LoginViewModelNew
@@ -47,7 +48,6 @@ import com.pydio.android.cells.ui.login.nav.RouteNavigator
 import com.pydio.android.cells.ui.login.nav.StateViewModel
 import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
-import com.pydio.android.cells.ui.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.JobListVM
@@ -188,9 +188,11 @@ val viewModelModule = module {
     viewModel { parameters -> TreeNodeVM(stateID = parameters.get(), get()) }
     // or Constructor DSL
     // viewModelOf(::TreeNodeVM)
-    viewModelOf(::PreferencesVM)
+    viewModelOf(::SortByMenuVM)
 
-    viewModel { SettingsVM(get()) }
+//    viewModel { SettingsVM(get()) }
+    viewModelOf(::SettingsVM)
+
     viewModel { HouseKeepingVM(get()) }
 
     // viewModel { BookmarksVM(get(), get()) }
@@ -214,7 +216,8 @@ val viewModelModule = module {
     viewModel { JobListVM(get()) }
     viewModel { LogListVM(get()) }
 
-    viewModel { AccountHomeVM(get()) }
+    // viewModel { AccountHomeVM(get()) }
+    viewModelOf(::AccountHomeVM)
     viewModel { BrowseRemoteVM(get(), get()) }
 //    viewModel { FolderVM(get()) }
     viewModelOf(::FolderVM)

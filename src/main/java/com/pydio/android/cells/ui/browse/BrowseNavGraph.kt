@@ -15,6 +15,7 @@ import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.browse.screens.OfflineRoots
 import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -53,6 +54,7 @@ fun NavGraphBuilder.browseNavGraph(
                 folderVM = folderVM
             )
         } else {
+            val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
             AccountHome(
                 stateID,
                 openDrawer = openDrawer,
@@ -60,6 +62,7 @@ fun NavGraphBuilder.browseNavGraph(
                 openSearch = {},
                 openWorkspace = open,
                 browseRemoteVM = browseRemoteVM,
+                accountHomeVM = accountHomeVM,
             )
         }
     }
