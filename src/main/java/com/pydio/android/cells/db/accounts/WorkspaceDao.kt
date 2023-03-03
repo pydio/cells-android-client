@@ -27,10 +27,10 @@ interface WorkspaceDao {
     @Query("SELECT * FROM workspaces WHERE encoded_state = :stateId LIMIT 1")
     fun getLiveWorkspace(stateId: String): LiveData<RWorkspace>
 
-    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '1_8%' ORDER BY sort_name")
+    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '8%' ORDER BY sort_name")
     fun getLiveCells(accountId: String): LiveData<List<RWorkspace>>
 
-    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name NOT LIKE '1_8%' ORDER BY sort_name")
+    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name NOT LIKE '8%' ORDER BY sort_name")
     fun getLiveNotCells(accountId: String): LiveData<List<RWorkspace>>
 
     @Query("SELECT * FROM workspaces WHERE encoded_state like :encodedParentStateID || '%' ORDER BY slug")
