@@ -2,6 +2,7 @@ package com.pydio.android.cells.reactive
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.pydio.android.cells.ui.core.ListLayout
 import io.reactivex.rxjava3.subjects.PublishSubject
 
 /**
@@ -43,4 +44,21 @@ class LiveSharedPreferences(private val sharedPrefs: SharedPreferences) {
 
     fun getFloat(key: String, defaultValue: Float?) =
         LivePreference(updateSubject, sharedPrefs, key, defaultValue)
+
+    fun getLayout(key: String, defaultValue: ListLayout) =
+        MappedLivePref(
+            updateSubject,
+            sharedPrefs,
+            key,
+            defaultValue.name,
+            transform = { strValue ->
+                val newValue = try {
+                    ListLayout.valueOf(strValue)
+                } catch (e: IllegalArgumentException) {
+                    ListLayout.LIST
+                }
+                Log.e(logTag, "Transforming from $strValue to $newValue")
+                newValue
+            }
+        )
 }

@@ -44,6 +44,12 @@ class OfflineVM(
     private val jobService: JobService,
 ) : ViewModel() {
 
+    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
+    private val sortOrder = livePrefs.getString(AppKeys.CURR_RECYCLER_ORDER,
+        AppNames.DEFAULT_SORT_BY
+    )
+    val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
+
     private val _loadingState = MutableLiveData(LoadingState.STARTING)
     private val _errorMessage = MutableLiveData<String?>()
     private val _accountID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
@@ -51,28 +57,6 @@ class OfflineVM(
 
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
-
-    private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    private val _layout = MutableStateFlow(ListLayout.LIST)
-    val layout: StateFlow<ListLayout> = _layout.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            liveSharedPreferences.getString(
-                AppKeys.CURR_RECYCLER_LAYOUT,
-                AppNames.RECYCLER_LAYOUT_LIST
-            ).asFlow().collect {
-                if (it != _layout.value.name) {
-                    val newValue = try {
-                        ListLayout.valueOf(it)
-                    } catch (e: IllegalArgumentException) {
-                        ListLayout.LIST
-                    }
-                    _layout.value = newValue
-                }
-            }
-        }
-    }
 
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
         get() = Transformations.switchMap(
@@ -102,6 +86,9 @@ class OfflineVM(
     }
 
     /** Exposed Business Methods **/
+    fun setListLayout(listLayout: ListLayout) {
+        prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
+    }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)

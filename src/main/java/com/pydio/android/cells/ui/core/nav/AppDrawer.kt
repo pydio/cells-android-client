@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.core.nav
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
@@ -88,7 +89,7 @@ fun AppDrawer(
                     )
                     MyNavigationDrawerItem(
                         label = stringResource(R.string.action_open_bookmarks),
-                        icon = CellsIcons.Bookmark,
+                        iconID = R.drawable.aa_new_star_40px,
                         selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
                         onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
                         modifier = defaultPadding
@@ -197,6 +198,25 @@ private fun PydioLogo(modifier: Modifier = Modifier) {
             tint = MaterialTheme.colorScheme.primary
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyNavigationDrawerItem(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconID: Int,
+) {
+    NavigationDrawerItem(
+        label = { Text(label) },
+        icon = { Icon(painterResource(iconID), label) },
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier.height(dimensionResource(id = R.dimen.menu_item_height)),
+        shape = ShapeDefaults.Small,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

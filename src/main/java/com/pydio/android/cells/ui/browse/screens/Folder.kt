@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -56,8 +57,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.browse.composables.GridNodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
@@ -106,7 +107,7 @@ fun Folder(
         browseRemoteVM.watch(stateID, true)
     }
 
-    val listLayout by folderVM.layout.collectAsState()
+    val listLayout by folderVM.layout.observeAsState()
 
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
@@ -196,7 +197,7 @@ fun Folder(
     ) {
         FolderScaffold(
             loadingState = loadingState ?: LoadingState.STARTING,
-            listLayout = listLayout,
+            listLayout = listLayout ?: ListLayout.LIST,
             showFAB = showFAB,
             label = label,
             stateID = stateID,
@@ -373,7 +374,7 @@ private fun FolderList(
                     ) {
 
                         if (Str.notEmpty(stateID.path)) {
-                            item {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
                                 val parentDescription = when {
                                     Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                                     else -> stringResource(R.string.parent_folder)
@@ -388,7 +389,7 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.encodedState }) { node ->
-                            GridNodeItem(
+                            NodeGridItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(

@@ -37,7 +37,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +56,7 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
+import com.pydio.android.cells.ui.browse.composables.OfflineRootGridItem
 import com.pydio.android.cells.ui.browse.composables.OfflineRootItem
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
@@ -93,7 +93,7 @@ fun OfflineRoots(
 
     val loadingState by offlineVM.loadingState.observeAsState()
     val currJob = offlineVM.syncJob.observeAsState()
-    val listLayout by offlineVM.layout.collectAsState()
+    val listLayout by offlineVM.layout.observeAsState()
     val roots = offlineVM.offlineRoots.observeAsState()
 
 
@@ -128,7 +128,6 @@ fun OfflineRoots(
             nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID)
         }
     }
-
 
     val destinationPicker = rememberLauncherForActivityResult(
         // TODO we have the mime of the file to download to device
@@ -171,6 +170,14 @@ fun OfflineRoots(
                 offlineVM.removeFromOffline(stateID)
                 moreMenuDone()
             }
+            is NodeAction.AsGrid -> {
+                offlineVM.setListLayout(ListLayout.GRID)
+                moreMenuDone()
+            }
+            is NodeAction.AsList -> {
+                offlineVM.setListLayout(ListLayout.LIST)
+                moreMenuDone()
+            }
             else -> {
                 Log.e(logTag, "Unknown action $action for $stateID")
                 moreMenuDone()
@@ -180,7 +187,7 @@ fun OfflineRoots(
 
     OfflineScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
-        listLayout = listLayout,
+        listLayout = listLayout ?: ListLayout.LIST,
         runningJob = currJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
         roots = roots.value ?: listOf(),
@@ -295,6 +302,17 @@ private fun OfflineScaffold(
             sheetState = moreMenuState.sheetState,
             sheetBackgroundColor = bgColor,
         ) {
+
+            Log.e(logTag, "### About to create the list passed content padding")
+            Log.e(logTag, "$padding")
+
+            val listPadding = PaddingValues(
+                top = padding.calculateTopPadding(),
+                bottom = padding.calculateBottomPadding(),
+                start = dimensionResource(id = R.dimen.margin),
+                end = dimensionResource(id = R.dimen.margin),
+            )
+
             OfflineRootList(
                 loadingState = loadingState,
                 listLayout = listLayout,
@@ -303,7 +321,7 @@ private fun OfflineScaffold(
                 forceRefresh = forceRefresh,
                 openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.OFFLINE, it) },
                 open = open,
-                padding = padding,
+                padding = listPadding,
                 modifier = Modifier.fillMaxWidth(), // padding(padding),
             )
         }
@@ -347,8 +365,8 @@ private fun OfflineRootList(
                         // TODO make this more generic for big screens also
                         columns = GridCells.Adaptive(minSize = 128.dp),
                         // columns = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -359,7 +377,7 @@ private fun OfflineRootList(
                         //  - re-enable option in the action menu
                         if (runningJob != null) {
 
-                            item(span = { GridItemSpan(2) }) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
                                 val percentage =
                                     (runningJob.progress).toFloat().div(runningJob.total)
                                 SyncStatus(
@@ -371,7 +389,7 @@ private fun OfflineRootList(
                         }
 
                         items(roots) { offlineRoot ->
-                            OfflineRootItem(
+                            OfflineRootGridItem(
                                 item = offlineRoot,
                                 title = getNodeTitle(
                                     name = offlineRoot.name,

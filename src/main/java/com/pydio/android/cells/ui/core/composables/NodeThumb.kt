@@ -2,17 +2,26 @@ package com.pydio.android.cells.ui.core.composables
 
 import android.webkit.MimeTypeMap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.pydio.android.cells.AppNames
@@ -20,6 +29,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.SdkNames
 import java.io.File
@@ -75,6 +85,68 @@ fun Thumbnail(
     }
 }
 
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun GridThumb(
+    encodedState: String,
+    sortName: String?,
+    name: String,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    outerSize: Dp,
+    iconSize: Dp,
+    padding: PaddingValues = PaddingValues(0.dp),
+    clipShape: Shape,
+) {
+
+    if (hasThumb) {
+        Surface(
+            // tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(padding)
+                .clip(clipShape)
+        ) {
+            LoadingAnimation(
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.list_thumb_padding))
+                    .size(outerSize),
+            )
+            GlideImage(
+                model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
+                contentDescription = "$name thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(outerSize),
+            )
+        }
+    } else {
+//        val bgColor = CellsColor.warning.copy(alpha = .2f)
+        val bgColor = CellsColor.warning
+        Surface(
+            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+            modifier = Modifier
+                .background(bgColor)
+                .fillMaxWidth()
+                .padding(padding)
+                .size(outerSize)
+                .clip(clipShape)
+                .wrapContentSize(Alignment.Center)
+        ) {
+            Icon(
+                painter = painterResource(getDrawableFromMime(mime, sortName)),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .background(bgColor)
+//                    .background(bgColor.copy(alpha = 0.001f))
+            )
+        }
+    }
+}
+
+
 fun betterMime(passedMime: String, sortName: String?): String {
     return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
@@ -83,7 +155,7 @@ fun betterMime(passedMime: String, sortName: String?): String {
     } else passedMime
 }
 
-@Deprecated("Rather use RTreeNode.hasThumb()")
+@Deprecated("Rather use RTreeNode.isFolder()")
 fun isFolder(mime: String): Boolean {
 
     return mime == SdkNames.WS_TYPE_PERSONAL
@@ -101,20 +173,20 @@ fun getDrawableFromMime(originalMime: String, sortName: String?): Int {
 
     return when {
         // WS Types
-        mime == SdkNames.WS_TYPE_PERSONAL -> R.drawable.file_folder_shared_outline
+        mime == SdkNames.WS_TYPE_PERSONAL -> R.drawable.aa_200_folder_shared_48px
         mime == SdkNames.WS_TYPE_CELL -> R.drawable.file_cells_logo
-        mime == SdkNames.WS_TYPE_DEFAULT -> R.drawable.file_folder_outline
+        mime == SdkNames.WS_TYPE_DEFAULT -> R.drawable.aa_200_folder_48px
         mime == SdkNames.NODE_MIME_WS_ROOT -> {
             // Tweak: we deduce type of ws root from the sort name. Not very clean
             val prefix = sortName ?: ""
             when {
-                prefix.startsWith("1_2") -> R.drawable.file_folder_shared_outline
+                prefix.startsWith("1_2") -> R.drawable.aa_200_folder_shared_48px
                 prefix.startsWith("1_8") -> R.drawable.file_cells_logo
-                else -> R.drawable.file_folder_outline
+                else -> R.drawable.aa_200_folder_48px
             }
         }
         // Folders
-        mime == SdkNames.NODE_MIME_FOLDER -> R.drawable.file_folder_outline
+        mime == SdkNames.NODE_MIME_FOLDER -> R.drawable.aa_200_folder_48px
         mime == SdkNames.NODE_MIME_RECYCLE -> R.drawable.file_trash_outline
         // Files
         mime.startsWith("image/", true) -> R.drawable.file_image_outline

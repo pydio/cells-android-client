@@ -1,0 +1,250 @@
+package com.pydio.android.cells.ui.browse.composables
+
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.R
+import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.core.composables.GridThumb
+import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.theme.CellsTheme
+
+private const val logTag = "NodeGridItem"
+
+@Composable
+fun NodeGridItem(
+    item: RTreeNode,
+    title: String,
+    desc: String,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NodeGridItem(
+        title = title,
+        desc = desc,
+        encodedState = item.encodedState,
+        name = item.name,
+        sortName = item.sortName,
+        mime = item.mime,
+        eTag = item.etag,
+        hasThumb = item.hasThumb(),
+        isBookmarked = item.isBookmarked(),
+        isOfflineRoot = item.isOfflineRoot(),
+        isShared = item.isShared(),
+        more = more,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun NodeGridItem(
+    title: String,
+    desc: String,
+    encodedState: String,
+    name: String,
+    sortName: String?,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    isBookmarked: Boolean,
+    isOfflineRoot: Boolean,
+    isShared: Boolean,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = dimensionResource(R.dimen.card_padding))
+    ) {
+
+        Card(
+            shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
+            ),
+            modifier = modifier
+        ) {
+
+            Surface(
+                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
+            }
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.grid_ws_content_h_padding),
+                )
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OfflineRootGridItem(
+    item: RLiveOfflineRoot,
+    title: String,
+    desc: String,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+//    Log.e(logTag, item.encodedState)
+//    Log.e(logTag, "${item.sortName}")
+//    Log.e(logTag, item.name)
+//    Log.e(logTag, title)
+//    Log.e(logTag, desc)
+//    Log.e(logTag, item.mime)
+//    Log.e(logTag, "${item.etag}")
+
+    OfflineRootGridItem(
+        encodedState = item.encodedState,
+        sortName = item.sortName,
+        name = item.name,
+        title = title,
+        desc = desc,
+        mime = item.mime,
+        eTag = item.etag,
+        hasThumb = item.hasThumb(),
+        isBookmarked = item.isBookmarked(),
+        isShared = item.isShared(),
+        more = more,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun OfflineRootGridItem(
+    encodedState: String,
+    sortName: String?,
+    name: String,
+    title: String,
+    desc: String,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    isBookmarked: Boolean,
+    isShared: Boolean,
+    more: () -> Unit,
+    modifier: Modifier
+) {
+
+    val titlePadding = PaddingValues(
+        start = 8.dp,
+        end = 8.dp,
+        top = 4.dp,
+        bottom = 0.dp,
+    )
+    val descPadding = PaddingValues(
+        start = 8.dp,
+        end = 8.dp,
+        top = 0.dp,
+        bottom = 8.dp,
+    )
+
+    Card(
+        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
+        ),
+        modifier = modifier
+// This is the outer padding of the card
+//            .padding(
+//            start = 8.dp,
+//            end = 8.dp,
+//            top = 0.dp,
+//            bottom = 12.dp,
+//        )
+    ) {
+        GridThumb(
+            encodedState = encodedState,
+            sortName = sortName,
+            name = name,
+            mime = mime,
+            eTag = eTag,
+            hasThumb = hasThumb,
+            outerSize = dimensionResource(R.dimen.grid_ws_image_size),
+            iconSize = dimensionResource(R.dimen.grid_icon_size),
+            clipShape = RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)),
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(titlePadding)
+        )
+        Text(
+            text = desc,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(descPadding)
+        )
+    }
+}
+
+@Preview("OfflineRootGridItemPreview Light")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "FolderTopBar Dark Mode"
+)
+@Composable
+private fun OfflineRootGridItemPreview() {
+
+    val encodedState =
+        "bruno@https%3A%2F%2Fandroid.ci.pyd.io@%2Fcommon-files%2FImages+with+a+very+long+name"
+    val sortName = "3_Images with a very long name"
+    val name = "Images with a very long name"
+    val title = "Images with a very long name"
+    val desc = "Last check: 20 hours ago • 16 MB"
+    val mime = "pydio/nodes-list"
+    val eTag = "92a05680b0066fbf6d418b882225e0dc"
+    val hasThumb = false
+    val isBookmarked = false
+    val isShared = false
+
+    CellsTheme {
+        OfflineRootGridItem(
+            encodedState = encodedState,
+            sortName = sortName,
+            name = name,
+            title = title,
+            desc = desc,
+            mime = mime,
+            eTag = eTag,
+            hasThumb = hasThumb,
+            isBookmarked = isBookmarked,
+            isShared = isShared,
+            more = {},
+            Modifier
+        )
+    }
+}
