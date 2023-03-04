@@ -38,8 +38,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
@@ -121,9 +123,9 @@ private fun OfflineScaffold(
                 openSearch = openSearch,
             )
         },
-        modifier = Modifier.padding(
-            horizontal = dimensionResource(id = R.dimen.margin)
-        )
+//        modifier = Modifier.padding(
+//            horizontal = dimensionResource(id = R.dimen.margin_small)
+//        )
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
 
         Log.e(logTag, "### About to create the list passed content padding")
@@ -131,35 +133,22 @@ private fun OfflineScaffold(
 
         val listPadding = PaddingValues(
             top = padding.calculateTopPadding(),
-            bottom = padding.calculateBottomPadding(),
-            start = dimensionResource(id = R.dimen.margin),
-            end = dimensionResource(id = R.dimen.margin),
+            bottom = padding.calculateBottomPadding().plus(dimensionResource(R.dimen.margin)),
+            start = dimensionResource(id = R.dimen.margin_medium),
+            end = dimensionResource(id = R.dimen.margin_medium),
         )
 
-        Column(Modifier.padding(padding)) {
-
-            HomeHeader(
-                username = stateID.username,
-                address = stateID.serverUrl,
-                openAccounts = openAccounts,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = .3f),
-                thickness = 0.3.dp,
-            )
-
-            AccountHomeList(
-                loadingState = loadingState,
-                workspaces = workspaces,
-                cells = cells,
-                open = openWorkspace,
-                forceRefresh = forceRefresh,
-                modifier = Modifier.fillMaxWidth(), // padding(padding),
-            )
-        }
+        AccountHomeList(
+            loadingState = loadingState,
+            stateID = stateID,
+            workspaces = workspaces,
+            cells = cells,
+            open = openWorkspace,
+            openAccounts = openAccounts,
+            forceRefresh = forceRefresh,
+            padding = listPadding,
+            modifier = Modifier.fillMaxWidth(), // padding(padding),
+        )
     }
 }
 
@@ -167,10 +156,13 @@ private fun OfflineScaffold(
 @Composable
 private fun AccountHomeList(
     loadingState: LoadingState,
+    stateID: StateID,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
     open: (StateID) -> Unit,
+    openAccounts: () -> Unit,
     forceRefresh: () -> Unit,
+    padding: PaddingValues,
     modifier: Modifier,
 ) {
 
@@ -182,17 +174,34 @@ private fun AccountHomeList(
     Box(modifier.pullRefresh(state)) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium)),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
-//            contentPadding = PaddingValues(dimensionResource(R.dimen.grid_layout_card_margin)),
+            contentPadding = padding,
         ) {
 
+            item(span = {
+                GridItemSpan(maxLineSpan)
+            }) {
+                HomeHeader(
+                    username = stateID.username,
+                    address = stateID.serverUrl,
+                    openAccounts = openAccounts,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Divider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = .3f),
+                    thickness = 0.3.dp,
+                )
+            }
             if (workspaces.isNotEmpty()) {
                 item(span = {
                     GridItemSpan(maxLineSpan)
                 }) {
                     MainTitleText(
-                        text = "Workspaces",
+                        text = stringResource(R.string.category_workspaces),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
@@ -206,9 +215,6 @@ private fun AccountHomeList(
                         mime = ws.type,
                         eTag = "",
                         hasThumb = false,
-//                        ws.sortName ?: "",
-//                        ws.label ?: "",
-//                        ws.description ?: "",
                         modifier = Modifier
                             .wrapContentSize(align = Alignment.Center)
                             .clickable { open(ws.getStateID()) },
@@ -218,7 +224,10 @@ private fun AccountHomeList(
 
             if (cells.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(text = "Cells")
+                    MainTitleText(
+                        text = stringResource(R.string.category_cells),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
                 items(cells, key = { it.encodedState }) { ws ->
                     HomeCardItem(
@@ -230,20 +239,10 @@ private fun AccountHomeList(
                         mime = ws.type,
                         eTag = "",
                         hasThumb = false,
-//                        ws.sortName ?: "",
-//                        ws.label ?: "",
-//                        ws.description ?: "",
                         modifier = Modifier
                             .wrapContentSize(align = Alignment.Center)
                             .clickable { open(ws.getStateID()) },
                     )
-
-//                    HomeCardItem(
-//                        ws.sortName ?: "",
-//                        ws.label ?: "",
-//                        ws.description ?: "",
-//                        modifier = Modifier.clickable { open(ws.getStateID()) },
-//                    )
                 }
             }
 
@@ -350,18 +349,26 @@ private fun HomeHeader(
         }
 
         Surface(
+            tonalElevation = 8.dp,
+            shadowElevation = 12.dp,
+            //shape =,
             modifier = Modifier
                 .clickable { openAccounts() }
-                .padding(
-                    start = dimensionResource(id = R.dimen.margin_xsmall),
-                    end = dimensionResource(id = R.dimen.margin_small)
-                )
-                .alpha(buttonAlpha)
+                .alpha(.7f)
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+            //.alpha(buttonAlpha)
         ) {
             Icon(
                 imageVector = CellsIcons.SwitchAccount,
                 contentDescription = null,
-                modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
+//                modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
+                modifier = Modifier
+                    .padding(
+                        all = dimensionResource(R.dimen.margin_xxsmall)
+                        //start = dimensionResource(R.dimen.margin_small),
+                        // end = dimensionResource(id = R.dimen.margin_small)
+                    )
+                    .size(36.dp)
             )
         }
     }

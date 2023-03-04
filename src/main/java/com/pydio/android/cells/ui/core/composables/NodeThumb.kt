@@ -79,7 +79,12 @@ fun Thumbnail(
                 painter = painterResource(getDrawableFromMime(mime, sortName)),
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(6.dp)
                     .size(dimensionResource(R.dimen.list_thumb_icon_size))
+//                        outerSize
+//                            .minus(iconSize)
+//                            .div(2)
+
             )
         }
     }
@@ -139,6 +144,11 @@ fun GridThumb(
                 contentDescription = null,
                 modifier = Modifier
                     .size(iconSize)
+                    // .padding(
+                    //     outerSize
+                    //         .minus(iconSize)
+                    //         .div(2)
+                    // )
                     .background(bgColor)
 //                    .background(bgColor.copy(alpha = 0.001f))
             )

@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.core.composables
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +15,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.cells.utils.Str
 
@@ -64,17 +66,17 @@ fun DefaultTitleText(
 @Composable
 fun MainTitleText(
     text: String,
-    modifier: Modifier = Modifier.padding(
-        top = dimensionResource(R.dimen.margin_medium),
-        start = dimensionResource(R.dimen.margin_header)
-    ),
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
     Text(
         text = text.uppercase(),
         color = color,
         style = MaterialTheme.typography.titleLarge,
-        modifier = modifier.alpha(.9f)
+        modifier = modifier
+            .paddingFromBaseline(top = 48.dp, bottom = 8.dp)
+            //.padding(horizontal = 16.dp)
+            .alpha(.9f)
     )
 }
 
