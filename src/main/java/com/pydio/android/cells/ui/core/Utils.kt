@@ -21,7 +21,7 @@ fun getFloatResource(context: Context, @DimenRes id: Int): Float {
 
 fun lazyStateID(
     navBackStackEntry: NavBackStackEntry?,
-    key: String = BrowseDestinations.Open.getPathKey(),
+    key: String = BrowseDestinations.Open.getStateIdKey(),
 ): StateID {
     return navBackStackEntry?.arguments?.getString(key)
         ?.let {

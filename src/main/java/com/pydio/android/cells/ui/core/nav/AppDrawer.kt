@@ -2,10 +2,10 @@ package com.pydio.android.cells.ui.core.nav
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -33,8 +33,9 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.ConnectionVM
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
+import com.pydio.android.cells.ui.browse.screens.HomeHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
-import com.pydio.android.cells.ui.core.composables.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.MenuTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.system.SystemDestinations
 import com.pydio.android.cells.ui.system.SystemNavigationActions
@@ -56,7 +57,9 @@ fun AppDrawer(
     browseNavActions: BrowseNavigationActions,
     closeDrawer: () -> Unit,
 ) {
-    val defaultPadding = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+
+    val defaultPadding = NavigationDrawerItemDefaults.ItemPadding
+    val defaultModifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     val accountID = connectionVM.currAccountID.observeAsState()
     val wss = connectionVM.wss.observeAsState()
     val cells = connectionVM.cells.observeAsState()
@@ -69,12 +72,26 @@ fun AppDrawer(
 
         LazyColumn {
 
+//            item {
+//                PydioLogo(
+//                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
+//                )
+//
             item {
-                PydioLogo(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
+                HomeHeader(
+                    username = accountID.value?.username ?: "",
+                    address = accountID.value?.serverUrl ?: "None defined",
+                    openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                        .padding(
+//                            vertical = dimensionResource(R.dimen.menu_padding)
+                            bottom = 12.dp,
+                            top = 20.dp
+                        )
                 )
             }
-
             // Offline, Bookmark, Transfers and Workspace roots accesses:
             // This section is only relevant when we have a defined account
             accountID.value?.let { currAccountID ->
@@ -84,26 +101,26 @@ fun AppDrawer(
                         label = stringResource(R.string.action_open_offline_roots),
                         icon = CellsIcons.KeepOfflineOld,
                         selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-                        onClick = { browseNavActions.toOfflineRoots(currAccountID);closeDrawer() },
-                        modifier = defaultPadding
+                        onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
+                        modifier = defaultModifier
                     )
                     MyNavigationDrawerItem(
                         label = stringResource(R.string.action_open_bookmarks),
                         iconID = R.drawable.aa_new_star_40px,
                         selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
                         onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
-                        modifier = defaultPadding
+                        modifier = defaultModifier
                     )
                     MyNavigationDrawerItem(
                         label = stringResource(R.string.action_open_transfers),
                         icon = CellsIcons.Transfers,
                         selected = BrowseDestinations.Transfers.isCurrent(currRoute),
                         onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
-                        modifier = defaultPadding
+                        modifier = defaultModifier
                     )
 
-                    BottomSheetDivider()
-                    DefaultTitleText(stringResource(R.string.my_workspaces))
+                    BottomSheetDivider(defaultModifier)
+                    MenuTitleText(stringResource(R.string.my_workspaces), defaultModifier)
 
                     wss.value?.listIterator()?.forEach {
                         val selected = BrowseDestinations.Open.isCurrent(currRoute)
@@ -113,7 +130,7 @@ fun AppDrawer(
                             icon = getWsThumbVector(it.sortName ?: ""),
                             selected = selected,
                             onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
-                            modifier = defaultPadding
+                            modifier = defaultModifier
                         )
                     }
 
@@ -125,7 +142,7 @@ fun AppDrawer(
                             icon = getWsThumbVector(it.sortName ?: ""),
                             selected = selected,
                             onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
-                            modifier = defaultPadding
+                            modifier = defaultModifier
                         )
                     }
                 }
@@ -137,21 +154,21 @@ fun AppDrawer(
                         icon = Icons.Filled.Group,
                         selected = CellsDestinations.Accounts.route == currRoute,
                         onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
-                        modifier = defaultPadding
+                        modifier = defaultModifier
                     )
                 }
             }
 
             item {
-                BottomSheetDivider()
-                DefaultTitleText(stringResource(R.string.my_account))
+                BottomSheetDivider(defaultModifier)
+                MenuTitleText(stringResource(R.string.my_account), defaultModifier)
 
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_settings),
                     icon = CellsIcons.Settings,
                     selected = SystemDestinations.Settings.route == currRoute,
                     onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
-                    modifier = defaultPadding
+                    modifier = defaultModifier
                 )
                 accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
                     // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
@@ -160,7 +177,7 @@ fun AppDrawer(
                         icon = CellsIcons.EmptyRecycle,
                         selected = SystemDestinations.ClearCache.isCurrent(currRoute),
                         onClick = { systemNavActions.navigateToClearCache(accID); closeDrawer() },
-                        modifier = defaultPadding
+                        modifier = defaultModifier
                     )
                 }
                 MyNavigationDrawerItem(
@@ -168,21 +185,21 @@ fun AppDrawer(
                     icon = CellsIcons.Jobs,
                     selected = SystemDestinations.Jobs.route == currRoute,
                     onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
-                    modifier = defaultPadding
+                    modifier = defaultModifier
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_logs),
                     icon = CellsIcons.Logs,
                     selected = SystemDestinations.Logs.route == currRoute,
                     onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
-                    modifier = defaultPadding
+                    modifier = defaultModifier
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(id = R.string.action_open_about),
                     icon = CellsIcons.About,
                     selected = SystemDestinations.About.route == currRoute,
                     onClick = { systemNavActions.navigateToAbout(); closeDrawer() },
-                    modifier = defaultPadding,
+                    modifier = defaultModifier,
                 )
             }
         }

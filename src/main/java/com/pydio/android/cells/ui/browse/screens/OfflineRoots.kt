@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
@@ -230,27 +229,33 @@ private fun OfflineScaffold(
     }
 
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
-
-        // TODO not yet fully implemented see below.
         if (listLayout == ListLayout.GRID) {
-            val label = stringResource(R.string.button_switch_to_list_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(stringResource(R.string.button_switch_to_list_layout)) },
                 onClick = {
                     launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsList, label) },
+                leadingIcon = {
+                    Icon(
+                        CellsIcons.AsList,
+                        stringResource(R.string.button_switch_to_list_layout)
+                    )
+                },
             )
         } else {
-            val label = stringResource(R.string.button_switch_to_grid_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(stringResource(R.string.button_switch_to_grid_layout)) },
                 onClick = {
                     launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
+                leadingIcon = {
+                    Icon(
+                        CellsIcons.AsGrid,
+                        stringResource(R.string.button_switch_to_grid_layout)
+                    )
+                },
             )
         }
 
@@ -279,6 +284,7 @@ private fun OfflineScaffold(
             )
         },
     ) { padding ->
+
         ModalBottomSheetLayout(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
@@ -288,7 +294,6 @@ private fun OfflineScaffold(
                         bgColor = bgColor,
                     )
                 } else {
-
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.OFFLINE,
                         toOpenStateID = moreMenuState.stateID,
@@ -303,17 +308,7 @@ private fun OfflineScaffold(
             sheetBackgroundColor = bgColor,
         ) {
 
-            Log.e(logTag, "### About to create the list passed content padding")
-            Log.e(logTag, "$padding")
-
-            val listPadding = PaddingValues(
-                top = padding.calculateTopPadding(),
-                bottom = padding.calculateBottomPadding(),
-                start = dimensionResource(id = R.dimen.margin),
-                end = dimensionResource(id = R.dimen.margin),
-            )
-
-            AccountHomeList(
+            OfflineRootsList(
                 loadingState = loadingState,
                 listLayout = listLayout,
                 runningJob = runningJob,
@@ -321,7 +316,12 @@ private fun OfflineScaffold(
                 forceRefresh = forceRefresh,
                 openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.OFFLINE, it) },
                 open = open,
-                padding = listPadding,
+                padding = PaddingValues(
+                    top = padding.calculateTopPadding(),
+                    bottom = padding.calculateBottomPadding().plus(dimensionResource(R.dimen.margin_medium)),
+                    start = dimensionResource(R.dimen.list_horizontal_padding),
+                    end = dimensionResource(R.dimen.list_horizontal_padding),
+                ),
                 modifier = Modifier.fillMaxWidth(), // padding(padding),
             )
         }
@@ -330,7 +330,7 @@ private fun OfflineScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun AccountHomeList(
+private fun OfflineRootsList(
     loadingState: LoadingState,
     listLayout: ListLayout,
     runningJob: RJob?,
@@ -362,21 +362,17 @@ private fun AccountHomeList(
             when (listLayout) {
                 ListLayout.GRID -> {
                     LazyVerticalGrid(
-                        // TODO make this more generic for big screens also
-                        columns = GridCells.Adaptive(minSize = 128.dp),
-                        // columns = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
+                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_col_spaced_by)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_col_spaced_by)),
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
                         // FIXME this is not yet done:
                         //  - prepare offline node item composable for grids
-                        //  - also handle spanning of the header
                         //  - re-enable option in the action menu
                         if (runningJob != null) {
-
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 val percentage =
                                     (runningJob.progress).toFloat().div(runningJob.total)

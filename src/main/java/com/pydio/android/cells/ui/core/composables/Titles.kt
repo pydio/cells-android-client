@@ -75,10 +75,26 @@ fun MainTitleText(
         style = MaterialTheme.typography.titleLarge,
         modifier = modifier
             .paddingFromBaseline(top = 48.dp, bottom = 8.dp)
-            //.padding(horizontal = 16.dp)
             .alpha(.9f)
     )
 }
+
+@Composable
+fun MenuTitleText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+) {
+    Text(
+        text = text.uppercase(),
+        color = color,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = modifier
+            .paddingFromBaseline(top = 36.dp, bottom = 6.dp)
+            .alpha(.9f)
+    )
+}
+
 
 @Composable
 fun TitleDescColumnBloc(

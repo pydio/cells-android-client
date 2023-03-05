@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse
 import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
@@ -15,7 +16,6 @@ import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.browse.screens.OfflineRoots
 import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -128,7 +128,6 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        Log.e(logTag, ".... ## In BrowseDestinations.Transfers at $stateID")
         if (stateID == Transport.UNDEFINED_STATE_ID) {
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()

@@ -4,30 +4,37 @@ import com.pydio.cells.transport.StateID
 
 sealed class BrowseDestinations(val route: String) {
 
-    //    protected val prefix = "browse/" TODO
-    fun getPathKey() = "state-id"
-
-    object Open : BrowseDestinations("open/{state-id}") {
-        fun createRoute(stateID: StateID) = "open/${stateID.id}"
-        fun isCurrent(route: String?): Boolean = route?.startsWith("open/") ?: false
+    companion object {
+        protected const val STATE_ID_KEY = "state-id"
+        protected const val UID_KEY = "uid"
+        protected const val PREFIX = "browse"
     }
 
-    object OpenCarousel : BrowseDestinations("carousel/{state-id}") {
-        fun createRoute(stateID: StateID) = "carousel/${stateID.id}"
+    fun getStateIdKey(): String = STATE_ID_KEY
+    fun getUidKey(): String = UID_KEY
+
+    object Open : BrowseDestinations("${PREFIX}/open/{$STATE_ID_KEY}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/open/${stateID.id}"
+        fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/open/") ?: false
     }
 
-    object Bookmarks : BrowseDestinations("bookmarks/{state-id}") {
-        fun createRoute(stateID: StateID) = "bookmarks/${stateID.id}"
-        fun isCurrent(route: String?): Boolean = route?.startsWith("bookmarks/") ?: false
+    object OpenCarousel : BrowseDestinations("${PREFIX}/carousel/{$STATE_ID_KEY}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/carousel/${stateID.id}"
     }
 
-    object OfflineRoots : BrowseDestinations("offline-roots/{state-id}") {
-        fun createRoute(stateID: StateID) = "offline-roots/${stateID.id}"
-        fun isCurrent(route: String?): Boolean = route?.startsWith("offline-roots/") ?: false
+    object Bookmarks : BrowseDestinations("${PREFIX}/bookmarks/{$STATE_ID_KEY}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/bookmarks/${stateID.id}"
+        fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/bookmarks/") ?: false
     }
 
-    object Transfers : BrowseDestinations("transfers/{state-id}") {
-        fun createRoute(stateID: StateID) = "transfers/${stateID.id}"
-        fun isCurrent(route: String?): Boolean = route?.startsWith("transfers/") ?: false
+    object OfflineRoots : BrowseDestinations("${PREFIX}/offline-roots/{$STATE_ID_KEY}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/offline-roots/${stateID.id}"
+        fun isCurrent(route: String?): Boolean =
+            route?.startsWith("${PREFIX}/offline-roots/") ?: false
+    }
+
+    object Transfers : BrowseDestinations("${PREFIX}/transfers/{$STATE_ID_KEY}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/transfers/${stateID.id}"
+        fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/transfers/") ?: false
     }
 }

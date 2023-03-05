@@ -125,12 +125,9 @@ fun GridThumb(
             )
         }
     } else {
-//        val bgColor = CellsColor.warning.copy(alpha = .2f)
-        val bgColor = CellsColor.warning
         Surface(
-            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+//            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
-                .background(bgColor)
                 .fillMaxWidth()
                 .padding(padding)
                 .size(outerSize)
@@ -138,18 +135,11 @@ fun GridThumb(
                 .wrapContentSize(Alignment.Center)
         ) {
             Icon(
-                painter = painterResource(getDrawableFromMime(mime, sortName)),
+                painter = painterResource(getDrawableFromMime(mime, sortName, iconSize)),
                 contentDescription = null,
                 modifier = Modifier
                     .size(iconSize)
-                    // .padding(
-                    //     outerSize
-                    //         .minus(iconSize)
-                    //         .div(2)
-                    // )
-                    .background(bgColor)
-//                    .background(bgColor.copy(alpha = 0.001f))
-            )
+           )
         }
     }
 }
@@ -173,7 +163,7 @@ fun isFolder(mime: String): Boolean {
             || mime == SdkNames.NODE_MIME_RECYCLE
 }
 
-fun getDrawableFromMime(originalMime: String, sortName: String?): Int {
+fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp ): Int {
 
     // TODO enrich with more specific icons for files depending on the mime
     val mime = betterMime(originalMime, sortName)

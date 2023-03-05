@@ -23,10 +23,10 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.share.TransferBottomSheet
 import com.pydio.android.cells.ui.share.TransferListItem
@@ -49,6 +49,7 @@ fun Transfers(
         transfersVM,
         transfers = currTransfers.value ?: listOf(),
         openDrawer = openDrawer,
+        open = open,
         pauseOne = transfersVM::pauseOne,
         resumeOne = transfersVM::resumeOne,
         removeOne = transfersVM::removeOne,
@@ -62,6 +63,7 @@ private fun WithBottomSheet(
     uploadsVM: TransfersVM,
     transfers: List<RTransfer>,
     openDrawer: () -> Unit,
+    open: (StateID) -> Unit,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
@@ -105,7 +107,10 @@ private fun WithBottomSheet(
                     removeOne(transferId)
                 }
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
-                    // TODO
+                    // It is always a file for the time being => we open the parent
+                    uploadsVM.get(transferId)?.let { rTransfer ->
+                        rTransfer.getStateId()?.let { open(it.parent()) }
+                    }
                 }
             }
             if (hide) {

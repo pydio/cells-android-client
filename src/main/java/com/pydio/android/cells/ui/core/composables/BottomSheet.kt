@@ -282,11 +282,12 @@ fun BottomSheetListItemWithToggle(
 
 
 @Composable
-fun BottomSheetDivider(color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
+fun BottomSheetDivider(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
     Divider(
-        modifier = Modifier
-            .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         color = color.copy(alpha = .6f),
         thickness = 1.dp,
     )

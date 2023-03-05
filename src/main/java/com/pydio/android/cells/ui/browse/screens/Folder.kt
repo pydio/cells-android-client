@@ -3,7 +3,6 @@ package com.pydio.android.cells.ui.browse.screens
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,11 +53,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeGridItemBox
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
@@ -75,7 +72,6 @@ import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.api.Transport
@@ -179,16 +175,6 @@ fun Folder(
         }
     }
 
-//    val actionDone: (Boolean) -> Unit = {
-//        scope.launch {
-//            childState.value = Pair(NodeMoreMenuType.NONE, null)
-//            if (it) { // Also reset backoff ticker
-//                browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
-//            }
-//            state.hide()
-//        }
-//    }
-
     WrapWithActions(
         loadingState = loadingState ?: LoadingState.STARTING,
         actionDone = actionDone,
@@ -245,7 +231,6 @@ private fun FolderScaffold(
     }
 
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
-
         if (listLayout == ListLayout.GRID) {
             val label = stringResource(R.string.button_switch_to_list_layout)
             DropdownMenuItem(
@@ -358,14 +343,12 @@ private fun FolderList(
         Box(
             Modifier
                 .fillMaxSize()
-                .background(CellsColor.danger.copy(alpha = .1f))
+//                .background(CellsColor.danger.copy(alpha = .1f))
                 .pullRefresh(state)
         ) {
-
             when (listLayout) {
                 ListLayout.GRID -> {
                     LazyVerticalGrid(
-                        // TODO make this more generic for big screens also
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),

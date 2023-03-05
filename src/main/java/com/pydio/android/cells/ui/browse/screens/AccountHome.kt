@@ -138,7 +138,7 @@ private fun OfflineScaffold(
             end = dimensionResource(id = R.dimen.margin_medium),
         )
 
-        AccountHomeList(
+        OfflineRootsList(
             loadingState = loadingState,
             stateID = stateID,
             workspaces = workspaces,
@@ -154,7 +154,7 @@ private fun OfflineScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun AccountHomeList(
+private fun OfflineRootsList(
     loadingState: LoadingState,
     stateID: StateID,
     workspaces: List<RWorkspace>,
@@ -318,7 +318,7 @@ private fun HomeCardItem(
 }
 
 @Composable
-private fun HomeHeader(
+fun HomeHeader(
     username: String,
     address: String,
     openAccounts: () -> Unit,

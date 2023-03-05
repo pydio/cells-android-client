@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -320,6 +321,90 @@ fun OfflineRootGridItem(
             outerSize = dimensionResource(R.dimen.grid_ws_image_size),
             iconSize = dimensionResource(R.dimen.grid_icon_size),
             clipShape = RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)),
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(titlePadding)
+        )
+        Text(
+            text = desc,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(descPadding)
+        )
+    }
+}
+
+@Composable
+fun OfflineRootLargeGridItem(
+    item: RLiveOfflineRoot,
+    title: String,
+    desc: String,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    OfflineRootLargeGridItem(
+        encodedState = item.encodedState,
+        sortName = item.sortName,
+        name = item.name,
+        title = title,
+        desc = desc,
+        mime = item.mime,
+        eTag = item.etag,
+        hasThumb = item.hasThumb(),
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun OfflineRootLargeGridItem(
+    encodedState: String,
+    sortName: String?,
+    name: String,
+    title: String,
+    desc: String,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    modifier: Modifier
+) {
+
+    val titlePadding = PaddingValues(
+        start = 8.dp,
+        end = 8.dp,
+        top = 4.dp,
+        bottom = 0.dp,
+    )
+    val descPadding = PaddingValues(
+        start = 8.dp,
+        end = 8.dp,
+        top = 0.dp,
+        bottom = 8.dp,
+    )
+
+    Card(
+        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
+        ),
+        modifier = modifier
+    ) {
+        GridThumb(
+            encodedState = encodedState,
+            sortName = sortName,
+            name = name,
+            mime = mime,
+            eTag = eTag,
+            hasThumb = hasThumb,
+            outerSize = dimensionResource(R.dimen.grid_ws_image_size),
+            iconSize = dimensionResource(R.dimen.grid_large_icon_size),
+            clipShape = RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)),
+        )
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .3f),
+            thickness = 0.3.dp,
         )
         Text(
             text = title,

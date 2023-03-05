@@ -69,17 +69,17 @@
     <!-- Lists / Lazy Column Items -->
     <dimen name="list_item_selected_elevation">4dp</dimen>
     <dimen name="list_item_elevation">1dp</dimen>
-    <dimen name="list_horizontal_padding">5dp</dimen>
+    <dimen name="list_horizontal_padding">4dp</dimen>
     <dimen name="list_vertical_padding">2dp</dimen>
     <dimen name="list_item_inner_padding">4dp</dimen>
     <dimen name="list_item_inner_h_padding">8dp</dimen>
     <dimen name="list_item_inner_v_padding">4dp</dimen>
-    <dimen name="list_up_item_height">48dp</dimen>
+    <dimen name="list_up_item_height">40dp</dimen>
 
-    <dimen name="list_thumb_bg_size">48dp</dimen>
-    <dimen name="list_thumb_size">48dp</dimen>
-    <dimen name="list_thumb_icon_size">36dp</dimen>
-    <dimen name="list_thumb_padding">6dp</dimen>
+    <dimen name="list_thumb_bg_size">40dp</dimen>
+    <dimen name="list_thumb_size">40dp</dimen>
+    <dimen name="list_thumb_icon_size">28dp</dimen>
+    <dimen name="list_thumb_padding">8dp</dimen>
     <dimen name="list_thumb_margin">4dp</dimen>
     <dimen name="list_thumb_elevation">3dp</dimen>
     <dimen name="list_thumb_decorator_size">12dp</dimen>
@@ -93,6 +93,12 @@
     <dimen name="grid_col_spaced_by">2dp</dimen>
     <dimen name="grid_col_text_padding">8dp</dimen>
 
+    <dimen name="grid_large_col_min_width">200dp</dimen>
+    <dimen name="grid_large_icon_size">64dp</dimen>
+    <dimen name="grid_large_col_spaced_by">6dp</dimen>
+    <dimen name="grid_large_col_text_padding">8dp</dimen>
+
+
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab
         Goes with the clipToPadding=false prop in the recycler layout -->
@@ -102,7 +108,7 @@
 
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_more_size">32dp</dimen>
-    <dimen name="grid_icon_size">48dp</dimen>
+    <dimen name="grid_icon_size">40dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
     <dimen name="list_icon_margin">8dp</dimen>

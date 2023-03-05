@@ -103,7 +103,38 @@ fun SingleNodeMenu(
                 bgColor = bgColor,
             )
         }
+        item {
+            BottomSheetListItem(
+                icon = CellsIcons.Delete,
+                title = stringResource(R.string.delete),
+                onItemClick = { launch(NodeAction.Delete) },
+                tint = tint,
+                bgColor = bgColor,
+            )
+            BottomSheetDivider()
+        }
 
+
+        item {
+            BottomSheetListItemWithToggle(
+                icon = CellsIcons.Bookmark,
+                title = stringResource(R.string.bookmark),
+                isSelected = rTreeNode.isBookmarked(),
+                onItemClick = { launch(NodeAction.ToggleBookmark(it)) },
+                tint = tint,
+                bgColor = bgColor,
+            )
+        }
+        item {
+            BottomSheetListItemWithToggle(
+                icon = CellsIcons.KeepOffline,
+                title = stringResource(R.string.keep_offline),
+                isSelected = rTreeNode.isOfflineRoot(),
+                onItemClick = { launch(NodeAction.ToggleOffline(it)) },
+                tint = tint,
+                bgColor = bgColor,
+            )
+        }
         if (rTreeNode.isShared()) {
             item {
                 BottomSheetDivider()
@@ -144,7 +175,6 @@ fun SingleNodeMenu(
                         bgColor = bgColor,
                     )
                 }
-                BottomSheetDivider()
             }
         } else {
             item {
@@ -159,34 +189,7 @@ fun SingleNodeMenu(
             }
         }
         item {
-            BottomSheetListItemWithToggle(
-                icon = CellsIcons.KeepOffline,
-                title = stringResource(R.string.keep_offline),
-                isSelected = rTreeNode.isOfflineRoot(),
-                onItemClick = { launch(NodeAction.ToggleOffline(it)) },
-                tint = tint,
-                bgColor = bgColor,
-            )
-        }
-        item {
-            BottomSheetListItemWithToggle(
-                icon = CellsIcons.Bookmark,
-                title = stringResource(R.string.bookmark),
-                isSelected = rTreeNode.isBookmarked(),
-                onItemClick = { launch(NodeAction.ToggleBookmark(it)) },
-                tint = tint,
-                bgColor = bgColor,
-            )
-        }
-        item {
-            BottomSheetListItem(
-                icon = CellsIcons.Delete,
-                title = stringResource(R.string.delete),
-                onItemClick = { launch(NodeAction.Delete) },
-                tint = tint,
-                bgColor = bgColor,
-            )
-            Spacer(modifier = Modifier.size(50.dp))
+            Spacer(modifier = Modifier.size(20.dp))
         }
     }
 }
