@@ -133,18 +133,16 @@ fun BrowseUpItem(
         Row(Modifier.padding(horizontal = 8.dp)) {
             Surface(
                 Modifier
-                    .size(40.dp)
-                    // .size(dimensionResource(R.dimen.list_thumb_size))
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                    .background(MaterialTheme.colorScheme.error)
+                    // .size(40.dp)
+                    // .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                    // .background(MaterialTheme.colorScheme.error)
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_arrow_back_ios_new_24),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                     modifier = Modifier
-                        .fillMaxSize()
-                        .size(48.dp)
+                        // .fillMaxSize()
                         .size(dimensionResource(R.dimen.list_thumb_size))
                         .wrapContentSize(Alignment.Center)
                 )
@@ -174,15 +172,15 @@ fun BrowseUpItem(
     }
 }
 
-@Composable
-private fun BrowseUpItem(
-    stateID: StateID,
-    modifier: Modifier = Modifier
-) {
-    val parentDescription = when {
-        Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
-        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
-        else -> stringResource(R.string.parent_folder)
-    }
-    BrowseUpItem(parentDescription = parentDescription, modifier.fillMaxWidth())
-}
+//@Composable
+//private fun BrowseUpItem(
+//    stateID: StateID,
+//    modifier: Modifier = Modifier
+//) {
+//    val parentDescription = when {
+//        Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
+//        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+//        else -> stringResource(R.string.parent_folder)
+//    }
+//    BrowseUpItem(parentDescription = parentDescription, modifier.fillMaxWidth())
+//}

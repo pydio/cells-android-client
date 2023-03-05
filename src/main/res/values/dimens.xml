@@ -89,8 +89,9 @@
     <item name="list_button_alpha" format="float" type="dimen">.8</item>
 
     <!-- Grids / LazyGrids items -->
-
-
+    <dimen name="grid_col_min_width">128dp</dimen>
+    <dimen name="grid_col_spaced_by">2dp</dimen>
+    <dimen name="grid_col_text_padding">8dp</dimen>
 
     <!-- Recycler View -->
     <!-- So that the last element of the list is not hidden by the fab

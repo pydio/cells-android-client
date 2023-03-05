@@ -178,21 +178,6 @@ fun CellsNavGraph(
             },
         )
 
-//        composable(CellsDestinations.Login.route) { bse ->
-//            val stateId = bse.arguments?.getString(CellsDestinations.Login.getPathKey())
-//                ?: Transport.UNDEFINED_STATE
-//            LoginHost(
-//                currAccount = StateID.fromId(stateId),
-//                // FIXME rather forward the navigateTo() method
-//                openAccount = { navigateTo(BrowseDestinations.Open.route, it) },
-//                startingState = startingState,
-//                startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-//                launchIntent = launchIntent,
-//                back = { navController.popBackStack() },
-//            )
-//        }
-
-
         loginNavGraph(
             loginVM = loginVM,
             helper = LoginHelper(
@@ -203,11 +188,7 @@ fun CellsNavGraph(
                 startingState,
                 startingStateHasBeenProcessed
             ),
- //            navigateTo = {navigateTo(it)}, // FIXME
-            // open = { _ -> }
         )
-
-
 
         shareNavGraph(
             browseRemoteVM = browseRemoteVM,
@@ -218,7 +199,6 @@ fun CellsNavGraph(
                 startingStateHasBeenProcessed
             ),
             back = { navController.popBackStack() },
-            // open = { _ -> }
         )
 
         systemNavGraph(
@@ -229,7 +209,6 @@ fun CellsNavGraph(
         )
     }
 }
-
 
 //    else {
 //        LaunchedEffect(key1 = currAccountID) {
@@ -269,4 +248,3 @@ fun CellsNavGraph(
 //    val login: (StateID) -> Unit = {
 //        navigationActions.navigateToLogin(it)
 //    }
-

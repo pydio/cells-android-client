@@ -59,6 +59,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeGridItem
+import com.pydio.android.cells.ui.browse.composables.NodeGridItemBox
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
@@ -365,10 +366,9 @@ private fun FolderList(
                 ListLayout.GRID -> {
                     LazyVerticalGrid(
                         // TODO make this more generic for big screens also
-                        columns = GridCells.Adaptive(minSize = 128.dp),
-                        // columns = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -383,13 +383,12 @@ private fun FolderList(
                                     parentDescription,
                                     Modifier
                                         .fillMaxWidth()
-                                        // .height(dimensionResource(id = R.dimen.list_up_item_height))
                                         .clickable { openParent(stateID) }
                                 )
                             }
                         }
                         items(children, key = { it.encodedState }) { node ->
-                            NodeGridItem(
+                            NodeGridItemBox(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
@@ -402,10 +401,8 @@ private fun FolderList(
                                     openMoreMenu(node.getStateID())
                                 },
                                 modifier = Modifier
-                                    .padding(all = dimensionResource(R.dimen.card_padding))
                                     .fillMaxWidth()
                                     .clickable { open(node.getStateID()) }
-                                // .animateItemPlacement(),
                             )
                         }
                         item {
