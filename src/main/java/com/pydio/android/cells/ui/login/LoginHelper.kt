@@ -70,7 +70,7 @@ class LoginHelper(
 
     suspend fun processAuth(context: Context, stateID: StateID) {
         startingState?.let { state ->
-            if (LoginDestinations.ProcessAuth.isCurrent(state.destination)) {
+            if (LoginDestinations.ProcessAuth.isCurrent(state.route)) {
                 Log.d(logTag, "Processing OAuth response for $stateID and ${state.state}")
                 // OAuth flow Callback
                 val res = loginVM.handleOAuthResponse(

@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import com.pydio.android.cells.ui.core.composables.extraTopPadding
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.models.JobListVM
-import com.pydio.android.cells.ui.models.LogListVM
+import com.pydio.android.cells.ui.system.models.JobListVM
+import com.pydio.android.cells.ui.system.models.LogListVM
 import com.pydio.android.cells.ui.rememberContentPaddingForScreen
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.system.models.SettingsVM

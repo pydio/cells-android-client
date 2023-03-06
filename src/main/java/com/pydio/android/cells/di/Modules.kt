@@ -52,8 +52,6 @@ import com.pydio.android.cells.ui.menus.TransferMenuViewModel
 import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.JobListVM
-import com.pydio.android.cells.ui.models.LogListVM
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
@@ -62,6 +60,9 @@ import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
+import com.pydio.android.cells.ui.system.models.JobListVM
+import com.pydio.android.cells.ui.system.models.LandingVM
+import com.pydio.android.cells.ui.system.models.LogListVM
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
@@ -181,6 +182,7 @@ val serviceModule = module {
 
 val viewModelModule = module {
 
+    viewModelOf(::LandingVM)
     viewModel { NewLoginVM(get(), get(), get()) }
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }

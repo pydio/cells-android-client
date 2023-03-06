@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.models
+package com.pydio.android.cells.ui.system.models
 
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.JobService

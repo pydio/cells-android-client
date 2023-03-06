@@ -23,6 +23,9 @@ interface SessionViewDao {
     fun getSession(accountID: String): RSessionView?
 
     @Query("SELECT * FROM RSessionView where lifecycle_state = :state LIMIT 1")
+    fun getActiveSession(state: String): RSessionView?
+
+    @Query("SELECT * FROM RSessionView where lifecycle_state = :state LIMIT 1")
     fun getLiveActiveSession(state: String): LiveData<RSessionView?>
 
 }

@@ -17,7 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.R
 import com.pydio.android.cells.databinding.FragmentJobListBinding
-import com.pydio.android.cells.ui.models.JobListVM
+import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

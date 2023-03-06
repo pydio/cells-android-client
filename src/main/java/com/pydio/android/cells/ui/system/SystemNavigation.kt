@@ -4,22 +4,15 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.pydio.cells.transport.StateID
 
-private val logTag = "SystemNavigation"
+// private val logTag = "SystemNavigation"
 
 /** Defines the System and Settings destinations **/
 sealed class SystemDestinations(val route: String) {
 
     companion object {
         protected const val STATE_ID_KEY = "state-id"
-        protected const val UID_KEY = "uid"
         protected const val PREFIX = "share"
     }
-
-//    const val ABOUT_ROUTE = "about"
-//    const val SETTINGS_ROUTE = "settings"
-//    const val LOGS_ROUTE = "logs"
-//    const val JOBS_ROUTE = "jobs"
-//    const val CLEAR_CACHE_ROUTE = "clear-cache"
 
     object About : SystemDestinations("about")
     object Settings : SystemDestinations("settings")

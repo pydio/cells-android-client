@@ -6,11 +6,16 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.ui.migration.MigrationHost
 import com.pydio.android.cells.ui.models.MigrationVM
-import com.pydio.android.cells.ui.system.MigrationApp
-import com.pydio.android.cells.ui.system.MigrationHost
+import com.pydio.android.cells.ui.theme.CellsTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ *  We use a distinct activity for migration so that we are sure that
+ *  the legacy repositories and objects are not loaded we are on the "happy path" a.k.a
+ *  when no migration is required
+ */
 class MigrateActivity : ComponentActivity() {
 
     private val logTag = MigrateActivity::class.simpleName
@@ -21,7 +26,7 @@ class MigrateActivity : ComponentActivity() {
 
         val migrateActivity = this
         setContent {
-            MigrationApp {
+            CellsTheme {
                 val navController = rememberNavController()
                 val migrationVM by viewModel<MigrationVM>()
                 val afterMigration: () -> Unit = {

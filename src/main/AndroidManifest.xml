@@ -24,15 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/Cells.Md3">
 
-        <activity
-            android:name=".LandActivity"
-            android:exported="true"
-            android:theme="@style/Cells.Md3.SplashScreen">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <!--        <activity-->
+        <!--            android:name=".LandActivity"-->
+        <!--            android:exported="true"-->
+        <!--            android:theme="@style/Cells.Md3.SplashScreen">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
 
         <!--        <activity-->
         <!--            android:name=".SampleActivity"-->
@@ -56,7 +56,11 @@
         <activity
             android:name=".NewMainActivity"
             android:exported="true"
-            android:theme="@style/Cells.Md3.LightStatusBar" >
+            android:theme="@style/Cells.Md3.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
@@ -77,25 +81,25 @@
             </intent-filter>
         </activity>
 
-<!--        <activity-->
-<!--            android:name=".SelectTargetActivity"-->
-<!--            android:exported="true"-->
-<!--            android:theme="@style/Cells.Md3.LightStatusBar">-->
-<!--            &lt;!&ndash;            <intent-filter>&ndash;&gt;-->
-<!--            &lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
-<!--            &lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
-<!--            &lt;!&ndash;            </intent-filter>&ndash;&gt;-->
-<!--            <intent-filter>-->
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--                <action android:name="android.intent.action.SEND" />-->
-<!--                <data android:mimeType="*/*" />-->
-<!--            </intent-filter>-->
-<!--            <intent-filter>-->
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--                <action android:name="android.intent.action.SEND_MULTIPLE" />-->
-<!--                <data android:mimeType="*/*" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
+        <!--        <activity-->
+        <!--            android:name=".SelectTargetActivity"-->
+        <!--            android:exported="true"-->
+        <!--            android:theme="@style/Cells.Md3.LightStatusBar">-->
+        <!--            &lt;!&ndash;            <intent-filter>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </intent-filter>&ndash;&gt;-->
+        <!--            <intent-filter>-->
+        <!--                <category android:name="android.intent.category.DEFAULT" />-->
+        <!--                <action android:name="android.intent.action.SEND" />-->
+        <!--                <data android:mimeType="*/*" />-->
+        <!--            </intent-filter>-->
+        <!--            <intent-filter>-->
+        <!--                <category android:name="android.intent.category.DEFAULT" />-->
+        <!--                <action android:name="android.intent.action.SEND_MULTIPLE" />-->
+        <!--                <data android:mimeType="*/*" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
 
         <!--        <activity-->
         <!--            android:name=".LoginActivity"-->
@@ -111,7 +115,7 @@
         <!--            </intent-filter>-->
         <!--        </activity>-->
 
-<!--        <activity android:name=".CarouselActivity" />-->
+        <!--        <activity android:name=".CarouselActivity" />-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

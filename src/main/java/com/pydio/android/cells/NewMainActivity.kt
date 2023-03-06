@@ -13,19 +13,27 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.login.LoginDestinations
+import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
- * Main entry point for the Cells Application: we first handle the bundle / intent and then
- * forward everything to Jetpack Compose.
+ * Main entry point for the Cells Application:
+ *
+ * - We check if we should forward to the migrate activity
+ * - If no migration is necessary, we handle the bundle / intent and then
+ *    forward everything to Jetpack Compose.
  */
 class NewMainActivity : ComponentActivity() {
 
@@ -36,78 +44,145 @@ class NewMainActivity : ComponentActivity() {
         Log.d(logTag, "onCreate: launching new main activity")
         super.onCreate(savedInstanceState)
 
-        val startingState = handleIntent(savedInstanceState)
-        Log.d(logTag, "onCreate for: ${startingState?.stateID}")
+        // Use androidx.core:core-splashscreen library to manage splash
+        installSplashScreen()
+        setContentView(R.layout.activity_splash)
 
-        // TODO rework this
-        // WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
+        // First check if we need a migration
+        val landActivity = this
 
-        setContent {
-
-            val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
-            val intentHasBeenProcessed = rememberSaveable() {
-                mutableStateOf(startingState == null)
+        lifecycleScope.launch {
+            val landingVM by viewModel<LandingVM>()
+            val noMigrationNeeded = landingVM.noMigrationNeeded()
+            if (!noMigrationNeeded) {
+                // forward to migration page
+                val intent = Intent(landActivity, MigrateActivity::class.java)
+                startActivity(intent)
+                landActivity.finish()
+                return@launch
             }
 
-            val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
-                intentHasBeenProcessed.value = true
+            var startingState = handleIntent(savedInstanceState)
+                ?: landingVM.getStartingState()
+
+            // FIXME the state is not nul but we still don't know where to go.
+            if (Str.empty(startingState.route)){
+                startingState = landingVM.getStartingState()
             }
 
-            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
-                when (action) {
-                    AppNames.ACTION_CANCEL -> {
-                        finishAndRemoveTask()
-                    }
+            Log.i(logTag, "#######################################")
+            Log.i(logTag, "onCreate with starting state:")
+            Log.i(logTag, "  StateID: ${startingState?.stateID}")
+            Log.i(logTag, "  Route: ${startingState?.route}")
 
-//                    AppNames.ACTION_LOGIN -> {
-//                        // TODO this does not work when remote is Cells and we have to perform the OAuth flow.
-//                        //    we haven't found yet a way to call back this task once the process has succeed.
-//                        coroutineScope.launch {
-//                            val session = withContext(Dispatchers.IO) {
-//                                accountListVM.getSession(stateID)
-//                            } ?: return@launch
-//
-//                            // TODO clean this when implementing custom certificate acceptance.
-//                            val serverURL =
-//                                ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
-//                            val toAuthIntent = Intent(ctx, LoginActivity::class.java)
-//                            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
-//                            toAuthIntent.putExtra(
-//                                AppKeys.EXTRA_SERVER_IS_LEGACY,
-//                                session.isLegacy
-//                            )
-//                            toAuthIntent.putExtra(
-//                                AppKeys.EXTRA_AFTER_AUTH_ACTION,
-//                                AuthService.NEXT_ACTION_SHARE
-//                            )
-//                            // We don't want that the login intermediary activity pollute the history of the end user
-//                            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-//                            startActivity(toAuthIntent)
-//                        }
-//                    }
-//                    AppNames.ACTION_UPLOAD -> {
-//                        uploadsVM.launchShareToPydioAt(stateID, uris)
-////                            finishAndRemoveTask()
-//                    }
-//                    AppNames.ACTION_CREATE_FOLDER -> {
-//                        createFolderParent.value = stateID.id
-//                        showCreateFolderDialog.value = true
-////                            createFolder(ctx, stateID, nodeService)
-//                    }
+            // TODO rework this
+            // WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+
+            setContent {
+
+                val widthSizeClass = calculateWindowSizeClass(landActivity).widthSizeClass
+                val intentHasBeenProcessed = rememberSaveable {
+                    mutableStateOf(startingState == null)
                 }
-            }
 
-            UseCellsTheme {
-                MainApp(
-                    startingState = if (intentHasBeenProcessed.value) null else startingState,
-                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                    launchIntent = this::launchIntent,
-                    launchTaskFor = launchTaskFor,
-                    widthSizeClass = widthSizeClass,
-                )
+                val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+                    intentHasBeenProcessed.value = true
+                }
+
+                val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+                    when (action) {
+                        AppNames.ACTION_CANCEL -> {
+                            finishAndRemoveTask()
+                        }
+                    }
+                }
+
+                UseCellsTheme {
+                    MainApp(
+                        startingState = if (intentHasBeenProcessed.value) null else startingState,
+                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        launchIntent = landActivity::launchIntent,
+                        launchTaskFor = launchTaskFor,
+                        widthSizeClass = widthSizeClass,
+                    )
+                }
+                landingVM.recordLaunch()
             }
         }
+
+//        val startingState = handleIntent(savedInstanceState)
+//        Log.d(logTag, "onCreate for: ${startingState?.stateID}")
+//
+//        // TODO rework this
+//        // WindowCompat.setDecorFitsSystemWindows(window, false)
+//        WindowCompat.setDecorFitsSystemWindows(window, true)
+//
+//        setContent {
+//
+//            val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+//            val intentHasBeenProcessed = rememberSaveable() {
+//                mutableStateOf(startingState == null)
+//            }
+//
+//            val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+//                intentHasBeenProcessed.value = true
+//            }
+//
+//            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+//                when (action) {
+//                    AppNames.ACTION_CANCEL -> {
+//                        finishAndRemoveTask()
+//                    }
+//
+////                    AppNames.ACTION_LOGIN -> {
+////                        // TODO this does not work when remote is Cells and we have to perform the OAuth flow.
+////                        //    we haven't found yet a way to call back this task once the process has succeed.
+////                        coroutineScope.launch {
+////                            val session = withContext(Dispatchers.IO) {
+////                                accountListVM.getSession(stateID)
+////                            } ?: return@launch
+////
+////                            // TODO clean this when implementing custom certificate acceptance.
+////                            val serverURL =
+////                                ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
+////                            val toAuthIntent = Intent(ctx, LoginActivity::class.java)
+////                            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
+////                            toAuthIntent.putExtra(
+////                                AppKeys.EXTRA_SERVER_IS_LEGACY,
+////                                session.isLegacy
+////                            )
+////                            toAuthIntent.putExtra(
+////                                AppKeys.EXTRA_AFTER_AUTH_ACTION,
+////                                AuthService.NEXT_ACTION_SHARE
+////                            )
+////                            // We don't want that the login intermediary activity pollute the history of the end user
+////                            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+////                            startActivity(toAuthIntent)
+////                        }
+////                    }
+////                    AppNames.ACTION_UPLOAD -> {
+////                        uploadsVM.launchShareToPydioAt(stateID, uris)
+//////                            finishAndRemoveTask()
+////                    }
+////                    AppNames.ACTION_CREATE_FOLDER -> {
+////                        createFolderParent.value = stateID.id
+////                        showCreateFolderDialog.value = true
+//////                            createFolder(ctx, stateID, nodeService)
+////                    }
+//                }
+//            }
+//
+//            UseCellsTheme {
+//                MainApp(
+//                    startingState = if (intentHasBeenProcessed.value) null else startingState,
+//                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+//                    launchIntent = this::launchIntent,
+//                    launchTaskFor = launchTaskFor,
+//                    widthSizeClass = widthSizeClass,
+//                )
+//            }
+//        }
     }
 
     private fun launchIntent(
@@ -167,7 +242,7 @@ class NewMainActivity : ComponentActivity() {
                 val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                 val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
                 if (code != null && state != null) {
-                    startingState.destination = LoginDestinations.ProcessAuth.route
+                    startingState.route = LoginDestinations.ProcessAuth.route
                     startingState.code = code
                     startingState.state = state
                 } else {
@@ -205,7 +280,7 @@ class NewMainActivity : ComponentActivity() {
                 val clipData = intent.clipData
                 Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
                 clipData?.let {
-                    startingState.destination = ShareDestination.ChooseAccount.route
+                    startingState.route = ShareDestination.ChooseAccount.route
                     clipData.getItemAt(0).uri?.let {
                         startingState.uris.add(it)
                     }
@@ -214,7 +289,7 @@ class NewMainActivity : ComponentActivity() {
             Intent.ACTION_SEND_MULTIPLE == intent.action -> {
                 val tmpClipData = intent.clipData
                 tmpClipData?.let { clipData ->
-                    startingState.destination = ShareDestination.ChooseAccount.route
+                    startingState.route = ShareDestination.ChooseAccount.route
                     for (i in 0 until clipData.itemCount) {
                         clipData.getItemAt(i).uri?.let {
                             startingState.uris.add(it)

@@ -1,25 +1,20 @@
-package com.pydio.android.cells.ui.system
+package com.pydio.android.cells.ui.migration
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.models.MigrationVM
+import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.system.screens.AfterLegacyMigration
 import com.pydio.android.cells.ui.system.screens.MigrateFromV2
 import com.pydio.android.cells.ui.system.screens.PrepareMigration
-import com.pydio.android.cells.ui.models.MigrationVM
-import com.pydio.android.cells.ui.models.Step
-import com.pydio.android.cells.ui.theme.CellsTheme
 import kotlinx.coroutines.launch
 
 // private const val logTag = "MigrationHost.kt"
@@ -93,14 +88,14 @@ fun MigrationHost(
     }
 }
 
-@Composable
-fun MigrationApp(content: @Composable () -> Unit) {
-    CellsTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            content()
-        }
-    }
-}
+//@Composable
+//fun MigrationApp(content: @Composable () -> Unit) {
+//    CellsTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            content()
+//        }
+//    }
+//}

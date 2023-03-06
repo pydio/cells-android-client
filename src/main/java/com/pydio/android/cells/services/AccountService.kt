@@ -33,6 +33,8 @@ interface AccountService {
 
     suspend fun getWorkspace(stateID: StateID): RWorkspace?
 
+    suspend fun getActiveSession(): RSessionView?
+
     suspend fun getSession(stateID: StateID): RSessionView?
 
     suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView>

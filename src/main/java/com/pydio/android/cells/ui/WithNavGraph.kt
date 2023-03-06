@@ -56,19 +56,19 @@ fun CellsNavGraph(
 
     if (startingState != null) {
         Log.e(logTag, "########## Got a starting state")
-        LaunchedEffect(key1 = startingState.destination) {
-            Log.e(logTag, "########## Launching side effect for ${startingState.destination}")
+        LaunchedEffect(key1 = startingState.route) {
+            Log.e(logTag, "########## Launching side effect for ${startingState.route}")
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
-            if (startingState.destination?.isNotEmpty() == true) {
+            if (startingState.route?.isNotEmpty() == true) {
                 when {
-                    LoginDestinations.ProcessAuth.isCurrent(startingState.destination)
+                    LoginDestinations.ProcessAuth.isCurrent(startingState.route)
                     -> {
                         // TODO check if startingState.state = state has already been consumed
                         // navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                         loginNavActions.processAuth(startingState.stateID)
                     }
-                    LoginDestinations.isCurrent(startingState.destination)
-                    // startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
+                    LoginDestinations.isCurrent(startingState.route)
+                        // startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
                     -> {
                         // TODO When do we pass here?
                         Thread.dumpStack()
@@ -76,10 +76,16 @@ fun CellsNavGraph(
 //                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                         loginNavActions.askUrl()
                     }
-                    startingState.destination == ShareDestination.ChooseAccount.route
+                    startingState.route == ShareDestination.ChooseAccount.route
                     -> {
                         // TODO check if startingState.state = state has already been consumed
                         navController.navigate(ShareDestination.ChooseAccount.route)
+                    }
+                    Str.notEmpty(startingState.route)
+                    -> {
+                        // TODO should be the normal behaviour for starting state
+                        //   normally we can rely on the route if present => that's the goal
+                        navController.navigate(startingState.route!!)
                     }
 
                     else -> // FIXME not sure it works

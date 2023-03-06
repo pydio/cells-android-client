@@ -48,10 +48,10 @@ fun UseCellsTheme(content: @Composable () -> Unit) {
 class StartingState(val stateID: StateID) {
 
     enum class Key {
-        STATE_ID, DESTINATION, CODE, STATE, URIS
+        STATE_ID, ROUTE, CODE, STATE, URIS
     }
 
-    var destination: String? = null
+    var route: String? = null
 
     // OAuth credential flow call back
     var code: String? = null
@@ -67,8 +67,8 @@ val StartingStateSaver = Saver<StartingState, Map<String, String>>(
     save = { startingState ->
         val currMap = mutableMapOf<String, String>()
         currMap[StartingState.Key.STATE_ID.name] = startingState.stateID.id
-        startingState.destination?.let {
-            currMap[StartingState.Key.DESTINATION.name] = it
+        startingState.route?.let {
+            currMap[StartingState.Key.ROUTE.name] = it
         }
         startingState.code?.let {
             currMap[StartingState.Key.CODE.name] = it
@@ -88,8 +88,8 @@ val StartingStateSaver = Saver<StartingState, Map<String, String>>(
     restore = { values ->
         val stateID = StateID.fromId(values[StartingState.Key.STATE_ID.name])
         val startingState = StartingState(stateID)
-        if (values.containsKey(StartingState.Key.DESTINATION.name)) {
-            startingState.destination = values[StartingState.Key.DESTINATION.name]
+        if (values.containsKey(StartingState.Key.ROUTE.name)) {
+            startingState.route = values[StartingState.Key.ROUTE.name]
         }
         if (values.containsKey(StartingState.Key.CODE.name)) {
             startingState.code = values[StartingState.Key.CODE.name]

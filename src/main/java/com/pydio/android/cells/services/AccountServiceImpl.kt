@@ -51,17 +51,7 @@ class AccountServiceImpl(
         return sessionFactory.getUnlockedClient(stateID.accountId)
     }
 
-    override suspend fun isLegacy(stateId: StateID): Boolean {
-        return accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
-    }
-
-    override suspend fun isRemoteCells(stateId: StateID): Boolean {
-        return !isLegacy(stateId)
-    }
-
-    override suspend fun getSession(stateID: StateID): RSessionView? {
-        return sessionViewDao.getSession(stateID.accountId)
-    }
+    // Expose LiveData for the ViewModels
 
     override fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
@@ -91,6 +81,24 @@ class AccountServiceImpl(
         sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
     override val liveSessionViews: LiveData<List<RSessionView>> = sessionViewDao.getLiveSessions()
+
+    // Direct communication with the backend
+
+    override suspend fun isLegacy(stateId: StateID): Boolean = withContext(Dispatchers.IO) {
+        return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
+    }
+
+    override suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(Dispatchers.IO) {
+        return@withContext !isLegacy(stateId)
+    }
+
+    override suspend fun getActiveSession(): RSessionView? = withContext(Dispatchers.IO) {
+        return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
+    }
+
+    override suspend fun getSession(stateID: StateID): RSessionView? = withContext(Dispatchers.IO) {
+        return@withContext sessionViewDao.getSession(stateID.accountId)
+    }
 
     @Throws(SDKException::class)
     override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String {
@@ -128,13 +136,14 @@ class AccountServiceImpl(
         workspaceDao.getWorkspace(stateID.id)
     }
 
-    override suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView> {
-        return if (includeLegacy) {
-            sessionViewDao.getSessions()
-        } else {
-            sessionViewDao.getCellsSessions()
+    override suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView> =
+        withContext(Dispatchers.IO) {
+            return@withContext if (includeLegacy) {
+                sessionViewDao.getSessions()
+            } else {
+                sessionViewDao.getCellsSessions()
+            }
         }
-    }
 
     /**
      * Performs a check on all accounts that are listed as connected
@@ -297,7 +306,6 @@ class AccountServiceImpl(
             return@withContext getSession(accountID)
         }
     }
-
 
     override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         val isConnected = networkService.isConnected()
