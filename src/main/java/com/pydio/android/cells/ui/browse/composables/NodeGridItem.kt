@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.browse.composables
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -134,13 +133,13 @@ fun NodeGridItemBox(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Log.e(logTag, item.encodedState)
-    Log.e(logTag, "${item.sortName}")
-    Log.e(logTag, item.name)
-    Log.e(logTag, title)
-    Log.e(logTag, desc)
-    Log.e(logTag, item.mime)
-    Log.e(logTag, "${item.etag}")
+//    Log.e(logTag, item.encodedState)
+//    Log.e(logTag, "${item.sortName}")
+//    Log.e(logTag, item.name)
+//    Log.e(logTag, title)
+//    Log.e(logTag, desc)
+//    Log.e(logTag, item.mime)
+//    Log.e(logTag, "${item.etag}")
 
     NodeGridItemBox(
         title = title,

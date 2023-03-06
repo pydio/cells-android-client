@@ -87,7 +87,7 @@ fun AccountHome(
         browseRemoteVM.watch(accountID, true)
     }
 
-    OfflineScaffold(
+    WithScaffold(
         stateID = accountID,
         title = title,
         workspaces = workspaces ?: listOf(),
@@ -103,7 +103,7 @@ fun AccountHome(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OfflineScaffold(
+private fun WithScaffold(
     stateID: StateID,
     title: String,
     workspaces: List<RWorkspace>,

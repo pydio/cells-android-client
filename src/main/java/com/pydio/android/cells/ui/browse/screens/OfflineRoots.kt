@@ -184,7 +184,7 @@ fun OfflineRoots(
         }
     }
 
-    OfflineScaffold(
+    WithScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
         listLayout = listLayout ?: ListLayout.LIST,
         runningJob = currJob.value,
@@ -205,7 +205,7 @@ fun OfflineRoots(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OfflineScaffold(
+private fun WithScaffold(
     loadingState: LoadingState,
     listLayout: ListLayout,
     runningJob: RJob?,

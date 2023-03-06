@@ -61,7 +61,7 @@
         <item>Connected</item>
     </string-array>
 
-    <string-array name="filter_by_status_values" translatable="false">
+    <string-array name="filter_transfer_by_status_values" translatable="false">
         <item>show_all</item>
         <item>new</item>
         <item>processing</item>
@@ -69,6 +69,16 @@
         <item>done</item>
         <item>error</item>
         <item>timeout</item>
+    </string-array>
+
+    <string-array name="filter_transfer_by_status_labels">
+        <item>Show all (no filter)</item>
+        <item>New</item>
+        <item>Processing</item>
+        <item>Cancelled</item>
+        <item>Done</item>
+        <item>Error</item>
+        <item>Timeout</item>
     </string-array>
 
     <string-array name="job_sort_by_values" translatable="false">

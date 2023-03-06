@@ -35,9 +35,11 @@ import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
+import com.pydio.android.cells.ui.browse.models.FilterTransferByMenuVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
+import com.pydio.android.cells.ui.browse.models.SingleTransferVM
 import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
@@ -189,6 +191,7 @@ val viewModelModule = module {
     // or Constructor DSL
     // viewModelOf(::TreeNodeVM)
     viewModelOf(::SortByMenuVM)
+    viewModelOf(::FilterTransferByMenuVM)
 
 //    viewModel { SettingsVM(get()) }
     viewModelOf(::SettingsVM)
@@ -199,6 +202,10 @@ val viewModelModule = module {
     viewModelOf(::BookmarksVM)
     // viewModel { OfflineVM(get(), get(), get()) }
     viewModelOf(::OfflineVM)
+//    viewModel { TransfersVM(get(), get()) }
+    viewModelOf(::TransfersVM)
+    viewModelOf(::SingleTransferVM)
+
 
     viewModel { BrowseHostVM(get()) }
     viewModel { CarouselVM(get(), get()) }
@@ -225,7 +232,6 @@ val viewModelModule = module {
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }
     viewModel { UploadsVM(get(), get()) }
-    viewModel { TransfersVM(get(), get()) }
 
     viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }

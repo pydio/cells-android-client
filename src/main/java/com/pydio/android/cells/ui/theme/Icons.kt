@@ -58,6 +58,7 @@ object CellsIcons {
     val EmptyRecycle = Icons.Default.DeleteForever
     val ErrorDecorator = Icons.Default.PriorityHigh
     val ExpandLess = Icons.Rounded.ExpandLess
+    val FilterBy = Icons.Default.FilterList
     val Fullscreen = Icons.Rounded.Fullscreen
     val Grid3x3 = Icons.Rounded.Grid3x3
     val ImportFile = Icons.Default.Backup

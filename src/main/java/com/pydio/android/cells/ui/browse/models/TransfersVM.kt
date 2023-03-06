@@ -1,24 +1,24 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.reactive.LiveSharedPreferences
+import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.TransferService
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
-    private val accountService: AccountService,
+    private val accountID: StateID,
+    private val prefs: CellsPreferences,
     private val transferService: TransferService,
 ) : ViewModel() {
 
@@ -27,76 +27,47 @@ class TransfersVM(
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
 
-    // TODO re-implement support for filter and sort
+    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
+    private val filterBy = livePrefs.getString(
+        AppKeys.JOB_FILTER_BY_STATUS,
+        AppNames.JOB_STATUS_NO_FILTER
+    )
 
-//    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
-//    val currAccountId: LiveData<StateID?>
-//        get() = Transformations.map(sessionView) { currSessionView ->
-//            currSessionView?.accountID?.let { StateID.fromId(it) }
-//        }
-//val currRecords: LiveData<List<RTransfer>>
-//    get() = Transformations.switchMap(
-//        sessionView
-//    ) { currSessionView ->
-//        val stateID: StateID = currSessionView?.accountID?.let { StateID.fromId(it) }
-//            ?: Transport.UNDEFINED_STATE_ID
-//        transferService.queryTransfers(stateID)
-//    }
-
-    private val accountID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
     val transfers: LiveData<List<RTransfer>>
         get() = Transformations.switchMap(
-            accountID
-        ) { currID ->
-            if (currID == Transport.UNDEFINED_STATE_ID) {
-                MutableLiveData()
-            } else {
-                transferService.queryTransfers(currID)
-            }
+            filterBy
+        ) { currFilter ->
+            transferService.queryTransfersExplicitFilter(accountID, currFilter)
         }
 
-    fun afterCreate(accountID: StateID) {
-        this.accountID.value = accountID
-    }
+    suspend fun get(transferID: Long): RTransfer? =
+        transferService.getRecord(accountID, transferID)
 
-    suspend fun get(transferId: Long): RTransfer? = withContext(Dispatchers.IO) {
-        transferService.getRecord(
-            accountID.value?.account() ?: Transport.UNDEFINED_STATE_ID,
-            transferId
-        )
-    }
 
-    fun pauseOne(transferId: Long) {
-        accountID.value?.let {
-            viewModelScope.launch {
-                // TODO improve this
-                transferService.cancelTransfer(it, transferId, AppNames.JOB_OWNER_USER)
-            }
+    fun pauseOne(transferID: Long) {
+        viewModelScope.launch {
+            // TODO improve this
+            transferService.cancelTransfer(accountID, transferID, AppNames.JOB_OWNER_USER)
         }
     }
 
-    fun resumeOne(transferId: Long) {
-        accountID.value?.let {
-            viewModelScope.launch {
-                // TODO improve this
-                transferService.uploadOne(it, transferId)
-            }
+    fun resumeOne(transferID: Long) {
+        viewModelScope.launch {
+            // TODO improve this
+            transferService.uploadOne(accountID, transferID)
         }
     }
 
-    fun cancelOne(transferId: Long) {
-        accountID.value?.let {
-            viewModelScope.launch {
-                transferService.cancelTransfer(it, transferId, AppNames.JOB_OWNER_USER)
-            }
+    fun cancelOne(transferID: Long) {
+        viewModelScope.launch {
+            transferService.cancelTransfer(accountID, transferID, AppNames.JOB_OWNER_USER)
         }
     }
 
-    fun removeOne(transferId: Long) {
-        accountID.value?.let {
-            viewModelScope.launch {
-                transferService.deleteRecord(it, transferId)
-            }
+    fun removeOne(transferID: Long) {
+        Log.i(logTag, "About to delete $transferID @ $accountID")
+        viewModelScope.launch {
+            transferService.deleteRecord(accountID, transferID)
         }
     }
 }

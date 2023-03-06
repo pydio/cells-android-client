@@ -93,7 +93,7 @@
     <dimen name="grid_col_spaced_by">2dp</dimen>
     <dimen name="grid_col_text_padding">8dp</dimen>
 
-    <dimen name="grid_large_col_min_width">200dp</dimen>
+    <dimen name="grid_large_col_min_width">180dp</dimen>
     <dimen name="grid_large_icon_size">64dp</dimen>
     <dimen name="grid_large_col_spaced_by">6dp</dimen>
     <dimen name="grid_large_col_text_padding">8dp</dimen>

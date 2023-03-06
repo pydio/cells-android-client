@@ -132,9 +132,9 @@ fun NavGraphBuilder.browseNavGraph(
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()
         } else {
-            val transfersVM: TransfersVM = koinViewModel()
-            transfersVM.afterCreate(stateID.account())
+            val transfersVM: TransfersVM = koinViewModel(parameters = { parametersOf(stateID) })
             Transfers(
+                accountID = stateID.account(),
                 transfersVM = transfersVM,
                 openDrawer = openDrawer,
                 open = open,

@@ -89,19 +89,15 @@ class TransferService(
         return nodeDB(accountID).transferDao().getByJobId(id)
     }
 
-
     fun getCurrentTransfersRecords(
         accountID: StateID,
-        transferIds: Set<Long>
+        transferIDs: Set<Long>
     ): LiveData<List<RTransfer>> {
-        Log.e(logTag, "listing transfers for account $accountID")
-        Log.e(logTag, "... $transferIds")
-
-        return nodeDB(accountID).transferDao().getCurrents(transferIds)
+        return nodeDB(accountID).transferDao().getCurrents(transferIDs)
     }
 
-    private fun queryTransfersExplicitFilter(
-        stateId: StateID,
+    fun queryTransfersExplicitFilter(
+        stateID: StateID,
         filterByStatus: String
     ): LiveData<List<RTransfer>> {
         val (sortByCol, sortByOrder) = decodeSortById(
@@ -118,9 +114,8 @@ class TransferService(
             )
         }
         // Log.e(logTag, "About to query: ${lsQuery.sql}, with ${lsQuery.argCount} arg")
-        return nodeDB(stateId).transferDao().transferQuery(lsQuery)
+        return nodeDB(stateID).transferDao().transferQuery(lsQuery)
     }
-
 
     fun liveTransfer(accountID: StateID, transferID: Long): LiveData<RTransfer?> {
         return nodeDB(accountID).transferDao().getLiveById(transferID)
@@ -135,16 +130,17 @@ class TransferService(
         }
     }
 
-    fun getRecord(accountID: StateID, transferID: Long): RTransfer? {
-        return getTransferDao(accountID).getById(transferID)
-    }
-
     fun getLiveRecord(accountId: StateID, transferID: Long): LiveData<RTransfer?> {
         return getTransferDao(accountId).getLiveById(transferID)
     }
 
-    suspend fun clearTerminated(stateId: StateID) = withContext(Dispatchers.IO) {
-        val dao = nodeDB(stateId).transferDao()
+    suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
+        withContext(Dispatchers.IO) {
+            return@withContext getTransferDao(accountID).getById(transferID)
+        }
+
+    suspend fun clearTerminated(stateID: StateID) = withContext(Dispatchers.IO) {
+        val dao = nodeDB(stateID).transferDao()
         // val before = dao.getTransferCount()
 
         dao.clearTerminatedTransfers()
@@ -154,14 +150,14 @@ class TransferService(
         // Log.e(logTag, "After transfer clean: $after (B4: $before)")
     }
 
-    suspend fun deleteRecord(stateId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
-        nodeDB(stateId).transferDao().deleteTransfer(transferId)
+    suspend fun deleteRecord(stateID: StateID, transferID: Long) = withContext(Dispatchers.IO) {
+        nodeDB(stateID).transferDao().deleteTransfer(transferID)
     }
 
-    suspend fun cancelTransfer(stateId: StateID, transferId: Long, owner: String) =
+    suspend fun cancelTransfer(stateId: StateID, transferID: Long, owner: String) =
         withContext(Dispatchers.IO) {
             val dao = nodeDB(stateId).transferDao()
-            dao.insert(RTransferCancellation.cancel(transferId, stateId.id, owner))
+            dao.insert(RTransferCancellation.cancel(transferID, stateId.id, owner))
         }
 
     /** DOWNLOADS **/
@@ -312,24 +308,24 @@ class TransferService(
      * both the RTreeNode and RTransfer records depending on the output status.
      */
     suspend fun runDownloadTransfer(
-        accountId: StateID,
-        transferId: Long,
+        accountID: StateID,
+        transferID: Long,
         progressChannel: Channel<Long>?
     ): String? = withContext(Dispatchers.IO) {
 
         var errorMessage: String? = null
-        val dao = getTransferDao(accountId)
+        val dao = getTransferDao(accountID)
         val lfType = AppNames.LOCAL_FILE_TYPE_FILE
 
         // Retrieve data and sanity check
-        val rTransfer = dao.getById(transferId) ?: run {
-            val msg = "No record found for $transferId, aborting file DL"
+        val rTransfer = dao.getById(transferID) ?: run {
+            val msg = "No record found for $transferID, aborting file DL"
             Log.w(logTag, msg)
             return@withContext msg
         }
 
         val localPath = rTransfer.localPath ?: run {
-            val msg = "No local path is defined for $transferId, aborting file DL"
+            val msg = "No local path is defined for $transferID, aborting file DL"
             Log.w(logTag, msg)
             return@withContext msg
         }
@@ -686,13 +682,13 @@ class TransferService(
         cr: ContentResolver,
         uri: Uri,
         parentID: StateID,
-        transferId: Long,
+        transferID: Long,
         filename: String,
     ): StateID? = withContext(Dispatchers.IO) {
 
         val dao = getTransferDao(parentID)
-        val uploadRecord = dao.getById(transferId)
-            ?: throw IllegalStateException("No transfer record found for $transferId, cannot upload")
+        val uploadRecord = dao.getById(transferID)
+            ?: throw IllegalStateException("No transfer record found for $transferID, cannot upload")
 
         //   in Cells app storage
         val fs = fileService
@@ -854,8 +850,8 @@ class TransferService(
     /**
      * Debug method to easily debug transfers live Data issues
      */
-    suspend fun createDummyTransfers(accountId: StateID) = withContext(Dispatchers.IO) {
-        val dao = getTransferDao(accountId)
+    suspend fun createDummyTransfers(accountID: StateID) = withContext(Dispatchers.IO) {
+        val dao = getTransferDao(accountID)
         var i = 0
         while (i < 10000) {
 
@@ -863,7 +859,7 @@ class TransferService(
 
                 Log.e(logTag, "Creating job with id $i")
                 val recInit = RTransfer.fromState(
-                    accountId.withPath("/common-files/dummy/$i").id,
+                    accountID.withPath("/common-files/dummy/$i").id,
                     AppNames.TRANSFER_TYPE_UPLOAD,
                     "/data/user/common-files/dummy/$i",
                     1024L * 1024L,
