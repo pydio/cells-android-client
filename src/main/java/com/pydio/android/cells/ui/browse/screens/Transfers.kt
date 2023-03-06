@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.browse.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -32,11 +31,11 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.ui.browse.composables.TransferMoreMenuData
-import com.pydio.android.cells.ui.browse.composables.TransferMoreMenuType
 import com.pydio.android.cells.ui.browse.menus.FilterTransfersByMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
+import com.pydio.android.cells.ui.browse.menus.TransferMoreMenu
 import com.pydio.android.cells.ui.browse.menus.TransferMoreMenuState
+import com.pydio.android.cells.ui.browse.menus.TransferMoreMenuType
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
@@ -187,7 +186,7 @@ private fun WithBottomSheet(
                         bgColor = bgColor,
                     )
                 TransferMoreMenuType.MORE -> {
-                    TransferMoreMenuData(
+                    TransferMoreMenu(
                         accountID = accountID,
                         transferID = moreMenuState.transferID,
                         onClick = { action, transferID ->

@@ -1,14 +1,12 @@
-package com.pydio.android.cells.ui.browse.composables
+package com.pydio.android.cells.ui.browse.menus
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
@@ -16,13 +14,14 @@ import com.pydio.android.cells.ui.browse.models.SingleTransferVM
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.share.buildStatusString
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val logTag = "TransferMoreMenuData"
+// private const val logTag = "TransferMoreMenuData"
 
 enum class TransferMoreMenuType {
     NONE,
@@ -31,8 +30,24 @@ enum class TransferMoreMenuType {
     FILTER_BY,
 }
 
+class TransferMoreMenuState @OptIn(
+    ExperimentalMaterial3Api::class
+) constructor(
+    val type: TransferMoreMenuType,
+    val sheetState: ModalBottomSheetState,
+    val transferID: Long,
+    val openMoreMenu: (TransferMoreMenuType, Long) -> Unit,
+    val closeMoreMenu: () -> Unit,
+)
+
+//sealed class TransferAction(val id: String) {
+//    object Delete : TransferAction("delete")
+//    object SortBy : TransferAction("sort_by")
+//    object FilterBy : TransferAction("filter_by")
+//}
+
 @Composable
-fun TransferMoreMenuData(
+fun TransferMoreMenu(
     accountID: StateID,
     transferID: Long,
     onClick: (String, Long) -> Unit

@@ -1,8 +1,6 @@
 package com.pydio.android.cells.ui.core.nav
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.util.Log
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -43,7 +40,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "AppDrawer"
+// private const val logTag = "AppDrawer"
 
 /** AppDrawer provides the main drawer menu for small screens. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +68,6 @@ fun AppDrawer(
     ) {
 
         LazyColumn {
-
 //            item {
 //                PydioLogo(
 //                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
@@ -79,23 +75,23 @@ fun AppDrawer(
 //
             item {
                 HomeHeader(
-                    username = accountID.value?.username ?: "",
-                    address = accountID.value?.serverUrl ?: "None defined",
+                    username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
+                    address = accountID.value?.serverUrl ?: "",
                     openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(defaultPadding)
                         .padding(
-//                            vertical = dimensionResource(R.dimen.menu_padding)
                             bottom = 12.dp,
-                            top = 20.dp
+                            top = 20.dp,
+                            end = 20.dp,
                         )
                 )
             }
             // Offline, Bookmark, Transfers and Workspace roots accesses:
             // This section is only relevant when we have a defined account
             accountID.value?.let { currAccountID ->
-                Log.d(logTag, "... Composing account part of the drawer for $currRoute")
+//                Log.d(logTag, "... Composing account part of the drawer for $currRoute")
                 item {
                     MyNavigationDrawerItem(
                         label = stringResource(R.string.action_open_offline_roots),
@@ -206,16 +202,16 @@ fun AppDrawer(
     }
 }
 
-@Composable
-private fun PydioLogo(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        Icon(
-            painterResource(R.drawable.pydio_logo),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-}
+//@Composable
+//private fun PydioLogo(modifier: Modifier = Modifier) {
+//    Row(modifier = modifier) {
+//        Icon(
+//            painterResource(R.drawable.pydio_logo),
+//            contentDescription = null,
+//            tint = MaterialTheme.colorScheme.primary
+//        )
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
