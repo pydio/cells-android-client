@@ -17,6 +17,7 @@ import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.browse.screens.OfflineRoots
 import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -49,8 +50,10 @@ fun NavGraphBuilder.browseNavGraph(
             Folder(
                 stateID,
                 openDrawer = openDrawer,
-                openSearch = {},
-                open = open, // TODO
+                openSearch = {
+                    navController.navigate(CellsDestinations.Search.createRoute("Folder", stateID))
+                },
+                open = open,
                 browseRemoteVM = browseRemoteVM,
                 folderVM = folderVM
             )

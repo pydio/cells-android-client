@@ -14,6 +14,7 @@ import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
+import com.pydio.android.cells.ui.core.lazyQueryContext
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
@@ -22,6 +23,9 @@ import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.search.Search
+import com.pydio.android.cells.ui.search.SearchHelper
+import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
@@ -30,6 +34,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val logTag = "CellsNavGraph"
 
@@ -89,12 +94,14 @@ fun CellsNavGraph(
                     }
 
                     else -> // FIXME not sure it works
-                        startingStateHasBeenProcessed(null,
+                        startingStateHasBeenProcessed(
+                            null,
                             StateID.NONE
                         )
                 }
             } else {
-                startingStateHasBeenProcessed(null,
+                startingStateHasBeenProcessed(
+                    null,
                     StateID.NONE
                 )
             }
@@ -123,6 +130,20 @@ fun CellsNavGraph(
                 contentPadding = rememberContentPaddingForScreen(
                     additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
+                ),
+            )
+        }
+
+        composable(CellsDestinations.Search.route) { entry ->
+            val searchVM: SearchVM =
+                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
+            Search(
+                queryContext = lazyQueryContext(entry),
+                stateID = lazyStateID(entry),
+                searchVM = searchVM,
+                SearchHelper(
+                    navController = navController,
+                    searchVM = searchVM
                 ),
             )
         }

@@ -255,6 +255,10 @@ class NodeService(
             }
         }
 
+    fun liveLocalQuery(stateID: StateID, query: String): LiveData<List<RTreeNode>> =
+        nodeDB(stateID).treeNodeDao().liveQuery(query)
+
+
     /* Update nodes in the local store */
     suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
         val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext

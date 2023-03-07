@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.common.FormBottomButtons
-import com.pydio.android.cells.ui.box.common.FormInput
+import com.pydio.android.cells.ui.core.composables.FormBottomButtons
+import com.pydio.android.cells.ui.core.composables.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme

@@ -17,6 +17,7 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PasswordStore
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
+import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
@@ -193,6 +194,7 @@ val viewModelModule = module {
 
 //    viewModel { SettingsVM(get()) }
     viewModelOf(::SettingsVM)
+    viewModelOf(::SearchVM)
 
     viewModel { HouseKeepingVM(get()) }
 

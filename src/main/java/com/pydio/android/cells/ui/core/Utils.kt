@@ -5,7 +5,7 @@ import android.util.Log
 import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.navigation.NavBackStackEntry
-import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.transport.StateID
@@ -21,7 +21,7 @@ fun getFloatResource(context: Context, @DimenRes id: Int): Float {
 
 fun lazyStateID(
     navBackStackEntry: NavBackStackEntry?,
-    key: String = BrowseDestinations.Open.getStateIdKey(),
+    key: String = AppKeys.STATE_ID,
 ): StateID {
     return navBackStackEntry?.arguments?.getString(key)
         ?.let {
@@ -33,6 +33,22 @@ fun lazyStateID(
             StateID.NONE
         }
 }
+
+fun lazyQueryContext(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = AppKeys.QUERY_CONTEXT,
+): String {
+    return navBackStackEntry?.arguments?.getString(key)
+        ?.let {
+            // Log.e(logTag, " ... Retrieving query context from backstack entry, found: $it")
+            it
+        }
+        ?: run {
+            Log.e(logTag, " ... No query context found in backstack entry, for key $key")
+            "none"
+        }
+}
+
 
 fun lazySkipVerify(
     navBackStackEntry: NavBackStackEntry?,

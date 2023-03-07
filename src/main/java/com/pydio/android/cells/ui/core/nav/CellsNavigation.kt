@@ -2,7 +2,7 @@ package com.pydio.android.cells.ui.core.nav
 
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.StateID
 
 /**
@@ -13,14 +13,16 @@ sealed class CellsDestinations(val route: String) {
     object Root : CellsDestinations("root")
     object Home : CellsDestinations("home")
     object Accounts : CellsDestinations("accounts")
-    object Search : CellsDestinations("search")
-    object ShareWith : CellsDestinations("share")
 
-//    object Login : CellsDestinations("login/{accountId}") {
-//        val prefix = "login"
-//        fun createRoute(accountID: StateID) = "login/${accountID.id}"
-//        fun getPathKey() = "accountId"
-//    }
+    object Search :
+        CellsDestinations("search/{${AppKeys.QUERY_CONTEXT}}/{${AppKeys.STATE_ID}}") {
+
+        fun createRoute(queryContext: String, stateID: StateID) =
+            "search/${queryContext}/${stateID.id}"
+
+        fun isCurrent(route: String?): Boolean =
+            route?.startsWith("search/") ?: false
+    }
 }
 
 class CellsNavigationActions(private val navController: NavHostController) {
@@ -53,8 +55,12 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-    fun navigateToBrowse(stateID: StateID) {
-        val route = BrowseDestinations.Open.createRoute(stateID)
+    /**
+     * @param queryContext from where we want to search
+     * @param stateID current stateID
+     */
+    fun navigateToSearch(queryContext: String, stateID: StateID) {
+        val route = CellsDestinations.Search.createRoute(queryContext, stateID)
         navController.navigate(route) {
             launchSingleTop = true
         }

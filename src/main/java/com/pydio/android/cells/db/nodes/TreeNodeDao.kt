@@ -61,6 +61,9 @@ interface TreeNodeDao {
     fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>
 
     @Query("SELECT * FROM tree_nodes WHERE name like '%' ||  :name || '%' LIMIT 100")
+    fun liveQuery(name: String): LiveData<List<RTreeNode>>
+
+    @Query("SELECT * FROM tree_nodes WHERE name like '%' ||  :name || '%' LIMIT 100")
     fun query(name: String): List<RTreeNode>
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")

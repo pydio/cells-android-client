@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// private val logTag = OfflineVM::class.simpleName
+// private val logTag = "BookmarksVM"
 
 /** Expose methods used by bookmark pages */
 class BookmarksVM(
@@ -37,7 +37,6 @@ class BookmarksVM(
     val errorMessage: LiveData<String?> = _errorMessage
 
     private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-
     private val _layout = MutableStateFlow(ListLayout.LIST)
     val layout: StateFlow<ListLayout> = _layout.asStateFlow()
 
@@ -75,12 +74,6 @@ class BookmarksVM(
         _accountID.value = accountID
     }
 
-    fun download(stateID: StateID, uri: Uri) {
-        viewModelScope.launch {
-            nodeService.saveToSharedStorage(stateID, uri)
-        }
-    }
-
     fun removeBookmark(stateID: StateID) {
         viewModelScope.launch {
             nodeService.toggleBookmark(stateID, false)
@@ -100,6 +93,12 @@ class BookmarksVM(
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
+    }
+
+    fun download(stateID: StateID, uri: Uri) {
+        viewModelScope.launch {
+            nodeService.saveToSharedStorage(stateID, uri)
+        }
     }
 
     suspend fun viewFile(context: Context, stateID: StateID) {

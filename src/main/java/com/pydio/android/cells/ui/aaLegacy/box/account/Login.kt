@@ -33,8 +33,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.box.common.FormBottomButtons
-import com.pydio.android.cells.ui.box.common.FormInput
+import com.pydio.android.cells.ui.core.composables.FormBottomButtons
+import com.pydio.android.cells.ui.core.composables.FormInput
 import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
