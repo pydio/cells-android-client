@@ -13,7 +13,6 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -33,12 +32,12 @@ class ShareVM(
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
 
-    private val _stateID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
+    private val _stateID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     val childNodes: LiveData<List<RTreeNode>>
         get() = Transformations.switchMap(
             _stateID
         ) { currID ->
-            if (currID == Transport.UNDEFINED_STATE_ID) {
+            if (currID == StateID.NONE) {
                 MutableLiveData()
             } else if (Str.empty(currID.workspace)) {
                 nodeService.listWorkspaces(currID)

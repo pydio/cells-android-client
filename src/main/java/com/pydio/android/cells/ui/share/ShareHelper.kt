@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.share.models.ShareVM
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
@@ -26,13 +25,13 @@ class ShareHelper(
         var isEffectiveBack = false
         if (bq.size > 1) {
             val penultimateID = lazyStateID(bq[bq.size - 2])
-            isEffectiveBack = penultimateID == stateID && Transport.UNDEFINED_STATE_ID != stateID
+            isEffectiveBack = penultimateID == stateID && StateID.NONE != stateID
         }
         if (isEffectiveBack) {
             Log.d(logTag, "isEffectiveBack: $stateID")
             navigation.back()
         } else {
-            if (stateID == Transport.UNDEFINED_STATE_ID) {
+            if (stateID == StateID.NONE) {
                 navigation.toAccounts()
             } else {
                 navigation.toFolder(stateID)

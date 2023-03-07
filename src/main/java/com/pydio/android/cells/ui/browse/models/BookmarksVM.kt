@@ -17,7 +17,6 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,12 +59,12 @@ class BookmarksVM(
         }
     }
 
-    private val _accountID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
+    private val _accountID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     val bookmarks: LiveData<List<RTreeNode>>
         get() = Transformations.switchMap(
             _accountID
         ) { currID ->
-            if (currID == Transport.UNDEFINED_STATE_ID) {
+            if (currID == StateID.NONE) {
                 MutableLiveData()
             } else {
                 nodeService.listBookmarks(currID)

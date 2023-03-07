@@ -28,7 +28,6 @@ import com.pydio.cells.api.Client
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.api.Transport
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
@@ -174,7 +173,7 @@ class NodeService(
     /* Communicate with the DB using suspend functions */
 
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             null
         } else {
             nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -182,7 +181,7 @@ class NodeService(
     }
 
     suspend fun getWorkspace(stateID: StateID): RWorkspace? {
-        return if (stateID == Transport.UNDEFINED_STATE_ID) {
+        return if (stateID == StateID.NONE) {
             null
         } else {
             accountService.getWorkspace(stateID)

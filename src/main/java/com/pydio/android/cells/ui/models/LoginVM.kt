@@ -9,7 +9,6 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
-import com.pydio.cells.api.Transport
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
@@ -284,7 +283,7 @@ class LoginVM(
             var stateID: StateID? = null
             try {
                 stateID =
-                    Transport.UNDEFINED_STATE_ID // accountService.signUp(currURL, credentials)
+                    StateID.NONE // accountService.signUp(currURL, credentials)
                 delay(smoothActionDelay)
                 updateMessage("Connected, updating local state")
 //                withContext(Dispatchers.Main) {

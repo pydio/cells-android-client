@@ -60,7 +60,6 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
@@ -102,7 +101,9 @@ fun Bookmarks(
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID))
+        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK,
+            StateID.NONE
+        ))
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
         scope.launch {
@@ -114,7 +115,9 @@ fun Bookmarks(
     val moreMenuDone: () -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK, Transport.UNDEFINED_STATE_ID)
+            nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK,
+                StateID.NONE
+            )
         }
     }
 
@@ -124,7 +127,7 @@ fun Bookmarks(
         //    dynamic AND remembered.
         contract = ActivityResultContracts.CreateDocument(),
         onResult = { uri ->
-            if (nodeMoreMenuData.value.second != Transport.UNDEFINED_STATE_ID) {
+            if (nodeMoreMenuData.value.second != StateID.NONE) {
                 uri?.let {
                     bookmarksVM.download(nodeMoreMenuData.value.second, uri)
                 }
@@ -220,7 +223,9 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
+                    launch(NodeAction.AsList,
+                        StateID.NONE
+                    )
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsList, label) },
@@ -230,7 +235,9 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
+                    launch(NodeAction.AsGrid,
+                        StateID.NONE
+                    )
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsGrid, label) },
@@ -243,7 +250,7 @@ private fun BookmarkScaffold(
             onClick = {
                 moreMenuState.openMoreMenu(
                     NodeMoreMenuType.SORT_BY,
-                    Transport.UNDEFINED_STATE_ID
+                    StateID.NONE
                 )
                 showMenu(false)
             },
@@ -267,7 +274,9 @@ private fun BookmarkScaffold(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
-                        done = { launch(NodeAction.SortBy, Transport.UNDEFINED_STATE_ID) },
+                        done = { launch(NodeAction.SortBy,
+                            StateID.NONE
+                        ) },
                         tint = tint,
                         bgColor = bgColor,
                     )

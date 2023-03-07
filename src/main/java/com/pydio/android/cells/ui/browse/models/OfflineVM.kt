@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
@@ -24,13 +23,9 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -52,7 +47,7 @@ class OfflineVM(
 
     private val _loadingState = MutableLiveData(LoadingState.STARTING)
     private val _errorMessage = MutableLiveData<String?>()
-    private val _accountID: MutableLiveData<StateID> = MutableLiveData(Transport.UNDEFINED_STATE_ID)
+    private val _accountID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     private val _syncJobID = MutableLiveData(-1L)
 
     val loadingState: LiveData<LoadingState> = _loadingState
@@ -62,7 +57,7 @@ class OfflineVM(
         get() = Transformations.switchMap(
             _accountID
         ) { currID ->
-            if (currID == Transport.UNDEFINED_STATE_ID) {
+            if (currID == StateID.NONE) {
                 MutableLiveData()
             } else {
                 nodeService.listOfflineRoots(currID)
@@ -174,7 +169,7 @@ class OfflineVM(
             }
             is NetworkStatus.Unmetered -> {
                 return stateID?.let {
-                    if (it != Transport.UNDEFINED_STATE_ID) {
+                    if (it != StateID.NONE) {
                         Pair(true, null)
                     } else {
                         Pair(false, "Cannot launch re-sync without choosing a target")

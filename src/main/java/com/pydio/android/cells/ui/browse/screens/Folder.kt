@@ -74,7 +74,6 @@ import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomShee
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -135,7 +134,9 @@ fun Folder(
     // State for the more Menus
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.NONE, Transport.UNDEFINED_STATE_ID))
+        mutableStateOf(Pair(NodeMoreMenuType.NONE,
+            StateID.NONE
+        ))
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
@@ -151,7 +152,9 @@ fun Folder(
                 browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
             }
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(NodeMoreMenuType.NONE, Transport.UNDEFINED_STATE_ID)
+            nodeMoreMenuData.value = Pair(NodeMoreMenuType.NONE,
+                StateID.NONE
+            )
         }
     }
 
@@ -236,7 +239,9 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsList, Transport.UNDEFINED_STATE_ID)
+                    launch(NodeAction.AsList,
+                        StateID.NONE
+                    )
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsList, label) },
@@ -246,7 +251,9 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsGrid, Transport.UNDEFINED_STATE_ID)
+                    launch(NodeAction.AsGrid,
+                        StateID.NONE
+                    )
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsGrid, label) },

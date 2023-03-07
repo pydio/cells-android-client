@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -33,7 +32,6 @@ import com.pydio.android.cells.ui.core.nav.AppNavRail
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.system.SystemNavigationActions
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -126,7 +124,7 @@ fun NavHostWithDrawer(
             ) {
                 CellsNavGraph(
                     currAccountID = activeSessionView.value?.getStateID()
-                        ?: Transport.UNDEFINED_STATE_ID,
+                        ?: StateID.NONE,
                     startingState = startingState,
                     startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                     isExpandedScreen = isExpandedScreen,

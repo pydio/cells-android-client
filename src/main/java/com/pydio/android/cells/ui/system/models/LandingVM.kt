@@ -10,7 +10,6 @@ import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 
@@ -59,13 +58,13 @@ class LandingVM(
                 // If a session is listed as in foreground, we open this one
                 accountService.getActiveSession()?.let {
                     it.getStateID()
-                } ?: Transport.UNDEFINED_STATE_ID
+                } ?: StateID.NONE
             }
         }
 
         val route = when (stateID) {
             null -> LoginDestinations.AskUrl.createRoute()
-            Transport.UNDEFINED_STATE_ID -> CellsDestinations.Accounts.route
+            StateID.NONE -> CellsDestinations.Accounts.route
             else -> BrowseDestinations.Open.createRoute(stateID)
         }
 
@@ -74,7 +73,7 @@ class LandingVM(
             accountService.openSession(it.accountId)
         }
 
-        val state = StartingState(stateID ?: Transport.UNDEFINED_STATE_ID)
+        val state = StartingState(stateID ?: StateID.NONE)
         state.route = route
         return state
     }

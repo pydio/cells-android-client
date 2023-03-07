@@ -53,7 +53,6 @@ import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
@@ -172,7 +171,7 @@ private fun FolderList(
                         else -> stringResource(R.string.parent_folder)
                     }
                     val targetID = if (Str.empty(stateID.workspace)) {
-                        Transport.UNDEFINED_STATE_ID
+                        StateID.NONE
                     } else {
                         stateID.parent()
                     }

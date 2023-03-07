@@ -20,7 +20,6 @@ import com.pydio.android.cells.ui.browse.menus.RecycleParentMenu
 import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -49,7 +48,7 @@ fun NodeMoreMenuData(
         mutableStateOf(null)
     }
 
-    val stateID: StateID = toOpenStateID ?: Transport.UNDEFINED_STATE_ID
+    val stateID: StateID = toOpenStateID ?: StateID.NONE
     val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(stateID) })
 
     LaunchedEffect(key1 = toOpenStateID) {

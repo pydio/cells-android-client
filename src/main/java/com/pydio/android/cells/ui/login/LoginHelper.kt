@@ -10,7 +10,6 @@ import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.NewLoginVM
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -92,10 +91,12 @@ class LoginHelper(
                     afterAuth(it.first, it.second)
                 } ?: run {
                     // TODO better error handling
-                    startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                    startingStateHasBeenProcessed(null,
+                        StateID.NONE
+                    )
                 }
             }
-            stateID != Transport.UNDEFINED_STATE_ID
+            stateID != StateID.NONE
             -> { // The user wants to login again in an expired already registered account
                 // FIXME implement next
                 val nextAction = AuthService.NEXT_ACTION_BROWSE

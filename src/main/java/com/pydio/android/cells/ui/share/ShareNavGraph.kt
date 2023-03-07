@@ -12,7 +12,7 @@ import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.share.screens.SelectFolderScreen
 import com.pydio.android.cells.ui.share.screens.SelectTargetAccount
 import com.pydio.android.cells.ui.share.screens.UploadProgressList
-import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "shareNavGraph"
@@ -29,7 +29,9 @@ fun NavGraphBuilder.shareNavGraph(
         Log.i(logTag, "... Open ShareDestination.ChooseAccount")
         SelectTargetAccount(
             openAccount = helper::open,
-            cancel = { helper.launchTaskFor(AppNames.ACTION_CANCEL, Transport.UNDEFINED_STATE_ID) },
+            cancel = { helper.launchTaskFor(AppNames.ACTION_CANCEL,
+                StateID.NONE
+            ) },
             login = { helper.launchTaskFor(AppNames.ACTION_LOGIN, it) },
         )
     }
@@ -40,7 +42,7 @@ fun NavGraphBuilder.shareNavGraph(
 
         val shareVM: ShareVM = koinViewModel()
 
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open target selection folder page with no ID")
             back()
         } else {

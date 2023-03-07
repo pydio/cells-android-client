@@ -32,7 +32,6 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.android.cells.utils.stateIDSaver
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -121,7 +120,7 @@ private fun FolderWithDialogs(
     val scope = rememberCoroutineScope()
     // We must keep a reference to the latest chosen node for contracts
     val currentID: MutableState<StateID> = rememberSaveable(stateSaver = stateIDSaver) {
-        mutableStateOf(Transport.UNDEFINED_STATE_ID)
+        mutableStateOf(StateID.NONE)
     }
     val currentAction: MutableState<String?> = rememberSaveable {
         mutableStateOf(null)
@@ -146,7 +145,7 @@ private fun FolderWithDialogs(
         contract = ActivityResultContracts.CreateDocument(),
         onResult = { uri ->
             Log.e(logTag, "Got a destination for ${currentID.value}")
-            if (currentID.value != Transport.UNDEFINED_STATE_ID) {
+            if (currentID.value != StateID.NONE) {
                 uri?.let {
                     nodeActionsVM.download(currentID.value, uri)
                 }
@@ -200,13 +199,13 @@ private fun FolderWithDialogs(
             Log.i(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
             when (it) {
                 is NodeAction.DownloadToDevice -> {
-                    if (currentID.value == Transport.UNDEFINED_STATE_ID) {
+                    if (currentID.value == StateID.NONE) {
                         destinationPicker.launch(toOpenStateID.fileName)
                         currentID.value = toOpenStateID
                     }
                 }
                 is NodeAction.ImportFile -> {
-                    if (currentID.value == Transport.UNDEFINED_STATE_ID) {
+                    if (currentID.value == StateID.NONE) {
                         fileImporter.launch("*/*")
                         currentID.value = toOpenStateID
                     }
@@ -292,7 +291,7 @@ private fun FolderWithDialogs(
         contract = ActivityResultContracts.CreateDocument(),
         onResult = { uri ->
             Log.e(logTag, "Got a destination for ${currentID.value}")
-            if (currentID.value != Transport.UNDEFINED_STATE_ID) {
+            if (currentID.value != StateID.NONE) {
                 uri?.let {
                     nodeActionsVM.download(currentID.value, uri)
                 }
@@ -316,7 +315,7 @@ private fun FolderWithDialogs(
 
             composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
                 val stateID = lazyStateID(nbsEntry)
-                if (stateID == Transport.UNDEFINED_STATE_ID) {
+                if (stateID == StateID.NONE) {
                     Log.e(logTag, "... cannot navigate with no state ID")
                     return@composable
                 }

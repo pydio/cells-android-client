@@ -18,7 +18,6 @@ import com.pydio.android.cells.ui.browse.screens.OfflineRoots
 import com.pydio.android.cells.ui.browse.screens.Transfers
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
@@ -38,7 +37,7 @@ fun NavGraphBuilder.browseNavGraph(
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
         Log.e(logTag, ".... ## In BrowseDestinations.open at $stateID")
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             NoAccount(
                 openDrawer = openDrawer,
                 addAccount = {},
@@ -66,7 +65,7 @@ fun NavGraphBuilder.browseNavGraph(
             AccountHome(
                 stateID,
                 openDrawer = openDrawer,
-                openAccounts = { open(Transport.UNDEFINED_STATE_ID) },
+                openAccounts = { open(StateID.NONE) },
                 openSearch = {},
                 openWorkspace = open,
                 browseRemoteVM = browseRemoteVM,
@@ -99,7 +98,7 @@ fun NavGraphBuilder.browseNavGraph(
     composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
         Log.i(logTag, "... In BrowseDestinations.Offline at $stateID")
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open OfflineRoots with no ID")
             back()
         } else {
@@ -117,7 +116,7 @@ fun NavGraphBuilder.browseNavGraph(
     composable(BrowseDestinations.Bookmarks.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
         Log.e(logTag, ".... ## In BrowseDestinations.Bookmarks at $stateID")
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open bookmarks with no ID")
             back()
         } else {
@@ -136,7 +135,7 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        if (stateID == Transport.UNDEFINED_STATE_ID) {
+        if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()
         } else {

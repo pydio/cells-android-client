@@ -26,7 +26,6 @@ import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
-import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -90,10 +89,14 @@ fun CellsNavGraph(
                     }
 
                     else -> // FIXME not sure it works
-                        startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                        startingStateHasBeenProcessed(null,
+                            StateID.NONE
+                        )
                 }
             } else {
-                startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
+                startingStateHasBeenProcessed(null,
+                    StateID.NONE
+                )
             }
         }
     }
@@ -150,7 +153,7 @@ fun CellsNavGraph(
                     val penultimateID = lazyStateID(bq[bq.size - 2])
                     isEffectiveBack =
                         BrowseDestinations.Open.isCurrent(targetEntry.destination.route)
-                                && penultimateID == it && it != Transport.UNDEFINED_STATE_ID
+                                && penultimateID == it && it != StateID.NONE
                 }
                 if (isEffectiveBack) {
                     Log.e(logTag, "Open node at $it is Effective Back")
@@ -176,7 +179,7 @@ fun CellsNavGraph(
                                 )
                                 return@launch
                             }
-                        } else if (it == Transport.UNDEFINED_STATE_ID) {
+                        } else if (it == StateID.NONE) {
                             route = CellsDestinations.Accounts.route
                         } else {
                             route = BrowseDestinations.Open.createRoute(it)
