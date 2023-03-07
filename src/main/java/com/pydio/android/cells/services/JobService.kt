@@ -1,12 +1,12 @@
 package com.pydio.android.cells.services
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.utils.currentTimestamp
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

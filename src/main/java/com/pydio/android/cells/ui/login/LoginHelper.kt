@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.login
 import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
@@ -59,8 +60,14 @@ class LoginHelper(
         navigateTo(res)
     }
 
-    suspend fun launchP8Auth(login: String, pwd: String, captcha: String?) {
-        val stateID = loginVM.logToP8(login, pwd, captcha)
+    suspend fun launchP8Auth(
+        url: String,
+        skipVerify: Boolean,
+        login: String,
+        pwd: String,
+        captcha: String?
+    ) {
+        val stateID = loginVM.logToP8(url, skipVerify, login, pwd, captcha)
         if (stateID != null) {
             // Login has been successful,
             // We clean after ourselves and leave the login subgraph
@@ -68,15 +75,17 @@ class LoginHelper(
         } // else do nothing: error message has already been displayed and we stay on the page
     }
 
-    suspend fun processAuth(context: Context, stateID: StateID) {
-        startingState?.let { state ->
-            if (LoginDestinations.ProcessAuth.isCurrent(state.route)) {
-                Log.d(logTag, "Processing OAuth response for $stateID and ${state.state}")
-                // OAuth flow Callback
+    suspend fun processAuth(context: Context, stateID: StateID, skipVerify: Boolean) {
+        Log.e(logTag, "In processAuth, state: $stateID, skipVerify: $skipVerify")
+
+        when {
+            startingState != null && LoginDestinations.ProcessAuth.isCurrent(startingState.route)
+            -> { // OAuth flow Callback
+                Log.d(logTag, "Process OAuth response for $stateID and ${startingState.state}")
                 val res = loginVM.handleOAuthResponse(
                     // We assume nullity has already been checked
-                    state = state.state!!,
-                    code = state.code!!,
+                    state = startingState.state!!,
+                    code = startingState.code!!,
                 )
                 if (res) {
                     Log.i(logTag, "OAuth OK - ${loginVM.accountId.value}")
@@ -89,10 +98,8 @@ class LoginHelper(
                     }
                 }
             }
-        } ?: run {
-            if (stateID != Transport.UNDEFINED_STATE_ID) {
-
-                // The user wants to login again in an expired already registered account
+            stateID != Transport.UNDEFINED_STATE_ID
+            -> { // The user wants to login again in an expired already registered account
                 loginVM.getSessionView(stateID)?.let { sessionView ->
                     // FIXME implement next
                     val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
@@ -104,8 +111,7 @@ class LoginHelper(
                     }
                 } ?: run {
                     Log.e(logTag, "Launching OAuth Process with no session view for $stateID")
-                    // FIXME handle self-signed scenario
-                    val url = ServerURLImpl.fromAddress(stateID.serverUrl, false)
+                    val url = ServerURLImpl.fromAddress(stateID.serverUrl, skipVerify)
                     val intent = loginVM.newOAuthIntent(url)
                     intent?.let {
                         withContext(Dispatchers.Main) {
@@ -113,6 +119,10 @@ class LoginHelper(
                         }
                     }
                 }
+            }
+            else -> {
+                Log.e(logTag, "Unexpected state: $stateID, route: ${startingState?.route}")
+                Thread.dumpStack()
             }
         }
     }
@@ -123,6 +133,27 @@ class LoginHelper(
         val route = BrowseDestinations.Open.createRoute(stateID)
         startingStateHasBeenProcessed(null, stateID)
         loginVM.flush()
-        navigateTo(route)
+
+        // TODO there must be a better way to get rid of login pages
+        var targetEntry: NavBackStackEntry? = null
+        var i = 1
+        navController.backQueue.asReversed().forEach {
+            val stateID = lazyStateID(it)
+            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+
+            if (!LoginDestinations.isCurrent(it.destination.route)) {
+                targetEntry = it
+                return@forEach
+            }
+        }
+        targetEntry?.destination?.route?.let {
+            navController.navigate(route) {
+                popUpTo(it) {
+                    inclusive = false
+                }
+            }
+        } ?: run {
+            navigateTo(route)
+        }
     }
 }

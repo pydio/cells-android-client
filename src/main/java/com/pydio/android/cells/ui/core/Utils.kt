@@ -6,6 +6,7 @@ import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.ui.browse.BrowseDestinations
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
@@ -32,6 +33,13 @@ fun lazyStateID(
             // Log.w(logTag, " ... No stateID found in backstack entry, for key $key")
             Transport.UNDEFINED_STATE_ID
         }
+}
+
+fun lazySkipVerify(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = LoginDestinations.ProcessAuth.getSkipVerifyKey(),
+): Boolean {
+    return navBackStackEntry?.arguments?.getBoolean(key) ?: false
 }
 
 fun lazyUID(

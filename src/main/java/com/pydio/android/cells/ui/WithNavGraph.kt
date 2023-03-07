@@ -65,7 +65,8 @@ fun CellsNavGraph(
                     -> {
                         // TODO check if startingState.state = state has already been consumed
                         // navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
-                        loginNavActions.processAuth(startingState.stateID)
+                        // TODO check if we need to be aware of the skip verify flag at this point
+                        loginNavActions.processAuth(startingState.stateID, false)
                     }
                     LoginDestinations.isCurrent(startingState.route)
                         // startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
@@ -124,6 +125,8 @@ fun CellsNavGraph(
         }
 
         browseNavGraph(
+            // Temporary FIXME remove
+            navController = navController,
             browseRemoteVM = browseRemoteVM,
             back = { navController.popBackStack() },
             openDrawer,

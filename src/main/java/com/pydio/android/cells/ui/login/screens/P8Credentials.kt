@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,7 +23,51 @@ import com.pydio.android.cells.ui.box.common.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
+
+@Composable
+fun P8Credentials(
+    stateID: StateID,
+    skipVerify: Boolean,
+    helper: LoginHelper,
+    loginVM: NewLoginVM,
+) {
+
+    val scope = rememberCoroutineScope()
+    val isProcessing = loginVM.isProcessing.collectAsState()
+    val message = loginVM.message.collectAsState()
+    val errMsg = loginVM.errorMessage.collectAsState()
+
+    // This might have been initialised when re-logging a P8 account
+    val loginString = rememberSaveable { mutableStateOf(loginVM.username.value ?: "") }
+    val updateLogin: (String) -> Unit = { loginString.value = it.trim() }
+    val pwdString = rememberSaveable { mutableStateOf("") }
+    val updatePwd: (String) -> Unit = { pwdString.value = it }
+
+    LaunchedEffect(key1 = stateID) {
+        if (Str.notEmpty(stateID.username)) {
+            updateLogin(stateID.username)
+        }
+    }
+
+    P8Credentials(
+        isProcessing.value,
+        loginString.value,
+        updateLogin,
+        pwdString.value,
+        updatePwd,
+        message = message.value,
+        errMsg = errMsg.value,
+        goBack = { scope.launch { helper.back() } },
+        launchP8Auth = { login, pwd, captcha ->
+            scope.launch {
+                helper.launchP8Auth(stateID.serverUrl, skipVerify, login, pwd, captcha)
+            }
+        },
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -113,41 +158,6 @@ fun P8Credentials(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun P8Credentials(
-    helper: LoginHelper,
-    loginVM: NewLoginVM,
-    //navigateTo: (String?) -> Unit,
-) {
-
-    val scope = rememberCoroutineScope()
-    val isProcessing = loginVM.isProcessing.collectAsState()
-    val message = loginVM.message.collectAsState()
-    val errMsg = loginVM.errorMessage.collectAsState()
-
-    // This might have been initialised when re-logging a P8 account
-    val loginString = rememberSaveable { mutableStateOf(loginVM.username.value ?: "") }
-    val updateLogin: (String) -> Unit = { loginString.value = it.trim() }
-    val pwdString = rememberSaveable { mutableStateOf("") }
-    val updatePwd: (String) -> Unit = { pwdString.value = it }
-
-    P8Credentials(
-        isProcessing.value,
-        loginString.value,
-        updateLogin,
-        pwdString.value,
-        updatePwd,
-        message = message.value,
-        errMsg = errMsg.value,
-        goBack = { scope.launch { helper.back() } },
-        launchP8Auth = { login, pwd, captcha ->
-            scope.launch {
-                helper.launchP8Auth(login, pwd, captcha)
-            }
-        },
-    )
-}
 
 @Preview(name = "P8Credentials Light")
 @Preview(

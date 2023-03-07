@@ -20,7 +20,7 @@ class LandingVM(
     private val jobService: JobService,
 ) : ViewModel() {
 
-    private val logTag = "CheckVersionVM"
+    private val logTag = "LandingVM"
     private val oldVersion = prefs.getInt(AppKeys.INSTALLED_VERSION_CODE)
     private val newVersion = ClientData.getInstance().versionCode.toInt()
 

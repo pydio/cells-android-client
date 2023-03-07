@@ -29,20 +29,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.RemoteType
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.getFloatResource
-import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 
 @Composable
 fun AccountList(
     accounts: List<RSessionView>?,
     openAccount: (stateID: StateID) -> Unit,
-    login: (stateID: StateID, isLegacy: Boolean) -> Unit,
+    login: (stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
@@ -65,7 +64,7 @@ fun AccountList(
                 authStatus = account.authStatus,
                 // isForeground = currAccountID == account.getStateID(),
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                login = { login(account.getStateID(), account.isLegacy) },
+                login = { login(account.getStateID(), account.skipVerify(), account.isLegacy) },
                 logout = { logout(account.getStateID()) },
                 forget = forget,
                 modifier = modifier.clickable {

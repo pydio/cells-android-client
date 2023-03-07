@@ -19,6 +19,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
@@ -78,6 +79,7 @@ fun SkipVerify(
 
 @Composable
 fun SkipVerify(
+    stateID: StateID,
     helper: LoginHelper,
     loginVM: NewLoginVM,
     // navigateTo: (String?) -> Unit,
@@ -94,7 +96,7 @@ fun SkipVerify(
         message.value,
         errMsg.value,
         goBack = { scope.launch { helper.back() } },
-        accept = { scope.launch { loginVM.confirmSkipVerifyAndPing() } },
+        accept = { scope.launch { loginVM.confirmSkipVerifyAndPing(stateID.serverUrl) } },
     )
 }
 

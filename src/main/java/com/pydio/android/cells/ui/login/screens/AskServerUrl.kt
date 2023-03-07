@@ -25,6 +25,39 @@ import kotlinx.coroutines.launch
 
 private const val logTag = "AskServerUrl"
 
+@Composable
+fun AskServerUrl(
+    helper: LoginHelper,
+    loginVM: NewLoginVM,
+) {
+
+    // Log.e(logTag, "Nav to Login Step")
+    val scope = rememberCoroutineScope()
+    val isProcessing = loginVM.isProcessing.collectAsState()
+    val currAddress = loginVM.serverAddress.collectAsState()
+    val message = loginVM.message.collectAsState()
+    val errMsg = loginVM.errorMessage.collectAsState()
+
+    val doPing: (String) -> Unit = { url ->
+        // TODO add sanity checks
+        scope.launch {
+            val res = loginVM.pingAddress(url, false)
+            Log.e(logTag, "After ping with no SkipVerify flag, res: $res")
+            res?.let { helper.afterPing(it) }
+        }
+    }
+
+    AskServerUrl(
+        isProcessing = isProcessing.value,
+        message = message.value,
+        errMsg = errMsg.value,
+        urlString = currAddress.value,
+        setUrl = { loginVM.setAddress(it) },
+        pingUrl = { doPing(currAddress.value) },
+        cancel = { helper.cancel() }
+    )
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AskServerUrl(
@@ -77,40 +110,6 @@ fun AskServerUrl(
         )
     }
 }
-
-@Composable
-fun AskServerUrl(
-    helper: LoginHelper,
-    loginVM: NewLoginVM,
-) {
-
-    // Log.e(logTag, "Nav to Login Step")
-    val scope = rememberCoroutineScope()
-    val isProcessing = loginVM.isProcessing.collectAsState()
-    val currAddress = loginVM.serverAddress.collectAsState()
-    val message = loginVM.message.collectAsState()
-    val errMsg = loginVM.errorMessage.collectAsState()
-
-    val doPing: (String) -> Unit = { url ->
-        // TODO add sanity checks
-        scope.launch {
-            val res = loginVM.pingAddress()
-            Log.e(logTag, "After ping, res: $res")
-            res?.let { helper.afterPing(it) }
-        }
-    }
-
-    AskServerUrl(
-        isProcessing = isProcessing.value,
-        message = message.value,
-        errMsg = errMsg.value,
-        urlString = currAddress.value,
-        setUrl = { loginVM.setAddress(it) },
-        pingUrl = { doPing(currAddress.value) },
-        cancel = { helper.cancel() }
-    )
-}
-
 
 @Preview(name = "AskUrl Light")
 @Preview(

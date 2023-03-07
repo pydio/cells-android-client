@@ -30,7 +30,6 @@ private const val logTag = "NodeMoreMenuData"
 enum class NodeMoreMenuType {
     NONE,
     MORE, // <- this one is the default
-    TRANSFERS,
     SEARCH,
     OFFLINE,
     BOOKMARK,

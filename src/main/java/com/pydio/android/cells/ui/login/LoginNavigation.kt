@@ -32,15 +32,19 @@ class LoginNavigation(private val navController: NavHostController) {
         navController.navigate(route)
     }
 
-    fun p8Credentials(stateID: StateID?) {
-        val route =
-            LoginDestinations.P8Credentials.createRoute(stateID ?: Transport.UNDEFINED_STATE_ID)
+    fun p8Credentials(stateID: StateID?, skipVerify: Boolean) {
+        val route = LoginDestinations.P8Credentials.createRoute(
+            stateID ?: Transport.UNDEFINED_STATE_ID,
+            skipVerify
+        )
         navController.navigate(route)
     }
 
-    fun processAuth(stateID: StateID?) {
-        val route =
-            LoginDestinations.ProcessAuth.createRoute(stateID ?: Transport.UNDEFINED_STATE_ID)
+    fun processAuth(stateID: StateID?, skipVerify: Boolean) {
+        val route = LoginDestinations.ProcessAuth.createRoute(
+            stateID ?: Transport.UNDEFINED_STATE_ID,
+            skipVerify
+        )
         navController.navigate(route)
     }
 

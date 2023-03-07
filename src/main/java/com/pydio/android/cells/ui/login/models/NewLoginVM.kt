@@ -95,7 +95,6 @@ class NewLoginVM(
         _nextAction.value = AuthService.NEXT_ACTION_BROWSE
     }
 
-
     // Business methods
 
     // Restore all defaults: the view model is persisted between 2 login process if no restart has happened
@@ -111,32 +110,28 @@ class NewLoginVM(
         _errorMessage.value = ""
     }
 
-    @Deprecated("Rather use call with argument")
-    suspend fun pingAddress(): String? {
-        val res = processAddress()
+    suspend fun pingAddress(url: String, skipVerify: Boolean): String? {
+        val res = processAddress(url, skipVerify)
         if (Str.notEmpty(res)) {
             _message.value = ""
         }
         return res
     }
 
-    suspend fun pingAddress(url: String): String? {
-        val res = processAddress()
-        if (Str.notEmpty(res)) {
-            _message.value = ""
-        }
-        return res
+    suspend fun confirmSkipVerifyAndPing(url: String): String? {
+        return pingAddress(url, true)
     }
 
-    suspend fun confirmSkipVerifyAndPing(): String? {
-        _skipVerify.value = true
-        return pingAddress()
-    }
-
-    suspend fun logToP8(login: String, password: String, captcha: String?): StateID? {
+    suspend fun logToP8(
+        url: String,
+        skipVerify: Boolean,
+        login: String,
+        password: String,
+        captcha: String?
+    ): StateID? {
         // TODO validate passed parameters
         switchLoading(true)
-        return doP8Auth(login, password, captcha)
+        return doP8Auth(url, skipVerify, login, password, captcha)
     }
 
 
@@ -190,8 +185,8 @@ class NewLoginVM(
 
     // Internal helpers
 
-    private suspend fun processAddress(): String? {
-        if (Str.empty(_serverAddress.value)) {
+    private suspend fun processAddress(url: String, skipVerify: Boolean): String? {
+        if (Str.empty(url)) {
             updateErrorMsg("Server address is empty, could not proceed")
             return null
         }
@@ -199,43 +194,42 @@ class NewLoginVM(
         // 1) Ping the server and check if:
         //   - address is valid
         //   - distant server has a valid TLS configuration
-        val serverURL = doPing(_serverAddress.value)
+
+        val serverURL = doPing(url, skipVerify)
             ?: // Error Message is handled by the doPing
             return null
 
         Log.e(logTag, "after ping, server URL: $serverURL")
 
         // ServerURL is OK aka 200 at given URL with correct cert
-        _serverUrl.value = serverURL
         updateMessage("Address and cert are valid. Registering server...")
 
         //  2) Register the server locally
         val server = doRegister(serverURL)
             ?: // Error messages and states are handled above
             return null
-        _server.value = server
 
         val serverID = StateID(server.url())
         // 3) Specific login process depending on the remote server type (Cells or P8).
         switchLoading(false)
         return if (server.isLegacy) {
-            LoginDestinations.P8Credentials.createRoute(serverID)
+            LoginDestinations.P8Credentials.createRoute(serverID, skipVerify)
         } else {
 //            viewModelScope.launch {
 //                triggerOAuthProcess(serverURL)
 //            }
             // FIXME this is not satisfying: error won't be processed correctly
-            return LoginDestinations.ProcessAuth.createRoute(serverID)
+            return LoginDestinations.ProcessAuth.createRoute(serverID, skipVerify)
         }
     }
 
-    private suspend fun doPing(serverAddress: String): ServerURL? {
+    private suspend fun doPing(serverAddress: String, skipVerify: Boolean): ServerURL? {
         return withContext(Dispatchers.IO) {
             Log.i(logTag, "Pinging $serverAddress")
             val tmpURL: ServerURL?
             var newURL: ServerURL? = null
             try {
-                tmpURL = ServerURLImpl.fromAddress(serverAddress, _skipVerify.value)
+                tmpURL = ServerURLImpl.fromAddress(serverAddress, skipVerify)
                 tmpURL.ping()
                 newURL = tmpURL
             } catch (e: MalformedURLException) {
@@ -279,13 +273,14 @@ class NewLoginVM(
         }
     }
 
-    private suspend fun doP8Auth(login: String, password: String, captcha: String?): StateID? {
-        val currURL = serverUrl.value
-            ?: run {
-                updateErrorMsg("No server URL defined, cannot start P8 auth process")
-                return null
-            }
-
+    private suspend fun doP8Auth(
+        url: String,
+        skipVerify: Boolean,
+        login: String,
+        password: String,
+        captcha: String?
+    ): StateID? {
+        val currURL = ServerURLImpl.fromAddress(url, skipVerify)
         val credentials = P8Credentials(login, password, captcha)
         val msg = "Launch P8 auth process for ${credentials.username}@${currURL.url}"
         Log.i(logTag, msg)
@@ -318,14 +313,6 @@ class NewLoginVM(
             return null
     }
 
-//    private suspend fun triggerOAuthProcess(serverURL: ServerURL) {
-//
-//        val intent = newOAuthIntent(serverURL)
-//        Log.d(logTag, "Intent created: ${intent?.data}")
-//        _oauthIntent.value = intent
-//
-//    }
-
     suspend fun newOAuthIntent(serverURL: ServerURL): Intent? = withContext(Dispatchers.Main) {
         updateMessage("Launching OAuth credential flow")
         val uri = try {
@@ -349,7 +336,6 @@ class NewLoginVM(
         Log.e(logTag, "Intent created: ${intent.data}")
         return@withContext intent
     }
-
 
     // UI Methods
     private fun switchLoading(newState: Boolean) {

@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse
 
 import android.util.Log
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
@@ -26,6 +27,7 @@ import org.koin.core.parameter.parametersOf
 private const val logTag = "BrowseNavGraph"
 
 fun NavGraphBuilder.browseNavGraph(
+    navController: NavHostController,
     browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
@@ -54,6 +56,12 @@ fun NavGraphBuilder.browseNavGraph(
                 folderVM = folderVM
             )
         } else {
+            var i = 0
+            navController.backQueue.forEach {
+                val stateID = lazyStateID(it)
+                Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+            }
+
             val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
             AccountHome(
                 stateID,

@@ -86,7 +86,8 @@
     <string name="button_i_understand_the_risks">OK, I understand the risks</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>
-    <string name="oauth_code_flow_desc">Processing, please be patient.</string>
+    <string name="oauth_code_flow_title">Processing</string>
+    <string name="oauth_code_flow_desc">Please be patient.</string>
 
     <!-- Manage connection -->
     <string name="no_connection_title">Connection Down</string>
@@ -157,13 +158,13 @@
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
     <string name="filter_by_status_title">Filter by status</string>
-<!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
-<!--    <string name="filter_by_status_new_label">New</string>-->
-<!--    <string name="filter_by_status_processing_label">Processing</string>-->
-<!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
-<!--    <string name="filter_by_status_done_label">Done</string>-->
-<!--    <string name="filter_by_status_error_label">Error</string>-->
-<!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
+    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
+    <!--    <string name="filter_by_status_new_label">New</string>-->
+    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
+    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
+    <!--    <string name="filter_by_status_done_label">Done</string>-->
+    <!--    <string name="filter_by_status_error_label">Error</string>-->
+    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
 
     <string name="job_sort_by_title">Sort by</string>
     <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>

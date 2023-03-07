@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.login.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +17,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
 import com.pydio.cells.utils.Str
 
-private const val logTag = "DefaultLoginPage.kt"
+// private const val logTag = "DefaultLoginPage"
 
 @Composable
 fun DefaultLoginPage(
@@ -43,24 +42,20 @@ fun DefaultLoginPage(
             Content()
 
             if (Str.notEmpty(message)) {
-                Log.e(logTag, "... Recomposing defaultLoginPage for msg: $message")
-
-                val textColor = if (isErrorMsg)
-                    MaterialTheme.colorScheme.error
-                else
-                    Color.Unspecified
                 Text(
                     text = message!!,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.margin_medium))
                         .wrapContentWidth(Alignment.CenterHorizontally),
-                    color = textColor,
+                    color = if (isErrorMsg)
+                        MaterialTheme.colorScheme.error
+                    else
+                        Color.Unspecified,
                 )
             }
 
             if (isProcessing) {
-                Log.e(logTag, "... Recomposing defaultLoginPage with processing state")
                 LinearProgressIndicator(
                     Modifier
                         .fillMaxWidth()

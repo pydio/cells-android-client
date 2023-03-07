@@ -27,8 +27,6 @@ import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.cells.api.Transport
-import com.pydio.cells.transport.StateID
 
 private enum class Status {
     OK, WARNING, DANGER
@@ -77,9 +75,15 @@ fun WithInternetBanner(
                     onClick = {
                         connectionVM.sessionView.value?.let {
                             val route = if (it.isLegacy) {
-                                LoginDestinations.P8Credentials.createRoute(it.getStateID())
+                                LoginDestinations.P8Credentials.createRoute(
+                                    it.getStateID(),
+                                    it.skipVerify()
+                                )
                             } else {
-                                LoginDestinations.ProcessAuth.createRoute(it.getStateID())
+                                LoginDestinations.ProcessAuth.createRoute(
+                                    it.getStateID(),
+                                    it.skipVerify()
+                                )
                             }
                             navigateTo(route)
                         }
