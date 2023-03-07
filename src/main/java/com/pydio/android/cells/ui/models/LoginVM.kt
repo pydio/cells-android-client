@@ -9,8 +9,10 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
+import com.pydio.cells.api.Transport
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -182,7 +184,7 @@ class LoginVM(
             delay(smoothActionDelay)
         }
 
-        _accountID.value = res.first
+        // _accountID.value = res.first
         setCurrentStep(LoginStep.DONE)
     }
 
@@ -279,15 +281,16 @@ class LoginVM(
         updateMessage(msg)
 
         val accountIDStr = withContext(Dispatchers.IO) {
-            var id: String? = null
+            var stateID: StateID? = null
             try {
-                id = accountService.signUp(currURL, credentials)
+                stateID =
+                    Transport.UNDEFINED_STATE_ID // accountService.signUp(currURL, credentials)
                 delay(smoothActionDelay)
                 updateMessage("Connected, updating local state")
 //                withContext(Dispatchers.Main) {
 //                    setCurrentStep(LoginStep.PROCESS_AUTH)
 //                }
-                accountService.refreshWorkspaceList(id)
+                accountService.refreshWorkspaceList(stateID)
                 delay(smoothActionDelay)
             } catch (e: SDKException) {
                 // TODO handle captcha here
@@ -295,7 +298,7 @@ class LoginVM(
                 e.printStackTrace()
                 updateErrorMsg(e.message ?: "Invalid credentials, please try again")
             }
-            id
+            stateID?.id ?: ""
         }
 
         if (accountIDStr != null) {

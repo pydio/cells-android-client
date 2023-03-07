@@ -53,61 +53,11 @@ class NewLoginVM(
     private var _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-//    // Used to trigger an "external call"
-//    private var _oauthIntent: MutableStateFlow<Intent?> = MutableStateFlow(null)
-//    val oauthIntent: StateFlow<Intent?> = _oauthIntent.asStateFlow()
-
-    // Business Data: TODO we don't need flows for these variables
-    // First step, we have nothing then an address
-    private val _serverAddress = MutableStateFlow("")
-    val serverAddress: StateFlow<String> = _serverAddress
-
-    // Handle TLS if necessary
-    private val _skipVerify = MutableStateFlow(false)
-
-    // A valid server URL with TLS managed
-    private val _serverUrl: MutableStateFlow<ServerURL?> = MutableStateFlow(null)
-    val serverUrl: StateFlow<ServerURL?> = _serverUrl
-
-    // Used when relogging a P8 Server
-    private val _username: MutableStateFlow<String?> = MutableStateFlow(null)
-    val username: StateFlow<String?> = _username
-
-    // Server is a Pydio instance and has already been registered in local repository
-    private var _server: MutableStateFlow<Server?> = MutableStateFlow(null)
-    val server: StateFlow<Server?> = _server
-
-    // Set upon successful authentication against the remote server
-    private val _accountId: MutableStateFlow<String?> = MutableStateFlow(null)
-    val accountId: StateFlow<String?> = _accountId
-
-    private var _nextAction: MutableStateFlow<String> =
-        MutableStateFlow(AuthService.NEXT_ACTION_BROWSE)
-    val nextAction: StateFlow<String> = _nextAction
-
-    private fun restoreDefaults() {
-        _serverAddress.value = ""
-        _skipVerify.value = false
-        _serverUrl.value = null
-        _username.value = null
-        _server.value = null
-        _accountId.value = null
-        _nextAction.value = AuthService.NEXT_ACTION_BROWSE
-    }
-
     // Business methods
-
-    // Restore all defaults: the view model is persisted between 2 login process if no restart has happened
     fun flush() {
         viewModelScope.launch {
             resetMessages()
-            restoreDefaults()
         }
-    }
-
-    fun setAddress(serverAddress: String) {
-        _serverAddress.value = serverAddress.trim()
-        _errorMessage.value = ""
     }
 
     suspend fun pingAddress(url: String, skipVerify: Boolean): String? {
@@ -157,7 +107,7 @@ class NewLoginVM(
 //    }
 
 
-    suspend fun handleOAuthResponse(state: String, code: String): Boolean {
+    suspend fun handleOAuthResponse(state: String, code: String): Pair<StateID, String?>? {
 
         switchLoading(true)
         updateMessage("Retrieving authentication token...")
@@ -166,21 +116,27 @@ class NewLoginVM(
             authService.handleOAuthResponse(accountService, sessionFactory, state, code)
         } ?: run {
             updateErrorMsg("could not retrieve token from code")
-            return false
+            return null
         }
 
         updateMessage("Updating account info...")
         // Log.d(logTag, "Configuring account ${StateID.fromId(res.first)} before ${res.second}")
-        res.second?.let { _nextAction.value = it }
+        // FIXME handle "next" page
+        res.second?.let {
+            Log.e(logTag, "Unhandled next action: $it")
+        }
         val res2 = withContext(Dispatchers.IO) {
             val res = accountService.refreshWorkspaceList(res.first)
             delay(smoothActionDelay)
             res
         }
 
-        _accountId.value = res.first
-
-        return Str.empty(res2.second)
+        return res2.second?.let {
+            updateErrorMsg(it)
+            null
+        } ?: run {
+            res
+        }
     }
 
     // Internal helpers
@@ -238,12 +194,12 @@ class NewLoginVM(
             } catch (e: SSLException) {
                 updateErrorMsg("Invalid certificate for $serverAddress")
                 Log.e(logTag, "Invalid certificate for $serverAddress: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    _skipVerify.value = false
-                    // TODO _currDestination.value = LoginStep.SKIP_VERIFY
-                    // FIXME
-                    //  navigateTo(SkipVerifyRoute.route)
-                }
+//                withContext(Dispatchers.Main) {
+//                    _skipVerify.value = false
+//                    // TODO _currDestination.value = LoginStep.SKIP_VERIFY
+//                    // FIXME
+//                    //  navigateTo(SkipVerifyRoute.route)
+//                }
                 return@withContext null
             } catch (e: IOException) {
                 updateErrorMsg(e.message ?: "IOException:")
@@ -286,16 +242,16 @@ class NewLoginVM(
         Log.i(logTag, msg)
         updateMessage(msg)
 
-        val accountIDStr = withContext(Dispatchers.IO) {
-            var id: String? = null
+        val accountID = withContext(Dispatchers.IO) {
+            var tmpID: StateID? = null
             try {
-                id = accountService.signUp(currURL, credentials)
+                tmpID = accountService.signUp(currURL, credentials)
                 delay(smoothActionDelay)
                 updateMessage("Connected, updating local state")
 //                withContext(Dispatchers.Main) {
 //                    setCurrentStep(LoginStep.PROCESS_AUTH)
 //                }
-                accountService.refreshWorkspaceList(id)
+                accountService.refreshWorkspaceList(tmpID)
                 delay(smoothActionDelay)
             } catch (e: SDKException) {
                 // TODO handle captcha here
@@ -303,39 +259,36 @@ class NewLoginVM(
                 e.printStackTrace()
                 updateErrorMsg(e.message ?: "Invalid credentials, please try again")
             }
-            id
+            tmpID
         }
 
-        return if (accountIDStr != null) {
-            _accountId.value = accountIDStr
-            StateID.fromId(accountIDStr)
-        } else
-            return null
+        return accountID
     }
 
-    suspend fun newOAuthIntent(serverURL: ServerURL): Intent? = withContext(Dispatchers.Main) {
-        updateMessage("Launching OAuth credential flow")
-        val uri = try {
-            authService.generateOAuthFlowUri(
-                sessionFactory,
-                serverURL,
-                _nextAction.value,
-            )
+    suspend fun newOAuthIntent(serverURL: ServerURL, nextAction: String): Intent? =
+        withContext(Dispatchers.Main) {
+            updateMessage("Launching OAuth credential flow")
+            val uri = try {
+                authService.generateOAuthFlowUri(
+                    sessionFactory,
+                    serverURL,
+                    nextAction,
+                )
 
-        } catch (e: SDKException) {
-            val msg =
-                "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
-            Log.e(logTag, msg)
-            updateErrorMsg(msg)
-            return@withContext null
+            } catch (e: SDKException) {
+                val msg =
+                    "Cannot get uri for ${serverURL.url.host}, cause: ${e.code} - ${e.message}"
+                Log.e(logTag, msg)
+                updateErrorMsg(msg)
+                return@withContext null
+            }
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = uri
+            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+
+            Log.e(logTag, "Intent created: ${intent.data}")
+            return@withContext intent
         }
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = uri
-        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-
-        Log.e(logTag, "Intent created: ${intent.data}")
-        return@withContext intent
-    }
 
     // UI Methods
     private fun switchLoading(newState: Boolean) {

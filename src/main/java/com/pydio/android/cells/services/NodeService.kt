@@ -928,7 +928,7 @@ class NodeService(
         val localFile = localFileDao.getFile(rTreeNode.encodedState, AppNames.LOCAL_FILE_TYPE_FILE)
 
         // Corner case: no internet connection
-        if (!accountService.isClientConnected(rTreeNode.encodedState)) {
+        if (!accountService.isClientConnected(rTreeNode.getStateID())) {
             // We admit we are happy with any local version that is found
             localFile?.let { return true }
             // File is not there and we have no connection returning null to let calling class handle this

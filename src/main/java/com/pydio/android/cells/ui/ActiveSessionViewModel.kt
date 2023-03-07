@@ -212,7 +212,7 @@ class ActiveSessionViewModel(
         withContext(Dispatchers.Main) {
             _errorMessage.value = null
         }
-        val (changeNb, errMsg) = accountService.refreshWorkspaceList(accountId!!)
+        val (changeNb, errMsg) = accountService.refreshWorkspaceList(StateID.fromId(accountId))
         withContext(Dispatchers.Main) {
             if (errMsg != null) { // Non-Null response is an error message
                 if (backOffTicker.getCurrentIndex() > 0) {

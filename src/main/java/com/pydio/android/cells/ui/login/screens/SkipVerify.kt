@@ -86,13 +86,12 @@ fun SkipVerify(
 ) {
     val scope = rememberCoroutineScope()
     val isProcessing = loginVM.isProcessing.collectAsState()
-    val currAddress = loginVM.serverAddress.collectAsState()
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
 
     SkipVerify(
         isProcessing.value,
-        currAddress.value,
+        stateID.serverUrl,
         message.value,
         errMsg.value,
         goBack = { scope.launch { helper.back() } },

@@ -95,9 +95,9 @@ class AuthService(authDB: AuthDB) {
         sessionFactory: SessionFactory,
         oauthState: String,
         code: String
-    ): Pair<String, String?>? =
+    ): Pair<StateID, String?>? =
         withContext(Dispatchers.IO) {
-            var accountID: String? = null
+            var accountID: StateID? = null
 
             val rState = authStateDao.get(oauthState)
             if (rState == null) {
@@ -134,7 +134,7 @@ class AuthService(authDB: AuthDB) {
         accountService: AccountService,
         transport: CellsTransport,
         token: Token
-    ): String {
+    ): StateID {
 
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())
@@ -163,7 +163,7 @@ class AuthService(authDB: AuthDB) {
         // Adapt poll and tasks
         // check if it was a background thread
         // redirectToCallerWithNewState(State.fromAccountId(accountID.id), oauthState)
-        return accountID.id
+        return accountID
     }
 
     private fun generateUriData(cfg: OAuthConfig, state: String): Uri {

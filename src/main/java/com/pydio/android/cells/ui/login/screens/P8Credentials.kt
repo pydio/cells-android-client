@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,7 +23,6 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.NewLoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,29 +39,32 @@ fun P8Credentials(
     val errMsg = loginVM.errorMessage.collectAsState()
 
     // This might have been initialised when re-logging a P8 account
-    val loginString = rememberSaveable { mutableStateOf(loginVM.username.value ?: "") }
-    val updateLogin: (String) -> Unit = { loginString.value = it.trim() }
-    val pwdString = rememberSaveable { mutableStateOf("") }
-    val updatePwd: (String) -> Unit = { pwdString.value = it }
 
-    LaunchedEffect(key1 = stateID) {
-        if (Str.notEmpty(stateID.username)) {
-            updateLogin(stateID.username)
-        }
+    val username = rememberSaveable() {
+        mutableStateOf(stateID.username)
+    }
+    val setUsername: (String) -> Unit = {
+        username.value = it.trim()
+    }
+    val pwd = rememberSaveable() {
+        mutableStateOf("")
+    }
+    val setPwd: (String) -> Unit = {
+        pwd.value = it
     }
 
     P8Credentials(
         isProcessing.value,
-        loginString.value,
-        updateLogin,
-        pwdString.value,
-        updatePwd,
+        username.value,
+        setUsername,
+        pwd.value,
+        setPwd,
         message = message.value,
         errMsg = errMsg.value,
         goBack = { scope.launch { helper.back() } },
-        launchP8Auth = { login, pwd, captcha ->
+        launchP8Auth = {
             scope.launch {
-                helper.launchP8Auth(stateID.serverUrl, skipVerify, login, pwd, captcha)
+                helper.launchP8Auth(stateID.serverUrl, skipVerify, username.value, pwd.value, null)
             }
         },
     )
@@ -84,7 +85,7 @@ fun P8Credentials(
     message: String?,
     errMsg: String?,
     goBack: () -> Unit,
-    launchP8Auth: (String, String, String?) -> Unit,
+    launchP8Auth: () -> Unit,
 ) {
 
     val localFocusManager = LocalFocusManager.current
@@ -97,7 +98,7 @@ fun P8Credentials(
     val keyboardActions = KeyboardActions(
         onNext = { localFocusManager.moveFocus(FocusDirection.Down) },
         onDone = {
-            launchP8Auth(loginString, pwdString, captchaString)
+            launchP8Auth()
             localFocusManager.clearFocus()
             keyboardController?.hide()
         }
@@ -152,7 +153,7 @@ fun P8Credentials(
             backBtnLabel = stringResource(R.string.button_back),
             back = { goBack() },
             nextBtnLabel = stringResource(id = R.string.button_next),
-            next = { launchP8Auth(loginString, pwdString, captchaString) },
+            next = { launchP8Auth() },
             isProcessing = isProcessing,
         )
     }
@@ -180,7 +181,7 @@ private fun P8CredentialsPreview() {
             null,
             null,
             { },
-            { _, _, _ -> },
+            { },
         )
     }
 }

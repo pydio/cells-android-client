@@ -100,7 +100,7 @@ class BrowseRemoteVM(
         stateID.value.let {
             if (unknownStateId != it) {
                 result = if (Str.empty(it.file)) {
-                    accountService.refreshWorkspaceList(it.accountId)
+                    accountService.refreshWorkspaceList(it.account())
                 } else {
                     nodeService.pull(it)
                 }

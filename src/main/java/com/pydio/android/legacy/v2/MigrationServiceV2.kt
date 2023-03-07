@@ -298,7 +298,7 @@ class MigrationServiceV2 : KoinComponent {
             return 0
         }
 
-        val (_, errMsg) = accountService.refreshWorkspaceList(accountID.accountId)
+        val (_, errMsg) = accountService.refreshWorkspaceList(accountID.account())
         errMsg?.let {
             val msg = "could not list workspaces for $accountID: $errMsg"
             Log.w(logTag, msg)

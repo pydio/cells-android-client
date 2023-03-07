@@ -15,9 +15,9 @@ interface AccountService {
 
     fun getClient(stateID: StateID): Client
 
-    suspend fun isClientConnected(stateID: String): Boolean
+    suspend fun isClientConnected(stateID: StateID): Boolean
 
-    suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String
+    suspend fun signUp(serverURL: ServerURL, credentials: Credentials): StateID
 
     suspend fun registerAccount(username: String, server: Server, authStatus: String): StateID
 
@@ -27,7 +27,7 @@ interface AccountService {
 
     suspend fun logoutAccount(accountID: StateID): String?
 
-    suspend fun refreshWorkspaceList(accountId: String): Pair<Int, String?>
+    suspend fun refreshWorkspaceList(accountID: StateID): Pair<Int, String?>
 
     /* Direct query to the DB with suspend functions */
 

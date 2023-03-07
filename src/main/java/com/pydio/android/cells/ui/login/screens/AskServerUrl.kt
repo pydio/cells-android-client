@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -34,9 +36,15 @@ fun AskServerUrl(
     // Log.e(logTag, "Nav to Login Step")
     val scope = rememberCoroutineScope()
     val isProcessing = loginVM.isProcessing.collectAsState()
-    val currAddress = loginVM.serverAddress.collectAsState()
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
+
+    val currAddress = rememberSaveable() {
+        mutableStateOf("https://")
+    }
+    val setUrl: (String) -> Unit = {
+        currAddress.value = it.lowercase().trim()
+    }
 
     val doPing: (String) -> Unit = { url ->
         // TODO add sanity checks
@@ -52,7 +60,7 @@ fun AskServerUrl(
         message = message.value,
         errMsg = errMsg.value,
         urlString = currAddress.value,
-        setUrl = { loginVM.setAddress(it) },
+        setUrl = setUrl,
         pingUrl = { doPing(currAddress.value) },
         cancel = { helper.cancel() }
     )

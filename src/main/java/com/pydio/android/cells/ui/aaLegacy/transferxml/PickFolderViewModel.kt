@@ -82,7 +82,7 @@ class PickFolderViewModel(
 
     private suspend fun doPull() {
         val result = if (Str.empty(stateID.file)) {
-            accountService.refreshWorkspaceList(stateID.accountId)
+            accountService.refreshWorkspaceList(stateID.account())
         } else {
             nodeService.pull(stateID)
         }

@@ -192,7 +192,7 @@ class LoginViewModelNew(
         _nextAction.value = next
         val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
         _serverUrl.value = url
-        if (sessionView.isLegacy){
+        if (sessionView.isLegacy) {
             _username.value = sessionView.username
         } else {
             triggerOAuthProcess(url)
@@ -220,7 +220,7 @@ class LoginViewModelNew(
             res
         }
 
-        _accountId.value = res.first
+        // _accountId.value = res.first
 
         return Str.empty(res2.second)
     }
@@ -328,33 +328,36 @@ class LoginViewModelNew(
         Log.i(logTag, msg)
         updateMessage(msg)
 
-        val accountIDStr = withContext(Dispatchers.IO) {
-            var id: String? = null
-            try {
-                id = accountService.signUp(currURL, credentials)
-                delay(smoothActionDelay)
-                updateMessage("Connected, updating local state")
-//                withContext(Dispatchers.Main) {
-//                    setCurrentStep(LoginStep.PROCESS_AUTH)
-//                }
-                accountService.refreshWorkspaceList(id)
-                delay(smoothActionDelay)
-            } catch (e: SDKException) {
-                // TODO handle captcha here
-                Log.e(logTag, "${e.code}: ${e.message}")
-                e.printStackTrace()
-                updateErrorMsg(e.message ?: "Invalid credentials, please try again")
-            }
-            id
-        }
+        val accountIDStr = null
+//        val accountIDStr = withContext(Dispatchers.IO) {
+//            var id: String? = null
+//            try {
+//                id = accountService.signUp(currURL, credentials).id
+//                delay(smoothActionDelay)
+//                updateMessage("Connected, updating local state")
+////                withContext(Dispatchers.Main) {
+////                    setCurrentStep(LoginStep.PROCESS_AUTH)
+////                }
+//                accountService.refreshWorkspaceList(id)
+//                delay(smoothActionDelay)
+//            } catch (e: SDKException) {
+//                // TODO handle captcha here
+//                Log.e(logTag, "${e.code}: ${e.message}")
+//                e.printStackTrace()
+//                updateErrorMsg(e.message ?: "Invalid credentials, please try again")
+//            }
+//            id
+//        }
 
-        return if (accountIDStr != null) {
-            _accountId.value = accountIDStr
-            true
-            // FIXME
-            // setCurrentStep(LoginStep.DONE)
-        } else
-            return false
+        return false
+
+//        return if (accountIDStr != null) {
+//            _accountId.value = accountIDStr
+//            true
+//            // FIXME
+//            // setCurrentStep(LoginStep.DONE)
+//        } else
+//            return false
     }
 
     private suspend fun triggerOAuthProcess(serverURL: ServerURL) {

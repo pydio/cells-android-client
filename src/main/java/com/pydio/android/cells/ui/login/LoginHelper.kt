@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -71,7 +72,7 @@ class LoginHelper(
         if (stateID != null) {
             // Login has been successful,
             // We clean after ourselves and leave the login subgraph
-            afterAuth(stateID)
+            afterAuth(stateID, AuthService.NEXT_ACTION_BROWSE)
         } // else do nothing: error message has already been displayed and we stay on the page
     }
 
@@ -82,28 +83,25 @@ class LoginHelper(
             startingState != null && LoginDestinations.ProcessAuth.isCurrent(startingState.route)
             -> { // OAuth flow Callback
                 Log.d(logTag, "Process OAuth response for $stateID and ${startingState.state}")
-                val res = loginVM.handleOAuthResponse(
+                loginVM.handleOAuthResponse(
                     // We assume nullity has already been checked
                     state = startingState.state!!,
                     code = startingState.code!!,
-                )
-                if (res) {
-                    Log.i(logTag, "OAuth OK - ${loginVM.accountId.value}")
-                    loginVM.accountId.value?.let {
-                        val currID = StateID.fromId(it)
-                        afterAuth(currID)
-                    } ?: run {
-                        // TODO better error handling
-                        startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
-                    }
+                )?.let {
+                    Log.i(logTag, "OAuth OK - ${it.first}")
+                    afterAuth(it.first, it.second)
+                } ?: run {
+                    // TODO better error handling
+                    startingStateHasBeenProcessed(null, Transport.UNDEFINED_STATE_ID)
                 }
             }
             stateID != Transport.UNDEFINED_STATE_ID
             -> { // The user wants to login again in an expired already registered account
+                // FIXME implement next
+                val nextAction = AuthService.NEXT_ACTION_BROWSE
                 loginVM.getSessionView(stateID)?.let { sessionView ->
-                    // FIXME implement next
                     val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
-                    val intent = loginVM.newOAuthIntent(url)
+                    val intent = loginVM.newOAuthIntent(url, nextAction)
                     intent?.let {
                         withContext(Dispatchers.Main) {
                             ContextCompat.startActivity(context, intent, null)
@@ -112,7 +110,7 @@ class LoginHelper(
                 } ?: run {
                     Log.e(logTag, "Launching OAuth Process with no session view for $stateID")
                     val url = ServerURLImpl.fromAddress(stateID.serverUrl, skipVerify)
-                    val intent = loginVM.newOAuthIntent(url)
+                    val intent = loginVM.newOAuthIntent(url, nextAction)
                     intent?.let {
                         withContext(Dispatchers.Main) {
                             ContextCompat.startActivity(context, intent, null)
@@ -127,12 +125,11 @@ class LoginHelper(
         }
     }
 
-    private fun afterAuth(stateID: StateID) {
+    private fun afterAuth(stateID: StateID, nextAction: String?) {
         Log.e(logTag, "#########################")
         Log.e(logTag, "After Oauth: $stateID")
         val route = BrowseDestinations.Open.createRoute(stateID)
         startingStateHasBeenProcessed(null, stateID)
-        loginVM.flush()
 
         // TODO there must be a better way to get rid of login pages
         var targetEntry: NavBackStackEntry? = null
@@ -155,5 +152,6 @@ class LoginHelper(
         } ?: run {
             navigateTo(route)
         }
+        loginVM.flush()
     }
 }

@@ -101,13 +101,12 @@ class AccountServiceImpl(
     }
 
     @Throws(SDKException::class)
-    override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): String {
+    override suspend fun signUp(serverURL: ServerURL, credentials: Credentials): StateID {
         sessionFactory.registerAccountCredentials(serverURL, credentials)
         val server = sessionFactory.getServer(serverURL.id)
             ?: throw SDKException("could not sign up: unknown server with id ${serverURL.id}")
         // At this point we assume we have been connected or an error has already been thrown
-        val state = registerAccount(credentials.username, server, AppNames.AUTH_STATUS_CONNECTED)
-        return state.id
+        return registerAccount(credentials.username, server, AppNames.AUTH_STATUS_CONNECTED)
     }
 
     override suspend fun registerAccount(
@@ -307,18 +306,18 @@ class AccountServiceImpl(
         }
     }
 
-    override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
-        val isConnected = networkService.isConnected()
-        val accountID = StateID.fromId(stateID).accountId
-        accountDao.getAccount(accountID)?.let {
-            return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        }
-        return@withContext false
-    }
-
-    override suspend fun refreshWorkspaceList(accountId: String): Pair<Int, String?> =
+    override suspend fun isClientConnected(stateID: StateID): Boolean =
         withContext(Dispatchers.IO) {
-            val accountID = StateID.fromId(accountId)
+            val isConnected = networkService.isConnected()
+            val accountID = stateID.account()
+            accountDao.getAccount(accountID.id)?.let {
+                return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
+            }
+            return@withContext false
+        }
+
+    override suspend fun refreshWorkspaceList(accountID: StateID): Pair<Int, String?> =
+        withContext(Dispatchers.IO) {
             try {
                 val client: Client = getClient(accountID)
                 val wsDiff = WorkspaceDiff(accountID, client)
