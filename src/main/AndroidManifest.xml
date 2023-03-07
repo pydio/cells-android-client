@@ -24,37 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/Cells.Md3">
 
-        <!--        <activity-->
-        <!--            android:name=".LandActivity"-->
-        <!--            android:exported="true"-->
-        <!--            android:theme="@style/Cells.Md3.SplashScreen">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN" />-->
-        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
-
-        <!--        <activity-->
-        <!--            android:name=".SampleActivity"-->
-        <!--            android:exported="true"-->
-        <!--            android:theme="@style/Cells.Md3.SplashScreen">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN" />-->
-        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
-
-        <activity
-            android:name=".MigrateActivity"
-            android:exported="false" />
-
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Cells.Md3.LightStatusBar" />
-
-        <activity
-            android:name=".NewMainActivity"
             android:exported="true"
             android:theme="@style/Cells.Md3.SplashScreen">
             <intent-filter>
@@ -80,6 +51,20 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MigrateActivity"
+            android:exported="false" />
+
+        <!--        <activity-->
+        <!--            android:name=".SampleActivity"-->
+        <!--            android:exported="true"-->
+        <!--            android:theme="@style/Cells.Md3.SplashScreen">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
 
         <!--        <activity-->
         <!--            android:name=".SelectTargetActivity"-->
@@ -126,6 +111,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <!-- Work manager is handled by koin, see:
                 https://developer.android.com/topic/libraries/architecture/workmanager/advanced/custom-configuration#remove-default
                 and

@@ -3,8 +3,9 @@ package com.pydio.android.cells.ui.core.composables
 import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import androidx.compose.runtime.Composable
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.aaLegacy.bindings.getMessageFromLocalModifStatus
+import com.pydio.android.cells.ui.core.getMessageFromLocalModifStatus
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.utils.Str
 
@@ -17,13 +18,14 @@ fun getNodeTitle(name: String, mime: String): String {
     }
 }
 
+@Composable
 fun getNodeDesc(
     ctx: Context,
     item: RTreeNode,
 ): String {
 
     if (Str.notEmpty(item.localModificationStatus)) {
-        getMessageFromLocalModifStatus(ctx, item.localModificationStatus!!)?.let {
+        getMessageFromLocalModifStatus(item.localModificationStatus!!)?.let {
             return it
         }
     }

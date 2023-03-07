@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
-import com.pydio.cells.transport.StateID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

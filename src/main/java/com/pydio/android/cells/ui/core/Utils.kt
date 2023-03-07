@@ -4,14 +4,30 @@ import android.content.Context
 import android.util.Log
 import android.util.TypedValue
 import androidx.annotation.DimenRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
 private const val logTag = "core.utils"
+
+
+@Composable
+fun getMessageFromLocalModifStatus(status: String): String? {
+    return when (status) {
+        AppNames.LOCAL_MODIF_DELETE -> stringResource(R.string.in_progress_deleting)
+        AppNames.LOCAL_MODIF_RENAME -> stringResource(R.string.in_progress_renaming)
+        AppNames.LOCAL_MODIF_MOVE -> stringResource(R.string.in_progress_moving)
+        AppNames.LOCAL_MODIF_RESTORE -> stringResource(R.string.in_progress_restoring)
+        else -> null
+    }
+}
 
 fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     val outValue = TypedValue()

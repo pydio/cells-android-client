@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.TransferService

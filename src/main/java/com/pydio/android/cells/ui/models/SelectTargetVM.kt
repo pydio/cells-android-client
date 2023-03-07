@@ -7,16 +7,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.MainActivity
-import com.pydio.android.cells.services.TransferService
 
 /**
  * Holds the current location while choosing a target for file uploads or moves.
@@ -61,22 +59,24 @@ class SelectTargetVM(private val transferService: TransferService) : ViewModel()
         currLocation.value?.let { stateID ->
             vmScope.launch {
                 when (_actionContext) {
-                    AppNames.ACTION_COPY -> {
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.action = AppNames.ACTION_CHOOSE_TARGET
-                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
-                        withContext(Dispatchers.Main) {
-                            _postIntent.value = intent
-                        }
-                    }
-                    AppNames.ACTION_MOVE -> {
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.action = AppNames.ACTION_CHOOSE_TARGET
-                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
-                        withContext(Dispatchers.Main) {
-                            _postIntent.value = intent
-                        }
-                    }
+                    // We do not use that anymore
+                    // TODO Clean
+//                    AppNames.ACTION_COPY -> {
+//                        val intent = Intent(context, MainActivity::class.java)
+//                        intent.action = AppNames.ACTION_CHOOSE_TARGET
+//                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
+//                        withContext(Dispatchers.Main) {
+//                            _postIntent.value = intent
+//                        }
+//                    }
+//                    AppNames.ACTION_MOVE -> {
+//                        val intent = Intent(context, MainActivity::class.java)
+//                        intent.action = AppNames.ACTION_CHOOSE_TARGET
+//                        intent.putExtra(AppKeys.EXTRA_STATE, stateID.id)
+//                        withContext(Dispatchers.Main) {
+//                            _postIntent.value = intent
+//                        }
+//                    }
                     AppNames.ACTION_UPLOAD -> {
                         for (uri in uris) {
                             // TODO implement error management

@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.aaLegacy.box.account
+package com.pydio.android.cells.ui.share.composables
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -32,8 +32,8 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.getFloatResource
-import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 
 @Composable

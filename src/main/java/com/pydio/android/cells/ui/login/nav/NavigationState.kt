@@ -1,6 +1,6 @@
 package com.pydio.android.cells.ui.login.nav
 
-import java.util.UUID
+import java.util.*
 
 /**
  * State that can be used to trigger navigation.

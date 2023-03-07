@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.aaLegacy.box.AuthApp
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
 
@@ -88,7 +87,7 @@ fun FormBottomButtons(
                 // TODO double check always "enable" is the correct choice for the cancel button
                 enabled = true,
                 //                enabled = !isProcessing,
-           ) {
+            ) {
                 Text(backBtnLabel)
             }
 
@@ -170,17 +169,15 @@ private fun FormInputErrorPreview() {
 @Composable
 private fun FormBottomButtonsPreview() {
     CellsTheme {
-        AuthApp {
-            Column(Modifier.fillMaxWidth()) {
-                FormBottomButtons(
-                    backBtnLabel = "Cancel",
-                    back = { },
-                    nextBtnLabel = "Next",
-                    next = { },
-                    isProcessing = false,
-                    isBackPrimary = false
-                )
-            }
+        Column(Modifier.fillMaxWidth()) {
+            FormBottomButtons(
+                backBtnLabel = "Cancel",
+                back = { },
+                nextBtnLabel = "Next",
+                next = { },
+                isProcessing = false,
+                isBackPrimary = false
+            )
         }
     }
 }
@@ -193,17 +190,15 @@ private fun FormBottomButtonsPreview() {
 @Composable
 private fun FormBottomButtons2Preview() {
     CellsTheme {
-        AuthApp {
-            Column(Modifier.fillMaxWidth()) {
-                FormBottomButtons(
-                    backBtnLabel = "Go Back (recommended)",
-                    back = { },
-                    nextBtnLabel = "Accept the risk and continue",
-                    next = { },
-                    isProcessing = false,
-                    isBackPrimary = true,
-                )
-            }
+        Column(Modifier.fillMaxWidth()) {
+            FormBottomButtons(
+                backBtnLabel = "Go Back (recommended)",
+                back = { },
+                nextBtnLabel = "Accept the risk and continue",
+                next = { },
+                isProcessing = false,
+                isBackPrimary = true,
+            )
         }
     }
 }

@@ -30,7 +30,7 @@ class MigrateActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val migrationVM by viewModel<MigrationVM>()
                 val afterMigration: () -> Unit = {
-                    val intent = Intent(migrateActivity, LandActivity::class.java)
+                    val intent = Intent(migrateActivity, MainActivity::class.java)
                     startActivity(intent)
                     migrateActivity.finish()
                 }

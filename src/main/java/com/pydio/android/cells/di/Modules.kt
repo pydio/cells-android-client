@@ -23,15 +23,6 @@ import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
 import com.pydio.android.cells.ui.ConnectionVM
-import com.pydio.android.cells.ui.aaLegacy.browsexml.BookmarksViewModel
-import com.pydio.android.cells.ui.aaLegacy.browsexml.BrowseFolderViewModel
-import com.pydio.android.cells.ui.aaLegacy.browsexml.OfflineRootsViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.ChooseTargetViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.PickFolderViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.PickSessionViewModel
-import com.pydio.android.cells.ui.aaLegacy.transferxml.TransferViewModel
-import com.pydio.android.cells.ui.aaLegacy.utils.DownloadViewModel
-import com.pydio.android.cells.ui.aaLegacy.viewer.CarouselViewModel
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
@@ -45,15 +36,12 @@ import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.models.NewLoginVM
-import com.pydio.android.cells.ui.menus.TransferMenuViewModel
-import com.pydio.android.cells.ui.menus.TreeNodeMenuViewModel
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.models.UploadsVM
-import com.pydio.android.cells.ui.search.SearchViewModel
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
@@ -213,36 +201,16 @@ val viewModelModule = module {
     viewModel { MonitorUploadsVM(get(), get()) }
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
-    viewModel { params -> BrowseFolderViewModel(get(), get(), get(), params.get()) }
-    viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
-    viewModel { params -> DownloadViewModel(params.get(), params.get(), get(), get()) }
-
-    viewModel { BookmarksViewModel(get()) }
-    viewModel { OfflineRootsViewModel(get(), get(), get(), get()) }
-
     viewModel { JobListVM(get()) }
     viewModel { LogListVM(get()) }
 
-    // viewModel { AccountHomeVM(get()) }
     viewModelOf(::AccountHomeVM)
     viewModel { BrowseRemoteVM(get(), get()) }
-//    viewModel { FolderVM(get()) }
     viewModelOf(::FolderVM)
 
     viewModel { SelectTargetVM(get()) }
     viewModel { MigrationVM(get(), get(), get(), get()) }
     viewModel { UploadsVM(get(), get()) }
-
-    viewModel { ChooseTargetViewModel(get()) }
-    viewModel { PickSessionViewModel(get()) }
-    viewModel { PickFolderViewModel(get(), get()) }
-
-    viewModel { params -> TransferViewModel(get(), get(), params.get()) }
-    viewModel { params -> TransferMenuViewModel(params.get(), params.get(), get()) }
-
-    viewModel { params -> SearchViewModel(params.get(), get()) }
-
-    viewModel { CarouselViewModel(get(), get()) }
 
 }
 

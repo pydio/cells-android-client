@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.aaLegacy.box.account.TargetAccountList
 import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.share.composables.TargetAccountList
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 

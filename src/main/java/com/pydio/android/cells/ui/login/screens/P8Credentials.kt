@@ -41,7 +41,7 @@ fun P8Credentials(
     // This might have been initialised when re-logging a P8 account
 
     val username = rememberSaveable() {
-        mutableStateOf(stateID.username)
+        mutableStateOf(stateID.username ?: "")
     }
     val setUsername: (String) -> Unit = {
         username.value = it.trim()

@@ -1,435 +1,334 @@
 package com.pydio.android.cells
 
-import android.graphics.drawable.Drawable
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.SearchView.OnQueryTextListener
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.GravityCompat
-import androidx.databinding.DataBindingUtil
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationView
-import com.pydio.android.cells.databinding.ActivityMainBinding
-import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.NetworkService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.aaLegacy.bindings.getWsIconForMenu
-import com.pydio.android.cells.ui.search.SearchFragment
-import com.pydio.android.cells.utils.showMessage
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
+import com.pydio.android.cells.ui.MainApp
+import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.UseCellsTheme
+import com.pydio.android.cells.ui.login.LoginDestinations
+import com.pydio.android.cells.ui.share.ShareDestination
+import com.pydio.android.cells.ui.system.models.LandingVM
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
- * Central activity for browsing, managing accounts and settings.
- * The various screens are implemented via fragments. See in the ui package.
+ * Main entry point for the Cells Application:
+ *
+ * - We check if we should forward to the migrate activity
+ * - If no migration is necessary, we handle the bundle / intent and then
+ *    forward everything to Jetpack Compose.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private val logTag = MainActivity::class.simpleName
 
-    private val nodeService: NodeService by inject()
-    private val networkService: NetworkService by inject()
-
-    private val prefs: CellsPreferences by inject()
-    private val liveSharedPreferences = LiveSharedPreferences(prefs.get())
-
-    private val activeSessionVM: ActiveSessionViewModel by viewModel()
-
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var navController: NavController
-
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(logTag, "onCreate: launching new main activity")
         super.onCreate(savedInstanceState)
 
-        val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
-            ?: intent.getStringExtra(AppKeys.EXTRA_STATE)
-        val stateID = StateID.fromId(encodedState)
-        Log.d(logTag, "onCreate for: $stateID")
-        activeSessionVM.afterCreate(stateID?.accountId)
+        // Use androidx.core:core-splashscreen library to manage splash
+        installSplashScreen()
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        setSupportActionBar(binding.mainToolbar)
+        // TODO readd the Splash composable here
+        // cf system/screens/splash.kt
 
-        val navView: NavigationView = binding.navView
-        navController = findNavController(R.id.main_fragment_host)
-        appBarConfiguration = AppBarConfiguration(navController.graph, binding.mainDrawerLayout)
+//        findViewById<>()
+//        setContentView(R.layout.activity_splash)
 
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-        // Add custom listeners
-        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
-        configureNavigationDrawer()
-        handleCustomNavigation(stateID)
+        // First check if we need a migration
+        val landActivity = this
+
+        lifecycleScope.launch {
+            val landingVM by viewModel<LandingVM>()
+            val noMigrationNeeded = landingVM.noMigrationNeeded()
+            if (!noMigrationNeeded) {
+                // forward to migration page
+                val intent = Intent(landActivity, MigrateActivity::class.java)
+                startActivity(intent)
+                landActivity.finish()
+                return@launch
+            }
+
+            var startingState = handleIntent(savedInstanceState)
+                ?: landingVM.getStartingState()
+
+            // FIXME the state is not nul but we still don't know where to go.
+            if (Str.empty(startingState.route)) {
+                startingState = landingVM.getStartingState()
+            }
+
+            Log.i(logTag, "#######################################")
+            Log.i(logTag, "onCreate with starting state:")
+            Log.i(logTag, "  StateID: ${startingState?.stateID}")
+            Log.i(logTag, "  Route: ${startingState?.route}")
+
+            // TODO rework this
+            // WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+
+            setContent {
+
+                val widthSizeClass = calculateWindowSizeClass(landActivity).widthSizeClass
+                val intentHasBeenProcessed = rememberSaveable {
+                    mutableStateOf(false) // startingState == null)
+                }
+
+                val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+                    intentHasBeenProcessed.value = true
+                }
+
+                val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+                    when (action) {
+                        AppNames.ACTION_CANCEL -> {
+                            finishAndRemoveTask()
+                        }
+                    }
+                }
+
+                UseCellsTheme {
+                    MainApp(
+                        startingState = if (intentHasBeenProcessed.value) null else startingState,
+                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        launchIntent = landActivity::launchIntent,
+                        launchTaskFor = launchTaskFor,
+                        widthSizeClass = widthSizeClass,
+                    )
+                }
+                landingVM.recordLaunch()
+            }
+        }
+
+//        val startingState = handleIntent(savedInstanceState)
+//        Log.d(logTag, "onCreate for: ${startingState?.stateID}")
+//
+//        // TODO rework this
+//        // WindowCompat.setDecorFitsSystemWindows(window, false)
+//        WindowCompat.setDecorFitsSystemWindows(window, true)
+//
+//        setContent {
+//
+//            val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+//            val intentHasBeenProcessed = rememberSaveable() {
+//                mutableStateOf(startingState == null)
+//            }
+//
+//            val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+//                intentHasBeenProcessed.value = true
+//            }
+//
+//            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+//                when (action) {
+//                    AppNames.ACTION_CANCEL -> {
+//                        finishAndRemoveTask()
+//                    }
+//
+////                    AppNames.ACTION_LOGIN -> {
+////                        // TODO this does not work when remote is Cells and we have to perform the OAuth flow.
+////                        //    we haven't found yet a way to call back this task once the process has succeed.
+////                        coroutineScope.launch {
+////                            val session = withContext(Dispatchers.IO) {
+////                                accountListVM.getSession(stateID)
+////                            } ?: return@launch
+////
+////                            // TODO clean this when implementing custom certificate acceptance.
+////                            val serverURL =
+////                                ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
+////                            val toAuthIntent = Intent(ctx, LoginActivity::class.java)
+////                            toAuthIntent.putExtra(AppKeys.EXTRA_SERVER_URL, serverURL.toJson())
+////                            toAuthIntent.putExtra(
+////                                AppKeys.EXTRA_SERVER_IS_LEGACY,
+////                                session.isLegacy
+////                            )
+////                            toAuthIntent.putExtra(
+////                                AppKeys.EXTRA_AFTER_AUTH_ACTION,
+////                                AuthService.NEXT_ACTION_SHARE
+////                            )
+////                            // We don't want that the login intermediary activity pollute the history of the end user
+////                            intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+////                            startActivity(toAuthIntent)
+////                        }
+////                    }
+////                    AppNames.ACTION_UPLOAD -> {
+////                        uploadsVM.launchShareToPydioAt(stateID, uris)
+//////                            finishAndRemoveTask()
+////                    }
+////                    AppNames.ACTION_CREATE_FOLDER -> {
+////                        createFolderParent.value = stateID.id
+////                        showCreateFolderDialog.value = true
+//////                            createFolder(ctx, stateID, nodeService)
+////                    }
+//                }
+//            }
+//
+//            UseCellsTheme {
+//                MainApp(
+//                    startingState = if (intentHasBeenProcessed.value) null else startingState,
+//                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+//                    launchIntent = this::launchIntent,
+//                    launchTaskFor = launchTaskFor,
+//                    widthSizeClass = widthSizeClass,
+//                )
+//            }
+//        }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Log.d(logTag, "onCreateOptionsMenu")
-        menuInflater.inflate(R.menu.main_options, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        Log.d(logTag, "onPrepareOptionsMenu: ${StateID.fromId(activeSessionVM.accountId)}")
-        super.onPrepareOptionsMenu(menu)
-        configureSearch(menu)
-        configureConnexionAlarm(menu)
-        configureLayoutSwitcher(menu)
-        configureSort(menu)
-        return true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        activeSessionVM.accountId?.let {
-            Log.i(logTag, "onSaveInstanceState for: ${StateID.fromId(it)}")
-            outState.putString(AppKeys.EXTRA_STATE, it)
+    private fun launchIntent(
+        intent: Intent?,
+        checkIfKnown: Boolean,
+        alsoFinishCurrentActivity: Boolean
+    ) {
+        if (intent == null) {
+            finishAndRemoveTask()
+        } else if (checkIfKnown) {
+            val resolvedActivity =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val flag = PackageManager.ResolveInfoFlags
+                        .of(MATCH_DEFAULT_ONLY.toLong())
+                    packageManager.resolveActivity(intent, flag)
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
+                }
+            // TODO better error handling
+            if (resolvedActivity == null) {
+                Log.e(logTag, "No Matching handler found for $intent")
+            }
+        } else {
+            startActivity(intent)
+            if (alsoFinishCurrentActivity) {
+                finishAndRemoveTask()
+            }
         }
     }
 
-    override fun onResume() {
-        Log.e(logTag, "onResume, intent: $intent")
-        super.onResume()
+    private fun handleIntent(savedInstanceState: Bundle?): StartingState? {
+        Log.e(logTag, "########################################")
+        Log.e(logTag, "Handle Intent: $intent")
+        if (intent == null) { // we then rely on saved state or defaults
+
+            // TO BE REFINED we assume we have no starting state in such case
+            return null
+
+//            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
+//            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
+//            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
+//            return StartingState(initialStateID)
+
+        }
+
+        // Intent is not null
+        val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
+        val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
+        var startingState = StartingState(initialStateID)
+
+        val extraUrl = lazyGet(intent, AppKeys.EXTRA_SERVER_URL)
+        when {
+            Intent.ACTION_VIEW == intent.action -> {
+
+                // Handle call back for OAuth credential flow
+                val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
+                val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
+                if (code != null && state != null) {
+                    startingState.route = LoginDestinations.ProcessAuth.route
+                    startingState.code = code
+                    startingState.state = state
+                } else {
+                    Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
+                    if (intent.extras != null) {
+                        Log.e(logTag, "Listing extras:")
+                        intent.extras?.keySet()?.let {
+                            for (key in it.iterator()) {
+                                Log.e(logTag, " - $key")
+                            }
+                        }
+                    }
+                }
+            }
+            // Re-log to an already registered server
+// TODO
+//            extraUrl != null -> {
+//                // TODO double check that browsing is the relevant default here
+//                val next = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
+//                    ?: AuthService.NEXT_ACTION_BROWSE
+//                val isLegacy = intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)
+//                Log.d(
+//                    logTag, "... Received a re-log cmd with $next flag, " +
+//                            "for ${if (isLegacy) "legacy P8" else "Cells"} server at $extraUrl"
+//                )
+//                if (isLegacy) {
+//                    loginVM.toP8Credentials(extraUrl, next)
+//                } else {
+//                    lifecycleScope.launch {
+//                        loginVM.toCellsCredentials(extraUrl, next)
+//                    }
+//                }
+//            }
+            Intent.ACTION_SEND == intent.action -> {
+                val clipData = intent.clipData
+                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+                clipData?.let {
+                    startingState.route = ShareDestination.ChooseAccount.route
+                    clipData.getItemAt(0).uri?.let {
+                        startingState.uris.add(it)
+                    }
+                }
+            }
+            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
+                val tmpClipData = intent.clipData
+                tmpClipData?.let { clipData ->
+                    startingState.route = ShareDestination.ChooseAccount.route
+                    for (i in 0 until clipData.itemCount) {
+                        clipData.getItemAt(i).uri?.let {
+                            startingState.uris.add(it)
+                        }
+                    }
+                }
+            }
+            else -> {
+                Log.w(logTag, "... Unexpected intent: $intent")
+            }
+        }
+        return startingState
     }
 
-    override fun onStart() {
-        Log.d(logTag, "onStart, intent: $intent")
-        super.onStart()
-    }
 
-    override fun onStop() {
-        Log.d(logTag, "onStop, intent: $intent")
-        super.onStop()
+    override fun onDestroy() {
+        Log.d(logTag, "onDestroy")
+        super.onDestroy()
     }
 
     override fun onPause() {
-        Log.d(logTag, "onPause, intent: $intent")
+        Log.d(logTag, "onPause")
         super.onPause()
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    override fun onResume() {
+        Log.d(logTag, "onResume")
+        super.onResume()
     }
 
-    override fun onBackPressed() {
-        val drawer = binding.mainDrawerLayout
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+    // Helpers
+    private fun lazyGet(intent: Intent, key: String): String? {
+        if (intent.hasExtra(key) && Str.notEmpty(intent.getStringExtra(key))) {
+            return intent.getStringExtra(key)
         }
-    }
-
-    private fun configureNavigationDrawer() {
-        // Header card
-        val header = binding.navView.getHeaderView(0)
-        val switchAccountBtn = header.findViewById<ImageView>(R.id.nav_header_switch_account)
-        switchAccountBtn?.setOnClickListener {
-            navController.navigate(MainNavDirections.openAccountList())
-            closeDrawer()
-        }
-
-        // Observe current live session
-        if (activeSessionVM.accountId == null) {
-            return
-        }
-        val accId = activeSessionVM.accountId
-        activeSessionVM.sessionView.observe(this) {
-            it?.let { liveSession ->
-                // Header
-                val headerView = binding.navView.getHeaderView(0)
-                val primaryText =
-                    headerView.findViewById<TextView>(R.id.nav_header_primary_text)
-                primaryText.text = liveSession.username
-                val secondaryText =
-                    headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
-                secondaryText.text = liveSession.url
-
-                // Only show offline page when remote is not legacy
-                binding.navView.menu.findItem(R.id.offline_root_list_destination)?.isVisible =
-                    !liveSession.isLegacy
-
-                binding.navView.invalidate()
-            }
-        }
-
-        // Workspaces
-        val wsMenuSection = binding.navView.menu.findItem(R.id.ws_section)
-        activeSessionVM.workspaces.observe(this) {
-            if (it.isNotEmpty() && wsMenuSection != null && wsMenuSection.subMenu != null) {
-                wsMenuSection.subMenu!!.clear()
-                for (ws in it) {
-                    val wsItem = wsMenuSection.subMenu!!.add(ws.label)
-                    wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
-                    wsItem.setOnMenuItemClickListener {
-                        val state = StateID.fromId(accId).withPath("/${ws.slug}")
-                        navController.navigate(MainNavDirections.openFolder(state.id))
-                        closeDrawer()
-                        true
-                    }
-                }
-                binding.navView.invalidate()
-            }
-        }
-
-        // Optional access to log and job tables
-        liveSharedPreferences
-            .getBoolean(AppKeys.SHOW_DEBUG_TOOLS, false)
-            .observe(this) {
-                it?.let { // necessary or we might encounter NPE when deployed on production0
-                    binding.navView.menu.findItem(R.id.job_list_destination)?.isVisible = it
-                    binding.navView.menu.findItem(R.id.log_list_destination)?.isVisible = it
-                }
-            }
-    }
-
-    private fun handleCustomNavigation(stateID: StateID?) {
-        stateID?.let {
-            when {
-                Str.notEmpty(it.workspace) -> {
-                    val action = MainNavDirections.openFolder(it.id)
-                    navController.navigate(action)
-                }
-            }
-        } ?: let { navController.navigate(MainNavDirections.openAccountList()) }
-    }
-
-    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.d(logTag, "... Item selected: #${it.itemId}")
-        var done = false
-        when (it.itemId) {
-            R.id.offline_root_list_destination -> {
-                activeSessionVM.sessionView.value?.let { _ ->
-                    navController.navigate(MainNavDirections.openOfflineRoots())
-                    done = true
-                }
-            }
-            R.id.bookmark_list_destination -> {
-                activeSessionVM.sessionView.value?.let { _ ->
-                    navController.navigate(MainNavDirections.openBookmarks())
-                    done = true
-                }
-            }
-            R.id.clear_cache -> {
-                activeSessionVM.sessionView.value?.let { session ->
-                    // clearCache(binding.root.context, session.accountID, nodeService)
-                    done = true
-                }
-            }
-            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
-        }
-        if (done) {
-            binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
-        }
-        done
-    }
-
-    private fun closeDrawer() {
-        binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
-    }
-
-    private fun configureSearch(menu: Menu) {
-        val searchItem = menu.findItem(R.id.search_edit_view)
-        if (searchItem != null) {
-            searchItem.isVisible = needSearch()
-            if (searchItem.isVisible) {
-                val searchView = searchItem.actionView as SearchView
-                searchView.setOnQueryTextListener(SearchListener())
-            }
-        }
-    }
-
-    private fun configureConnexionAlarm(menu: Menu) {
-        val connexionAlarmBtn = menu.findItem(R.id.open_connexion_dialog)
-        connexionAlarmBtn.isVisible = false
-        if (activeSessionVM.accountId == null) {
-            // no accountID => we are on the account page and the re-log button is not shown
-            return
-        }
-        activeSessionVM.sessionView.observe(this) {
-            it?.let { liveSession ->
-                val isDisconnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
-                connexionAlarmBtn.isVisible = isDisconnected
-            }
-        }
-        connexionAlarmBtn.setOnMenuItemClickListener {
-            activeSessionVM.sessionView.value?.let {
-                val action = MainNavDirections.openManageConnection(it.accountID)
-                navController.navigate(action)
-            }
-            return@setOnMenuItemClickListener true
-        }
-
-        // The "no internet banner"
-        networkService.networkType.observe(this) {
-            it?.let {
-                val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
-                if (it == AppNames.NETWORK_TYPE_UNMETERED ||
-                    (it == AppNames.NETWORK_TYPE_METERED && !applyLimit)
-                ) {
-                    binding.offlineBanner.visibility = View.GONE
-                } else {
-                    binding.networkType = it
-                    binding.offlineBanner.visibility = View.VISIBLE
-                }
-                binding.executePendingBindings()
-            }
-        }
-    }
-
-    private fun configureSort(menu: Menu) {
-        val openSortButton = menu.findItem(R.id.open_sort_by)
-        openSortButton.isVisible = needListOptions()
-        if (!openSortButton.isVisible) {
-            return
-        }
-        openSortButton.setOnMenuItemClickListener {
-            val action = MainNavDirections.openSortBy()
-            navController.navigate(action)
-            return@setOnMenuItemClickListener true
-        }
-    }
-
-    private fun configureLayoutSwitcher(menu: Menu) {
-        val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
-        val showSwitch = needListOptions()
-
-        layoutSwitcher.isVisible = showSwitch
-        if (!showSwitch) {
-            return
-        }
-
-        liveSharedPreferences
-            .getString(AppKeys.CURR_RECYCLER_LAYOUT, AppNames.RECYCLER_LAYOUT_LIST)
-            .observe(this) {
-                it?.let {
-                    when (it) {
-                        AppNames.RECYCLER_LAYOUT_GRID -> {
-                            layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
-                            layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
-                        }
-                        else -> {
-                            layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
-                            layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
-                        }
-                    }
-                }
-            }
-
-        layoutSwitcher.setOnMenuItemClickListener {
-            val newValue = when (prefs.getString(
-                AppKeys.CURR_RECYCLER_LAYOUT,
-                AppNames.RECYCLER_LAYOUT_LIST
-            )) {
-                AppNames.RECYCLER_LAYOUT_GRID -> AppNames.RECYCLER_LAYOUT_LIST
-                else -> AppNames.RECYCLER_LAYOUT_GRID
-            }
-            prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, newValue)
-//             Log.e(logTag, "in listener, new layout value: $newValue")
-//            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-//            this.recreate()
-            return@setOnMenuItemClickListener true
-        }
-    }
-
-    private fun needSearch(): Boolean {
-        return navController.currentDestination?.let {
-            when (it.id) {
-                R.id.account_home_destination -> true
-                R.id.search_destination -> true
-                R.id.browse_folder_destination -> true
-                else -> false
-            }
-        } ?: false
-    }
-
-    private fun needListOptions(): Boolean {
-        return navController.currentDestination?.let {
-            when (it.id) {
-                // R.id.search_destination -> true
-                R.id.bookmark_list_destination -> true
-                R.id.browse_folder_destination -> true
-                R.id.offline_root_list_destination -> true
-                else -> false
-            }
-        } ?: false
-    }
-
-    private fun getIcon(id: Int): Drawable? {
-        return ResourcesCompat.getDrawable(resources, id, theme)
-    }
-
-    private inner class SearchListener : OnQueryTextListener {
-        // FIXME clean this class: why local state? Also do externalize.
-        private var searchFragment: SearchFragment? = null
-        private var stateId: StateID? = null
-        private var uiContext: String? = null
-
-        override fun onQueryTextChange(newText: String): Boolean {
-            if (Str.empty(newText)) return true
-            // TODO for the time being, we do not remote query at each key stroke.
-//            navController.currentDestination?.let {
-//                if (it.id == R.id.search_destination) {
-//                    getSearchFragment()?.updateQuery(newText)
-//                }
-//            }
-            return true
-        }
-
-        override fun onQueryTextSubmit(query: String): Boolean {
-            navController.currentDestination?.let {
-                if (it.id == R.id.search_destination) {
-                    getSearchFragment()?.updateQuery(query)
-                } else {
-                    retrieveCurrentContext()
-                    stateId?.let { state ->
-                        val action =
-                            MainNavDirections.searchEditView(state.id, uiContext!!, query)
-                        navController.navigate(action)
-                    }
-                }
-            }
-            return true
-        }
-
-        private fun retrieveCurrentContext() {
-            if (activeSessionVM.sessionView.value == null) {
-                showMessage(baseContext, "Cannot search with no active session")
-                return
-            }
-            // showMessage(baseContext, "About to navigate")
-
-            stateId = StateID.fromId(activeSessionVM.sessionView.value!!.accountID)
-            uiContext = when (navController.currentDestination!!.id) {
-                R.id.bookmark_list_destination -> AppNames.CUSTOM_PATH_BOOKMARKS
-                else -> ""
-            }
-        }
-
-        private fun getSearchFragment(): SearchFragment? {
-            searchFragment?.let { return it }
-            supportFragmentManager.findFragmentById(R.id.main_fragment_host)
-                ?.childFragmentManager?.findFragmentById(R.id.main_fragment_host)?.let {
-                    searchFragment = it as SearchFragment
-                }
-            return searchFragment
-        }
+        return null
     }
 }

@@ -41,8 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
@@ -357,7 +357,6 @@ private fun BookmarkList(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
-                                    context,
                                     node.remoteModificationTS,
                                     node.size,
                                     node.localModificationStatus
@@ -380,7 +379,6 @@ private fun BookmarkList(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
-                                    context,
                                     node.remoteModificationTS,
                                     node.size,
                                     node.localModificationStatus

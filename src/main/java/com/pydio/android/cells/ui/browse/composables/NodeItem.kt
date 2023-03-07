@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.browse.composables
 
-import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import androidx.compose.foundation.Image
@@ -11,11 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,20 +18,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.aaLegacy.bindings.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.core.getMessageFromLocalModifStatus
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.utils.Str
 
 @Composable
 fun NodeItem(
@@ -257,22 +251,21 @@ fun getNodeTitle(name: String, mime: String): String {
 
 @Composable
 fun getNodeDesc(
-    context: Context,
     remoteModificationTS: Long,
     size: Long,
     localModificationStatus: String?,
 ): String {
-
-    if (Str.notEmpty(localModificationStatus)) {
-        getMessageFromLocalModifStatus(context, localModificationStatus!!)?.let {
-            return it
+    return localModificationStatus?.let { getMessageFromLocalModifStatus(it) }
+        ?: run {
+            val timestamp = DateUtils.formatDateTime(
+                LocalContext.current,
+                remoteModificationTS * 1000L,
+                DateUtils.FORMAT_ABBREV_RELATIVE
+            )
+            val sizeStr = Formatter.formatShortFileSize(
+                LocalContext.current,
+                size
+            )
+            "$timestamp • $sizeStr"
         }
-    }
-    val timestamp = DateUtils.formatDateTime(
-        context,
-        remoteModificationTS * 1000L,
-        DateUtils.FORMAT_ABBREV_RELATIVE
-    )
-    val sizeStr = Formatter.formatShortFileSize(context, size)
-    return "$timestamp • $sizeStr"
 }

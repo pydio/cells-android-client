@@ -338,7 +338,6 @@ private fun HitsList(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
-                                    context,
                                     node.remoteModificationTS,
                                     node.size,
                                     node.localModificationStatus
@@ -361,7 +360,6 @@ private fun HitsList(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
-                                    context,
                                     node.remoteModificationTS,
                                     node.size,
                                     node.localModificationStatus

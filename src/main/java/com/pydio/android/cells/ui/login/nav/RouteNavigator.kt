@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.login.nav
 
 import androidx.annotation.VisibleForTesting
-import com.pydio.android.cells.ui.login.nav.NavigationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
