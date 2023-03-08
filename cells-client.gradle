@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     // Generate helper classes to pass data between fragments
-    id 'androidx.navigation.safeargs.kotlin'
+    //  id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -47,8 +47,11 @@ android {
             signingConfig signingConfigs.release
             resValue "string", "app_version",
                     "${defaultConfig.versionName}"
-//            minifyEnabled false
+
             minifyEnabled true
+            shrinkResources true
+
+//            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
@@ -71,15 +74,6 @@ android {
             arg("room.schemaLocation", "$projectDir/schemas".toString())
         }
     }
-
-// FIXME
-//    sourceSets {
-//        all {
-//            languageSettings {
-//                optIn('kotlin.time.ExperimentalTime')
-//            }
-//        }
-//    }
 
     // We do not want that the linter makes builds fail. It is quite extremist by default.
     lintOptions {

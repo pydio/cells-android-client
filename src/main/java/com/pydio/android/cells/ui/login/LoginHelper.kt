@@ -9,7 +9,7 @@ import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 
 class LoginHelper(
     private val navController: NavHostController,
-    private val loginVM: NewLoginVM,
+    private val loginVM: LoginVM,
     val navigateTo: (String) -> Unit,
     val startingState: StartingState?,
     val startingStateHasBeenProcessed: (String?, StateID) -> Unit,

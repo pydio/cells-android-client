@@ -18,10 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.danger
-import com.pydio.android.cells.ui.theme.ok
-import com.pydio.android.cells.ui.theme.warning
 
 enum class Type {
     AUTH, JOB
@@ -76,10 +74,10 @@ private fun JobDecorator(status: String, modifier: Modifier) {
 
     val color = when (status) {
         AppNames.JOB_STATUS_PROCESSING -> MaterialTheme.colorScheme.primary
-        AppNames.JOB_STATUS_CANCELLED -> warning
-        AppNames.JOB_STATUS_ERROR -> danger
-        AppNames.JOB_STATUS_DONE -> ok
-        else -> warning
+        AppNames.JOB_STATUS_CANCELLED -> CellsColor.warning
+        AppNames.JOB_STATUS_ERROR -> CellsColor.danger
+        AppNames.JOB_STATUS_DONE -> CellsColor.ok
+        else -> CellsColor.warning
     }
 
     Icon(
@@ -104,12 +102,12 @@ private fun AuthDecorator(authStatus: String, modifier: Modifier) {
     }
 
     val colorFilter = when (authStatus) {
-        AppNames.AUTH_STATUS_NO_CREDS -> danger
-        AppNames.AUTH_STATUS_EXPIRED -> danger
-        AppNames.AUTH_STATUS_UNAUTHORIZED -> danger
-        AppNames.AUTH_STATUS_REFRESHING -> warning
-        AppNames.AUTH_STATUS_CONNECTED -> ok
-        else -> danger
+        AppNames.AUTH_STATUS_NO_CREDS -> CellsColor.danger
+        AppNames.AUTH_STATUS_EXPIRED -> CellsColor.danger
+        AppNames.AUTH_STATUS_UNAUTHORIZED -> CellsColor.danger
+        AppNames.AUTH_STATUS_REFRESHING -> CellsColor.warning
+        AppNames.AUTH_STATUS_CONNECTED -> CellsColor.ok
+        else -> CellsColor.danger
     }
 
     Image(

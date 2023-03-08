@@ -27,7 +27,7 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.share.TransferBottomSheet
-import com.pydio.android.cells.ui.share.TransferListItem
+import com.pydio.android.cells.ui.share.composables.TransferListItem
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import kotlinx.coroutines.launch
 

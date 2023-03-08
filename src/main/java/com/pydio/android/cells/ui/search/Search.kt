@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
@@ -116,16 +117,16 @@ fun Search(
         }
     )
 
-    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+    val launch: (NodeAction, StateID) -> Unit = { action, currID ->
         when (action) {
             is NodeAction.OpenInApp -> {
                 moreMenuDone()
                 scope.launch {
-                    searchHelper.open(context, stateID)
+                    searchHelper.open(context, currID)
                 }
             }
             is NodeAction.DownloadToDevice -> {
-                destinationPicker.launch(stateID.fileName)
+                destinationPicker.launch(currID.fileName)
                 // Done is called by the destination picker callback
             }
             is NodeAction.AsGrid -> {
@@ -138,7 +139,7 @@ fun Search(
                 moreMenuDone()
             }
             else -> {
-                Log.e(logTag, "Unknown action $action for $stateID")
+                Log.e(logTag, "Unknown action $action for $currID")
                 moreMenuDone()
             }
         }
@@ -301,7 +302,6 @@ private fun HitsList(
     padding: PaddingValues,
     modifier: Modifier,
 ) {
-    val context = LocalContext.current
 
     val state = rememberPullRefreshState(
         loadingState == LoadingState.PROCESSING,
@@ -323,9 +323,7 @@ private fun HitsList(
             when (listLayout) {
                 ListLayout.GRID -> {
                     LazyVerticalGrid(
-                        // TODO make this more generic for big screens also
-                        columns = GridCells.Adaptive(minSize = 128.dp),
-                        // columns = GridCells.Fixed(2),
+                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = padding,

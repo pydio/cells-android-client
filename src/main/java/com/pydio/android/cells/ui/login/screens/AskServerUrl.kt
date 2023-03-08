@@ -20,7 +20,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.FormBottomButtons
 import com.pydio.android.cells.ui.core.composables.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ private const val logTag = "AskServerUrl"
 @Composable
 fun AskServerUrl(
     helper: LoginHelper,
-    loginVM: NewLoginVM,
+    loginVM: LoginVM,
 ) {
 
     // Log.e(logTag, "Nav to Login Step")
@@ -47,7 +47,6 @@ fun AskServerUrl(
     }
 
     val doPing: (String) -> Unit = { url ->
-        // TODO add sanity checks
         scope.launch {
             val res = loginVM.pingAddress(url, false)
             Log.e(logTag, "After ping with no SkipVerify flag, res: $res")

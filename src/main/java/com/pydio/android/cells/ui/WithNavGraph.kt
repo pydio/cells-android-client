@@ -21,7 +21,7 @@ import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
@@ -50,7 +50,7 @@ fun CellsNavGraph(
     launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
-    loginVM: NewLoginVM = koinViewModel(),
+    loginVM: LoginVM = koinViewModel(),
 ) {
 
     val scope = rememberCoroutineScope()

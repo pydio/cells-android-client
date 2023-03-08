@@ -99,9 +99,8 @@
     <!-- More indirection to ease later design improvements -->
     <color name="colorAvatarDefault">@color/cells_on_primary_container</color>
     <color name="iconTint">@color/cells_on_primary_container</color>
-
-    <!-- TODO remove these -->
-    <color name="searchStatusBarColor">#FB725C</color>
     <color name="colorAccent">#FF9800</color>
+
+    <!--    <color name="searchStatusBarColor">#FB725C</color>-->
 
 </resources>

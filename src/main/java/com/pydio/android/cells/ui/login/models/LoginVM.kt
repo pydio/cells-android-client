@@ -27,13 +27,13 @@ import java.io.IOException
 import java.net.MalformedURLException
 import javax.net.ssl.SSLException
 
-class NewLoginVM(
+class LoginVM(
     private val authService: AuthService,
     private val sessionFactory: SessionFactory,
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = NewLoginVM::class.simpleName
+    private val logTag = LoginVM::class.simpleName
 
     // UI
     // Add some delay for the end user to be aware of what is happening under the hood.
@@ -79,7 +79,6 @@ class NewLoginVM(
         password: String,
         captcha: String?
     ): StateID? {
-        // TODO validate passed parameters
         switchLoading(true)
         return doP8Auth(url, skipVerify, login, password, captcha)
     }

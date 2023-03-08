@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.login.LoginHelper
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -81,7 +81,7 @@ fun SkipVerify(
 fun SkipVerify(
     stateID: StateID,
     helper: LoginHelper,
-    loginVM: NewLoginVM,
+    loginVM: LoginVM,
     // navigateTo: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()

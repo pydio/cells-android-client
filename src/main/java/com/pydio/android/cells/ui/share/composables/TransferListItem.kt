@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.share
+package com.pydio.android.cells.ui.share.composables
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -35,14 +35,12 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.danger
-import com.pydio.android.cells.ui.theme.ok
-import com.pydio.android.cells.ui.theme.warning
 import com.pydio.cells.utils.Str
 
-private const val logTag = "TransferListItem.kt"
+// private const val logTag = "TransferListItem"
 
 @Composable
 fun TransferListItem(
@@ -72,7 +70,7 @@ fun TransferListItem(
         pause,
         resume,
         remove,
-        more = {more(item.transferId)},
+        more = { more(item.transferId) },
         modifier,
     )
 }
@@ -232,12 +230,15 @@ private fun TransferListItem(
 @Composable
 fun buildStatusString(item: RTransfer): AnnotatedString {
     val ctx = LocalContext.current
-    val bgColor = when (item.status) {
-        AppNames.JOB_STATUS_WARNING -> warning
-        AppNames.JOB_STATUS_ERROR, AppNames.JOB_STATUS_CANCELLED, AppNames.JOB_STATUS_TIMEOUT -> danger
-        else -> ok
-    }
-    val overStyle = SpanStyle(background = bgColor, color = contentColorFor(bgColor))
+//    val bgColor = when (item.status) {
+//        AppNames.JOB_STATUS_WARNING -> CellsColor.warning
+//        AppNames.JOB_STATUS_ERROR,
+//        AppNames.JOB_STATUS_CANCELLED,
+//        AppNames.JOB_STATUS_TIMEOUT -> CellsColor.danger
+//        else -> CellsColor.ok
+//    }
+
+//     val overStyle = SpanStyle(background = bgColor, color = contentColorFor(bgColor))
 
     val text = buildAnnotatedString {
         val sizeValue = Formatter.formatShortFileSize(ctx, item.byteSize)

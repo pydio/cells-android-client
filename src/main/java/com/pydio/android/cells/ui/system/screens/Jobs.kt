@@ -29,10 +29,8 @@ import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsTheme
-import com.pydio.android.cells.ui.theme.debug
-import com.pydio.android.cells.ui.theme.info
-import com.pydio.android.cells.ui.theme.warning
 import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
@@ -156,10 +154,10 @@ private fun buildStatusString(
         JobStatus.ERROR.id,
         JobStatus.TIMEOUT.id -> MaterialTheme.colorScheme.error
         JobStatus.WARNING.id,
-        JobStatus.CANCELLED.id -> warning
+        JobStatus.CANCELLED.id -> CellsColor.warning
         JobStatus.NEW.id,
-        JobStatus.PROCESSING.id -> debug
-        else -> info
+        JobStatus.PROCESSING.id -> CellsColor.debug
+        else -> CellsColor.info
     }
     val overStyle = SpanStyle(background = bgColor, color = contentColorFor(bgColor))
     val createdTs = timestampToString(creationTimestamp, "dd-MM HH:mm:ss")

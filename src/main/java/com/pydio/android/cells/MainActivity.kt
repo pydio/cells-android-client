@@ -76,8 +76,8 @@ class MainActivity : ComponentActivity() {
 
             Log.i(logTag, "#######################################")
             Log.i(logTag, "onCreate with starting state:")
-            Log.i(logTag, "  StateID: ${startingState?.stateID}")
-            Log.i(logTag, "  Route: ${startingState?.route}")
+            Log.i(logTag, "  StateID: ${startingState.stateID}")
+            Log.i(logTag, "  Route: ${startingState.route}")
 
             // TODO rework this
             // WindowCompat.setDecorFitsSystemWindows(window, false)

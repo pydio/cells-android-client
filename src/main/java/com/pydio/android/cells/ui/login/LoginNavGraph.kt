@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.login.screens.AskServerUrl
 import com.pydio.android.cells.ui.login.screens.P8Credentials
 import com.pydio.android.cells.ui.login.screens.ProcessAuth
@@ -16,7 +16,7 @@ private const val logTag = "loginNavGraph"
 
 fun NavGraphBuilder.loginNavGraph(
     helper: LoginHelper,
-    loginVM: NewLoginVM,
+    loginVM: LoginVM,
 //    isExpandedScreen: Boolean,
 ) {
 

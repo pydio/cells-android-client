@@ -15,7 +15,7 @@ import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
-import com.pydio.android.cells.ui.share.buildStatusString
+import com.pydio.android.cells.ui.share.composables.buildStatusString
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel

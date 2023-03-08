@@ -27,6 +27,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.timestampToString
 
@@ -120,10 +121,10 @@ private fun LogItemTitle(
     val text = buildAnnotatedString {
 
         val bgColor = when (level) {
-            AppNames.ERROR -> MaterialTheme.colorScheme.error
-            AppNames.WARNING -> com.pydio.android.cells.ui.theme.warning
-            AppNames.DEBUG -> com.pydio.android.cells.ui.theme.debug
-            else -> com.pydio.android.cells.ui.theme.info
+            AppNames.ERROR -> CellsColor.danger
+            AppNames.WARNING -> CellsColor.warning
+            AppNames.DEBUG -> CellsColor.debug
+            else -> CellsColor.info
         }
         val frontColor = contentColorFor(bgColor)
 

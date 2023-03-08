@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
 import com.pydio.android.cells.ui.login.LoginHelper
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -41,7 +41,7 @@ private const val logTag = "ProcessAuth"
 fun ProcessAuth(
     stateID: StateID,
     skipVerify: Boolean,
-    loginVM: NewLoginVM,
+    loginVM: LoginVM,
     helper: LoginHelper,
 ) {
     val message = loginVM.message.collectAsState()

@@ -17,7 +17,6 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PasswordStore
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
-import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
@@ -35,13 +34,12 @@ import com.pydio.android.cells.ui.browse.models.SingleTransferVM
 import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.LoginVM
 import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
-import com.pydio.android.cells.ui.models.UploadsVM
+import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
@@ -168,7 +166,8 @@ val serviceModule = module {
 val viewModelModule = module {
 
     viewModelOf(::LandingVM)
-    viewModel { NewLoginVM(get(), get(), get()) }
+    viewModelOf(::MigrationVM)
+
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }
 
@@ -209,8 +208,6 @@ val viewModelModule = module {
     viewModelOf(::FolderVM)
 
     viewModel { SelectTargetVM(get()) }
-    viewModel { MigrationVM(get(), get(), get(), get()) }
-    viewModel { UploadsVM(get(), get()) }
 
 }
 

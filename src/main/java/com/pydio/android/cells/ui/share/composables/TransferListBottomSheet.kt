@@ -15,6 +15,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
+import com.pydio.android.cells.ui.share.composables.buildStatusString
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 

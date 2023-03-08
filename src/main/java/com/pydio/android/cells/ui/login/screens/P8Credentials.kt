@@ -20,7 +20,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.FormBottomButtons
 import com.pydio.android.cells.ui.core.composables.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
-import com.pydio.android.cells.ui.login.models.NewLoginVM
+import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ fun P8Credentials(
     stateID: StateID,
     skipVerify: Boolean,
     helper: LoginHelper,
-    loginVM: NewLoginVM,
+    loginVM: LoginVM,
 ) {
 
     val scope = rememberCoroutineScope()
