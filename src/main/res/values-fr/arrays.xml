@@ -27,4 +27,13 @@
         <item>Pas en itinérance</item>
         <item>Connecté (dès que le serveur peut être atteint, sans prendre en compte le type de réseau)</item>
     </string-array>
+    <string-array name="filter_transfer_by_status_labels">
+        <item>Show all (no filter)</item>
+        <item>New</item>
+        <item>Processing</item>
+        <item>Cancelled</item>
+        <item>Done</item>
+        <item>Error</item>
+        <item>Timeout</item>
+    </string-array>
 </resources>

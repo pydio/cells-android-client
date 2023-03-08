@@ -4,6 +4,9 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Potvrdit</string>
+    <string name="button_next">Next</string>
+    <string name="button_back">Back</string>
+    <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Storno</string>
     <string name="button_switch_to_grid_layout">Zobrazit jako mřížku</string>
     <string name="button_switch_to_list_layout">Zobrazit jako seznam</string>
@@ -29,6 +32,7 @@
     <string name="action_settings">Nastavení</string>
     <string name="action_clear_cache">Vyprázdnit mezipaměť</string>
     <!-- Main Menu (left drawer) -->
+    <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
     <string name="my_workspaces">Mé pracovní prostory</string>
     <string name="quick_access">Rychlý přístup</string>
@@ -64,9 +68,12 @@
     <string name="invalid_tls_certificate">Neplatný certifikát</string>
     <string name="confirm_skip_verify_title">Neplatný certifikát</string>
     <string name="confirm_skip_verify_desc">Pokud víte, co děláte, můžete se rozhodnout přeskočit krok ověření TLS certifikátu</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
     <string name="button_i_understand_the_risks">Ano, chápu rizika</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Zadejte své přihlašovací údaje</string>
+    <string name="oauth_code_flow_title">Processing</string>
     <string name="oauth_code_flow_desc">Zpracovává se, čekejte prosím.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Spojení se přerušilo</string>
@@ -125,13 +132,13 @@
     <!-- Job Management -->
     <string name="job_list_title">Úlohy na pozadí</string>
     <string name="filter_by_status_title">Filtrovat podle stavu</string>
-    <string name="filter_by_status_show_all_label">Zobrazit vše (bez filtru)</string>
-    <string name="filter_by_status_new_label">Nové</string>
-    <string name="filter_by_status_processing_label">Zpracovávání</string>
-    <string name="filter_by_status_cancelled_label">Zrušeno</string>
-    <string name="filter_by_status_done_label">Hotovo</string>
-    <string name="filter_by_status_error_label">Chyba</string>
-    <string name="filter_by_status_timeout_label">Překročen časový limit</string>
+    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
+    <!--    <string name="filter_by_status_new_label">New</string>-->
+    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
+    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
+    <!--    <string name="filter_by_status_done_label">Done</string>-->
+    <!--    <string name="filter_by_status_error_label">Error</string>-->
+    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Seřadit podle</string>
     <string name="job_sort_by_creation_ts_desc_label">Vytvoření (od nejnovějších)</string>
     <string name="job_sort_by_creation_ts_asc_label">Vytvoření (od nejstarších)</string>
@@ -169,10 +176,14 @@
     <string name="public_link">Veřejný odkaz</string>
     <string name="public_link_content_desc">Vytvořit nebo odstranit veřejný odkaz pro tento prvek</string>
     <string name="keep_offline">Ponechat offline</string>
+    <string name="remove_from_offline">Remove from offline</string>
+    <string name="remove_bookmark">Remove bookmark</string>
     <string name="keep_offline_content_desc">Ponechat tento prvek offline</string>
     <string name="bookmark">Záložka</string>
     <string name="bookmark_element_content_desc">Přidat tento prvek do záložek</string>
     <string name="delete">Smazat</string>
+    <string name="pause">Pause</string>
+    <string name="relaunch">Relaunch</string>
     <string name="empty_recycle">Vyprázdnit koš</string>
     <string name="restore_content">Obnovit</string>
     <string name="permanently_remove">Trvale odstranit</string>
@@ -208,6 +219,7 @@
     <string name="content_description_media">Náhled obsahu</string>
     <string name="dialog_create_folder_title">Vytvořit složku</string>
     <string name="dialog_create_folder_positive_btn">Vytvořit</string>
+    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
     <string name="confirm_move_to_recycle_title">Potvrdit smazání</string>
     <string name="confirm_move_to_recycle_desc">%s bude přesunuto do koše</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -265,6 +277,7 @@
     <string name="thumb_description">Zmenšený náhled obsahu</string>
     <string name="folder_icon_description">Ikona složky</string>
     <string name="empty_content_icon_description">Ikona prázdného seznamu</string>
+    <string name="choose_account">Choose an account</string>
     <string name="switch_account">Přepnout účet</string>
     <string name="switch_workspace">Přepnout pracovní prostor</string>
     <string name="parent_folder">Nadřazená složka</string>

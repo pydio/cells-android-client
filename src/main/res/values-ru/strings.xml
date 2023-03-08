@@ -4,6 +4,9 @@
     <!-- Button Labels -->
     <string name="button_ok">ОК</string>
     <string name="button_confirm">Подтвердить</string>
+    <string name="button_next">Next</string>
+    <string name="button_back">Back</string>
+    <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Отмена</string>
     <string name="button_switch_to_grid_layout">В виде сетки</string>
     <string name="button_switch_to_list_layout">В виде списка</string>
@@ -29,6 +32,7 @@
     <string name="action_settings">Настройки</string>
     <string name="action_clear_cache">Очистить кэш</string>
     <!-- Main Menu (left drawer) -->
+    <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
     <string name="my_workspaces">Мои Рабочие Области</string>
     <string name="quick_access">Быстрый Доступ</string>
@@ -64,9 +68,12 @@
     <string name="invalid_tls_certificate">Недействительный сертификат</string>
     <string name="confirm_skip_verify_title">Недействительный сертификат</string>
     <string name="confirm_skip_verify_desc">Если вы знаете, что делаете, вы можете пропустить шаг проверки сертификата TLS</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
     <string name="button_i_understand_the_risks">Хорошо, я понимаю риски</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Введите ваши учетные данные</string>
+    <string name="oauth_code_flow_title">Processing</string>
     <string name="oauth_code_flow_desc">Обработка, пожалуйста подождите.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Соединение прервано</string>
@@ -125,13 +132,13 @@
     <!-- Job Management -->
     <string name="job_list_title">Фоновые процессы</string>
     <string name="filter_by_status_title">Фильтр по статусу</string>
-    <string name="filter_by_status_show_all_label">Показать все (без фильтра)</string>
-    <string name="filter_by_status_new_label">Новое</string>
-    <string name="filter_by_status_processing_label">В процессе</string>
-    <string name="filter_by_status_cancelled_label">Отменено</string>
-    <string name="filter_by_status_done_label">Готово</string>
-    <string name="filter_by_status_error_label">Ошибка</string>
-    <string name="filter_by_status_timeout_label">Таймаут</string>
+    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
+    <!--    <string name="filter_by_status_new_label">New</string>-->
+    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
+    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
+    <!--    <string name="filter_by_status_done_label">Done</string>-->
+    <!--    <string name="filter_by_status_error_label">Error</string>-->
+    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Сортировать по</string>
     <string name="job_sort_by_creation_ts_desc_label">Создание (сначала новые)</string>
     <string name="job_sort_by_creation_ts_asc_label">Создание (сначала старые)</string>
@@ -169,10 +176,14 @@
     <string name="public_link">Публичная ссылка</string>
     <string name="public_link_content_desc">Создать или удалить публичную ссылку для этого элемента</string>
     <string name="keep_offline">Сохранить оффлайн</string>
+    <string name="remove_from_offline">Remove from offline</string>
+    <string name="remove_bookmark">Remove bookmark</string>
     <string name="keep_offline_content_desc">Сохранить этот элемент оффлайн</string>
     <string name="bookmark">Закладка</string>
     <string name="bookmark_element_content_desc">Добавить в закладки</string>
     <string name="delete">Удалить</string>
+    <string name="pause">Pause</string>
+    <string name="relaunch">Relaunch</string>
     <string name="empty_recycle">Очистить корзину</string>
     <string name="restore_content">Восстановить</string>
     <string name="permanently_remove">Окончательно удалить</string>
@@ -208,6 +219,7 @@
     <string name="content_description_media">Предпросмотр содержимого</string>
     <string name="dialog_create_folder_title">Создать папку</string>
     <string name="dialog_create_folder_positive_btn">Создать</string>
+    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
     <string name="confirm_move_to_recycle_title">Подтверждение удаления</string>
     <string name="confirm_move_to_recycle_desc">%s перемещается в корзину</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -265,6 +277,7 @@
     <string name="thumb_description">Small content preview</string>
     <string name="folder_icon_description">Folder icon</string>
     <string name="empty_content_icon_description">Empty list icon</string>
+    <string name="choose_account">Choose an account</string>
     <string name="switch_account">Switch account</string>
     <string name="switch_workspace">Switch workspace</string>
     <string name="parent_folder">Parent folder</string>
