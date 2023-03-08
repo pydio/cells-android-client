@@ -52,52 +52,30 @@ class NetworkService constructor(context: Context) {
         }
     }
 
-
     fun isConnected(): Boolean {
-        when (_networkStatus) {
+        return when (_networkStatus) {
             is NetworkStatus.Unknown -> {
                 Log.w(logTag, "Unknown network status, doing as if connected")
-                return true
+                true
             }
             is NetworkStatus.Unavailable -> {
                 Log.w(logTag, "Unavailable network status, doing as if connected")
-                return true
+                true
             }
             is NetworkStatus.Unmetered,
             is NetworkStatus.Metered,
-            is NetworkStatus.Roaming -> return true
-            else -> return false
+            is NetworkStatus.Roaming -> true
         }
     }
 
-    // TODO this must be rewritten with flows
-
-    fun isConnected(status: String): Boolean {
-        return when (status) {
-            AppNames.NETWORK_TYPE_UNKNOWN -> {
-                Log.w(logTag, "Unknown network status, doing as if connected")
-                true
-            }
-            AppNames.NETWORK_TYPE_UNAVAILABLE -> {
-                Log.w(logTag, "Unavailable network status, doing as if connected")
-                true
-            }
-            AppNames.NETWORK_TYPE_UNMETERED,
-            AppNames.NETWORK_TYPE_METERED,
-            AppNames.NETWORK_TYPE_ROAMING,
-            -> true
-            else -> false
-        }
-    }
-
-    fun isLimited(status: String): Boolean {
-        return when (status) {
-            AppNames.NETWORK_TYPE_ROAMING,
-            AppNames.NETWORK_TYPE_METERED,
-            -> true
-            else -> false
-        }
-    }
+//    fun isLimited(status: String): Boolean {
+//        return when (status) {
+//            AppNames.NETWORK_TYPE_ROAMING,
+//            AppNames.NETWORK_TYPE_METERED,
+//            -> true
+//            else -> false
+//        }
+//    }
 
     fun isMetered(): Boolean {
         return _networkStatus is NetworkStatus.Metered ||

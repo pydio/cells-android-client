@@ -78,12 +78,4 @@ data class RLiveOfflineRoot(
     private fun isFlag(flag: Int): Boolean {
         return flags and flag == flag
     }
-
-    fun isContentEquals(
-        newItem: RLiveOfflineRoot
-    ): Boolean {
-        // TODO better check
-        return lastCheckTs == newItem.lastCheckTs
-                && localModTs == newItem.localModTs
-    }
 }

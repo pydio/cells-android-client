@@ -149,20 +149,13 @@ public class BasicConnectionTest {
                     System.out.println("Wait 2s before retry...");
 
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
-
             Assert.assertEquals(message, retrievedMsg);
-
         }
 
-        // Delete
-//        Message msg =
         client.delete(conf.defaultWS, new String[]{"/" + name});
-        // Assert.assertNotNull(msg);
-        // Assert.assertEquals("EMPTY", msg.type());
 
         boolean deleted = false;
         for (int i = 0; i < 10; i++) {
@@ -181,7 +174,6 @@ public class BasicConnectionTest {
                 Thread.sleep(2000);
                 System.out.println("Wait 2s before retry...");
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

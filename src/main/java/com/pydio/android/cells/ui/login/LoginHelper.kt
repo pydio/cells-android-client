@@ -19,7 +19,6 @@ class LoginHelper(
     private val navController: NavHostController,
     private val loginVM: NewLoginVM,
     val navigateTo: (String) -> Unit,
-    val launchTaskFor: (String, StateID) -> Unit,
     val startingState: StartingState?,
     val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
@@ -41,7 +40,6 @@ class LoginHelper(
         var isFirstLoginPage = true
         if (bq.size > 1) {
             val penEntry = bq[bq.size - 2]
-            val penultimateID = lazyStateID(penEntry)
             val penRoute = penEntry.destination.route
             if (LoginDestinations.isCurrent(penRoute)) {
                 // penultimate route is still in the login subgraph
@@ -136,8 +134,8 @@ class LoginHelper(
         var targetEntry: NavBackStackEntry? = null
         var i = 1
         navController.backQueue.asReversed().forEach {
-            val stateID = lazyStateID(it)
-            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+            val currID = lazyStateID(it)
+            Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
 
             if (!LoginDestinations.isCurrent(it.destination.route)) {
                 targetEntry = it

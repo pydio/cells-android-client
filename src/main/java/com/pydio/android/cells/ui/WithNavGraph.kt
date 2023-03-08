@@ -58,34 +58,33 @@ fun CellsNavGraph(
         LoginNavigation(navController)
     }
 
+    // Starting state is null once the initial state has been consumed
     if (startingState != null) {
-        Log.e(logTag, "########## Got a starting state")
+        Log.i(logTag, "########## Got a starting state")
         LaunchedEffect(key1 = startingState.route) {
             Log.e(logTag, "########## Launching side effect for ${startingState.route}")
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
             if (startingState.route?.isNotEmpty() == true) {
+
                 when {
                     LoginDestinations.ProcessAuth.isCurrent(startingState.route)
                     -> {
-                        // TODO check if startingState.state = state has already been consumed
-                        // navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
                         // TODO check if we need to be aware of the skip verify flag at this point
                         loginNavActions.processAuth(startingState.stateID, false)
                     }
+
                     LoginDestinations.isCurrent(startingState.route)
-                        // startingState.destination!!.startsWith(CellsDestinations.Login.prefix)
                     -> {
                         // TODO When do we pass here?
                         Thread.dumpStack()
-                        Log.e(logTag, "##########   Got a login destination, see above")
-//                        navController.navigate(CellsDestinations.Login.createRoute(startingState.stateID))
+                        Log.e(logTag, "##########   Got a login destination with route:")
+                        Log.e(logTag, "##########    ${startingState.route}, see above")
                         loginNavActions.askUrl()
                     }
-                    startingState.route == ShareDestination.ChooseAccount.route
-                    -> {
-                        // TODO check if startingState.state = state has already been consumed
-                        navController.navigate(ShareDestination.ChooseAccount.route)
-                    }
+
+                    ShareDestination.ChooseAccount.isCurrent(startingState.route)
+                    -> navController.navigate(ShareDestination.ChooseAccount.route)
+
                     Str.notEmpty(startingState.route)
                     -> {
                         // TODO should be the normal behaviour for starting state
@@ -93,17 +92,13 @@ fun CellsNavGraph(
                         navController.navigate(startingState.route!!)
                     }
 
-                    else -> // FIXME not sure it works
-                        startingStateHasBeenProcessed(
-                            null,
-                            StateID.NONE
-                        )
+                    else  // Nothing special to do, we remove the starting state
+                    -> startingStateHasBeenProcessed(null, StateID.NONE)
                 }
-            } else {
-                startingStateHasBeenProcessed(
-                    null,
-                    StateID.NONE
-                )
+            } else { // Same as 2 lines above, but should never happen
+                Thread.dumpStack()
+                Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
+                startingStateHasBeenProcessed(null, StateID.NONE)
             }
         }
     }
@@ -181,7 +176,7 @@ fun CellsNavGraph(
                     navController.popBackStack()
                 } else {
                     scope.launch {
-                        var route = BrowseDestinations.Open.route
+                        val route : String
                         if (Str.notEmpty(it.workspace)) {
                             val item = browseRemoteVM.getTreeNode(it) ?: run {
                                 // We cannot navigate to an unknown node item
@@ -217,7 +212,6 @@ fun CellsNavGraph(
                 navController,
                 loginVM,
                 navigateTo,
-                launchTaskFor,
                 startingState,
                 startingStateHasBeenProcessed
             ),
@@ -242,42 +236,3 @@ fun CellsNavGraph(
         )
     }
 }
-
-//    else {
-//        LaunchedEffect(key1 = currAccountID) {
-//            // FIXME not good enough if we navigate to the home of the account and back here
-//            //  we are not redirected to the account home if we click on the **SAME** account
-//            if (currAccountID != Transport.UNDEFINED_STATE_ID) {
-//                Log.e(logTag, "########## Launching 2nd side effect for ${currAccountID})")
-//                navController.navigate(BrowseDestinations.Open.createRoute(currAccountID)) {
-//                    popUpTo(CellsDestinations.Home.route) { inclusive = true }
-//                }
-//            }
-//        }
-//    }
-
-// FIXME rework this for both: OAuth Callback & App launch
-
-//        } else {
-//            Log.e(logTag, "########## No defined destination, computing a new one")
-//            when (currAccountID) {
-//                Transport.UNDEFINED_STATE_ID ->
-//                    navController.navigate(CellsDestinations.Accounts.route) {
-//                        popUpTo(CellsDestinations.Home.route) { inclusive = true }
-//                    }
-//                else -> navController.navigate(CellsDestinations.Browse.createRoute(currAccountID))
-//            }
-//        }
-//    }
-
-
-//    val navigateTo: (String, StateID) -> Unit = { action, stateID ->
-//        when (action) {
-//            CellsDestinations.Login.route -> navigationActions.navigateToLogin(stateID)
-//            CellsDestinations.Browse.route -> navigationActions.navigateToBrowse(stateID)
-//        }
-//    }
-
-//    val login: (StateID) -> Unit = {
-//        navigationActions.navigateToLogin(it)
-//    }

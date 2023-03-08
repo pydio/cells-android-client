@@ -42,6 +42,7 @@ fun CreateFolder(
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
+
     val doCreate: (StateID, String) -> Unit = { parentID, name ->
         nodeActionsVM.createFolder(parentID, name)
         // TODO implement a user feedback via flows
@@ -62,33 +63,6 @@ fun CreateFolder(
         dismiss = { dismiss(false) },
     )
 }
-
-//@Composable
-//fun DownloadToDevice(
-//    moreMenuVM: MoreMenuVM,
-//    stateID: StateID,
-//    dismiss: (Boolean) -> Unit,
-//) {
-//
-//    val launched: MutableState<Boolean> = rememberSaveable {
-//        mutableStateOf(false)
-//    }
-//    Log.e(logTag, "----- Here for $stateID. Already launched: ${launched.value}")
-//
-//    val destinationPicker = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.CreateDocument(),
-//        onResult = { uri ->
-//            Log.e(logTag, "Got a destination for $stateID")
-//            dismiss(true)
-//        }
-//    )
-//    // TODO is this correct? we provide a dummy content event if we do not want to show anything
-//    Spacer(modifier = Modifier.height(1.dp))
-//
-//    if (!launched.value ) {
-//        destinationPicker.launch(stateID.fileName)
-//    }
-//}
 
 @Composable
 fun TreeNodeRename(
@@ -157,7 +131,7 @@ fun ConfirmEmptyRecycle(
         title = stringResource(id = R.string.confirm_permanent_deletion_title),
         desc = stringResource(id = R.string.confirm_empty_recycle_message, stateID.fileName),
         confirm = {
-            nodeActionsVM.emptyRecycle(stateID) // TODO this should be enough
+            nodeActionsVM.emptyRecycle(stateID)
             dismiss(true)
         },
         dismiss = { dismiss(false) },
@@ -171,9 +145,6 @@ fun ShowQRCode(
     dismiss: () -> Unit,
 ) {
     val context = LocalContext.current
-//    val gotBitmap = rememberSaveable {
-//        mutableStateOf(false)
-//    }
 
     val bitmap = remember {
         mutableStateOf<ImageBitmap?>(null)
@@ -181,7 +152,6 @@ fun ShowQRCode(
 
     val writer = QRCodeWriter()
     LaunchedEffect(stateID) {
-        Log.e(logTag, "in launched effect")
         nodeActionsVM.getShareLink(stateID)?.let {
             val bitMatrix = writer.encode(
                 it,
@@ -198,7 +168,6 @@ fun ShowQRCode(
                     tmpBitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
                 }
             }
-            Log.e(logTag, "got a bitmap")
             bitmap.value = tmpBitmap.asImageBitmap()
         }
     }
@@ -230,5 +199,4 @@ fun ShowQRCode(
             )
         )
     }
-
 }
