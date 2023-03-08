@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 enum class Step {
-    STARTING, MIGRATING_FROM_V2, AFTER_LEGACY_MIGRATION, AFTER_MIGRATION_ERROR
+    STARTING, MIGRATING_FROM_V2, AFTER_LEGACY_MIGRATION, AFTER_MIGRATION_ERROR, NOT_NEEDED
 }
 
 class MigrationVM(
@@ -69,6 +69,15 @@ class MigrationVM(
     suspend fun migrate(context: Context) {
         val oldVersion = getOldVersion(context)
         val newVersion = ClientData.getInstance().versionCode.toInt()
+
+        if (!needsMigration(context)) {
+            // The finer check we make here tells us we do not need migration in fact
+            val newValue = ClientData.getInstance().versionCode.toInt()
+            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
+            setStep(Step.NOT_NEEDED)
+            return
+        }
+
         Log.e(logTag, "Migration to v3 (from $oldVersion to $newVersion)")
 
         val migrationJob: RJob? = withContext(Dispatchers.IO) {

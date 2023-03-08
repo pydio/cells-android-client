@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
         // Use androidx.core:core-splashscreen library to manage splash
         installSplashScreen()
 
-        // TODO readd the Splash composable here
+        // TODO re-add the Splash composable here
         // cf system/screens/splash.kt
 
 //        findViewById<>()

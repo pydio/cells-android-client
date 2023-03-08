@@ -15,9 +15,10 @@ import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.system.screens.AfterLegacyMigration
 import com.pydio.android.cells.ui.system.screens.MigrateFromV2
 import com.pydio.android.cells.ui.system.screens.PrepareMigration
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 
-// private const val logTag = "MigrationHost.kt"
+private const val logTag = "MigrationHost"
 
 private sealed class Destinations(val route: String) {
     object PrepareMigration : Destinations("prepare-migration")
@@ -37,16 +38,39 @@ fun MigrationHost(
 
     val currDestination = migrationVM.currDestination.collectAsState()
 
+
+    LaunchedEffect(currDestination.value) {
+        Log.e(logTag, "In launch effect for ${currDestination.value}")
+
+        val newDestination = when (currDestination.value) {
+            Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
+            Step.AFTER_LEGACY_MIGRATION -> Destinations.AfterLegacyMigration.route
+            Step.AFTER_MIGRATION_ERROR -> Destinations.AfterMigrationError.route
+            else -> null
+        }
+
+        newDestination?.let {
+            Log.e(logTag, "navigating to $it")
+            navController.navigate(it)
+        } ?: run {// handle corner cases
+            if (currDestination.value == Step.NOT_NEEDED) {
+                Log.e(logTag, "No migration needed terminating")
+                afterMigration()
+            }
+        }
+    }
+
     LaunchedEffect(true) {
         migrationVM.migrate(ctx)
     }
 
-    val startDestination = when (currDestination.value) {
-        Step.STARTING -> Destinations.PrepareMigration.route
-        Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
-        Step.AFTER_LEGACY_MIGRATION -> Destinations.AfterLegacyMigration.route
-        Step.AFTER_MIGRATION_ERROR -> Destinations.AfterMigrationError.route
-    }
+    // this is forbidden, start destination must be static
+//    val startDestination = when (currDestination.value) {
+//        Step.STARTING -> Destinations.PrepareMigration.route
+//        Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
+//        Step.AFTER_LEGACY_MIGRATION -> Destinations.AfterLegacyMigration.route
+//        Step.AFTER_MIGRATION_ERROR -> Destinations.AfterMigrationError.route
+//    }
 
     val scope = rememberCoroutineScope()
     fun launchSync() {
@@ -59,11 +83,11 @@ fun MigrationHost(
     /* Configure navigation */
     NavHost(
         navController = navController,
-        startDestination = startDestination, // MigrationDestination.MigrateFromV2.route
+        startDestination = Destinations.PrepareMigration.route, // MigrationDestination.MigrateFromV2.route
     ) {
 
         composable(Destinations.PrepareMigration.route) {
-            PrepareMigration(oldVersion)
+            PrepareMigration()
         }
 
         composable(Destinations.MigrateFromV2.route) {

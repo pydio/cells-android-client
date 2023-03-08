@@ -3,7 +3,9 @@ package com.pydio.android.cells;
 public interface AppKeys {
 
     String STATE_ID = "state-id";
+    String UID = "uid";
     String QUERY_CONTEXT = "query-context";
+    String SKIP_VERIFY = "skip-verify";
 
     // WARNING: The migrations rely on this preference
     String INSTALLED_VERSION_CODE = "installed_version_code";

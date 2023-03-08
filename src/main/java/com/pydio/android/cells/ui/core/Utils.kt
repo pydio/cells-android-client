@@ -55,10 +55,6 @@ fun lazyQueryContext(
     key: String = AppKeys.QUERY_CONTEXT,
 ): String {
     return navBackStackEntry?.arguments?.getString(key)
-        ?.let {
-            // Log.e(logTag, " ... Retrieving query context from backstack entry, found: $it")
-            it
-        }
         ?: run {
             Log.e(logTag, " ... No query context found in backstack entry, for key $key")
             "none"
@@ -68,14 +64,15 @@ fun lazyQueryContext(
 
 fun lazySkipVerify(
     navBackStackEntry: NavBackStackEntry?,
-    key: String = LoginDestinations.ProcessAuth.getSkipVerifyKey(),
+    key: String = AppKeys.SKIP_VERIFY,
 ): Boolean {
-    return navBackStackEntry?.arguments?.getBoolean(key) ?: false
+    val skipStr = navBackStackEntry?.arguments?.getString(key)
+    return skipStr?.let { it == "true" } ?: false
 }
 
 fun lazyUID(
     navBackStackEntry: NavBackStackEntry?,
-    key: String = ShareDestination.UploadInProgress.getUidKey(),
+    key: String = AppKeys.UID,
 ): Long {
     val stringValue = navBackStackEntry?.arguments?.getString(key)
     if (Str.notEmpty(stringValue)) {

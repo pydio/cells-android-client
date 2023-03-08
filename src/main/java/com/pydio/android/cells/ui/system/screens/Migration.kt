@@ -4,8 +4,10 @@ import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -26,55 +28,10 @@ import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.theme.CellsTheme
 
 @Composable
-fun PrepareMigration(
-    oldCodeVersion: Int,
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.Start)
-    ) {
-        DefaultTitleText("Migrating from v$oldCodeVersion")
-        Surface(
-            tonalElevation = dimensionResource(R.dimen.grid_ws_card_elevation),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.text_padding_medium),
-                    vertical = dimensionResource(R.dimen.text_padding_small)
-                )
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.text_padding_small),
-                        vertical = dimensionResource(R.dimen.text_padding_small),
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            ) {
-                Text(
-                    text = "",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
-                )
-                Text(
-                    text = "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
-                )
-                LinearProgressIndicator(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(R.dimen.margin_medium))
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
-            }
-        }
-    }
+fun PrepareMigration() {
+    // An empty box so that the user thinks he is still on the splash screen
+    // until we are really sure we do need a migration (typically, we pass by here on fresh install)
+    Box(Modifier.fillMaxSize())
 }
 
 @Composable
@@ -190,7 +147,7 @@ fun AfterLegacyMigration(
                         modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
                     )
 
-                    Row() {
+                    Row {
                         Text(
                             text = "Skip",
                             color = MaterialTheme.colorScheme.primary,
@@ -267,4 +224,3 @@ private fun AfterLegacyMigrationPreview() {
         AfterLegacyMigration(43, 8, {}, {})
     }
 }
-
