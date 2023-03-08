@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class LegacyModelTest {
 
-    private final String logTag = LegacyModelTest.class.getSimpleName();
+    private final String logTag = "LegacyModelTest";
 
     @Test
     public void checkModel() {

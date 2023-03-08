@@ -6,13 +6,13 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
 
-private val logTag = NodeActionsVM::class.simpleName
-
 /**  Simply provides access to the DB to retrieve basic single objects from the DB */
 class TreeNodeVM(
     stateID: StateID,
     private val nodeService: NodeService,
 ) : ViewModel() {
+
+    private val logTag = "NodeActionsVM"
 
     // TODO load the TreeNode at init
 

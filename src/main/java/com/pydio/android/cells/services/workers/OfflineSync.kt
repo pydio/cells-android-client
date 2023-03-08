@@ -29,7 +29,7 @@ class OfflineSync(
 
     companion object {
         const val WORK_NAME = "OfflineSyncWorker"
-        private val logTag = OfflineSync::class.simpleName
+        private val logTag = "OfflineSync"
 
         fun buildWorkRequest(prefs: CellsPreferences): PeriodicWorkRequest {
 

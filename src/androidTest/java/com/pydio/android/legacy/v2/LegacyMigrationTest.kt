@@ -13,7 +13,7 @@ import java.io.File
 
 class LegacyMigrationTest : AutoCloseKoinTest() {
 
-    private val logTag = LegacyMigrationTest::class.simpleName
+    private val logTag = "LegacyMigrationTest"
     private var doMigrate = false
 
     @Before

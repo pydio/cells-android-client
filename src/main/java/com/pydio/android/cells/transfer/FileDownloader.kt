@@ -22,7 +22,7 @@ import org.koin.core.component.inject
  */
 class FileDownloader(private val parentJob: RJob) : KoinComponent {
 
-    private val logTag = FileDownloader::class.java.simpleName
+    private val logTag = "FileDownloader"
 
     private val jobService: JobService by inject()
     private val transferService: TransferService by inject()

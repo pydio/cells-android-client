@@ -27,7 +27,7 @@ sealed class CellsDestinations(val route: String) {
 
 class CellsNavigationActions(private val navController: NavHostController) {
 
-    private val logTag = CellsNavigationActions::class.simpleName
+    private val logTag = "CellsNavigationActions"
 
     val navigateToHome: () -> Unit = {
         navController.navigate(CellsDestinations.Home.route) {

@@ -23,13 +23,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
-private val unknownStateId = StateID("https://example.com")
-private val logTag = BrowseRemoteVM::class.simpleName
-
 class BrowseRemoteVM(
     private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {
+
+    private val logTag = "BrowseRemoteVM"
 
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -98,7 +97,7 @@ class BrowseRemoteVM(
         // TODO clean and add "Cancel feature"
         var result: Pair<Int, String?> = Pair(0, "")
         stateID.value.let {
-            if (unknownStateId != it) {
+            if (StateID.NONE != it) {
                 result = if (Str.empty(it.file)) {
                     accountService.refreshWorkspaceList(it.account())
                 } else {

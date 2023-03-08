@@ -19,7 +19,7 @@ import java.io.File
 /** Centralizes management of local files and where to store/find them. */
 class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
-    private val logTag = FileService::class.simpleName
+    private val logTag = "FileService"
 
     private val fileServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + fileServiceJob)
@@ -107,7 +107,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
         // Finally recompute local file md5 to insure it corresponds with the expected value (corrupted file)
         val computedMd5 = computeFileMd5(lf)
-        if (localFile.etag != computedMd5){
+        if (localFile.etag != computedMd5) {
             // This should never happen, we expect that the md5 check is done at DL time.
             Log.w(logTag, "MD5 signatures do not match when trying to DL local file to device")
             Log.d(logTag, "Expected: [${localFile.etag}], computed: [$computedMd5]")

@@ -23,7 +23,7 @@ import java.security.GeneralSecurityException
 class V2MainDB private constructor(context: Context, path: String, version: Int) :
     SQLiteOpenHelper(context, path, null, version) {
 
-    private val logTag = V2MainDB::class.java.simpleName
+    private val logTag = "V2MainDB"
 
     override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         try {

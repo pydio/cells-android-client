@@ -14,6 +14,7 @@ import com.pydio.cells.transport.StateID
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+@Deprecated("Could be removed")
 class FileExporter(
     private val registry: ActivityResultRegistry,
     private val stateID: StateID?,
@@ -21,7 +22,7 @@ class FileExporter(
     private val callingFragment: BottomSheetDialogFragment,
 ) : DefaultLifecycleObserver, KoinComponent {
 
-    private val logTag = FileExporter::class.simpleName
+    private val logTag = "FileExporter"
     private val createDocumentKey = AppNames.KEY_PREFIX_ + "create.files"
     private val createMediaKey = AppNames.KEY_PREFIX_ + "create.media"
 

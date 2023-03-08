@@ -31,7 +31,7 @@ package com.pydio.android.cells.transfer
 //    private val callingFragment: BottomSheetDialogFragment,
 //) : DefaultLifecycleObserver, KoinComponent {
 //
-//    private val logTag = FileImporter::class.simpleName
+//    private val logTag = "FileImporter"
 //    private val getContentKey = AppNames.KEY_PREFIX_ + "select.files"
 //    private val takePictureKey = AppNames.KEY_PREFIX_ + "take.picture"
 //

@@ -41,7 +41,7 @@ import kotlin.time.measureTimedValue
  */
 class MigrationServiceV2 : KoinComponent {
 
-    private val logTag = MigrationServiceV2::class.simpleName
+    private val logTag = "MigrationServiceV2"
 
     private val accountService by inject<AccountService>()
     private val sessionFactory by inject<SessionFactory>()

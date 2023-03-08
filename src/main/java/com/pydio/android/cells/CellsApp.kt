@@ -30,7 +30,7 @@ import org.koin.core.logger.Level
  */
 class CellsApp : Application(), KoinComponent {
 
-    private val logTag = CellsApp::class.simpleName
+    private val logTag = "CellsApp"
 
     // Exposed to the whole app for tasks that must survive termination of the calling UI element
     // Typically for actions launched from the "More" menu (copy, move...)

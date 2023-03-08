@@ -24,7 +24,7 @@ class WorkspaceDiff(
     private val client: Client
 ) : KoinComponent {
 
-    private val logTag = WorkspaceDiff::class.simpleName
+    private val logTag = "WorkspaceDiff"
 
     private val treeNodeRepository: TreeNodeRepository by inject()
     private val fileService: FileService by inject()

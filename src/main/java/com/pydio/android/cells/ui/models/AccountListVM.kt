@@ -23,7 +23,7 @@ class AccountListVM(
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = AccountListVM::class.simpleName
+    private val logTag = "AccountListVM"
 //    private var viewModelJob = Job()
 //    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 

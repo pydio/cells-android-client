@@ -17,7 +17,7 @@ class AccountHomeVM(
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = AccountHomeVM::class.simpleName
+    private val logTag = "AccountHomeVM"
 
     val wss: LiveData<List<RWorkspace>>
         get() = accountService.getLiveWsByType(SdkNames.WS_TYPE_DEFAULT, accountID.id)

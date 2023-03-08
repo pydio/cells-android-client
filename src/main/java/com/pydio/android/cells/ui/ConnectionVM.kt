@@ -30,7 +30,7 @@ class ConnectionVM(
     id: String = UUID.randomUUID().toString(),
 ) : ViewModel() {
 
-    private val logTag = "${ConnectionVM::class.simpleName}[${id.substring(24)}]"
+    private val logTag = "ConnectionVM[${id.substring(24)}]"
 
     enum class SessionStatus {
         NO_INTERNET, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK

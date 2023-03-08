@@ -31,6 +31,8 @@ class TreeDiff(
     private val fileDL: FileDownloader?,
 ) : KoinComponent {
 
+    private val logTag = "TreeDiff"
+
     companion object {
         private const val PAGE_SIZE = 100
         fun firstPage(): PageOptions {
@@ -44,7 +46,6 @@ class TreeDiff(
         }
     }
 
-    private val logTag = TreeDiff::class.java.simpleName
     private val folderDiffJob = Job()
     private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
 
@@ -155,7 +156,7 @@ class TreeDiff(
 
                 while (order > 0 && local != null) { // Next local is lexicographically smaller
                     putDeleteChange(local)
-                    if (lit.hasNext()){
+                    if (lit.hasNext()) {
                         local = lit.next()
                         order = remote.name.compareTo(local.name)
                     } else {

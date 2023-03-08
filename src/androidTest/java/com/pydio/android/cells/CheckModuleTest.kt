@@ -10,7 +10,7 @@ import org.koin.test.AutoCloseKoinTest
 /** Test that Koin configuration is valid by starting the full android test context */
 class ModuleCheckTest : AutoCloseKoinTest() {
 
-    private val logTag = ModuleCheckTest::class.simpleName
+    private val logTag = "ModuleCheckTest"
 
     private val networkService by inject<NetworkService>()
 

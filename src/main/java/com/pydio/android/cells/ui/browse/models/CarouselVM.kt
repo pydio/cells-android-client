@@ -15,15 +15,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val logTag = CarouselVM::class.simpleName
-
 /** Expose methods to simplify navigation while browsing*/
 class CarouselVM(
     private val accountService: AccountService,
     private val nodeService: NodeService,
 ) : ViewModel() {
 
-    private val logTag = CarouselVM::class.simpleName
+    // private val logTag = "CarouselVM"
+
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 

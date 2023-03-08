@@ -67,12 +67,19 @@ fun CellsNavGraph(
             if (startingState.route?.isNotEmpty() == true) {
 
                 when {
+                    // First we explicitly handle the well known routes for future debugging
+                    // OAuth Call back
                     LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-                    -> {
                         // TODO check if we need to be aware of the skip verify flag at this point
-                        loginNavActions.processAuth(startingState.stateID, false)
-                    }
+                    -> loginNavActions.processAuth(startingState.stateID, false)
+                    // Until we define at least one account
+                    LoginDestinations.AskUrl.isCurrent(startingState.route)
+                    -> loginNavActions.askUrl()
+                    // Share with Pydio from another app
+                    ShareDestination.ChooseAccount.isCurrent(startingState.route)
+                    -> navController.navigate(ShareDestination.ChooseAccount.route)
 
+                    // Failsafe that are still to be investigated
                     LoginDestinations.isCurrent(startingState.route)
                     -> {
                         // TODO When do we pass here?
@@ -81,9 +88,6 @@ fun CellsNavGraph(
                         Log.e(logTag, "##########    ${startingState.route}, see above")
                         loginNavActions.askUrl()
                     }
-
-                    ShareDestination.ChooseAccount.isCurrent(startingState.route)
-                    -> navController.navigate(ShareDestination.ChooseAccount.route)
 
                     Str.notEmpty(startingState.route)
                     -> {
@@ -95,7 +99,7 @@ fun CellsNavGraph(
                     else  // Nothing special to do, we remove the starting state
                     -> startingStateHasBeenProcessed(null, StateID.NONE)
                 }
-            } else { // Same as 2 lines above, but should never happen
+            } else { // Same as 2 lines above, but this should never happen
                 Thread.dumpStack()
                 Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
                 startingStateHasBeenProcessed(null, StateID.NONE)
@@ -176,7 +180,7 @@ fun CellsNavGraph(
                     navController.popBackStack()
                 } else {
                     scope.launch {
-                        val route : String
+                        val route: String
                         if (Str.notEmpty(it.workspace)) {
                             val item = browseRemoteVM.getTreeNode(it) ?: run {
                                 // We cannot navigate to an unknown node item

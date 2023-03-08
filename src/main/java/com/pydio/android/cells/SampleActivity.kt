@@ -32,7 +32,7 @@ import com.pydio.android.cells.ui.UseCellsTheme
  */
 class SampleActivity : ComponentActivity() {
 
-    private val logTag = SampleActivity::class.simpleName
+    private val logTag = "SampleActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate")

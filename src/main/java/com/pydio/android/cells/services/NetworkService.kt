@@ -19,7 +19,7 @@ import java.util.*
 
 class NetworkService constructor(context: Context) {
 
-    private val logTag = NetworkService::class.simpleName
+    private val logTag = "NetworkService"
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 

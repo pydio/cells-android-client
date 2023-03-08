@@ -14,7 +14,7 @@ class ShareHelper(
     private val startingState: StartingState?,
     private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
-    private val logTag = ShareHelper::class.simpleName
+    private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
 
     /* Define callbacks */

@@ -13,7 +13,7 @@ class SingleTransferVM(
     private val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = SingleTransferVM::class.simpleName
+    private val logTag = "SingleTransferVM"
 
     fun getTransfer(transferID: Long): LiveData<RTransfer?> =
         transferService.liveTransfer(accountID, transferID)

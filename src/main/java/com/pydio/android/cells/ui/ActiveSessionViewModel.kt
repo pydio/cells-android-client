@@ -41,7 +41,7 @@ class ActiveSessionViewModel(
     id: String = UUID.randomUUID().toString(),
 ) : ViewModel() {
 
-    private val logTag = "${ActiveSessionViewModel::class.simpleName}[${id.substring(24)}]"
+    private val logTag = "ActiveSessionViewModel[${id.substring(24)}]"
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 

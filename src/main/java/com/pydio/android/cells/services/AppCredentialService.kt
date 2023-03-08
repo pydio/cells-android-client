@@ -29,7 +29,7 @@ class AppCredentialService(
     private val networkService: NetworkService,
 ) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
-    private val logTag = AppCredentialService::class.simpleName
+    private val logTag = "AppCredentialService"
 
     // Semaphore for the refresh process.
     private val lock = Any()

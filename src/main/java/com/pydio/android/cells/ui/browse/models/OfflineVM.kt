@@ -29,8 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val logTag = OfflineVM::class.simpleName
-
 /** Expose methods used by Offline pages */
 class OfflineVM(
     private val prefs: CellsPreferences,
@@ -38,9 +36,11 @@ class OfflineVM(
     private val networkService: NetworkService,
     private val jobService: JobService,
 ) : ViewModel() {
+    private val logTag = "OfflineVM"
 
     private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    private val sortOrder = livePrefs.getString(AppKeys.CURR_RECYCLER_ORDER,
+    private val sortOrder = livePrefs.getString(
+        AppKeys.CURR_RECYCLER_ORDER,
         AppNames.DEFAULT_SORT_BY
     )
     val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)

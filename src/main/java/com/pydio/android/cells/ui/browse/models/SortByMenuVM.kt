@@ -11,7 +11,7 @@ class SortByMenuVM(
     private val prefs: CellsPreferences,
 ) : ViewModel() {
 
-    private val logTag = SortByMenuVM::class.simpleName
+    // private val logTag = "SortByMenuVM"
 
     private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
     val sortBy = livePrefs.getString(

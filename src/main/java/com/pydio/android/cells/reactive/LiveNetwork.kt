@@ -11,7 +11,7 @@ import androidx.lifecycle.LiveData
 
 class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
-    private val logTag = LiveNetwork::class.simpleName
+    private val logTag = "LiveNetwork"
 
     private var connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

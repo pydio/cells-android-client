@@ -18,7 +18,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class MigrateActivity : ComponentActivity() {
 
-    private val logTag = MigrateActivity::class.simpleName
+    private val logTag = "MigrateActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching migration process")

@@ -36,7 +36,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class MainActivity : ComponentActivity() {
 
-    private val logTag = MainActivity::class.simpleName
+    private val logTag = "MainActivity"
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,11 +114,146 @@ class MainActivity : ComponentActivity() {
                 landingVM.recordLaunch()
             }
         }
+    }
+
+    private fun launchIntent(
+        intent: Intent?,
+        checkIfKnown: Boolean,
+        alsoFinishCurrentActivity: Boolean
+    ) {
+        if (intent == null) {
+            finishAndRemoveTask()
+        } else if (checkIfKnown) {
+            val resolvedActivity =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val flag = PackageManager.ResolveInfoFlags
+                        .of(MATCH_DEFAULT_ONLY.toLong())
+                    packageManager.resolveActivity(intent, flag)
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
+                }
+            // TODO better error handling
+            if (resolvedActivity == null) {
+                Log.e(logTag, "No Matching handler found for $intent")
+            }
+        } else {
+            startActivity(intent)
+            if (alsoFinishCurrentActivity) {
+                finishAndRemoveTask()
+            }
+        }
+    }
+
+    private fun handleIntent(savedInstanceState: Bundle?): StartingState? {
+        Log.e(logTag, "########################################")
+        Log.e(logTag, "Handle Intent: $intent")
+        if (intent == null) { // we then rely on saved state or defaults
+
+            if (savedInstanceState != null) {
+                Log.e(logTag, "No intent **BUT WE HAVE A NON NULL BUNDLE**, investigate!")
+                Log.e(logTag, "Saved state: " + savedInstanceState.describeContents())
+                Thread.dumpStack()
+            }
+
+            // TO BE REFINED we assume we have no starting state in such case
+            return null
+
+//            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
+//            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
+//            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
+//            return StartingState(initialStateID)
+
+        }
+
+        // Intent is not null
+        val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
+        val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
+        var startingState = StartingState(initialStateID)
+
+        when {
+
+            Intent.ACTION_VIEW == intent.action -> {
+                // Handle call back for OAuth credential flow
+                val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
+                val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
+                if (code != null && state != null) {
+                    startingState.route = LoginDestinations.ProcessAuth.route
+                    startingState.code = code
+                    startingState.state = state
+                } else {
+                    Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
+                    if (intent.extras != null) {
+                        Log.e(logTag, "Listing extras:")
+                        intent.extras?.keySet()?.let {
+                            for (key in it.iterator()) {
+                                Log.e(logTag, " - $key")
+                            }
+                        }
+                    }
+                }
+            }
+
+            Intent.ACTION_SEND == intent.action -> {
+                val clipData = intent.clipData
+                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+                clipData?.let {
+                    startingState.route = ShareDestination.ChooseAccount.route
+                    clipData.getItemAt(0).uri?.let {
+                        startingState.uris.add(it)
+                    }
+                }
+            }
+
+            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
+                val tmpClipData = intent.clipData
+                tmpClipData?.let { clipData ->
+                    startingState.route = ShareDestination.ChooseAccount.route
+                    for (i in 0 until clipData.itemCount) {
+                        clipData.getItemAt(i).uri?.let {
+                            startingState.uris.add(it)
+                        }
+                    }
+                }
+            }
+
+            else -> {
+                Log.w(logTag, "... Unexpected intent: ${intent.action} - $intent")
+            }
+        }
+        return startingState
+    }
+
+
+    override fun onDestroy() {
+        Log.d(logTag, "onDestroy")
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        Log.d(logTag, "onPause")
+        super.onPause()
+    }
+
+    override fun onResume() {
+        Log.d(logTag, "onResume")
+        super.onResume()
+    }
+
+    // Helpers
+    private fun lazyGet(intent: Intent, key: String): String? {
+        if (intent.hasExtra(key) && Str.notEmpty(intent.getStringExtra(key))) {
+            return intent.getStringExtra(key)
+        }
+        return null
+    }
+}
+
 
 //        val startingState = handleIntent(savedInstanceState)
 //        Log.d(logTag, "onCreate for: ${startingState?.stateID}")
 //
-//        // TODO rework this
+//        // TO DO rework this
 //        // WindowCompat.setDecorFitsSystemWindows(window, false)
 //        WindowCompat.setDecorFitsSystemWindows(window, true)
 //
@@ -140,14 +275,14 @@ class MainActivity : ComponentActivity() {
 //                    }
 //
 ////                    AppNames.ACTION_LOGIN -> {
-////                        // TODO this does not work when remote is Cells and we have to perform the OAuth flow.
+////                        // TO  DO this does not work when remote is Cells and we have to perform the OAuth flow.
 ////                        //    we haven't found yet a way to call back this task once the process has succeed.
 ////                        coroutineScope.launch {
 ////                            val session = withContext(Dispatchers.IO) {
 ////                                accountListVM.getSession(stateID)
 ////                            } ?: return@launch
 ////
-////                            // TODO clean this when implementing custom certificate acceptance.
+////                            // TO  DO clean this when implementing custom certificate acceptance.
 ////                            val serverURL =
 ////                                ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
 ////                            val toAuthIntent = Intent(ctx, LoginActivity::class.java)
@@ -187,148 +322,3 @@ class MainActivity : ComponentActivity() {
 //                )
 //            }
 //        }
-    }
-
-    private fun launchIntent(
-        intent: Intent?,
-        checkIfKnown: Boolean,
-        alsoFinishCurrentActivity: Boolean
-    ) {
-        if (intent == null) {
-            finishAndRemoveTask()
-        } else if (checkIfKnown) {
-            val resolvedActivity =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val flag = PackageManager.ResolveInfoFlags
-                        .of(MATCH_DEFAULT_ONLY.toLong())
-                    packageManager.resolveActivity(intent, flag)
-                } else {
-                    @Suppress("DEPRECATION")
-                    packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
-                }
-            // TODO better error handling
-            if (resolvedActivity == null) {
-                Log.e(logTag, "No Matching handler found for $intent")
-            }
-        } else {
-            startActivity(intent)
-            if (alsoFinishCurrentActivity) {
-                finishAndRemoveTask()
-            }
-        }
-    }
-
-    private fun handleIntent(savedInstanceState: Bundle?): StartingState? {
-        Log.e(logTag, "########################################")
-        Log.e(logTag, "Handle Intent: $intent")
-        if (intent == null) { // we then rely on saved state or defaults
-
-            // TO BE REFINED we assume we have no starting state in such case
-            return null
-
-//            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
-//            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
-//            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
-//            return StartingState(initialStateID)
-
-        }
-
-        // Intent is not null
-        val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
-        val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
-        var startingState = StartingState(initialStateID)
-
-        val extraUrl = lazyGet(intent, AppKeys.EXTRA_SERVER_URL)
-        when {
-            Intent.ACTION_VIEW == intent.action -> {
-
-                // Handle call back for OAuth credential flow
-                val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
-                val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
-                if (code != null && state != null) {
-                    startingState.route = LoginDestinations.ProcessAuth.route
-                    startingState.code = code
-                    startingState.state = state
-                } else {
-                    Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
-                    if (intent.extras != null) {
-                        Log.e(logTag, "Listing extras:")
-                        intent.extras?.keySet()?.let {
-                            for (key in it.iterator()) {
-                                Log.e(logTag, " - $key")
-                            }
-                        }
-                    }
-                }
-            }
-            // Re-log to an already registered server
-// TODO
-//            extraUrl != null -> {
-//                // TODO double check that browsing is the relevant default here
-//                val next = lazyGet(AppKeys.EXTRA_AFTER_AUTH_ACTION)
-//                    ?: AuthService.NEXT_ACTION_BROWSE
-//                val isLegacy = intent.getBooleanExtra(AppKeys.EXTRA_SERVER_IS_LEGACY, false)
-//                Log.d(
-//                    logTag, "... Received a re-log cmd with $next flag, " +
-//                            "for ${if (isLegacy) "legacy P8" else "Cells"} server at $extraUrl"
-//                )
-//                if (isLegacy) {
-//                    loginVM.toP8Credentials(extraUrl, next)
-//                } else {
-//                    lifecycleScope.launch {
-//                        loginVM.toCellsCredentials(extraUrl, next)
-//                    }
-//                }
-//            }
-            Intent.ACTION_SEND == intent.action -> {
-                val clipData = intent.clipData
-                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-                clipData?.let {
-                    startingState.route = ShareDestination.ChooseAccount.route
-                    clipData.getItemAt(0).uri?.let {
-                        startingState.uris.add(it)
-                    }
-                }
-            }
-            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
-                val tmpClipData = intent.clipData
-                tmpClipData?.let { clipData ->
-                    startingState.route = ShareDestination.ChooseAccount.route
-                    for (i in 0 until clipData.itemCount) {
-                        clipData.getItemAt(i).uri?.let {
-                            startingState.uris.add(it)
-                        }
-                    }
-                }
-            }
-            else -> {
-                Log.w(logTag, "... Unexpected intent: $intent")
-            }
-        }
-        return startingState
-    }
-
-
-    override fun onDestroy() {
-        Log.d(logTag, "onDestroy")
-        super.onDestroy()
-    }
-
-    override fun onPause() {
-        Log.d(logTag, "onPause")
-        super.onPause()
-    }
-
-    override fun onResume() {
-        Log.d(logTag, "onResume")
-        super.onResume()
-    }
-
-    // Helpers
-    private fun lazyGet(intent: Intent, key: String): String? {
-        if (intent.hasExtra(key) && Str.notEmpty(intent.getStringExtra(key))) {
-            return intent.getStringExtra(key)
-        }
-        return null
-    }
-}

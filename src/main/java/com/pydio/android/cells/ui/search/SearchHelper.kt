@@ -10,7 +10,7 @@ class SearchHelper(
     private val navController: NavHostController,
     private val searchVM: SearchVM,
 ) {
-    private val logTag = SearchHelper::class.simpleName
+    private val logTag = "SearchHelper"
 
     suspend fun open(context: Context, stateID: StateID) {
         Log.d(logTag, "... Calling open for $stateID")

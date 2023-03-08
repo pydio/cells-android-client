@@ -22,8 +22,7 @@ class LoginHelper(
     val startingState: StartingState?,
     val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
-    private val logTag = LoginHelper::class.simpleName
-    private val navigation = LoginNavigation(navController)
+    private val logTag = "LoginHelper"
 
     fun cancel() {
         navController.popBackStack()
@@ -89,7 +88,8 @@ class LoginHelper(
                     afterAuth(it.first, it.second)
                 } ?: run {
                     // TODO better error handling
-                    startingStateHasBeenProcessed(null,
+                    startingStateHasBeenProcessed(
+                        null,
                         StateID.NONE
                     )
                 }

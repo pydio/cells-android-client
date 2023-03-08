@@ -5,16 +5,15 @@ import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
-import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.ListLayout
 
 /** Expose methods used to perform house keeping on the App */
 class SettingsVM(
     private val prefs: CellsPreferences,
-    private val nodeService: NodeService
+    // private val nodeService: NodeService
 ) : ViewModel() {
 
-    private val logTag = SettingsVM::class.simpleName
+    // private val logTag = "SettingsVM"
 
     private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
     private val sortOrder = livePrefs.getString(

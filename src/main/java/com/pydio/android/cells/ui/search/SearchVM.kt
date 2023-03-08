@@ -31,7 +31,7 @@ class SearchVM(
     private val nodeService: NodeService
 ) : ViewModel() {
 
-    private val logTag = SearchVM::class.simpleName
+    private val logTag = "SearchVM"
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 

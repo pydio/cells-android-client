@@ -42,7 +42,7 @@ data class RWorkspace(
     }
 
     companion object {
-        private val logTag = RWorkspace::class.simpleName
+        private val logTag = "RWorkspace"
 
         fun createChild(parentID: StateID, wsNode: WorkspaceNode): RWorkspace {
             val wsState = parentID.withPath("/${wsNode.slug}")

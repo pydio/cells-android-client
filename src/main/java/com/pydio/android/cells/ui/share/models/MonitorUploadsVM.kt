@@ -23,7 +23,7 @@ class MonitorUploadsVM(
     val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = MonitorUploadsVM::class.simpleName
+    private val logTag = "MonitorUploadsVM"
 
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)

@@ -16,6 +16,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.CellsTheme
@@ -23,7 +24,41 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
-private const val logTag = "SkipVerify"
+// private const val logTag = "SkipVerify"
+
+@Composable
+fun SkipVerify(
+    stateID: StateID,
+    helper: LoginHelper,
+    loginVM: LoginVM,
+    // navigateTo: (String?) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val isProcessing = loginVM.isProcessing.collectAsState()
+    val message = loginVM.message.collectAsState()
+    val errMsg = loginVM.errorMessage.collectAsState()
+
+    SkipVerify(
+        isProcessing.value,
+        stateID.serverUrl,
+        message.value,
+        errMsg.value,
+        goBack = { scope.launch { helper.back() } },
+        accept = {
+            scope.launch {
+                val nextRoute = loginVM.confirmSkipVerifyAndPing(stateID.serverUrl)
+                if (nextRoute == null) {
+                    // Not really sure how we can land here and what we should do
+                    helper.back()
+                } else if (LoginDestinations.AskUrl.isCurrent(nextRoute)) {
+                    helper.back() // So that user pre-entered URL is still there
+                } else {
+                    helper.afterPing(nextRoute)
+                }
+            }
+        },
+    )
+}
 
 @Composable
 fun SkipVerify(
@@ -75,28 +110,6 @@ fun SkipVerify(
             }
         }
     }
-}
-
-@Composable
-fun SkipVerify(
-    stateID: StateID,
-    helper: LoginHelper,
-    loginVM: LoginVM,
-    // navigateTo: (String?) -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    val isProcessing = loginVM.isProcessing.collectAsState()
-    val message = loginVM.message.collectAsState()
-    val errMsg = loginVM.errorMessage.collectAsState()
-
-    SkipVerify(
-        isProcessing.value,
-        stateID.serverUrl,
-        message.value,
-        errMsg.value,
-        goBack = { scope.launch { helper.back() } },
-        accept = { scope.launch { loginVM.confirmSkipVerifyAndPing(stateID.serverUrl) } },
-    )
 }
 
 @Preview(name = "SkipVerify Light")

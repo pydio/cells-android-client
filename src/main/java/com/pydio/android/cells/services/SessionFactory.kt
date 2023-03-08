@@ -15,7 +15,6 @@ import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.utils.Str
 
 /**
@@ -31,7 +30,7 @@ class SessionFactory(
     accountDB: AccountDB
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
-    private val logTag = SessionFactory::class.java.simpleName
+    private val logTag = "SessionFactory"
 //    private var sessionFactoryJob = Job()
 //    private val sessionFactoryScope = CoroutineScope(Dispatchers.IO + sessionFactoryJob)
 //

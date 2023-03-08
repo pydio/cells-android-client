@@ -1,15 +1,11 @@
 package com.pydio.android.legacy.v2
 
 import android.content.Context
-import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.pydio.android.legacy.v2.V2SyncDB
-import com.pydio.android.legacy.v2.WatchInfo
-import com.pydio.cells.api.ui.FileNode
 import com.google.gson.Gson
-import java.lang.RuntimeException
-import java.util.ArrayList
+import com.pydio.cells.api.ui.FileNode
 
 class V2SyncDB private constructor(context: Context, filepath: String, version: Int) :
     SQLiteOpenHelper(context, filepath, null, version) {
@@ -142,12 +138,13 @@ class V2SyncDB private constructor(context: Context, filepath: String, version: 
     }
 
     companion object {
-        private val logTag = V2SyncDB::class.java.simpleName
+        private val logTag = "V2SyncDB"
         private const val version = 2
         const val DB_FILE_NAME = "sync.sqlite"
         const val DB_FILE_PATH = "/files/" + DB_FILE_NAME
         private var instance: V2SyncDB? = null
         private val gson = Gson()
+
         @JvmStatic
         fun init(context: Context, absPath: String) {
             if (instance == null) {

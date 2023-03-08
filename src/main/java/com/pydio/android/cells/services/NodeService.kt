@@ -55,7 +55,7 @@ class NodeService(
     private val treeNodeRepository: TreeNodeRepository,
     private val fileService: FileService,
 ) {
-    private val logTag = NodeService::class.simpleName
+    private val logTag = "NodeService"
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 

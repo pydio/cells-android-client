@@ -3,19 +3,22 @@ package com.pydio.android.cells.services
 import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.db.accounts.RSession
+import com.pydio.android.cells.db.accounts.SessionDao
+import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.pydio.android.cells.db.accounts.RSession
-import com.pydio.android.cells.db.accounts.SessionDao
-import com.pydio.android.cells.db.nodes.TreeNodeDB
-import com.pydio.cells.transport.StateID
 
-class TreeNodeRepository(private val applicationContext: Context, private val sessionDao: SessionDao) {
+class TreeNodeRepository(
+    private val applicationContext: Context,
+    private val sessionDao: SessionDao
+) {
 
-    private val logTag = TreeNodeRepository::class.simpleName
+    private val logTag = "TreeNodeRepository"
     private var treeNodeRepoJob = Job()
     private val treeNodeRepoScope = CoroutineScope(Dispatchers.IO + treeNodeRepoJob)
 

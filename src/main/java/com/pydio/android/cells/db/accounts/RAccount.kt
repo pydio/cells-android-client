@@ -36,7 +36,7 @@ data class RAccount(
 ) {
 
     companion object {
-        private val logTag = RAccount::class.simpleName
+        // private val logTag = "RAccount"
 
         const val KEY_SERVER_LABEL = "server_label"
         const val KEY_WELCOME_MESSAGE = "welcome_message"

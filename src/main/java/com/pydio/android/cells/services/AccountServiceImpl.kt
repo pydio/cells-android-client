@@ -40,7 +40,7 @@ class AccountServiceImpl(
     private val fileService: FileService,
 ) : AccountService {
 
-    private val logTag = AccountService::class.java.simpleName
+    private val logTag = "AccountService"
 
     private val accountDao: AccountDao = accountDB.accountDao()
     private val sessionDao: SessionDao = accountDB.sessionDao()

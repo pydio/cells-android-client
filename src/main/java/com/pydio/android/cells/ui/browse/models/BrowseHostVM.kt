@@ -5,7 +5,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
 
-private val logTag = BrowseHostVM::class.simpleName
+// private val logTag = "BrowseHostVM"
 
 /**  Expose methods to simplify navigation while browsing*/
 class BrowseHostVM(

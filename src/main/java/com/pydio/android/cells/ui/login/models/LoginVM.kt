@@ -33,7 +33,7 @@ class LoginVM(
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val logTag = LoginVM::class.simpleName
+    private val logTag = "LoginVM"
 
     // UI
     // Add some delay for the end user to be aware of what is happening under the hood.
@@ -69,7 +69,7 @@ class LoginVM(
     }
 
     suspend fun confirmSkipVerifyAndPing(url: String): String? {
-        return pingAddress(url, true)
+        return processAddress(url, true)
     }
 
     suspend fun logToP8(
@@ -83,28 +83,9 @@ class LoginVM(
         return doP8Auth(url, skipVerify, login, password, captcha)
     }
 
-
     suspend fun getSessionView(accountID: StateID): RSessionView? = withContext(Dispatchers.IO) {
         accountService.getSession(accountID)
     }
-
-    // FIXME to re-add direct login to P8 feature
-
-//    fun toP8Credentials(urlStr: String, next: String) : String {
-//        // TODO rather retrieve the Server from the local repo
-//        val url = ServerURLImpl.fromJson(urlStr)
-//        _nextAction.value = next
-//        _serverUrl.value = url
-//        if (Str.empty(_serverAddress.value)) { // tweak to have an URL if the user clicks back
-//            _serverAddress.value = url.id
-//            if (url.skipVerify()) {
-//                _skipVerify.value = true
-//            }
-//        }
-//        navigateTo(P8CredsRoute.route)
-//        // _currDestination.value = LoginStep.P8_CRED
-//    }
-
 
     suspend fun handleOAuthResponse(state: String, code: String): Pair<StateID, String?>? {
 
@@ -125,9 +106,9 @@ class LoginVM(
             Log.e(logTag, "Unhandled next action: $it")
         }
         val res2 = withContext(Dispatchers.IO) {
-            val res = accountService.refreshWorkspaceList(res.first)
+            val tmpResult = accountService.refreshWorkspaceList(res.first)
             delay(smoothActionDelay)
-            res
+            tmpResult
         }
 
         return res2.second?.let {
@@ -140,19 +121,26 @@ class LoginVM(
 
     // Internal helpers
 
+    /** Returns the route for the next destination if we have to move to next page */
     private suspend fun processAddress(url: String, skipVerify: Boolean): String? {
+
         if (Str.empty(url)) {
             updateErrorMsg("Server address is empty, could not proceed")
             return null
         }
         switchLoading(true)
+
         // 1) Ping the server and check if:
         //   - address is valid
         //   - distant server has a valid TLS configuration
-
-        val serverURL = doPing(url, skipVerify)
-            ?: // Error Message is handled by the doPing
-            return null
+        val pingResult = doPing(url, skipVerify)
+        val serverURL = pingResult.first ?: run {
+            if (skipVerify) { // ping fails also with skip verify.
+                // TODO handle the case
+            }
+            // We assume we always have the skip verify route here
+            return pingResult.second
+        }
 
         Log.e(logTag, "after ping, server URL: $serverURL")
 
@@ -178,7 +166,14 @@ class LoginVM(
         }
     }
 
-    private suspend fun doPing(serverAddress: String, skipVerify: Boolean): ServerURL? {
+    /**
+     * Returns a ServerURL if the ping is successful or a route to navigate
+     * to the skip verify step if we got a SSL exception
+     */
+    private suspend fun doPing(
+        serverAddress: String,
+        skipVerify: Boolean
+    ): Pair<ServerURL?, String?> {
         return withContext(Dispatchers.IO) {
             Log.i(logTag, "Pinging $serverAddress")
             val tmpURL: ServerURL?
@@ -193,21 +188,20 @@ class LoginVM(
             } catch (e: SSLException) {
                 updateErrorMsg("Invalid certificate for $serverAddress")
                 Log.e(logTag, "Invalid certificate for $serverAddress: ${e.message}")
-//                withContext(Dispatchers.Main) {
-//                    _skipVerify.value = false
-//                    // TODO _currDestination.value = LoginStep.SKIP_VERIFY
-//                    // FIXME
-//                    //  navigateTo(SkipVerifyRoute.route)
-//                }
-                return@withContext null
+                // We might do this better with exceptions once with have a valid strategy for error handling with coroutines
+                return@withContext null to LoginDestinations.SkipVerify.createRoute(
+                    StateID(
+                        serverAddress
+                    )
+                )
             } catch (e: IOException) {
-                updateErrorMsg(e.message ?: "IOException:")
+                updateErrorMsg("IOException: ${e.message}")
                 e.printStackTrace()
             } catch (e: Exception) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
                 e.printStackTrace()
             }
-            newURL
+            Pair(newURL, null)
         }
     }
 

@@ -30,7 +30,7 @@ class FolderVM(
     private val nodeService: NodeService
 ) : ViewModel() {
 
-    private val logTag = FolderVM::class.simpleName
+    private val logTag = "FolderVM"
 
     private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
     private val sortOrder = livePrefs.getString(AppKeys.CURR_RECYCLER_ORDER, DEFAULT_SORT_BY)

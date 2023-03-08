@@ -32,7 +32,7 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
 //        Glide.get(context).clearDiskCache()
 //    }).start()
 
-    private val logTag = CellsFileFetcher::class.simpleName
+    private val logTag = "CellsFileFetcher"
 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)

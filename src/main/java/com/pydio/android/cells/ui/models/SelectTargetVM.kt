@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
  */
 class SelectTargetVM(private val transferService: TransferService) : ViewModel() {
 
-    private val logTag = SelectTargetVM::class.simpleName
+    private val logTag = "SelectTargetVM"
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 

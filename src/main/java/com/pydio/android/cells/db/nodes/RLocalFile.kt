@@ -48,7 +48,7 @@ data class RLocalFile(
     }
 
     companion object {
-        private val logTag = RLocalFile::class.simpleName
+//        private val logTag = "RLocalFile"
 
         fun fromFile(stateID: StateID, type: String, file: File, eTag: String?, remoteTS: Long)
                 : RLocalFile {

@@ -26,7 +26,7 @@ class AuthService(authDB: AuthDB) {
     private val legacyCredentialsDao = authDB.legacyCredentialsDao()
     private val authStateDao = authDB.authStateDao()
 
-    private val logTag = AuthService::class.java.simpleName
+    private val logTag = "AuthService"
     private val encoder: CustomEncoder = AndroidCustomEncoder()
 
     companion object {

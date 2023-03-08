@@ -22,7 +22,7 @@ class TransfersVM(
     private val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = TransfersVM::class.simpleName
+    private val logTag = "TransfersVM"
 
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver

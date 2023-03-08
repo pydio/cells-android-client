@@ -27,7 +27,7 @@ class ShareVM(
     private val transferService: TransferService
 ) : ViewModel() {
 
-    private val logTag = ShareVM::class.simpleName
+    private val logTag = "ShareVM"
 
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver

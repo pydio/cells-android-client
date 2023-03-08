@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
  */
 class LiveSharedPreferences(private val sharedPrefs: SharedPreferences) {
 
-    private val logTag = LiveSharedPreferences::class.simpleName
+    private val logTag = "LiveSharedPreferences"
     private val updateSubject = PublishSubject.create<String>()
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->

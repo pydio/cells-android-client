@@ -54,7 +54,7 @@ class TransferService(
     private val fileService: FileService,
 ) {
 
-    private val logTag = TransferService::class.java.simpleName
+    private val logTag = "TransferService"
 
     private val transferServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)

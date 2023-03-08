@@ -19,7 +19,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-private val logTag = NodeActionsVM::class.simpleName
 
 /**  Centralize methods to manage a TreeNode */
 class NodeActionsVM(
@@ -27,6 +26,8 @@ class NodeActionsVM(
     private val fileService: FileService,
     private val transferService: TransferService,
 ) : ViewModel() {
+
+    private val logTag = "NodeActionsVM"
 
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
