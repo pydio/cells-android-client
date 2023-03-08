@@ -143,12 +143,14 @@ class LoginHelper(
             }
         }
         targetEntry?.destination?.route?.let {
+            Log.e(logTag, "##### About to nav back to $route ")
             navController.navigate(route) {
                 popUpTo(it) {
                     inclusive = false
                 }
             }
         } ?: run {
+            Log.e(logTag, "##### About to forward nav to $route ")
             navigateTo(route)
         }
         loginVM.flush()

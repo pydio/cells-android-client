@@ -58,7 +58,7 @@ class AuthService(authDB: AuthDB) {
                     ?: let {
                         Log.e(
                             logTag,
-                            "could not get server $serverID for SessionFactory with url ${url.id}"
+                            "could not get server $serverID for SessionFactory with url ${url?.id}"
                         )
                         return@withContext null
                     }
@@ -75,17 +75,16 @@ class AuthService(authDB: AuthDB) {
                 Log.d(logTag, "About to store OAuth state: $rOAuthState")
                 authStateDao.insert(rOAuthState)
                 return@withContext uri
-
-//                val intent = Intent(Intent.ACTION_VIEW)
-//                intent.data = uri
-//                intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-//                intent
             } catch (e: SDKException) {
                 Log.e(
                     logTag,
                     "could not create intent for ${url.url.host}," +
                             " cause: ${e.code} - ${e.message}"
                 )
+                return@withContext null
+            } catch (e: Exception) {
+                Log.e(logTag, "Unexpected exception: ${e.message}")
+                e.printStackTrace()
                 return@withContext null
             }
         }
@@ -99,18 +98,23 @@ class AuthService(authDB: AuthDB) {
         withContext(Dispatchers.IO) {
             var accountID: StateID? = null
 
+            Log.e(logTag, "... handleOAuthResponse")
+
             val rState = authStateDao.get(oauthState)
             if (rState == null) {
                 Log.w(logTag, "Ignored callback with unknown state: $oauthState")
                 return@withContext null
             }
             try {
+                Log.e(logTag, "... Got a state: ${rState.state} + ${rState.serverURL}")
+
                 val transport = sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
+                Log.e(logTag, "... Got a transport")
                 val token = transport.getTokenFromCode(code, encoder)
-                Log.d(logTag, "... Matched the token")
+                Log.e(logTag, "... Matched the token")
                 accountID = manageRetrievedToken(accountService, transport, token)
-                Log.d(logTag, "... Token managed, post clean. Next action: ${rState.next}")
+                Log.e(logTag, "... Token managed, post clean. Next action: ${rState.next}")
 
                 // Leave OAuth state cacheDB clean
                 authStateDao.delete(oauthState)

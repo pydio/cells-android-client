@@ -24,3 +24,35 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+-keep class javax.net.ssl.**
+-keep class com.pydio.android.cells.db.**
+
+-addconfigurationdebugging
+
+# Gson specific classes
+-dontwarn sun.misc.**
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.pydio.cells.api.ServerURL { <fields>; }
+-keep class com.pydio.cells.transport.ServerURLImpl { <fields>; }
+-keep class com.pydio.cells.transport.StateID { <fields>; }
+
+-keep class com.pydio.android.legacy.v2.AccountRecord { <fields>; }
+-keep class com.pydio.android.legacy.v2.LegacyAccountRecord { <fields>; }
+
+# Prevent proguard from stripping interface information from TypeAdapter, TypeAdapterFactory,
+# JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
+-keep class * implements com.google.gson.TypeAdapter
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+# added by bs
+-keep class * implements com.google.gson.reflect.TypeToken
+
+# Prevent R8 from leaving Data object members always null
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+
+##---------------End: proguard configuration for Gson  ----------

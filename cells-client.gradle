@@ -10,7 +10,7 @@ plugins {
 android {
     // Should replace main "package" attribute of the AndroidManifest.xml
     // that is deprecated and throws a WARNING but it still does not work.
-    //namespace 'com.pydio.android.cells'
+    namespace 'com.pydio.android.cells'
 
     compileSdkVersion ownVersions['android.sdk.compile'] as int
     buildToolsVersion ownVersions['android.build.tools']
