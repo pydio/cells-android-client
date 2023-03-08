@@ -4,6 +4,9 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirmer</string>
+    <string name="button_next">Next</string>
+    <string name="button_back">Back</string>
+    <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Annuler</string>
     <string name="button_switch_to_grid_layout">Afficher sous forme de grille</string>
     <string name="button_switch_to_list_layout">Afficher sous forme de Liste</string>
@@ -29,6 +32,7 @@
     <string name="action_settings">Paramètres</string>
     <string name="action_clear_cache">Vider le cache</string>
     <!-- Main Menu (left drawer) -->
+    <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
     <string name="my_workspaces">Mes espaces de travail</string>
     <string name="quick_access">Raccourcis</string>
@@ -64,9 +68,12 @@
     <string name="invalid_tls_certificate">Certificat non valide</string>
     <string name="confirm_skip_verify_title">Certificat non valide</string>
     <string name="confirm_skip_verify_desc">Si vous savez ce que vous faites, vous pouvez choisir d\'ignorer l\'étape de validation du certificat TLS</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
     <string name="button_i_understand_the_risks">Oui, je comprends les risques</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Veuillez entrer vos informations d\'identification</string>
+    <string name="oauth_code_flow_title">Processing</string>
     <string name="oauth_code_flow_desc">Traitement en cours, veuillez patienter.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Pas de connexion active</string>
@@ -123,13 +130,13 @@
     <!-- Job Management -->
     <string name="job_list_title">Tâches de fond</string>
     <string name="filter_by_status_title">Filtrer par statut</string>
-    <string name="filter_by_status_show_all_label">Tout afficher (aucun filtre)</string>
-    <string name="filter_by_status_new_label">Nouveau</string>
-    <string name="filter_by_status_processing_label">En cours</string>
-    <string name="filter_by_status_cancelled_label">Annulé</string>
-    <string name="filter_by_status_done_label">Terminé</string>
-    <string name="filter_by_status_error_label">Erreur</string>
-    <string name="filter_by_status_timeout_label">Expiré</string>
+    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
+    <!--    <string name="filter_by_status_new_label">New</string>-->
+    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
+    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
+    <!--    <string name="filter_by_status_done_label">Done</string>-->
+    <!--    <string name="filter_by_status_error_label">Error</string>-->
+    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Trier par</string>
     <string name="job_sort_by_creation_ts_desc_label">Date de création (le plus récent en premier)</string>
     <string name="job_sort_by_creation_ts_asc_label">Date de création (le plus ancien en premier)</string>
@@ -167,10 +174,14 @@
     <string name="public_link">Lien public</string>
     <string name="public_link_content_desc">Créer ou supprimer un lien public pour cet élément</string>
     <string name="keep_offline">Garder hors ligne</string>
+    <string name="remove_from_offline">Remove from offline</string>
+    <string name="remove_bookmark">Remove bookmark</string>
     <string name="keep_offline_content_desc">Garder cet élément hors ligne</string>
     <string name="bookmark">Favori</string>
     <string name="bookmark_element_content_desc">Ajouter cet élément aux favoris</string>
     <string name="delete">Effacer</string>
+    <string name="pause">Pause</string>
+    <string name="relaunch">Relaunch</string>
     <string name="empty_recycle">Vider la corbeille</string>
     <string name="restore_content">Restaurer</string>
     <string name="permanently_remove">Supprimer définitivement</string>
@@ -206,6 +217,7 @@
     <string name="content_description_media">Aperçu du contenu</string>
     <string name="dialog_create_folder_title">Créer un dossier</string>
     <string name="dialog_create_folder_positive_btn">Créer</string>
+    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
     <string name="confirm_move_to_recycle_title">Confirmer la suppression</string>
     <string name="confirm_move_to_recycle_desc">%s va être déplacé vers la corbeille</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -261,6 +273,7 @@
     <string name="thumb_description">Aperçu du contenu</string>
     <string name="folder_icon_description">Icône de dossier</string>
     <string name="empty_content_icon_description">Icône de liste vide</string>
+    <string name="choose_account">Choose an account</string>
     <string name="switch_account">Changer de compte</string>
     <string name="switch_workspace">Changer d\'espace de travail</string>
     <string name="parent_folder">Dossier parent</string>

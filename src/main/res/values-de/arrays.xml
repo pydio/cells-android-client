@@ -27,4 +27,13 @@
         <item>Nicht bei Roaming</item>
         <item>Verbunden (sobald wir den Server erreichen können, unabhängig vom Netzwerktyp)</item>
     </string-array>
+    <string-array name="filter_transfer_by_status_labels">
+        <item>Show all (no filter)</item>
+        <item>New</item>
+        <item>Processing</item>
+        <item>Cancelled</item>
+        <item>Done</item>
+        <item>Error</item>
+        <item>Timeout</item>
+    </string-array>
 </resources>

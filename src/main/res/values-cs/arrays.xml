@@ -27,4 +27,13 @@
         <item>Ne v roamingu</item>
         <item>Připojeno (spustit jakmile je server dosažitelný, bez ohledu na typ sítě)</item>
     </string-array>
+    <string-array name="filter_transfer_by_status_labels">
+        <item>Show all (no filter)</item>
+        <item>New</item>
+        <item>Processing</item>
+        <item>Cancelled</item>
+        <item>Done</item>
+        <item>Error</item>
+        <item>Timeout</item>
+    </string-array>
 </resources>

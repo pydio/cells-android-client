@@ -27,4 +27,13 @@
         <item>Sin itinerancia</item>
         <item>Conectado (se ejecutará en cuanto podamos alcanzar el servidor, sin importar el tipo de red)</item>
     </string-array>
+    <string-array name="filter_transfer_by_status_labels">
+        <item>Show all (no filter)</item>
+        <item>New</item>
+        <item>Processing</item>
+        <item>Cancelled</item>
+        <item>Done</item>
+        <item>Error</item>
+        <item>Timeout</item>
+    </string-array>
 </resources>

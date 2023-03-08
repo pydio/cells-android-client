@@ -4,6 +4,9 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirmar</string>
+    <string name="button_next">Next</string>
+    <string name="button_back">Back</string>
+    <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Cancelar</string>
     <string name="button_switch_to_grid_layout">Exibir em grade</string>
     <string name="button_switch_to_list_layout">Exibir em lista</string>
@@ -29,6 +32,7 @@
     <string name="action_settings">Configurações</string>
     <string name="action_clear_cache">Limpar cache</string>
     <!-- Main Menu (left drawer) -->
+    <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
     <string name="my_workspaces">Meu Espaço de Trabalho</string>
     <string name="quick_access">Acesso Rápido</string>
@@ -64,9 +68,12 @@
     <string name="invalid_tls_certificate">Certificado inválido</string>
     <string name="confirm_skip_verify_title">Certificado inválido</string>
     <string name="confirm_skip_verify_desc">Se você sabe o que está fazendo, você pode optar por ignorar a etapa de validação de certificado TLS</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
     <string name="button_i_understand_the_risks">OK, eu compreendo os riscos</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Digite suas credenciais</string>
+    <string name="oauth_code_flow_title">Processing</string>
     <string name="oauth_code_flow_desc">Processando, por favor seja paciente.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Sem conexão</string>
@@ -123,13 +130,13 @@
     <!-- Job Management -->
     <string name="job_list_title">Tarefas em segundo plano</string>
     <string name="filter_by_status_title">Filtrar por status</string>
-    <string name="filter_by_status_show_all_label">Mostrar tudo (sem filtro)</string>
-    <string name="filter_by_status_new_label">Novo</string>
-    <string name="filter_by_status_processing_label">Processando</string>
-    <string name="filter_by_status_cancelled_label">Cancelado</string>
-    <string name="filter_by_status_done_label">Feito</string>
-    <string name="filter_by_status_error_label">Erro</string>
-    <string name="filter_by_status_timeout_label">Tempo esgotado</string>
+    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
+    <!--    <string name="filter_by_status_new_label">New</string>-->
+    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
+    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
+    <!--    <string name="filter_by_status_done_label">Done</string>-->
+    <!--    <string name="filter_by_status_error_label">Error</string>-->
+    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Classificar por</string>
     <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
     <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
@@ -167,10 +174,14 @@
     <string name="public_link">Link público</string>
     <string name="public_link_content_desc">Criar ou apagar um link público para este elemento</string>
     <string name="keep_offline">Manter offline</string>
+    <string name="remove_from_offline">Remove from offline</string>
+    <string name="remove_bookmark">Remove bookmark</string>
     <string name="keep_offline_content_desc">Mantenha este elemento offline</string>
     <string name="bookmark">Marcador</string>
     <string name="bookmark_element_content_desc">Marcar este elemento</string>
     <string name="delete">Excluir</string>
+    <string name="pause">Pause</string>
+    <string name="relaunch">Relaunch</string>
     <string name="empty_recycle">Esvaziar lixeira</string>
     <string name="restore_content">Restaurar</string>
     <string name="permanently_remove">Remover permanentemente</string>
@@ -206,6 +217,7 @@
     <string name="content_description_media">Pré-visualização do conteúdo</string>
     <string name="dialog_create_folder_title">Criar pasta</string>
     <string name="dialog_create_folder_positive_btn">Criar</string>
+    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
     <string name="confirm_move_to_recycle_title">Confirmar exclusão</string>
     <string name="confirm_move_to_recycle_desc">%s será movido para a lixeira</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -261,6 +273,7 @@
     <string name="thumb_description">Pré-visualização de conteúdo pequeno</string>
     <string name="folder_icon_description">Ícone de pasta</string>
     <string name="empty_content_icon_description">Ícone de lista vazia</string>
+    <string name="choose_account">Choose an account</string>
     <string name="switch_account">Trocar conta</string>
     <string name="switch_workspace">Trocar de espaço de trabalho</string>
     <string name="parent_folder">Pasta pai</string>
