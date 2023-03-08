@@ -47,9 +47,9 @@ android {
             signingConfig signingConfigs.release
             resValue "string", "app_version",
                     "${defaultConfig.versionName}"
-            minifyEnabled false
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            minifyEnabled false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
