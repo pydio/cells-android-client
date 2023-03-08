@@ -37,7 +37,11 @@
 -keep class com.pydio.cells.api.ServerURL { <fields>; }
 -keep class com.pydio.cells.transport.ServerURLImpl { <fields>; }
 -keep class com.pydio.cells.transport.StateID { <fields>; }
+# double check this
+-keep class com.pydio.cells.transport.auth.jwt.Header  { <fields>; }
+-keep class com.pydio.cells.transport.auth.jwt.Claims  { <fields>; }
 
+# to manage legacy migration
 -keep class com.pydio.android.legacy.v2.AccountRecord { <fields>; }
 -keep class com.pydio.android.legacy.v2.LegacyAccountRecord { <fields>; }
 
