@@ -21,29 +21,70 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = LightBlue,
-    secondary = LightBlueGrey,
-    tertiary = LightPurpleGrey,
-    error = PinkRed,
+
+    primary = DarkCellsScheme.primary,
+    onPrimary = DarkCellsScheme.onPrimary,
+    primaryContainer = DarkCellsScheme.primaryContainer,
+    onPrimaryContainer = DarkCellsScheme.onPrimaryContainer,
+    inversePrimary = DarkCellsScheme.inversePrimary,
+    secondary = DarkCellsScheme.secondary,
+    onSecondary = DarkCellsScheme.onSecondary,
+    secondaryContainer = DarkCellsScheme.secondaryContainer,
+    onSecondaryContainer = DarkCellsScheme.onSecondaryContainer,
+    tertiary = DarkCellsScheme.tertiary,
+    onTertiary = DarkCellsScheme.onTertiary,
+    tertiaryContainer = DarkCellsScheme.tertiaryContainer,
+    onTertiaryContainer = DarkCellsScheme.onTertiaryContainer,
+    background = DarkCellsScheme.background,
+    onBackground = DarkCellsScheme.onBackground,
+    surface = DarkCellsScheme.surface,
+    onSurface = DarkCellsScheme.onSurface,
+    surfaceVariant = DarkCellsScheme.surfaceVariant,
+    onSurfaceVariant = DarkCellsScheme.onSurfaceVariant,
+    surfaceTint = DarkCellsScheme.surfaceTint,
+    inverseSurface = DarkCellsScheme.inverseSurface,
+    inverseOnSurface = DarkCellsScheme.inverseOnSurface,
+    error = DarkCellsScheme.error,
+    onError = DarkCellsScheme.onError,
+    errorContainer = DarkCellsScheme.errorContainer,
+    onErrorContainer = DarkCellsScheme.onErrorContainer,
+    outline = DarkCellsScheme.outline,
+    outlineVariant = DarkCellsScheme.outlineVariant,
+    scrim = DarkCellsScheme.scrim,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Blue,
-    secondary = BlueGrey,
-    tertiary = PurpleGrey,
-    error = DarkRed,
+
+    primary = LightCellsScheme.primary,
+    onPrimary = LightCellsScheme.onPrimary,
+    primaryContainer = LightCellsScheme.primaryContainer,
+    onPrimaryContainer = LightCellsScheme.onPrimaryContainer,
+    inversePrimary = LightCellsScheme.inversePrimary,
+    secondary = LightCellsScheme.secondary,
+    onSecondary = LightCellsScheme.onSecondary,
+    secondaryContainer = LightCellsScheme.secondaryContainer,
+    onSecondaryContainer = LightCellsScheme.onSecondaryContainer,
+    tertiary = LightCellsScheme.tertiary,
+    onTertiary = LightCellsScheme.onTertiary,
+    tertiaryContainer = LightCellsScheme.tertiaryContainer,
+    onTertiaryContainer = LightCellsScheme.onTertiaryContainer,
+    background = LightCellsScheme.background,
+    onBackground = LightCellsScheme.onBackground,
+    surface = LightCellsScheme.surface,
+    onSurface = LightCellsScheme.onSurface,
+    surfaceVariant = LightCellsScheme.surfaceVariant,
+    onSurfaceVariant = LightCellsScheme.onSurfaceVariant,
+    surfaceTint = LightCellsScheme.surfaceTint,
+    inverseSurface = LightCellsScheme.inverseSurface,
+    inverseOnSurface = LightCellsScheme.inverseOnSurface,
+    error = LightCellsScheme.error,
+    onError = LightCellsScheme.onError,
+    errorContainer = LightCellsScheme.errorContainer,
+    onErrorContainer = LightCellsScheme.onErrorContainer,
+    outline = LightCellsScheme.outline,
+    outlineVariant = LightCellsScheme.outlineVariant,
+    scrim = LightCellsScheme.scrim,
 )
-
-/* Other default colors to override
-background = Color(0xFFFFFBFE),
-surface = Color(0xFFFFFBFE),
-onPrimary = Color.White,
-onSecondary = Color.White,
-onTertiary = Color.White,
-onBackground = Color(0xFF1C1B1F),
-onSurface = Color(0xFF1C1B1F),
-*/
-
 
 /**
  * Root theme for the Cells application based on Material3.
@@ -64,7 +105,6 @@ fun CellsTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
 
 
     val view = LocalView.current
