@@ -70,7 +70,6 @@ fun CellsNavGraph(
                     // First we explicitly handle the well known routes for future debugging
                     // OAuth Call back
                     LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-                        // TODO check if we need to be aware of the skip verify flag at this point
                     -> loginNavActions.processAuth(startingState.stateID, false)
                     // Until we define at least one account
                     LoginDestinations.AskUrl.isCurrent(startingState.route)
