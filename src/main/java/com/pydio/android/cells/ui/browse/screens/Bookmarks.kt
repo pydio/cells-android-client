@@ -101,9 +101,12 @@ fun Bookmarks(
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK,
-            StateID.NONE
-        ))
+        mutableStateOf(
+            Pair(
+                NodeMoreMenuType.BOOKMARK,
+                StateID.NONE
+            )
+        )
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
         scope.launch {
@@ -115,7 +118,8 @@ fun Bookmarks(
     val moreMenuDone: () -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK,
+            nodeMoreMenuData.value = Pair(
+                NodeMoreMenuType.BOOKMARK,
                 StateID.NONE
             )
         }
@@ -223,7 +227,8 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsList,
+                    launch(
+                        NodeAction.AsList,
                         StateID.NONE
                     )
                     showMenu(false)
@@ -235,7 +240,8 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsGrid,
+                    launch(
+                        NodeAction.AsGrid,
                         StateID.NONE
                     )
                     showMenu(false)
@@ -274,9 +280,12 @@ private fun BookmarkScaffold(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
-                        done = { launch(NodeAction.SortBy,
-                            StateID.NONE
-                        ) },
+                        done = {
+                            launch(
+                                NodeAction.SortBy,
+                                StateID.NONE
+                            )
+                        },
                         tint = tint,
                         bgColor = bgColor,
                     )
@@ -334,6 +343,7 @@ private fun BookmarkList(
         isEmpty = bookmarks.isEmpty(),
         // TODO also handle if server is unreachable
         canRefresh = true,
+        emptyRefreshableDesc = stringResource(id = R.string.no_bookmark_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
 

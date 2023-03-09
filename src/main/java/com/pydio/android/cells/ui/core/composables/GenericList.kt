@@ -35,12 +35,11 @@ fun WithLoadingListBackground(
     isEmpty: Boolean,
     modifier: Modifier = Modifier,
     canRefresh: Boolean = true,
+    emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
+    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + "\n" + stringResource(R.string.server_unreachable),
     content: @Composable () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-// .background(CellsColor.warning)
-    ) {
+    Box(modifier = modifier) {
         if (isEmpty) {
             if (loadingState == LoadingState.STARTING) {
                 Box(
@@ -57,14 +56,12 @@ fun WithLoadingListBackground(
             } else {
                 Box(
                     modifier = Modifier.fillMaxSize()
-                    //         .background(CellsColor.ok)
                 ) {
                     EmptyList(
                         desc = if (canRefresh) {
-                            stringResource(R.string.empty_folder)
+                            emptyRefreshableDesc
                         } else {
-                            stringResource(R.string.empty_cache) + "\n" +
-                                    stringResource(R.string.server_unreachable)
+                            emptyNoConnDesc
                         },
                         modifier = Modifier
                             .fillMaxSize()
@@ -127,9 +124,9 @@ fun BrowseUpItem(
         Row(Modifier.padding(horizontal = 8.dp)) {
             Surface(
                 Modifier
-                    // .size(40.dp)
-                    // .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                    // .background(MaterialTheme.colorScheme.error)
+                // .size(40.dp)
+                // .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                // .background(MaterialTheme.colorScheme.error)
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_baseline_arrow_back_ios_new_24),

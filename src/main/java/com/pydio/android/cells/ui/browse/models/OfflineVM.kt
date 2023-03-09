@@ -45,7 +45,7 @@ class OfflineVM(
     )
     val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
 
-    private val _loadingState = MutableLiveData(LoadingState.STARTING)
+    private val _loadingState = MutableLiveData(LoadingState.IDLE)
     private val _errorMessage = MutableLiveData<String?>()
     private val _accountID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     private val _syncJobID = MutableLiveData(-1L)

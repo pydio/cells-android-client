@@ -94,7 +94,6 @@ fun OfflineRoots(
     val listLayout by offlineVM.layout.observeAsState()
     val roots = offlineVM.offlineRoots.observeAsState()
 
-
     val localOpen: (StateID) -> Unit = { stateID ->
         scope.launch {
             offlineVM.getNode(stateID)?.let {
@@ -362,8 +361,8 @@ private fun OfflineRootsList(
     WithLoadingListBackground(
         loadingState = loadingState,
         isEmpty = roots.isEmpty(),
-        // TODO also handle if server is unreachable
         canRefresh = true,
+        emptyRefreshableDesc = stringResource(id = R.string.no_offline_root_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
 
@@ -378,9 +377,6 @@ private fun OfflineRootsList(
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        // FIXME this is not yet done:
-                        //  - prepare offline node item composable for grids
-                        //  - re-enable option in the action menu
                         if (runningJob != null) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 val percentage =

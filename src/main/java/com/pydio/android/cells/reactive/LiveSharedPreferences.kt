@@ -57,7 +57,6 @@ class LiveSharedPreferences(private val sharedPrefs: SharedPreferences) {
                 } catch (e: IllegalArgumentException) {
                     ListLayout.LIST
                 }
-                Log.e(logTag, "Transforming from $strValue to $newValue")
                 newValue
             }
         )

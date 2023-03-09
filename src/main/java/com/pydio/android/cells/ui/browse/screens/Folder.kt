@@ -55,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeGridItemBox
 import com.pydio.android.cells.ui.browse.composables.NodeItem
@@ -83,24 +84,25 @@ private const val logTag = "Folder"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Folder(
-    stateID: StateID,
+    folderID: StateID,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
-    open: (StateID) -> Unit,
     browseRemoteVM: BrowseRemoteVM,
     folderVM: FolderVM,
+    browseHelper: BrowseHelper,
 ) {
 
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = stateID) {
-        Log.e(logTag, "... in Folder, launching effect for $stateID")
-        browseRemoteVM.watch(stateID, false)
+    LaunchedEffect(key1 = folderID) {
+        Log.e(logTag, "... in Folder, launching effect for $folderID")
+        browseRemoteVM.watch(folderID, false)
     }
 
     val loadingState by browseRemoteVM.loadingState.observeAsState()
     val forceRefresh: () -> Unit = {
-        browseRemoteVM.watch(stateID, true)
+        browseRemoteVM.watch(folderID, true)
     }
 
     val listLayout by folderVM.layout.observeAsState()
@@ -113,7 +115,7 @@ fun Folder(
 
     val label by remember(key1 = treeNode, key2 = workspace) {
         derivedStateOf {
-            var tmpLabel = stateID.fileName ?: workspace?.label ?: stateID.workspace
+            var tmpLabel = folderID.fileName ?: workspace?.label ?: folderID.workspace
             if (treeNode?.isRecycle() == true) {
                 tmpLabel = binLabel
             }
@@ -134,9 +136,12 @@ fun Folder(
     // State for the more Menus
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.NONE,
-            StateID.NONE
-        ))
+        mutableStateOf(
+            Pair(
+                NodeMoreMenuType.NONE,
+                StateID.NONE
+            )
+        )
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
@@ -145,20 +150,26 @@ fun Folder(
             sheetState.expand()
         }
     }
+    val localOpen: (StateID) -> Unit = {
+        scope.launch {
+            browseHelper.open(context, it)
+        }
+    }
 
     val actionDone: (Boolean) -> Unit = {
         scope.launch {
             if (it) { // Also reset backoff ticker
-                browseRemoteVM.watch(stateID, true) // TODO is it a force refresh here ?
+                browseRemoteVM.watch(folderID, true) // TODO is it a force refresh here ?
             }
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(NodeMoreMenuType.NONE,
+            nodeMoreMenuData.value = Pair(
+                NodeMoreMenuType.NONE,
                 StateID.NONE
             )
         }
     }
 
-    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+    val launch: (NodeAction, StateID) -> Unit = { action, currID ->
         when (action) {
             is NodeAction.AsGrid -> {
                 folderVM.setListLayout(ListLayout.GRID)
@@ -172,7 +183,7 @@ fun Folder(
                 actionDone(true)
             }
             else -> {
-                Log.e(logTag, "Unknown action $action for $stateID")
+                Log.e(logTag, "Unknown action $action for $currID")
                 actionDone(false)
             }
         }
@@ -190,13 +201,13 @@ fun Folder(
             listLayout = listLayout ?: ListLayout.LIST,
             showFAB = showFAB,
             label = label,
-            stateID = stateID,
+            stateID = folderID,
             children = children ?: listOf(),
             forceRefresh = forceRefresh,
             openDrawer = openDrawer,
             openSearch = openSearch,
-            openParent = { open(stateID.parent()) },
-            open = open,
+            openParent = { localOpen(folderID.parent()) },
+            open = localOpen,
             launch = launch,
             moreMenuState = MoreMenuState(
                 nodeMoreMenuData.value.first,
@@ -239,7 +250,8 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsList,
+                    launch(
+                        NodeAction.AsList,
                         StateID.NONE
                     )
                     showMenu(false)
@@ -251,7 +263,8 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(NodeAction.AsGrid,
+                    launch(
+                        NodeAction.AsGrid,
                         StateID.NONE
                     )
                     showMenu(false)

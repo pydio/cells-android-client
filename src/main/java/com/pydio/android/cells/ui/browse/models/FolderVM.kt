@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
@@ -67,5 +69,22 @@ class FolderVM(
 
     fun setListLayout(listLayout: ListLayout) {
         prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
+    }
+
+    suspend fun viewFile(context: Context, stateID: StateID) {
+        getNode(stateID)?.let { node ->
+            // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
+            //    re-implement finer check of the current context (typically metered state)
+            //    user choices.
+            nodeService.getLocalFile(node, true)?.let { file ->
+                externallyView(context, file, node)
+                return
+            }
+        }
+        Log.e(logTag, "Could not view file...")
+    }
+
+    suspend fun getNode(stateID: StateID): RTreeNode? {
+        return nodeService.getNode(stateID)
     }
 }

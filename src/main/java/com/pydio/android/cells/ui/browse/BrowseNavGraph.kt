@@ -46,6 +46,7 @@ fun NavGraphBuilder.browseNavGraph(
         } else if (Str.notEmpty(stateID.workspace)) {
 
             val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(stateID, navController, browseRemoteVM, folderVM)
 
             Folder(
                 stateID,
@@ -53,15 +54,15 @@ fun NavGraphBuilder.browseNavGraph(
                 openSearch = {
                     navController.navigate(CellsDestinations.Search.createRoute("Folder", stateID))
                 },
-                open = open,
                 browseRemoteVM = browseRemoteVM,
-                folderVM = folderVM
+                folderVM = folderVM,
+                browseHelper = helper,
             )
         } else {
             var i = 0
             navController.backQueue.forEach {
-                val stateID = lazyStateID(it)
-                Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+                val currID = lazyStateID(it)
+                Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
             }
 
             val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })

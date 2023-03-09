@@ -2,7 +2,7 @@ package com.pydio.android.cells.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// v3.0 Styles
+// v3.1 Colors
 
 object CellsColor {
 
@@ -69,7 +69,7 @@ object LightCellsScheme {
 }
 
 object DarkCellsScheme {
-    val primary = Color(0xFF79D0FF)
+    val primary = Color(0xFF01579B)
     val onPrimary = Color(0xFF00344A)
     val primaryContainer = Color(0xFF004C6A)
     val onPrimaryContainer = Color(0xFFC3E7FF)
@@ -88,7 +88,7 @@ object DarkCellsScheme {
     val onSurface = Color(0xFFE1E2E5)
     val surfaceVariant = Color(0xFF41484D)
     val onSurfaceVariant = Color(0xFFC0C7CD)
-    val surfaceTint = Color(0xFF00FF00) // TODO
+    val surfaceTint = Color(0xFF365468)
     val inverseSurface = Color(0xFFE1E2E5)
     val inverseOnSurface = Color(0xFF191C1E)
     val error = Color(0xFFFFB4A9)
@@ -96,6 +96,6 @@ object DarkCellsScheme {
     val errorContainer = Color(0xFF930006)
     val onErrorContainer = Color(0xFFFFDAD4)
     val outline = Color(0xFF8B9298)
-    val outlineVariant = Color(0xFF00FF00) // TODO
-    val scrim = Color(0xFF00FF00) // TODO
+    val outlineVariant = Color(0xDA0C1358)
+    val scrim = Color(0xFF0C1358)
 }
