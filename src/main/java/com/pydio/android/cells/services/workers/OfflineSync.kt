@@ -10,7 +10,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -29,39 +28,36 @@ class OfflineSync(
 
     companion object {
         const val WORK_NAME = "OfflineSyncWorker"
-        private val logTag = "OfflineSync"
+        private const val logTag = "OfflineSync"
 
-        fun buildWorkRequest(prefs: PreferencesService): PeriodicWorkRequest {
+        suspend fun buildWorkRequest(prefs: PreferencesService): PeriodicWorkRequest {
 
             // Build constraints based on preferences
             val constraintBuilder = Constraints.Builder()
 
-            val netType = when (prefs.getString(
-                AppKeys.SYNC_CONST_NETWORK_TYPE,
-                AppNames.NETWORK_TYPE_CONSTRAINT_UNMETERED
-            )) {
+            val settings = prefs.fetchPreferences().sync
+
+            val netType = when (settings.onNetworkType) {
                 AppNames.NETWORK_TYPE_CONSTRAINT_NOT_ROAMING -> NetworkType.NOT_ROAMING
                 AppNames.NETWORK_TYPE_CONSTRAINT_NONE -> NetworkType.CONNECTED
                 else -> NetworkType.UNMETERED
             }
             constraintBuilder.setRequiredNetworkType(netType)
 
-            if (prefs.getBoolean(AppKeys.SYNC_CONST_ON_CHARGING, true)) {
+
+            if (settings.onCharging) {
                 constraintBuilder.setRequiresCharging(true)
             }
 
-            if (prefs.getBoolean(AppKeys.SYNC_CONST_ON_BATT_NOT_LOW, true)) {
+            if (settings.onBatteryNotLow) {
                 constraintBuilder.setRequiresBatteryNotLow(true)
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                prefs.getBoolean(AppKeys.SYNC_CONST_ON_IDLE, true)
-            ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && settings.onIdle) {
                 constraintBuilder.setRequiresDeviceIdle(true)
             }
 
-            val frequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
-            val repeatInterval = fromFreqToMinuteInterval(frequency)
+            val repeatInterval = fromFreqToMinuteInterval(settings.frequency)
             Log.d(logTag, "... Built offline request with a frequency of $repeatInterval min.")
             return PeriodicWorkRequestBuilder<OfflineSync>(
                 repeatInterval, TimeUnit.MINUTES
@@ -80,7 +76,7 @@ class OfflineSync(
     }
 
     // Dirty tweak to prevent the first sync to be launched before the migration from v2 has correctly run
-    private fun hasBeenMigrated(): Boolean {
-        return prefs.getInt(AppKeys.INSTALLED_VERSION_CODE) > 107
+    private suspend fun hasBeenMigrated(): Boolean {
+        return prefs.getInstalledVersion() > 107
     }
 }

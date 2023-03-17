@@ -39,9 +39,9 @@ import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.models.LoginVM
+import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.MigrationVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
@@ -164,7 +164,7 @@ val serviceModule = module {
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
+    single { NodeService(androidContext().applicationContext, get(), get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get(), get(), get()) }
 
@@ -201,13 +201,13 @@ val viewModelModule = module {
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)
     viewModelOf(::TransfersVM)
+    viewModelOf(::MonitorUploadsVM)
     viewModelOf(::SingleTransferVM)
 
-
     viewModel { BrowseHostVM(get()) }
-    viewModel { CarouselVM(get(), get()) }
     viewModel { ShareVM(get(), get(), get()) }
-    viewModel { MonitorUploadsVM(get(), get()) }
+
+    viewModelOf(::CarouselVM)
 
     viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { JobListVM(get()) }

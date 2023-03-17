@@ -4,20 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.WorkManager
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +38,7 @@ class ActiveSessionViewModel(
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
-    private val livePrefs = LiveSharedPreferences(prefs.get())
+    // private val livePrefs = LiveSharedPreferences(prefs.get())
 
     private var _accountId: String? = null
     val accountId: String?
@@ -58,26 +51,24 @@ class ActiveSessionViewModel(
         if (sessionView.value == null) {
             return false
         }
-        val reachable = networkService.isConnected() &&
-                sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        val reachable =
+            networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
         if (!reachable) {
             Log.d(
-                logTag, "Un-reachable. Connected: ${networkService.isConnected()} " +
-                        ", auth status: ${sessionView.value?.authStatus}"
+                logTag,
+                "Un-reachable. Connected: ${networkService.isConnected()} " + ", auth status: ${sessionView.value?.authStatus}"
             )
         }
         return reachable
     }
 
-    fun canDownloadFiles(): Boolean {
+    suspend fun canDownloadFiles(): Boolean {
         if (sessionView.value == null) {
             return false
         }
 
-        val dlFileOnMetered = prefs.getBoolean(AppKeys.METERED_ASK_B4_DL_FILES, false)
-        return networkService.isConnected() &&
-                sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED &&
-                (dlFileOnMetered || !networkService.isMetered())
+        val dlFileOnMetered = prefs.fetchPreferences().meteredNetwork.askBeforeDL
+        return networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED && (dlFileOnMetered || !networkService.isMetered())
     }
 
     // Watcher states
@@ -93,7 +84,8 @@ class ActiveSessionViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    private var oldOfflineFrequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
+    // FIXME
+    // private var oldOfflineFrequency = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
 
     init {
         configureWorkers()
@@ -152,41 +144,41 @@ class ActiveSessionViewModel(
     // Initialisation of workers is done at App start, we only register observer for change here.
     private fun configureWorkers() {
         vmScope.launch {
-            livePrefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
-                .asFlow().collect {
-                    // Log.e(logTag, "### Live share pref event: $it")
-                    it?.let {
-                        if (it != oldOfflineFrequency) {
-                            resetWorker()
-                        }
-                    }
-                }
-            // TODO also observe offline constraints settings
+            // FIXME
+//            livePrefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK).asFlow().collect {
+//                    // Log.e(logTag, "### Live share pref event: $it")
+//                    it?.let {
+//                        if (it != oldOfflineFrequency) {
+//                            resetWorker()
+//                        }
+//                    }
+//                }
+//            // TODO also observe offline constraints settings
         }
     }
 
-    private fun resetWorker() {
-
-        // Debug info
-        val it = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
-        val prefix = "### Cancel and restart offline worker with [$it] frequency "
-        try {
-            oldOfflineFrequency = it
-            jobService.i(logTag, prefix, "Live Pref Observer")
-        } catch (e: Exception) {
-            Log.e(logTag, "$prefix, could not log to user table: ${e.message}")
-        }
-
-        // Effective reset.
-        // TODO make it more clever to prevent systematic launch of the worker each time the preferences change
-        val workManager = WorkManager.getInstance(CellsApp.instance)
-        workManager.cancelUniqueWork(OfflineSync.WORK_NAME)
-        workManager.enqueueUniquePeriodicWork(
-            OfflineSync.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            OfflineSync.buildWorkRequest(prefs),
-        )
-    }
+//    private suspend fun resetWorker() {
+//
+//        // Debug info
+//        val it = prefs.getString(AppKeys.SYNC_FREQ, AppNames.SYNC_FREQ_WEEK)
+//        val prefix = "### Cancel and restart offline worker with [$it] frequency "
+//        try {
+//            oldOfflineFrequency = it
+//            jobService.i(logTag, prefix, "Live Pref Observer")
+//        } catch (e: Exception) {
+//            Log.e(logTag, "$prefix, could not log to user table: ${e.message}")
+//        }
+//
+//        // Effective reset.
+//        // TODO make it more clever to prevent systematic launch of the worker each time the preferences change
+//        val workManager = WorkManager.getInstance(CellsApp.instance)
+//        workManager.cancelUniqueWork(OfflineSync.WORK_NAME)
+//        workManager.enqueueUniquePeriodicWork(
+//            OfflineSync.WORK_NAME,
+//            ExistingPeriodicWorkPolicy.REPLACE,
+//            OfflineSync.buildWorkRequest(prefs),
+//        )
+//    }
 
     private fun watchSession() = vmScope.launch {
         while (_isRunning) {

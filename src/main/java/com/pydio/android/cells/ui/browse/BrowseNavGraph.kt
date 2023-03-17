@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
+import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
@@ -80,23 +81,12 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
+        val carouselVM: CarouselVM = koinViewModel(parameters = { parametersOf(stateID) })
         Carousel(
             stateID,
             back = back,
-            // back = { navController.popBackStack() },
+            carouselVM,
         )
-
-//        if (stateId == null) { // Fall back as (unnecessary) failsafe
-//            LaunchedEffect(key1 = accountID) {
-//                // This should never happen
-//                navController.popBackStack(BrowseDestination.AccountHome.route, false)
-//            }
-//        } else {
-//            Carousel(
-//                StateID.fromId(stateId),
-//                back = { navController.popBackStack() },
-//            )
-//        }
     }
 
     composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
@@ -106,12 +96,11 @@ fun NavGraphBuilder.browseNavGraph(
             Log.e(logTag, "Cannot open OfflineRoots with no ID")
             back()
         } else {
-            val offlineVM: OfflineVM = koinViewModel()
-            offlineVM.afterCreate(stateID.account())
+            val offlineVM: OfflineVM = koinViewModel(parameters = { parametersOf(stateID) })
             OfflineRoots(
                 offlineVM = offlineVM,
                 openDrawer = openDrawer,
-                openSearch = {},
+                openSearch = {}, // FIXME
                 open = open,
             )
         }
@@ -128,7 +117,6 @@ fun NavGraphBuilder.browseNavGraph(
             Bookmarks(
                 stateID,
                 openDrawer = openDrawer,
-                // openSearch = {},
                 open = open,
                 browseRemoteVM = browseRemoteVM,
                 bookmarksVM = bookmarksVM,

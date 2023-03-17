@@ -42,7 +42,7 @@ class ShareVM(
             } else if (Str.empty(currID.workspace)) {
                 nodeService.listWorkspaces(currID)
             } else {
-                nodeService.ls(currID)
+                nodeService.listViewable(currID, "")
             }
         }
 

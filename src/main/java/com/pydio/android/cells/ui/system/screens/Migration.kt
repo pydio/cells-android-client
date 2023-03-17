@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.cells.transport.ClientData
 
 @Composable
 fun PrepareMigration() {
@@ -103,7 +104,6 @@ fun MigrateFromV2(
 
 @Composable
 fun AfterLegacyMigration(
-    oldCodeVersion: Int,
     offlineRootNb: Int,
     browse: () -> Unit,
     launchSyncAndBrowse: () -> Unit,
@@ -114,7 +114,7 @@ fun AfterLegacyMigration(
             .padding(horizontal = dimensionResource(R.dimen.card_padding))
             .wrapContentWidth(Alignment.Start)
     ) {
-        DefaultTitleText("Migrating from v$oldCodeVersion")
+        DefaultTitleText("Migrated to v${ClientData.getInstance().versionCode}")
         Surface(
             tonalElevation = dimensionResource(R.dimen.grid_ws_card_elevation),
             modifier = Modifier
@@ -221,6 +221,6 @@ fun AfterLegacyMigration(
 @Composable
 private fun AfterLegacyMigrationPreview() {
     CellsTheme {
-        AfterLegacyMigration(43, 8, {}, {})
+        AfterLegacyMigration(8, {}, {})
     }
 }

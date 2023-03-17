@@ -6,10 +6,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
@@ -33,11 +31,9 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -50,7 +46,6 @@ import kotlin.time.measureTimedValue
 
 class NodeService(
     private val appContext: Context,
-    private val prefs: PreferencesService,
     private val jobService: JobService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
@@ -66,24 +61,23 @@ class NodeService(
      * Get a LiveData List for all the nodes that have been indexed in the folder at StateID,
      * using the order that is currently set in preferences.
      */
-    fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
-
-        val encoded = prefs.getString(
-            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-        )
-        val (sortByCol, sortByOrder) = parseOrder(encoded)
-        val parPath = stateID.file
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
-                    "AND parent_path = ? " +
-                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
-        )
-        // Log.e(logTag, "About to list, query: ${lsQuery.sql} - file: $parPath")
-        return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
-    }
+//    fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
+//
+//        val encoded = prefs.getString(
+//            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
+//        )
+//        val (sortByCol, sortByOrder) = parseOrder(encoded)
+//        val parPath = stateID.file
+//        val lsQuery = SimpleSQLiteQuery(
+//            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
+//                    "AND parent_path = ? " +
+//                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
+//        )
+//        // Log.e(logTag, "About to list, query: ${lsQuery.sql} - file: $parPath")
+//        return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
+//    }
 
     fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
-
         val (sortByCol, sortByOrder) = parseOrder(encodedSortBy)
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
@@ -92,31 +86,6 @@ class NodeService(
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
-    }
-
-    fun lsFlow(stateID: StateID): Flow<List<RTreeNode>> {
-
-        val encoded = prefs.getString(
-            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-        )
-        val (sortByCol, sortByOrder) = parseOrder(encoded)
-        val parPath = stateID.file
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
-                    "AND parent_path = ? " +
-                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
-        )
-        // Log.e(logTag, "About to list, query: ${lsQuery.sql}")
-        return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
-    }
-
-    suspend fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        val (sortByCol, sortByOrder) = prefs.getOrderByPair(ListType.DEFAULT)
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
-                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
-        )
-        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
     fun listBookmarks(
@@ -131,29 +100,16 @@ class NodeService(
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
-
-    fun listOfflineRoots(accountID: StateID): LiveData<List<RLiveOfflineRoot>> {
-        val encoded = prefs.getString(
-            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-        )
-        val (sortByCol, sortByOrder) = parseOrder(encoded)
+    fun listOfflineRoots(
+        accountID: StateID,
+        encodedOrder: String,
+    ): LiveData<List<RLiveOfflineRoot>> {
+        val (sortByCol, sortByOrder) = parseOrder(encodedOrder)
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM RLiveOfflineRoot WHERE " +
                     "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
         )
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
-    }
-
-    fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
-        // We use the file param (that includes WS) to be able to also list workspaces roots
-        val parPath = stateID.file ?: "" // initialise with an empty String when null for queries
-
-        val mime = if (Str.notEmpty(parPath))
-            SdkNames.NODE_MIME_FOLDER
-        else
-            SdkNames.NODE_MIME_WS_ROOT
-        Log.d(logTag, "Listing child folders for $stateID. parPath: [$parPath], mime: $mime")
-        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
     fun listWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
@@ -165,21 +121,21 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
-    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
-        return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
-    }
-
-    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> {
-        return accountService.getLiveWorkspace(stateID)
-    }
-
-    fun getLiveNodes(stateIDs: List<StateID>): LiveData<List<RTreeNode>> {
-        if (stateIDs.isEmpty()) {
-            throw java.lang.IllegalStateException("Cannot retrieve live nodes without at least one ID")
-        }
-        val encodedIds = stateIDs.map { it.id }.toTypedArray()
-        return nodeDB(stateIDs[0]).treeNodeDao().getLiveNodes(*encodedIds)
-    }
+//    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
+//        return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+//    }
+//
+//    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> {
+//        return accountService.getLiveWorkspace(stateID)
+//    }
+//
+//    fun getLiveNodes(stateIDs: List<StateID>): LiveData<List<RTreeNode>> {
+//        if (stateIDs.isEmpty()) {
+//            throw java.lang.IllegalStateException("Cannot retrieve live nodes without at least one ID")
+//        }
+//        val encodedIds = stateIDs.map { it.id }.toTypedArray()
+//        return nodeDB(stateIDs[0]).treeNodeDao().getLiveNodes(*encodedIds)
+//    }
 
     /* Communicate with the DB using suspend functions */
 
@@ -1109,18 +1065,18 @@ class NodeService(
         return@withContext null
     }
 
-    suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
-        try {
-            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-                ?: return@withContext "No node found at $stateID, could not delete"
-            remoteEmptyRecycle(stateID)
-            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
-        } catch (se: SDKException) {
-            se.printStackTrace()
-            return@withContext "Could not empty recycle bin: ${se.message}"
-        }
-        return@withContext null
-    }
+//    suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
+//        try {
+//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+//                ?: return@withContext "No node found at $stateID, could not delete"
+//            remoteEmptyRecycle(stateID)
+//            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
+//        } catch (se: SDKException) {
+//            se.printStackTrace()
+//            return@withContext "Could not empty recycle bin: ${se.message}"
+//        }
+//        return@withContext null
+//    }
 
     suspend fun rename(stateID: StateID, newName: String): String? =
         withContext(Dispatchers.IO) {

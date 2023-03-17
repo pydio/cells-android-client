@@ -2,7 +2,6 @@ package com.pydio.android.legacy.v2
 
 import android.content.Context
 import android.util.Log
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.LogDao
@@ -19,7 +18,6 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.api.callbacks.ProgressListener
 import com.pydio.cells.legacy.P8Credentials
-import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
@@ -117,17 +115,12 @@ class MigrationServiceV2 : KoinComponent {
             if (result.first) {
                 jobService.incrementProgress(migrationJob, 0, "Cleaning legacy files...")
                 cleanLegacyFiles(context)
-                prefs.setInt(
-                    AppKeys.INSTALLED_VERSION_CODE,
-                    ClientData.getInstance().versionCode.toInt()
-                )
             }
             dur = currentTimestamp() - beginTS
             if (dur < 1000) {
                 delay(1200 - dur)
             }
         }
-
 
         if (result.first) {
             val msg =

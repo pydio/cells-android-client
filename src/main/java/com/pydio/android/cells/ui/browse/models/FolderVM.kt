@@ -4,12 +4,10 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.AppKeys
-import com.pydio.android.cells.AppNames.DEFAULT_SORT_BY
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
@@ -20,6 +18,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -34,9 +33,12 @@ class FolderVM(
 
     private val logTag = "FolderVM"
 
-    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    private val sortOrder = livePrefs.getString(AppKeys.CURR_RECYCLER_ORDER, DEFAULT_SORT_BY)
-    val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
+    private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list
+    }
+
+    private val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+    val layout = listPrefs.map { it.layout }
 
     val childNodes: LiveData<List<RTreeNode>>
         get() = Transformations.switchMap(
@@ -68,7 +70,9 @@ class FolderVM(
     }
 
     fun setListLayout(listLayout: ListLayout) {
-        prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
+        viewModelScope.launch {
+            prefs.setListLayout(listLayout)
+        }
     }
 
     suspend fun viewFile(context: Context, stateID: StateID) {

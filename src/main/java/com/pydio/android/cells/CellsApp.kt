@@ -125,7 +125,7 @@ class CellsApp : Application(), KoinComponent {
         return "AndroidSDK" + sdkVersion + "v" + release
     }
 
-    private fun configureWorkers() {
+    private suspend fun configureWorkers() {
         val wManager = WorkManager.getInstance(applicationContext)
         val prefs: PreferencesService by inject()
         wManager.enqueueUniquePeriodicWork(

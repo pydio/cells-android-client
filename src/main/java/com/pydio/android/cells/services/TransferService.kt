@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -73,12 +72,12 @@ class TransferService(
         return nodeDB(accountId).transferDao()
     }
 
-    fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
-        val filterByStatus = prefs.getString(
-            AppKeys.TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
-        )
-        return queryTransfersExplicitFilter(stateId, filterByStatus)
-    }
+//    fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
+//        val filterByStatus = prefs.getString(
+//            AppKeys.TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
+//        )
+//        return queryTransfersExplicitFilter(stateId, filterByStatus)
+//    }
 
     fun getTransfersRecordsForJob(
         accountID: StateID,
@@ -98,13 +97,14 @@ class TransferService(
 
     fun queryTransfersExplicitFilter(
         stateID: StateID,
-        filterByStatus: String
+        filterByStatus: String,
+        encodedOrder: String,
     ): LiveData<List<RTransfer>> {
-        val (sortByCol, sortByOrder) = decodeSortById(
-            prefs.getString(
-                AppKeys.TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
-            )
-        )
+        val (sortByCol, sortByOrder) = decodeSortById(encodedOrder)
+//            prefs.getString(
+//                AppKeys.TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
+//            )
+//        )
         val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
             SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
         } else {
@@ -183,13 +183,14 @@ class TransferService(
             }
 
             // Otherwise, try to download if network type and user preferences allow it
-            val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
-            val dlThumb = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
+            val currSettings = prefs.fetchPreferences()
+//            val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
+//            val dlThumb = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
             when (networkService.networkStatus) {
                 is NetworkStatus.Unmetered
                 -> return@withContext downloadFile(state, rNode, type, parentJob, null)
                 is NetworkStatus.Metered
-                -> if (!applyLimit || dlThumb) {
+                -> if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
                     return@withContext downloadFile(state, rNode, type, parentJob, null)
                 } else {
                     return@withContext null to "Cannot download preview images on metered network"

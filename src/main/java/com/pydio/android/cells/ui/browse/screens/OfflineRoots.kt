@@ -37,6 +37,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -91,7 +92,7 @@ fun OfflineRoots(
 
     val loadingState by offlineVM.loadingState.observeAsState()
     val currJob = offlineVM.syncJob.observeAsState()
-    val listLayout by offlineVM.layout.observeAsState()
+    val listLayout by offlineVM.layout.collectAsState(ListLayout.LIST)
     val roots = offlineVM.offlineRoots.observeAsState()
 
     val localOpen: (StateID) -> Unit = { stateID ->
@@ -110,9 +111,12 @@ fun OfflineRoots(
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK,
-            StateID.NONE
-        ))
+        mutableStateOf(
+            Pair(
+                NodeMoreMenuType.BOOKMARK,
+                StateID.NONE
+            )
+        )
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
         scope.launch {
@@ -124,7 +128,8 @@ fun OfflineRoots(
     val moreMenuDone: () -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(NodeMoreMenuType.BOOKMARK,
+            nodeMoreMenuData.value = Pair(
+                NodeMoreMenuType.BOOKMARK,
                 StateID.NONE
             )
         }
@@ -235,7 +240,8 @@ private fun WithScaffold(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.button_switch_to_list_layout)) },
                 onClick = {
-                    launch(NodeAction.AsList,
+                    launch(
+                        NodeAction.AsList,
                         StateID.NONE
                     )
                     showMenu(false)
@@ -251,7 +257,8 @@ private fun WithScaffold(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.button_switch_to_grid_layout)) },
                 onClick = {
-                    launch(NodeAction.AsGrid,
+                    launch(
+                        NodeAction.AsGrid,
                         StateID.NONE
                     )
                     showMenu(false)
@@ -295,9 +302,12 @@ private fun WithScaffold(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
-                        done = { launch(NodeAction.SortBy,
-                            StateID.NONE
-                        ) },
+                        done = {
+                            launch(
+                                NodeAction.SortBy,
+                                StateID.NONE
+                            )
+                        },
                         tint = tint,
                         bgColor = bgColor,
                     )
@@ -326,7 +336,8 @@ private fun WithScaffold(
                 open = open,
                 padding = PaddingValues(
                     top = padding.calculateTopPadding(),
-                    bottom = padding.calculateBottomPadding().plus(dimensionResource(R.dimen.margin_medium)),
+                    bottom = padding.calculateBottomPadding()
+                        .plus(dimensionResource(R.dimen.margin_medium)),
                     start = dimensionResource(R.dimen.list_horizontal_padding),
                     end = dimensionResource(R.dimen.list_horizontal_padding),
                 ),

@@ -7,14 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
@@ -26,42 +25,47 @@ import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Expose methods used by Offline pages */
 class OfflineVM(
+    private val stateID: StateID,
     private val prefs: PreferencesService,
     private val nodeService: NodeService,
     private val networkService: NetworkService,
     private val jobService: JobService,
 ) : ViewModel() {
+
     private val logTag = "OfflineVM"
 
-    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    private val sortOrder = livePrefs.getString(
-        AppKeys.CURR_RECYCLER_ORDER,
-        AppNames.DEFAULT_SORT_BY
-    )
-    val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
+    private val accountID = stateID.account()
+
+    private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list
+    }
+
+    private val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+    val layout = listPrefs.map { it.layout }
+
+//    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
+//    private val sortOrder = livePrefs.getString(
+//        AppKeys.CURR_RECYCLER_ORDER,
+//        AppNames.DEFAULT_SORT_BY
+//    )
+    // val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
 
     private val _loadingState = MutableLiveData(LoadingState.IDLE)
     private val _errorMessage = MutableLiveData<String?>()
-    private val _accountID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     private val _syncJobID = MutableLiveData(-1L)
 
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
 
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
-        get() = Transformations.switchMap(
-            _accountID
-        ) { currID ->
-            if (currID == StateID.NONE) {
-                MutableLiveData()
-            } else {
-                nodeService.listOfflineRoots(currID)
-            }
+        get() = Transformations.switchMap(sortOrder) { currOrder ->
+            nodeService.listOfflineRoots(accountID, currOrder)
         }
 
     val syncJob: LiveData<RJob?>
@@ -76,13 +80,11 @@ class OfflineVM(
             }
         }
 
-    fun afterCreate(accountID: StateID) {
-        _accountID.value = accountID
-    }
-
     /** Exposed Business Methods **/
     fun setListLayout(listLayout: ListLayout) {
-        prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
+        viewModelScope.launch {
+            prefs.setListLayout(listLayout)
+        }
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
@@ -113,8 +115,7 @@ class OfflineVM(
     }
 
     fun forceFullSync() {
-        val currAccount = _accountID.value
-        val (ok, msg) = canLaunchSync(currAccount)
+        val (ok, msg) = canLaunchSync(accountID)
         if (ok) {
             _errorMessage.value = null
         } else {
@@ -125,7 +126,7 @@ class OfflineVM(
         Log.e(logTag, "Setting loading state to PROCESSING")
         _loadingState.value = LoadingState.PROCESSING
         viewModelScope.launch {
-            doForceAccountSync(currAccount!!) // we insure the current account value is valid in the sanity check
+            doForceAccountSync(accountID) // we insure the current account value is valid in the sanity check
             // TODO handle errors
             Log.e(logTag, "Setting loading state to IDLE")
             withContext(Dispatchers.Main) {

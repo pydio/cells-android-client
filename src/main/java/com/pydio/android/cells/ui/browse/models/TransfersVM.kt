@@ -4,45 +4,41 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
     private val accountID: StateID,
-    private val prefs: PreferencesService,
+    prefs: PreferencesService,
     private val transferService: TransferService,
 ) : ViewModel() {
 
     private val logTag = "TransfersVM"
 
-    // TODO rather inject this
-    private val cr = CellsApp.instance.contentResolver
-
-    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    private val filterBy = livePrefs.getString(
-        AppKeys.JOB_FILTER_BY_STATUS,
-        AppNames.JOB_STATUS_NO_FILTER
-    )
+    private val listPrefs = prefs.cellsPreferencesFlow.map { it.list }
+        .asLiveData(viewModelScope.coroutineContext)
 
     val transfers: LiveData<List<RTransfer>>
         get() = Transformations.switchMap(
-            filterBy
-        ) { currFilter ->
-            transferService.queryTransfersExplicitFilter(accountID, currFilter)
+            listPrefs
+        ) {
+            transferService.queryTransfersExplicitFilter(
+                accountID,
+                it.transferFilter,
+                it.transferOrder
+            )
         }
 
     suspend fun get(transferID: Long): RTransfer? =
         transferService.getRecord(accountID, transferID)
-
 
     fun pauseOne(transferID: Long) {
         viewModelScope.launch {

@@ -86,7 +86,7 @@ fun defaultCellsPreferences(): CellsPreferences {
         layout = ListLayout.LIST,
         transferOrder = AppNames.DEFAULT_SORT_ENCODED,
         transferFilter = AppNames.JOB_STATUS_NO_FILTER,
-        jobOrder = AppNames.DEFAULT_SORT_ENCODED,
+        jobOrder = AppNames.JOB_SORT_BY_DEFAULT, //AppNames.DEFAULT_SORT_ENCODED,
         jobFilter = AppNames.JOB_STATUS_NO_FILTER,
     )
     // Metered network limitations

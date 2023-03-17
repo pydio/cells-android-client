@@ -1,10 +1,11 @@
 package com.pydio.android.cells.ui.browse.models
 
 import androidx.lifecycle.ViewModel
-import com.pydio.android.cells.AppKeys
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.reactive.LiveSharedPreferences
+import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.services.PreferencesKeys
 import com.pydio.android.cells.services.PreferencesService
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /** Gives access to the "Filter Transfer By Status" Preference for the transfers more menu */
 class FilterTransferByMenuVM(
@@ -13,16 +14,13 @@ class FilterTransferByMenuVM(
 
     // private val logTag = FilterTransferByMenuVM::class.simpleName
 
-    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-    val filterBy = livePrefs.getString(
-        AppKeys.JOB_FILTER_BY_STATUS,
-        AppNames.JOB_STATUS_NO_FILTER
-    )
+    val jobFilter = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list.jobFilter
+    }
 
     fun setFilterBy(newFilterByStatus: String) {
-        val doUpdate = filterBy.value != newFilterByStatus
-        if (doUpdate) {
-            prefs.setString(AppKeys.JOB_FILTER_BY_STATUS, newFilterByStatus)
+        viewModelScope.launch {
+            prefs.setString(PreferencesKeys.JOB_FILTER_BY_STATUS, newFilterByStatus)
         }
     }
 }

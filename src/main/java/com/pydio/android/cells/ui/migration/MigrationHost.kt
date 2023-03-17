@@ -10,8 +10,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.pydio.android.cells.ui.models.MigrationVM
-import com.pydio.android.cells.ui.models.Step
 import com.pydio.android.cells.ui.system.screens.AfterLegacyMigration
 import com.pydio.android.cells.ui.system.screens.MigrateFromV2
 import com.pydio.android.cells.ui.system.screens.PrepareMigration
@@ -33,8 +31,9 @@ fun MigrationHost(
     migrationVM: MigrationVM,
     afterMigration: () -> Unit,
 ) {
+
     val ctx = LocalContext.current
-    val oldVersion = migrationVM.getOldVersion(ctx)
+//    val oldVersion = migrationVM.getOldVersion(ctx)
 
     val currDestination = migrationVM.currDestination.collectAsState()
 
@@ -92,14 +91,14 @@ fun MigrationHost(
 
         composable(Destinations.MigrateFromV2.route) {
             val currJob = migrationVM.migrationJob.observeAsState()
+            val oldVersion = migrationVM.versionCode.collectAsState(initial = -1)
             val d = (currJob.value?.progress ?: 0f).toFloat()
             val n = (currJob.value?.total ?: 1f).toFloat()
-            MigrateFromV2(oldVersion, currJob.value?.progressMessage ?: "-", d, n)
+            MigrateFromV2(oldVersion.value, currJob.value?.progressMessage ?: "-", d, n)
         }
 
         composable(Destinations.AfterLegacyMigration.route) {
             AfterLegacyMigration(
-                oldCodeVersion = oldVersion,
                 offlineRootNb = migrationVM.rootNb,
                 browse = { afterMigration() },
                 launchSyncAndBrowse = { launchSync() },

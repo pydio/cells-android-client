@@ -104,7 +104,7 @@ fun Folder(
         browseRemoteVM.watch(folderID, true)
     }
 
-    val listLayout by folderVM.layout.observeAsState()
+    val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
 
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()

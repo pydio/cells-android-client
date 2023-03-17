@@ -7,7 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.migration.MigrationHost
-import com.pydio.android.cells.ui.models.MigrationVM
+import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.theme.CellsTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

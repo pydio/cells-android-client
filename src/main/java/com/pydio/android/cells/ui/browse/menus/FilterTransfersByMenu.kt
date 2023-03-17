@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +20,7 @@ import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.GenericBottomSheetHeader
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.utils.Log
+import kotlinx.coroutines.flow.collect
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "FilterTransfersByMenu"
@@ -33,7 +35,8 @@ fun FilterTransfersByMenu(
     val keys = stringArrayResource(R.array.filter_transfer_by_status_values)
     val labels = stringArrayResource(R.array.filter_transfer_by_status_labels)
 
-    val selectedFilter = filterByMenuVM.filterBy.observeAsState(AppNames.JOB_STATUS_NO_FILTER)
+    val selectedFilter =
+        filterByMenuVM.jobFilter.collectAsState(initial = AppNames.JOB_STATUS_NO_FILTER)
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),

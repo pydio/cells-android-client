@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.models
+package com.pydio.android.cells.ui.migration
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.runtime.JobDao
@@ -19,6 +18,7 @@ import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -35,6 +35,8 @@ class MigrationVM(
 
     private val logTag = "MigrationVM"
     private val _noJobID = -1L
+
+    val versionCode = prefs.cellsPreferencesFlow.map { it.versionCode }
 
     private val migrationService = MigrationServiceV2()
 
@@ -60,12 +62,6 @@ class MigrationVM(
         Log.d(logTag, "About to clear view model: $this")
     }
 
-    fun needsMigration(context: Context): Boolean {
-        val oldValue = getOldVersion(context)
-        val newValue = ClientData.getInstance().versionCode.toInt()
-        return needsMigration(context, oldValue, newValue)
-    }
-
     suspend fun migrate(context: Context) {
         val oldVersion = getOldVersion(context)
         val newVersion = ClientData.getInstance().versionCode.toInt()
@@ -73,7 +69,7 @@ class MigrationVM(
         if (!needsMigration(context)) {
             // The finer check we make here tells us we do not need migration in fact
             val newValue = ClientData.getInstance().versionCode.toInt()
-            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
+            prefs.setInstalledVersion(newValue)
             setStep(Step.NOT_NEEDED)
             return
         }
@@ -106,7 +102,7 @@ class MigrationVM(
         _rootNb = doMigrate(context, migrationJob, oldVersion, newVersion)
 
         val newValue = ClientData.getInstance().versionCode.toInt()
-        prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
+        prefs.setInstalledVersion(newValue)
 
         setStep(Step.AFTER_LEGACY_MIGRATION)
         Log.e(logTag, "DB migration done")
@@ -119,6 +115,13 @@ class MigrationVM(
             }
         }
     }
+
+    private suspend fun needsMigration(context: Context): Boolean {
+        val oldValue = getOldVersion(context)
+        val newValue = ClientData.getInstance().versionCode.toInt()
+        return needsMigration(context, oldValue, newValue)
+    }
+
 
     private fun setStep(currStep: Step) {
         _currDestination.value = currStep
@@ -149,19 +152,13 @@ class MigrationVM(
 
         // New installation without legacy data
         if (oldValue < 1 && !migrationService.hasLegacyDB(context)) {
-            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
             return false
         }
 
         // No migration is necessary for the time being when coming from a 100+ version
         if (oldValue > 100) {
-            prefs.setInt(AppKeys.INSTALLED_VERSION_CODE, newValue)
             return false
         }
-
-//        // FIXME
-//        // we skip this check that is never OK in dev env
-//        return true
 
         // We probably need a migration but found no legacy DB
         if (!migrationService.hasLegacyDB(context)) {
@@ -190,11 +187,11 @@ class MigrationVM(
         return sp.getString(key, null)
     }
 
-    fun getOldVersion(context: Context): Int {
+    private suspend fun getOldVersion(context: Context): Int {
 
-//        // FIXME
-//        return 9
-        var oldValue = prefs.getInt(AppKeys.INSTALLED_VERSION_CODE)
+        var oldValue = prefs.getInstalledVersion()
+        // var oldValue = prefs.getInt(AppKeys.INSTALLED_VERSION_CODE) // this is automatically migrated
+
         if (oldValue == -1) {// Try old v2 format
             getLegacyPreference(context, legacyOldVersionKey)?.let { oldValue = it.toInt() }
         }

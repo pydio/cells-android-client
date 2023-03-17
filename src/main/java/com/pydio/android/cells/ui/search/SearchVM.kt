@@ -7,10 +7,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
@@ -22,6 +21,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Holds data when performing searches on files on a given remote server defined by its accountID */
@@ -40,8 +40,11 @@ class SearchVM(
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
 
-    private var livePrefs = LiveSharedPreferences(prefs.get())
-    val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
+    private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list
+    }
+    private val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+    val layout = listPrefs.map { it.layout }
 
     private val _currQueryContext = MutableLiveData("browse")
     private val _currID = MutableLiveData(StateID.NONE)
@@ -104,7 +107,9 @@ class SearchVM(
     }
 
     fun setListLayout(listLayout: ListLayout) {
-        prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
+        viewModelScope.launch {
+            prefs.setListLayout(listLayout)
+        }
     }
 
     fun download(stateID: StateID, uri: Uri) {

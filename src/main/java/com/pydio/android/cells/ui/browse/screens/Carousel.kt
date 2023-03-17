@@ -38,10 +38,9 @@ private const val logTag = "Carousel"
 fun Carousel(
     stateID: StateID,
     back: () -> Unit,
-    carouselVM: CarouselVM = koinViewModel(),
+    carouselVM: CarouselVM,
 ) {
 
-    carouselVM.afterCreate(stateID)
     val filteredItems = carouselVM.preViewableItems.observeAsState()
 
     filteredItems.value?.let {

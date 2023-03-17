@@ -14,6 +14,7 @@ import com.pydio.android.cells.ui.share.screens.SelectTargetAccount
 import com.pydio.android.cells.ui.share.screens.UploadProgressList
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val logTag = "shareNavGraph"
 
@@ -29,9 +30,12 @@ fun NavGraphBuilder.shareNavGraph(
         Log.i(logTag, "... Open ShareDestination.ChooseAccount")
         SelectTargetAccount(
             openAccount = helper::open,
-            cancel = { helper.launchTaskFor(AppNames.ACTION_CANCEL,
-                StateID.NONE
-            ) },
+            cancel = {
+                helper.launchTaskFor(
+                    AppNames.ACTION_CANCEL,
+                    StateID.NONE
+                )
+            },
             login = { helper.launchTaskFor(AppNames.ACTION_LOGIN, it) },
         )
     }
@@ -62,8 +66,8 @@ fun NavGraphBuilder.shareNavGraph(
         val stateID = lazyStateID(nbsEntry, ShareDestination.UploadInProgress.getStateIdKey())
         val jobID = lazyUID(nbsEntry)
         Log.i(logTag, ".... ShareDestination.UploadInProgress for #$jobID @ $stateID")
-        val monitorUploadsVM: MonitorUploadsVM = koinViewModel()
-        monitorUploadsVM.afterCreate(stateID, jobID)
+        val monitorUploadsVM: MonitorUploadsVM =
+            koinViewModel(parameters = { parametersOf(stateID, jobID) })
         UploadProgressList(monitorUploadsVM) {
             helper.launchTaskFor(AppNames.ACTION_CANCEL, stateID)
         }

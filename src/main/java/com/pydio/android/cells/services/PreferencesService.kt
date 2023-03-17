@@ -1,7 +1,6 @@
 package com.pydio.android.cells.services
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -11,7 +10,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.preference.PreferenceManager
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.preferences.CellsPreferences
@@ -81,10 +79,14 @@ class PreferencesService(
             currPrefs
         }
 
-    suspend fun fetchInitialPreferences() =
+    suspend fun fetchPreferences() =
         mapCellsPreferences(dataStore.data.first().toPreferences())
 
-    suspend fun updateVersion(newVersion: Int) {
+    suspend fun getInstalledVersion(): Int {
+        return mapCellsPreferences(dataStore.data.first().toPreferences()).versionCode
+    }
+
+    suspend fun setInstalledVersion(newVersion: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.INSTALLED_VERSION_CODE] = newVersion
         }
@@ -213,42 +215,25 @@ class PreferencesService(
     }
 
 
-    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+//    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+//
+//    fun get(): SharedPreferences {
+//        return sharedPreferences
+//    }
+//
+//    fun getString(key: String, defValue: String): String {
+//        return sharedPreferences.getString(key, defValue) ?: defValue
+//    }
+//
+//    fun setString(key: String, value: String) {
+//        with(sharedPreferences.edit()) {
+//            putString(key, value)
+//            apply()
+//        }
+//    }
+//
+//    fun getInt(key: String, defValue: Int = -1): Int {
+//        return sharedPreferences.getInt(key, defValue)
+//    }
 
-    fun get(): SharedPreferences {
-        return sharedPreferences
-    }
-
-    fun getString(key: String, defValue: String): String {
-        return sharedPreferences.getString(key, defValue) ?: defValue
-    }
-
-    fun setString(key: String, value: String) {
-        with(sharedPreferences.edit()) {
-            putString(key, value)
-            apply()
-        }
-    }
-
-    fun getInt(key: String, defValue: Int = -1): Int {
-        return sharedPreferences.getInt(key, defValue)
-    }
-
-    fun setInt(key: String, value: Int) {
-        with(sharedPreferences.edit()) {
-            putInt(key, value)
-            apply()
-        }
-    }
-
-    fun getBoolean(key: String, defValue: Boolean = false): Boolean {
-        return sharedPreferences.getBoolean(key, defValue)
-    }
-
-    fun setBoolean(key: String, value: Boolean) {
-        with(sharedPreferences.edit()) {
-            putBoolean(key, value)
-            apply()
-        }
-    }
 }
