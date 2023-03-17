@@ -50,6 +50,7 @@ import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.android.cells.ui.system.models.LogListVM
+import com.pydio.android.cells.ui.system.models.PrefReadOnlyVM
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
@@ -185,23 +186,20 @@ val viewModelModule = module {
 
     viewModel { ConnectionVM(get(), get()) }
     viewModel { NodeActionsVM(get(), get(), get()) }
-    viewModel { parameters -> TreeNodeVM(stateID = parameters.get(), get()) }
-    // or Constructor DSL
-    // viewModelOf(::TreeNodeVM)
+
+    viewModelOf(::TreeNodeVM)
     viewModelOf(::SortByMenuVM)
     viewModelOf(::FilterTransferByMenuVM)
 
-//    viewModel { SettingsVM(get()) }
     viewModelOf(::SettingsVM)
+    viewModelOf(::PrefReadOnlyVM)
+
     viewModelOf(::SearchVM)
 
     viewModel { HouseKeepingVM(get()) }
 
-    // viewModel { BookmarksVM(get(), get()) }
     viewModelOf(::BookmarksVM)
-    // viewModel { OfflineVM(get(), get(), get()) }
     viewModelOf(::OfflineVM)
-//    viewModel { TransfersVM(get(), get()) }
     viewModelOf(::TransfersVM)
     viewModelOf(::SingleTransferVM)
 

@@ -61,7 +61,7 @@ fun PreferencesScreen(
             PreferenceDivider(modifier)
             OfflineSection(cellsPreferences.value.sync, modifier)
             PreferenceDivider(modifier)
-            TroubleshootingSection(cellsPreferences.value.showDebugTools, modifier)
+            TroubleshootingSection(settingsVM, cellsPreferences.value.showDebugTools, modifier)
         }
     }
 }
@@ -160,7 +160,20 @@ fun OfflineSection(syncPref: SyncPreferences, modifier: Modifier) {
 }
 
 @Composable
-fun TroubleshootingSection(showSystemPages: Boolean, modifier: Modifier) {
+fun TroubleshootingSection(settingsVM: SettingsVM, showSystemPages: Boolean, modifier: Modifier) {
+    TroubleshootingSection(
+        showSystemPages,
+        { show -> settingsVM.setShowRuntimeToolsFlag(show) },
+        modifier
+    )
+}
+
+@Composable
+fun TroubleshootingSection(
+    showSystemPages: Boolean,
+    onClick: (Boolean) -> Unit,
+    modifier: Modifier
+) {
     PreferenceSectionTitle(
         stringResource(R.string.pref_category_title_troubleshooting),
         modifier,
@@ -169,7 +182,7 @@ fun TroubleshootingSection(showSystemPages: Boolean, modifier: Modifier) {
         stringResource(R.string.pref_troubleshooting_show_list_title),
         stringResource(R.string.pref_troubleshooting_show_list_desc),
         showSystemPages,
-        {}, // TODO
+        { onClick(!showSystemPages) },
         modifier,
     )
 }

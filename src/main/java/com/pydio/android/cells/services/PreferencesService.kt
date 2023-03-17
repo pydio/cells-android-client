@@ -90,6 +90,12 @@ class PreferencesService(
         }
     }
 
+    suspend fun setShowDebugToolsFlag(show: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_DEBUG_TOOLS] = show
+        }
+    }
+
     /**
      * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")
      */

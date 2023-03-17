@@ -18,6 +18,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -36,9 +37,11 @@ import com.pydio.android.cells.ui.core.composables.MenuTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.system.SystemDestinations
 import com.pydio.android.cells.ui.system.SystemNavigationActions
+import com.pydio.android.cells.ui.system.models.PrefReadOnlyVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
 
 // private const val logTag = "AppDrawer"
 
@@ -53,6 +56,7 @@ fun AppDrawer(
     systemNavActions: SystemNavigationActions,
     browseNavActions: BrowseNavigationActions,
     closeDrawer: () -> Unit,
+    prefReadOnlyVM: PrefReadOnlyVM = koinViewModel()
 ) {
 
     val defaultPadding = NavigationDrawerItemDefaults.ItemPadding
@@ -60,6 +64,8 @@ fun AppDrawer(
     val accountID = connectionVM.currAccountID.observeAsState()
     val wss = connectionVM.wss.observeAsState()
     val cells = connectionVM.cells.observeAsState()
+
+    val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
 
     ModalDrawerSheet(
         windowInsets = WindowInsets.systemBars
@@ -176,20 +182,22 @@ fun AppDrawer(
                         modifier = defaultModifier
                     )
                 }
-                MyNavigationDrawerItem(
-                    label = stringResource(R.string.action_open_jobs),
-                    icon = CellsIcons.Jobs,
-                    selected = SystemDestinations.Jobs.route == currRoute,
-                    onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
-                    modifier = defaultModifier
-                )
-                MyNavigationDrawerItem(
-                    label = stringResource(R.string.action_open_logs),
-                    icon = CellsIcons.Logs,
-                    selected = SystemDestinations.Logs.route == currRoute,
-                    onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
-                    modifier = defaultModifier
-                )
+                if (showDebugTools.value) {
+                    MyNavigationDrawerItem(
+                        label = stringResource(R.string.action_open_jobs),
+                        icon = CellsIcons.Jobs,
+                        selected = SystemDestinations.Jobs.route == currRoute,
+                        onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
+                        modifier = defaultModifier
+                    )
+                    MyNavigationDrawerItem(
+                        label = stringResource(R.string.action_open_logs),
+                        icon = CellsIcons.Logs,
+                        selected = SystemDestinations.Logs.route == currRoute,
+                        onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
+                        modifier = defaultModifier
+                    )
+                }
                 MyNavigationDrawerItem(
                     label = stringResource(id = R.string.action_open_about),
                     icon = CellsIcons.About,
