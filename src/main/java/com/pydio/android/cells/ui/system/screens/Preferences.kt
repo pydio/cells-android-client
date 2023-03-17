@@ -1,17 +1,22 @@
 package com.pydio.android.cells.ui.system.screens
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -74,12 +79,18 @@ fun ListSection(listPreferences: ListPreferences, modifier: Modifier) {
     )
     ListSetting(
         stringResource(R.string.order_by_title),
-        listPreferences.orderLabel(LocalContext.current.resources),
+        listPreferences.order,
+        keys = stringArrayResource(R.array.order_by_values),
+        labels = stringArrayResource(R.array.order_by_labels),
+        {}, // TODO
         modifier,
     )
     ListSetting(
         stringResource(R.string.pref_choose_list_layout),
         listPreferences.layout.name,
+        keys = stringArrayResource(R.array.list_layout_values),
+        labels = stringArrayResource(R.array.list_layout_labels),
+        {}, // TODO
         modifier,
     )
 }
@@ -128,12 +139,18 @@ fun OfflineSection(syncPref: SyncPreferences, modifier: Modifier) {
     )
     ListSetting(
         stringResource(R.string.pref_choose_list_offline_frequency_title),
-        syncPref.frequencyLabel(LocalContext.current.resources),
+        syncPref.frequency, // frequencyLabel(LocalContext.current.resources),
+        keys = stringArrayResource(R.array.offline_frequency_values),
+        labels = stringArrayResource(R.array.offline_frequency_labels),
+        {}, // TODO
         modifier,
     )
     ListSetting(
         stringResource(R.string.pref_offline_constraint_wifi_title),
-        syncPref.onNetworkTypeLabel(LocalContext.current.resources),
+        syncPref.onNetworkType,
+        keys = stringArrayResource(R.array.network_type_values),
+        labels = stringArrayResource(R.array.network_type_labels),
+        {}, // TODO
         modifier,
     )
     SwitchSetting(
@@ -201,21 +218,51 @@ fun PreferenceSectionTitle(
 }
 
 @Composable
-fun ListSetting(label: String, currValue: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = currValue,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+fun ListSetting(
+    label: String,
+    currKey: String,
+    keys: Array<String>,
+    labels: Array<String>,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    var expanded by remember { mutableStateOf(false) }
+
+    var selectedIndex = keys.indexOfFirst { it == currKey }
+
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+
+        Column(
+            modifier = modifier.clickable(onClick = { expanded = true }),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = if (selectedIndex >= 0) labels[selectedIndex] else "-",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+//                .fillMaxWidth()
+        ) {
+            keys.forEachIndexed { index, s ->
+                DropdownMenuItem(
+                    text = { Text(text = labels[index]) },
+                    onClick = {
+                        onSelect(s)
+                        expanded = false
+                    })
+            }
+        }
     }
 }
 
@@ -308,7 +355,7 @@ private fun PreferenceItemPreview() {
         ) {
 
             PreferenceSectionTitle("Customise List", modifier)
-            ListSetting("Sort Order", "Modified (newest first)", modifier)
+//            ListSetting("Sort Order", "Modified (newest first)", modifier)
             SwitchSetting(
                 "Download thumbs",
                 "Also retrieve thumbnails when on a metered network",
