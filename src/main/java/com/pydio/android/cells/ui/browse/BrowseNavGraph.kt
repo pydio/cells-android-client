@@ -124,8 +124,7 @@ fun NavGraphBuilder.browseNavGraph(
             Log.e(logTag, "Cannot open bookmarks with no ID")
             back()
         } else {
-            val bookmarksVM: BookmarksVM = koinViewModel()
-            bookmarksVM.afterCreate(stateID.account())
+            val bookmarksVM: BookmarksVM = koinViewModel(parameters = { parametersOf(stateID) })
             Bookmarks(
                 stateID,
                 openDrawer = openDrawer,

@@ -11,9 +11,9 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ enum class Step {
 }
 
 class MigrationVM(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val jobService: JobService,
     private val jobDao: JobDao,
     private val nodeService: NodeService,

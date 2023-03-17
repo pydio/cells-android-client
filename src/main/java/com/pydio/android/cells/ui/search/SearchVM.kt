@@ -11,8 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 /** Holds data when performing searches on files on a given remote server defined by its accountID */
 class SearchVM(
     private val stateID: StateID,
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val nodeService: NodeService
 ) : ViewModel() {
 

@@ -10,8 +10,8 @@ import com.pydio.android.cells.AppNames.DEFAULT_SORT_BY
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
  */
 class FolderVM(
     private val stateID: StateID,
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val nodeService: NodeService
 ) : ViewModel() {
 

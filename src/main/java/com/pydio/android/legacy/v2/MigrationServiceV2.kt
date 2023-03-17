@@ -46,7 +46,7 @@ class MigrationServiceV2 : KoinComponent {
     private val accountService by inject<AccountService>()
     private val sessionFactory by inject<SessionFactory>()
     private val nodeService by inject<NodeService>()
-    private val prefs: CellsPreferences by inject()
+    private val prefs: PreferencesService by inject()
 
     private val jobService by inject<JobService>()
     private val logDao by inject<LogDao>()

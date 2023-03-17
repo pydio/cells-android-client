@@ -16,10 +16,10 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.reactive.NetworkStatus
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 
 /** Expose methods used by Offline pages */
 class OfflineVM(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val nodeService: NodeService,
     private val networkService: NetworkService,
     private val jobService: JobService,

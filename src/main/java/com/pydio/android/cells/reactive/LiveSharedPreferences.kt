@@ -16,7 +16,9 @@ class LiveSharedPreferences(private val sharedPrefs: SharedPreferences) {
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         Log.d(logTag, "- Shared pref change event: $key")
-        updateSubject.onNext(key)
+        if (key != null) {
+            updateSubject.onNext(key)
+        }
     }
 
 // We cannot simply retrieve a pref from its key if we do not know its type

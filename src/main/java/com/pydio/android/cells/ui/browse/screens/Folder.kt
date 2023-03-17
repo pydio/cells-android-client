@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -246,9 +245,9 @@ private fun FolderScaffold(
 
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
         if (listLayout == ListLayout.GRID) {
-            val label = stringResource(R.string.button_switch_to_list_layout)
+            val btnLabel = stringResource(R.string.button_switch_to_list_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(btnLabel) },
                 onClick = {
                     launch(
                         NodeAction.AsList,
@@ -256,12 +255,12 @@ private fun FolderScaffold(
                     )
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsList, label) },
+                leadingIcon = { Icon(CellsIcons.AsList, btnLabel) },
             )
         } else {
-            val label = stringResource(R.string.button_switch_to_grid_layout)
+            val btnLabel = stringResource(R.string.button_switch_to_grid_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(btnLabel) },
                 onClick = {
                     launch(
                         NodeAction.AsGrid,
@@ -269,13 +268,13 @@ private fun FolderScaffold(
                     )
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
+                leadingIcon = { Icon(CellsIcons.AsGrid, btnLabel) },
             )
         }
 
-        val label = stringResource(R.string.button_open_sort_by)
+        val btnLabel = stringResource(R.string.button_open_sort_by)
         DropdownMenuItem(
-            text = { Text(label) },
+            text = { Text(btnLabel) },
             onClick = {
                 moreMenuState.openMoreMenu(
                     NodeMoreMenuType.SORT_BY,
@@ -283,7 +282,7 @@ private fun FolderScaffold(
                 )
                 showMenu(false)
             },
-            leadingIcon = { Icon(CellsIcons.SortBy, label) },
+            leadingIcon = { Icon(CellsIcons.SortBy, btnLabel) },
         )
     }
 
@@ -330,7 +329,7 @@ private fun FolderScaffold(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun FolderList(
     loadingState: LoadingState,
@@ -350,8 +349,6 @@ private fun FolderList(
         Log.i(logTag, "Force refresh launched")
         forceRefresh()
     })
-
-    val context = LocalContext.current
 
     WithLoadingListBackground(
         loadingState = loadingState,

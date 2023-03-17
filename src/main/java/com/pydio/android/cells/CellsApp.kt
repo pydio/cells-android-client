@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import com.pydio.android.cells.di.allModules
-import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
@@ -25,6 +25,7 @@ import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
+
 /**
  * Main entry point of the Pydio client application.
  */
@@ -40,6 +41,7 @@ class CellsApp : Application(), KoinComponent {
         lateinit var instance: CellsApp
             private set
     }
+
 
     override fun onCreate() {
         Log.i(logTag, "#################################################################")
@@ -125,7 +127,7 @@ class CellsApp : Application(), KoinComponent {
 
     private fun configureWorkers() {
         val wManager = WorkManager.getInstance(applicationContext)
-        val prefs: CellsPreferences by inject()
+        val prefs: PreferencesService by inject()
         wManager.enqueueUniquePeriodicWork(
             OfflineSync.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,

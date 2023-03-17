@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 
 /** Hold a list of file uploads for the given accountID and JobID */
 class MonitorUploadsVM(
-    prefs: CellsPreferences,
+    prefs: PreferencesService,
     val transferService: TransferService,
 ) : ViewModel() {
 

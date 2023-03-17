@@ -14,9 +14,9 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.reactive.LiveSharedPreferences
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
  * and the remote server.
  */
 class ActiveSessionViewModel(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val jobService: JobService,
     private val networkService: NetworkService,
     private val accountService: AccountService,

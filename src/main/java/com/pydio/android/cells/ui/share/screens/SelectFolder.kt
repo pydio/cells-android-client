@@ -78,11 +78,11 @@ fun SelectFolderScreen(
         browseRemoteVM.watch(stateID, true)
     }
 
-    val interceptAction: (String, StateID) -> Unit = { action, stateID ->
+    val interceptAction: (String, StateID) -> Unit = { action, currID ->
         if (AppNames.ACTION_UPLOAD == action) {
-            startUpload(shareVM, stateID)
+            startUpload(shareVM, currID)
         } else {
-            doAction(action, stateID)
+            doAction(action, currID)
         }
     }
 
@@ -184,8 +184,7 @@ private fun FolderList(
                 }
             }
             items(children) { oneChild ->
-                val isFolder = isFolder(oneChild.mime)
-                val currModifier = if (isFolder) {
+                val currModifier = if (oneChild.isFolder()) {
                     Modifier.clickable { open(oneChild.getStateID()) }
                 } else {
                     Modifier
@@ -193,7 +192,7 @@ private fun FolderList(
 
                 SelectFolderItem(
                     oneChild,
-                    isFolder,
+                    oneChild.isFolder(),
                     mime = oneChild.mime,
                     sortName = oneChild.sortName,
                     title = getNodeTitle(oneChild.name, oneChild.mime),

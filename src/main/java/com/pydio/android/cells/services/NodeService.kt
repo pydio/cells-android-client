@@ -49,7 +49,7 @@ import kotlin.time.measureTimedValue
 
 class NodeService(
     private val appContext: Context,
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val jobService: JobService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
@@ -109,17 +109,27 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
     }
 
-    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        val encoded = prefs.getString(
-            AppKeys.CURR_RECYCLER_ORDER, AppNames.DEFAULT_SORT_ENCODED
-        )
-        val (sortByCol, sortByOrder) = parseOrder(encoded)
+    suspend fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
+        val (sortByCol, sortByOrder) = prefs.getOrderByPair(ListType.DEFAULT)
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
                     " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
         )
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
+
+    fun listBookmarks(
+        accountID: StateID,
+        sortByCol: String,
+        sortByOrder: String
+    ): LiveData<List<RTreeNode>> {
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
+                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
+        )
+        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
+    }
+
 
     fun listOfflineRoots(accountID: StateID): LiveData<List<RLiveOfflineRoot>> {
         val encoded = prefs.getString(

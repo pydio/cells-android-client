@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.JobService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
@@ -14,7 +14,7 @@ import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 
 class LandingVM(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val accountService: AccountService,
     private val jobService: JobService,
 ) : ViewModel() {

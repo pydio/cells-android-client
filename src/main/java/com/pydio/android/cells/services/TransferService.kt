@@ -46,7 +46,7 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,

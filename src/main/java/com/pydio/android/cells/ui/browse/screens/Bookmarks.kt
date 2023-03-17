@@ -79,7 +79,7 @@ fun Bookmarks(
     val loadingState by browseRemoteVM.loadingState.observeAsState()
 
     val bookmarks = bookmarksVM.bookmarks.observeAsState()
-    val listLayout by bookmarksVM.layout.collectAsState()
+    val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
 
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)

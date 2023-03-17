@@ -30,6 +30,12 @@
 
 -addconfigurationdebugging
 
+
+# For preferences see https://medium.com/androiddevelopers/all-about-preferences-datastore-cc7995679334
+-keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
 # Gson specific classes
 -dontwarn sun.misc.**
 

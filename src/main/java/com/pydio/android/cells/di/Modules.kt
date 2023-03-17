@@ -1,9 +1,13 @@
 package com.pydio.android.cells.di
 
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.auth.AuthDB
+import com.pydio.android.cells.db.preferences.CELLS_PREFERENCES_NAME
+import com.pydio.android.cells.db.preferences.legacyMigrations
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AccountServiceImpl
@@ -60,7 +64,15 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
-    single { CellsPreferences(androidContext().applicationContext) }
+    single {
+        PreferenceDataStoreFactory.create(
+            migrations = legacyMigrations(androidContext().applicationContext)
+        ) {
+            androidContext().applicationContext.preferencesDataStoreFile(CELLS_PREFERENCES_NAME)
+        }
+    }
+
+    single { PreferencesService(get(), androidContext().applicationContext) }
 }
 
 val dbModule = module {

@@ -12,8 +12,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.utils.fromFreqToMinuteInterval
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -24,14 +24,14 @@ class OfflineSync(
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params), KoinComponent {
 
-    private val prefs: CellsPreferences by inject()
+    private val prefs: PreferencesService by inject()
     private val nodeService: NodeService by inject()
 
     companion object {
         const val WORK_NAME = "OfflineSyncWorker"
         private val logTag = "OfflineSync"
 
-        fun buildWorkRequest(prefs: CellsPreferences): PeriodicWorkRequest {
+        fun buildWorkRequest(prefs: PreferencesService): PeriodicWorkRequest {
 
             // Build constraints based on preferences
             val constraintBuilder = Constraints.Builder()

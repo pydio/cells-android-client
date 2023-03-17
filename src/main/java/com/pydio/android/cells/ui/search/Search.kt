@@ -88,9 +88,9 @@ fun Search(
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
         mutableStateOf(Pair(NodeMoreMenuType.SEARCH, StateID.NONE))
     }
-    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
+    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
-            nodeMoreMenuData.value = Pair(type, stateID)
+            nodeMoreMenuData.value = Pair(type, currID)
             sheetState.expand()
         }
     }
@@ -153,7 +153,7 @@ fun Search(
         listLayout = listLayout ?: ListLayout.LIST,
         hits = hits.value ?: listOf(),
         forceRefresh = searchHelper::forceRefresh,
-        open = { stateID -> launch(NodeAction.OpenInApp, stateID) },
+        open = { currID -> launch(NodeAction.OpenInApp, currID) },
         launch = launch,
         cancel = searchHelper::cancel,
         moreMenuState = MoreMenuState(

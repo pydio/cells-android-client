@@ -10,7 +10,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
     private val accountID: StateID,
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
     private val transferService: TransferService,
 ) : ViewModel() {
 

@@ -5,10 +5,6 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-class DateUtils {
-}
-
 fun asSinceString(timestamp: Long): String {
 
     val tMin = 60L
@@ -32,7 +28,7 @@ fun fromFreqToMinuteInterval(freq: String?): Long {
         AppNames.SYNC_FREQ_QUARTER -> 15 // this is the minimum supported by the work manager
         AppNames.SYNC_FREQ_HOUR -> 60
         AppNames.SYNC_FREQ_DAY -> 60 * 24
-        else -> 60 * 24 * 7
+        else -> 60 * 24 * 7 // default is every week
     }
 }
 
@@ -53,24 +49,6 @@ fun asAgoString(timestamp: Long): String {
         else -> getTimestampAsString(timestamp)
     }
 }
-
-
-//<string name="last_sync_few_secs_ago">Last checked a few seconds ago</string>
-//<plurals name="last_sync_x_minutes_ago">
-//<item quantity="other">Last checked %d min ago</item>
-//</plurals>
-//<plurals name="last_sync_x_hours_ago">
-//<item quantity="one">Last checked %d hour ago</item>
-//<item quantity="other">Last checked %d hours ago</item>
-//</plurals>
-//<plurals name="last_sync_x_days_ago">
-//<item quantity="one">Last checked %d day ago</item>
-//<item quantity="other">Last checked %d days ago</item>
-//</plurals>
-//<plurals name="last_sync_x_months_ago">
-//<item quantity="one">Last checked %d month ago</item>
-//<item quantity="other">Last checked %d months ago</item>
-//</plurals>
 
 fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault()): String {
     val formatter = SimpleDateFormat(format, locale)

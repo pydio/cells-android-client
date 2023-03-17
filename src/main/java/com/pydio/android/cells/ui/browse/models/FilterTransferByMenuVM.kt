@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.reactive.LiveSharedPreferences
-import com.pydio.android.cells.services.CellsPreferences
+import com.pydio.android.cells.services.PreferencesService
 
 /** Gives access to the "Filter Transfer By Status" Preference for the transfers more menu */
 class FilterTransferByMenuVM(
-    private val prefs: CellsPreferences,
+    private val prefs: PreferencesService,
 ) : ViewModel() {
 
     // private val logTag = FilterTransferByMenuVM::class.simpleName

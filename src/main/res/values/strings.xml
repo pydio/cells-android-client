@@ -171,7 +171,7 @@
     <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
 
     <!-- Log Management -->
-    <string name="log_list_title">Background job logs</string>
+    <string name="log_list_title">Application logs</string>
 
     <!-- Transfer Management -->
     <string name="transfer_list_title">Current transfers</string>

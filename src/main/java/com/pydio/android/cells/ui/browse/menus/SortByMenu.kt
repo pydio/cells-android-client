@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
@@ -33,7 +33,8 @@ fun SortByMenu(
     val keys = stringArrayResource(R.array.order_by_values)
     val labels = stringArrayResource(R.array.order_by_labels)
 
-    val selectedOrder = sortByMenuVM.sortBy.observeAsState(initial = AppNames.DEFAULT_SORT_BY)
+    val selectedOrder =
+        sortByMenuVM.encodedOrder.collectAsState(initial = AppNames.DEFAULT_SORT_ENCODED)
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
