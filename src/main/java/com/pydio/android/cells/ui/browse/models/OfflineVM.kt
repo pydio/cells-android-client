@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 
 /** Expose methods used by Offline pages */
 class OfflineVM(
-    private val stateID: StateID,
+    stateID: StateID,
     private val prefs: PreferencesService,
     private val nodeService: NodeService,
     private val networkService: NetworkService,

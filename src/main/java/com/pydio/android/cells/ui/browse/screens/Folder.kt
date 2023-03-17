@@ -197,7 +197,7 @@ fun Folder(
     ) {
         FolderScaffold(
             loadingState = loadingState ?: LoadingState.STARTING,
-            listLayout = listLayout ?: ListLayout.LIST,
+            listLayout = listLayout,
             showFAB = showFAB,
             label = label,
             stateID = folderID,

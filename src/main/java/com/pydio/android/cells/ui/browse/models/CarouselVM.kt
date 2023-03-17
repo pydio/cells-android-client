@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 class CarouselVM(
     initialStateID: StateID,
     private val accountService: AccountService,
-    private val nodeService: NodeService,
+    nodeService: NodeService,
 ) : ViewModel() {
 
     // private val logTag = "CarouselVM"

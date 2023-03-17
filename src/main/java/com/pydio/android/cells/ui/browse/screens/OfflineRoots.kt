@@ -193,7 +193,7 @@ fun OfflineRoots(
 
     WithScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
-        listLayout = listLayout ?: ListLayout.LIST,
+        listLayout = listLayout,
         runningJob = currJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
         roots = roots.value ?: listOf(),
