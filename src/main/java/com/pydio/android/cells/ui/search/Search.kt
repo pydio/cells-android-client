@@ -151,7 +151,7 @@ fun Search(
         query = query ?: "",
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
-        listLayout = listLayout ?: ListLayout.LIST,
+        listLayout = listLayout,
         hits = hits.value ?: listOf(),
         forceRefresh = searchHelper::forceRefresh,
         open = { currID -> launch(NodeAction.OpenInApp, currID) },
