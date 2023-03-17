@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
-import java.util.*
+import java.util.UUID
 
 /**
  * Hold the session that is currently in foreground for browsing the cache

@@ -9,7 +9,6 @@ import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.launch
 
 class BrowseHelper(
     private val currFolderStateID: StateID,

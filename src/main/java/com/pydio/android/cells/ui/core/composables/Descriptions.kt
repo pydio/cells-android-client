@@ -6,10 +6,10 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
-import java.util.*
+import java.util.Locale
 
 @Composable
-fun getJobStatus(item: RJob) : String {
+fun getJobStatus(item: RJob): String {
 
     var desc = "${item.status?.uppercase(Locale.getDefault())} "
 

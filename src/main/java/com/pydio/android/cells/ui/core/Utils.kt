@@ -10,8 +10,6 @@ import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.login.LoginDestinations
-import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
