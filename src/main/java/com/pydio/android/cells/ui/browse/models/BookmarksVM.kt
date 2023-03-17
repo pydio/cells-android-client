@@ -34,38 +34,8 @@ class BookmarksVM(
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
 
-//     val cellsPreferences = prefs.cellsPreferencesFlow
-
     val layout = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list.layout
-    }
-//    private var liveSharedPreferences: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-//    private val _layout = MutableStateFlow(ListLayout.LIST)
-//    val layout: StateFlow<ListLayout> = _layout.asStateFlow()
-
-    init {
-        Log.d(logTag, "Initialising BookmarksVM")
-
-//        viewModelScope.launch {
-//            liveSharedPreferences.getString(
-//                AppKeys.CURR_RECYCLER_LAYOUT,
-//                AppNames.RECYCLER_LAYOUT_LIST
-//            ).asFlow().collect {
-//                if (it != _layout.value.name) {
-//                    val newValue = try {
-//                        ListLayout.valueOf(it)
-//                    } catch (e: IllegalArgumentException) {
-//                        ListLayout.LIST
-//                    }
-//                    _layout.value = newValue
-//                }
-//            }
-//        }
-
-//        viewModelScope.launch {
-//            val currUserPrefs = prefs.fetchInitialPreferences()
-//            Log.e(logTag, "~~~ Got preferences, version: ${currUserPrefs.versionCode}")
-//        }
     }
 
     private val orderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -81,13 +51,9 @@ class BookmarksVM(
             nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
         }
 
-//    fun afterCreate(accountID: StateID) {
-//        _accountID.value = accountID
-//    }
-
-    fun removeBookmark(stateID: StateID) {
+    fun setListLayout(listLayout: ListLayout) {
         viewModelScope.launch {
-            nodeService.toggleBookmark(stateID, false)
+            prefs.setListLayout(listLayout)
         }
     }
 
@@ -98,15 +64,14 @@ class BookmarksVM(
         }
     }
 
-    fun setListLayout(listLayout: ListLayout) {
-//         prefs.setString(AppKeys.CURR_RECYCLER_LAYOUT, listLayout.name)
-        viewModelScope.launch {
-            prefs.setListLayout(listLayout)
-        }
-    }
-
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
+    }
+
+    fun removeBookmark(stateID: StateID) {
+        viewModelScope.launch {
+            nodeService.toggleBookmark(stateID, false)
+        }
     }
 
     fun download(stateID: StateID, uri: Uri) {
@@ -125,7 +90,15 @@ class BookmarksVM(
             }
         }
     }
+
     /* Helpers */
+    init {
+        Log.d(logTag, "Initialising BookmarksVM")
+    }
+
+    override fun onCleared() {
+        Log.d(logTag, "BookmarksVM cleared")
+    }
 
     private fun launchProcessing() {
         _loadingState.value = LoadingState.PROCESSING

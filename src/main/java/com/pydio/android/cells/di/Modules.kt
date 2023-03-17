@@ -13,12 +13,12 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AccountServiceImpl
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.services.CellsPreferences
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PasswordStore
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
 import com.pydio.android.cells.services.TransferService

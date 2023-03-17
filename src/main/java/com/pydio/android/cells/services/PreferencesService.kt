@@ -4,7 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.preference.PreferenceManager
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ListType
@@ -12,6 +18,7 @@ import com.pydio.android.cells.db.preferences.CellsPreferences
 import com.pydio.android.cells.db.preferences.ListPreferences
 import com.pydio.android.cells.db.preferences.MeteredNetworkPreferences
 import com.pydio.android.cells.db.preferences.SyncPreferences
+import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.utils.parseOrder
 import kotlinx.coroutines.flow.Flow
