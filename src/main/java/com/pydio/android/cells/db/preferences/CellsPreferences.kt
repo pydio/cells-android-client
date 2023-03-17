@@ -17,7 +17,6 @@ data class CellsPreferences(
     val list: ListPreferences,
     val meteredNetwork: MeteredNetworkPreferences,
     val sync: SyncPreferences
-
 )
 
 data class ListPreferences(

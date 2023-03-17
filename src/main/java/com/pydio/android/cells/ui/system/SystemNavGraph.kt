@@ -17,7 +17,7 @@ import com.pydio.android.cells.ui.system.screens.AboutScreen
 import com.pydio.android.cells.ui.system.screens.ConfirmClearCache
 import com.pydio.android.cells.ui.system.screens.JobScreen
 import com.pydio.android.cells.ui.system.screens.LogScreen
-import com.pydio.android.cells.ui.system.screens.PreferencesScreen
+import com.pydio.android.cells.ui.system.screens.SettingsScreen
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
@@ -73,7 +73,7 @@ fun NavGraphBuilder.systemNavGraph(
 
     composable(SystemDestinations.Settings.route) {
         val settingsVM: SettingsVM = koinViewModel()
-        PreferencesScreen(
+        SettingsScreen(
             openDrawer = openDrawer,
             settingsVM,
         )

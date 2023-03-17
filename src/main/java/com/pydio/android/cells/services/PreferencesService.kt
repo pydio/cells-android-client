@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 
 // See https://developer.android.com/codelabs/android-preferences-datastore for some more info
-private object PreferencesKeys {
+object PreferencesKeys {
 
     // To manage app migrations
     val INSTALLED_VERSION_CODE = intPreferencesKey("installed_version_code")
@@ -131,6 +131,18 @@ class PreferencesService(
                 ListType.DEFAULT -> PreferencesKeys.DEFAULT_LIST_ORDER
             }
             preferences[currentKey] = order
+        }
+    }
+
+    suspend fun setBoolean(key: Preferences.Key<Boolean>, flag: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[key] = flag
+        }
+    }
+
+    suspend fun setString(key: Preferences.Key<String>, strValue: String) {
+        dataStore.edit { preferences ->
+            preferences[key] = strValue
         }
     }
 
