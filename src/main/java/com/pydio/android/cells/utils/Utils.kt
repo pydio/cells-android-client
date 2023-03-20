@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.ListType
 import com.pydio.cells.api.SDKException
 import java.io.File
 
@@ -28,7 +29,7 @@ fun getOSCurrentVersion(): String {
     val release = java.lang.Double.parseDouble(
         java.lang.String(Build.VERSION.RELEASE).replaceAll("(\\d+[.]\\d+)(.*)", "$1")
     )
-    var codeName = "Unsupported"//below Jelly Bean
+    var codeName = "Unsupported" // Older as Jelly Bean
     if (release >= 4.1 && release < 4.4) codeName = "Jelly Bean"
     else if (release < 5) codeName = "Kit Kat"
     else if (release < 6) codeName = "Lollipop"
@@ -48,11 +49,18 @@ fun logException(caller: String?, msg: String, e: Exception) {
 
 /* MANAGE PREFERENCES */
 
-fun parseOrder(encoded: String): Pair<String, String> {
-    val tokens = encoded.split("||")
+// fun parseOrder(encoded: String, type: ListType = ListType.DEFAULT): Pair<String, String> {
+//  Returns the default value for each list type if the passed encoded value is empty or not valid
+fun parseOrder(encoded: String?, type: ListType): Pair<String, String> {
+    var tokens = encoded?.split("||") ?: "".split("||")
     if (tokens.size != 2) {
-        Log.e("parseOrder", "could not parse encoded order [$encoded]")
-        return Pair(AppNames.DEFAULT_SORT_BY, AppNames.DEFAULT_SORT_BY_DIR)
+        Log.w("parseOrder", "could not parse encoded order [$encoded]")
+        val newDefault = when (type) {
+            ListType.JOB -> AppNames.JOB_DEFAULT_ENCODED_ORDER
+            ListType.TRANSFER -> AppNames.TRANSFER_DEFAULT_ENCODED_ORDER
+            ListType.DEFAULT -> AppNames.DEFAULT_SORT_ENCODED
+        }
+        tokens = newDefault.split("||")
     }
     return Pair(tokens[0], tokens[1])
 }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.menus.BookmarkMenu
 import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
@@ -108,6 +109,7 @@ fun NodeMoreMenuData(
                     bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.SORT_BY -> SortByMenu(
+                    type = ListType.DEFAULT,
                     done = { launch(NodeAction.SortBy) },
                     tint = tint,
                     bgColor = bgColor,

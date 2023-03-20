@@ -185,8 +185,14 @@
     <string name="pick_up_folder">Choose a target folder</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Re-launch transfer</string>
-    <string name="delete_record">Delete record</string>
 
+
+    <!-- System -->
+    <!-- Jobs -->
+    <string name="clear_terminated">Clear terminated</string>
+    <string name="delete_record">Delete record</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Clear application logs</string>
     <!-- Migration-->
     <string name="migration_message">Migrating legacy data, please wait…</string>
     <string name="post_migration_title">Successfully Upgraded to New Version!</string>
@@ -230,15 +236,15 @@
 
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
-    <string name="order_by_canon">Canonical (A to Z, folders first)</string>
-    <string name="order_by_name_asc">File name (A to Z)</string>
-    <string name="order_by_name_desc">File name (Z to A)</string>
-    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>
-    <string name="order_by_remote_ts_desc">Modified (newest first)</string>
-    <string name="order_by_mime_asc">Type (A to Z)</string>
-    <string name="order_by_mime_desc">Type (Z to A)</string>
-    <string name="order_by_size_asc">Size (smallest first)</string>
-    <string name="order_by_size_desc">Size (largest first)</string>
+    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
+    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
+    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
+    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
+    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
+    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
+    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
+    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
+    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
 
     <!-- Dialogs -->
     <string name="choose_external_app_title">Open with…</string>

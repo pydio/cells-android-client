@@ -109,7 +109,7 @@ class JobService(runtimeDB: RuntimeDB) {
         jobDao.update(job)
     }
 
-    fun clearTerminated() {
+    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
         jobDao.clearTerminatedJobs()
     }
 
@@ -119,7 +119,7 @@ class JobService(runtimeDB: RuntimeDB) {
         return logDao.getLiveLogs()
     }
 
-    fun clearAllLogs() {
+    suspend fun clearAllLogs() = withContext(Dispatchers.IO) {
         logDao.clearLogs()
     }
 

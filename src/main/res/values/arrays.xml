@@ -81,9 +81,41 @@
         <item>Timeout</item>
     </string-array>
 
-    <string-array name="job_sort_by_values" translatable="false">
-        <item>creation_ts_desc</item>
-        <item>creation_ts_asc</item>
+    <string-array name="transfer_order_by_labels">
+        <item>Canonical (By creation order, newest first)</item>
+        <item>Creation order (oldest first)</item>
+        <item>Status (A to Z)</item>
+        <item>Status (Z to A)</item>
+        <item>Type (Download First)</item>
+        <item>Type (Upload First)</item>
     </string-array>
+
+    <string-array name="transfer_order_by_values" translatable="false">
+        <item>transfer_id||DESC</item>
+        <item>transfer_id||ASC</item>
+        <item>status||ASC</item>
+        <item>status||DESC</item>
+        <item>type||ASC</item>
+        <item>type||DESC</item>
+    </string-array>
+
+    <string-array name="job_order_by_labels">
+        <item>Canonical (By creation order, newest first)</item>
+        <item>Creation order (oldest first)</item>
+        <item>Status (A to Z)</item>
+        <item>Status (Z to A)</item>
+    </string-array>
+
+    <string-array name="job_order_by_values" translatable="false">
+        <item>job_id||DESC</item>
+        <item>job_id||ASC</item>
+        <item>status||ASC</item>
+        <item>status||DESC</item>
+    </string-array>
+
+    <!--    <string-array name="job_sort_by_values" translatable="false">-->
+    <!--        <item>creation_ts_desc</item>-->
+    <!--        <item>creation_ts_asc</item>-->
+    <!--    </string-array>-->
 
 </resources>

@@ -360,7 +360,6 @@ private fun FolderList(
         Box(
             Modifier
                 .fillMaxSize()
-//                .background(CellsColor.danger.copy(alpha = .1f))
                 .pullRefresh(state)
         ) {
             when (listLayout) {

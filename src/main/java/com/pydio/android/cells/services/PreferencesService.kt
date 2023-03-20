@@ -10,7 +10,6 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.preferences.CellsPreferences
 import com.pydio.android.cells.db.preferences.ListPreferences
@@ -107,9 +106,7 @@ class PreferencesService(
             ListType.TRANSFER -> PreferencesKeys.TRANSFER_SORT_BY
             ListType.DEFAULT -> PreferencesKeys.DEFAULT_LIST_ORDER
         }
-        val encoded =
-            dataStore.data.first().toPreferences()[currentKey] ?: AppNames.DEFAULT_SORT_ENCODED
-        return parseOrder(encoded)
+        return parseOrder(dataStore.data.first().toPreferences()[currentKey], type)
     }
 
     /**
@@ -121,7 +118,7 @@ class PreferencesService(
             ListType.TRANSFER -> currPreferences.list.transferOrder
             ListType.DEFAULT -> currPreferences.list.order
         }
-        return parseOrder(encoded)
+        return parseOrder(encoded, type)
     }
 
     suspend fun setOrder(type: ListType, order: String) {
@@ -165,7 +162,6 @@ class PreferencesService(
         }
         Log.e(logTag, "New layout : $layout")
     }
-
 
     private fun mapCellsPreferences(toPreferences: Preferences): CellsPreferences {
         val currVersion = toPreferences[PreferencesKeys.INSTALLED_VERSION_CODE] ?: -1

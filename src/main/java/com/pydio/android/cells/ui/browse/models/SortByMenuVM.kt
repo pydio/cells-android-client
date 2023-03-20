@@ -9,24 +9,21 @@ import kotlinx.coroutines.launch
 
 /** Gives access to the Sort By Preference for the more menu */
 class SortByMenuVM(
+    private val type: ListType,
     private val prefs: PreferencesService,
 ) : ViewModel() {
 
-    // private val logTag = "SortByMenuVM"
-//
-//    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-//    val sortBy = livePrefs.getString(
-//        AppKeys.CURR_RECYCLER_ORDER,
-//        AppNames.DEFAULT_SORT_BY
-//    )
-
     val encodedOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.list.order
+        when (type) {
+            ListType.TRANSFER -> cellsPreferences.list.transferOrder
+            ListType.JOB -> cellsPreferences.list.jobOrder
+            ListType.DEFAULT -> cellsPreferences.list.order
+        }
     }
 
     fun setSortBy(newSortBy: String) {
         viewModelScope.launch {
-            prefs.setOrder(ListType.DEFAULT, newSortBy)
+            prefs.setOrder(type, newSortBy)
         }
     }
 }

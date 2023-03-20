@@ -8,6 +8,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
@@ -78,7 +79,7 @@ class NodeService(
 //    }
 
     fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
-        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy)
+        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
@@ -104,7 +105,7 @@ class NodeService(
         accountID: StateID,
         encodedOrder: String,
     ): LiveData<List<RLiveOfflineRoot>> {
-        val (sortByCol, sortByOrder) = parseOrder(encodedOrder)
+        val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.DEFAULT)
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM RLiveOfflineRoot WHERE " +
                     "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"

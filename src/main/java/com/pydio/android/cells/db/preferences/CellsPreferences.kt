@@ -1,12 +1,10 @@
 package com.pydio.android.cells.db.preferences
 
 import android.content.Context
-import android.content.res.Resources
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.ListLayout
 
 const val CELLS_PREFERENCES_NAME = "cells_preferences"
@@ -28,17 +26,6 @@ data class ListPreferences(
     val jobFilter: String,
 )
 
-fun ListPreferences.orderLabel(resource: Resources): String {
-    val labels = resource.getStringArray(R.array.order_by_labels)
-    val keys = resource.getStringArray(R.array.order_by_values)
-    keys.forEachIndexed { index, key ->
-        if (key == this.order) {
-            return labels[index]
-        }
-    }
-    return "-"
-}
-
 data class MeteredNetworkPreferences(
     val applyLimits: Boolean,
     val dlThumbs: Boolean,
@@ -54,27 +41,6 @@ data class SyncPreferences(
     val onIdle: Boolean,
 )
 
-fun SyncPreferences.frequencyLabel(resource: Resources): String {
-    val labels = resource.getStringArray(R.array.offline_frequency_labels)
-    val keys = resource.getStringArray(R.array.offline_frequency_values)
-    keys.forEachIndexed { index, key ->
-        if (key == this.frequency) {
-            return labels[index]
-        }
-    }
-    return "-"
-}
-
-fun SyncPreferences.onNetworkTypeLabel(resource: Resources): String {
-    val labels = resource.getStringArray(R.array.network_type_labels)
-    val keys = resource.getStringArray(R.array.network_type_values)
-    keys.forEachIndexed { index, key ->
-        if (key == this.onNetworkType) {
-            return labels[index]
-        }
-    }
-    return "-"
-}
 
 fun defaultCellsPreferences(): CellsPreferences {
     val currVersion = -1
@@ -84,9 +50,9 @@ fun defaultCellsPreferences(): CellsPreferences {
     val listPref = ListPreferences(
         order = AppNames.DEFAULT_SORT_ENCODED,
         layout = ListLayout.LIST,
-        transferOrder = AppNames.DEFAULT_SORT_ENCODED,
+        transferOrder = AppNames.TRANSFER_DEFAULT_ENCODED_ORDER,
         transferFilter = AppNames.JOB_STATUS_NO_FILTER,
-        jobOrder = AppNames.JOB_SORT_BY_DEFAULT, //AppNames.DEFAULT_SORT_ENCODED,
+        jobOrder = AppNames.JOB_DEFAULT_ENCODED_ORDER,
         jobFilter = AppNames.JOB_STATUS_NO_FILTER,
     )
     // Metered network limitations
@@ -115,3 +81,36 @@ val legacyMigrations: (Context) -> List<DataMigration<Preferences>> = { context 
     // Since we're migrating from SharedPreferences, add a migration based on the SharedPreferences name
     listOf(SharedPreferencesMigration(context, LEGACY_PREFERENCES_KEY))
 }
+
+//fun ListPreferences.orderLabel(resource: Resources): String {
+//    val labels = resource.getStringArray(R.array.order_by_labels)
+//    val keys = resource.getStringArray(R.array.order_by_values)
+//    keys.forEachIndexed { index, key ->
+//        if (key == this.order) {
+//            return labels[index]
+//        }
+//    }
+//    return "-"
+//}
+//fun SyncPreferences.frequencyLabel(resource: Resources): String {
+//    val labels = resource.getStringArray(R.array.offline_frequency_labels)
+//    val keys = resource.getStringArray(R.array.offline_frequency_values)
+//    keys.forEachIndexed { index, key ->
+//        if (key == this.frequency) {
+//            return labels[index]
+//        }
+//    }
+//    return "-"
+//}
+//
+//fun SyncPreferences.onNetworkTypeLabel(resource: Resources): String {
+//    val labels = resource.getStringArray(R.array.network_type_labels)
+//    val keys = resource.getStringArray(R.array.network_type_values)
+//    keys.forEachIndexed { index, key ->
+//        if (key == this.onNetworkType) {
+//            return labels[index]
+//        }
+//    }
+//    return "-"
+//}
+

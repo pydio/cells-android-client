@@ -40,12 +40,6 @@ class TransferMoreMenuState @OptIn(
     val closeMoreMenu: () -> Unit,
 )
 
-//sealed class TransferAction(val id: String) {
-//    object Delete : TransferAction("delete")
-//    object SortBy : TransferAction("sort_by")
-//    object FilterBy : TransferAction("filter_by")
-//}
-
 @Composable
 fun TransferMoreMenu(
     accountID: StateID,

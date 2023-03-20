@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTransferCancellation
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -19,7 +20,7 @@ import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.currentTimestamp
-import com.pydio.android.cells.utils.decodeSortById
+import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -72,13 +73,6 @@ class TransferService(
         return nodeDB(accountId).transferDao()
     }
 
-//    fun queryTransfers(stateId: StateID): LiveData<List<RTransfer>> {
-//        val filterByStatus = prefs.getString(
-//            AppKeys.TRANSFER_FILTER_BY_STATUS, AppNames.JOB_STATUS_NO_FILTER
-//        )
-//        return queryTransfersExplicitFilter(stateId, filterByStatus)
-//    }
-
     fun getTransfersRecordsForJob(
         accountID: StateID,
         jobID: Long
@@ -100,11 +94,7 @@ class TransferService(
         filterByStatus: String,
         encodedOrder: String,
     ): LiveData<List<RTransfer>> {
-        val (sortByCol, sortByOrder) = decodeSortById(encodedOrder)
-//            prefs.getString(
-//                AppKeys.TRANSFER_SORT_BY, AppNames.JOB_SORT_BY_DEFAULT
-//            )
-//        )
+        val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.TRANSFER)
         val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
             SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
         } else {
@@ -522,7 +512,7 @@ class TransferService(
         withContext(Dispatchers.IO) {
             // Real upload of a single single part
             var inputStream: InputStream? = null
-            var cancellationMsg = ""
+            var cancellationMsg: String
             try {
 
                 val state = transferRecord.getStateId()

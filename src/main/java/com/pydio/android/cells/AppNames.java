@@ -22,11 +22,10 @@ public interface AppNames {
     /* SHARED PREFERENCE WELL KNOWN VALUES */
 
     // LAYOUT AND SORTS
-    String RECYCLER_LAYOUT_LIST = "list";
-    String RECYCLER_LAYOUT_GRID = "grid";
-    String DEFAULT_SORT_BY = "sort_name";
-    String DEFAULT_SORT_BY_DIR = "ASC";
-    String DEFAULT_SORT_ENCODED = DEFAULT_SORT_BY + "||" + DEFAULT_SORT_BY_DIR;
+    // Default sort orders
+    String DEFAULT_SORT_ENCODED = "sort_name||ASC";
+    String TRANSFER_DEFAULT_ENCODED_ORDER = "transfer_id||DESC";
+    String JOB_DEFAULT_ENCODED_ORDER = "job_id||DESC";
 
     // OFFLINE SYNC
     String SYNC_FREQ_QUARTER = "quarter";
@@ -34,9 +33,9 @@ public interface AppNames {
     String SYNC_FREQ_DAY = "day";
     String SYNC_FREQ_WEEK = "week";
 
-    int ITEM_TYPE_HEADER = 0;
-    int ITEM_TYPE_WS = 1;
-    int ITEM_TYPE_NODE = 2;
+//    int ITEM_TYPE_HEADER = 0;
+//    int ITEM_TYPE_WS = 1;
+//    int ITEM_TYPE_NODE = 2;
 
 //    String SORT_BY_NAME = "name";
 //    String SORT_BY_MIME = "mime";
@@ -116,10 +115,10 @@ public interface AppNames {
 
 
     // Workaround to store additional destinations as state
-    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
-    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
-    String CUSTOM_PATH_OFFLINE = "/__offline__";
-    String CUSTOM_PATH_SHARES = "/__shares__";
+//    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
+//    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
+//    String CUSTOM_PATH_OFFLINE = "/__offline__";
+//    String CUSTOM_PATH_SHARES = "/__shares__";
 
     // Account Authentication States
     // TODO finalize auth state management
