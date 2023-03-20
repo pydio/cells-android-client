@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.browse.menus
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
@@ -39,6 +39,7 @@ private const val logTag = "SingleNodeMenu"
 fun SingleNodeMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
+    rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
     tint: Color,
     bgColor: Color,
@@ -53,10 +54,16 @@ fun SingleNodeMenu(
         modifier = Modifier.fillMaxWidth()
     ) {
         item {
+            val title = stateID.fileName ?: run {
+                rWorkspace?.label
+            }
+            val desc = stateID.parentPath ?: run {
+                "${stateID.username}@${stateID.serverUrl}"
+            }
             BottomSheetHeader(
                 thumb = { Thumbnail(rTreeNode) },
-                title = stateID.fileName ?: "",
-                desc = stateID.parentPath,
+                title = title ?: "",
+                desc = desc,
             )
         }
         item {

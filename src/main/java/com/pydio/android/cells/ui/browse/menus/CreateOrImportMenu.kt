@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
+import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
@@ -24,6 +25,7 @@ import com.pydio.cells.transport.StateID
 fun CreateOrImportMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
+    rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
     tint: Color,
     bgColor: Color,
@@ -33,12 +35,25 @@ fun CreateOrImportMenu(
         modifier = Modifier.fillMaxWidth()
     ) {
         item {
+            val title = stateID.fileName ?: run {
+                rWorkspace?.label
+            }
+            val desc = stateID.parentPath ?: run {
+                "${stateID.username}@${stateID.serverUrl}"
+            }
             BottomSheetHeader(
                 thumb = { Thumbnail(rTreeNode) },
-                title = stateID.fileName ?: "",
-                desc = stateID.parentPath ?: "", // TODO provide WS Label or AccountID ?
+                title = title ?: "",
+                desc = desc,
             )
         }
+//        item {
+//            BottomSheetHeader(
+//                thumb = { Thumbnail(rTreeNode) },
+//                title = stateID.fileName ?: "",
+//                desc = stateID.parentPath ?: "", // TODO provide WS Label or AccountID ?
+//            )
+//        }
         item { BottomSheetDivider() }
 
         item {

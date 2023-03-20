@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.models
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
@@ -14,10 +15,14 @@ class TreeNodeVM(
 
     private val logTag = "NodeActionsVM"
 
-    // TODO load the TreeNode at init
+    // TODO load the Nodes at init
 
     suspend fun getTreeNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
+    }
+
+    suspend fun getWS(stateID: StateID): RWorkspace? {
+        return nodeService.getWorkspace(stateID)
     }
 
     init {
