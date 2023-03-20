@@ -36,7 +36,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -94,11 +93,6 @@ fun Folder(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = folderID) {
-        Log.e(logTag, "... in Folder, launching effect for $folderID")
-        browseRemoteVM.watch(folderID, false)
-    }
-
     val loadingState by browseRemoteVM.loadingState.observeAsState()
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(folderID, true)
@@ -144,7 +138,7 @@ fun Folder(
     }
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
-            Log.e(logTag, "About to open $type more menu for $currID")
+            Log.d(logTag, "About to open $type more menu for $currID")
             nodeMoreMenuData.value = Pair(type, currID)
             sheetState.expand()
         }

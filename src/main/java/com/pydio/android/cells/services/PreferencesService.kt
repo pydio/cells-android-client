@@ -74,7 +74,7 @@ class PreferencesService(
             }
         }.map { preferences ->
             val currPrefs = mapCellsPreferences(preferences)
-            Log.d(logTag, "emit: ${currPrefs}")
+//            Log.d(logTag, "emit: ${currPrefs}")
             currPrefs
         }
 

@@ -3,7 +3,6 @@ package com.pydio.android.cells.ui.browse.composables
 import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -41,7 +40,7 @@ enum class NodeMoreMenuType {
 @Composable
 fun NodeMoreMenuData(
     type: NodeMoreMenuType,
-    toOpenStateID: StateID?,
+    toOpenStateID: StateID,
     launch: (NodeAction) -> Unit,
     tint: Color,
     bgColor: Color,
@@ -55,14 +54,14 @@ fun NodeMoreMenuData(
 
     LaunchedEffect(key1 = toOpenStateID) {
         toOpenStateID?.let {
-            val currNode = moreMenuVM.getTreeNode(it) ?: run {
-                Log.e(logTag, "No node found for $it, aborting")
-                // actionDone() TODO do something?
-                null
+            if (it != StateID.NONE) {
+                moreMenuVM.getTreeNode(it)?.let { currNode ->
+                    item.value = currNode
+                } ?: {
+                    Log.e(logTag, "No node found for $it, aborting")
+                    // actionDone() TODO do something?
+                }
             }
-            Log.e(logTag, "## After effect, found a node for $it - $currNode")
-            Log.e(logTag, "## Parent Path: ${it.parentPath} - $currNode")
-            item.value = currNode
         }
     }
 

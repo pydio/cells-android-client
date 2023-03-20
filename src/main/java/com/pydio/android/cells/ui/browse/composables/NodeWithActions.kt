@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -90,7 +89,7 @@ fun WrapWithActions(
     loadingState: LoadingState,
     actionDone: (Boolean) -> Unit,
     type: NodeMoreMenuType,
-    toOpenStateID: StateID?,
+    toOpenStateID: StateID,
     sheetState: ModalBottomSheetState,
     content: @Composable () -> Unit,
 ) {
@@ -111,7 +110,7 @@ private fun FolderWithDialogs(
 //    isLoading: Boolean,
     actionDone: (Boolean) -> Unit,
     type: NodeMoreMenuType,
-    toOpenStateID: StateID?,
+    toOpenStateID: StateID,
     sheetState: ModalBottomSheetState,
     nodeActionsVM: NodeActionsVM = koinViewModel(),
     content: @Composable () -> Unit,
@@ -445,7 +444,7 @@ private fun FolderWithDialogs(
 @Composable
 private fun FolderWithMoreMenu(
     type: NodeMoreMenuType,
-    toOpenStateID: StateID?,
+    toOpenStateID: StateID,
     sheetState: ModalBottomSheetState,
     launch: (NodeAction) -> Unit,
     content: @Composable () -> Unit,
@@ -454,7 +453,7 @@ private fun FolderWithMoreMenu(
     val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
     val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
 
-    ModalBottomSheetLayout(           
+    ModalBottomSheetLayout(
         sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor) },
 //        sheetContent = {
 //            key(toOpenStateID) {

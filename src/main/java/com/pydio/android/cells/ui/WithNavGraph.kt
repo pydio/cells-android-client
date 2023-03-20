@@ -153,13 +153,11 @@ fun CellsNavGraph(
             back = { navController.popBackStack() },
             openDrawer,
             open = {
-                Log.e(logTag, "### Calling open for $it")
+                Log.i(logTag, "### Browse to $it")
 
-                // Kind of tweak: we check if the target node is the penultimate
-                // element of the backStack, in such case we consider it is a back:
+                // Kind of tweak: we check if the target node is the penultimate element of the backStack, in such case we consider it is a back:
                 // the end user has clicked on parent() and was "simply" browsing
-                // Log.d(logTag, "### Opening state at $it, Backstack: ")
-                val bq = navController.backQueue
+//                val bq = navController.backQueue
                 // var i = 0
                 // navController.backQueue.forEach {
                 //     val stateID = lazyStateID(it)
@@ -167,7 +165,8 @@ fun CellsNavGraph(
 
                 // }
                 var isEffectiveBack = false
-                if (bq.size > 1) {
+                if (navController.backQueue.size > 1) {
+                    val bq = navController.backQueue
                     val targetEntry = bq[bq.size - 2]
                     val penultimateID = lazyStateID(bq[bq.size - 2])
                     isEffectiveBack =

@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.browse
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -38,44 +39,60 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        Log.e(logTag, ".... ## In BrowseDestinations.open at $stateID")
-        if (stateID == StateID.NONE) {
-            NoAccount(
-                openDrawer = openDrawer,
-                addAccount = {},
-            )
-        } else if (Str.notEmpty(stateID.workspace)) {
-
-            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-            val helper = BrowseHelper(stateID, navController, browseRemoteVM, folderVM)
-
-            Folder(
-                stateID,
-                openDrawer = openDrawer,
-                openSearch = {
-                    navController.navigate(CellsDestinations.Search.createRoute("Folder", stateID))
-                },
-                browseRemoteVM = browseRemoteVM,
-                folderVM = folderVM,
-                browseHelper = helper,
-            )
-        } else {
-            var i = 0
-            navController.backQueue.forEach {
-                val currID = lazyStateID(it)
-                Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
+        Log.i(logTag, "## BrowseDestinations.open - $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.e(logTag, "  ... Also launching effect to watch $stateID")
+            if (stateID == StateID.NONE) {
+                browseRemoteVM.pause()
+            } else {
+                browseRemoteVM.watch(stateID, false)
             }
+        }
 
-            val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
-            AccountHome(
-                stateID,
-                openDrawer = openDrawer,
-                openAccounts = { open(StateID.NONE) },
-                openSearch = {},
-                openWorkspace = open,
-                browseRemoteVM = browseRemoteVM,
-                accountHomeVM = accountHomeVM,
-            )
+        when {
+            stateID == StateID.NONE ->
+                NoAccount(
+                    openDrawer = openDrawer,
+                    addAccount = {},
+                )
+            Str.notEmpty(stateID.workspace) -> {
+                val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+                val helper = BrowseHelper(stateID, navController, browseRemoteVM, folderVM)
+                Folder(
+                    stateID,
+                    openDrawer = openDrawer,
+                    openSearch = {
+                        navController.navigate(
+                            CellsDestinations.Search.createRoute(
+                                "Folder",
+                                stateID
+                            )
+                        )
+                    },
+                    browseRemoteVM = browseRemoteVM,
+                    folderVM = folderVM,
+                    browseHelper = helper,
+                )
+            }
+            else -> {
+                var i = 0
+                navController.backQueue.forEach {
+                    val currID = lazyStateID(it)
+                    Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
+                }
+
+                val accountHomeVM: AccountHomeVM =
+                    koinViewModel(parameters = { parametersOf(stateID) })
+                AccountHome(
+                    stateID,
+                    openDrawer = openDrawer,
+                    openAccounts = { open(StateID.NONE) },
+                    openSearch = {},
+                    openWorkspace = open,
+                    browseRemoteVM = browseRemoteVM,
+                    accountHomeVM = accountHomeVM,
+                )
+            }
         }
     }
 

@@ -70,13 +70,7 @@ fun AccountHome(
     accountHomeVM: AccountHomeVM,
 ) {
 
-    // FIXME this must not be done here anymore
-    LaunchedEffect(key1 = accountID) {
-        Log.e(logTag, "... in AccountHome, launching effect")
-        browseRemoteVM.watch(accountID, false)
-    }
     val loadingState by browseRemoteVM.loadingState.observeAsState()
-
     val sessionView by accountHomeVM.currSession.observeAsState()
     val workspaces by accountHomeVM.wss.observeAsState()
     val cells by accountHomeVM.cells.observeAsState()
@@ -123,13 +117,10 @@ private fun WithScaffold(
                 openSearch = openSearch,
             )
         },
-//        modifier = Modifier.padding(
-//            horizontal = dimensionResource(id = R.dimen.margin_small)
-//        )
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
 
-        Log.e(logTag, "### About to create the list passed content padding")
-        Log.e(logTag, "$padding")
+//        Log.e(logTag, "### About to create the list passed content padding")
+//        Log.e(logTag, "$padding")
 
         val listPadding = PaddingValues(
             top = padding.calculateTopPadding(),
@@ -147,7 +138,7 @@ private fun WithScaffold(
             openAccounts = openAccounts,
             forceRefresh = forceRefresh,
             padding = listPadding,
-            modifier = Modifier.fillMaxWidth(), // padding(padding),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
