@@ -2,9 +2,14 @@ package com.pydio.android.cells.ui.browse.composables
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -13,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +39,7 @@ import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForNewName
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.delay
 
 private const val logTag = "NodeActionDialogs.kt"
 
@@ -61,6 +69,42 @@ fun CreateFolder(
         },
         dismiss = { dismiss(false) },
     )
+}
+
+@Composable
+fun PickDestination(
+    nodeActionsVM: NodeActionsVM,
+    stateID: StateID,
+    dismiss: (Boolean) -> Unit,
+) {
+    Log.e(logTag, "Composing PickDestination for $stateID")
+    val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
+    val destinationPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(),
+        onResult = { uri ->
+            Log.e(logTag, "Got a destination for $stateID")
+            if (stateID != StateID.NONE) {
+                uri?.let {
+                    nodeActionsVM.download(stateID, uri)
+                }
+            }
+            dismiss(true)
+        }
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            // .background(MaterialTheme.colorScheme.surface)
+            .alpha(0.02f)
+    ) {}
+    if (!alreadyLaunched.value) {
+        LaunchedEffect(key1 = stateID) {
+            Log.e(logTag, "Launching \"pick destination\" for $stateID")
+            delay(100)
+            destinationPicker.launch(stateID.fileName)
+            alreadyLaunched.value = true
+        }
+    }
 }
 
 @Composable

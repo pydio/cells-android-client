@@ -5,9 +5,7 @@ import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.cells.transport.StateID
 
-class MoreMenuState @OptIn(
-    ExperimentalMaterial3Api::class
-) constructor(
+class MoreMenuState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val type: NodeMoreMenuType,
     val sheetState: ModalBottomSheetState,
     val stateID: StateID,

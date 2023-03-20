@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -136,23 +137,36 @@ private fun FolderWithDialogs(
 
     val closeDialog: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+
+//        navController.navigate(FOLDER_MAIN_CONTENT) {
+//            popUpTo(FOLDER_MAIN_CONTENT) {
+//                inclusive = true
+//            }
+//        }
         if (done) {
             actionDone(true)
         }
     }
 
-    val destinationPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument(),
-        onResult = { uri ->
-            Log.e(logTag, "Got a destination for ${currentID.value}")
-            if (currentID.value != StateID.NONE) {
-                uri?.let {
-                    nodeActionsVM.download(currentID.value, uri)
-                }
-            }
-            actionDone(true)
-        }
-    )
+//    navController.backQueue.forEachIndexed { i, entry ->
+//        val stateID = lazyStateID(entry)
+//        Log.e(logTag, "#$i - $stateID - ${entry.destination.route}")
+//    }
+
+//    Log.e(logTag, "Creating destination picker")
+//    val destinationPicker = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.CreateDocument(),
+//        onResult = { uri ->
+//            Log.e(logTag, "Got a destination for ${currentID.value}")
+//            if (currentID.value != StateID.NONE) {
+//                uri?.let {
+//                    nodeActionsVM.download(currentID.value, uri)
+//                }
+//            }
+//            actionDone(true)
+//        }
+//    )
+//    Log.e(logTag, "---- Created destination picker: ${destinationPicker.toString()}")
 
     val fileImporter = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
@@ -196,14 +210,15 @@ private fun FolderWithDialogs(
         if (toOpenStateID == null) {// this should never happen
             Log.e(logTag, "Trying to launch an action on a null stateID, aborting...")
         } else {
-            Log.i(logTag, "About to navigate to ${it.id}/${toOpenStateID.id}")
+            Log.i(logTag, "About to navigate to ${it.id}/${toOpenStateID}")
             when (it) {
-                is NodeAction.DownloadToDevice -> {
-                    if (currentID.value == StateID.NONE) {
-                        destinationPicker.launch(toOpenStateID.fileName)
-                        currentID.value = toOpenStateID
-                    }
-                }
+//                is NodeAction.DownloadToDevice -> {
+//                    Log.e(logTag, "Got a DownloadToDevice action, $toOpenStateID")
+//                    if (currentID.value == StateID.NONE) {
+//                        currentID.value = toOpenStateID
+//                        destinationPicker.launch(toOpenStateID.fileName)
+//                    }
+//                }
                 is NodeAction.ImportFile -> {
                     if (currentID.value == StateID.NONE) {
                         fileImporter.launch("*/*")
@@ -287,17 +302,17 @@ private fun FolderWithDialogs(
         currentAction.value = null
     }
 
-    rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument(),
-        onResult = { uri ->
-            Log.e(logTag, "Got a destination for ${currentID.value}")
-            if (currentID.value != StateID.NONE) {
-                uri?.let {
-                    nodeActionsVM.download(currentID.value, uri)
-                }
-            }
-        }
-    )
+//    rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.CreateDocument(),
+//        onResult = { uri ->
+//            Log.e(logTag, "Got a destination for ${currentID.value}")
+//            if (currentID.value != StateID.NONE) {
+//                uri?.let {
+//                    nodeActionsVM.download(currentID.value, uri)
+//                }
+//            }
+//        }
+//    )
 
     Scaffold { innerPadding ->
 
@@ -413,6 +428,15 @@ private fun FolderWithDialogs(
                     dismiss = { closeDialog(it) }
                 )
             }
+
+            dialog(route(NodeAction.DownloadToDevice)) { entry ->
+                val stateID = lazyStateID(entry)
+                PickDestination(
+                    nodeActionsVM,
+                    stateID = stateID,
+                    dismiss = { closeDialog(it) }
+                )
+            }
         }
     }
 }
@@ -430,8 +454,18 @@ private fun FolderWithMoreMenu(
     val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
     val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
 
-    ModalBottomSheetLayout(
+    ModalBottomSheetLayout(           
         sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor) },
+//        sheetContent = {
+//            key(toOpenStateID) {
+//                // we might do better: it forces a full recomposition when the target state ID changes
+//                NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor)
+//            }
+////            // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
+////            // when no item is defined (This is the case at the beginning when we launch the Side Effect)
+////            // Log.d(logTag, "## No more menu for $toOpenStateID")
+////            Spacer(modifier = Modifier.height(1.dp))
+//        },
         modifier = Modifier,
         sheetState = sheetState,
         sheetBackgroundColor = bgColor,

@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse.menus
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,8 @@ import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+
+private const val logTag = "SingleNodeMenu"
 
 @Composable
 fun SingleNodeMenu(

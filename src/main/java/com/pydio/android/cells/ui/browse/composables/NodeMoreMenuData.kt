@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse.composables
 import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -65,8 +66,10 @@ fun NodeMoreMenuData(
         }
     }
 
+    // Log.d(logTag, "## In Node More Menu data for $toOpenStateID ")
+
     // We have to provide early a dummy content when not enough data to build a menu is present.
-    if (toOpenStateID != null && toOpenStateID.workspace != null) {
+    if (toOpenStateID != null && toOpenStateID.workspace != null && toOpenStateID != StateID.NONE) {
 
         item.value?.let { myItem ->
 
@@ -114,7 +117,7 @@ fun NodeMoreMenuData(
                     tint = tint,
                     bgColor = bgColor,
                 )
-                else ->
+                type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
                         stateID = toOpenStateID,
                         rTreeNode = myItem,
@@ -122,6 +125,7 @@ fun NodeMoreMenuData(
                         tint = tint,
                         bgColor = bgColor,
                     )
+                else -> Spacer(modifier = Modifier.height(1.dp))
             }
         }
     }
