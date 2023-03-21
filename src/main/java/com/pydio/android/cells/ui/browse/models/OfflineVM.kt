@@ -25,6 +25,7 @@ import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -128,6 +129,7 @@ class OfflineVM(
         viewModelScope.launch {
             doForceAccountSync(accountID) // we insure the current account value is valid in the sanity check
             // TODO handle errors
+            delay(1500)
             Log.e(logTag, "Setting loading state to IDLE")
             withContext(Dispatchers.Main) {
                 _loadingState.value = LoadingState.IDLE
