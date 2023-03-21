@@ -30,8 +30,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  * Main entry point for the Cells Application:
  *
  * - We check if we should forward to the migrate activity
- * - If no migration is necessary, we handle the bundle / intent and then
- *    forward everything to Jetpack Compose.
+ * - If no migration is necessary, we handle the bundle / intent and then forward everything to Jetpack Compose.
  */
 class MainActivity : ComponentActivity() {
 
@@ -42,23 +41,16 @@ class MainActivity : ComponentActivity() {
         Log.d(logTag, "onCreate: launching new main activity")
         super.onCreate(savedInstanceState)
 
-        // Use androidx.core:core-splashscreen library to manage splash
+        // We currently still use androidx.core:core-splashscreen library to manage splash
+        // Re-add the Splash composable here? - cf system/screens/splash.kt
         installSplashScreen()
-
-        // TODO re-add the Splash composable here
-        // cf system/screens/splash.kt
-
-//        findViewById<>()
-//        setContentView(R.layout.activity_splash)
 
         // First check if we need a migration
         val landActivity = this
-
         lifecycleScope.launch {
             val landingVM by viewModel<LandingVM>()
             val noMigrationNeeded = landingVM.noMigrationNeeded()
-            if (!noMigrationNeeded) {
-                // forward to migration page
+            if (!noMigrationNeeded) { // forward to migration page
                 val intent = Intent(landActivity, MigrateActivity::class.java)
                 startActivity(intent)
                 landActivity.finish()
@@ -68,9 +60,12 @@ class MainActivity : ComponentActivity() {
             var startingState = handleIntent(savedInstanceState)
                 ?: landingVM.getStartingState()
 
-            // FIXME the state is not nul but we still don't know where to go.
             if (Str.empty(startingState.route)) {
+                // FIXME the state is not nul but we still don't know where to go.
+                Log.e(logTag, "#### TODO state is not null but we still do not see where to go")
+                Log.e(logTag, "#### --> StateID B4: ${startingState.stateID}")
                 startingState = landingVM.getStartingState()
+                Log.e(logTag, "#### --> new landing state ")
             }
 
             Log.i(logTag, "#######################################")
@@ -166,7 +161,13 @@ class MainActivity : ComponentActivity() {
 
         // Intent is not null
         val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
-        val initialStateID = encodedState?.let { StateID.fromId(it) } ?: StateID.NONE
+        val initialStateID = encodedState?.let {
+            val stateID = StateID.fromId(it)
+            // We must probably never pass here anymore
+            // TODO double check and clean this (and the corresponding AppKeys.EXTRA_STATE)
+            Log.e(logTag, "#### Received an intent with a state: $stateID")
+            stateID
+        } ?: StateID.NONE
         val startingState = StartingState(initialStateID)
 
         when {

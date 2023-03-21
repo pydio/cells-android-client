@@ -35,9 +35,9 @@
     </style>
 
     <!-- Action bar - necessary attributes otherwise the OS status bar buttons are not visible (black on black) -->
-    <style name="Cells.Md3.LightStatusBar">
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-    </style>
+    <!--    <style name="Cells.Md3.LightStatusBar">-->
+    <!--        <item name="android:windowLightStatusBar">false</item>-->
+    <!--        <item name="android:statusBarColor">?attr/colorSurface</item>-->
+    <!--    </style>-->
 
 </resources>

@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--    <style name="Cells.Md3">-->
-    <!--    </style>-->
-
-    <style name="Cells.Md3.LightStatusBar">
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-    </style>
-
-    <style name="Cells.Md3.SplashScreen">
-<!--        <item name="android:windowLightStatusBar">false</item>-->
-<!--        <item name="android:statusBarColor">?attr/colorPrimary</item>-->
+    <style name="CellsV31.SplashScreen">
         <item name="android:windowBackground">@drawable/splash_screen</item>
-        <!--        <item name="windowSplashScreenBackground">@color/md_theme_light_error</item>-->
     </style>
 
 </resources>
