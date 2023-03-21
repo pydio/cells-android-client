@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.login.screens
 
 import android.content.res.Configuration
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
@@ -11,6 +12,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -40,13 +44,13 @@ fun P8Credentials(
 
     // This might have been initialised when re-logging a P8 account
 
-    val username = rememberSaveable() {
+    val username = rememberSaveable {
         mutableStateOf(stateID.username ?: "")
     }
     val setUsername: (String) -> Unit = {
         username.value = it.trim()
     }
-    val pwd = rememberSaveable() {
+    val pwd = rememberSaveable {
         mutableStateOf("")
     }
     val setPwd: (String) -> Unit = {
@@ -88,21 +92,37 @@ fun P8Credentials(
     launchP8Auth: () -> Unit,
 ) {
 
-    val localFocusManager = LocalFocusManager.current
+    val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val loginImeAction = ImeAction.Next
     val pwdImeAction = if (hasCaptcha) ImeAction.Next else ImeAction.Done
     val captchaImeAction = ImeAction.Done
 
+    val onDone: () -> Unit = {
+        launchP8Auth()
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
+
     val keyboardActions = KeyboardActions(
-        onNext = { localFocusManager.moveFocus(FocusDirection.Down) },
-        onDone = {
-            launchP8Auth()
-            localFocusManager.clearFocus()
-            keyboardController?.hide()
-        }
+        onNext = { focusManager.moveFocus(FocusDirection.Down) },
+        onDone = { onDone() }
     )
+
+    val modifier = Modifier
+        .fillMaxWidth()
+        .onPreviewKeyEvent {
+            if (it.key == Key.Tab && it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                focusManager.moveFocus(FocusDirection.Down)
+                true
+            } else if (it.key == Key.Enter) {
+                onDone()
+                true
+            } else {
+                false
+            }
+        }
 
     DefaultLoginPage(
         isProcessing = isProcessing,
@@ -118,7 +138,7 @@ fun P8Credentials(
             // We only display the error message on the password
             onValueChanged = { updateLogin(it) },
             isProcessing = isProcessing,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier,
             errorMessage = "",
             imeAction = loginImeAction,
             keyboardActions = keyboardActions
@@ -129,7 +149,7 @@ fun P8Credentials(
             description = "Password",
             onValueChanged = { updatePwd(it) },
             isProcessing = isProcessing,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier,
             isPassword = true,
             errorMessage = errMsg,
             pwdImeAction,
@@ -142,7 +162,7 @@ fun P8Credentials(
                 description = "Captcha",
                 onValueChanged = { updateCaptcha(it) },
                 isProcessing = isProcessing,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier,
                 errorMessage = errMsg,
                 imeAction = captchaImeAction,
                 keyboardActions = keyboardActions
