@@ -179,7 +179,9 @@ private fun HomeListContent(
                     username = stateID.username,
                     address = stateID.serverUrl,
                     openAccounts = openAccounts,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimensionResource(id = R.dimen.margin_small))
                 )
             }
             item(span = { GridItemSpan(maxLineSpan) }) {

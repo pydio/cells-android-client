@@ -15,6 +15,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -62,7 +64,6 @@ fun DefaultTopBar(
     back: (() -> Unit)? = null,
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
     TopAppBar(
@@ -73,6 +74,7 @@ fun DefaultTopBar(
                 overflow = TextOverflow.Ellipsis
             )
         },
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         navigationIcon = {
             if (back != null) {
                 IconButton(onClick = { back() }) {
@@ -117,7 +119,6 @@ fun TopBarWithMoreMenu(
     isActionMenuShown: Boolean,
     showMenu: (Boolean) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
     TopAppBar(
@@ -128,6 +129,7 @@ fun TopBarWithMoreMenu(
                 overflow = TextOverflow.Ellipsis
             )
         },
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         navigationIcon = {
             if (back != null) {
                 IconButton(onClick = { back() }) {
