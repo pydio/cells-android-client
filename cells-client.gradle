@@ -3,8 +3,6 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
-    // Generate helper classes to pass data between fragments
-    //  id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
