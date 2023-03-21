@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="CellsV31.SplashScreen">
+    <style name="CellsV31" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    </style>
+
+    <style name="CellsV31.SplashScreen" parent="android:Theme.Material.NoActionBar">
+        <item name="windowSplashScreenBackground">@color/md_theme_light_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_animation</item>
+        <item name="postSplashScreenTheme">@style/CellsV31</item>
+        <item name="windowSplashScreenAnimationDuration">5000</item>
+
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
