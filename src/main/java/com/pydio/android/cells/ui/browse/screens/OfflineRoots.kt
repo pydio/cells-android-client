@@ -449,7 +449,7 @@ private fun OfflineRootsList(
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
+                                    .height(dimensionResource(R.dimen.list_bottom_fab_padding))
                             )
                         }
                     }

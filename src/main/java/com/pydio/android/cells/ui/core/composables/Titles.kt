@@ -74,7 +74,7 @@ fun MainTitleText(
         color = color,
         style = MaterialTheme.typography.titleLarge,
         modifier = modifier
-            .paddingFromBaseline(top = 48.dp, bottom = 8.dp)
+            .paddingFromBaseline(top = 32.dp, bottom = 8.dp)
             .alpha(.9f)
     )
 }

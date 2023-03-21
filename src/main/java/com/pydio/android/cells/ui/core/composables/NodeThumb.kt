@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.webkit.MimeTypeMap
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -29,6 +33,8 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.ui.theme.getIconAndColorFromType
+import com.pydio.android.cells.ui.theme.getIconTypeFromMime
 import com.pydio.cells.api.SdkNames
 import java.io.File
 
@@ -48,12 +54,10 @@ fun Thumbnail(
     eTag: String?,
     hasThumb: Boolean,
 ) {
-
     if (hasThumb) {
         Surface(
-            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
+                // .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
             LoadingAnimation(
@@ -67,22 +71,36 @@ fun Thumbnail(
             )
         }
     } else {
-        Surface(
-            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-            modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-        ) {
-            Image(
-                painter = painterResource(getDrawableFromMime(mime, sortName)),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(6.dp)
-                    .size(dimensionResource(R.dimen.list_thumb_icon_size))
-            )
-        }
+        IconThumb(mime, sortName)
     }
 }
+
+@Composable
+fun IconThumb(mime: String, sortName: String?) {
+    getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
+        M3IconThumb(t.first, t.second)
+    }
+}
+
+@Composable
+fun M3IconThumb(@DrawableRes id: Int, color: Color) {
+    Surface(
+        tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+        modifier = Modifier
+            .size(dimensionResource(R.dimen.list_thumb_size))
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+    ) {
+        Image(
+            painter = painterResource(id),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(color),
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center)
+                .size(dimensionResource(R.dimen.list_thumb_icon_size))
+        )
+    }
+}
+
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -121,7 +139,6 @@ fun GridThumb(
         }
     } else {
         Surface(
-//            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(padding)
@@ -134,7 +151,7 @@ fun GridThumb(
                 contentDescription = null,
                 modifier = Modifier
                     .size(iconSize)
-           )
+            )
         }
     }
 }
@@ -143,7 +160,6 @@ fun betterMime(passedMime: String, sortName: String?): String {
     return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
             ?: SdkNames.NODE_MIME_DEFAULT
-        // newMime = context.contentResolver.getType(Uri.parse("file://"))
     } else passedMime
 }
 
@@ -158,7 +174,7 @@ fun isFolder(mime: String): Boolean {
             || mime == SdkNames.NODE_MIME_RECYCLE
 }
 
-fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp ): Int {
+fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp): Int {
 
     // TODO enrich with more specific icons for files depending on the mime
     val mime = betterMime(originalMime, sortName)

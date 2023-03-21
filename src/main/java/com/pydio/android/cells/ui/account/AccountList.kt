@@ -150,7 +150,7 @@ private fun AccountListItem(
                 Icon(
                     imageVector = btnVectorImg,
                     contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
 
@@ -166,7 +166,7 @@ private fun AccountListItem(
                 Icon(
                     imageVector = CellsIcons.Delete,
                     contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
         }

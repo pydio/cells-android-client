@@ -195,7 +195,7 @@ private fun TransferListItem(
                 imageVector = btnVectorImg,
                 contentDescription = null,
                 modifier = btnModifier
-                    .size(dimensionResource(R.dimen.list_button_size))
+                    .size(dimensionResource(R.dimen.list_trailing_icon_size))
             )
 
 //            Surface(modifier = btnModifier) {
@@ -217,7 +217,7 @@ private fun TransferListItem(
                     imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_button_size))
+                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
         }

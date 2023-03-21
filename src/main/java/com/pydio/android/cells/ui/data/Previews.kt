@@ -136,7 +136,7 @@ private fun NewNodeCardPreview() {
                     imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_button_size)),
+                        .size(dimensionResource(R.dimen.list_trailing_icon_size)),
                 )
             }
         }

@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,16 +33,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
@@ -49,12 +51,12 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
-import com.pydio.android.cells.ui.core.composables.GridThumb
 import com.pydio.android.cells.ui.core.composables.MainTitleText
-import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.getIconAndColorFromType
+import com.pydio.android.cells.ui.theme.getIconTypeFromMime
 import com.pydio.cells.transport.StateID
 
 private const val logTag = "AccountHome"
@@ -129,7 +131,7 @@ private fun WithScaffold(
             end = dimensionResource(id = R.dimen.margin_medium),
         )
 
-        OfflineRootsList(
+        HomeListContent(
             loadingState = loadingState,
             stateID = stateID,
             workspaces = workspaces,
@@ -145,7 +147,7 @@ private fun WithScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun OfflineRootsList(
+private fun HomeListContent(
     loadingState: LoadingState,
     stateID: StateID,
     workspaces: List<RWorkspace>,
@@ -164,9 +166,9 @@ private fun OfflineRootsList(
 
     Box(modifier.pullRefresh(state)) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin)),
+            columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
             contentPadding = padding,
         ) {
 
@@ -198,14 +200,10 @@ private fun OfflineRootsList(
                 }
                 items(workspaces, key = { it.encodedState }) { ws ->
                     HomeCardItem(
-                        encodedState = ws.encodedState,
                         sortName = ws.sortName,
-                        name = ws.label ?: "",
                         title = ws.label ?: "",
                         desc = ws.description ?: "",
                         mime = ws.type,
-                        eTag = "",
-                        hasThumb = false,
                         modifier = Modifier
                             .wrapContentSize(align = Alignment.Center)
                             .clickable { open(ws.getStateID()) },
@@ -222,14 +220,11 @@ private fun OfflineRootsList(
                 }
                 items(cells, key = { it.encodedState }) { ws ->
                     HomeCardItem(
-                        encodedState = ws.encodedState,
                         sortName = ws.sortName,
-                        name = ws.label ?: "",
                         title = ws.label ?: "",
-                        desc = ws.description ?: "",
+                        desc = ws.description
+                            ?: "", // TODO provide another string for nicer UI when the description when ws."",
                         mime = ws.type,
-                        eTag = "",
-                        hasThumb = false,
                         modifier = Modifier
                             .wrapContentSize(align = Alignment.Center)
                             .clickable { open(ws.getStateID()) },
@@ -253,20 +248,16 @@ private fun OfflineRootsList(
 
 @Composable
 private fun HomeCardItem(
-    encodedState: String,
     sortName: String?,
-    name: String,
     title: String,
     desc: String,
     mime: String,
-    eTag: String?,
-    hasThumb: Boolean,
     modifier: Modifier = Modifier
 ) {
     val titlePadding = PaddingValues(
         start = 8.dp,
         end = 8.dp,
-        top = 4.dp,
+        top = 8.dp,
         bottom = 0.dp,
     )
     val descPadding = PaddingValues(
@@ -279,29 +270,42 @@ private fun HomeCardItem(
     Card(
         shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
+            defaultElevation = 0.dp,// dimensionResource(R.dimen.grid_ws_card_elevation)
         ),
         modifier = modifier
     ) {
 
-        GridThumb(
-            encodedState = encodedState,
-            sortName = sortName,
-            name = name,
-            mime = mime,
-            eTag = eTag,
-            hasThumb = hasThumb,
-            outerSize = dimensionResource(R.dimen.grid_ws_image_size),
-            iconSize = dimensionResource(R.dimen.grid_icon_size),
-            clipShape = RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)),
-        )
+        getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
+            Surface(
+                tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .size(dimensionResource(R.dimen.grid_ws_image_size))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)))
+            ) {
+                Image(
+                    painter = painterResource(t.first),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(t.second),
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center)
+                        .size(dimensionResource(R.dimen.grid_large_icon_size))
+                )
+            }
+
+        }
+
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(titlePadding)
         )
         Text(
             text = desc,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(descPadding)
         )
@@ -315,7 +319,7 @@ fun HomeHeader(
     openAccounts: () -> Unit,
     modifier: Modifier,
 ) {
-    val buttonAlpha = getFloatResource(LocalContext.current, R.dimen.list_button_alpha)
+//    val buttonAlpha = getFloatResource(LocalContext.current, R.dimen.list_button_alpha)
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,

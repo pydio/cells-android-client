@@ -175,7 +175,7 @@ private fun CredExpiredStatus(
             tint = tint,
             imageVector = icon,
             contentDescription = desc,
-            modifier = Modifier.size(dimensionResource(id = R.dimen.list_button_size))
+            modifier = Modifier.size(dimensionResource(id = R.dimen.list_trailing_icon_size))
         )
         Spacer(Modifier.size(dimensionResource(R.dimen.list_item_inner_h_padding)))
         Text(

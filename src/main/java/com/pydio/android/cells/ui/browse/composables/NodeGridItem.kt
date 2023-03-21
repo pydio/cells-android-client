@@ -124,7 +124,6 @@ fun NodeGridItem(
     }
 }
 
-
 @Composable
 fun NodeGridItemBox(
     item: RTreeNode,
@@ -236,7 +235,7 @@ fun NodeGridItemBox(
                 imageVector = CellsIcons.MoreVert,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.list_button_size)),
+                    .size(dimensionResource(R.dimen.list_trailing_icon_size)),
             )
         }
     }

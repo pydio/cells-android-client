@@ -66,6 +66,7 @@ import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.BrowseUpItem
+import com.pydio.android.cells.ui.core.composables.M3BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
@@ -401,7 +402,7 @@ private fun FolderList(
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
+                                    .height(dimensionResource(R.dimen.list_bottom_fab_padding))
                             )
                         }
                     }
@@ -412,17 +413,14 @@ private fun FolderList(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (Str.notEmpty(stateID.path)) {
-                            item {
+                            item(key = "parent") {
                                 val parentDescription = when {
                                     Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                                     else -> stringResource(R.string.parent_folder)
                                 }
-                                BrowseUpItem(
-                                    parentDescription,
-                                    Modifier
-                                        .fillMaxWidth()
-                                        // .height(dimensionResource(id = R.dimen.list_up_item_height))
-                                        .clickable { openParent(stateID) }
+                                M3BrowseUpItem(
+                                    parentDescription = parentDescription,
+                                    modifier = Modifier.clickable { openParent(stateID) }
                                 )
                             }
                         }
@@ -439,7 +437,7 @@ private fun FolderList(
                                     openMoreMenu(node.getStateID())
                                 },
                                 modifier = Modifier
-                                    .padding(all = dimensionResource(R.dimen.card_padding))
+                                    // .padding(all = dimensionResource(R.dimen.card_padding))
                                     .fillMaxWidth()
                                     .clickable { open(node.getStateID()) }
                                 // .animateItemPlacement(),
@@ -449,7 +447,7 @@ private fun FolderList(
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(dimensionResource(R.dimen.recycler_bottom_fab_padding))
+                                    .height(dimensionResource(R.dimen.list_bottom_fab_padding))
                             )
                         }
                     }

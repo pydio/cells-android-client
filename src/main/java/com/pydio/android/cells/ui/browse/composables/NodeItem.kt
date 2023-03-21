@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -40,7 +43,9 @@ fun NodeItem(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NodeItem(
+
+//    NodeItem(
+    M3NodeItem(
         title = title,
         desc = desc,
         encodedState = item.encodedState,
@@ -54,6 +59,46 @@ fun NodeItem(
         isShared = item.isShared(),
         more = more,
         modifier = modifier,
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun M3NodeItem(
+    title: String,
+    desc: String,
+    encodedState: String,
+    name: String,
+    sortName: String?,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    isBookmarked: Boolean,
+    isOfflineRoot: Boolean,
+    isShared: Boolean,
+    more: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ListItem(
+        modifier = modifier,
+        headlineText = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        supportingText = { Text(desc, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        leadingContent = { Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb) },
+        trailingContent = {
+            Surface(Modifier.clickable { more() }) {
+                Icon(
+                    // imageVector = CellsIcons.MoreVert,
+                    painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
+                    contentDescription = null, // TODO
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
+                )
+            }
+        },
+//        colors: ListItemColors = ListItemDefaults.colors(),
+//        tonalElevation: Dp = ListItemDefaults.Elevation,
+//        shadowElevation: Dp = ListItemDefaults.Elevation
     )
 }
 
@@ -131,7 +176,7 @@ fun NodeItem(
                     imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_button_size))
+                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
         }
@@ -233,7 +278,7 @@ fun OfflineRootItem(
                     imageVector = CellsIcons.MoreVert,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_button_size))
+                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
         }
