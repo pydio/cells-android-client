@@ -100,7 +100,7 @@
     <dimen name="grid_large_padding">16dp</dimen>
     <dimen name="grid_large_spaced_by">8dp</dimen>
     <dimen name="grid_large_icon_size">48dp</dimen>
-    <dimen name="grid_large_h_inner_padding">8dp</dimen>
+    <dimen name="grid_large_h_inner_padding">10dp</dimen>
     <dimen name="grid_large_v_inner_padding">8dp</dimen>
     <dimen name="grid_large_more_size">24dp</dimen>
 
@@ -113,7 +113,6 @@
     <dimen name="grid_col_min_width">128dp</dimen>
     <dimen name="grid_col_spaced_by">2dp</dimen>
     <dimen name="grid_col_text_padding">8dp</dimen>
-
 
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="grid_icon_size">40dp</dimen>

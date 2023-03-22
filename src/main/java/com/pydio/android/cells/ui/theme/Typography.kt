@@ -17,7 +17,7 @@ val Typography = Typography(
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W400,
+        fontWeight = FontWeight.W300,
         fontSize = 12.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.5.sp

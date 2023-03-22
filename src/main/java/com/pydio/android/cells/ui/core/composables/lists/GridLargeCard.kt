@@ -167,7 +167,7 @@ fun LargeCard(
         start = dimensionResource(R.dimen.grid_large_h_inner_padding),
         end = dimensionResource(R.dimen.grid_large_h_inner_padding),
         top = dimensionResource(R.dimen.grid_large_v_inner_padding),
-        bottom = 0.dp,
+        bottom = 2.dp,
     )
     val descPadding = PaddingValues(
         start = dimensionResource(R.dimen.grid_large_h_inner_padding),
@@ -189,7 +189,7 @@ fun LargeCard(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(titlePadding)

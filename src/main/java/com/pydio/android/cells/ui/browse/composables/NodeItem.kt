@@ -23,6 +23,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -39,6 +40,7 @@ fun NodeItem(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+//    M3ListItem(
     M3NodeItem(
         title = title,
         desc = desc,
@@ -58,7 +60,7 @@ fun NodeItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun M3NodeItem(
+fun M3ListItem(
     title: String,
     desc: String,
     encodedState: String,
@@ -96,7 +98,7 @@ fun M3NodeItem(
 }
 
 @Composable
-fun NodeItem(
+fun M3NodeItem(
     title: String,
     desc: String,
     encodedState: String,
@@ -113,8 +115,14 @@ fun NodeItem(
 ) {
     Surface(modifier = modifier) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_thumb_margin)),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 8.dp,
+                start = 16.dp,
+                end = 8.dp,
+            )
         ) {
 
             Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
@@ -130,11 +138,15 @@ fun NodeItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
                     text = desc,
-                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
 
@@ -166,12 +178,21 @@ fun NodeItem(
 
             Surface(Modifier.clickable { more() }) {
                 Icon(
-                    imageVector = CellsIcons.MoreVert,
-                    contentDescription = null,
+                    // imageVector = CellsIcons.MoreVert,
+                    painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
+                    contentDescription = null, // TODO
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
+//            Surface(Modifier.clickable { more() }) {
+//                Icon(
+//                    imageVector = CellsIcons.MoreVert,
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
+//                )
+//            }
         }
     }
 }
