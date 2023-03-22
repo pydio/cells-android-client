@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
@@ -18,15 +17,13 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "OfflineMoreMenuView"
+// private const val logTag = "OfflineMoreMenuView"
 
 @Composable
 fun OfflineMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
 //    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
@@ -47,8 +44,6 @@ fun OfflineMenu(
                 icon = CellsIcons.Refresh,
                 title = stringResource(R.string.force_resync),
                 onItemClick = { launch(NodeAction.ForceResync) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -60,8 +55,6 @@ fun OfflineMenu(
                     stringResource(R.string.open_in_workspaces)
                 },
                 onItemClick = { launch(NodeAction.OpenInApp) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         if (rTreeNode.isFile()) {
@@ -70,8 +63,6 @@ fun OfflineMenu(
                     icon = CellsIcons.DownloadToDevice,
                     title = stringResource(R.string.download_to_device),
                     onItemClick = { launch(NodeAction.DownloadToDevice) },
-                    tint = tint,
-                    bgColor = bgColor,
                 )
             }
         }
@@ -80,10 +71,7 @@ fun OfflineMenu(
                 icon = CellsIcons.KeepOffline,
                 title = stringResource(R.string.remove_from_offline),
                 onItemClick = { launch(NodeAction.ToggleOffline(false)) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
     }
 }
-

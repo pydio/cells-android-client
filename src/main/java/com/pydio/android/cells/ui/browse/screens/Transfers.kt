@@ -19,7 +19,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -170,7 +169,6 @@ private fun WithState(
         doAction = doAction,
         clearTerminated = transfersVM::clearTerminated,
         openDrawer = openDrawer,
-        modifier = Modifier
     )
 }
 
@@ -185,11 +183,7 @@ private fun WithBottomSheet(
     doAction: (String, Long) -> Unit,
     clearTerminated: () -> Unit,
     openDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-
-    val tint = MaterialTheme.colorScheme.onSurface
-    val bgColor = MaterialTheme.colorScheme.surface
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -198,14 +192,10 @@ private fun WithBottomSheet(
                     SortByMenu(
                         type = ListType.TRANSFER,
                         done = moreMenuState.closeMoreMenu,
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 TransferMoreMenuType.FILTER_BY ->
                     FilterTransfersByMenu(
                         done = moreMenuState.closeMoreMenu,
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 TransferMoreMenuType.MORE -> {
                     TransferMoreMenu(

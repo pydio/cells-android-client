@@ -262,16 +262,12 @@ private fun WithScaffold(
                                 StateID.NONE
                             )
                         },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 } else {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.SEARCH,
                         toOpenStateID = moreMenuState.stateID,
                         launch = { launch(it, moreMenuState.stateID) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 }
             },

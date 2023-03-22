@@ -226,9 +226,6 @@ private fun WithScaffold(
     moreMenuState: MoreMenuState,
 ) {
 
-    val tint = MaterialTheme.colorScheme.onSurface
-    val bgColor = MaterialTheme.colorScheme.surface
-
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
         if (it != isShown) {
@@ -310,22 +307,17 @@ private fun WithScaffold(
                                 StateID.NONE
                             )
                         },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 } else {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.OFFLINE,
                         toOpenStateID = moreMenuState.stateID,
                         launch = { launch(it, moreMenuState.stateID) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 }
             },
             modifier = Modifier,
             sheetState = moreMenuState.sheetState,
-            sheetBackgroundColor = bgColor,
         ) {
 
             OfflineRootsList(

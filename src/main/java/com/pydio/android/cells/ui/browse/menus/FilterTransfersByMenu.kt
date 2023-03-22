@@ -3,12 +3,9 @@ package com.pydio.android.cells.ui.browse.menus
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -20,7 +17,6 @@ import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.GenericBottomSheetHeader
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.utils.Log
-import kotlinx.coroutines.flow.collect
 import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "FilterTransfersByMenu"
@@ -28,8 +24,6 @@ private const val logTag = "FilterTransfersByMenu"
 @Composable
 fun FilterTransfersByMenu(
     done: () -> Unit,
-    tint: Color,
-    bgColor: Color,
     filterByMenuVM: FilterTransferByMenuVM = koinViewModel()
 ) {
     val keys = stringArrayResource(R.array.filter_transfer_by_status_values)
@@ -60,8 +54,7 @@ fun FilterTransfersByMenu(
                         filterByMenuVM.setFilterBy(keys[i])
                         done()
                     },
-                    tint = if (selected) MaterialTheme.colorScheme.inverseOnSurface else tint,
-                    bgColor = if (selected) MaterialTheme.colorScheme.inverseSurface else bgColor,
+                    selected = selected,
                 )
             }
         }

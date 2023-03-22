@@ -53,12 +53,12 @@
     <!-- Bottom Sheets -->
     <dimen name="bottom_sheet_header_height">64dp</dimen>
     <dimen name="bottom_sheet_item_height">54dp</dimen>
-    <dimen name="bottom_sheet_header_h_padding">8dp</dimen>
-    <dimen name="bottom_sheet_header_v_padding">4dp</dimen>
+    <dimen name="bottom_sheet_header_h_padding">16dp</dimen>
+    <dimen name="bottom_sheet_header_v_padding">8dp</dimen>
     <dimen name="bottom_sheet_start_padding">16dp</dimen>
     <dimen name="bottom_sheet_item_h_padding">8dp</dimen>
-    <dimen name="bottom_sheet_v_spacing">6dp</dimen>
-    <dimen name="bottom_sheet_v_padding">6dp</dimen>
+    <dimen name="bottom_sheet_v_spacing">8dp</dimen>
+    <dimen name="bottom_sheet_v_padding">8dp</dimen>
 
     <!-- Images with Glide -->
     <dimen name="glide_thumb_radius">4dp</dimen>

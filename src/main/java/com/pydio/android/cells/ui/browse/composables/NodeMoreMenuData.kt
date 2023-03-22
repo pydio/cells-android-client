@@ -37,8 +37,6 @@ fun NodeMoreMenuData(
     type: NodeMoreMenuType,
     toOpenStateID: StateID,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
 
     val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(toOpenStateID) })
@@ -67,43 +65,31 @@ fun NodeMoreMenuData(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 myItem.isInRecycle() -> RecycleMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     rWorkspace = workspace.value,
                     launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.SORT_BY -> SortByMenu(
                     type = ListType.DEFAULT,
                     done = { launch(NodeAction.SortBy) },
-                    tint = tint,
-                    bgColor = bgColor,
                 )
                 type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
@@ -111,8 +97,6 @@ fun NodeMoreMenuData(
                         rTreeNode = myItem,
                         rWorkspace = workspace.value,
                         launch = launch,
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 else -> Spacer(modifier = Modifier.height(1.dp))
             }

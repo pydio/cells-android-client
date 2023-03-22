@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +22,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.core.composables.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -54,7 +54,7 @@ sealed class NodeAction(val id: String) {
     object ShowQRCode : NodeAction("show_qr_code")
     object RemoveLink : NodeAction("remove_link")
 
-    object TakePicture : NodeAction("rename")
+    object TakePicture : NodeAction("take_picture")
     object ImportFile : NodeAction("import_file")
     object CreateFolder : NodeAction("create_folder")
 
@@ -219,7 +219,7 @@ private fun FolderWithDialogs(
     NavHost(navController, FOLDER_MAIN_CONTENT) {
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
-            FolderWithMoreMenu(
+            CellsModalBottomSheetLayout(
                 type = type,
                 toOpenStateID = toOpenStateID,
                 sheetState = sheetState,
@@ -355,25 +355,11 @@ private fun FolderWithMoreMenu(
     launch: (NodeAction) -> Unit,
     content: @Composable () -> Unit,
 ) {
-
-    val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
-    val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
-
     ModalBottomSheetLayout(
-        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor) },
-//        sheetContent = {
-//            key(toOpenStateID) {
-//                // we might do better: it forces a full recomposition when the target state ID changes
-//                NodeMoreMenuData(type, toOpenStateID, launch, tint, bgColor)
-//            }
-////            // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
-////            // when no item is defined (This is the case at the beginning when we launch the Side Effect)
-////            // Log.d(logTag, "## No more menu for $toOpenStateID")
-////            Spacer(modifier = Modifier.height(1.dp))
-//        },
+        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
         modifier = Modifier,
         sheetState = sheetState,
-        sheetBackgroundColor = bgColor,
+        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
         content = content,
     )
 }

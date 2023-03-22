@@ -288,16 +288,12 @@ private fun BookmarkScaffold(
                                 StateID.NONE
                             )
                         },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 } else {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
                         toOpenStateID = moreMenuState.stateID,
                         launch = { launch(it, moreMenuState.stateID) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 }
             },

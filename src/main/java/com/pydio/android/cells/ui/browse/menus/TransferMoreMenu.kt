@@ -13,7 +13,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.SingleTransferVM
 import com.pydio.android.cells.ui.core.composables.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
-import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
+import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.share.composables.buildStatusString
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -57,8 +57,9 @@ fun TransferMoreMenu(
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Pause,
-                    stringResource(id = R.string.pause)
-                ) { onClick(AppNames.ACTION_CANCEL, item.transferId) },
+                    stringResource(id = R.string.pause),
+                    onClick = { onClick(AppNames.ACTION_CANCEL, item.transferId) },
+                )
             )
         }
         if (AppNames.JOB_STATUS_CANCELLED == item.status
@@ -67,8 +68,9 @@ fun TransferMoreMenu(
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Resume,
-                    stringResource(id = R.string.relaunch)
-                ) { onClick(AppNames.ACTION_RESTART, item.transferId) },
+                    stringResource(id = R.string.relaunch),
+                    onClick = { onClick(AppNames.ACTION_RESTART, item.transferId) },
+                )
             )
         }
         if (AppNames.JOB_STATUS_DONE == item.status
@@ -78,15 +80,17 @@ fun TransferMoreMenu(
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Delete,
-                    stringResource(id = R.string.delete)
-                ) { onClick(AppNames.ACTION_DELETE_RECORD, transferID) },
+                    stringResource(id = R.string.delete),
+                    onClick = { onClick(AppNames.ACTION_DELETE_RECORD, transferID) },
+                )
             )
         }
         simpleMenuItems.add(
             SimpleMenuItem(
                 CellsIcons.OpenLocation,
-                stringResource(id = R.string.open_parent_in_workspaces)
-            ) { onClick(AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES, transferID) },
+                stringResource(id = R.string.open_parent_in_workspaces),
+                onClick = { onClick(AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES, transferID) },
+            )
         )
 
         BottomSheetContent({

@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,29 +36,38 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
+import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
+import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.cells.transport.StateID
 
-/** Data for a given item in the BottomSheet */
-interface IMenuItem {
-    fun onClick()
-}
-
-class SimpleMenuItem(
-    val icon: ImageVector,
-    val title: String,
-    val onClick: () -> Unit,
-) : IMenuItem {
-    override fun onClick() {
-        onClick()
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CellsModalBottomSheetLayout(
+    type: NodeMoreMenuType,
+    toOpenStateID: StateID,
+    sheetState: ModalBottomSheetState,
+    launch: (NodeAction) -> Unit,
+    content: @Composable () -> Unit,
+) {
+    ModalBottomSheetLayout(
+        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
+        modifier = Modifier,
+        sheetState = sheetState,
+        sheetElevation = 3.dp,
+        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
+        content = content,
+    )
 }
 
 @Composable
 fun BottomSheetContent(
     header: @Composable () -> Unit,
     simpleMenuItems: List<SimpleMenuItem>,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
@@ -72,7 +81,7 @@ fun BottomSheetContent(
                 modifier = Modifier
                     .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
                     .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
+                color = MaterialTheme.colorScheme.outlineVariant, //.copy(alpha = .6f),
                 thickness = 1.dp,
             )
         }
@@ -81,8 +90,7 @@ fun BottomSheetContent(
                 icon = item.icon,
                 title = item.title,
                 onItemClick = item.onClick,
-                tint = tint,
-                bgColor = bgColor,
+                selected = item.selected,
             )
         }
         item {
@@ -100,15 +108,15 @@ fun BottomSheetHeader(
     icon: ImageVector,
     title: String,
     desc: String,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+//    tint: Color = MaterialTheme.colorScheme.onSurface,
+//    bgColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     BottomSheetHeader(
-        thumb = { Icon(imageVector = icon, contentDescription = title, tint = tint) },
+        thumb = { Icon(imageVector = icon, contentDescription = title) },
         title = title,
         desc = desc,
-        tint,
-        bgColor,
+//        tint,
+//        bgColor,
     )
 }
 
@@ -116,8 +124,8 @@ fun BottomSheetHeader(
 fun GenericBottomSheetHeader(
     icon: ImageVector,
     title: String,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
+    bgColor: Color = MaterialTheme.colorScheme.surface,
 ) {
 
     Row(
@@ -156,13 +164,13 @@ fun BottomSheetHeader(
     thumb: @Composable () -> Unit,
     title: String,
     desc: String,
-    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+//    tint: Color = MaterialTheme.colorScheme.onSurface,
+//    bgColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = bgColor)
+//             .background(color = bgColor)
     ) {
         Row(
             modifier = Modifier
@@ -189,16 +197,16 @@ fun BottomSheetHeader(
             ) {
                 Text(
                     text = title,
-                    color = tint,
-                    style = MaterialTheme.typography.bodyMedium,
+//                    color = tint,
+                    style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
 
                 Text(
                     text = desc,
-                    color = tint,
-                    style = MaterialTheme.typography.bodySmall,
+//                    color = tint,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -211,17 +219,25 @@ fun BottomSheetHeader(
 fun BottomSheetListItem(
     icon: ImageVector?,
     title: String,
-    tint: Color,
-    bgColor: Color,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    selected: Boolean = false,
 ) {
+
+    // TODO Make this more generic
+    val (mTint, mBg) = if (selected) {
+        MaterialTheme.colorScheme.onSurfaceVariant to MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onSurface to Color.Transparent
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onItemClick)
-            .background(color = bgColor)
+            .background(color = mBg)
             .padding(
-                horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding),
+                horizontal = 16.dp,
+//                 horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding),
                 // Warning: this is only the "inner" padding of the menu item.
                 // See also parent's vertical spacing
                 vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
@@ -230,10 +246,10 @@ fun BottomSheetListItem(
     ) {
 
         icon?.let {
-            Icon(imageVector = it, contentDescription = title, tint = tint)
+            Icon(imageVector = it, contentDescription = title, tint = mTint)
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
         }
-        Text(text = title, color = tint)
+        Text(text = title, color = mTint)
     }
 }
 
@@ -241,35 +257,30 @@ fun BottomSheetListItem(
 fun BottomSheetListItemWithToggle(
     icon: ImageVector,
     title: String,
-    tint: Color,
-    bgColor: Color,
     isSelected: Boolean,
     onItemClick: (Boolean) -> Unit
 ) {
+
     // FIXME: we want to also keep the state at this level so that the user has a direct feedback
     //  in the more menu when he launches a remote call. It does not work yet.
-    val localSelected = remember<MutableState<Boolean>> {
+    val localSelected = remember {
         mutableStateOf(isSelected)
     }
-    // val scope = rememberCoroutineScope()
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = { onItemClick(!isSelected) })
-            .background(color = bgColor)
             .padding(
                 horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding),
 //                 vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
             ),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        Icon(imageVector = icon, contentDescription = title, tint = tint)
-        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
+        Icon(imageVector = icon, contentDescription = title)
         Text(
             text = title,
-            color = tint,
             modifier = Modifier.weight(1f)
         )
         Switch(
@@ -280,15 +291,14 @@ fun BottomSheetListItemWithToggle(
     }
 }
 
-
 @Composable
 fun BottomSheetDivider(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    color: Color = MaterialTheme.colorScheme.outlineVariant //.copy(alpha = .6f)
 ) {
     Divider(
         modifier = modifier.fillMaxWidth(),
-        color = color.copy(alpha = .6f),
+        color = color,
         thickness = 1.dp,
     )
 }
@@ -296,8 +306,6 @@ fun BottomSheetDivider(
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetContentPreview() {
-    val bg = MaterialTheme.colorScheme.surfaceVariant
-    val tint = MaterialTheme.colorScheme.onSurfaceVariant
     val context = LocalContext.current
     val onClick: (String) -> Unit = { title ->
         Toast.makeText(
@@ -305,10 +313,10 @@ fun BottomSheetContentPreview() {
         ).show()
     }
     val simpleMenuItems: List<SimpleMenuItem> = listOf(
-        SimpleMenuItem(CellsIcons.Share, "Share") { onClick("Share") },
-        SimpleMenuItem(CellsIcons.Link, "Get Link") { onClick("Get Link") },
-        SimpleMenuItem(CellsIcons.Edit, "Edit") { onClick("Edit") },
-        SimpleMenuItem(CellsIcons.Delete, "Delete") { onClick("Delete") },
+        SimpleMenuItem(CellsIcons.Share, "Share", { onClick("Share") }, false),
+        SimpleMenuItem(CellsIcons.Link, "Get Link", { onClick("Get Link") }, false),
+        SimpleMenuItem(CellsIcons.Edit, "Edit", { onClick("Edit") }, false),
+        SimpleMenuItem(CellsIcons.Delete, "Delete", { onClick("Delete") }, false),
     )
 
     BottomSheetContent(
@@ -317,26 +325,18 @@ fun BottomSheetContentPreview() {
                 icon = CellsIcons.Processing,
                 title = "My Transfer of jpg.pdf",
                 desc = "45MB, started at 5.54 AM, 46% done",
-                tint = tint,
-                bgColor = bg,
             )
         },
         simpleMenuItems,
-        tint = tint,
-        bgColor = bg,
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetListItemPreview() {
-    val bg = MaterialTheme.colorScheme.surfaceVariant
-    val tint = MaterialTheme.colorScheme.onSurfaceVariant
     BottomSheetListItem(
         icon = CellsIcons.Processing,
         title = "Share",
         onItemClick = { },
-        tint = tint,
-        bgColor = bg,
     )
 }

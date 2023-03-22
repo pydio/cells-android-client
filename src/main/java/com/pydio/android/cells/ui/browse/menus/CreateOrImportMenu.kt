@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
@@ -27,8 +26,6 @@ fun CreateOrImportMenu(
     rTreeNode: RTreeNode,
     rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
@@ -61,8 +58,6 @@ fun CreateOrImportMenu(
                 icon = CellsIcons.CreateFolder,
                 title = stringResource(R.string.create_folder),
                 onItemClick = { launch(NodeAction.CreateFolder) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -70,8 +65,6 @@ fun CreateOrImportMenu(
                 icon = CellsIcons.ImportFile,
                 title = stringResource(R.string.import_files),
                 onItemClick = { launch(NodeAction.ImportFile) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -79,8 +72,6 @@ fun CreateOrImportMenu(
                 icon = CellsIcons.TakePicture,
                 title = stringResource(R.string.take_picture),
                 onItemClick = { launch(NodeAction.TakePicture) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
     }

@@ -28,10 +28,7 @@ fun RecycleParentMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
-//    Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
         modifier = Modifier.fillMaxWidth()
@@ -50,8 +47,6 @@ fun RecycleParentMenu(
                 icon = CellsIcons.EmptyRecycle,
                 title = stringResource(R.string.empty_recycle),
                 onItemClick = { launch(NodeAction.EmptyRecycle) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
     }
@@ -62,8 +57,6 @@ fun RecycleMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
 //     Log.e(logTag, "### encoded id for $stateID: ${stateID.id}")
     LazyColumn(
@@ -84,8 +77,6 @@ fun RecycleMenu(
                 icon = CellsIcons.RestoreFromTrash,
                 title = stringResource(R.string.restore_content),
                 onItemClick = { launch(NodeAction.RestoreFromTrash) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -93,8 +84,6 @@ fun RecycleMenu(
                 icon = CellsIcons.DeleteForever,
                 title = stringResource(R.string.permanently_remove),
                 onItemClick = { launch(NodeAction.PermanentlyRemove) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
     }

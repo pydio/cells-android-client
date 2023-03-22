@@ -29,8 +29,6 @@ private const val logTag = "SortByMenu"
 fun SortByMenu(
     type: ListType,
     done: () -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
     val sortByMenuVM: SortByMenuVM = koinViewModel(parameters = { parametersOf(type) })
 
@@ -68,8 +66,7 @@ fun SortByMenu(
                         sortByMenuVM.setSortBy(keys[i])
                         done()
                     },
-                    tint = if (selected) MaterialTheme.colorScheme.inverseOnSurface else tint,
-                    bgColor = if (selected) MaterialTheme.colorScheme.inverseSurface else bgColor,
+                    selected = selected,
                 )
             }
         }

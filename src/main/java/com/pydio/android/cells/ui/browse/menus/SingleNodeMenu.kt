@@ -12,7 +12,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -28,12 +27,12 @@ import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.BottomSheetListItemWithToggle
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
-import com.pydio.android.cells.ui.core.composables.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "SingleNodeMenu"
+//private const val logTag = "SingleNodeMenu"
 
 @Composable
 fun SingleNodeMenu(
@@ -41,13 +40,8 @@ fun SingleNodeMenu(
     rTreeNode: RTreeNode,
     rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
     // TODO handle case when offline
-
-//    val tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
-//    val bgColor: Color = MaterialTheme.colorScheme.surfaceVariant
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
@@ -71,7 +65,7 @@ fun SingleNodeMenu(
                 modifier = Modifier
                     .padding(horizontal = dimensionResource(R.dimen.bottom_sheet_item_h_padding))
                     .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .6f),
+                color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp,
             )
         }
@@ -81,8 +75,6 @@ fun SingleNodeMenu(
                     icon = CellsIcons.DownloadToDevice,
                     title = stringResource(R.string.download_to_device),
                     onItemClick = { launch(NodeAction.DownloadToDevice) },
-                    tint = tint,
-                    bgColor = bgColor,
                 )
             }
         }
@@ -91,8 +83,6 @@ fun SingleNodeMenu(
                 icon = CellsIcons.Rename,
                 title = stringResource(R.string.rename),
                 onItemClick = { launch(NodeAction.Rename) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -100,8 +90,6 @@ fun SingleNodeMenu(
                 icon = CellsIcons.CopyTo,
                 title = stringResource(R.string.copy_to),
                 onItemClick = { launch(NodeAction.CopyTo) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -109,8 +97,6 @@ fun SingleNodeMenu(
                 icon = CellsIcons.MoveTo,
                 title = stringResource(R.string.move_to),
                 onItemClick = { launch(NodeAction.MoveTo) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -118,8 +104,6 @@ fun SingleNodeMenu(
                 icon = CellsIcons.Delete,
                 title = stringResource(R.string.delete),
                 onItemClick = { launch(NodeAction.Delete) },
-                tint = tint,
-                bgColor = bgColor,
             )
             BottomSheetDivider()
         }
@@ -131,8 +115,6 @@ fun SingleNodeMenu(
                 title = stringResource(R.string.bookmark),
                 isSelected = rTreeNode.isBookmarked(),
                 onItemClick = { launch(NodeAction.ToggleBookmark(it)) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         item {
@@ -141,8 +123,6 @@ fun SingleNodeMenu(
                 title = stringResource(R.string.keep_offline),
                 isSelected = rTreeNode.isOfflineRoot(),
                 onItemClick = { launch(NodeAction.ToggleOffline(it)) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         if (rTreeNode.isShared()) {
@@ -160,29 +140,21 @@ fun SingleNodeMenu(
                         icon = CellsIcons.Share,
                         title = stringResource(R.string.share_with),
                         onItemClick = { launch(NodeAction.ShareWith) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                     BottomSheetListItem(
                         icon = CellsIcons.CopyTo,
                         title = stringResource(R.string.copy_to_clipboard),
                         onItemClick = { launch(NodeAction.CopyToClipboard) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                     BottomSheetListItem(
                         icon = CellsIcons.QRCode,
                         title = stringResource(R.string.display_as_qrcode),
                         onItemClick = { launch(NodeAction.ShowQRCode) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                     BottomSheetListItem(
                         icon = CellsIcons.Delete,
                         title = stringResource(R.string.remove_link),
                         onItemClick = { launch(NodeAction.RemoveLink) },
-                        tint = tint,
-                        bgColor = bgColor,
                     )
                 }
             }
@@ -193,8 +165,6 @@ fun SingleNodeMenu(
                     title = stringResource(R.string.public_link),
                     isSelected = rTreeNode.isShared(),
                     onItemClick = { if (it) launch(NodeAction.CreateShare) },
-                    tint = tint,
-                    bgColor = bgColor,
                 )
             }
         }
@@ -214,10 +184,10 @@ fun TreeNodeBottomSheetPreview() {
         ).show()
     }
     val simpleMenuItems: List<SimpleMenuItem> = listOf(
-        SimpleMenuItem(CellsIcons.Share, "Share") { onClick("Share") },
-        SimpleMenuItem(CellsIcons.Link, "Get Link") { onClick("Get Link") },
-        SimpleMenuItem(CellsIcons.Edit, "Edit") { onClick("Edit") },
-        SimpleMenuItem(CellsIcons.Delete, "Delete") { onClick("Delete") },
+        SimpleMenuItem(CellsIcons.Share, "Share", { onClick("Share") }),
+        SimpleMenuItem(CellsIcons.Link, "Get Link", { onClick("Get Link") }),
+        SimpleMenuItem(CellsIcons.Edit, "Edit", { onClick("Edit") }, true),
+        SimpleMenuItem(CellsIcons.Delete, "Delete", { onClick("Delete") }),
     )
 
     BottomSheetContent(

@@ -25,10 +25,7 @@ fun BookmarkMenu(
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction) -> Unit,
-    tint: Color,
-    bgColor: Color,
 ) {
-
     LazyColumn(
         contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
         modifier = Modifier.fillMaxWidth()
@@ -51,8 +48,6 @@ fun BookmarkMenu(
                     stringResource(R.string.open_in_workspaces)
                 },
                 onItemClick = { launch(NodeAction.OpenInApp) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
         if (rTreeNode.isFile()) {
@@ -61,8 +56,6 @@ fun BookmarkMenu(
                     icon = CellsIcons.DownloadToDevice,
                     title = stringResource(R.string.download_to_device),
                     onItemClick = { launch(NodeAction.DownloadToDevice) },
-                    tint = tint,
-                    bgColor = bgColor,
                 )
             }
         }
@@ -71,8 +64,6 @@ fun BookmarkMenu(
                 icon = CellsIcons.Bookmark,
                 title = stringResource(R.string.remove_bookmark),
                 onItemClick = { launch(NodeAction.ToggleBookmark(false)) },
-                tint = tint,
-                bgColor = bgColor,
             )
         }
     }
