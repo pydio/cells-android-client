@@ -94,14 +94,81 @@ fun PickDestination(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            // .background(MaterialTheme.colorScheme.surface)
-            .alpha(0.02f)
-    ) {}
+            .alpha(0.02f),
+        content = {}
+    )
     if (!alreadyLaunched.value) {
         LaunchedEffect(key1 = stateID) {
-            Log.e(logTag, "Launching \"pick destination\" for $stateID")
+            Log.e(logTag, "Launching 'pick destination' for $stateID")
             delay(100)
             destinationPicker.launch(stateID.fileName)
+            alreadyLaunched.value = true
+        }
+    }
+}
+
+@Composable
+fun ImportFile(
+    nodeActionsVM: NodeActionsVM,
+    targetParentID: StateID,
+    dismiss: (Boolean) -> Unit,
+) {
+    val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
+    val fileImporter = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uris ->
+            nodeActionsVM.importFiles(targetParentID, uris)
+            dismiss(true)
+        }
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.02f),
+        content = {}
+    )
+    if (!alreadyLaunched.value) {
+        LaunchedEffect(key1 = targetParentID) {
+            Log.e(logTag, "Launching 'import file' to $targetParentID")
+            delay(100)
+            fileImporter.launch("*/*")
+            alreadyLaunched.value = true
+        }
+    }
+}
+
+@Composable
+fun TakePicture(
+    nodeActionsVM: NodeActionsVM,
+    targetParentID: StateID,
+    dismiss: (Boolean) -> Unit,
+) {
+    val context = LocalContext.current
+    val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
+    val photoTaker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { taken ->
+            if (taken) {
+                nodeActionsVM.uploadPhoto()
+            } else {
+                nodeActionsVM.cancelPhoto()
+            }
+            dismiss(taken)
+        }
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.02f),
+        content = {}
+    )
+    if (!alreadyLaunched.value) {
+        LaunchedEffect(key1 = targetParentID) {
+            Log.e(logTag, "Launching 'TakePicture' with parent $targetParentID")
+            delay(100)
+            nodeActionsVM.preparePhoto(context, targetParentID)?.also {
+                photoTaker.launch(it)
+            }
             alreadyLaunched.value = true
         }
     }
