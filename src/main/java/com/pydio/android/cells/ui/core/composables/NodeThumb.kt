@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.core.composables
 
-import android.webkit.MimeTypeMap
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +34,6 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
 import com.pydio.cells.api.SdkNames
-import java.io.File
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -101,7 +98,6 @@ fun M3IconThumb(@DrawableRes id: Int, color: Color) {
     }
 }
 
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun GridThumb(
@@ -154,24 +150,6 @@ fun GridThumb(
             )
         }
     }
-}
-
-fun betterMime(passedMime: String, sortName: String?): String {
-    return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
-        MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
-            ?: SdkNames.NODE_MIME_DEFAULT
-    } else passedMime
-}
-
-@Deprecated("Rather use RTreeNode.isFolder()")
-fun isFolder(mime: String): Boolean {
-
-    return mime == SdkNames.WS_TYPE_PERSONAL
-            || mime == SdkNames.WS_TYPE_CELL
-            || mime == SdkNames.WS_TYPE_DEFAULT
-            || mime == SdkNames.NODE_MIME_WS_ROOT
-            || mime == SdkNames.NODE_MIME_FOLDER
-            || mime == SdkNames.NODE_MIME_RECYCLE
 }
 
 fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp): Int {

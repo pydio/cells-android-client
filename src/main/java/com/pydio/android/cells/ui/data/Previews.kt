@@ -166,7 +166,7 @@ private fun NodeCardPreview() {
 
     CellsTheme {
         Card(
-            shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
             ),

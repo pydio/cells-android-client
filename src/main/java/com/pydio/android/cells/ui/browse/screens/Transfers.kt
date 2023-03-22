@@ -47,7 +47,7 @@ import com.pydio.android.cells.ui.browse.menus.TransferMoreMenuType
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
-import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
+import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState

@@ -1,13 +1,14 @@
 package com.pydio.android.cells.ui.core.composables
 
-import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.getMessageFromLocalModifStatus
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.utils.Str
+import java.io.File
 
 fun getNodeTitle(name: String, mime: String): String {
     return if (SdkNames.NODE_MIME_RECYCLE == mime) {
@@ -20,20 +21,40 @@ fun getNodeTitle(name: String, mime: String): String {
 
 @Composable
 fun getNodeDesc(
-    ctx: Context,
     item: RTreeNode,
 ): String {
-
-    if (Str.notEmpty(item.localModificationStatus)) {
-        getMessageFromLocalModifStatus(item.localModificationStatus!!)?.let {
-            return it
-        }
-    }
-    val mTimeValue = DateUtils.formatDateTime(
-        ctx,
-        item.remoteModificationTS * 1000L,
-        DateUtils.FORMAT_ABBREV_RELATIVE
+    return getNodeDesc(
+        remoteModificationTS = item.remoteModificationTS,
+        size = item.size,
+        localModificationStatus = item.localModificationStatus
     )
-    val sizeValue = Formatter.formatShortFileSize(ctx, item.size)
-    return "$mTimeValue • $sizeValue"
+}
+
+@Composable
+fun getNodeDesc(
+    remoteModificationTS: Long,
+    size: Long,
+    localModificationStatus: String?,
+): String {
+    return localModificationStatus?.let { getMessageFromLocalModifStatus(it) }
+        ?: run {
+            val timestamp = DateUtils.formatDateTime(
+                LocalContext.current,
+                remoteModificationTS * 1000L,
+                DateUtils.FORMAT_ABBREV_RELATIVE
+            )
+            val sizeStr = Formatter.formatShortFileSize(
+                LocalContext.current,
+                size
+            )
+            "$timestamp • $sizeStr"
+        }
+}
+
+
+fun betterMime(passedMime: String, sortName: String?): String {
+    return if (passedMime == SdkNames.NODE_MIME_DEFAULT) {
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(File("./$sortName").extension)
+            ?: SdkNames.NODE_MIME_DEFAULT
+    } else passedMime
 }

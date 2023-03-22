@@ -6,7 +6,7 @@
             android:height="@dimen/grid_ws_image_size"
             android:shape="rectangle">
             <solid android:color="@color/iconBackground" />
-            <corners android:radius="@dimen/grid_ws_image_corner_radius" />
+            <corners android:radius="@dimen/grid_large_corner_radius" />
         </shape>
     </item>
     <item

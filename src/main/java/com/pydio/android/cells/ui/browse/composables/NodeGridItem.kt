@@ -156,6 +156,93 @@ fun NodeGridItemBox(
     )
 }
 
+
+@Composable
+fun M3NodeGridItem(
+    title: String,
+    encodedState: String,
+    name: String,
+    sortName: String?,
+    mime: String,
+    eTag: String?,
+    hasThumb: Boolean,
+    isBookmarked: Boolean,
+    isOfflineRoot: Boolean,
+    isShared: Boolean,
+    more: () -> Unit,
+    modifier: Modifier,
+) {
+
+    Box(modifier = modifier.size(dimensionResource(R.dimen.grid_col_min_width))) {
+        GridThumb(
+            encodedState = encodedState,
+            sortName = sortName,
+            name = name,
+            mime = mime,
+            eTag = eTag,
+            hasThumb = hasThumb,
+            outerSize = dimensionResource(R.dimen.grid_col_min_width),
+            iconSize = dimensionResource(R.dimen.grid_icon_size),
+            clipShape = RoundedCornerShape(0.dp),
+        )
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .7f))
+                .padding(all = dimensionResource(R.dimen.grid_col_text_padding))
+        )
+
+        Column(Modifier.padding(all = dimensionResource(R.dimen.grid_col_text_padding))) {
+            if (isBookmarked) {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_star_border_24),
+                    colorFilter = ColorFilter.tint(CellsColor.flagBookmark),
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator)),
+                    contentDescription = ""
+                )
+            }
+            if (isShared) {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_link_24),
+                    colorFilter = ColorFilter.tint(CellsColor.flagShare),
+                    contentDescription = "",
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator))
+                )
+            }
+            if (isOfflineRoot) {
+                Image(
+                    painter = painterResource(R.drawable.ic_outline_download_done_24),
+                    colorFilter = ColorFilter.tint(CellsColor.flagOffline),
+                    contentDescription = "",
+                    modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator))
+                )
+            }
+        }
+
+        IconButton(
+            onClick = { more() },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .2f))
+        ) {
+            Icon(
+                imageVector = CellsIcons.MoreVert,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.list_trailing_icon_size)),
+            )
+        }
+    }
+}
+
+
 @Composable
 fun NodeGridItemBox(
     title: String,
@@ -296,7 +383,7 @@ fun OfflineRootGridItem(
     )
 
     Card(
-        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
         ),
@@ -382,7 +469,7 @@ fun OfflineRootLargeGridItem(
     )
 
     Card(
-        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_ws_image_corner_radius)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = dimensionResource(R.dimen.grid_ws_card_elevation)
         ),

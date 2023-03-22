@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -55,20 +54,21 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeGridItemBox
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
-import com.pydio.android.cells.ui.browse.composables.getNodeDesc
 import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
-import com.pydio.android.cells.ui.core.composables.BrowseUpItem
-import com.pydio.android.cells.ui.core.composables.M3BrowseUpItem
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
-import com.pydio.android.cells.ui.core.composables.WithLoadingListBackground
+import com.pydio.android.cells.ui.core.composables.getNodeDesc
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
+import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpLargeGridItem
+import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
+import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -307,6 +307,7 @@ private fun FolderScaffold(
             }
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
+
         Column {
             FolderList(
                 loadingState = loadingState,
@@ -358,21 +359,30 @@ private fun FolderList(
         ) {
             when (listLayout) {
                 ListLayout.GRID -> {
+                    val listPadding = PaddingValues(
+                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        bottom = padding.calculateBottomPadding()
+                            .plus(dimensionResource(R.dimen.margin)),
+                        start = dimensionResource(id = R.dimen.margin_medium),
+                        end = dimensionResource(id = R.dimen.margin_medium),
+                    )
+
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_col_spaced_by)),
-                        contentPadding = padding,
+                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        contentPadding = listPadding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
 
                         if (Str.notEmpty(stateID.path)) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
+//                            item(span = { GridItemSpan(maxLineSpan) }) {
+                            item {
                                 val parentDescription = when {
                                     Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                                     else -> stringResource(R.string.parent_folder)
                                 }
-                                BrowseUpItem(
+                                M3BrowseUpLargeGridItem(
                                     parentDescription,
                                     Modifier
                                         .fillMaxWidth()
@@ -381,21 +391,37 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.encodedState }) { node ->
-                            NodeGridItemBox(
-                                item = node,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) }
-                            )
+                            if (node.hasThumb()) {
+                                LargeCardWithThumb(
+                                    stateID = node.getStateID(),
+                                    eTag = node.etag,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                )
+                            } else {
+                                LargeCardWithIcon(
+                                    sortName = node.sortName,
+                                    mime = node.mime,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                )
+                            }
                         }
                         item {
                             Spacer(
@@ -417,7 +443,7 @@ private fun FolderList(
                                     Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                                     else -> stringResource(R.string.parent_folder)
                                 }
-                                M3BrowseUpItem(
+                                M3BrowseUpListItem(
                                     parentDescription = parentDescription,
                                     modifier = Modifier.clickable { openParent(stateID) }
                                 )

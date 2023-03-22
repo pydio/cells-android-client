@@ -64,6 +64,7 @@
     <dimen name="glide_thumb_radius">4dp</dimen>
 
     <!-- **** LISTS **** -->
+    <dimen name="list_thumb_elevation">12dp</dimen>
 
     <!-- Generic -->
     <item name="disabled_list_item_alpha" format="float" type="dimen">.6</item>
@@ -87,7 +88,6 @@
     <dimen name="list_thumb_icon_size">24dp</dimen>
     <dimen name="list_thumb_padding">8dp</dimen>
     <dimen name="list_thumb_margin">4dp</dimen>
-    <dimen name="list_thumb_elevation">24dp</dimen>
     <dimen name="list_thumb_decorator_size">12dp</dimen>
     <dimen name="list_thumb_corner_radius">6dp</dimen>
     <dimen name="list_trailing_icon_size">24dp</dimen>
@@ -95,20 +95,27 @@
     <item name="list_button_alpha" format="float" type="dimen">.8</item>
 
     <!-- Grids and LazyGrids items -->
-    <dimen name="grid_col_min_width">128dp</dimen>
     <dimen name="grid_large_col_min_width">128dp</dimen>
-    <dimen name="grid_large_padding">12dp</dimen>
+    <dimen name="grid_large_corner_radius">12dp</dimen>
+    <dimen name="grid_large_padding">16dp</dimen>
+    <dimen name="grid_large_spaced_by">8dp</dimen>
     <dimen name="grid_large_icon_size">48dp</dimen>
-    <dimen name="grid_large_col_spaced_by">6dp</dimen>
+    <dimen name="grid_large_h_inner_padding">8dp</dimen>
+    <dimen name="grid_large_v_inner_padding">8dp</dimen>
+    <dimen name="grid_large_more_size">24dp</dimen>
+
     <dimen name="grid_large_col_text_padding">8dp</dimen>
+    <!-- Grid layout for the account home-->
+    <integer name="grid_ws_column_number">2</integer>
+    <dimen name="grid_ws_image_size">128dp</dimen>
 
     <!-- Image gallery -->
+    <dimen name="grid_col_min_width">128dp</dimen>
     <dimen name="grid_col_spaced_by">2dp</dimen>
     <dimen name="grid_col_text_padding">8dp</dimen>
 
 
     <dimen name="list_icon_size">24dp</dimen>
-    <dimen name="list_more_size">32dp</dimen>
     <dimen name="grid_icon_size">40dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
@@ -127,10 +134,6 @@
     <dimen name="card_elevation">10dp</dimen>
     <dimen name="card_max_elevation">16dp</dimen>
     <dimen name="grid_layout_card_icon_size">96dp</dimen>
-    <!-- Grid layout for the account home-->
-    <integer name="grid_ws_column_number">2</integer>
-    <dimen name="grid_ws_image_size">128dp</dimen>
-    <dimen name="grid_ws_image_corner_radius">6dp</dimen>
     <!--    <dimen name="grid_thumb_margin2">106dp</dimen>-->
     <dimen name="grid_ws_icon_size">24dp</dimen>
     <dimen name="grid_ws_icon_margin">24dp</dimen>
