@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
         // First check if we need a migration
         val landActivity = this
         lifecycleScope.launch {
+
             val landingVM by viewModel<LandingVM>()
             val noMigrationNeeded = landingVM.noMigrationNeeded()
             if (!noMigrationNeeded) { // forward to migration page
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
             Log.i(logTag, "  StateID: ${startingState.stateID}")
             Log.i(logTag, "  Route: ${startingState.route}")
 
-            // TODO rework this
+            // Rework this: we have the default for the time being.
             // WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowCompat.setDecorFitsSystemWindows(window, true)
 

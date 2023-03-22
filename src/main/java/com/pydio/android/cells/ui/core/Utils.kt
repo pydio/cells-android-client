@@ -15,7 +15,6 @@ import com.pydio.cells.utils.Str
 
 private const val logTag = "core.utils"
 
-
 @Composable
 fun getMessageFromLocalModifStatus(status: String): String? {
     return when (status) {

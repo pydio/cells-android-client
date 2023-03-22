@@ -184,7 +184,6 @@ fun Folder(
     }
 
     WrapWithActions(
-        loadingState = loadingState ?: LoadingState.STARTING,
         actionDone = actionDone,
         type = nodeMoreMenuData.value.first,
         toOpenStateID = nodeMoreMenuData.value.second,
