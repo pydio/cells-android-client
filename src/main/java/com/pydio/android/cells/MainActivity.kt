@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
             Log.i(logTag, "  Route: ${startingState.route}")
 
             // Rework this: we have the default for the time being.
+            // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
             // WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowCompat.setDecorFitsSystemWindows(window, true)
 

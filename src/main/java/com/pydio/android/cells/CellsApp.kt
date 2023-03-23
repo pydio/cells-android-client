@@ -25,7 +25,6 @@ import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
-
 /**
  * Main entry point of the Pydio client application.
  */
@@ -41,7 +40,6 @@ class CellsApp : Application(), KoinComponent {
         lateinit var instance: CellsApp
             private set
     }
-
 
     override fun onCreate() {
         Log.i(logTag, "#################################################################")
