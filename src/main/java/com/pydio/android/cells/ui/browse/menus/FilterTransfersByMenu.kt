@@ -12,9 +12,9 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.FilterTransferByMenuVM
-import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
-import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
-import com.pydio.android.cells.ui.core.composables.GenericBottomSheetHeader
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
+import com.pydio.android.cells.ui.core.composables.menus.GenericBottomSheetHeader
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel

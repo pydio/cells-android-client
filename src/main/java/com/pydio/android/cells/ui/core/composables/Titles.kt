@@ -90,8 +90,8 @@ fun MenuTitleText(
         color = color,
         style = MaterialTheme.typography.titleMedium,
         modifier = modifier
-            .paddingFromBaseline(top = 36.dp, bottom = 6.dp)
-            .alpha(.9f)
+//            .paddingFromBaseline(top = 36.dp, bottom = 6.dp)
+//            .alpha(.9f)
     )
 }
 

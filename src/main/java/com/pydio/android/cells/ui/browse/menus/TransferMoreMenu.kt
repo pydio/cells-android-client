@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.SingleTransferVM
-import com.pydio.android.cells.ui.core.composables.BottomSheetContent
-import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetContent
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.share.composables.buildStatusString

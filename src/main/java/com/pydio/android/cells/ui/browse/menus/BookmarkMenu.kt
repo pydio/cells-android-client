@@ -5,16 +5,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.core.composables.BottomSheetDivider
-import com.pydio.android.cells.ui.core.composables.BottomSheetHeader
-import com.pydio.android.cells.ui.core.composables.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 

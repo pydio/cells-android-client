@@ -22,7 +22,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
-import com.pydio.android.cells.ui.core.composables.CellsModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID

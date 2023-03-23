@@ -3,24 +3,15 @@ package com.pydio.android.cells.ui.theme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.CreateNewFolder
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.DownloadForOffline
-import androidx.compose.material.icons.filled.DriveFileMove
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.FileDownloadDone
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FolderDelete
 import androidx.compose.material.icons.filled.FolderShared
-import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.ImportExport
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
@@ -28,34 +19,44 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.RestoreFromTrash
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.ViewCompact
-import androidx.compose.material.icons.filled.ViewList
-import androidx.compose.material.icons.filled.WorkHistory
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.CreateNewFolder
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.DownloadForOffline
+import androidx.compose.material.icons.outlined.DriveFileMove
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
+import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.FolderShared
 import androidx.compose.material.icons.outlined.FolderSpecial
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.PersonOff
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.RocketLaunch
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.UploadFile
+import androidx.compose.material.icons.outlined.ViewList
+import androidx.compose.material.icons.outlined.WorkHistory
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ExpandLess
@@ -63,7 +64,6 @@ import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -82,41 +82,41 @@ object CellsIcons {
     val ArrowBack = Icons.Rounded.ArrowBack
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
-    val AsGrid = Icons.Default.GridView
-    val AsList = Icons.Default.ViewList
+    val AsGrid = Icons.Outlined.GridView
+    val AsList = Icons.Outlined.ViewList
     val AsSmallerGrid = Icons.Default.ViewCompact
-    val Bookmark = Icons.Outlined.Star
+    val Bookmark = Icons.Outlined.StarBorder
     val Cancel = Icons.Outlined.Cancel
     val Check = Icons.Default.Check
     val CellThumb = Icons.Outlined.FolderShared
     val ClearCache = Icons.Default.FolderDelete
     val Close = Icons.Default.Close
-    val CopyTo = Icons.Default.FileCopy
-    val CreateFolder = Icons.Default.CreateNewFolder
+    val CopyTo = Icons.Outlined.FileCopy
+    val CreateFolder = Icons.Outlined.CreateNewFolder
     val Delete = Icons.Outlined.Delete
-    val DeleteForever = Icons.Default.DeleteForever
+    val DeleteForever = Icons.Outlined.DeleteForever
     val DownloadFile = Icons.Outlined.FileDownload
     val DownloadToDevice = Icons.Outlined.CloudDownload
     val Edit = Icons.Default.Edit
     val EmptyFolder = Icons.Outlined.Folder
-    val EmptyRecycle = Icons.Default.DeleteForever
+    val EmptyRecycle = Icons.Outlined.DeleteForever
     val ErrorDecorator = Icons.Default.PriorityHigh
     val ExpandLess = Icons.Rounded.ExpandLess
     val FilterBy = Icons.Default.FilterList
     val Fullscreen = Icons.Rounded.Fullscreen
     val Grid3x3 = Icons.Rounded.Grid3x3
-    val ImportFile = Icons.Default.Backup
-    val Jobs = Icons.Default.WorkHistory
-    val KeepOffline = Icons.Default.DownloadForOffline
+    val ImportFile = Icons.Outlined.Backup
+    val Jobs = Icons.Outlined.WorkHistory
+    val KeepOffline = Icons.Outlined.DownloadForOffline
     val KeepOfflineOld = Icons.Default.FileDownloadDone
-    val Link = Icons.Default.Link
+    val Link = Icons.Outlined.Link
     val Login = Icons.Default.Login
     val Logout = Icons.Default.Logout
-    val Logs = Icons.Default.Build
+    val Logs = Icons.Outlined.Build
     val Menu = Icons.Default.Menu
     val Metered = Icons.Default.NetworkCheck
     val MoreVert = Icons.Default.MoreVert
-    val MoveTo = Icons.Default.DriveFileMove
+    val MoveTo = Icons.Outlined.DriveFileMove
     val MyFiles = Icons.Default.FolderShared
     val MyFilesThumb = Icons.Outlined.FolderSpecial
     val NoInternet = Icons.Default.CloudOff
@@ -129,14 +129,14 @@ object CellsIcons {
     val QRCode = Icons.Default.QrCode
     val Refresh = Icons.Default.Refresh
     val Rename = Icons.Outlined.DriveFileRenameOutline
-    val RestoreFromTrash = Icons.Default.RestoreFromTrash
+    val RestoreFromTrash = Icons.Outlined.RestoreFromTrash
     val Resume = Icons.Default.Replay
     val Search = Icons.Default.Search
-    val Settings = Icons.Rounded.Settings
+    val Settings = Icons.Outlined.Settings
     val Share = Icons.Default.Share
     val SortBy = Icons.Default.Sort
     val SwitchAccount = Icons.Default.SwitchAccount
-    val TakePicture = Icons.Default.PhotoCamera
+    val TakePicture = Icons.Outlined.PhotoCamera
     val Transfers = Icons.Default.ImportExport
     val Unknown = Icons.Default.QuestionMark
     val UploadFile = Icons.Outlined.UploadFile

@@ -308,20 +308,20 @@ private fun FolderScaffold(
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
 
-        Column {
-            FolderList(
-                loadingState = loadingState,
-                listLayout = listLayout,
-                stateID = stateID,
-                children = children,
-                openParent = openParent,
-                open = open,
-                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, it) },
-                forceRefresh = forceRefresh,
-                padding = padding,
-            )
-        }
+//        Column {
+        FolderList(
+            loadingState = loadingState,
+            listLayout = listLayout,
+            stateID = stateID,
+            children = children,
+            openParent = openParent,
+            open = open,
+            openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, it) },
+            forceRefresh = forceRefresh,
+            padding = padding,
+        )
     }
+//    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
