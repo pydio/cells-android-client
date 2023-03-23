@@ -5,6 +5,7 @@ import android.text.format.Formatter
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,9 +58,7 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
-import com.pydio.android.cells.ui.browse.composables.OfflineRootGridItem
 import com.pydio.android.cells.ui.browse.composables.OfflineRootItem
-import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.OfflineVM
@@ -68,8 +67,11 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.getJobStatus
+import com.pydio.android.cells.ui.core.composables.getNodeTitle
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -296,17 +298,12 @@ private fun WithScaffold(
         },
     ) { padding ->
 
-        ModalBottomSheetLayout(
+        CellsModalBottomSheetLayout(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
                         type = ListType.DEFAULT,
-                        done = {
-                            launch(
-                                NodeAction.SortBy,
-                                StateID.NONE
-                            )
-                        },
+                        done = { launch(NodeAction.SortBy, StateID.NONE) },
                     )
                 } else {
                     NodeMoreMenuData(
@@ -316,10 +313,8 @@ private fun WithScaffold(
                     )
                 }
             },
-            modifier = Modifier,
             sheetState = moreMenuState.sheetState,
         ) {
-
             OfflineRootsList(
                 loadingState = loadingState,
                 listLayout = listLayout,
@@ -335,13 +330,15 @@ private fun WithScaffold(
                     start = dimensionResource(R.dimen.list_horizontal_padding),
                     end = dimensionResource(R.dimen.list_horizontal_padding),
                 ),
-                modifier = Modifier.fillMaxWidth(), // padding(padding),
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 private fun OfflineRootsList(
     loadingState: LoadingState,
@@ -352,7 +349,6 @@ private fun OfflineRootsList(
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
     padding: PaddingValues,
-    modifier: Modifier,
 ) {
 
     val state = rememberPullRefreshState(
@@ -371,17 +367,28 @@ private fun OfflineRootsList(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Box(modifier.pullRefresh(state)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .pullRefresh(state)
+        ) {
             when (listLayout) {
                 ListLayout.GRID -> {
+                    val listPadding = PaddingValues(
+                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        bottom = padding.calculateBottomPadding()
+                            .plus(dimensionResource(R.dimen.margin)),
+                        start = dimensionResource(id = R.dimen.margin_medium),
+                        end = dimensionResource(id = R.dimen.margin_medium),
+                    )
+
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_spaced_by)),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_spaced_by)),
-                        contentPadding = padding,
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        contentPadding = listPadding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-
                         if (runningJob != null) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 val percentage =
@@ -394,17 +401,44 @@ private fun OfflineRootsList(
                             }
                         }
 
-                        items(roots) { offlineRoot ->
-                            OfflineRootGridItem(
-                                item = offlineRoot,
-                                title = getNodeTitle(
-                                    name = offlineRoot.name,
-                                    mime = offlineRoot.mime
-                                ),
-                                desc = getDesc(offlineRoot),
-                                more = { openMoreMenu(offlineRoot.getStateID()) },
-                                modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
-                            )
+                        items(
+                            items = roots,
+                            key = { it.encodedState }) { node ->
+                            if (node.hasThumb()) {
+                                LargeCardWithThumb(
+                                    stateID = node.getStateID(),
+                                    eTag = node.etag,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getDesc(node),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+                            } else {
+                                LargeCardWithIcon(
+                                    sortName = node.sortName,
+                                    mime = node.mime,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getDesc(node),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+                            }
+//                            OfflineRootGridItem(
+//                                item = node,
+//                                title = getNodeTitle(
+//                                    name = node.name,
+//                                    mime = node.mime
+//                                ),
+//                                desc = getDesc(node),
+//                                more = { openMoreMenu(node.getStateID()) },
+//                                modifier = Modifier.clickable { open(node.getStateID()) },
+//                            )
                         }
                     }
                 }

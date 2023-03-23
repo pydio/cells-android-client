@@ -1,10 +1,8 @@
 package com.pydio.android.cells.ui.browse.menus
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -16,7 +14,6 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.Thumbnail
-import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -51,13 +48,6 @@ fun CreateOrImportMenu(
             title = title ?: "",
             desc = desc,
         )
-//        item {
-//            BottomSheetHeader(
-//                thumb = { Thumbnail(rTreeNode) },
-//                title = stateID.fileName ?: "",
-//                desc = stateID.parentPath ?: "", // TODO provide WS Label or AccountID ?
-//            )
-//        }
 
         BottomSheetListItem(
             icon = CellsIcons.CreateFolder,

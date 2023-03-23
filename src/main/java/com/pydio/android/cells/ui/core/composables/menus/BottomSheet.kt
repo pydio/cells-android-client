@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,7 +60,22 @@ fun CellsModalBottomSheetLayout(
 ) {
     ModalBottomSheetLayout(
         sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
-        modifier = Modifier,
+        sheetState = sheetState,
+        sheetElevation = 3.dp,
+        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
+        content = content,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CellsModalBottomSheetLayout(
+    sheetContent: @Composable ColumnScope.() -> Unit,
+    sheetState: ModalBottomSheetState,
+    content: @Composable () -> Unit
+) {
+    ModalBottomSheetLayout(
+        sheetContent = sheetContent,
         sheetState = sheetState,
         sheetElevation = 3.dp,
         sheetBackgroundColor = MaterialTheme.colorScheme.surface,
@@ -119,13 +135,9 @@ fun BottomSheetHeader(
 fun GenericBottomSheetHeader(
     icon: ImageVector,
     title: String,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-    bgColor: Color = MaterialTheme.colorScheme.surface,
 ) {
-
     Row(
         modifier = Modifier
-            .background(color = bgColor)
             .padding(
                 horizontal = dimensionResource(R.dimen.bottom_sheet_start_padding),
                 vertical = dimensionResource(R.dimen.bottom_sheet_header_v_padding),
@@ -134,7 +146,7 @@ fun GenericBottomSheetHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Icon(imageVector = icon, contentDescription = title, tint = tint)
+        Icon(imageVector = icon, contentDescription = title)
 
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.item_spacer_width)))
 
@@ -145,7 +157,6 @@ fun GenericBottomSheetHeader(
         ) {
             Text(
                 text = title,
-                color = tint,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

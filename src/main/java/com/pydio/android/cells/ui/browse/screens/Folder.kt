@@ -57,13 +57,13 @@ import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
-import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
+import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpLargeGridItem
@@ -307,8 +307,6 @@ private fun FolderScaffold(
             }
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
-
-//        Column {
         FolderList(
             loadingState = loadingState,
             listLayout = listLayout,
@@ -321,7 +319,6 @@ private fun FolderScaffold(
             padding = padding,
         )
     }
-//    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -362,7 +359,7 @@ private fun FolderList(
                     val listPadding = PaddingValues(
                         top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
                         bottom = padding.calculateBottomPadding()
-                            .plus(dimensionResource(R.dimen.margin)),
+                            .plus(dimensionResource(R.dimen.list_bottom_fab_padding)),
                         start = dimensionResource(id = R.dimen.margin_medium),
                         end = dimensionResource(id = R.dimen.margin_medium),
                     )
@@ -423,13 +420,6 @@ private fun FolderList(
                                 )
                             }
                         }
-                        item {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(dimensionResource(R.dimen.list_bottom_fab_padding))
-                            )
-                        }
                     }
                 }
                 else -> {
@@ -458,9 +448,7 @@ private fun FolderList(
                                     node.size,
                                     node.localModificationStatus
                                 ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
+                                more = { openMoreMenu(node.getStateID()) },
                                 modifier = Modifier
                                     // .padding(all = dimensionResource(R.dimen.card_padding))
                                     .fillMaxWidth()

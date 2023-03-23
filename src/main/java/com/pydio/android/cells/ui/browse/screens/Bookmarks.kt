@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse.screens
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +23,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,17 +37,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
-import com.pydio.android.cells.ui.browse.composables.getNodeTitle
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
@@ -55,8 +53,11 @@ import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
+import com.pydio.android.cells.ui.core.composables.getNodeTitle
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -211,9 +212,6 @@ private fun BookmarkScaffold(
     moreMenuState: MoreMenuState,
 ) {
 
-    val tint = MaterialTheme.colorScheme.onSurface
-    val bgColor = MaterialTheme.colorScheme.surface
-
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
         if (it != isShown) {
@@ -277,17 +275,12 @@ private fun BookmarkScaffold(
         },
     ) { padding ->
 
-        ModalBottomSheetLayout(
+        CellsModalBottomSheetLayout(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
                         type = ListType.DEFAULT,
-                        done = {
-                            launch(
-                                NodeAction.SortBy,
-                                StateID.NONE
-                            )
-                        },
+                        done = { launch(NodeAction.SortBy, StateID.NONE) },
                     )
                 } else {
                     NodeMoreMenuData(
@@ -297,9 +290,7 @@ private fun BookmarkScaffold(
                     )
                 }
             },
-            modifier = Modifier,
             sheetState = moreMenuState.sheetState,
-            sheetBackgroundColor = bgColor,
         ) {
             BookmarkList(
                 loadingState = loadingState,
@@ -309,13 +300,12 @@ private fun BookmarkScaffold(
                 openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, it) },
                 open = open,
                 padding = padding,
-                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BookmarkList(
     loadingState: LoadingState,
@@ -325,9 +315,7 @@ private fun BookmarkList(
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
     padding: PaddingValues,
-    modifier: Modifier,
 ) {
-    val context = LocalContext.current
 
     val state = rememberPullRefreshState(
         loadingState == LoadingState.PROCESSING,
@@ -345,35 +333,65 @@ private fun BookmarkList(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Box(modifier.pullRefresh(state)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .pullRefresh(state)
+        ) {
 
             when (listLayout) {
                 ListLayout.GRID -> {
+                    val listPadding = PaddingValues(
+                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        bottom = padding.calculateBottomPadding()
+                            .plus(dimensionResource(R.dimen.margin)),
+                        start = dimensionResource(id = R.dimen.margin_medium),
+                        end = dimensionResource(id = R.dimen.margin_medium),
+                    )
+
                     LazyVerticalGrid(
-                        // TODO make this more generic for big screens also
-                        columns = GridCells.Adaptive(minSize = 128.dp),
-                        // columns = GridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = padding,
+                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                        contentPadding = listPadding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(
                             items = bookmarks,
                             key = { it.encodedState }) { node ->
-                            NodeGridItem(
-                                item = node,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
-                                modifier = Modifier.clickable { open(node.getStateID()) },
-                            )
+                            if (node.hasThumb()) {
+                                LargeCardWithThumb(
+                                    stateID = node.getStateID(),
+                                    eTag = node.etag,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+                            } else {
+                                LargeCardWithIcon(
+                                    sortName = node.sortName,
+                                    mime = node.mime,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+                            }
                         }
                     }
                 }
@@ -382,7 +400,7 @@ private fun BookmarkList(
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(bookmarks) { node ->
+                        items(bookmarks, key = { it.encodedState }) { node ->
                             NodeItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
@@ -391,10 +409,11 @@ private fun BookmarkList(
                                     node.size,
                                     node.localModificationStatus
                                 ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
-                                modifier = Modifier.clickable { open(node.getStateID()) },
+                                more = { openMoreMenu(node.getStateID()) },
+                                modifier = Modifier
+//                                    .animateItemPlacement()
+                                    .fillMaxWidth()
+                                    .clickable { open(node.getStateID()) },
                             )
                         }
                     }

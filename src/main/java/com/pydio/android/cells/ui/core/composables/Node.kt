@@ -5,19 +5,30 @@ import android.text.format.Formatter
 import android.webkit.MimeTypeMap
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.getMessageFromLocalModifStatus
 import com.pydio.cells.api.SdkNames
 import java.io.File
 
+@Composable
 fun getNodeTitle(name: String, mime: String): String {
     return if (SdkNames.NODE_MIME_RECYCLE == mime) {
-        // Todo rather use a composable here to have resources
-        "Recycle Bin"
+        stringResource(R.string.recycle_bin_label)
     } else {
         name
     }
 }
+
+//@Composable
+//fun getNodeTitle(name: String, mime: String): String {
+//    return if (SdkNames.NODE_MIME_RECYCLE == mime) {
+//        stringResource(R.string.recycle_bin_label)
+//    } else {
+//        name
+//    }
+//}
 
 @Composable
 fun getNodeDesc(

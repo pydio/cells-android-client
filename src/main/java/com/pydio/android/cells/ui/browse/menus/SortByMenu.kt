@@ -1,8 +1,10 @@
 package com.pydio.android.cells.ui.browse.menus
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -42,31 +44,32 @@ fun SortByMenu(
     val selectedOrder =
         sortByMenuVM.encodedOrder.collectAsState(initial = AppNames.DEFAULT_SORT_ENCODED)
 
-    LazyColumn(
-        contentPadding = PaddingValues(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing)),
-        modifier = Modifier.fillMaxWidth()
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
+            .verticalScroll(scrollState)
+
     ) {
-        item {
-            GenericBottomSheetHeader(
-                icon = CellsIcons.SortBy,
-                title = stringResource(id = R.string.sort_by),
-            )
-        }
-        item { BottomSheetDivider() }
+        GenericBottomSheetHeader(
+            icon = CellsIcons.SortBy,
+            title = stringResource(id = R.string.sort_by),
+        )
+
+        BottomSheetDivider()
+
         for (i in keys.indices) {
-            val selected = keys[i] == selectedOrder.value
-            item {
-                BottomSheetListItem(
-                    icon = null,
-                    title = labels[i],
-                    onItemClick = {
-                        Log.d(logTag, "New order: ${keys[i]}")
-                        sortByMenuVM.setSortBy(keys[i])
-                        done()
-                    },
-                    selected = selected,
-                )
-            }
+            BottomSheetListItem(
+                icon = null,
+                title = labels[i],
+                onItemClick = {
+                    Log.d(logTag, "New order: ${keys[i]}")
+                    sortByMenuVM.setSortBy(keys[i])
+                    done()
+                },
+                selected = keys[i] == selectedOrder.value,
+            )
         }
     }
 }

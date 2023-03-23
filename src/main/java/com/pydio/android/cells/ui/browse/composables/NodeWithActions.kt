@@ -118,7 +118,7 @@ private fun FolderWithDialogs(
     val delayedDone: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         scope.launch {
-            delay(1000)
+            delay(200)
             actionDone(done)
         }
     }
