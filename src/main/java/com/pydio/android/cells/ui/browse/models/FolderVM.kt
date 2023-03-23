@@ -2,9 +2,9 @@ package com.pydio.android.cells.ui.browse.models
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -41,9 +41,7 @@ class FolderVM(
     val layout = listPrefs.map { it.layout }
 
     val childNodes: LiveData<List<RTreeNode>>
-        get() = Transformations.switchMap(
-            sortOrder
-        ) { currOrder ->
+        get() = sortOrder.switchMap { currOrder ->
             if (Str.empty(stateID.workspace)) {
                 Log.e(logTag, "Listing workspaces in folderVM, this should never happen")
                 nodeService.listWorkspaces(stateID)

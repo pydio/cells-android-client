@@ -4,8 +4,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -34,9 +34,7 @@ class ShareVM(
 
     private val _stateID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
     val childNodes: LiveData<List<RTreeNode>>
-        get() = Transformations.switchMap(
-            _stateID
-        ) { currID ->
+        get() = _stateID.switchMap { currID ->
             if (currID == StateID.NONE) {
                 MutableLiveData()
             } else if (Str.empty(currID.workspace)) {

@@ -5,9 +5,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -45,9 +45,7 @@ class BookmarksVM(
         )
     }.asLiveData(viewModelScope.coroutineContext)
     val bookmarks: LiveData<List<RTreeNode>>
-        get() = Transformations.switchMap(
-            orderPair
-        ) { currOrder ->
+        get() = orderPair.switchMap { currOrder ->
             nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
         }
 

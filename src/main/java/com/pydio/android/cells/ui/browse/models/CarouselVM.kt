@@ -2,8 +2,8 @@ package com.pydio.android.cells.ui.browse.models
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.switchMap
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
@@ -37,7 +37,7 @@ class CarouselVM(
     private val allChildren: LiveData<List<RTreeNode>> = nodeService.listViewable(parentStateID, "")
 
     val preViewableItems: LiveData<List<RTreeNode>>
-        get() = Transformations.switchMap(allChildren) { childList ->
+        get() = allChildren.switchMap { childList ->
             val filteredChildren = MutableLiveData<List<RTreeNode>>()
             val filteredList = childList.filter { item ->
                 val preViewable = isPreViewable(item)

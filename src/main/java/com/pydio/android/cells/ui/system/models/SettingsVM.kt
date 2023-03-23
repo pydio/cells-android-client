@@ -14,7 +14,6 @@ class SettingsVM(
     // private val nodeService: NodeService
 ) : ViewModel() {
 
-
     val cellsPreferences = prefs.cellsPreferencesFlow
 
     fun setShowRuntimeToolsFlag(show: Boolean) {

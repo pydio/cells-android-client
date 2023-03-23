@@ -5,9 +5,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -65,14 +65,12 @@ class OfflineVM(
     val errorMessage: LiveData<String?> = _errorMessage
 
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
-        get() = Transformations.switchMap(sortOrder) { currOrder ->
+        get() = sortOrder.switchMap { currOrder ->
             nodeService.listOfflineRoots(accountID, currOrder)
         }
 
     val syncJob: LiveData<RJob?>
-        get() = Transformations.switchMap(
-            _syncJobID
-        ) { currID ->
+        get() = _syncJobID.switchMap { currID ->
             if (currID < 1) {
                 MutableLiveData()
             } else {

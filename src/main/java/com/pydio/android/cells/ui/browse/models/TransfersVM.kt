@@ -3,9 +3,9 @@ package com.pydio.android.cells.ui.browse.models
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -38,9 +38,7 @@ class TransfersVM(
     }
 
     val transfers: LiveData<List<RTransfer>>
-        get() = Transformations.switchMap(
-            listPrefs
-        ) {
+        get() = listPrefs.switchMap {
             transferService.queryTransfersExplicitFilter(
                 accountID,
                 it.transferFilter,

@@ -2,9 +2,10 @@ package com.pydio.android.cells.ui
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
@@ -39,17 +40,28 @@ class ConnectionVM(
     private val liveNetwork = networkService.networkType
 
     val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
-    val currAccountID: LiveData<StateID?>
-        get() = Transformations.map(sessionView) { currSessionView ->
-            currSessionView?.accountID?.let { StateID.fromId(it) }
-        }
+
+    //    val currAccountID: LiveData<StateID?>
+//        get() = Transformations.map(sessionView) { currSessionView ->
+//            currSessionView?.accountID?.let { StateID.fromId(it) }
+//        }
+    val currAccountID: LiveData<StateID?> = sessionView.map { currSessionView ->
+        currSessionView?.accountID?.let { StateID.fromId(it) }
+    }
     val sessionStatusFlow: Flow<SessionStatus>
         get() = getSessionFlow()
 
+    //    val wss: LiveData<List<RWorkspace>>
+//        get() = Transformations.switchMap(
+//            sessionView
+//        ) { currSessionView ->
+//            accountService.getLiveWsByType(
+//                SdkNames.WS_TYPE_DEFAULT,
+//                currSessionView?.accountID ?: Transport.UNDEFINED_STATE
+//            )
+//        }
     val wss: LiveData<List<RWorkspace>>
-        get() = Transformations.switchMap(
-            sessionView
-        ) { currSessionView ->
+        get() = sessionView.switchMap { currSessionView ->
             accountService.getLiveWsByType(
                 SdkNames.WS_TYPE_DEFAULT,
                 currSessionView?.accountID ?: Transport.UNDEFINED_STATE
@@ -57,9 +69,7 @@ class ConnectionVM(
         }
 
     val cells: LiveData<List<RWorkspace>>
-        get() = Transformations.switchMap(
-            sessionView
-        ) { currSessionView ->
+        get() = sessionView.switchMap { currSessionView ->
             accountService.getLiveWsByType(
                 SdkNames.WS_TYPE_CELL,
                 currSessionView?.accountID ?: Transport.UNDEFINED_STATE
