@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:versionName="@string/app_version">
 
-    <!--    package="com.pydio.android.cells"-->
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -17,17 +15,16 @@
     -->
 
     <application
-        android:name="com.pydio.android.cells.CellsApp"
+        android:name=".CellsApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher2"
         android:label="@string/application_title"
         android:roundIcon="@mipmap/ic_launcher2_round"
         android:supportsRtl="true"
         android:theme="@style/CellsV31">
-        <!--        android:theme="@style/Cells.Md3">-->
 
         <activity
-            android:name="com.pydio.android.cells.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/CellsV31.SplashScreen">
             <intent-filter>
@@ -55,7 +52,7 @@
         </activity>
 
         <activity
-            android:name="com.pydio.android.cells.MigrateActivity"
+            android:name=".MigrateActivity"
             android:exported="false" />
 
         <!--        <activity-->
@@ -68,9 +65,12 @@
         <!--            </intent-filter>-->
         <!--        </activity>-->
 
+        <!-- FIXME rechange this before going live --> 
+        <!--        android:authorities="com.pydio.android.Client.fileprovider"-->
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.pydio.android.Client.fileprovider"
+            android:authorities="com.pydio.android.cells.next.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -96,5 +96,4 @@
         </provider>
 
     </application>
-
 </manifest>

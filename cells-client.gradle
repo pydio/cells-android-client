@@ -6,8 +6,7 @@ plugins {
 }
 
 android {
-    // Should replace main "package" attribute of the AndroidManifest.xml
-    // that is deprecated and throws a WARNING but it still does not work.
+
     namespace 'com.pydio.android.cells'
 
     compileSdkVersion ownVersions['android.sdk.compile'] as int
@@ -18,7 +17,11 @@ android {
 
     defaultConfig {
 
-        applicationId "com.pydio.android.Client"
+        // Main legacy App ID
+        // applicationId "com.pydio.android.Client"
+        // Test ID to be able to have the next app along with the production one on a single device
+        //  TODO change before going live
+        applicationId "com.pydio.android.cells.next"
 
         versionCode ownVersions['cells-app.code'] as int
         versionName ownVersions['cells-app.name']
