@@ -80,6 +80,7 @@ fun AppDrawer(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                // .weight(1f)
                 // .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
                 .verticalScroll(scrollState)
 
@@ -97,116 +98,117 @@ fun AppDrawer(
                         top = 20.dp,
                     )
             )
-        }
-        // Offline, Bookmark, Transfers and Workspace roots accesses:
-        // This section is only relevant when we have a defined account
-        accountID.value?.let { currAccountID ->
 
-            MyNavigationDrawerItem(
-                label = stringResource(R.string.action_open_offline_roots),
-                icon = CellsIcons.KeepOffline,
-                selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-                onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
+            // Offline, Bookmark, Transfers and Workspace roots accesses:
+            // This section is only relevant when we have a defined account
+            accountID.value?.let { currAccountID ->
+
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_offline_roots),
+                    icon = CellsIcons.KeepOffline,
+                    selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
+                    onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
 //                modifier = defaultModifier
-            )
-            MyNavigationDrawerItem(
-                label = stringResource(R.string.action_open_bookmarks),
-                icon = CellsIcons.Bookmark,
-                selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
-                onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_bookmarks),
+                    icon = CellsIcons.Bookmark,
+                    selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
+                    onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
 //                modifier = defaultModifier
-            )
-            MyNavigationDrawerItem(
-                label = stringResource(R.string.action_open_transfers),
-                icon = CellsIcons.Transfers,
-                selected = BrowseDestinations.Transfers.isCurrent(currRoute),
-                onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_transfers),
+                    icon = CellsIcons.Transfers,
+                    selected = BrowseDestinations.Transfers.isCurrent(currRoute),
+                    onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
 //                modifier = defaultModifier
-            )
+                )
+
+                BottomSheetDivider()
+
+                MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
+
+                wss.value?.listIterator()?.forEach {
+                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+                            && it.getStateID() == currSelectedID
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = selected,
+                        onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
+                        modifier = defaultModifier
+                    )
+                }
+
+                cells.value?.listIterator()?.forEach {
+                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+                            && it.getStateID() == currSelectedID
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = selected,
+                        onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
+                        modifier = defaultModifier
+                    )
+                }
+            } ?: run { // Temporary fallback when no account is defined
+                // until all routes are hardened for all corner cases
+                MyNavigationDrawerItem(
+                    label = stringResource(id = R.string.choose_account),
+                    icon = Icons.Filled.Group,
+                    selected = CellsDestinations.Accounts.route == currRoute,
+                    onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
+                    modifier = defaultModifier
+                )
+            }
 
             BottomSheetDivider()
-
-            MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-
-            wss.value?.listIterator()?.forEach {
-                val selected = BrowseDestinations.Open.isCurrent(currRoute)
-                        && it.getStateID() == currSelectedID
-                MyNavigationDrawerItem(
-                    label = it.label ?: it.slug,
-                    icon = getWsThumbVector(it.sortName ?: ""),
-                    selected = selected,
-                    onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
-                    modifier = defaultModifier
-                )
-            }
-
-            cells.value?.listIterator()?.forEach {
-                val selected = BrowseDestinations.Open.isCurrent(currRoute)
-                        && it.getStateID() == currSelectedID
-                MyNavigationDrawerItem(
-                    label = it.label ?: it.slug,
-                    icon = getWsThumbVector(it.sortName ?: ""),
-                    selected = selected,
-                    onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
-                    modifier = defaultModifier
-                )
-            }
-        } ?: run { // Temporary fallback when no account is defined
-            // until all routes are hardened for all corner cases
-            MyNavigationDrawerItem(
-                label = stringResource(id = R.string.choose_account),
-                icon = Icons.Filled.Group,
-                selected = CellsDestinations.Accounts.route == currRoute,
-                onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
-                modifier = defaultModifier
-            )
-        }
-
-        BottomSheetDivider()
 //        BottomSheetDivider(defaultModifier)
 
-        MenuTitleText(stringResource(R.string.my_account), defaultTitleModifier)
+            MenuTitleText(stringResource(R.string.my_account), defaultTitleModifier)
 
-        MyNavigationDrawerItem(
-            label = stringResource(R.string.action_settings),
-            icon = CellsIcons.Settings,
-            selected = SystemDestinations.Settings.route == currRoute,
-            onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
-            modifier = defaultModifier
-        )
-        accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
-            // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
             MyNavigationDrawerItem(
-                label = stringResource(R.string.action_clear_cache),
-                icon = CellsIcons.EmptyRecycle,
-                selected = SystemDestinations.ClearCache.isCurrent(currRoute),
-                onClick = { systemNavActions.navigateToClearCache(accID); closeDrawer() },
+                label = stringResource(R.string.action_settings),
+                icon = CellsIcons.Settings,
+                selected = SystemDestinations.Settings.route == currRoute,
+                onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
                 modifier = defaultModifier
+            )
+            accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
+                // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_clear_cache),
+                    icon = CellsIcons.EmptyRecycle,
+                    selected = SystemDestinations.ClearCache.isCurrent(currRoute),
+                    onClick = { systemNavActions.navigateToClearCache(accID); closeDrawer() },
+                    modifier = defaultModifier
+                )
+            }
+            if (showDebugTools.value) {
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_jobs),
+                    icon = CellsIcons.Jobs,
+                    selected = SystemDestinations.Jobs.route == currRoute,
+                    onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
+                    modifier = defaultModifier
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_logs),
+                    icon = CellsIcons.Logs,
+                    selected = SystemDestinations.Logs.route == currRoute,
+                    onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
+                    modifier = defaultModifier
+                )
+            }
+            MyNavigationDrawerItem(
+                label = stringResource(id = R.string.action_open_about),
+                icon = CellsIcons.About,
+                selected = SystemDestinations.About.route == currRoute,
+                onClick = { systemNavActions.navigateToAbout(); closeDrawer() },
+                modifier = defaultModifier,
             )
         }
-        if (showDebugTools.value) {
-            MyNavigationDrawerItem(
-                label = stringResource(R.string.action_open_jobs),
-                icon = CellsIcons.Jobs,
-                selected = SystemDestinations.Jobs.route == currRoute,
-                onClick = { systemNavActions.navigateToJobs(); closeDrawer() },
-                modifier = defaultModifier
-            )
-            MyNavigationDrawerItem(
-                label = stringResource(R.string.action_open_logs),
-                icon = CellsIcons.Logs,
-                selected = SystemDestinations.Logs.route == currRoute,
-                onClick = { systemNavActions.navigateToLogs(); closeDrawer() },
-                modifier = defaultModifier
-            )
-        }
-        MyNavigationDrawerItem(
-            label = stringResource(id = R.string.action_open_about),
-            icon = CellsIcons.About,
-            selected = SystemDestinations.About.route == currRoute,
-            onClick = { systemNavActions.navigateToAbout(); closeDrawer() },
-            modifier = defaultModifier,
-        )
     }
 }
 
