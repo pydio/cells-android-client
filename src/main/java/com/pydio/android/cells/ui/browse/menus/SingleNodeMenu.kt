@@ -2,10 +2,8 @@ package com.pydio.android.cells.ui.browse.menus
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -40,12 +38,14 @@ fun SingleNodeMenu(
     launch: (NodeAction) -> Unit,
 ) {
     // TODO handle case when offline
-
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
+            .padding(
+                top = dimensionResource(R.dimen.bottom_sheet_v_spacing),
+                bottom = dimensionResource(R.dimen.bottom_sheet_v_spacing).times(2)
+            )
             .verticalScroll(scrollState)
 
     ) {
@@ -61,7 +61,6 @@ fun SingleNodeMenu(
             title = title ?: "",
             desc = desc,
         )
-
 
         if (rTreeNode.isFile()) {
             BottomSheetListItem(
@@ -147,11 +146,8 @@ fun SingleNodeMenu(
                 onItemClick = { if (it) launch(NodeAction.CreateShare) },
             )
         }
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.bottom_sheet_v_padding)))
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

@@ -220,10 +220,8 @@ private fun FolderWithDialogs(
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
             CellsModalBottomSheetLayout(
-                type = type,
-                toOpenStateID = toOpenStateID,
+                sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
                 sheetState = sheetState,
-                launch = launch,
                 content = content
             )
         }

@@ -19,7 +19,6 @@ import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
 import com.pydio.android.cells.ui.core.composables.menus.GenericBottomSheetHeader
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -64,7 +63,6 @@ fun SortByMenu(
                 icon = null,
                 title = labels[i],
                 onItemClick = {
-                    Log.d(logTag, "New order: ${keys[i]}")
                     sortByMenuVM.setSortBy(keys[i])
                     done()
                 },

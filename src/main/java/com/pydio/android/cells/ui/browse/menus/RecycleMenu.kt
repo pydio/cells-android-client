@@ -83,30 +83,3 @@ fun RecycleMenu(
 
     }
 }
-
-// FIXME
-@Preview(showBackground = true)
-@Composable
-fun RecycleMoreMenuViewPreview() {
-    val context = LocalContext.current
-    val onClick: (String) -> Unit = { title ->
-        Toast.makeText(
-            context, title, Toast.LENGTH_SHORT
-        ).show()
-    }
-    val stateID =
-        StateID.fromId("admin@https%3A%2F%2Fxl-test-02.pyd.io@%2Fcommon-files%2Frecycle_bin")
-
-//    val recycle = RTreeNode.fromFileNode(stateID, FileNode())
-//
-//    BottomSheetContent(
-//        {
-//            BottomSheetHeader(
-//                icon = CellsIcons.Processing,
-//                title = "My Transfer of jpg.pdf",
-//                desc = "45MB, started at 5.54 AM, 46% done"
-//            )
-//        },
-//        simpleMenuItems
-//    )
-}

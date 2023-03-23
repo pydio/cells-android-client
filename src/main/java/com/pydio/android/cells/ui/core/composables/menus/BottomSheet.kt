@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -39,33 +38,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
 private const val logTag = "BottomSheet"
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CellsModalBottomSheetLayout(
-    type: NodeMoreMenuType,
-    toOpenStateID: StateID,
-    sheetState: ModalBottomSheetState,
-    launch: (NodeAction) -> Unit,
-    content: @Composable () -> Unit,
-) {
-    ModalBottomSheetLayout(
-        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
-        sheetState = sheetState,
-        sheetElevation = 3.dp,
-        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
-        content = content,
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,18 +66,18 @@ fun BottomSheetContent(
     header: @Composable () -> Unit,
     simpleMenuItems: List<SimpleMenuItem>,
 ) {
-
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
+            .padding(
+                top = dimensionResource(R.dimen.bottom_sheet_v_spacing),
+                bottom = dimensionResource(R.dimen.bottom_sheet_v_spacing).times(2),
+            )
             .verticalScroll(scrollState)
 
     ) {
-
         header()
-
         for (item in simpleMenuItems) {
             BottomSheetListItem(
                 icon = item.icon,
@@ -108,13 +86,6 @@ fun BottomSheetContent(
                 selected = item.selected,
             )
         }
-
-        // More space at the bottom
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensionResource(R.dimen.bottom_sheet_v_padding))
-        )
     }
 }
 
