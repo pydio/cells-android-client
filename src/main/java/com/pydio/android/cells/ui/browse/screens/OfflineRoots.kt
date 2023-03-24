@@ -55,6 +55,7 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
@@ -88,7 +89,7 @@ fun OfflineRoots(
     offlineVM: OfflineVM,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
-    open: (StateID) -> Unit,
+    browseHelper: BrowseHelper,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -102,11 +103,11 @@ fun OfflineRoots(
         scope.launch {
             offlineVM.getNode(stateID)?.let {
                 if (it.isFolder()) {
-                    open(stateID)
+                    browseHelper.open(context, stateID)
 //                } else if (it.isPreViewable()) {
                     // TODO (since v2) Open carousel for offline nodes
                 } else {
-                    offlineVM.viewFile(context, stateID)
+                    browseHelper.open(context, stateID)
                 }
             }
         }
@@ -160,9 +161,9 @@ fun OfflineRoots(
                 scope.launch {
                     offlineVM.getNode(stateID)?.let {
                         if (it.isFolder()) {
-                            open(stateID)
+                            localOpen(stateID)
                         } else {
-                            open(stateID.parent())
+                            localOpen(stateID.parent())
                         }
                     }
                 }

@@ -926,12 +926,7 @@ class NodeService(
      */
     suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
         withContext(Dispatchers.IO) {
-
-            Log.e(
-                logTag,
-                "Trying to retrieve local file for ${rTreeNode.getStateID()}, check update: $checkUpToDate"
-            )
-
+            Log.e(logTag, "Get file @[${rTreeNode.getStateID()}], check: $checkUpToDate")
             val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
                 Log.e(logTag, "File not found at ${file.absolutePath}")
@@ -945,7 +940,10 @@ class NodeService(
                 // Compare with remote if possible
                 val remote = getNodeInfo(rTreeNode.getStateID())
                 // We cannot stat remote, but we have a file let's open this one
-                    ?: return@withContext file
+                    ?: run {
+                        Log.e(logTag, "No info found")
+                        return@withContext file
+                    }
 
                 val isUpToDate = rTreeNode.etag == remote.eTag &&
                         rTreeNode.size == remote.size &&

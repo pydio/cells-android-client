@@ -3,17 +3,16 @@ package com.pydio.android.cells.ui.browse.models
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Holds a list of recent file transfers for current session */
@@ -21,12 +20,10 @@ class TransfersVM(
     private val accountID: StateID,
     prefs: PreferencesService,
     private val transferService: TransferService,
-) : ViewModel() {
+    nodeService: NodeService,
+) : AbstractBrowseVM(prefs, nodeService, transferService) {
 
     private val logTag = "TransfersVM"
-
-    private val listPrefs = prefs.cellsPreferencesFlow.map { it.list }
-        .asLiveData(viewModelScope.coroutineContext)
 
     // Unused for the time being
     private val _loadingState = MutableLiveData(LoadingState.IDLE)
@@ -37,8 +34,10 @@ class TransfersVM(
         // DO nothing
     }
 
+    // TODO only use flows (no more live data)
+    private val livePrefs = listPrefs.asLiveData(viewModelScope.coroutineContext)
     val transfers: LiveData<List<RTransfer>>
-        get() = listPrefs.switchMap {
+        get() = livePrefs.switchMap {
             transferService.queryTransfersExplicitFilter(
                 accountID,
                 it.transferFilter,

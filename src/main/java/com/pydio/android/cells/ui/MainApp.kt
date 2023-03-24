@@ -13,7 +13,7 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "MainApp"
+// private const val logTag = "MainApp"
 
 @Composable
 fun MainApp(
@@ -23,7 +23,6 @@ fun MainApp(
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 ) {
-
     NavHostWithDrawer(
         startingState = startingState,
         startingStateHasBeenProcessed = startingStateHasBeenProcessed,
@@ -31,7 +30,6 @@ fun MainApp(
         launchTaskFor = launchTaskFor,
         widthSizeClass = widthSizeClass,
     )
-
 }
 
 @Composable

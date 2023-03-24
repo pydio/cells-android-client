@@ -137,6 +137,7 @@ fun Folder(
             )
         )
     }
+
     val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
         scope.launch {
             Log.d(logTag, "About to open $type more menu for $currID")
@@ -144,6 +145,7 @@ fun Folder(
             sheetState.expand()
         }
     }
+
     val localOpen: (StateID) -> Unit = {
         scope.launch {
             browseHelper.open(context, it)

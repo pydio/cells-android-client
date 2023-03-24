@@ -33,12 +33,13 @@ fun NavGraphBuilder.browseNavGraph(
     browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
-    open: (StateID) -> Unit,
-//    isExpandedScreen: Boolean,
 ) {
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
+        val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+        val helper = BrowseHelper(navController, folderVM)
+
         Log.i(logTag, "## BrowseDestinations.open - $stateID")
         LaunchedEffect(key1 = stateID) {
             Log.e(logTag, "  ... Also launching effect to watch $stateID")
@@ -56,8 +57,6 @@ fun NavGraphBuilder.browseNavGraph(
                     addAccount = {},
                 )
             Str.notEmpty(stateID.workspace) -> {
-                val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-                val helper = BrowseHelper(stateID, navController, browseRemoteVM, folderVM)
                 Folder(
                     stateID,
                     openDrawer = openDrawer,
@@ -86,11 +85,10 @@ fun NavGraphBuilder.browseNavGraph(
                 AccountHome(
                     stateID,
                     openDrawer = openDrawer,
-                    openAccounts = { open(StateID.NONE) },
                     openSearch = {},
-                    openWorkspace = open,
                     browseRemoteVM = browseRemoteVM,
                     accountHomeVM = accountHomeVM,
+                    browseHelper = helper,
                 )
             }
         }
@@ -114,11 +112,12 @@ fun NavGraphBuilder.browseNavGraph(
             back()
         } else {
             val offlineVM: OfflineVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, offlineVM)
             OfflineRoots(
                 offlineVM = offlineVM,
                 openDrawer = openDrawer,
                 openSearch = {}, // FIXME
-                open = open,
+                browseHelper = helper,
             )
         }
     }
@@ -131,10 +130,11 @@ fun NavGraphBuilder.browseNavGraph(
             back()
         } else {
             val bookmarksVM: BookmarksVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, bookmarksVM)
             Bookmarks(
                 stateID,
                 openDrawer = openDrawer,
-                open = open,
+                browseHelper = helper,
                 browseRemoteVM = browseRemoteVM,
                 bookmarksVM = bookmarksVM,
             )
@@ -148,11 +148,12 @@ fun NavGraphBuilder.browseNavGraph(
             back()
         } else {
             val transfersVM: TransfersVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, transfersVM)
             Transfers(
                 accountID = stateID.account(),
                 transfersVM = transfersVM,
                 openDrawer = openDrawer,
-                open = open,
+                browseHelper = helper,
             )
         }
     }

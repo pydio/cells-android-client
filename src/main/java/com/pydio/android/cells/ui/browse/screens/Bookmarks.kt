@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
@@ -72,9 +73,10 @@ private const val logTag = "Bookmarks.kt"
 fun Bookmarks(
     accountID: StateID,
     openDrawer: () -> Unit,
-    open: (StateID) -> Unit,
+//    open: (StateID) -> Unit,
     browseRemoteVM: BrowseRemoteVM,
     bookmarksVM: BookmarksVM,
+    browseHelper: BrowseHelper,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -91,7 +93,7 @@ fun Bookmarks(
         scope.launch {
             bookmarksVM.getNode(stateID)?.let {
                 if (it.isFolder()) {
-                    open(stateID)
+                    browseHelper.open(context, stateID)
 //                } else if (it.isPreViewable()) {
                     // TODO (since v2) Open carousel for bookmark nodes
                 } else {
@@ -149,9 +151,9 @@ fun Bookmarks(
                 scope.launch {
                     bookmarksVM.getNode(stateID)?.let {
                         if (it.isFolder()) {
-                            open(stateID)
+                            localOpen(stateID)
                         } else {
-                            open(stateID.parent())
+                            localOpen(stateID.parent())
                         }
                     }
                 }

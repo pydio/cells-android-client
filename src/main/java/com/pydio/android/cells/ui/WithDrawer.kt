@@ -17,7 +17,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.Dp
@@ -30,7 +29,6 @@ import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.AppDrawer
 import com.pydio.android.cells.ui.core.nav.AppNavRail
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
-import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -57,14 +55,14 @@ fun NavHostWithDrawer(
     val navHostController = rememberNavController()
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
 
-    val activeSessionView = connectionVM.sessionView.observeAsState()
+//     val activeSessionView = connectionVM.sessionView.observeAsState()
 
     val cellsNavActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
-    val loginNavActions = remember(navHostController) {
-        LoginNavigation(navHostController)
-    }
+//    val loginNavActions = remember(navHostController) {
+//        LoginNavigation(navHostController)
+//    }
     val browseNavActions = remember(navHostController) {
         BrowseNavigationActions(navHostController)
     }
@@ -75,18 +73,6 @@ fun NavHostWithDrawer(
     val navigateTo: (String) -> Unit = { route ->
         Log.e(logTag, "Got a navigateTo() call: $route")
         navHostController.navigate(route)
-//
-//        when {
-//            action.startsWith("login/")
-//            -> {
-//                navHostController.navigate(action)
-////                Log.e(logTag, "Got a call to login: $action")
-////                Thread.dumpStack()
-////                loginNavActions.askUrl()
-//            }
-//            action.startsWith(BrowseDestinations.Open.route)
-//            -> cellsNavActions.navigateToBrowse(stateID)
-
     }
 
     ModalNavigationDrawer(
@@ -123,8 +109,6 @@ fun NavHostWithDrawer(
                 )
             ) {
                 CellsNavGraph(
-                    currAccountID = activeSessionView.value?.getStateID()
-                        ?: StateID.NONE,
                     startingState = startingState,
                     startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                     isExpandedScreen = isExpandedScreen,

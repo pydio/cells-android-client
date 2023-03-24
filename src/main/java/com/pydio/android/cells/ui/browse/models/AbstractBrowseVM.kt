@@ -1,0 +1,67 @@
+package com.pydio.android.cells.ui.browse.models
+
+import android.content.Context
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.utils.externallyView
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+
+/**
+ * Only provide access to the repository while browsing, does not hold any state.
+ */
+open class AbstractBrowseVM(
+    private val prefs: PreferencesService,
+    private val nodeService: NodeService,
+    private val transferService: TransferService,
+) : ViewModel() {
+
+    private val logTag = "AbstractBrowseVM"
+
+    protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list
+    }
+
+    protected val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+    val layout = listPrefs.map { it.layout }
+
+    fun setListLayout(listLayout: ListLayout) {
+        viewModelScope.launch {
+            prefs.setListLayout(listLayout)
+        }
+    }
+
+    suspend fun viewFile(context: Context, stateID: StateID) {
+        getNode(stateID)?.let { node ->
+            viewFile(context, node)
+        }
+    }
+
+    suspend fun viewFile(context: Context, node: RTreeNode) {
+        // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
+        //    re-implement finer check of the current context (typically metered state)
+        //    user choices.
+        nodeService.getLocalFile(node, true)?.let { file ->
+            externallyView(context, file, node)
+            return
+        } ?: run {
+            // FIXME Launch a transfer, update UI and open the doc once here
+            // TODO implement streaming for audio and video.
+            // transferService.
+            Log.e(logTag, "#### File is not here and no DL has (yet) been launched...")
+        }
+        Log.e(logTag, "Could not view file...")
+    }
+
+    suspend fun getNode(stateID: StateID): RTreeNode? {
+        return nodeService.getNode(stateID)
+    }
+}

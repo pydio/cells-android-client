@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.menus.FilterTransfersByMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.menus.TransferMoreMenu
@@ -63,7 +65,7 @@ fun Transfers(
     accountID: StateID,
     transfersVM: TransfersVM,
     openDrawer: () -> Unit,
-    open: (StateID) -> Unit,
+    browseHelper: BrowseHelper,
 ) {
 
     val loadingState by transfersVM.loadingState.observeAsState()
@@ -76,7 +78,7 @@ fun Transfers(
         transfers = currTransfers.value ?: listOf(),
         transfersVM = transfersVM,
         openDrawer = openDrawer,
-        open = open,
+        browseHelper = browseHelper,
         pauseOne = transfersVM::pauseOne,
         resumeOne = transfersVM::resumeOne,
         removeOne = transfersVM::removeOne,
@@ -93,7 +95,7 @@ private fun WithState(
     transfers: List<RTransfer>,
     transfersVM: TransfersVM,
     openDrawer: () -> Unit,
-    open: (StateID) -> Unit,
+    browseHelper: BrowseHelper,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
@@ -101,7 +103,7 @@ private fun WithState(
 ) {
 
     val scope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val transferMoreMenuData: MutableState<Pair<TransferMoreMenuType, Long>> = remember {
         mutableStateOf(Pair(TransferMoreMenuType.NONE, -1L))
@@ -146,7 +148,7 @@ private fun WithState(
                             //  when we pass here and then come back using android nav back button
                             //  (maybe just on an overloaded AVD)
                             sheetState.hide()
-                            open(it.parent())
+                            browseHelper.open(context, it.parent())
                         }
                     }
                 }

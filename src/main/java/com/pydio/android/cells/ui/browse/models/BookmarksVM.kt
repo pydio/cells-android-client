@@ -1,11 +1,9 @@
 package com.pydio.android.cells.ui.browse.models
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -13,9 +11,8 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
-import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -24,8 +21,9 @@ import kotlinx.coroutines.launch
 class BookmarksVM(
     private val accountID: StateID,
     private val prefs: PreferencesService,
-    private val nodeService: NodeService
-) : ViewModel() {
+    private val nodeService: NodeService,
+    transferService: TransferService
+) : AbstractBrowseVM(prefs, nodeService, transferService) {
 
     private val logTag = "BookmarksVM"
 
@@ -33,10 +31,6 @@ class BookmarksVM(
     private val _errorMessage = MutableLiveData<String?>()
     val loadingState: LiveData<LoadingState> = _loadingState
     val errorMessage: LiveData<String?> = _errorMessage
-
-    val layout = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.list.layout
-    }
 
     private val orderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         prefs.getOrderByPair(
@@ -49,21 +43,12 @@ class BookmarksVM(
             nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
         }
 
-    fun setListLayout(listLayout: ListLayout) {
-        viewModelScope.launch {
-            prefs.setListLayout(listLayout)
-        }
-    }
 
     fun forceRefresh(stateID: StateID) {
         viewModelScope.launch {
             launchProcessing()
             done(nodeService.refreshBookmarks(stateID))
         }
-    }
-
-    suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID)
     }
 
     fun removeBookmark(stateID: StateID) {
@@ -75,17 +60,6 @@ class BookmarksVM(
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
             nodeService.saveToSharedStorage(stateID, uri)
-        }
-    }
-
-    suspend fun viewFile(context: Context, stateID: StateID) {
-        getNode(stateID)?.let { node ->
-            // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
-            //    re-implement finer check of the current context (typically metered state)
-            //    user choices.
-            nodeService.getLocalFile(node, true)?.let { file ->
-                externallyView(context, file, node)
-            }
         }
     }
 

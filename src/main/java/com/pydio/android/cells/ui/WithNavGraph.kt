@@ -5,13 +5,11 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.account.AccountsScreen
-import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyQueryContext
@@ -32,7 +30,6 @@ import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -40,7 +37,6 @@ private const val logTag = "CellsNavGraph"
 
 @Composable
 fun CellsNavGraph(
-    currAccountID: StateID,
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     isExpandedScreen: Boolean,
@@ -53,7 +49,6 @@ fun CellsNavGraph(
     loginVM: LoginVM = koinViewModel(),
 ) {
 
-    val scope = rememberCoroutineScope()
     val loginNavActions = remember(navController) {
         LoginNavigation(navController)
     }
@@ -147,65 +142,10 @@ fun CellsNavGraph(
         }
 
         browseNavGraph(
-            // Temporary FIXME remove
             navController = navController,
             browseRemoteVM = browseRemoteVM,
             back = { navController.popBackStack() },
             openDrawer,
-            open = {
-                Log.i(logTag, "### Browse to $it")
-
-                // Kind of tweak: we check if the target node is the penultimate element of the backStack, in such case we consider it is a back:
-                // the end user has clicked on parent() and was "simply" browsing
-//                val bq = navController.backQueue
-                // var i = 0
-                // navController.backQueue.forEach {
-                //     val stateID = lazyStateID(it)
-                //     Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
-
-                // }
-                var isEffectiveBack = false
-                if (navController.backQueue.size > 1) {
-                    val bq = navController.backQueue
-                    val targetEntry = bq[bq.size - 2]
-                    val penultimateID = lazyStateID(bq[bq.size - 2])
-                    isEffectiveBack =
-                        BrowseDestinations.Open.isCurrent(targetEntry.destination.route)
-                                && penultimateID == it && it != StateID.NONE
-                }
-                if (isEffectiveBack) {
-                    Log.e(logTag, "Open node at $it is Effective Back")
-                    navController.popBackStack()
-                } else {
-                    scope.launch {
-                        val route: String
-                        if (Str.notEmpty(it.workspace)) {
-                            val item = browseRemoteVM.getTreeNode(it) ?: run {
-                                // We cannot navigate to an unknown node item
-                                Log.e(logTag, "No TreeNode found for $it in local repo, aborting")
-                                return@launch
-                            }
-                            if (item.isFolder()) {
-                                route = BrowseDestinations.Open.createRoute(it)
-                            } else if (item.isPreViewable()) {
-                                route = BrowseDestinations.OpenCarousel.createRoute(it)
-                            } else {
-                                // FIXME launch external view
-                                Log.e(
-                                    logTag,
-                                    "Implement me - not a viewable file for $it, aborting"
-                                )
-                                return@launch
-                            }
-                        } else if (it == StateID.NONE) {
-                            route = CellsDestinations.Accounts.route
-                        } else {
-                            route = BrowseDestinations.Open.createRoute(it)
-                        }
-                        navController.navigate(route)
-                    }
-                }
-            },
         )
 
         loginNavGraph(

@@ -1,61 +1,43 @@
 package com.pydio.android.cells.ui.browse.models
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
-import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Expose methods used by Offline pages */
 class OfflineVM(
     stateID: StateID,
-    private val prefs: PreferencesService,
+    prefs: PreferencesService,
     private val nodeService: NodeService,
     private val networkService: NetworkService,
     private val jobService: JobService,
-) : ViewModel() {
+    transferService: TransferService
+) : AbstractBrowseVM(prefs, nodeService, transferService) {
+
 
     private val logTag = "OfflineVM"
 
     private val accountID = stateID.account()
-
-    private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.list
-    }
-
-    private val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
-    val layout = listPrefs.map { it.layout }
-
-//    private var livePrefs: LiveSharedPreferences = LiveSharedPreferences(prefs.get())
-//    private val sortOrder = livePrefs.getString(
-//        AppKeys.CURR_RECYCLER_ORDER,
-//        AppNames.DEFAULT_SORT_BY
-//    )
-    // val layout = livePrefs.getLayout(AppKeys.CURR_RECYCLER_LAYOUT, ListLayout.LIST)
 
     private val _loadingState = MutableLiveData(LoadingState.IDLE)
     private val _errorMessage = MutableLiveData<String?>()
@@ -78,28 +60,6 @@ class OfflineVM(
                 jobService.getLiveJob(currID)
             }
         }
-
-    /** Exposed Business Methods **/
-    fun setListLayout(listLayout: ListLayout) {
-        viewModelScope.launch {
-            prefs.setListLayout(listLayout)
-        }
-    }
-
-    suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID)
-    }
-
-    suspend fun viewFile(context: Context, stateID: StateID) {
-        getNode(stateID)?.let { node ->
-            // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
-            //    re-implement finer check of the current context (typically metered state)
-            //    user choices.
-            nodeService.getLocalFile(node, true)?.let { file ->
-                externallyView(context, file, node)
-            }
-        }
-    }
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {

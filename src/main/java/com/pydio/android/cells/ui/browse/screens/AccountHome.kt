@@ -32,16 +32,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
@@ -51,6 +54,7 @@ import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 
 private const val logTag = "AccountHome"
 
@@ -58,12 +62,13 @@ private const val logTag = "AccountHome"
 fun AccountHome(
     accountID: StateID,
     openDrawer: () -> Unit,
-    openAccounts: () -> Unit,
     openSearch: () -> Unit,
-    openWorkspace: (StateID) -> Unit,
     browseRemoteVM: BrowseRemoteVM,
     accountHomeVM: AccountHomeVM,
+    browseHelper: BrowseHelper,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val loadingState by browseRemoteVM.loadingState.observeAsState()
     val sessionView by accountHomeVM.currSession.observeAsState()
@@ -83,8 +88,16 @@ fun AccountHome(
         cells = cells ?: listOf(),
         loadingState = loadingState ?: LoadingState.STARTING,
         openDrawer = openDrawer,
-        openAccounts = openAccounts,
-        openWorkspace = openWorkspace,
+        openAccounts = {
+            scope.launch {
+                browseHelper.open(context, StateID.NONE)
+            }
+        },
+        openWorkspace = {
+            scope.launch {
+                browseHelper.open(context, it)
+            }
+        },
         openSearch = openSearch,
         forceRefresh = forceRefresh,
     )
