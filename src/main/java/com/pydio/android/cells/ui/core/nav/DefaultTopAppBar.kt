@@ -3,10 +3,10 @@ package com.pydio.android.cells.ui.core.nav
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarState
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,7 +20,6 @@ fun DefaultTopAppBar(
     openDrawer: () -> Unit,
     modifier: Modifier = Modifier,
     showSearch: Boolean = false,
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
     TopAppBar(
         title = {
@@ -45,6 +44,7 @@ fun DefaultTopAppBar(
                 }
             }
         },
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = modifier
     )
 }

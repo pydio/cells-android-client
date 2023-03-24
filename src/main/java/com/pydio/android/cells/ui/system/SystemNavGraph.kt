@@ -4,9 +4,7 @@ import android.content.Intent
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
-import com.pydio.android.cells.ui.core.composables.extraTopPadding
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.rememberContentPaddingForScreen
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.android.cells.ui.system.screens.AboutScreen
@@ -34,10 +32,10 @@ fun NavGraphBuilder.systemNavGraph(
         AboutScreen(
             openDrawer = openDrawer,
             launchIntent = launchIntent,
-            contentPadding = rememberContentPaddingForScreen(
-                additionalTop = extraTopPadding(isExpandedScreen),
-                excludeTop = !isExpandedScreen
-            ),
+//            contentPadding = rememberContentPaddingForScreen(
+//                additionalTop = extraTopPadding(isExpandedScreen),
+//                excludeTop = !isExpandedScreen
+//            ),
         )
     }
 

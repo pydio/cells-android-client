@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RLog
+import com.pydio.android.cells.ui.core.composables.TopBarWithActions
 import com.pydio.android.cells.ui.system.models.LogListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -37,15 +38,12 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.android.cells.utils.timestampToString
 import org.koin.androidx.compose.koinViewModel
 
-
 @Composable
 fun LogScreen(
     openDrawer: () -> Unit,
     logVM: LogListVM = koinViewModel()
 ) {
-
     val logs by logVM.logs.observeAsState()
-
     LogScreen(
         logs = logs ?: listOf(),
         openDrawer = openDrawer,
@@ -60,21 +58,11 @@ fun LogScreen(
     openDrawer: () -> Unit,
     clearLogs: () -> Unit,
 ) {
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(R.string.log_list_title))
-                },
-                navigationIcon = {
-                    IconButton(onClick = openDrawer) {
-                        Icon(
-                            imageVector = CellsIcons.Menu,
-                            contentDescription = stringResource(R.string.open_drawer),
-                        )
-                    }
-                },
+            TopBarWithActions(
+                title = stringResource(R.string.log_list_title),
+                openDrawer = openDrawer,
                 actions = {
                     IconButton(onClick = clearLogs) {
                         Icon(
@@ -82,16 +70,10 @@ fun LogScreen(
                             contentDescription = stringResource(R.string.clear_all_logs)
                         )
                     }
-
                 },
             )
         }
-    ) { innerPadding ->
-        LogList(
-            logs,
-            innerPadding
-        )
-    }
+    ) { innerPadding -> LogList(logs, innerPadding) }
 }
 
 @Composable

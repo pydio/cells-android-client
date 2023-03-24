@@ -43,7 +43,6 @@ class BookmarksVM(
             nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
         }
 
-
     fun forceRefresh(stateID: StateID) {
         viewModelScope.launch {
             launchProcessing()

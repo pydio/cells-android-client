@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.core.composables
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,13 +12,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -41,13 +40,13 @@ fun WithDefaultScaffold(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val topAppBarState = rememberTopAppBarState()
+//    val topAppBarState = rememberTopAppBarState()
     Scaffold(
         topBar = {
             DefaultTopAppBar(
                 title = title,
                 openDrawer = openDrawer,
-                topAppBarState = topAppBarState
+//                topAppBarState = topAppBarState
             )
         },
         modifier = modifier
@@ -55,7 +54,6 @@ fun WithDefaultScaffold(
         content(innerPadding)
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,14 +172,55 @@ fun TopBarWithMoreMenu(
     )
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarWithActions(
+    title: String,
+    back: (() -> Unit)? = null,
+    openDrawer: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit,
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            if (back != null) {
+                IconButton(onClick = { back() }) {
+                    Icon(
+                        imageVector = CellsIcons.ArrowBack,
+                        contentDescription = stringResource(id = R.string.button_back)
+                    )
+                }
+            } else if (openDrawer != null) {
+                IconButton(
+                    onClick = { openDrawer() },
+                    enabled = true
+                ) {
+                    Icon(
+                        CellsIcons.Menu,
+                        contentDescription = stringResource(id = R.string.open_drawer)
+                    )
+                }
+            }
+        },
+        actions = actions
+    )
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarWithSearch(
     queryStr: String,
     errorMessage: String?,
     updateQuery: (String) -> Unit,
-//    queryStr: String,
-//    updateQuery: ((String) -> Unit),
     cancel: (() -> Unit),
     isActionMenuShown: Boolean,
     showMenu: (Boolean) -> Unit,
@@ -192,7 +231,7 @@ fun TopBarWithSearch(
 ) {
     TopAppBar(
         title = {
-            OutlinedTextField(
+            TextField(
                 value = queryStr,
                 label = { Icon(CellsIcons.Search, "Search") },
                 supportingText = {

@@ -35,7 +35,7 @@ fun SettingsScreen(
     openDrawer: () -> Unit,
     settingsVM: SettingsVM,
 ) {
-    val topAppBarState = rememberTopAppBarState()
+//    val topAppBarState = rememberTopAppBarState()
     val modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = dimensionResource(id = R.dimen.margin_small))
@@ -48,7 +48,7 @@ fun SettingsScreen(
             DefaultTopAppBar(
                 title = stringResource(R.string.action_settings),
                 openDrawer = openDrawer,
-                topAppBarState = topAppBarState
+//                topAppBarState = topAppBarState
             )
         },
     ) { innerPadding ->

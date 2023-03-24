@@ -15,9 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.ui.core.composables.TopBarWithActions
 import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -46,8 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 fun JobScreen(
     openDrawer: () -> Unit,
     jobVM: JobListVM = koinViewModel(),
-
-    ) {
+) {
     val jobs by jobVM.jobs.observeAsState()
     JobScreen(
         jobs ?: listOf(),
@@ -62,24 +60,12 @@ private fun JobScreen(
     jobs: List<RJob>,
     openDrawer: () -> Unit,
     clearTerminated: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
-    val topAppBarState = rememberTopAppBarState()
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(R.string.job_list_title))
-                },
-                navigationIcon = {
-                    IconButton(onClick = openDrawer) {
-                        Icon(
-                            imageVector = CellsIcons.Menu,
-                            contentDescription = stringResource(R.string.open_drawer),
-                        )
-                    }
-                },
+            TopBarWithActions(
+                title = stringResource(R.string.job_list_title),
+                openDrawer = openDrawer,
                 actions = {
                     IconButton(onClick = clearTerminated) {
                         Icon(
@@ -87,12 +73,9 @@ private fun JobScreen(
                             contentDescription = stringResource(R.string.clear_terminated)
                         )
                     }
-
                 },
-                modifier = modifier
             )
         },
-        modifier = modifier
     ) { innerPadding ->
         JobList(jobs, innerPadding)
     }
