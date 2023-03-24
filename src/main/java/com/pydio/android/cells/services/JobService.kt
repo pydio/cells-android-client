@@ -99,6 +99,9 @@ class JobService(runtimeDB: RuntimeDB) {
         jobDao.update(job)
     }
 
+// FIXME should be
+    // suspend fun done(job: RJob, message: String?, lastProgressMsg: String?)  = withContext(Dispatchers.IO) {
+
     fun done(job: RJob, message: String?, lastProgressMsg: String?) {
         job.status = AppNames.JOB_STATUS_DONE
         job.doneTimestamp = currentTimestamp()

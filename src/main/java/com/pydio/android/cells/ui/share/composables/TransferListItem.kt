@@ -126,7 +126,6 @@ private fun TransferListItem(
                     AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsIcons.DownloadFile
                     else -> CellsIcons.UploadFile
                 }
-
                 Icon(
                     imageVector = thumbImg,
                     contentDescription = null,
@@ -136,7 +135,6 @@ private fun TransferListItem(
                         .alpha(.5f)
                 )
             }
-
 
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 

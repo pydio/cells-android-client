@@ -55,7 +55,7 @@ import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "SelectFolder.kt"
+// private const val logTag = "SelectFolder.kt"
 
 @Composable
 fun SelectFolderScreen(
@@ -69,8 +69,6 @@ fun SelectFolderScreen(
 ) {
 
     val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
-
-    shareVM.afterCreate(stateID)
     val childNodes by shareVM.childNodes.observeAsState()
 
     val forceRefresh: () -> Unit = {

@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -230,10 +231,11 @@ fun TopBarWithSearch(
     contentPadding: PaddingValues = PaddingValues(all = 16.dp),
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
             TextField(
                 value = queryStr,
-                label = { Icon(CellsIcons.Search, "Search") },
+                // label = { Icon(CellsIcons.CancelSearch, "Search") },
                 supportingText = {
                     if (Str.notEmpty(errorMessage)) {
                         Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
@@ -250,7 +252,7 @@ fun TopBarWithSearch(
         navigationIcon = {
             IconButton(onClick = { cancel() }) {
                 Icon(
-                    imageVector = CellsIcons.Cancel,
+                    imageVector = CellsIcons.CancelSearch,
                     contentDescription = stringResource(id = R.string.button_cancel)
                 )
             }
@@ -268,7 +270,8 @@ fun TopBarWithSearch(
                 onDismissRequest = { showMenu(false) },
                 content = content
             )
-        }
+        },
+        modifier = Modifier.height(84.dp)
     )
 }
 

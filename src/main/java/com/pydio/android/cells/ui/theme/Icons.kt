@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.theme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
@@ -87,6 +88,7 @@ object CellsIcons {
     val AsSmallerGrid = Icons.Default.ViewCompact
     val Bookmark = Icons.Outlined.StarBorder
     val Cancel = Icons.Outlined.Cancel
+    val CancelSearch = Icons.Default.Cancel
     val Check = Icons.Default.Check
     val CellThumb = Icons.Outlined.FolderShared
     val ClearCache = Icons.Default.FolderDelete

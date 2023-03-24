@@ -22,7 +22,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +55,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
+import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -183,9 +182,6 @@ private fun WithScaffold(
     moreMenuState: MoreMenuState,
 ) {
 
-    val tint = MaterialTheme.colorScheme.onSurface
-    val bgColor = MaterialTheme.colorScheme.surface
-
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
         if (it != isShown) {
@@ -251,7 +247,7 @@ private fun WithScaffold(
         },
     ) { padding ->
 
-        ModalBottomSheetLayout(
+        CellsModalBottomSheetLayout(
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
@@ -271,9 +267,7 @@ private fun WithScaffold(
                     )
                 }
             },
-            modifier = Modifier,
             sheetState = moreMenuState.sheetState,
-            sheetBackgroundColor = bgColor,
         ) {
             HitsList(
                 loadingState = loadingState,

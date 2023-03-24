@@ -3,9 +3,7 @@ package com.pydio.android.cells.ui.share.models
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -22,7 +20,8 @@ import kotlinx.coroutines.launch
  * with the Pydio App from third party Android Apps
  * */
 class ShareVM(
-    private val nodeService: NodeService,
+    stateID: StateID,
+    nodeService: NodeService,
     private val jobService: JobService,
     private val transferService: TransferService
 ) : ViewModel() {
@@ -32,46 +31,15 @@ class ShareVM(
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
 
-    private val _stateID: MutableLiveData<StateID> = MutableLiveData(StateID.NONE)
-    val childNodes: LiveData<List<RTreeNode>>
-        get() = _stateID.switchMap { currID ->
-            if (currID == StateID.NONE) {
-                MutableLiveData()
-            } else if (Str.empty(currID.workspace)) {
-                nodeService.listWorkspaces(currID)
-            } else {
-                nodeService.listViewable(currID, "")
-            }
-        }
-
-    fun afterCreate(accountID: StateID) {
-        _stateID.value = accountID
+    val childNodes: LiveData<List<RTreeNode>> = if (Str.empty(stateID.workspace)) {
+        nodeService.listWorkspaces(stateID)
+    } else {
+        nodeService.listViewable(stateID, "")
     }
 
     fun launchPost(stateID: StateID, uris: List<Uri>, postLaunched: (Long) -> Unit) {
-//        viewModelScope.launch {
-//            // TODO enhance this
-//            val jobID = jobService.create(
-//                owner =AppNames.JOB_OWNER_USER,
-//                template = AppNames.JOB_TEMPLATE_SHARE,
-//                label = "Upload ${uris.size} files at $stateID",
-//                maxSteps = uris.size.toLong()
-//            )
-//            for (uri in uris) {
-//                // TODO implement error management
-//                val error = transferService.enqueueUpload(stateID, uri)
-//            }
-//            afterDone()
-//        }
-//    }
-//
-//    fun launchShareToPydioAt(stateID: StateID, uris: List<Uri>) {
-
-//         setAccountID(stateID.account())
         val ids: MutableMap<Long, Pair<String, Uri>> = HashMap()
-
         viewModelScope.launch {
-
             // Register the parent Job
             val jobID = jobService.create(
                 owner = AppNames.JOB_OWNER_USER,
@@ -86,23 +54,26 @@ class ShareVM(
                 try {
                     val tid = transferService.register(cr, uri, stateID, jobID)
                     ids[tid.first] = Pair(tid.second, uri)
-
-//                    val tid = transferService.register(cr, uri, stateID)
-//                    ids[tid.first] = Pair(tid.second, uri)
-//                    setIds(ids.keys)
                 } catch (e: Exception) {
                     // TODO handle this
                 }
             }
-            // Launch the 2 steps process
-            ids.forEach {
-                val (currName, currUri) = it.value
-                transferService.launchCopy(cr, currUri, stateID, it.key, currName)?.let {
+
+            // Mark the job has started
+            jobService.launched(jobID)
+            ids.forEach { currID ->
+                // Launch the 2 steps process: local copy and then upload
+                val (currName, currUri) = currID.value
+                transferService.launchCopy(cr, currUri, stateID, currID.key, currName)?.let {
                     launch {
                         try {
                             transferService.uploadOne(it)
                             Log.w(logTag, "... $it ==> upload DONE")
                         } catch (e: Exception) {
+                            jobService.failed(
+                                jobID, e.message
+                                    ?: "Unexpected error during upload of $currID at $stateID"
+                            )
                             Log.e(logTag, "... $it ==> upload FAILED: ${e.message}")
                         }
                     }
@@ -110,6 +81,7 @@ class ShareVM(
                 } ?: run {
                     // TODO better error management
                     Log.e(logTag, "could not upload $currName at $stateID")
+                    jobService.failed(jobID, "Could not launch copy for $currName")
                 }
             }
             postLaunched(jobID)

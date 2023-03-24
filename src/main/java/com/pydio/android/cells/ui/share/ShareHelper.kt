@@ -44,22 +44,18 @@ class ShareHelper(
             shareVM.launchPost(
                 stateID,
                 it.uris
-            ) { afterLaunchUpload(stateID, it) }
-
+            ) { jobID -> afterLaunchUpload(stateID, jobID) }
         } ?: run {
             Log.e(logTag, "... No defined URIs, cannot post at $stateID")
         }
     }
 
-    // TODO do it more elegantly, this is the come back of the call back hell for the time being
     private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
-        // TODO parameters are useless for now
         // Prevent double upload of the same file
         startingStateHasBeenProcessed(null, stateID)
         // then display the upload list
         navigation.toTransfers(stateID, jobID)
     }
-
 
     fun canPost(stateID: StateID): Boolean {
         // TODO also check permissions on remote server

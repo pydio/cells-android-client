@@ -23,7 +23,7 @@ class ShareNavigation(private val navController: NavHostController) {
     fun toTransfers(stateID: StateID, jobID: Long) {
         val route = ShareDestination.UploadInProgress.createRoute(stateID, jobID)
         navController.navigate(route) {
-            launchSingleTop = true
+            popUpTo(ShareDestination.ChooseAccount.route) { inclusive = true }
         }
     }
 

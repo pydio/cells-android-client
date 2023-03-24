@@ -40,16 +40,14 @@ fun NavGraphBuilder.shareNavGraph(
         )
     }
 
-    composable(ShareDestination.OpenFolder.route) { navBackStackEntry ->
-        val stateID = lazyStateID(navBackStackEntry, ShareDestination.OpenFolder.getStateIdKey())
-        Log.i(logTag, ".... ShareDestination.OpenFolder for $stateID")
-
-        val shareVM: ShareVM = koinViewModel()
+    composable(ShareDestination.OpenFolder.route) { nbsEntry ->
+        val stateID = lazyStateID(nbsEntry)
 
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open target selection folder page with no ID")
             back()
         } else {
+            val shareVM: ShareVM = koinViewModel { parametersOf(stateID) }
             SelectFolderScreen(
                 stateID = stateID,
                 browseRemoteVM = browseRemoteVM,
@@ -63,7 +61,7 @@ fun NavGraphBuilder.shareNavGraph(
     }
 
     composable(ShareDestination.UploadInProgress.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry, ShareDestination.UploadInProgress.getStateIdKey())
+        val stateID = lazyStateID(nbsEntry)
         val jobID = lazyUID(nbsEntry)
         Log.i(logTag, ".... ShareDestination.UploadInProgress for #$jobID @ $stateID")
         val monitorUploadsVM: MonitorUploadsVM =

@@ -5,7 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +19,7 @@ import kotlinx.coroutines.withContext
 class MonitorUploadsVM(
     val accountID: StateID,
     val jobID: Long,
+    val jobService: JobService,
     val transferService: TransferService,
 ) : ViewModel() {
 
@@ -23,6 +27,43 @@ class MonitorUploadsVM(
 
     val currRecords: LiveData<List<RTransfer>> =
         transferService.getTransfersRecordsForJob(accountID, jobID)
+    val parentJob: LiveData<RJob?> = jobService.getLiveJob(jobID)
+
+    fun getStatusFromListAndJob(job: RJob?, rTransfers: List<RTransfer>): JobStatus {
+        var newStatus = JobStatus.NEW
+        job?.let {
+            if (it.isFail()) {
+                newStatus = JobStatus.ERROR
+            } else {
+                var hasRunning = false
+                for (rTransfer in rTransfers) {
+                    if (rTransfer.status != AppNames.JOB_STATUS_DONE) {
+                        hasRunning = true
+                        break
+                    }
+                }
+                newStatus = if (hasRunning) {
+                    JobStatus.PROCESSING
+                } else {
+                    // TODO we update the Parent job from here. Improve this
+                    markJobAsDone(job)
+                    JobStatus.DONE
+                }
+            }
+        }
+        return newStatus
+    }
+
+    private fun markJobAsDone(job: RJob) {
+        viewModelScope.launch {
+            if (!job.isDone()) {
+                // TODO remove explicit context once it has been fixed in the jobService
+                withContext(Dispatchers.IO) {
+                    jobService.done(job, "All files have been uploaded", null)
+                }
+            }
+        }
+    }
 
     // TODO add filter and sort
 
@@ -66,19 +107,4 @@ class MonitorUploadsVM(
             }
         }
     }
-
-    // Manage UI
-//    private val _isLoading = MutableLiveData<Boolean>()
-//    val isLoading: LiveData<Boolean>
-//        get() = _isLoading
-//    private val _errorMessage = MutableLiveData<String?>()
-//    val errorMessage: LiveData<String?>
-//        get() = _errorMessage
-//
-//    init {}
-//
-//    override fun onCleared() {
-//        super.onCleared()
-//    }
-
 }
