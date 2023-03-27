@@ -2,8 +2,8 @@
 <resources>
     <string name="package_id" translatable="false">cells</string>
     <!-- FIXME change this before going live -->
-    <!--    <string name="application_title" translatable="false">Pydio</string>-->
-    <string name="application_title" translatable="false">Pydio Next</string>
+    <string name="application_title" translatable="false">Pydio</string>
+    <!--    <string name="application_title" translatable="false">Pydio Next</string>-->
     <string name="app_name" translatable="false">AndroidClient</string>
     <!-- client ID is used during OAuth process and must be authorized and correctly configured in your server instance -->
     <string name="client_id" translatable="false">cells-mobile</string>

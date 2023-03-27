@@ -18,10 +18,9 @@ android {
     defaultConfig {
 
         // Main legacy App ID
-        // applicationId "com.pydio.android.Client"
+        applicationId "com.pydio.android.Client"
         // Test ID to be able to have the next app along with the production one on a single device
-        //  TODO change before going live
-        applicationId "com.pydio.android.cells.next"
+        // applicationId "com.pydio.android.cells.next"
 
         versionCode ownVersions['cells-app.code'] as int
         versionName ownVersions['cells-app.name']

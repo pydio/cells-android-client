@@ -65,12 +65,12 @@
         <!--            </intent-filter>-->
         <!--        </activity>-->
 
-        <!-- FIXME rechange this before going live --> 
-        <!--        android:authorities="com.pydio.android.Client.fileprovider"-->
-
+        <!-- Also change this when using another client ID -->
+        <!-- android:authorities="com.pydio.android.Client.fileprovider" -->
+        
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.pydio.android.cells.next.fileprovider"
+            android:authorities="com.pydio.android.Client.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
