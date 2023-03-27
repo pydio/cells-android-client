@@ -224,7 +224,7 @@ class MainActivity : ComponentActivity() {
             else -> {
                 val action = intent.action
                 var categories = ""
-                intent.categories.forEach { categories += "$it, " }
+                intent.categories?.forEach { categories += "$it, " }
                 Log.w(logTag, "... Unexpected intent: $action - $categories")
             }
         }
