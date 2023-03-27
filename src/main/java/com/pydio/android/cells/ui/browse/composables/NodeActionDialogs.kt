@@ -83,9 +83,7 @@ fun Download(
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
-
     val context = LocalContext.current
-
     val rTransfer = downloadVM.transfer.observeAsState()
     val rTreeNode = downloadVM.treeNode.collectAsState()
     val cancel: (Boolean) -> Unit = {

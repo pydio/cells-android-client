@@ -38,8 +38,6 @@ class ActiveSessionViewModel(
     private var vmJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + vmJob)
 
-    // private val livePrefs = LiveSharedPreferences(prefs.get())
-
     private var _accountId: String? = null
     val accountId: String?
         get() = _accountId

@@ -58,7 +58,6 @@ fun CellsNavGraph(
 
     // Starting state is null once the initial state has been consumed
     if (startingState != null) {
-        Log.i(logTag, "########## Got a starting state")
         LaunchedEffect(key1 = startingState.route) {
             Log.e(logTag, "########## Launching side effect for ${startingState.route}")
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
@@ -106,7 +105,8 @@ fun CellsNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = CellsDestinations.Home.route,
+        startDestination = CellsDestinations.Accounts.route,
+        // route = CellsDestinations.Home.route
         route = CellsDestinations.Root.route
     ) {
 

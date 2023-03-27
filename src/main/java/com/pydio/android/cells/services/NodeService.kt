@@ -442,6 +442,10 @@ class NodeService(
         return job
     }
 
+    fun getSyncTemplateId(stateID: StateID): String {
+        return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
+    }
+
     suspend fun prepareAccountSync(
         stateID: StateID,
         caller: String,
@@ -450,7 +454,7 @@ class NodeService(
         withContext(Dispatchers.IO) {
 
             val label = "Account sync for $stateID\nLaunched by $caller"
-            val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_RESYNC, stateID.toString())
+            val currJobTemplate = getSyncTemplateId(stateID)
 
             // We first check if a sync is not already running for this account
             if (hasExistingJob(label, currJobTemplate, 120)) {

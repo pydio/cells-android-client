@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.UseCellsTheme
+import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.system.models.LandingVM
@@ -58,15 +59,11 @@ class MainActivity : ComponentActivity() {
                 return@launch
             }
 
-            var startingState = handleIntent(savedInstanceState)
-                ?: landingVM.getStartingState()
+            var startingState = handleIntent(savedInstanceState, landingVM)
 
             if (Str.empty(startingState.route)) {
                 // FIXME the state is not nul but we still don't know where to go.
                 Log.e(logTag, "#### TODO state is not null but we still do not see where to go")
-                Log.e(logTag, "#### --> StateID B4: ${startingState.stateID}")
-                startingState = landingVM.getStartingState()
-                Log.e(logTag, "#### --> new landing state ")
             }
 
             Log.i(logTag, "#######################################")
@@ -141,7 +138,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun handleIntent(savedInstanceState: Bundle?): StartingState? {
+    private suspend fun handleIntent(
+        savedInstanceState: Bundle?,
+        landingVM: LandingVM
+    ): StartingState {
         Log.e(logTag, "#############################")
         Log.e(logTag, "Handle Intent: $intent")
         if (intent == null) { // we then rely on saved state or defaults
@@ -150,15 +150,14 @@ class MainActivity : ComponentActivity() {
                 Log.e(logTag, "Saved state: " + savedInstanceState.describeContents())
                 Thread.dumpStack()
             }
-
             // TO BE REFINED we assume we have no starting state in such case
-            return null
-
+            val state = StartingState(StateID.NONE)
+            state.route = CellsDestinations.Accounts.route
+            return state
 //            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
 //            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
 //            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
 //            return StartingState(initialStateID)
-
         }
 
         // Intent is not null
@@ -170,7 +169,7 @@ class MainActivity : ComponentActivity() {
             Log.e(logTag, "#### Received an intent with a state: $stateID")
             stateID
         } ?: StateID.NONE
-        val startingState = StartingState(initialStateID)
+        var startingState = StartingState(initialStateID)
 
         when {
             Intent.ACTION_VIEW == intent.action -> {
@@ -217,7 +216,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            else -> Log.w(logTag, "... Unexpected: ${intent.action} - $intent")
+            Intent.ACTION_MAIN == intent.action
+                    && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {
+                startingState = landingVM.getStartingState()
+            }
+
+            else -> {
+                val action = intent.action
+                var categories = ""
+                intent.categories.forEach { categories += "$it, " }
+                Log.w(logTag, "... Unexpected intent: $action - $categories")
+            }
         }
         return startingState
     }

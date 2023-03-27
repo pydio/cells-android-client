@@ -60,9 +60,6 @@ fun NavHostWithDrawer(
     val cellsNavActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
     }
-//    val loginNavActions = remember(navHostController) {
-//        LoginNavigation(navHostController)
-//    }
     val browseNavActions = remember(navHostController) {
         BrowseNavigationActions(navHostController)
     }

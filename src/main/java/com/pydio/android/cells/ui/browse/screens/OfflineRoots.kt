@@ -95,7 +95,7 @@ fun OfflineRoots(
     val scope = rememberCoroutineScope()
 
     val loadingState by offlineVM.loadingState.observeAsState()
-    val currJob = offlineVM.syncJob.observeAsState()
+    val syncJob = offlineVM.syncJob.observeAsState()
     val listLayout by offlineVM.layout.collectAsState(ListLayout.LIST)
     val roots = offlineVM.offlineRoots.observeAsState()
 
@@ -117,7 +117,7 @@ fun OfflineRoots(
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
         mutableStateOf(
             Pair(
-                NodeMoreMenuType.BOOKMARK,
+                NodeMoreMenuType.OFFLINE,
                 StateID.NONE
             )
         )
@@ -198,7 +198,7 @@ fun OfflineRoots(
     WithScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
         listLayout = listLayout,
-        runningJob = currJob.value,
+        syncJob = syncJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
         roots = roots.value ?: listOf(),
         openDrawer = openDrawer,
@@ -219,7 +219,7 @@ fun OfflineRoots(
 private fun WithScaffold(
     loadingState: LoadingState,
     listLayout: ListLayout,
-    runningJob: RJob?,
+    syncJob: RJob?,
     title: String,
     roots: List<RLiveOfflineRoot>,
     openDrawer: () -> Unit,
@@ -319,7 +319,7 @@ private fun WithScaffold(
             OfflineRootsList(
                 loadingState = loadingState,
                 listLayout = listLayout,
-                runningJob = runningJob,
+                syncJob = syncJob,
                 roots = roots,
                 forceRefresh = forceRefresh,
                 openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.OFFLINE, it) },
@@ -344,7 +344,7 @@ private fun WithScaffold(
 private fun OfflineRootsList(
     loadingState: LoadingState,
     listLayout: ListLayout,
-    runningJob: RJob?,
+    syncJob: RJob?,
     roots: List<RLiveOfflineRoot>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
@@ -390,12 +390,12 @@ private fun OfflineRootsList(
                         contentPadding = listPadding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (runningJob != null) {
+                        if (syncJob != null) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 val percentage =
-                                    (runningJob.progress).toFloat().div(runningJob.total)
+                                    (syncJob.progress).toFloat().div(syncJob.total)
                                 SyncStatus(
-                                    desc = getJobStatus(item = runningJob),
+                                    desc = getJobStatus(item = syncJob),
                                     progress = percentage,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -430,16 +430,6 @@ private fun OfflineRootsList(
                                         .animateItemPlacement(),
                                 )
                             }
-//                            OfflineRootGridItem(
-//                                item = node,
-//                                title = getNodeTitle(
-//                                    name = node.name,
-//                                    mime = node.mime
-//                                ),
-//                                desc = getDesc(node),
-//                                more = { openMoreMenu(node.getStateID()) },
-//                                modifier = Modifier.clickable { open(node.getStateID()) },
-//                            )
                         }
                     }
                 }
@@ -449,12 +439,12 @@ private fun OfflineRootsList(
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (runningJob != null) {
+                        if (syncJob != null) {
                             item {
                                 val percentage =
-                                    (runningJob.progress).toFloat().div(runningJob.total)
+                                    (syncJob.progress).toFloat().div(syncJob.total)
                                 SyncStatus(
-                                    desc = getJobStatus(item = runningJob),
+                                    desc = getJobStatus(item = syncJob),
                                     progress = percentage,
                                     modifier = Modifier.fillMaxWidth()
                                 )

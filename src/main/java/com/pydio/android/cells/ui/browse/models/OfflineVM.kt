@@ -52,9 +52,8 @@ class OfflineVM(
     val syncJob: LiveData<RJob?>
         get() = _syncJobID.switchMap { currID ->
             if (currID < 1) {
-                MutableLiveData()
+                jobService.getMostRecent(nodeService.getSyncTemplateId(accountID))
             } else {
-                Log.e(logTag, "Updating sync job ID: #$currID")
                 jobService.getLiveJob(currID)
             }
         }

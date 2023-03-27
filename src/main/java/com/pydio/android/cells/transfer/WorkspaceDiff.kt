@@ -151,7 +151,7 @@ class WorkspaceDiff(
         // delete thumbs
         val thumbParPath =
             fileService.dataParentPath(local.getStateID().account(), AppNames.LOCAL_FILE_TYPE_THUMB)
-        // FIXME
+        //  FIXME
 //        for (node in nodeDB.treeNodeDao().getUnder(local.encodedState)) {
 //            node.thumbFilename?.let {
 //                Log.i(logTag, "Got a file to delete: $it")

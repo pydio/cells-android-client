@@ -44,7 +44,6 @@ class OfflineSync(
             }
             constraintBuilder.setRequiredNetworkType(netType)
 
-
             if (settings.onCharging) {
                 constraintBuilder.setRequiresCharging(true)
             }
@@ -58,7 +57,7 @@ class OfflineSync(
             }
 
             val repeatInterval = fromFreqToMinuteInterval(settings.frequency)
-            Log.d(logTag, "... Built offline request with a frequency of $repeatInterval min.")
+            Log.e(logTag, "... Built offline request with a frequency of $repeatInterval min.")
             return PeriodicWorkRequestBuilder<OfflineSync>(
                 repeatInterval, TimeUnit.MINUTES
             ).setConstraints(constraintBuilder.build()).build()

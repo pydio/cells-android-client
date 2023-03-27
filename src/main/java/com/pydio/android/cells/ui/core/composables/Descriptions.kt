@@ -11,6 +11,8 @@ import java.util.Locale
 @Composable
 fun getJobStatus(item: RJob): String {
 
+    // FIXME implement user friendlier messages with i18n
+
     var desc = "${item.status?.uppercase(Locale.getDefault())} "
 
     val createdTs = timestampToString(item.creationTimestamp, "dd-MM HH:mm:ss")
