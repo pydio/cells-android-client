@@ -2,9 +2,13 @@ package com.pydio.android.cells.ui.models
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
@@ -20,7 +24,7 @@ import kotlinx.coroutines.launch
 class DownloadVM(
     private val stateID: StateID,
     private val nodeService: NodeService,
-    private val transferService: TransferService,
+    private val transferService: TransferService
 ) : ViewModel() {
 
     private val logTag = "DownloadVM"
@@ -28,6 +32,10 @@ class DownloadVM(
     val treeNode: StateFlow<RTreeNode?> = _rTreeNode.asStateFlow()
 
     private val _transferID = MutableStateFlow(-1L)
+    val transfer: LiveData<RTransfer?>
+        get() = _transferID.asLiveData(viewModelScope.coroutineContext).switchMap { currID ->
+            transferService.liveTransfer(stateID.account(), currID)
+        }
 
     init {
         viewModelScope.launch {
@@ -35,7 +43,6 @@ class DownloadVM(
                 _rTreeNode.value = it
             }
         }
-        // Should we also reset the transfer ID here ?
     }
 
     fun cancelDownload() {
@@ -47,19 +54,19 @@ class DownloadVM(
     }
 
     suspend fun launchDownload(): Boolean {
-        val (jobID, errorMsg) =
+        val (transferID, errorMsg) =
             transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE, null)
         if (!errorMsg.isNullOrBlank()) {
             Log.e(logTag, "Could not prepare download for $stateID: $errorMsg")
             return false
         }
 
-        _transferID.value = jobID
-        transferService.runDownloadTransfer(stateID.account(), jobID, null)?.let {
+        _transferID.value = transferID
+        transferService.runDownloadTransfer(stateID.account(), transferID, null)?.let {
             Log.e(logTag, "Could not perform download for $stateID: $errorMsg")
             return false
         }
-
+        // }
         return true
     }
 

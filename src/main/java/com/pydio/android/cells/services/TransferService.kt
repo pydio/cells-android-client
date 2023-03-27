@@ -120,10 +120,6 @@ class TransferService(
         }
     }
 
-    fun getLiveRecord(accountId: StateID, transferID: Long): LiveData<RTransfer?> {
-        return getTransferDao(accountId).getLiveById(transferID)
-    }
-
     suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
         withContext(Dispatchers.IO) {
             return@withContext getTransferDao(accountID).getById(transferID)
@@ -267,31 +263,33 @@ class TransferService(
      * the real download.
      */
     suspend fun prepareDownload(
-        state: StateID,
+        stateID: StateID,
         type: String,
         parentJob: RJob?
     ): Pair<Long, String?> =
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
-            val rNode = nodeService.getNode(state)
+            val rNode = nodeService.getNode(stateID)
             if (rNode == null) {
                 // No node found, aborting
-                val errorMessage = "No node found for $state, aborting file DL"
+                val errorMessage = "No node found for $stateID, aborting file DL"
                 Log.w(logTag, errorMessage)
                 return@withContext Pair(-1, errorMessage)
             }
 
-            val localPath = fileService.getLocalPathFromState(state, type)
+            val localPath = fileService.getLocalPathFromState(stateID, type)
             val rec = RTransfer.fromState(
-                state.id,
+                stateID.id,
                 AppNames.TRANSFER_TYPE_DOWNLOAD,
                 localPath,
                 rNode.size,
                 rNode.mime,
                 parentJobId = parentJob?.jobId ?: 0L
             )
-            return@withContext Pair(getTransferDao(state).insert(rec), null)
+            val transferID = getTransferDao(stateID).insert(rec)
+            Log.e(logTag, "Prepared transfer #$transferID for $stateID")
+            return@withContext transferID to null
         }
 
     /**

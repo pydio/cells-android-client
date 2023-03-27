@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +38,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
+import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForConfirmation
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForNewName
@@ -84,19 +86,31 @@ fun Download(
 
     val context = LocalContext.current
 
+    val rTransfer = downloadVM.transfer.observeAsState()
     val rTreeNode = downloadVM.treeNode.collectAsState()
     val cancel: (Boolean) -> Unit = {
         downloadVM.cancelDownload()
         dismiss(it)
     }
 
+    val progress = rTransfer.value?.let {
+        if (it.byteSize > 0) {
+            Log.e(logTag, "got a new value ${it.byteSize}")
+            it.progress.toFloat().div(it.byteSize.toFloat())
+        } else {
+            0f
+        }
+    } ?: 0f
+
     AlertDialog(
         title = { Text(stringResource(R.string.running_download_title)) },
         text = {
             Column {
-                Text(rTreeNode.value?.name ?: "")
-                // TODO wire progress
-                LinearProgressIndicator()
+                Text(text = rTreeNode.value?.name ?: "")
+                SmoothLinearProgressIndicator(
+                    indicatorProgress = progress,
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.margin))
+                )
             }
         },
         confirmButton = {
@@ -128,7 +142,7 @@ fun PickDestination(
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
-    Log.e(logTag, "Composing PickDestination for $stateID")
+    Log.d(logTag, "Composing PickDestination for $stateID")
     val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
     val destinationPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument(),
