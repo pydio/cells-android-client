@@ -926,7 +926,10 @@ class NodeService(
      */
     suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
         withContext(Dispatchers.IO) {
-            Log.e(logTag, "Get file @[${rTreeNode.getStateID()}], check: $checkUpToDate")
+            Log.d(
+                logTag,
+                "Getting LocalFile for [${rTreeNode.getStateID()}], check: $checkUpToDate"
+            )
             val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
                 Log.e(logTag, "File not found at ${file.absolutePath}")
@@ -957,64 +960,6 @@ class NodeService(
                 return@withContext null
             }
         }
-
-//    suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
-//
-//        withContext(Dispatchers.IO) {
-//            Log.i(logTag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
-//            // TODO improve check to decide whether we should download the full file or not
-//            val isOK = isCacheVersionUpToDate(rTreeNode)
-//            when {
-//                isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-//                -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
-//                    .let { return@withContext File(it) }
-//                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
-//                -> {
-//                }
-//                isOK ?: false
-//                -> return@withContext File(
-//                    fileService.getLocalPath(
-//                        rTreeNode,
-//                        AppNames.LOCAL_FILE_TYPE_CACHE
-//                    )
-//                )
-//            }
-//
-//            Log.i(logTag, "... Launching download for ${rTreeNode.name}")
-//
-//            val stateID = rTreeNode.getStateID()
-//            val baseDir =
-//                fileService.dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
-//            val targetFile = File(baseDir, stateID.path.substring(1))
-//            targetFile.parentFile!!.mkdirs()
-//            var out: FileOutputStream? = null
-//
-//            try {
-//                out = FileOutputStream(targetFile)
-//
-//                // TODO handle progress
-//                getClient(stateID).download(stateID.workspace, stateID.file, out, null)
-//
-//                // Success persist change
-//                rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
-//                rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
-//                nodeDB(stateID).treeNodeDao().update(rTreeNode)
-//                Log.i(logTag, "... download done for ${rTreeNode.name}")
-//            } catch (se: SDKException) {
-//                // Could not retrieve thumb, failing silently for the end user
-//                val msg = "could not perform DL for " + stateID.id
-//                handleSdkException(stateID, msg, se)
-//                return@withContext null
-//            } catch (ioe: IOException) {
-//                // TODO handle this: what should we do ?
-//                Log.e(logTag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
-//                ioe.printStackTrace()
-//                return@withContext null
-//            } finally {
-//                IoHelpers.closeQuietly(out)
-//            }
-//            targetFile
-//        }
 
     suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
@@ -1063,19 +1008,6 @@ class NodeService(
         }
         return@withContext null
     }
-
-//    suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
-//        try {
-//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-//                ?: return@withContext "No node found at $stateID, could not delete"
-//            remoteEmptyRecycle(stateID)
-//            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
-//        } catch (se: SDKException) {
-//            se.printStackTrace()
-//            return@withContext "Could not empty recycle bin: ${se.message}"
-//        }
-//        return@withContext null
-//    }
 
     suspend fun rename(stateID: StateID, newName: String): String? =
         withContext(Dispatchers.IO) {

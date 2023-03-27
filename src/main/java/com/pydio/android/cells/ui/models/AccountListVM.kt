@@ -73,7 +73,7 @@ class AccountListVM(
 
     fun forgetAccount(stateID: StateID) {
         viewModelScope.launch {
-            accountService.forgetAccount(stateID)
+            accountService.forgetAccount(stateID.account())
         }
     }
 

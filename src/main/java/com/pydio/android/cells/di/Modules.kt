@@ -42,6 +42,7 @@ import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
@@ -197,6 +198,8 @@ val viewModelModule = module {
     viewModelOf(::SearchVM)
 
     viewModel { HouseKeepingVM(get()) }
+
+    viewModelOf(::DownloadVM)
 
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)

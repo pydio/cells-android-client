@@ -15,7 +15,6 @@ import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -30,9 +29,8 @@ class OfflineVM(
     prefs: PreferencesService,
     private val nodeService: NodeService,
     private val networkService: NetworkService,
-    private val jobService: JobService,
-    transferService: TransferService
-) : AbstractBrowseVM(prefs, nodeService, transferService) {
+    private val jobService: JobService
+) : AbstractBrowseVM(prefs, nodeService) {
 
 
     private val logTag = "OfflineVM"

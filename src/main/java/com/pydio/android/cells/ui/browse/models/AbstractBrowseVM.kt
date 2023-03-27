@@ -1,16 +1,16 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,10 +21,9 @@ import kotlinx.coroutines.launch
 open class AbstractBrowseVM(
     private val prefs: PreferencesService,
     private val nodeService: NodeService,
-    private val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = "AbstractBrowseVM"
+    // private val logTag = "AbstractBrowseVM"
 
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list
@@ -45,20 +44,13 @@ open class AbstractBrowseVM(
         }
     }
 
-    suspend fun viewFile(context: Context, node: RTreeNode) {
-        // TODO was nodeService.getLocalFile(it, activeSessionVM.canDownloadFiles())
-        //    re-implement finer check of the current context (typically metered state)
-        //    user choices.
+    private suspend fun viewFile(context: Context, node: RTreeNode) {
         nodeService.getLocalFile(node, true)?.let { file ->
             externallyView(context, file, node)
             return
         } ?: run {
-            // FIXME Launch a transfer, update UI and open the doc once here
-            // TODO implement streaming for audio and video.
-            // transferService.
-            Log.e(logTag, "#### File is not here and no DL has (yet) been launched...")
+            throw SDKException(ErrorCodes.no_local_file)
         }
-        Log.e(logTag, "Could not view file...")
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {

@@ -22,8 +22,6 @@ fun NavGraphBuilder.shareNavGraph(
     helper: ShareHelper,
     browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
-    // open: (StateID) -> Unit,
-//    isExpandedScreen: Boolean,
 ) {
 
     composable(ShareDestination.ChooseAccount.route) {
@@ -42,7 +40,6 @@ fun NavGraphBuilder.shareNavGraph(
 
     composable(ShareDestination.OpenFolder.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open target selection folder page with no ID")
             back()

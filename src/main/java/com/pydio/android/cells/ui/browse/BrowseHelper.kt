@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import com.pydio.android.cells.ui.browse.models.AbstractBrowseVM
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
@@ -54,9 +56,22 @@ class BrowseHelper(
                 } else if (item.isPreViewable()) {
                     BrowseDestinations.OpenCarousel.createRoute(stateID)
                 } else {
-                    // TODO external view double check and fix
-                    Log.e(logTag, "----- about to externally view file")
-                    browseVM.viewFile(context, stateID)
+                    try {
+                        browseVM.viewFile(context, stateID)
+                    } catch (e: SDKException) {
+                        if (e.code == ErrorCodes.no_local_file) {
+                            // File has not yet been downloaded
+                            navController.navigate(CellsDestinations.Download.createRoute(stateID))
+                            return
+                        } else {
+                            Log.e(
+                                logTag,
+                                "Unexpected error while trying to view file: ${e.message}"
+                            )
+                            e.printStackTrace()
+                            throw e // FIXME: this makes the app crash, good for debugging but remove before going live
+                        }
+                    }
                     return
                 }
             } else if (stateID == StateID.NONE) {

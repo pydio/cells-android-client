@@ -59,8 +59,6 @@ fun AskForFolderName(
 @Composable
 private fun AskForNameContent(value: String, updateValue: (String) -> Unit) {
     Column {
-//        Text(stringResource(R.string.dialog_create_folder_title))
-//        Divider()
         TextField(
             value = value,
             onValueChange = { updateValue(it) },

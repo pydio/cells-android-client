@@ -21,7 +21,7 @@ class TransfersVM(
     prefs: PreferencesService,
     private val transferService: TransferService,
     nodeService: NodeService,
-) : AbstractBrowseVM(prefs, nodeService, transferService) {
+) : AbstractBrowseVM(prefs, nodeService) {
 
     private val logTag = "TransfersVM"
 

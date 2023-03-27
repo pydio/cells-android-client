@@ -9,8 +9,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.browseNavGraph
+import com.pydio.android.cells.ui.browse.composables.Download
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyQueryContext
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -21,6 +23,7 @@ import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
 import com.pydio.android.cells.ui.search.SearchVM
@@ -138,6 +141,16 @@ fun CellsNavGraph(
                     navController = navController,
                     searchVM = searchVM
                 ),
+            )
+        }
+
+        dialog(CellsDestinations.Download.route) { entry ->
+            val downloadVM: DownloadVM =
+                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
+            Download(
+                stateID = lazyStateID(entry),
+                downloadVM = downloadVM,
+                dismiss = { navController.popBackStack() }
             )
         }
 

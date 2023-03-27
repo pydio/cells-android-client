@@ -23,11 +23,21 @@ sealed class CellsDestinations(val route: String) {
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("search/") ?: false
     }
+
+    object Download :
+        CellsDestinations("download/{${AppKeys.STATE_ID}}") {
+
+        fun createRoute(stateID: StateID) =
+            "download/${stateID.id}"
+
+        fun isCurrent(route: String?): Boolean =
+            route?.startsWith("download/") ?: false
+    }
 }
 
 class CellsNavigationActions(private val navController: NavHostController) {
 
-    private val logTag = "CellsNavigationActions"
+    // private val logTag = "CellsNavigationActions"
 
     val navigateToHome: () -> Unit = {
         navController.navigate(CellsDestinations.Home.route) {
@@ -66,10 +76,11 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-//    fun navigateToLogin(accountID: StateID) {
-//        val route = CellsDestinations.Login.createRoute(accountID)
-//        Log.e(logTag, "Open Login graph for $accountID: $route")
-//        navController.navigate(route) {
-//        }
-//    }
+    fun navigateToDownload(stateID: StateID) {
+        val route = CellsDestinations.Download.createRoute(stateID)
+        navController.navigate(route) {
+            launchSingleTop = true
+        }
+    }
+
 }

@@ -76,7 +76,6 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         return isFailed
     }
 
-
     init {
         initialize()
     }
