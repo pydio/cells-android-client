@@ -248,9 +248,7 @@ fun TopBarWithSearch(
                 keyboardOptions = KeyboardOptions(imeAction = imeAction),
                 keyboardActions = keyboardActions,
                 onValueChange = { newValue -> updateQuery(newValue) },
-//                modifier = Modifier.padding(contentPadding),
             )
-
         },
         navigationIcon = {
             IconButton(onClick = { cancel() }) {

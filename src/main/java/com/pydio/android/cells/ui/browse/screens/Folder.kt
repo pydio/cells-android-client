@@ -118,9 +118,6 @@ fun Folder(
     val showFAB by remember(key1 = treeNode) {
         derivedStateOf {
             val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
-            // This is never the case -> useless check
-            // val isNotAccountHome = Str.notEmpty(stateID.workspace)
-            Log.d(logTag, "Derived state of show fab: ${!inRecycle}")
             !inRecycle
         }
     }

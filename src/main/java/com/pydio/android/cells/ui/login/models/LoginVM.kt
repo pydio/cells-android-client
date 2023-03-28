@@ -40,10 +40,6 @@ class LoginVM(
     // TODO remove or reduce
     private val smoothActionDelay = 750L
 
-    // Tracks current page
-//    private val _currDestination = MutableStateFlow(LoginStep.URL)
-//    val currDestination: StateFlow<LoginStep> = _currDestination.asStateFlow()
-
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
 
