@@ -53,10 +53,7 @@ fun AppDrawer(
     prefReadOnlyVM: PrefReadOnlyVM = koinViewModel()
 ) {
 
-    val defaultPadding = PaddingValues(start = 16.dp, end = 16.dp)
-//        horizontal = 8.dp,
-//        vertical = 8.dp,)
-// NavigationDrawerItemDefaults.ItemPadding
+    val defaultPadding = PaddingValues(horizontal = dimensionResource(R.dimen.horizontal_padding))
     val defaultModifier = Modifier.padding(defaultPadding)
     val defaultTitleModifier = defaultModifier.padding(
         PaddingValues(
@@ -80,12 +77,8 @@ fun AppDrawer(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                // .weight(1f)
-                // .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
                 .verticalScroll(scrollState)
-
         ) {
-
             HomeHeader(
                 username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
                 address = accountID.value?.serverUrl ?: "",
@@ -108,27 +101,23 @@ fun AppDrawer(
                     icon = CellsIcons.KeepOffline,
                     selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
                     onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
-//                modifier = defaultModifier
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_bookmarks),
                     icon = CellsIcons.Bookmark,
                     selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
                     onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
-//                modifier = defaultModifier
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_transfers),
                     icon = CellsIcons.Transfers,
                     selected = BrowseDestinations.Transfers.isCurrent(currRoute),
                     onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
-//                modifier = defaultModifier
                 )
 
                 BottomSheetDivider()
 
                 MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-
                 wss.value?.listIterator()?.forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
@@ -140,7 +129,6 @@ fun AppDrawer(
                         modifier = defaultModifier
                     )
                 }
-
                 cells.value?.listIterator()?.forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
@@ -164,10 +152,8 @@ fun AppDrawer(
             }
 
             BottomSheetDivider()
-//        BottomSheetDivider(defaultModifier)
 
             MenuTitleText(stringResource(R.string.my_account), defaultTitleModifier)
-
             MyNavigationDrawerItem(
                 label = stringResource(R.string.action_settings),
                 icon = CellsIcons.Settings,

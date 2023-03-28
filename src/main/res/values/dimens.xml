@@ -36,7 +36,13 @@
     <dimen name="alpha_list_primary">0.87</dimen>
     <dimen name="alpha_list_secondary">0.6</dimen>
 
-    <!-- Material3 Forms -->
+    <!-- Material3 -->
+
+    <!-- Well known values -->
+    <dimen name="horizontal_padding">16dp</dimen>
+    <dimen name="vertical_padding">8dp</dimen>
+
+    <!-- Forms -->
     <dimen name="form_page_padding">16dp</dimen>
     <dimen name="form_input_horizontal_padding">16dp</dimen>
     <dimen name="form_input_vertical_padding">8dp</dimen>

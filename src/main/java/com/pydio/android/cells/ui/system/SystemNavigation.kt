@@ -1,7 +1,7 @@
 package com.pydio.android.cells.ui.system
 
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.StateID
 
 // private val logTag = "SystemNavigation"
@@ -10,7 +10,6 @@ import com.pydio.cells.transport.StateID
 sealed class SystemDestinations(val route: String) {
 
     companion object {
-        protected const val STATE_ID_KEY = "state-id"
         protected const val PREFIX = "share"
     }
 
@@ -19,7 +18,7 @@ sealed class SystemDestinations(val route: String) {
     object Logs : SystemDestinations("logs")
     object Jobs : SystemDestinations("jobs")
 
-    object ClearCache : SystemDestinations("$PREFIX/clear-cache/{$STATE_ID_KEY}") {
+    object ClearCache : SystemDestinations("$PREFIX/clear-cache/{${AppKeys.STATE_ID}}") {
         fun createRoute(stateID: StateID) = "${PREFIX}/clear-cache/${stateID.id}"
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/clear-cache/") ?: false
@@ -30,11 +29,7 @@ class SystemNavigationActions(navController: NavHostController) {
 
     val navigateToAbout: () -> Unit = {
         navController.navigate(SystemDestinations.About.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
             launchSingleTop = true
-            restoreState = true
         }
     }
 
@@ -46,27 +41,18 @@ class SystemNavigationActions(navController: NavHostController) {
 
     val navigateToLogs: () -> Unit = {
         navController.navigate(SystemDestinations.Logs.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
             launchSingleTop = true
-            restoreState = true
         }
     }
 
     val navigateToJobs: () -> Unit = {
         navController.navigate(SystemDestinations.Jobs.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
             launchSingleTop = true
-            restoreState = true
         }
     }
 
     val navigateToClearCache: (StateID) -> Unit = { stateID ->
-        val route = SystemDestinations.ClearCache.createRoute(stateID)
-        navController.navigate(route) {
+        navController.navigate(SystemDestinations.ClearCache.createRoute(stateID)) {
             launchSingleTop = true
         }
     }
