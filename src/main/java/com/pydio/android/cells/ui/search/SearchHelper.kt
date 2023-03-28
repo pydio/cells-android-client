@@ -10,7 +10,21 @@ class SearchHelper(
     private val navController: NavHostController,
     private val searchVM: SearchVM,
 ) {
+
     private val logTag = "SearchHelper"
+
+    suspend fun openParentLocation(stateID: StateID) {
+        val parent = stateID.parent()
+        searchVM.getNode(parent)?.let {
+            navController.navigate(
+                BrowseDestinations.Open.createRoute(parent)
+            )
+        } ?: run {
+            if (searchVM.retrieveFolder(parent)) {
+                navController.navigate(BrowseDestinations.Open.createRoute(parent))
+            }
+        }
+    }
 
     suspend fun open(context: Context, stateID: StateID) {
         Log.d(logTag, "... Calling open for $stateID")
@@ -29,7 +43,7 @@ class SearchHelper(
         navController.popBackStack()
     }
 
-    fun forceRefresh() {
-        searchVM.doQuery()
-    }
+//    fun forceRefresh() {
+//        searchVM.doQuery()
+//    }
 }

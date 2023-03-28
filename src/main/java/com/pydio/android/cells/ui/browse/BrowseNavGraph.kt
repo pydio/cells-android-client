@@ -85,7 +85,14 @@ fun NavGraphBuilder.browseNavGraph(
                 AccountHome(
                     stateID,
                     openDrawer = openDrawer,
-                    openSearch = {},
+                    openSearch = {
+                        navController.navigate(
+                            CellsDestinations.Search.createRoute(
+                                "AccountHome",
+                                stateID
+                            )
+                        )
+                    },
                     browseRemoteVM = browseRemoteVM,
                     accountHomeVM = accountHomeVM,
                     browseHelper = helper,

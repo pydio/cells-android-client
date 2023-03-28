@@ -48,17 +48,25 @@ interface TreeNodeDao {
         order: String
     ): LiveData<List<RTreeNode>>
 
-//    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
+    //    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
     @RawQuery(observedEntities = [RTreeNode::class])
-    fun lsFlow(
-        query: SupportSQLiteQuery
-    ): Flow<List<RTreeNode>>
+    fun lsFlow(query: SupportSQLiteQuery): Flow<List<RTreeNode>>
 
     @RawQuery(observedEntities = [RTreeNode::class])
     fun treeNodeQuery(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
 
+    @RawQuery
+    fun searchQuery(query: SupportSQLiteQuery): List<RTreeNode>
+
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY name")
     fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>
+
+    // Quick and rather dirty workaround to provide an empty live data when necessary
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state = 'NONE' LIMIT 100")
+    fun emptyLiveQuery(): LiveData<List<RTreeNode>>
+
+    @Query("SELECT * FROM tree_nodes WHERE name like '%' ||  :name || '%' LIMIT 100")
+    fun flowQuery(name: String): Flow<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE name like '%' ||  :name || '%' LIMIT 100")
     fun liveQuery(name: String): LiveData<List<RTreeNode>>

@@ -71,6 +71,8 @@ sealed class NodeAction(val id: String) {
     object ForceResync : NodeAction("force_re_sync")
     object OpenInApp : NodeAction("open_in_app")
 
+    object OpenParentLocation : NodeAction("open_parent_location")
+
     object SortBy : NodeAction("sort_by")
     object AsList : NodeAction("as_list")
     object AsGrid : NodeAction("as_grid")

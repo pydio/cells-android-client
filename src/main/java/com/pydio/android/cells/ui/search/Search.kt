@@ -6,7 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +16,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -62,6 +57,7 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -84,8 +80,8 @@ fun Search(
     val errMessage by searchVM.errorMessage.observeAsState()
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
-    val query by searchVM.queryString.observeAsState()
-    val hits = searchVM.newHits.observeAsState()
+    val query by searchVM.userInput.collectAsState("")
+    val hits = searchVM.hits.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
@@ -128,6 +124,12 @@ fun Search(
                     searchHelper.open(context, currID)
                 }
             }
+            is NodeAction.OpenParentLocation -> {
+                moreMenuDone()
+                scope.launch {
+                    searchHelper.openParentLocation(currID)
+                }
+            }
             is NodeAction.DownloadToDevice -> {
                 destinationPicker.launch(currID.fileName)
                 // Done is called by the destination picker callback
@@ -150,13 +152,16 @@ fun Search(
 
     WithScaffold(
         loadingState = loadingState ?: LoadingState.STARTING,
-        query = query ?: "",
+        query = query,
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
         listLayout = listLayout,
-        hits = hits.value ?: listOf(),
-        forceRefresh = searchHelper::forceRefresh,
-        open = { currID -> launch(NodeAction.OpenInApp, currID) },
+        hits = hits.value,
+        open = { currID ->
+            scope.launch {
+                searchHelper.open(context, currID)
+            }
+        },
         launch = launch,
         cancel = searchHelper::cancel,
         moreMenuState = MoreMenuState(
@@ -177,12 +182,13 @@ private fun WithScaffold(
     updateQuery: (String) -> Unit,
     listLayout: ListLayout,
     hits: List<RTreeNode>,
-    forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
     launch: (NodeAction, StateID) -> Unit,
     cancel: () -> Unit,
     moreMenuState: MoreMenuState,
 ) {
+
+    // val context = LocalContext.current
 
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
@@ -260,7 +266,10 @@ private fun WithScaffold(
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.SEARCH,
                         toOpenStateID = moreMenuState.stateID,
-                        launch = { launch(it, moreMenuState.stateID) },
+                        launch = {
+                            Log.e(logTag, "Calling $it for ${moreMenuState.stateID}")
+                            launch(it, moreMenuState.stateID)
+                        },
                     )
                 }
             },
@@ -271,8 +280,11 @@ private fun WithScaffold(
                 listLayout = listLayout,
                 query = query,
                 hits = hits,
-                forceRefresh = forceRefresh,
-                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.SEARCH, it) },
+                openMoreMenu = {
+                    // TODO hide keyboard here
+//                    context.getSystemService(InputMethod.SERVICE_INTERFACE).
+                    moreMenuState.openMoreMenu(NodeMoreMenuType.SEARCH, it)
+                },
                 open = open,
                 padding = padding,
             )
@@ -287,115 +299,105 @@ private fun HitsList(
     query: String,
     listLayout: ListLayout,
     hits: List<RTreeNode>,
-    forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
     padding: PaddingValues,
 ) {
 
-    val state = rememberPullRefreshState(
-        loadingState == LoadingState.PROCESSING,
-        onRefresh = {
-            Log.i(logTag, "Force refresh launched")
-            forceRefresh()
-        },
-    )
     WithLoadingListBackground(
         loadingState = loadingState,
         isEmpty = hits.isEmpty(),
+        showProgressAtStartup = false,
+        startingDesc = stringResource(R.string.search_hint),
+        emptyRefreshableDesc = if (Str.empty(query)) {
+            stringResource(R.string.search_hint, query)
+        } else {
+            stringResource(R.string.no_result_for_search, query)
+        },
         // TODO also handle if server is unreachable
         canRefresh = true,
-        emptyRefreshableDesc = stringResource(R.string.no_result_for_search, query),
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Box(Modifier.pullRefresh(state)) {
 
-            when (listLayout) {
-                ListLayout.GRID -> {
-                    val listPadding = PaddingValues(
-                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
-                        bottom = padding.calculateBottomPadding()
-                            .plus(dimensionResource(R.dimen.margin)),
-                        start = dimensionResource(id = R.dimen.margin_medium),
-                        end = dimensionResource(id = R.dimen.margin_medium),
-                    )
+        when (listLayout) {
+            ListLayout.GRID -> {
+                val listPadding = PaddingValues(
+                    top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                    bottom = padding.calculateBottomPadding()
+                        .plus(dimensionResource(R.dimen.margin)),
+                    start = dimensionResource(id = R.dimen.margin_medium),
+                    end = dimensionResource(id = R.dimen.margin_medium),
+                )
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = padding,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(
-                            items = hits,
-                            key = { it.encodedState }) { node ->
-                            if (node.hasThumb()) {
-                                LargeCardWithThumb(
-                                    stateID = node.getStateID(),
-                                    eTag = node.etag,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModificationTS,
-                                        node.size,
-                                        node.localModificationStatus
-                                    ),
-                                    openMoreMenu = {
-                                        openMoreMenu(node.getStateID())
-                                    },
-                                    modifier = Modifier
-                                        .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
-                                )
-
-                            } else {
-                                LargeCardWithIcon(
-                                    sortName = node.sortName,
-                                    mime = node.mime,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModificationTS,
-                                        node.size,
-                                        node.localModificationStatus
-                                    ),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
-                                )
-                            }
-                        }
-                    }
-                }
-                else -> {
-                    LazyColumn(
-                        contentPadding = padding,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(hits, key = { it.encodedState }) { node ->
-                            NodeItem(
-                                item = node,
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = listPadding,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        items = hits,
+                        key = { it.encodedState }) { node ->
+                        if (node.hasThumb()) {
+                            LargeCardWithThumb(
+                                stateID = node.getStateID(),
+                                eTag = node.etag,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
                                     node.remoteModificationTS,
                                     node.size,
                                     node.localModificationStatus
                                 ),
-                                more = { openMoreMenu(node.getStateID()) },
-                                modifier = Modifier.clickable { open(node.getStateID()) },
+                                openMoreMenu = {
+                                    openMoreMenu(node.getStateID())
+                                },
+                                modifier = Modifier
+                                    .clickable { open(node.getStateID()) }
+                                    .animateItemPlacement(),
+                            )
+
+                        } else {
+                            LargeCardWithIcon(
+                                sortName = node.sortName,
+                                mime = node.mime,
+                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                desc = getNodeDesc(
+                                    node.remoteModificationTS,
+                                    node.size,
+                                    node.localModificationStatus
+                                ),
+                                openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { open(node.getStateID()) }
+                                    .animateItemPlacement(),
                             )
                         }
                     }
                 }
             }
-
-            PullRefreshIndicator(
-                loadingState == LoadingState.PROCESSING,
-                state,
-                Modifier.align(Alignment.TopCenter)
-            )
+            else -> {
+                LazyColumn(
+                    contentPadding = padding,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(hits, key = { it.encodedState }) { node ->
+                        NodeItem(
+                            item = node,
+                            title = getNodeTitle(name = node.name, mime = node.mime),
+                            desc = getNodeDesc(
+                                node.remoteModificationTS,
+                                node.size,
+                                node.localModificationStatus
+                            ),
+                            more = { openMoreMenu(node.getStateID()) },
+                            modifier = Modifier.clickable { open(node.getStateID()) },
+                        )
+                    }
+                }
+            }
         }
     }
 }

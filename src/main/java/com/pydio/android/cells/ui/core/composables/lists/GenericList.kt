@@ -37,6 +37,8 @@ fun WithLoadingListBackground(
     isEmpty: Boolean,
     modifier: Modifier = Modifier,
     canRefresh: Boolean = true,
+    showProgressAtStartup: Boolean = true,
+    startingDesc: String = stringResource(R.string.loading_message),
     emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
     emptyNoConnDesc: String = stringResource(R.string.empty_cache) + "\n" + stringResource(R.string.server_unreachable),
     content: @Composable () -> Unit,
@@ -44,12 +46,10 @@ fun WithLoadingListBackground(
     Box(modifier = modifier) {
         if (isEmpty) {
             if (loadingState == LoadingState.STARTING) {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-//                     .background(CellsColor.danger)
-                ) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     StartingIndicator(
-                        desc = stringResource(R.string.loading_message),
+                        desc = startingDesc,
+                        showProgressAtStartup = showProgressAtStartup,
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(.5f)
@@ -79,6 +79,7 @@ fun WithLoadingListBackground(
 @Composable
 fun StartingIndicator(
     modifier: Modifier = Modifier,
+    showProgressAtStartup: Boolean = true,
     desc: String?
 ) {
     Column(
@@ -86,7 +87,9 @@ fun StartingIndicator(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        CircularProgressIndicator()
+        if (showProgressAtStartup) {
+            CircularProgressIndicator()
+        }
         desc?.let {
             Text(it)
         }

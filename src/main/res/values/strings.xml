@@ -148,7 +148,7 @@
 
     <!-- Search -->
     <string name="search_label" translatable="false">Search...</string>
-    <string name="search_hint" translatable="false">Search Hint</string>
+    <string name="search_hint" translatable="false">Please provide a query</string>
 
     <!--Offline -->
     <string name="sync_in_progress">Synchronising…</string>

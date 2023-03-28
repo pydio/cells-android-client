@@ -1,7 +1,7 @@
 package com.pydio.android.cells.ui.core
 
 enum class LoadingState {
-    STARTING, PROCESSING, IDLE
+    NEW, STARTING, PROCESSING, IDLE
 }
 
 // see: https://kotlinlang.org/docs/enum-classes.html#working-with-enum-constants

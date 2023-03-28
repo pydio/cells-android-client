@@ -9,7 +9,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.accounts.RWorkspace
@@ -19,6 +18,7 @@ import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
 import com.pydio.android.cells.ui.browse.menus.OfflineMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleMenu
 import com.pydio.android.cells.ui.browse.menus.RecycleParentMenu
+import com.pydio.android.cells.ui.browse.menus.SearchMenu
 import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
@@ -86,6 +86,11 @@ fun NodeMoreMenuData(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
+                )
+                type == NodeMoreMenuType.SEARCH -> SearchMenu(
+                    stateID = toOpenStateID,
+                    rTreeNode = myItem,
+                    launch = { launch(it) },
                 )
                 type == NodeMoreMenuType.SORT_BY -> SortByMenu(
                     type = ListType.DEFAULT,
