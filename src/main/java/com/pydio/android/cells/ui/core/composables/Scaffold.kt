@@ -1,11 +1,11 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
@@ -13,48 +13,45 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsTheme
 import com.pydio.cells.utils.Str
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WithDefaultScaffold(
-    title: String,
-    openDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable (PaddingValues) -> Unit,
-) {
-//    val topAppBarState = rememberTopAppBarState()
-    Scaffold(
-        topBar = {
-            DefaultTopAppBar(
-                title = title,
-                openDrawer = openDrawer,
-//                topAppBarState = topAppBarState
-            )
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        content(innerPadding)
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun WithDefaultScaffold(
+//    title: String,
+//    openDrawer: () -> Unit,
+//    modifier: Modifier = Modifier,
+//    content: @Composable (PaddingValues) -> Unit,
+//) {
+////    val topAppBarState = rememberTopAppBarState()
+//    Scaffold(
+//        topBar = {
+//            DefaultTopAppBar(
+//                title = title,
+//                openDrawer = openDrawer,
+////                topAppBarState = topAppBarState
+//            )
+//        },
+//        modifier = modifier
+//    ) { innerPadding ->
+//        content(innerPadding)
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +103,6 @@ fun DefaultTopBar(
         }
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,7 +169,6 @@ fun TopBarWithMoreMenu(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarWithActions(
@@ -228,24 +223,32 @@ fun TopBarWithSearch(
     content: @Composable ColumnScope.() -> Unit,
     imeAction: ImeAction = ImeAction.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    contentPadding: PaddingValues = PaddingValues(all = 16.dp),
+//    contentPadding: PaddingValues = PaddingValues(all = 16.dp),
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
             TextField(
                 value = queryStr,
-                // label = { Icon(CellsIcons.CancelSearch, "Search") },
+                textStyle = MaterialTheme.typography.bodyMedium,
+                // label = { Icon(CellsIcons.Search, "Search") },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search_label),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .5f)
+                    )
+                },
                 supportingText = {
                     if (Str.notEmpty(errorMessage)) {
                         Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
                     }
                 },
                 enabled = true,
+                singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = imeAction),
                 keyboardActions = keyboardActions,
                 onValueChange = { newValue -> updateQuery(newValue) },
-                modifier = Modifier.padding(contentPadding),
+//                modifier = Modifier.padding(contentPadding),
             )
 
         },
@@ -271,21 +274,24 @@ fun TopBarWithSearch(
                 content = content
             )
         },
-        modifier = Modifier.height(84.dp)
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .wrapContentHeight(CenterVertically)
+            .padding(vertical = dimensionResource(R.dimen.margin)),
     )
 }
 
 /** Helper method to provide a better design depending on the user's device,
  * inspired from: [TODO]
  */
-@Composable
-fun extraTopPadding(isExpandedScreen: Boolean): Dp {
-    return if (!isExpandedScreen) {
-        0.dp
-    } else {
-        dimensionResource(R.dimen.expanded_screen_extra_top_padding)
-    }
-}
+//@Composable
+//fun extraTopPadding(isExpandedScreen: Boolean): Dp {
+//    return if (!isExpandedScreen) {
+//        0.dp
+//    } else {
+//        dimensionResource(R.dimen.expanded_screen_extra_top_padding)
+//    }
+//}
 
 @Preview(name = "Default top bar - Light Mode")
 @Preview(

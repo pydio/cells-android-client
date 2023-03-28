@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.search
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,6 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeGridItem
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
@@ -54,6 +54,8 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
@@ -252,12 +254,7 @@ private fun WithScaffold(
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
                         type = ListType.DEFAULT,
-                        done = {
-                            launch(
-                                NodeAction.SortBy,
-                                StateID.NONE
-                            )
-                        },
+                        done = { launch(NodeAction.SortBy, StateID.NONE) },
                     )
                 } else {
                     NodeMoreMenuData(
@@ -272,28 +269,28 @@ private fun WithScaffold(
             HitsList(
                 loadingState = loadingState,
                 listLayout = listLayout,
-                bookmarks = hits,
+                query = query,
+                hits = hits,
                 forceRefresh = forceRefresh,
-                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, it) },
+                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.SEARCH, it) },
                 open = open,
                 padding = padding,
-                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun HitsList(
     loadingState: LoadingState,
+    query: String,
     listLayout: ListLayout,
-    bookmarks: List<RTreeNode>,
+    hits: List<RTreeNode>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
     padding: PaddingValues,
-    modifier: Modifier,
 ) {
 
     val state = rememberPullRefreshState(
@@ -305,16 +302,25 @@ private fun HitsList(
     )
     WithLoadingListBackground(
         loadingState = loadingState,
-        isEmpty = bookmarks.isEmpty(),
+        isEmpty = hits.isEmpty(),
         // TODO also handle if server is unreachable
         canRefresh = true,
+        emptyRefreshableDesc = stringResource(R.string.no_result_for_search, query),
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Box(modifier.pullRefresh(state)) {
+        Box(Modifier.pullRefresh(state)) {
 
             when (listLayout) {
                 ListLayout.GRID -> {
+                    val listPadding = PaddingValues(
+                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        bottom = padding.calculateBottomPadding()
+                            .plus(dimensionResource(R.dimen.margin)),
+                        start = dimensionResource(id = R.dimen.margin_medium),
+                        end = dimensionResource(id = R.dimen.margin_medium),
+                    )
+
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -323,21 +329,43 @@ private fun HitsList(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(
-                            items = bookmarks,
+                            items = hits,
                             key = { it.encodedState }) { node ->
-                            NodeGridItem(
-                                item = node,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
-                                modifier = Modifier.clickable { open(node.getStateID()) },
-                            )
+                            if (node.hasThumb()) {
+                                LargeCardWithThumb(
+                                    stateID = node.getStateID(),
+                                    eTag = node.etag,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = {
+                                        openMoreMenu(node.getStateID())
+                                    },
+                                    modifier = Modifier
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+
+                            } else {
+                                LargeCardWithIcon(
+                                    sortName = node.sortName,
+                                    mime = node.mime,
+                                    title = getNodeTitle(name = node.name, mime = node.mime),
+                                    desc = getNodeDesc(
+                                        node.remoteModificationTS,
+                                        node.size,
+                                        node.localModificationStatus
+                                    ),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { open(node.getStateID()) }
+                                        .animateItemPlacement(),
+                                )
+                            }
                         }
                     }
                 }
@@ -346,7 +374,7 @@ private fun HitsList(
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(bookmarks) { node ->
+                        items(hits, key = { it.encodedState }) { node ->
                             NodeItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
@@ -355,9 +383,7 @@ private fun HitsList(
                                     node.size,
                                     node.localModificationStatus
                                 ),
-                                more = {
-                                    openMoreMenu(node.getStateID())
-                                },
+                                more = { openMoreMenu(node.getStateID()) },
                                 modifier = Modifier.clickable { open(node.getStateID()) },
                             )
                         }

@@ -88,7 +88,7 @@ object CellsIcons {
     val AsSmallerGrid = Icons.Default.ViewCompact
     val Bookmark = Icons.Outlined.StarBorder
     val Cancel = Icons.Outlined.Cancel
-    val CancelSearch = Icons.Default.Cancel
+    val CancelSearch = Icons.Filled.Close
     val Check = Icons.Default.Check
     val CellThumb = Icons.Outlined.FolderShared
     val ClearCache = Icons.Default.FolderDelete

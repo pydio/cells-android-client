@@ -147,7 +147,7 @@
     <string name="in_progress_restoring">Restoring…</string>
 
     <!-- Search -->
-    <string name="search_label" translatable="false">Search Label</string>
+    <string name="search_label" translatable="false">Search...</string>
     <string name="search_hint" translatable="false">Search Hint</string>
 
     <!--Offline -->
