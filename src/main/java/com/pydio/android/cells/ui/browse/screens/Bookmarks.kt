@@ -413,9 +413,9 @@ private fun BookmarkList(
                                 ),
                                 more = { openMoreMenu(node.getStateID()) },
                                 modifier = Modifier
-//                                    .animateItemPlacement()
                                     .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) },
+                                    .clickable { open(node.getStateID()) }
+                                    .animateItemPlacement(),
                             )
                         }
                     }

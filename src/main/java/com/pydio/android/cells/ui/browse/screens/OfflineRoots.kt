@@ -446,7 +446,7 @@ private fun OfflineRootsList(
                                 )
                             }
                         }
-                        items(roots) { offlineRoot ->
+                        items(roots, key = { it.encodedState }) { offlineRoot ->
                             OfflineRootItem(
                                 item = offlineRoot,
                                 title = getNodeTitle(
@@ -455,7 +455,9 @@ private fun OfflineRootsList(
                                 ),
                                 desc = getDesc(offlineRoot),
                                 more = { openMoreMenu(offlineRoot.getStateID()) },
-                                modifier = Modifier.clickable { open(offlineRoot.getStateID()) },
+                                modifier = Modifier
+                                    .clickable { open(offlineRoot.getStateID()) }
+                                    .animateItemPlacement(),
                             )
                         }
                         item {

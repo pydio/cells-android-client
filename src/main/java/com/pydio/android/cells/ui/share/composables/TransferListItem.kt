@@ -5,13 +5,12 @@ import android.content.res.Configuration
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +25,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -105,122 +106,106 @@ private fun TransferListItem(
     modifier: Modifier = Modifier,
 ) {
 
-    Surface(
-        tonalElevation = dimensionResource(R.dimen.list_item_elevation),
-        modifier = modifier
-            .fillMaxWidth()
-            //.padding(all = dimensionResource(R.dimen.card_padding))
-            .wrapContentWidth(Alignment.CenterHorizontally)
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.padding(
+            horizontal = dimensionResource(R.dimen.list_item_inner_h_padding),
+            vertical = dimensionResource(R.dimen.list_item_inner_v_padding),
+        )
     ) {
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(R.dimen.list_item_inner_h_padding),
-                vertical = dimensionResource(R.dimen.list_item_inner_v_padding),
-            )
-        ) {
-
-            Decorated(Type.JOB, status) {
-                val thumbImg = when (type) {
-                    AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsIcons.DownloadFile
-                    else -> CellsIcons.UploadFile
-                }
-                Icon(
-                    imageVector = thumbImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(all = dimensionResource(id = R.dimen.list_thumb_padding))
-                        .size(dimensionResource(R.dimen.list_thumb_size))
-                        .alpha(.5f)
-                )
+        Decorated(Type.JOB, status) {
+            val thumbImg = when (type) {
+                AppNames.TRANSFER_TYPE_DOWNLOAD -> CellsIcons.DownloadFile
+                else -> CellsIcons.UploadFile
             }
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-
-            Column(
-                modifier = modifier
-                    .weight(1f)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.card_padding),
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                if (progress > 0 && progress < 1) {
-                    SmoothLinearProgressIndicator(
-                        indicatorProgress = progress,
-                        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.margin_small))
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-
-            val btnVectorImg: ImageVector
-            val btnModifier: Modifier
-
-            when (status) {
-                AppNames.JOB_STATUS_PROCESSING -> {
-                    btnVectorImg = CellsIcons.Pause
-                    btnModifier = Modifier.clickable { pause() }
-                }
-                AppNames.JOB_STATUS_CANCELLED,
-                AppNames.JOB_STATUS_ERROR,
-                -> {
-                    btnVectorImg = CellsIcons.Resume
-                    btnModifier = Modifier.clickable { resume() }
-                }
-                AppNames.JOB_STATUS_DONE -> {
-                    btnVectorImg = CellsIcons.Delete
-                    btnModifier = Modifier.clickable { remove() }
-                }
-                else -> {
-                    btnVectorImg = CellsIcons.Pause
-                    btnModifier = Modifier.alpha(0.6f)
-                }
-            }
-
             Icon(
-                imageVector = btnVectorImg,
+                imageVector = thumbImg,
                 contentDescription = null,
-                modifier = btnModifier
-                    .size(dimensionResource(R.dimen.list_trailing_icon_size))
+                modifier = Modifier
+                    .padding(all = dimensionResource(id = R.dimen.list_thumb_padding))
+                    .size(dimensionResource(R.dimen.list_thumb_size))
+                    .alpha(.5f)
             )
+        }
 
-//            Surface(modifier = btnModifier) {
-//                Icon(
-//                    imageVector = btnVectorImg,
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(dimensionResource(R.dimen.list_button_size))
-//                )
-//            }
-
-            val moreModifier = when {
-                isActionProcessing -> Modifier.alpha(0.6f)
-                else -> Modifier.clickable { more() }
-            }
-
-            Surface(modifier = moreModifier) {
-                Icon(
-                    imageVector = CellsIcons.MoreVert,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.card_padding),
+                    vertical = dimensionResource(R.dimen.margin_xsmall)
+                )
+                .wrapContentWidth(Alignment.Start)
+        ) {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = desc,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (progress > 0 && progress < 1) {
+                SmoothLinearProgressIndicator(
+                    indicatorProgress = progress,
+                    modifier = Modifier.padding(top = dimensionResource(id = R.dimen.margin_small))
                 )
             }
         }
+
+        val btnVectorImg: ImageVector
+        val btnModifier: Modifier
+
+        when (status) {
+            AppNames.JOB_STATUS_PROCESSING -> {
+                btnVectorImg = CellsIcons.Pause
+                btnModifier = Modifier.clickable { pause() }
+            }
+            AppNames.JOB_STATUS_CANCELLED,
+            AppNames.JOB_STATUS_ERROR,
+            -> {
+                btnVectorImg = CellsIcons.Resume
+                btnModifier = Modifier.clickable { resume() }
+            }
+            AppNames.JOB_STATUS_DONE -> {
+                btnVectorImg = CellsIcons.Delete
+                btnModifier = Modifier.clickable { remove() }
+            }
+            else -> {
+                btnVectorImg = CellsIcons.Pause
+                btnModifier = Modifier.alpha(0.6f)
+            }
+        }
+
+        Icon(
+            imageVector = btnVectorImg,
+            contentDescription = null,
+            modifier = btnModifier
+                .requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
+        )
+
+        val moreModifier = when {
+            isActionProcessing -> Modifier.alpha(0.6f)
+            else -> Modifier.clickable { more() }
+        }
+
+        Surface(modifier = moreModifier) {
+            Icon(
+                imageVector = CellsIcons.MoreVert,
+                contentDescription = null,
+                modifier = Modifier
+                    .requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
+            )
+        }
     }
 }
+
 
 @Composable
 fun buildStatusString(item: RTransfer): AnnotatedString {

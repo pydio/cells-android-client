@@ -44,7 +44,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -422,9 +421,7 @@ private fun FolderList(
                     }
                 }
                 else -> {
-
-                    val width = LocalConfiguration.current.run { screenWidthDp.dp }
-
+//                    val width = LocalConfiguration.current.run { screenWidthDp.dp }
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
                         modifier = Modifier.fillMaxWidth()
@@ -451,7 +448,6 @@ private fun FolderList(
                                     node.localModificationStatus
                                 ),
                                 more = { openMoreMenu(node.getStateID()) },
-                                maxWidth = width,
                                 modifier = Modifier
                                     .padding(0.dp)
                                     .fillMaxWidth()
