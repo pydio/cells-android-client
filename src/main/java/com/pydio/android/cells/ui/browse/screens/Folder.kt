@@ -44,10 +44,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.BrowseHelper
@@ -347,7 +349,11 @@ private fun FolderList(
         canRefresh = true,
         modifier = Modifier.padding(padding)
     ) {
-        Box(Modifier.pullRefresh(state)) {
+        Box(
+            Modifier
+                //   .fillMaxSize()
+                .pullRefresh(state)
+        ) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
@@ -416,6 +422,9 @@ private fun FolderList(
                     }
                 }
                 else -> {
+
+                    val width = LocalConfiguration.current.run { screenWidthDp.dp }
+
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
                         modifier = Modifier.fillMaxWidth()
@@ -442,10 +451,13 @@ private fun FolderList(
                                     node.localModificationStatus
                                 ),
                                 more = { openMoreMenu(node.getStateID()) },
+                                maxWidth = width,
                                 modifier = Modifier
+                                    .padding(0.dp)
+                                    .fillMaxWidth()
                                     .clickable { open(node.getStateID()) }
-                                // This breaks the layout and makes the trailing buttons disappear
-                                // .animateItemPlacement()
+                                    // This breaks the layout and makes the trailing buttons disappear
+                                    .animateItemPlacement()
                             )
                         }
                     }

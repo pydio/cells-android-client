@@ -106,7 +106,7 @@ fun NavGraphBuilder.browseNavGraph(
         val carouselVM: CarouselVM = koinViewModel(parameters = { parametersOf(stateID) })
         Carousel(
             stateID,
-            back = back,
+            // back = back,
             carouselVM,
         )
     }
