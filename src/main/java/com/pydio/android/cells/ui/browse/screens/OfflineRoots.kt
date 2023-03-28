@@ -368,11 +368,7 @@ private fun OfflineRootsList(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Box(
-            Modifier
-                .fillMaxSize()
-                .pullRefresh(state)
-        ) {
+        Box(Modifier.pullRefresh(state)) { // .fillMaxSize()) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
