@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,10 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -303,12 +301,12 @@ private fun FolderScaffold(
                 }) {
                     Icon(
                         Icons.Filled.Add,
-                        contentDescription = stringResource(id = R.string.fab_transformation_sheet_behavior)
+                        contentDescription = "Open creation more menu"
                     )
                 }
             }
         },
-    ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
+    ) { padding -> // Compulsory padding parameter. Must be applied to the topmost container/view in content:
         FolderList(
             loadingState = loadingState,
             listLayout = listLayout,
@@ -323,7 +321,7 @@ private fun FolderScaffold(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun FolderList(
     loadingState: LoadingState,
@@ -336,6 +334,7 @@ private fun FolderList(
     forceRefresh: () -> Unit,
     padding: PaddingValues,
 ) {
+
     // WARNING: pullRefresh API is:
     //   - experimental
     //   - only implemented in material "1" for the time being.
@@ -349,17 +348,13 @@ private fun FolderList(
         isEmpty = children.isEmpty(),
         // TODO also handle if server is unreachable
         canRefresh = true,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.padding(padding)
     ) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .pullRefresh(state)
-        ) {
+        Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
-                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        top = dimensionResource(id = R.dimen.margin_medium), // padding.calculateTopPadding(),
                         bottom = padding.calculateBottomPadding()
                             .plus(dimensionResource(R.dimen.list_bottom_fab_padding)),
                         start = dimensionResource(id = R.dimen.margin_medium),
@@ -371,11 +366,10 @@ private fun FolderList(
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         contentPadding = listPadding,
-                        modifier = Modifier.fillMaxWidth()
+                        // modifier = Modifier.fillMaxWidth()
                     ) {
 
                         if (Str.notEmpty(stateID.path)) {
-//                            item(span = { GridItemSpan(maxLineSpan) }) {
                             item {
                                 val parentDescription = when {
                                     Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
@@ -426,7 +420,7 @@ private fun FolderList(
                 }
                 else -> {
                     LazyColumn(
-                        contentPadding = padding,
+                        contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (Str.notEmpty(stateID.path)) {
@@ -452,17 +446,9 @@ private fun FolderList(
                                 ),
                                 more = { openMoreMenu(node.getStateID()) },
                                 modifier = Modifier
-                                    // .padding(all = dimensionResource(R.dimen.card_padding))
-                                    .fillMaxWidth()
                                     .clickable { open(node.getStateID()) }
-                                // .animateItemPlacement(),
-                            )
-                        }
-                        item {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(dimensionResource(R.dimen.list_bottom_fab_padding))
+                                // This breaks the layout and makes the trailing buttons disappear
+                                // .animateItemPlacement()
                             )
                         }
                     }

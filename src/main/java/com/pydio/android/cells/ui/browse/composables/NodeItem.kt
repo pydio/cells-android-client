@@ -76,12 +76,14 @@ fun M3NodeItem(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 8.dp,
-                start = 16.dp,
-                end = 8.dp,
-            )
+            modifier = Modifier
+//                .fillMaxWidth()
+                .padding(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 8.dp,
+                )
         ) {
 
             Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
@@ -115,7 +117,6 @@ fun M3NodeItem(
                     colorFilter = ColorFilter.tint(CellsColor.flagBookmark),
                     modifier = Modifier.size(dimensionResource(R.dimen.list_item_flag_decorator)),
                     contentDescription = ""
-                    // contentScale = ContentScale.Crop,
                 )
             }
             if (isShared) {
@@ -144,14 +145,6 @@ fun M3NodeItem(
                         .size(dimensionResource(R.dimen.list_trailing_icon_size))
                 )
             }
-//            Surface(Modifier.clickable { more() }) {
-//                Icon(
-//                    imageVector = CellsIcons.MoreVert,
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(dimensionResource(R.dimen.list_trailing_icon_size))
-//                )
-//            }
         }
     }
 }

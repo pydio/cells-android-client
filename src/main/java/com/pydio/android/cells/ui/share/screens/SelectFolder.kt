@@ -109,7 +109,6 @@ fun SelectFolderScaffold(
 ) {
     Scaffold(
         topBar = {
-            // FIXME we must add options to the top bar
             TopBar(
                 action,
                 stateID = stateID,
@@ -272,8 +271,6 @@ private fun TopBar(
     modifier: Modifier = Modifier.fillMaxWidth()
 ) {
 
-//     val title = stringResource(R.string.choose_target_for_share_title)
-
     val title = when (action) {
         AppNames.ACTION_UPLOAD -> stringResource(R.string.choose_target_for_share_title)
         AppNames.ACTION_COPY -> stringResource(R.string.choose_target_for_copy_title)
@@ -284,7 +281,7 @@ private fun TopBar(
     val subTitle = stateID.path ?: "${stateID.username}@${stateID.serverHost}"
 
     Surface(
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier
     ) {
         Row(
@@ -292,7 +289,7 @@ private fun TopBar(
                 .fillMaxWidth()
                 .padding(
                     horizontal = dimensionResource(R.dimen.margin_small),
-                    vertical = 0.dp
+                    vertical = dimensionResource(R.dimen.margin_small),
                 )
         ) {
             Column(

@@ -331,7 +331,7 @@ private fun BookmarkList(
         isEmpty = bookmarks.isEmpty(),
         // TODO also handle if server is unreachable
         canRefresh = true,
-        emptyRefreshableDesc = stringResource(id = R.string.no_bookmark_for_account),
+        emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
 
