@@ -28,12 +28,30 @@
         <item>Connecté (dès que le serveur peut être atteint, sans prendre en compte le type de réseau)</item>
     </string-array>
     <string-array name="filter_transfer_by_status_labels">
-        <item>Show all (no filter)</item>
-        <item>New</item>
-        <item>Processing</item>
-        <item>Cancelled</item>
-        <item>Done</item>
-        <item>Error</item>
-        <item>Timeout</item>
+        <item>Tout afficher (aucun filtre)</item>
+        <item>Nouveau</item>
+        <item>En cours</item>
+        <item>Annulé</item>
+        <item>Terminé</item>
+        <item>Erreur</item>
+        <item>Expiré</item>
     </string-array>
+    <string-array name="transfer_order_by_labels">
+        <item>Canonique (par ordre de création, le plus récent en premier)</item>
+        <item>Date de création (le plus ancien en premier)</item>
+        <item>Statut (de A à Z)</item>
+        <item>Statut (Z à A)</item>
+        <item>Type (Téléchargements en premier)</item>
+        <item>Type (Téléversements d\'abord)</item>
+    </string-array>
+    <string-array name="job_order_by_labels">
+        <item>Canonique (par ordre de création, le plus récent en premier)</item>
+        <item>Date de création (le plus ancien en premier)</item>
+        <item>Statut (de A à Z)</item>
+        <item>Statut (de Z à A)</item>
+    </string-array>
+    <!--    <string-array name="job_sort_by_values" translatable="false">-->
+    <!--        <item>creation_ts_desc</item>-->
+    <!--        <item>creation_ts_asc</item>-->
+    <!--    </string-array>-->
 </resources>

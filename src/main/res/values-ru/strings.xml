@@ -6,6 +6,7 @@
     <string name="button_confirm">Подтвердить</string>
     <string name="button_next">Next</string>
     <string name="button_back">Back</string>
+    <string name="button_done_and_exit">Upload done. Exit</string>
     <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Отмена</string>
     <string name="button_switch_to_grid_layout">В виде сетки</string>
@@ -143,8 +144,10 @@
     <string name="job_sort_by_creation_ts_desc_label">Создание (сначала новые)</string>
     <string name="job_sort_by_creation_ts_asc_label">Создание (сначала старые)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Журналы фоновых процессов</string>
+    <string name="log_list_title">Application logs</string>
     <!-- Transfer Management -->
+    <string name="upload_screen_pending_title">Uploading…</string>
+    <string name="upload_screen_done_title">Upload terminated</string>
     <string name="transfer_list_title">Текущие передачи</string>
     <string name="choose_target_for_share_title">Поделиться…</string>
     <string name="choose_target_for_copy_title">Копировать…</string>
@@ -156,7 +159,12 @@
     <string name="pick_up_folder">Выберите целевую папку</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Перезапустить передачу</string>
+    <!-- System -->
+    <!-- Jobs -->
+    <string name="clear_terminated">Clear terminated</string>
     <string name="delete_record">Удалить запись</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Clear application logs</string>
     <!-- Migration-->
     <string name="migration_message">Миграция старых данных, подождите…</string>
     <string name="post_migration_title">Успешно обновлено до новой версии!</string>
@@ -198,15 +206,15 @@
     <string name="link_copy_failed">Не удалось скопировать ссылку</string>
     <!-- Sort By -->
     <string name="sort_by">Порядок Сортировки</string>
-    <string name="order_by_canon">Канонический (А-Я, сначала папки)</string>
-    <string name="order_by_name_asc">Имя файла (А-Я)</string>
-    <string name="order_by_name_desc">Имя файла (Я-А)</string>
-    <string name="order_by_remote_ts_asc">Дата изменения (сначала старые)</string>
-    <string name="order_by_remote_ts_desc">Дата изменения (сначала новые)</string>
-    <string name="order_by_mime_asc">Тип (А-Я)</string>
-    <string name="order_by_mime_desc">Тип (Я-А)</string>
-    <string name="order_by_size_asc">Размер (сначала маленькие)</string>
-    <string name="order_by_size_desc">Размер (сначала большие)</string>
+    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
+    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
+    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
+    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
+    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
+    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
+    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
+    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
+    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Открыть с помощью…</string>
     <string name="confirm_account_deletion_title">Удалить аккаунт\n%s?</string>
@@ -237,6 +245,7 @@
     <string name="download_wait_message">Загрузка, пожалуйста подождите…</string>
     <string name="display_as_qrcode_dialog_title">Direct link</string>
     <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s</string>
+    <string name="running_download_title">Downloading...</string>
     <string name="confirm_download_title">Confirm download</string>
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- Settings -->
