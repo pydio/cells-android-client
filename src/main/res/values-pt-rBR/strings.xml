@@ -6,6 +6,7 @@
     <string name="button_confirm">Confirmar</string>
     <string name="button_next">Next</string>
     <string name="button_back">Back</string>
+    <string name="button_done_and_exit">Upload done. Exit</string>
     <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Cancelar</string>
     <string name="button_switch_to_grid_layout">Exibir em grade</string>
@@ -141,8 +142,10 @@
     <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
     <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Logs de jobs em segundo plano</string>
+    <string name="log_list_title">Application logs</string>
     <!-- Transfer Management -->
+    <string name="upload_screen_pending_title">Uploading…</string>
+    <string name="upload_screen_done_title">Upload terminated</string>
     <string name="transfer_list_title">Transferências atuais</string>
     <string name="choose_target_for_share_title">Compartilhar com…</string>
     <string name="choose_target_for_copy_title">Copiar para…</string>
@@ -154,7 +157,12 @@
     <string name="pick_up_folder">Escolha uma pasta de destino</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Reiniciar transferência</string>
+    <!-- System -->
+    <!-- Jobs -->
+    <string name="clear_terminated">Clear terminated</string>
     <string name="delete_record">Apagar registro</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Clear application logs</string>
     <!-- Migration-->
     <string name="migration_message">Migrando dados legados, por favor aguarde…</string>
     <string name="post_migration_title">Atualizado com sucesso para a nova versão!</string>
@@ -196,15 +204,15 @@
     <string name="link_copy_failed">Falha ao copiar link</string>
     <!-- Sort By -->
     <string name="sort_by">Ordenar por</string>
-    <string name="order_by_canon">Canonical (A a Z, pastas primeiro)</string>
-    <string name="order_by_name_asc">Nome do arquivo (A até Z)</string>
-    <string name="order_by_name_desc">Nome do arquivo (Z a A)</string>
-    <string name="order_by_remote_ts_asc">Modificado (mais antigo primeiro)</string>
-    <string name="order_by_remote_ts_desc">Modificado (mais recente primeiro)</string>
-    <string name="order_by_mime_asc">Tipo (A a Z)</string>
-    <string name="order_by_mime_desc">Tipo (Z a A)</string>
-    <string name="order_by_size_asc">Tamanho (menor primeiro)</string>
-    <string name="order_by_size_desc">Tamanho (maior primeiro)</string>
+    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
+    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
+    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
+    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
+    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
+    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
+    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
+    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
+    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Abrir com…</string>
     <string name="confirm_account_deletion_title">Excluir conta\n%s ?</string>
@@ -233,6 +241,7 @@
     <string name="download_wait_message">Baixando, aguarde…</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
     <string name="display_as_qrcode_dialog_desc">Digitalize o código para acessar diretamente %s</string>
+    <string name="running_download_title">Downloading...</string>
     <string name="confirm_download_title">Confirmar para baixar</string>
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
     <!-- Settings -->

@@ -6,6 +6,7 @@
     <string name="button_confirm">Bestätigen</string>
     <string name="button_next">Next</string>
     <string name="button_back">Back</string>
+    <string name="button_done_and_exit">Upload done. Exit</string>
     <string name="button_run_in_background">Run in background</string>
     <string name="button_cancel">Abbrechen</string>
     <string name="button_switch_to_grid_layout">Als Raster anzeigen</string>
@@ -141,8 +142,10 @@
     <string name="job_sort_by_creation_ts_desc_label">Erstellung (neueste zuerst)</string>
     <string name="job_sort_by_creation_ts_asc_label">Erstellung (älteste zuerst)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Hintergrund-Job-Logs</string>
+    <string name="log_list_title">Application logs</string>
     <!-- Transfer Management -->
+    <string name="upload_screen_pending_title">Uploading…</string>
+    <string name="upload_screen_done_title">Upload terminated</string>
     <string name="transfer_list_title">Aktuelle Übertragungen</string>
     <string name="choose_target_for_share_title">Teilen mit…</string>
     <string name="choose_target_for_copy_title">Kopieren nach…</string>
@@ -154,7 +157,12 @@
     <string name="pick_up_folder">Zielordner wählen</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Transfer erneut starten</string>
+    <!-- System -->
+    <!-- Jobs -->
+    <string name="clear_terminated">Clear terminated</string>
     <string name="delete_record">Datensatz löschen</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Clear application logs</string>
     <!-- Migration-->
     <string name="migration_message">Migrieren der alten Daten, bitte warten…</string>
     <string name="post_migration_title">Erfolgreich zur neuesten Version aktualisiert!</string>
@@ -196,15 +204,15 @@
     <string name="link_copy_failed">Link konnte nicht kopiert werden</string>
     <!-- Sort By -->
     <string name="sort_by">Sortieren nach</string>
-    <string name="order_by_canon">Kanonisch (A bis Z, zuerst Ordner)</string>
-    <string name="order_by_name_asc">Dateiname (A bis Z)</string>
-    <string name="order_by_name_desc">Dateiname (Z bis A)</string>
-    <string name="order_by_remote_ts_asc">Geändert (älteste zuerst)</string>
-    <string name="order_by_remote_ts_desc">Geändert (neueste zuerst)</string>
-    <string name="order_by_mime_asc">Typ (A bis Z)</string>
-    <string name="order_by_mime_desc">Typ (Z bis A)</string>
-    <string name="order_by_size_asc">Größe (kleinste zuerst)</string>
-    <string name="order_by_size_desc">Größe (größte zuerst)</string>
+    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
+    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
+    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
+    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
+    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
+    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
+    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
+    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
+    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Öffnen mit…</string>
     <string name="confirm_account_deletion_title">Konto löschen\n%s?</string>
@@ -233,6 +241,7 @@
     <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
     <string name="display_as_qrcode_dialog_title">Direktlink</string>
     <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
+    <string name="running_download_title">Downloading...</string>
     <string name="confirm_download_title">Herunterladen bestätigen</string>
     <string name="confirm_download_desc">Diese Datei ist groß (%s) und Sie sind in einem gemessenen Netzwerk. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <!-- Settings -->
