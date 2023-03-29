@@ -30,6 +30,10 @@ class OfflineService(
 ) {
     private val logTag = "OfflineService"
 
+    fun getSyncTemplateId(stateID: StateID): String {
+        return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
+    }
+
     suspend fun toggleOffline(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
@@ -49,21 +53,8 @@ class OfflineService(
         }
     }
 
-    suspend fun removeOfflineRoot(stateID: StateID) = withContext(Dispatchers.IO) {
-        val db = nodeDB(stateID)
-        val offlineDao = db.offlineRootDao()
-
-        if (offlineDao.get(stateID.id) == null) { // Nothing to do
-            return@withContext
-        }
-
-        offlineDao.delete(stateID.id)
-        db.treeNodeDao().getNode(stateID.id)?.let {
-            it.setOfflineRoot(false)
-            treeNodeRepo.persistUpdated(it)
-        }
-
-        // TODO also clean file system ?
+    suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
+        updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
     }
 
     suspend fun updateOfflineRoot(rTreeNode: RTreeNode, status: String) =
@@ -83,22 +74,35 @@ class OfflineService(
             treeNodeRepo.persistUpdated(rTreeNode)
         }
 
-    // TODO finalize this: we should try to move already existing cache file and index
-//   rather than deleting / recreating the offline root
-    suspend fun moveOfflineRoot(rTreeNode: RTreeNode, offlineRoot: ROfflineRoot) =
-        withContext(Dispatchers.IO) {
-            val stateID = rTreeNode.getStateID()
-            val db = nodeDB(stateID)
-            val offlineDao = db.offlineRootDao()
-            offlineRoot.encodedState = rTreeNode.encodedState
-            offlineDao.insert(offlineRoot) // We rely on node UUID and insert REPLACE strategy
-            rTreeNode.setOfflineRoot(true)
-            treeNodeRepo.persistUpdated(rTreeNode)
+    suspend fun removeOfflineRoot(stateID: StateID) = withContext(Dispatchers.IO) {
+        val db = nodeDB(stateID)
+        val offlineDao = db.offlineRootDao()
+
+        if (offlineDao.get(stateID.id) == null) { // Nothing to do
+            return@withContext
         }
 
-    suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
-        updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
+        offlineDao.delete(stateID.id)
+        db.treeNodeDao().getNode(stateID.id)?.let {
+            it.setOfflineRoot(false)
+            treeNodeRepo.persistUpdated(it)
+        }
+
+        // TODO also clean file system ?
     }
+
+//    // Finalize this: we should try to move already existing cache file and index
+////   rather than deleting / recreating the offline root
+//    suspend fun moveOfflineRoot(rTreeNode: RTreeNode, offlineRoot: ROfflineRoot) =
+//        withContext(Dispatchers.IO) {
+//            val stateID = rTreeNode.getStateID()
+//            val db = nodeDB(stateID)
+//            val offlineDao = db.offlineRootDao()
+//            offlineRoot.encodedState = rTreeNode.encodedState
+//            offlineDao.insert(offlineRoot) // We rely on node UUID and insert REPLACE strategy
+//            rTreeNode.setOfflineRoot(true)
+//            treeNodeRepo.persistUpdated(rTreeNode)
+//        }
 
     /* Offline synchronisation */
     @OptIn(ExperimentalTime::class)
@@ -146,9 +150,6 @@ class OfflineService(
         return job
     }
 
-    fun getSyncTemplateId(stateID: StateID): String {
-        return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
-    }
 
     suspend fun prepareAccountSync(
         stateID: StateID,
@@ -218,10 +219,6 @@ class OfflineService(
         return jobService.getMostRecentRunning(getSyncTemplateIdForAccount(accountID))
     }
 
-    private fun getSyncTemplateIdForAccount(accountID: StateID): String {
-        return String.format(AppNames.JOB_TEMPLATE_RESYNC, accountID.toString())
-    }
-
     @OptIn(ExperimentalTime::class)
     suspend fun launchAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
         withContext(Dispatchers.IO) {
@@ -268,10 +265,10 @@ class OfflineService(
             return@withContext changeNb
         }
 
-    @Deprecated("Rather use method with StateID")
-    suspend fun syncOfflineRoot(rTreeNode: RTreeNode): Int = withContext(Dispatchers.IO) {
-        return@withContext syncOfflineRoot(rTreeNode.getStateID())
-    }
+//    @Deprecated("Rather use method with StateID")
+//    suspend fun syncOfflineRoot(rTreeNode: RTreeNode): Int = withContext(Dispatchers.IO) {
+//        return@withContext syncOfflineRoot(rTreeNode.getStateID())
+//    }
 
     @OptIn(ExperimentalTime::class)
     suspend fun syncOfflineRoot(stateID: StateID): Int = withContext(Dispatchers.IO) {
@@ -310,52 +307,6 @@ class OfflineService(
         jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
 
         return@withContext changeNb
-    }
-
-
-    private fun hasExistingJob(
-        label: String,
-        template: String,
-        timeoutSinceUpdated: Int = 120,
-        timeoutSinceStarted: Int = 300,
-    ): Boolean {
-
-        // We first check if a sync is not already running for this account
-        var runningJobs = jobService.getRunningJobs(template)
-        if (runningJobs.isNotEmpty()) {
-            // We check for old jobs
-            for (runningJob in runningJobs) {
-
-                val (isTimedOut, msg) = if (runningJob.updateTimestamp > 0) {
-                    val dur = currentTimestamp() - runningJob.updateTimestamp
-                    (dur > timeoutSinceUpdated) to "Timeout: no update since $dur seconds"
-                } else {
-                    val dur = currentTimestamp() - runningJob.startTimestamp
-                    (dur > timeoutSinceStarted) to "Timeout: job started with no update since $dur seconds"
-                }
-                if (isTimedOut) {
-                    runningJob.doneTimestamp = currentTimestamp()
-                    runningJob.message = msg
-                    runningJob.status = AppNames.JOB_STATUS_TIMEOUT
-                    jobService.update(runningJob)
-                    jobService.w(logTag, msg, "${runningJob.jobId}")
-                }
-            }
-
-            // We re-query the DB to see if we still have old jobs and cancel the launch in such case
-            runningJobs = jobService.getRunningJobs(template)
-            if (runningJobs.isNotEmpty()) {
-                var msg =
-                    "Cannot start job [$label], job ${runningJobs[0].jobId} is already running"
-                if (runningJobs.size > 1) {
-                    msg += " (plus ${runningJobs.size - 1} others)"
-                }
-                jobService.w(logTag, msg, "[not started]")
-                return true
-            }
-        }
-
-        return false
     }
 
     @OptIn(ExperimentalTime::class)
@@ -435,12 +386,61 @@ class OfflineService(
         return changeNb
     }
 
+    private fun getSyncTemplateIdForAccount(accountID: StateID): String {
+        return String.format(AppNames.JOB_TEMPLATE_RESYNC, accountID.toString())
+    }
+
+    private fun hasExistingJob(
+        label: String,
+        template: String,
+        timeoutSinceUpdated: Int = 120,
+        timeoutSinceStarted: Int = 300,
+    ): Boolean {
+
+        // We first check if a sync is not already running for this account
+        var runningJobs = jobService.getRunningJobs(template)
+        if (runningJobs.isNotEmpty()) {
+            // We check for old jobs
+            for (runningJob in runningJobs) {
+
+                val (isTimedOut, msg) = if (runningJob.updateTimestamp > 0) {
+                    val dur = currentTimestamp() - runningJob.updateTimestamp
+                    (dur > timeoutSinceUpdated) to "Timeout: no update since $dur seconds"
+                } else {
+                    val dur = currentTimestamp() - runningJob.startTimestamp
+                    (dur > timeoutSinceStarted) to "Timeout: job started with no update since $dur seconds"
+                }
+                if (isTimedOut) {
+                    runningJob.doneTimestamp = currentTimestamp()
+                    runningJob.message = msg
+                    runningJob.status = AppNames.JOB_STATUS_TIMEOUT
+                    jobService.update(runningJob)
+                    jobService.w(logTag, msg, "${runningJob.jobId}")
+                }
+            }
+
+            // We re-query the DB to see if we still have old jobs and cancel the launch in such case
+            runningJobs = jobService.getRunningJobs(template)
+            if (runningJobs.isNotEmpty()) {
+                var msg =
+                    "Cannot start job [$label], job ${runningJobs[0].jobId} is already running"
+                if (runningJobs.size > 1) {
+                    msg += " (plus ${runningJobs.size - 1} others)"
+                }
+                jobService.w(logTag, msg, "[not started]")
+                return true
+            }
+        }
+
+        return false
+    }
+
     /* Constants and helpers */
     private fun nodeDB(stateID: StateID): TreeNodeDB {
         return treeNodeRepo.nodeDB(stateID)
     }
 
-    private fun getClient(stateId: StateID): Client {
-        return accountService.getClient(stateId)
+    private fun getClient(stateID: StateID): Client {
+        return accountService.getClient(stateID)
     }
 }

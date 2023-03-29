@@ -30,7 +30,6 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -41,7 +40,7 @@ import java.io.OutputStream
 
 class NodeService(
     private val appContext: Context,
-    private val jobService: JobService,
+//     private val jobService: JobService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val offlineService: OfflineService,
@@ -188,26 +187,9 @@ class NodeService(
             }
         }
 
-    fun liveLocalQuery(stateID: StateID, query: String): LiveData<List<RTreeNode>> {
-        return if (Str.empty(query)) {
-            // We prevent large search without query
-            nodeDB(stateID).treeNodeDao().emptyLiveQuery()
-        } else {
-            nodeDB(stateID).treeNodeDao().liveQuery(query)
-        }
-    }
-
-    fun flowLocalQuery(stateID: StateID, query: String): Flow<List<RTreeNode>> {
-        return nodeDB(stateID).treeNodeDao().flowQuery(query)
-    }
-
     /* Update nodes in the local store */
 
     /* Calls to query both the cache and the remote server */
-//    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-//        val stateID = rTreeNode.getStateID()
-//        toggleBookmark(stateID)
-//    }
 
     suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
         try {
@@ -663,18 +645,18 @@ class NodeService(
     }
 
     /* Constants and helpers */
-    private fun nodeDB(stateID: StateID): TreeNodeDB {
-        return treeNodeRepository.nodeDB(stateID)
-    }
-
-    private fun getClient(stateId: StateID): Client {
-        return accountService.getClient(stateId)
-    }
-
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(logTag, "Error #${se.code}: $msg")
         se.printStackTrace()
         accountService.notifyError(stateID, se.code)
+    }
+
+    private fun nodeDB(stateID: StateID): TreeNodeDB {
+        return treeNodeRepository.nodeDB(stateID)
+    }
+
+    private fun getClient(stateID: StateID): Client {
+        return accountService.getClient(stateID)
     }
 
     private fun getLocalFile(item: RTreeNode, type: String): File {

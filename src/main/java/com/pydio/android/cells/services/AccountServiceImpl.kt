@@ -220,11 +220,8 @@ class AccountServiceImpl(
             val oldAccount = accountDao.getAccount(accountID.id)
                 ?: return@withContext null // nothing to forget
 
-            val dirName = treeNodeRepository.sessions[accountID.id]?.dirName
-                ?: throw IllegalStateException("No record found for $accountID")
-
             // Downloaded files
-            fileService.cleanAllLocalFiles(accountID, dirName)
+            fileService.cleanAllLocalFiles(accountID)
             // Credentials
             authService.forgetCredentials(accountID, oldAccount.isLegacy)
             // Remove rows in the account tables

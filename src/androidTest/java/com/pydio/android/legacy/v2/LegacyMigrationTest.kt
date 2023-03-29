@@ -56,12 +56,11 @@ class LegacyMigrationTest : AutoCloseKoinTest() {
         val migrationServiceV2 = MigrationServiceV2()
         for (rec in recs) {
             try {
-                // TODO adapt this
-//                if (rec.isLegacy) {
-//                    migrationServiceV2.migrateOneP8Account(rec, accDB)
-//                } else {
-//                    migrationServiceV2.migrateAndRefreshOneCellsAccount(rec, accDB, syncDB)
-//                }
+                if (rec.isLegacy) {
+                    migrationServiceV2.migrateOneP8Account(rec, accDB)
+                } else {
+                    migrationServiceV2.migrateAndRefreshOneCellsAccount(rec, accDB, syncDB)
+                }
                 Log.w(logTag, "... ${rec.username}@${rec.url()} has been migrated")
             } catch (e: Exception) {
                 Log.e(logTag, "... could not migrate ${rec.username}@${rec.url()}: ${e.message}")

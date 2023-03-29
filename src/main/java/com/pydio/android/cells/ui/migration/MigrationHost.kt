@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.migration
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,7 +14,6 @@ import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.system.screens.AfterLegacyMigration
 import com.pydio.android.cells.ui.system.screens.MigrateFromV2
 import com.pydio.android.cells.ui.system.screens.PrepareMigration
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 
 private const val logTag = "MigrationHost"
@@ -39,7 +39,7 @@ fun MigrationHost(
 
 
     LaunchedEffect(currDestination.value) {
-        Log.e(logTag, "In launch effect for ${currDestination.value}")
+        Log.d(logTag, "In launch effect for ${currDestination.value}")
 
         val newDestination = when (currDestination.value) {
             Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
@@ -49,11 +49,11 @@ fun MigrationHost(
         }
 
         newDestination?.let {
-            Log.e(logTag, "navigating to $it")
+            Log.i(logTag, "Got a newDestination: $it, navigating.")
             navController.navigate(it)
         } ?: run {// handle corner cases
             if (currDestination.value == Step.NOT_NEEDED) {
-                Log.e(logTag, "No migration needed terminating")
+                Log.i(logTag, "No migration needed, terminating.")
                 afterMigration()
             }
         }
@@ -62,14 +62,6 @@ fun MigrationHost(
     LaunchedEffect(true) {
         migrationVM.migrate(ctx)
     }
-
-    // this is forbidden, start destination must be static
-//    val startDestination = when (currDestination.value) {
-//        Step.STARTING -> Destinations.PrepareMigration.route
-//        Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
-//        Step.AFTER_LEGACY_MIGRATION -> Destinations.AfterLegacyMigration.route
-//        Step.AFTER_MIGRATION_ERROR -> Destinations.AfterMigrationError.route
-//    }
 
     val scope = rememberCoroutineScope()
     fun launchSync() {

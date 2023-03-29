@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 enum class Step {
     STARTING, MIGRATING_FROM_V2, AFTER_LEGACY_MIGRATION, AFTER_MIGRATION_ERROR, NOT_NEEDED
@@ -30,11 +31,13 @@ class MigrationVM(
     private val prefs: PreferencesService,
     private val jobService: JobService,
     private val jobDao: JobDao,
-    private val offlineService: OfflineService,
+    private val offlineService: OfflineService
 ) : ViewModel() {
 
     private val logTag = "MigrationVM"
     private val _noJobID = -1L
+
+    private val id: String = UUID.randomUUID().toString()
 
     val versionCode = prefs.cellsPreferencesFlow.map { it.versionCode }
 
@@ -53,13 +56,13 @@ class MigrationVM(
         get() = _migrationJob
 
     init {
-        Log.d(logTag, "After Init: $this")
+        Log.d(logTag, "After Init for #$id")
     }
 
     override fun onCleared() {
         // useless: this does nothing
         // super.onCleared()
-        Log.d(logTag, "About to clear view model: $this")
+        Log.d(logTag, "Cleared for #$id")
     }
 
     suspend fun migrate(context: Context) {

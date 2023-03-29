@@ -1,5 +1,6 @@
 package com.pydio.android.cells.services
 
+import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLocalFile
@@ -9,7 +10,6 @@ import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -167,7 +167,7 @@ class FileService(private val treeNodeRepository: TreeNodeRepository) {
     }
 
     /* Violently remove all local files and also empty the local_files table */
-    fun cleanAllLocalFiles(accountID: StateID, dirName: String) {
+    fun cleanAllLocalFiles(accountID: StateID) {
 
         // Recursively delete local folders
         var currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_THUMB))

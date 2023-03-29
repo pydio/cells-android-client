@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-
 /**  Centralize methods to manage a TreeNode */
 class NodeActionsVM(
     private val nodeService: NodeService,

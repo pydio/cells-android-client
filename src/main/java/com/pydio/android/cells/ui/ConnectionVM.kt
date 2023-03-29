@@ -26,7 +26,7 @@ import java.util.UUID
  * and the remote server.
  */
 class ConnectionVM(
-    private val networkService: NetworkService,
+    networkService: NetworkService,
     private val accountService: AccountService,
     id: String = UUID.randomUUID().toString(),
 ) : ViewModel() {
@@ -51,15 +51,6 @@ class ConnectionVM(
     val sessionStatusFlow: Flow<SessionStatus>
         get() = getSessionFlow()
 
-    //    val wss: LiveData<List<RWorkspace>>
-//        get() = Transformations.switchMap(
-//            sessionView
-//        ) { currSessionView ->
-//            accountService.getLiveWsByType(
-//                SdkNames.WS_TYPE_DEFAULT,
-//                currSessionView?.accountID ?: Transport.UNDEFINED_STATE
-//            )
-//        }
     val wss: LiveData<List<RWorkspace>>
         get() = sessionView.switchMap { currSessionView ->
             accountService.getLiveWsByType(
@@ -67,7 +58,6 @@ class ConnectionVM(
                 currSessionView?.accountID ?: Transport.UNDEFINED_STATE
             )
         }
-
     val cells: LiveData<List<RWorkspace>>
         get() = sessionView.switchMap { currSessionView ->
             accountService.getLiveWsByType(
