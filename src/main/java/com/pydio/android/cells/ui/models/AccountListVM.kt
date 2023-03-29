@@ -24,8 +24,6 @@ class AccountListVM(
 ) : ViewModel() {
 
     private val logTag = "AccountListVM"
-//    private var viewModelJob = Job()
-//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private var _sessions = accountService.getLiveSessions()
     val sessions: LiveData<List<RSessionView>>
@@ -57,7 +55,7 @@ class AccountListVM(
         resume()
     }
 
-    fun resume() {
+    private fun resume() {
         if (!_isActive) {
             _isActive = true
             currWatcher = watchAccounts()
@@ -69,6 +67,7 @@ class AccountListVM(
         currWatcher?.cancel()
         _isActive = false
         setLoading(false)
+        Log.e(logTag, "... Account watching paused.")
     }
 
     fun forgetAccount(stateID: StateID) {

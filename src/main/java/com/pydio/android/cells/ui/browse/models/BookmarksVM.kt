@@ -62,6 +62,7 @@ class BookmarksVM(
 
     /* Helpers */
     init {
+        forceRefresh(accountID)
         Log.d(logTag, "Initialising BookmarksVM")
     }
 
