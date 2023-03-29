@@ -9,6 +9,9 @@
         <item>Velikost (od nejmenších)</item>
         <item>Velikost (od největších)</item>
     </string-array>
+    <!-- Mime type ordering does not mean anything for the time  being. -->
+    <!--        <item>Type (A to Z)</item>-->
+    <!--        <item>Type (Z to A)</item>-->
     <string-array name="list_layout_labels">
         <item>Seznam</item>
         <item>Mřížka</item>
@@ -47,4 +50,8 @@
         <item>Status (A to Z)</item>
         <item>Status (Z to A)</item>
     </string-array>
+    <!--    <string-array name="job_sort_by_values" translatable="false">-->
+    <!--        <item>creation_ts_desc</item>-->
+    <!--        <item>creation_ts_asc</item>-->
+    <!--    </string-array>-->
 </resources>
