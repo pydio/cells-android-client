@@ -69,15 +69,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "$projectDir/schemas".toString())
-        }
-    }
-
-    // We do not want that the linter makes builds fail. It is quite extremist by default.
-    lintOptions {
-        abortOnError false
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 
     buildFeatures {
@@ -89,8 +82,15 @@ android {
         kotlinCompilerExtensionVersion = "1.4.4"
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
+    }
+
+    // We do not want that the linter makes builds fail. It is quite extremist by default.
+    lintOptions {
+        abortOnError false
     }
 }
 
