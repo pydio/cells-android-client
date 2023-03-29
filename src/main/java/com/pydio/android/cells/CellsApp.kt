@@ -65,7 +65,7 @@ class CellsApp : Application(), KoinComponent {
 
     private suspend fun configureWorkers() {
         val wManager = WorkManager.getInstance(applicationContext)
-//        cancelPendingWorkManager(wManager)
+        cancelPendingWorkManager(wManager)
         val prefs: PreferencesService by inject()
         wManager.enqueueUniquePeriodicWork(
             OfflineSync.WORK_NAME,

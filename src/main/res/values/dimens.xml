@@ -42,6 +42,11 @@
     <dimen name="horizontal_padding">16dp</dimen>
     <dimen name="vertical_padding">8dp</dimen>
 
+    <!-- Menus -->
+    <dimen name="switch_account_btn_size">36dp</dimen>
+    <dimen name="switch_account_btn_shadow_elevation">12dp</dimen>
+    <dimen name="switch_account_btn_tonal_elevation">8dp</dimen>
+
     <!-- Forms -->
     <dimen name="form_page_padding">16dp</dimen>
     <dimen name="form_input_horizontal_padding">16dp</dimen>

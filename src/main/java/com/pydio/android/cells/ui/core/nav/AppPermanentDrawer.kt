@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.core.nav
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,12 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.ShapeDefaults
@@ -22,17 +25,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.ConnectionVM
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
-import com.pydio.android.cells.ui.browse.screens.HomeHeader
 import com.pydio.android.cells.ui.core.composables.MenuTitleText
+import com.pydio.android.cells.ui.core.composables.SwitchAccountButton
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.system.SystemDestinations
@@ -85,7 +90,7 @@ fun AppPermanentDrawer(
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
-            HomeHeader(
+            DrawerHeader(
                 username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
                 address = accountID.value?.serverUrl ?: "",
                 openAccounts = { cellsNavActions.navigateToAccounts() },
@@ -201,36 +206,52 @@ fun MyNavigationRailItem(
     onClick: () -> Unit,
     icon: ImageVector,
 ) {
-//    NavigationRailItem(
-//        label = { },
-//        icon = {
-//            Row(
-//                horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                // horizontalArrangement = Arrangement.Start,
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier
-//                    .padding(
-//                        top = 8.dp,
-//                        bottom = 8.dp,
-//                        start = 16.dp,
-//                        end = 8.dp,
-//                    ),
-//            ) {
-//                Icon(icon, label)
-//                Text(label)
-//            }
-//        },
-//        selected = selected,
-//        onClick = onClick,
-//        modifier = Modifier.height(dimensionResource(R.dimen.menu_item_height)),
-//        alwaysShowLabel = false,
-//    )
     NavigationDrawerItem(
-        label = { Text(label) },
+        label = {
+            Text(
+                text = label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         icon = { Icon(icon, label) },
         selected = selected,
         onClick = onClick,
         modifier = Modifier.height(dimensionResource(R.dimen.menu_item_height)),
         shape = ShapeDefaults.Small,
     )
+}
+
+@Composable
+private fun DrawerHeader(
+    username: String,
+    address: String,
+    openAccounts: () -> Unit,
+    modifier: Modifier,
+) {
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                text = username,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(
+                        vertical = dimensionResource(R.dimen.margin_xsmall)
+                    )
+                    .wrapContentWidth(Alignment.Start)
+            )
+
+            SwitchAccountButton(
+                openAccounts = openAccounts,
+                modifier = Modifier
+            )
+        }
+        Text(
+            text = address,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
 }

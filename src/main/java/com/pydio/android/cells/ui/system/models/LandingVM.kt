@@ -17,8 +17,8 @@ import kotlin.properties.Delegates
 
 class LandingVM(
     private val prefs: PreferencesService,
-    private val accountService: AccountService,
     private val jobService: JobService,
+    private val accountService: AccountService,
 ) : ViewModel() {
 
     private val logTag = "LandingVM"
@@ -38,17 +38,20 @@ class LandingVM(
     }
 
     /**
-     * Makes a first quick check for the happy path and returns true if:
-     * - code version is the same as the stored version
-     * OR (TODO still checked during migrate activity for the time being)
-     * - we are on a fresh install
+     * Makes a first quick check for the happy path and returns true
+     * only if code version is the same as the stored version
      *
-     * WARNING: false mean that we have to trigger the migrate activity that will perform
-     * more advanced tests, do a migration (if really necessary) and update the stored version number.
+     * Note: "false" means that we have to trigger the migrate activity that:
+     * - performs advanced tests,
+     * - does a migration (if necessary)
+     * - updates the stored version number.
+     *
+     * Note: We also get "false" for fresh installs and go through migration.
+     *  It takes a few seconds more to start but  subsequent starts are then faster:
+     *  they avoid instantiating legacy migration objects
      */
     suspend fun noMigrationNeeded(): Boolean {
         val currInstalled = prefs.getInstalledVersion()
-        // TODO find a way to know if we are on a fresh install
         return newVersion > 100 && newVersion == currInstalled
     }
 
@@ -84,7 +87,7 @@ class LandingVM(
 
     fun recordLaunch() {
         try {
-            val creationMsg = "### Starting agent ${ClientData.getInstance().userAgent()}"
+            val creationMsg = "### Started ${ClientData.getInstance().userAgent()}"
             jobService.i(logTag, creationMsg, "Cells App")
 //            jobService.d(logTag, ".... Testing log levels:", "DEBUGGER")
 //            jobService.i(logTag, "   check - 1", "DEBUGGER")
@@ -94,5 +97,4 @@ class LandingVM(
             Log.e(logTag, "could not log start: $e")
         }
     }
-
 }

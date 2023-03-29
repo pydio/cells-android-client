@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.Converters
+import com.pydio.cells.transport.StateID
 import java.net.URL
 
 @Entity(tableName = "sessions")
@@ -46,4 +47,6 @@ data class RSession(
             )
         }
     }
+
+    fun account(): StateID = StateID.fromId(accountID)
 }

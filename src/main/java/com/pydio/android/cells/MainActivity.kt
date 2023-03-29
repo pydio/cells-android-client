@@ -77,7 +77,6 @@ class MainActivity : ComponentActivity() {
             WindowCompat.setDecorFitsSystemWindows(window, true)
 
             setContent {
-
                 val widthSizeClass = calculateWindowSizeClass(landActivity).widthSizeClass
                 val intentHasBeenProcessed = rememberSaveable {
                     mutableStateOf(false) // startingState == null)
@@ -104,8 +103,9 @@ class MainActivity : ComponentActivity() {
                         widthSizeClass = widthSizeClass,
                     )
                 }
-                landingVM.recordLaunch()
             }
+            
+            landingVM.recordLaunch()
         }
     }
 

@@ -36,12 +36,12 @@ class TreeNodeRepository(
     }
 
     suspend fun refreshSessionCache() = withContext(Dispatchers.IO) {
-        Log.i(logTag, "... Refreshing session cache")
+        Log.d(logTag, "... Refreshing session cache. Known accounts:")
         val sessions = sessionDao.getSessions()
         _sessions.clear()
         for (rSession in sessions) {
             _sessions[rSession.accountID] = rSession
-            Log.d(logTag, "   - ${rSession.accountID} at ${rSession.dirName}")
+            Log.d(logTag, "   - ${rSession.account()} at ./${rSession.dirName}")
         }
     }
 
