@@ -17,6 +17,7 @@ import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PasswordStore
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.SessionFactory
@@ -62,6 +63,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.androidx.workmanager.dsl.worker
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -165,7 +167,9 @@ val serviceModule = module {
 
     // Business services
     single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    single { NodeService(androidContext().applicationContext, get(), get(), get(), get()) }
+    singleOf(::OfflineService)
+    singleOf(::NodeService)
+    // single { NodeService(androidContext().applicationContext, get(), get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get(), get(), get()) }
 
@@ -186,7 +190,7 @@ val viewModelModule = module {
     viewModel { AccountListVM(get()) }
 
     viewModel { ConnectionVM(get(), get()) }
-    viewModel { NodeActionsVM(get(), get(), get()) }
+    viewModelOf(::NodeActionsVM)
 
     viewModelOf(::TreeNodeVM)
     viewModelOf(::SortByMenuVM)

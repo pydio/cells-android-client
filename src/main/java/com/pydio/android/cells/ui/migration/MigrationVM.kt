@@ -11,7 +11,7 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
@@ -30,7 +30,7 @@ class MigrationVM(
     private val prefs: PreferencesService,
     private val jobService: JobService,
     private val jobDao: JobDao,
-    private val nodeService: NodeService,
+    private val offlineService: OfflineService,
 ) : ViewModel() {
 
     private val logTag = "MigrationVM"
@@ -111,7 +111,7 @@ class MigrationVM(
     suspend fun launchSync() {
         CellsApp.instance.appScope.launch {
             withContext(Dispatchers.IO) {
-                nodeService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
+                offlineService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
             }
         }
     }

@@ -5,7 +5,9 @@ import android.util.Log
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSession
 import com.pydio.android.cells.db.accounts.SessionDao
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,5 +66,26 @@ class TreeNodeRepository(
             accountId,
             accId.dbName,
         )
+    }
+
+    fun persistUpdated(rTreeNode: RTreeNode) {
+        rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
+        val dao = nodeDB(rTreeNode.getStateID()).treeNodeDao()
+        dao.getNode(rTreeNode.getStateID().id)
+            ?.let { dao.update(rTreeNode) }
+            ?: let { dao.insert(rTreeNode) }
+    }
+
+    fun persistLocallyModified(rTreeNode: RTreeNode, modificationType: String) {
+        rTreeNode.localModificationTS = currentTimestamp()
+        rTreeNode.localModificationStatus = modificationType
+        nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
+    }
+
+    suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
+        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+        node.localModificationTS = node.remoteModificationTS
+        node.localModificationStatus = null
+        nodeDB(stateID).treeNodeDao().update(node)
     }
 }

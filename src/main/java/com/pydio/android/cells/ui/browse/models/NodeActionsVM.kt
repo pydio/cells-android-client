@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.DEFAULT_FILE_PROVIDER_ID
 import com.pydio.cells.transport.StateID
@@ -25,6 +26,7 @@ class NodeActionsVM(
     private val nodeService: NodeService,
     private val fileService: FileService,
     private val transferService: TransferService,
+    private val offlineService: OfflineService,
 ) : ViewModel() {
 
     private val logTag = "NodeActionsVM"
@@ -158,7 +160,7 @@ class NodeActionsVM(
 
     fun toggleOffline(stateID: StateID, newState: Boolean) {
         viewModelScope.launch {
-            nodeService.toggleOffline(stateID, newState)
+            offlineService.toggleOffline(stateID, newState)
         }
     }
 

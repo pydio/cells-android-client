@@ -11,7 +11,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.utils.fromFreqToMinuteInterval
 import org.koin.core.component.KoinComponent
@@ -24,7 +24,7 @@ class OfflineSync(
 ) : CoroutineWorker(appContext, params), KoinComponent {
 
     private val prefs: PreferencesService by inject()
-    private val nodeService: NodeService by inject()
+    private val offlineService: OfflineService by inject()
 
     companion object {
         const val WORK_NAME = "OfflineSyncWorker"
@@ -67,7 +67,7 @@ class OfflineSync(
     override suspend fun doWork(): Result {
 
         if (hasBeenMigrated()) {
-            nodeService.runFullSync("Worker")
+            offlineService.runFullSync("Worker")
         }
 
         val d = Data.Builder().putString("yes", "no").build()

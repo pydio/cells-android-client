@@ -9,8 +9,7 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampForLogMessage
@@ -43,10 +42,11 @@ class MigrationServiceV2 : KoinComponent {
 
     private val accountService by inject<AccountService>()
     private val sessionFactory by inject<SessionFactory>()
-    private val nodeService by inject<NodeService>()
-    private val prefs: PreferencesService by inject()
+    // private val nodeService by inject<NodeService>()
+    // private val prefs: PreferencesService by inject()
 
     private val jobService by inject<JobService>()
+    private val offlineService by inject<OfflineService>()
     private val logDao by inject<LogDao>()
 
     private val oldDbNames = listOf(
@@ -323,7 +323,7 @@ class MigrationServiceV2 : KoinComponent {
                 val fn = client.nodeInfo(storedFileNode.workspace, storedFileNode.path)
                 RTreeNode.fromFileNode(state, fn)
             }
-            nodeService.updateOfflineRoot(newNode, AppNames.OFFLINE_STATUS_MIGRATED)
+            offlineService.updateOfflineRoot(newNode, AppNames.OFFLINE_STATUS_MIGRATED)
         }
 
         return offlineRoots.size
