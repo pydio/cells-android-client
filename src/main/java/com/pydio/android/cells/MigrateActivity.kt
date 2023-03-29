@@ -31,6 +31,8 @@ class MigrateActivity : ComponentActivity() {
                 val migrationVM by viewModel<MigrationVM>()
                 val afterMigration: () -> Unit = {
                     val intent = Intent(migrateActivity, MainActivity::class.java)
+                    intent.action = Intent.ACTION_MAIN
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER)
                     startActivity(intent)
                     migrateActivity.finish()
                 }
