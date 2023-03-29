@@ -27,7 +27,7 @@ import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.AppDrawer
-import com.pydio.android.cells.ui.core.nav.AppNavRail
+import com.pydio.android.cells.ui.core.nav.AppPermanentDrawer
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.cells.transport.StateID
@@ -46,7 +46,6 @@ fun NavHostWithDrawer(
     widthSizeClass: WindowWidthSizeClass,
     connectionVM: ConnectionVM = koinViewModel(),
 ) {
-
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
@@ -54,8 +53,6 @@ fun NavHostWithDrawer(
 
     val navHostController = rememberNavController()
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-
-//     val activeSessionView = connectionVM.sessionView.observeAsState()
 
     val cellsNavActions = remember(navHostController) {
         CellsNavigationActions(navHostController)
@@ -77,11 +74,11 @@ fun NavHostWithDrawer(
             AppDrawer(
                 currRoute = navBackStackEntry?.destination?.route,
                 currSelectedID = lazyStateID(navBackStackEntry),
+                closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
                 connectionVM = connectionVM,
                 cellsNavActions = cellsNavActions,
                 systemNavActions = systemNavActions,
                 browseNavActions = browseNavActions,
-                closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
             )
         },
         drawerState = sizeAwareDrawerState,
@@ -90,18 +87,20 @@ fun NavHostWithDrawer(
     ) {
         Row {
             if (isExpandedScreen) { // When we are on a tablet
-                // FIXME this is only partially implemented
-                AppNavRail(
-                    currentRoute = navBackStackEntry?.destination?.route,
-                    navigateToHome = cellsNavActions.navigateToHome,
-                    navigateToAbout = systemNavActions.navigateToAbout,
+                AppPermanentDrawer(
+                    currRoute = navBackStackEntry?.destination?.route,
+                    currSelectedID = lazyStateID(navBackStackEntry),
+                    connectionVM = connectionVM,
+                    cellsNavActions = cellsNavActions,
+                    systemNavActions = systemNavActions,
+                    browseNavActions = browseNavActions,
                 )
             }
             WithInternetBanner(
                 connectionVM = connectionVM,
                 navigateTo = navigateTo,
                 contentPadding = rememberContentPaddingForScreen(
-                    additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                    // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 )
             ) {
@@ -112,7 +111,11 @@ fun NavHostWithDrawer(
                     navController = navHostController,
                     navigateTo = navigateTo,
                     launchTaskFor = launchTaskFor,
-                    openDrawer = { coroutineScope.launch { sizeAwareDrawerState.open() } },
+                    openDrawer = {
+                        if (!isExpandedScreen) {
+                            coroutineScope.launch { sizeAwareDrawerState.open() }
+                        }
+                    },
                     launchIntent = launchIntent,
                 )
             }
