@@ -1,7 +1,7 @@
 package com.pydio.android.cells.ui.browse
 
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -30,26 +30,18 @@ private const val logTag = "BrowseNavGraph"
 
 fun NavGraphBuilder.browseNavGraph(
     navController: NavHostController,
-    browseRemoteVM: BrowseRemoteVM,
+//    browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
 ) {
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
+        val browseRemoteVM: BrowseRemoteVM = koinViewModel()
         val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
         val helper = BrowseHelper(navController, folderVM)
 
         Log.i(logTag, "## BrowseDestinations.open - $stateID")
-        LaunchedEffect(key1 = stateID) {
-            Log.e(logTag, "  ... Also launching effect to watch $stateID")
-            if (stateID == StateID.NONE) {
-                browseRemoteVM.pause()
-            } else {
-                browseRemoteVM.watch(stateID, false)
-            }
-        }
-
         when {
             stateID == StateID.NONE ->
                 NoAccount(
@@ -99,6 +91,28 @@ fun NavGraphBuilder.browseNavGraph(
                 )
             }
         }
+
+        DisposableEffect(key1 = stateID) {
+            Log.e(logTag, "  ... Launching Disposable Effect for $stateID")
+            if (stateID == StateID.NONE) {
+                browseRemoteVM.pause()
+            } else {
+                browseRemoteVM.watch(stateID, false)
+            }
+            onDispose {
+                Log.e(logTag, "  ... ####################")
+                Log.e(logTag, "  ... On dispose called for  $stateID")
+                browseRemoteVM.pause()
+            }
+        }
+//        LaunchedEffect(key1 = stateID) {
+//            Log.e(logTag, "  ... Also launching effect to watch $stateID")
+//            if (stateID == StateID.NONE) {
+//                browseRemoteVM.pause()
+//            } else {
+//                browseRemoteVM.watch(stateID, false)
+//            }
+//        }
     }
 
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
@@ -142,7 +156,6 @@ fun NavGraphBuilder.browseNavGraph(
                 stateID,
                 openDrawer = openDrawer,
                 browseHelper = helper,
-                browseRemoteVM = browseRemoteVM,
                 bookmarksVM = bookmarksVM,
             )
         }

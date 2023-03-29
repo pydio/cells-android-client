@@ -44,6 +44,7 @@ class BrowseRemoteVM(
 
     init {
         _loadingState.value = LoadingState.STARTING
+        Log.e(logTag, "... Starting for ${stateID.value}")
     }
 
     val loadingState: LiveData<LoadingState>
@@ -70,7 +71,7 @@ class BrowseRemoteVM(
         _loadingState.value = LoadingState.IDLE
     }
 
-    fun resume() {
+    private fun resume() {
         if (!_isActive) {
             _isActive = true
             currWatcher = watchFolder()

@@ -61,7 +61,6 @@ import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackgrou
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -73,17 +72,16 @@ private const val logTag = "Bookmarks.kt"
 fun Bookmarks(
     accountID: StateID,
     openDrawer: () -> Unit,
-//    open: (StateID) -> Unit,
-    browseRemoteVM: BrowseRemoteVM,
     bookmarksVM: BookmarksVM,
     browseHelper: BrowseHelper,
 ) {
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val loadingState by browseRemoteVM.loadingState.observeAsState()
 
-    val bookmarks = bookmarksVM.bookmarks.observeAsState()
+    val loadingState by bookmarksVM.loadingState.observeAsState()
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
+    val bookmarks = bookmarksVM.bookmarks.observeAsState()
 
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)

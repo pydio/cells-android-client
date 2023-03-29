@@ -26,21 +26,19 @@ import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "AccountsScreen"
 
 @Composable
 fun AccountsScreen(
+    accountListVM: AccountListVM,
     navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
-    accountListVM: AccountListVM = koinViewModel(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val scope = rememberCoroutineScope()
     val accounts by accountListVM.sessions.observeAsState()
 
-    // TODO handle errors
     AccountsScreen(
         accounts = accounts.orEmpty(),
         openAccount = {

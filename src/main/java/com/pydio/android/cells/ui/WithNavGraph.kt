@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui
 import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
@@ -22,7 +23,7 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
@@ -48,7 +49,6 @@ fun CellsNavGraph(
     openDrawer: () -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
     loginVM: LoginVM = koinViewModel(),
 ) {
 
@@ -120,7 +120,11 @@ fun CellsNavGraph(
         }
 
         composable(CellsDestinations.Accounts.route) {
+
+            val accountListVM: AccountListVM = koinViewModel()
+
             AccountsScreen(
+                accountListVM = accountListVM,
                 navigateTo = navigateTo,
                 openDrawer = openDrawer,
                 contentPadding = rememberContentPaddingForScreen(
@@ -128,6 +132,11 @@ fun CellsNavGraph(
                     excludeTop = !isExpandedScreen
                 ),
             )
+
+            DisposableEffect(key1 = true) {
+                accountListVM.watch()
+                onDispose { accountListVM.pause() }
+            }
         }
 
         composable(CellsDestinations.Search.route) { entry ->
@@ -156,7 +165,6 @@ fun CellsNavGraph(
 
         browseNavGraph(
             navController = navController,
-            browseRemoteVM = browseRemoteVM,
             back = { navController.popBackStack() },
             openDrawer,
         )
@@ -173,7 +181,6 @@ fun CellsNavGraph(
         )
 
         shareNavGraph(
-            browseRemoteVM = browseRemoteVM,
             helper = ShareHelper(
                 navController,
                 launchTaskFor,

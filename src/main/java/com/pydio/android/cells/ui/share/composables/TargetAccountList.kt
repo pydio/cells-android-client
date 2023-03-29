@@ -38,12 +38,11 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun TargetAccountList(
-    accounts: List<RSessionView>?,
+    accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
     doLogin: (stateID: StateID) -> Unit,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    verticalArrangement: Arrangement.Vertical,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
     val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
@@ -51,11 +50,10 @@ fun TargetAccountList(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = contentPadding,
-        verticalArrangement = verticalArrangement
-
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_vertical_padding)),
     ) {
-        items(accounts ?: listOf()) { account ->
-            var currModifier = if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+        items(accounts) { account ->
+            val currModifier = if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
                 modifier.clickable {
                     openAccount(StateID(account.username, account.url))
                 }
@@ -91,12 +89,7 @@ private fun TargetAccountListItem(
         tonalElevation = if (isForeground) dimensionResource(R.dimen.list_item_selected_elevation) else 0.dp,
         modifier = modifier
     ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            // The icon
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Decorated(Type.AUTH, authStatus) {
                 Icon(
                     imageVector = CellsIcons.Person,
@@ -110,7 +103,7 @@ private fun TargetAccountListItem(
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
 
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .weight(1f)
                     .padding(
                         horizontal = dimensionResource(R.dimen.card_padding),
