@@ -30,7 +30,6 @@ private const val logTag = "BrowseNavGraph"
 
 fun NavGraphBuilder.browseNavGraph(
     navController: NavHostController,
-//    browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
 ) {
@@ -105,14 +104,6 @@ fun NavGraphBuilder.browseNavGraph(
                 browseRemoteVM.pause()
             }
         }
-//        LaunchedEffect(key1 = stateID) {
-//            Log.e(logTag, "  ... Also launching effect to watch $stateID")
-//            if (stateID == StateID.NONE) {
-//                browseRemoteVM.pause()
-//            } else {
-//                browseRemoteVM.watch(stateID, false)
-//            }
-//        }
     }
 
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
@@ -137,7 +128,6 @@ fun NavGraphBuilder.browseNavGraph(
             OfflineRoots(
                 offlineVM = offlineVM,
                 openDrawer = openDrawer,
-                openSearch = {}, // FIXME
                 browseHelper = helper,
             )
         }

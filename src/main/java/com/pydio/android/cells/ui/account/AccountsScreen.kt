@@ -31,6 +31,7 @@ private const val logTag = "AccountsScreen"
 
 @Composable
 fun AccountsScreen(
+    isExpandedScreen: Boolean,
     accountListVM: AccountListVM,
     navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
@@ -40,6 +41,7 @@ fun AccountsScreen(
     val accounts by accountListVM.sessions.observeAsState()
 
     AccountsScreen(
+        isExpandedScreen = isExpandedScreen,
         accounts = accounts.orEmpty(),
         openAccount = {
             scope.launch {
@@ -70,6 +72,7 @@ fun AccountsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AccountsScreen(
+    isExpandedScreen: Boolean,
     accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
     openDrawer: () -> Unit,
@@ -87,14 +90,20 @@ private fun AccountsScreen(
     }
 
     Scaffold(
-        topBar = { DefaultTopBar(title = "Choose an account", openDrawer = openDrawer) },
+        topBar = {
+            DefaultTopBar(
+                title = stringResource(R.string.choose_account),
+                isExpandedScreen = isExpandedScreen,
+                openDrawer = if (isExpandedScreen) null else openDrawer,
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { registerNew() }
             ) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = stringResource(id = R.string.create_account)
+                    contentDescription = stringResource(R.string.create_account)
                 )
             }
         },

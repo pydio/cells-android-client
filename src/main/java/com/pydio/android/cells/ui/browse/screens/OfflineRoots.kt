@@ -88,7 +88,6 @@ private const val logTag = "OfflineRoots"
 fun OfflineRoots(
     offlineVM: OfflineVM,
     openDrawer: () -> Unit,
-    openSearch: () -> Unit,
     browseHelper: BrowseHelper,
 ) {
     val context = LocalContext.current
@@ -104,8 +103,6 @@ fun OfflineRoots(
             offlineVM.getNode(stateID)?.let {
                 if (it.isFolder()) {
                     browseHelper.open(context, stateID)
-//                } else if (it.isPreViewable()) {
-                    // TODO (since v2) Open carousel for offline nodes
                 } else {
                     browseHelper.open(context, stateID)
                 }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -124,11 +123,12 @@ fun CellsNavGraph(
             val accountListVM: AccountListVM = koinViewModel()
 
             AccountsScreen(
+                isExpandedScreen = isExpandedScreen,
                 accountListVM = accountListVM,
                 navigateTo = navigateTo,
                 openDrawer = openDrawer,
                 contentPadding = rememberContentPaddingForScreen(
-                    additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                    // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
                     excludeTop = !isExpandedScreen
                 ),
             )

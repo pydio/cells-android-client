@@ -57,6 +57,7 @@ import com.pydio.cells.utils.Str
 @Composable
 fun DefaultTopBar(
     title: String,
+    isExpandedScreen: Boolean = false,
     back: (() -> Unit)? = null,
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
@@ -70,7 +71,14 @@ fun DefaultTopBar(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = if (isExpandedScreen) {
+                MaterialTheme.colorScheme.surface
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+
+        ),
         navigationIcon = {
             if (back != null) {
                 IconButton(onClick = { back() }) {
@@ -210,7 +218,6 @@ fun TopBarWithActions(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarWithSearch(
@@ -302,6 +309,26 @@ private fun DefaultTopBarPreview() {
     CellsTheme {
         DefaultTopBar(
             "Pydio Cells server",
+            false,
+            { },
+            null,
+            { },
+        )
+    }
+}
+
+@Preview(name = "Expanded top bar - Light Mode")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "Expanded top bar - Dark Mode"
+)
+@Composable
+private fun ExpandedTopBarPreview() {
+    CellsTheme {
+        DefaultTopBar(
+            "Pydio Cells server",
+            true,
             { },
             null,
             { },
