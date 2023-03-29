@@ -36,4 +36,18 @@
         <item>Error</item>
         <item>Timeout</item>
     </string-array>
+    <string-array name="transfer_order_by_labels">
+        <item>Canonical (By creation order, newest first)</item>
+        <item>Creation order (oldest first)</item>
+        <item>Status (A to Z)</item>
+        <item>Status (Z to A)</item>
+        <item>Type (Download First)</item>
+        <item>Type (Upload First)</item>
+    </string-array>
+    <string-array name="job_order_by_labels">
+        <item>Canonical (By creation order, newest first)</item>
+        <item>Creation order (oldest first)</item>
+        <item>Status (A to Z)</item>
+        <item>Status (Z to A)</item>
+    </string-array>
 </resources>
