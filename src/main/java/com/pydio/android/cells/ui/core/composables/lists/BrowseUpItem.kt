@@ -32,9 +32,9 @@ fun M3BrowseUpListItem(
 ) {
 //    Log.d(logTag, "adding the parent row for $parentDescription")
     ListItem(
-        headlineText = { Text(parentDescription) },
+        headlineContent = { Text(parentDescription) },
         modifier = modifier,
-        supportingText = { Text("..") },
+        supportingContent = { Text("..") },
         leadingContent = {
             M3IconThumb(
                 R.drawable.aa_200_arrow_back_ios_new_24px,

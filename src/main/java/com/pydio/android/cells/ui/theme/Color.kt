@@ -9,6 +9,7 @@ object CellsColor {
     val ok = Color(0xFF219600)
     val warning = Color(0xFFFF9800)
     val danger = Color(0xFFBA1B1B)
+
     // TODO
     val debug = Color(0xFFB6C9D7)
     val info = Color(0xFFCAC1E9)
@@ -37,7 +38,8 @@ val PinkRed = Color(0xFFFFB4A9)
 // Default color palette
 // for devices that do not support or authorize dynamic colors
 object LightCellsScheme {
-    val primary = Color(0xFF00668B)
+    // val primary = Color(0xFF00668B)
+    val primary = Color(0xFF134E6C)
     val onPrimary = Color(0xFFFFFFFF)
     val primaryContainer = Color(0xFFC3E7FF)
     val onPrimaryContainer = Color(0xFF001E2D)

@@ -34,7 +34,7 @@ fun MainApp(
 
 @Composable
 fun UseCellsTheme(content: @Composable () -> Unit) {
-    CellsTheme {
+    CellsTheme(customPrimaryColor = "#FF5722") {
         Surface(
             modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {

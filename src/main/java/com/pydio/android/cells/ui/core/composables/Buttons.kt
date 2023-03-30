@@ -33,7 +33,7 @@ fun SwitchAccountButton(
             contentDescription = stringResource(R.string.choose_account),
             modifier = Modifier
                 .padding(all = dimensionResource(R.dimen.margin_xxsmall))
-                .size(dimensionResource(R.dimen.switch_account_btn_size))
+                .size(dimensionResource(R.dimen.list_thumb_icon_size))
         )
     }
 }

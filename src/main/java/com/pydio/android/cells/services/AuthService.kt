@@ -81,6 +81,7 @@ class AuthService(authDB: AuthDB) {
                     "could not create intent for ${url.url.host}," +
                             " cause: ${e.code} - ${e.message}"
                 )
+                e.printStackTrace()
                 return@withContext null
             } catch (e: Exception) {
                 Log.e(logTag, "Unexpected exception: ${e.message}")
