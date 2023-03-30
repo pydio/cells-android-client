@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,7 +33,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithActions
 import com.pydio.android.cells.ui.system.models.LogListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.timestampToString
 import org.koin.androidx.compose.koinViewModel
 
@@ -166,7 +165,7 @@ private fun LogItemTitle(
 @Composable
 private fun LogListItemPreview(
 ) {
-    CellsTheme {
+    UseCellsTheme {
         LogListItem(0L, AppNames.ERROR, "0xcafe-babe-babecafe", "status", Modifier)
     }
 }

@@ -51,6 +51,10 @@ class ConnectionVM(
     val sessionStatusFlow: Flow<SessionStatus>
         get() = getSessionFlow()
 
+    val customColor: LiveData<String?> = sessionView.map { currSessionView ->
+        currSessionView?.customColor()
+    }
+
     val wss: LiveData<List<RWorkspace>>
         get() = sessionView.switchMap { currSessionView ->
             accountService.getLiveWsByType(

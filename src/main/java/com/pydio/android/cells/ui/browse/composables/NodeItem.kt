@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.theme.CellsColor
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 @Composable
 fun NodeItem(

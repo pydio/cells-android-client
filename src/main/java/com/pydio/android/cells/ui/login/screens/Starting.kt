@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 @Composable
 fun StartingLoginProcess() {
@@ -31,7 +31,7 @@ fun StartingLoginProcess() {
 )
 @Composable
 private fun ProcessAuthPreview() {
-    CellsTheme {
+    UseCellsTheme {
         StartingLoginProcess()
     }
 }

@@ -17,7 +17,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
-import com.pydio.android.cells.ui.UseCellsTheme
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
@@ -59,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 return@launch
             }
 
-            var startingState = handleIntent(savedInstanceState, landingVM)
+            val startingState = handleIntent(savedInstanceState, landingVM)
 
             if (Str.empty(startingState.route)) {
                 // FIXME the state is not nul but we still don't know where to go.
@@ -94,17 +93,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                UseCellsTheme {
-                    MainApp(
-                        startingState = if (intentHasBeenProcessed.value) null else startingState,
-                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                        launchIntent = landActivity::launchIntent,
-                        launchTaskFor = launchTaskFor,
-                        widthSizeClass = widthSizeClass,
-                    )
-                }
+                MainApp(
+                    startingState = if (intentHasBeenProcessed.value) null else startingState,
+                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                    launchIntent = landActivity::launchIntent,
+                    launchTaskFor = launchTaskFor,
+                    widthSizeClass = widthSizeClass,
+                )
+//                UseCellsTheme {
+//                }
             }
-            
+
             landingVM.recordLaunch()
         }
     }

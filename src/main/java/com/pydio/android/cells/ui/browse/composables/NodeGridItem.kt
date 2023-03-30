@@ -33,7 +33,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.GridThumb
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 private const val logTag = "NodeGridItem"
 
@@ -525,7 +525,7 @@ private fun NodeGridItemPreview() {
     val isShared = false
     val isOfflineRoot = false
 
-    CellsTheme {
+    UseCellsTheme {
         NodeGridItem(
             encodedState = encodedState,
             sortName = sortName,
@@ -564,7 +564,7 @@ private fun OfflineRootGridItemPreview() {
     val isBookmarked = false
     val isShared = false
 
-    CellsTheme {
+    UseCellsTheme {
         OfflineRootGridItem(
             encodedState = encodedState,
             sortName = sortName,

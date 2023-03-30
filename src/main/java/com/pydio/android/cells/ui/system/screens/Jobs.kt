@@ -35,7 +35,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithActions
 import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
@@ -238,7 +238,7 @@ private fun JobListItemPreview(
         append("NaN")
     }
 
-    CellsTheme {
+    UseCellsTheme {
         JobListItem("title", status, 0.7f, Modifier)
     }
 }

@@ -44,6 +44,13 @@ data class RSessionView(
         return null
     }
 
+    fun customColor(): String? {
+        if (properties.containsKey(RAccount.KEY_CUSTOM_COLOR)) {
+            return properties[RAccount.KEY_CUSTOM_COLOR] as String
+        }
+        return null
+    }
+
     fun getStateID(): StateID {
         return StateID.fromId(accountID)
     }

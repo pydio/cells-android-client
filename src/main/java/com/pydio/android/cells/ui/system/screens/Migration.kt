@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.ClientData
 
 @Composable
@@ -207,7 +207,7 @@ fun AfterLegacyMigration(
 //)
 //@Composable
 //private fun MigrateFromV2Preview() {
-//    CellsTheme {
+//   UseCellsTheme {
 //        MigrateFromV2(43, "Running... ", 0.7f)
 //    }
 //}
@@ -220,7 +220,7 @@ fun AfterLegacyMigration(
 )
 @Composable
 private fun AfterLegacyMigrationPreview() {
-    CellsTheme {
+    UseCellsTheme {
         AfterLegacyMigration(8, {}, {})
     }
 }

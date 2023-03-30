@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.ui.migration.MigrationHost
 import com.pydio.android.cells.ui.migration.MigrationVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -26,7 +26,7 @@ class MigrateActivity : ComponentActivity() {
 
         val migrateActivity = this
         setContent {
-            CellsTheme {
+            UseCellsTheme {
                 val navController = rememberNavController()
                 val migrationVM by viewModel<MigrationVM>()
                 val afterMigration: () -> Unit = {

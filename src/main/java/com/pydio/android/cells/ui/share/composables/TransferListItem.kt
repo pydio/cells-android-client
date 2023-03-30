@@ -35,7 +35,7 @@ import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.utils.Str
 
 // private const val logTag = "TransferListItem"
@@ -272,7 +272,7 @@ private fun TransferListItemPreview() {
         status = AppNames.JOB_STATUS_CANCELLED,
     )
 
-    CellsTheme {
+    UseCellsTheme {
         TransferListItem(dummyTransfer, { }, { }, { }, { }, Modifier)
     }
 }
@@ -296,7 +296,7 @@ private fun TransferListItemNightPreview() {
         status = AppNames.JOB_STATUS_PROCESSING,
     )
 
-    CellsTheme {
+    UseCellsTheme {
         TransferListItem(
             type = AppNames.TRANSFER_TYPE_UPLOAD,
             status = AppNames.JOB_STATUS_PROCESSING,

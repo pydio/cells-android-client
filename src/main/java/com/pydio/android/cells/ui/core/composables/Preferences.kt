@@ -28,7 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 @Composable
 fun PreferenceSectionTitle(
@@ -175,7 +175,7 @@ private fun PreferenceItemPreview() {
     val modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = dimensionResource(id = R.dimen.margin_small))
-    CellsTheme {
+    UseCellsTheme {
         Column(
             horizontalAlignment = Alignment.Start,
         ) {
@@ -197,7 +197,7 @@ private fun PreferenceItemPreview() {
 @Preview(name = "Light Mode List")
 @Composable
 private fun PreferenceListPreview() {
-    CellsTheme {
+    UseCellsTheme {
 //         PreferenceList() {}
     }
 }

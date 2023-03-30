@@ -17,6 +17,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.Dp
@@ -30,6 +31,7 @@ import com.pydio.android.cells.ui.core.nav.AppDrawer
 import com.pydio.android.cells.ui.core.nav.AppPermanentDrawer
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.system.SystemNavigationActions
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -69,55 +71,61 @@ fun NavHostWithDrawer(
         navHostController.navigate(route)
     }
 
-    ModalNavigationDrawer(
-        drawerContent = {
-            AppDrawer(
-                currRoute = navBackStackEntry?.destination?.route,
-                currSelectedID = lazyStateID(navBackStackEntry),
-                closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
-                connectionVM = connectionVM,
-                cellsNavActions = cellsNavActions,
-                systemNavActions = systemNavActions,
-                browseNavActions = browseNavActions,
-            )
-        },
-        drawerState = sizeAwareDrawerState,
-        // Only enable opening the drawer via gestures if the screen is not expanded
-        gesturesEnabled = !isExpandedScreen
+    val customColor = connectionVM.customColor.observeAsState(null)
+
+    UseCellsTheme(
+        customColor = customColor.value
     ) {
-        Row {
-            if (isExpandedScreen) { // When we are on a tablet
-                AppPermanentDrawer(
+        ModalNavigationDrawer(
+            drawerContent = {
+                AppDrawer(
                     currRoute = navBackStackEntry?.destination?.route,
                     currSelectedID = lazyStateID(navBackStackEntry),
+                    closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
                     connectionVM = connectionVM,
                     cellsNavActions = cellsNavActions,
                     systemNavActions = systemNavActions,
                     browseNavActions = browseNavActions,
                 )
-            }
-            WithInternetBanner(
-                connectionVM = connectionVM,
-                navigateTo = navigateTo,
-                contentPadding = rememberContentPaddingForScreen(
-                    // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
-                    excludeTop = !isExpandedScreen
-                )
-            ) {
-                CellsNavGraph(
-                    startingState = startingState,
-                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                    isExpandedScreen = isExpandedScreen,
-                    navController = navHostController,
+            },
+            drawerState = sizeAwareDrawerState,
+            // Only enable opening the drawer via gestures if the screen is not expanded
+            gesturesEnabled = !isExpandedScreen
+        ) {
+            Row {
+                if (isExpandedScreen) { // When we are on a tablet
+                    AppPermanentDrawer(
+                        currRoute = navBackStackEntry?.destination?.route,
+                        currSelectedID = lazyStateID(navBackStackEntry),
+                        connectionVM = connectionVM,
+                        cellsNavActions = cellsNavActions,
+                        systemNavActions = systemNavActions,
+                        browseNavActions = browseNavActions,
+                    )
+                }
+                WithInternetBanner(
+                    connectionVM = connectionVM,
                     navigateTo = navigateTo,
-                    launchTaskFor = launchTaskFor,
-                    openDrawer = {
-                        if (!isExpandedScreen) {
-                            coroutineScope.launch { sizeAwareDrawerState.open() }
-                        }
-                    },
-                    launchIntent = launchIntent,
-                )
+                    contentPadding = rememberContentPaddingForScreen(
+                        // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                        excludeTop = !isExpandedScreen
+                    )
+                ) {
+                    CellsNavGraph(
+                        startingState = startingState,
+                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        isExpandedScreen = isExpandedScreen,
+                        navController = navHostController,
+                        navigateTo = navigateTo,
+                        launchTaskFor = launchTaskFor,
+                        openDrawer = {
+                            if (!isExpandedScreen) {
+                                coroutineScope.launch { sizeAwareDrawerState.open() }
+                            }
+                        },
+                        launchIntent = launchIntent,
+                    )
+                }
             }
         }
     }

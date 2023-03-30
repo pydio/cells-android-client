@@ -31,7 +31,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
@@ -163,7 +163,7 @@ fun ProcessAuth(
 )
 @Composable
 private fun ProcessAuthPreview() {
-    CellsTheme {
+    UseCellsTheme {
         ProcessAuth(
             isProcessing = true,
             message = "Getting credentials...",

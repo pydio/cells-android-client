@@ -51,7 +51,7 @@ import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.BrowseUpItem
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.share.models.ShareVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
@@ -326,7 +326,7 @@ private fun TopBar(
 @Composable
 private fun TableHeaderPreview() {
     val state = StateID("lucy", "http://example.com", "/all-files/dummy")
-    CellsTheme {
+    UseCellsTheme {
         TopBar(
             "",
             state,
@@ -345,7 +345,7 @@ private fun TableHeaderPreview() {
 //)
 //@Composable
 //private fun FolderItemPreview() {
-//    CellsTheme {
+//   UseCellsTheme {
 //        SelectFolderItem(
 //            true,
 //            SdkNames.NODE_MIME_FOLDER,

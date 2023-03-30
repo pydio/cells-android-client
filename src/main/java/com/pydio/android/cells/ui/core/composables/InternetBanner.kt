@@ -26,7 +26,7 @@ import com.pydio.android.cells.ui.ConnectionVM
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 private enum class Status {
     OK, WARNING, DANGER
@@ -198,7 +198,7 @@ private fun CredExpiredStatus(
 @Preview
 @Composable
 private fun ConnectionStatusPreview() {
-    CellsTheme {
+    UseCellsTheme {
         ConnectionStatus(
             icon = CellsIcons.Metered,
             desc = stringResource(id = R.string.metered_connection),

@@ -72,7 +72,7 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -523,7 +523,7 @@ fun FolderTopBar(
 )
 @Composable
 private fun FolderTopBarPreview() {
-    CellsTheme {
+    UseCellsTheme {
         FolderTopBar(
             "alice",
             { },
@@ -541,7 +541,7 @@ private fun FolderTopBarPreview() {
 )
 @Composable
 private fun TopBarPreview() {
-    CellsTheme {
+    UseCellsTheme {
         FolderTopBar(
             "Pydio Cells server",
             { },

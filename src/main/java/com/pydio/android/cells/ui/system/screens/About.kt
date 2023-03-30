@@ -26,7 +26,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.core.nav.openExternalURL
 import com.pydio.android.cells.ui.core.nav.sendSupportEmail
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.cells.transport.ClientData
 
@@ -181,7 +181,7 @@ private fun TroubleShootingCard(
 )
 @Composable
 private fun AboutScreenPreview() {
-    CellsTheme {
+    UseCellsTheme {
         AboutScreen({}, { _, _, _ -> })
     }
 }
@@ -189,7 +189,7 @@ private fun AboutScreenPreview() {
 @Preview
 @Composable
 private fun VersionCardPreview() {
-    CellsTheme {
+    UseCellsTheme {
         VersionCard(
             "3.0.4", "131", {}, "11 Jan 2023"
         )
@@ -199,7 +199,7 @@ private fun VersionCardPreview() {
 @Preview
 @Composable
 private fun TroubleShootingCardPreview() {
-    CellsTheme {
+    UseCellsTheme {
         TroubleShootingCard(
             "If you cannot get this application to work correctly....",
             "Contact Pydio Support"

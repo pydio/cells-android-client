@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 @Composable
 fun DummyImage200() {
@@ -58,7 +58,7 @@ fun DummyImage200() {
 @Preview("Thumb Icon light")
 @Composable
 private fun ThumbIconPreview() {
-    CellsTheme {
+    UseCellsTheme {
         DummyImage200()
     }
 }
@@ -83,7 +83,7 @@ private fun NewNodeCardPreview() {
     val more: () -> Unit = {}
 
 
-    CellsTheme {
+    UseCellsTheme {
         Box(modifier = Modifier.size(200.dp)) {
 
             DummyImage200()
@@ -164,7 +164,7 @@ private fun NodeCardPreview() {
     val title = "IMG_20220508_172716.jpg"
     val desc = "November 14, 2022 • 2.0 MB"
 
-    CellsTheme {
+    UseCellsTheme {
         Card(
             shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
             elevation = CardDefaults.cardElevation(
@@ -191,7 +191,7 @@ private fun NodeCardPreview() {
 //@Preview("ThumbRes preview light")
 //@Composable
 //private fun ThumbResourcePreview() {
-//    CellsTheme {
+//   UseCellsTheme {
 //        Image(
 //            painter = painterResource(R.drawable.dog),
 //            contentDescription = "Image",
@@ -208,7 +208,7 @@ private fun NodeCardPreview() {
 //@Preview("Thumb preview light")
 //@Composable
 //private fun ThumbPreview() {
-//    CellsTheme {
+//   UseCellsTheme {
 //        // This must be manually put on the test device...
 //        val imgFile = File("/storage/emulated/0/Download/lavande.jpeg")
 //

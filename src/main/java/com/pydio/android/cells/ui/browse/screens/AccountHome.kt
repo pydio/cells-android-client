@@ -52,7 +52,7 @@ import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
@@ -319,7 +319,7 @@ fun HomeHeader(
 )
 @Composable
 private fun HomeHeaderPreview() {
-    CellsTheme {
+    UseCellsTheme {
         HomeHeader(
             "alice",
             "https://www.example.com",
@@ -337,7 +337,7 @@ private fun HomeHeaderPreview() {
 )
 @Composable
 private fun HomeCardPreview() {
-    CellsTheme {
+    UseCellsTheme {
 //        HomeCardItem(
 //            "2_",
 //            "alice",

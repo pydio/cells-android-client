@@ -31,8 +31,6 @@ data class RAccount(
 
     // We rather use properties to simply be able to enrich model
     @ColumnInfo(name = "properties") val properties: Properties,
-//    @ColumnInfo(name = "server_label") val serverLabel: String?,
-//    @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
 ) {
 
     companion object {
@@ -40,6 +38,7 @@ data class RAccount(
 
         const val KEY_SERVER_LABEL = "server_label"
         const val KEY_WELCOME_MESSAGE = "welcome_message"
+        const val KEY_CUSTOM_COLOR = "custom_color"
 
         fun toRAccount(username: String, server: Server): RAccount {
 
@@ -49,6 +48,9 @@ data class RAccount(
             }
             if (Str.notEmpty(server.welcomeMessage)) {
                 props.setProperty(KEY_WELCOME_MESSAGE, server.welcomeMessage)
+            }
+            if (Str.notEmpty(server.customPrimaryColor)) {
+                props.setProperty(KEY_CUSTOM_COLOR, server.customPrimaryColor)
             }
 
             return RAccount(

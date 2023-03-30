@@ -19,7 +19,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -120,7 +120,7 @@ fun SkipVerify(
 )
 @Composable
 private fun SkipVerifyPreview() {
-    CellsTheme {
+    UseCellsTheme {
         SkipVerify(
             isProcessing = true,
             fqdn = "https://files.example.com",

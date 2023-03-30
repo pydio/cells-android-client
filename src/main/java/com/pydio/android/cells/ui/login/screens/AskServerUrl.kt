@@ -26,7 +26,7 @@ import com.pydio.android.cells.ui.core.composables.FormBottomButtons
 import com.pydio.android.cells.ui.core.composables.FormInput
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import kotlinx.coroutines.launch
 
 private const val logTag = "AskServerUrl"
@@ -145,7 +145,7 @@ fun AskServerUrl(
 )
 @Composable
 private fun AskUrlPreview() {
-    CellsTheme {
+    UseCellsTheme {
         AskServerUrl(
             isProcessing = true,
             message = "pinging server",

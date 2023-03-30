@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
-import com.pydio.android.cells.ui.UseCellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 /**
  * Test new components should not be enabled when shipping to production
@@ -38,12 +38,9 @@ class SampleActivity : ComponentActivity() {
         Log.d(logTag, "onCreate")
         super.onCreate(savedInstanceState)
         setContent {
-
             UseCellsTheme {
-
                 val ctx = LocalContext.current
                 val showDialog1 = remember { mutableStateOf(false) }
-
                 val itemModifier = Modifier
                     .fillMaxWidth()
                     .padding(

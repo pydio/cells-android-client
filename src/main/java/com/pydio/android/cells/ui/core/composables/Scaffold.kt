@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.utils.Str
 
 //@OptIn(ExperimentalMaterial3Api::class)
@@ -306,7 +306,7 @@ fun TopBarWithSearch(
 )
 @Composable
 private fun DefaultTopBarPreview() {
-    CellsTheme {
+    UseCellsTheme {
         DefaultTopBar(
             "Pydio Cells server",
             false,
@@ -325,7 +325,7 @@ private fun DefaultTopBarPreview() {
 )
 @Composable
 private fun ExpandedTopBarPreview() {
-    CellsTheme {
+    UseCellsTheme {
         DefaultTopBar(
             "Pydio Cells server",
             true,

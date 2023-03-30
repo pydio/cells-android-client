@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.utils.Str
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -127,7 +127,7 @@ fun FormBottomButtons(
 )
 @Composable
 private fun FormInputPreview() {
-    CellsTheme {
+    UseCellsTheme {
         Column(Modifier.fillMaxWidth()) {
             FormInput(
                 value = "https://files.example.com:666",
@@ -151,7 +151,7 @@ private fun FormInputPreview() {
 @Composable
 private fun FormInputErrorPreview() {
     val dummyURL = "https://files.example.com:666"
-    CellsTheme {
+    UseCellsTheme {
         Column(Modifier.fillMaxWidth()) {
             FormInput(
                 value = dummyURL,
@@ -169,7 +169,7 @@ private fun FormInputErrorPreview() {
 @Preview(name = "Btns Light Mode")
 @Composable
 private fun FormBottomButtonsPreview() {
-    CellsTheme {
+    UseCellsTheme {
         Column(Modifier.fillMaxWidth()) {
             FormBottomButtons(
                 backBtnLabel = "Cancel",
@@ -190,7 +190,7 @@ private fun FormBottomButtonsPreview() {
 )
 @Composable
 private fun FormBottomButtons2Preview() {
-    CellsTheme {
+    UseCellsTheme {
         Column(Modifier.fillMaxWidth()) {
             FormBottomButtons(
                 backBtnLabel = "Go Back (recommended)",

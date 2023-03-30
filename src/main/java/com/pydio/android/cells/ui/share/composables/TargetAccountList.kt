@@ -33,7 +33,7 @@ import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 
 @Composable
@@ -154,7 +154,7 @@ private fun TargetAccountListItem(
 @Preview(name = "Light Mode")
 @Composable
 private fun ForegroundAccountListItemPreview() {
-    CellsTheme {
+    UseCellsTheme {
         TargetAccountListItem(
             "Cells test server",
             "lea",
@@ -178,7 +178,7 @@ private fun ForegroundAccountListItemPreview() {
 )
 @Composable
 private fun AccountListItemPreview() {
-    CellsTheme {
+    UseCellsTheme {
         TargetAccountListItem(
             "Cells test server",
             "lea",

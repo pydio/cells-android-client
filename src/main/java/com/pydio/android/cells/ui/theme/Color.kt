@@ -1,10 +1,17 @@
 package com.pydio.android.cells.ui.theme
 
+import android.annotation.SuppressLint
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import com.google.android.material.color.utilities.Scheme
 
 // v3.1 Colors
 
 object CellsColor {
+
+    val defaultMainColor = Color(0xFF134E6C)
 
     val ok = Color(0xFF219600)
     val warning = Color(0xFFFF9800)
@@ -29,17 +36,83 @@ object CellsColor {
     val material_neutral = Color(0xFF5C5F61)
 }
 
-// Secondary
-val LightBlue = Color(0xFF79D0FF)
-val LightBlueGrey = Color(0xFFB6C9D7)
-val LightPurpleGrey = Color(0xFFCAC1E9)
-val PinkRed = Color(0xFFFFB4A9)
+
+// TODO double check the consequences of using the restricted API here
+@SuppressLint("RestrictedApi")
+fun customLight(argBaseColor: Int): ColorScheme {
+    val tmpScheme = Scheme.light(argBaseColor)
+    return lightColorScheme(
+        primary = Color(tmpScheme.primary),
+        onPrimary = Color(tmpScheme.onPrimary),
+        primaryContainer = Color(tmpScheme.primaryContainer),
+        onPrimaryContainer = Color(tmpScheme.onPrimaryContainer),
+        inversePrimary = Color(tmpScheme.inversePrimary),
+        secondary = Color(tmpScheme.secondary),
+        onSecondary = Color(tmpScheme.onSecondary),
+        secondaryContainer = Color(tmpScheme.secondaryContainer),
+        onSecondaryContainer = Color(tmpScheme.onSecondaryContainer),
+        tertiary = Color(tmpScheme.tertiary),
+        onTertiary = Color(tmpScheme.onTertiary),
+        tertiaryContainer = Color(tmpScheme.tertiaryContainer),
+        onTertiaryContainer = Color(tmpScheme.onTertiaryContainer),
+        background = Color(tmpScheme.background),
+        onBackground = Color(tmpScheme.onBackground),
+        surface = Color(tmpScheme.surface),
+        onSurface = Color(tmpScheme.onSurface),
+        surfaceVariant = Color(tmpScheme.surfaceVariant),
+        onSurfaceVariant = Color(tmpScheme.onSurfaceVariant),
+        inverseSurface = Color(tmpScheme.inverseSurface),
+        inverseOnSurface = Color(tmpScheme.inverseOnSurface),
+        error = Color(tmpScheme.error),
+        onError = Color(tmpScheme.onError),
+        errorContainer = Color(tmpScheme.errorContainer),
+        onErrorContainer = Color(tmpScheme.onErrorContainer),
+        outline = Color(tmpScheme.outline),
+        outlineVariant = Color(tmpScheme.outlineVariant),
+        scrim = Color(tmpScheme.scrim),
+    )
+}
+
+@SuppressLint("RestrictedApi")
+fun customDark(argBaseColor: Int): ColorScheme {
+    val tmpScheme = Scheme.dark(argBaseColor)
+    return darkColorScheme(
+        primary = Color(tmpScheme.primary),
+        onPrimary = Color(tmpScheme.onPrimary),
+        primaryContainer = Color(tmpScheme.primaryContainer),
+        onPrimaryContainer = Color(tmpScheme.onPrimaryContainer),
+        inversePrimary = Color(tmpScheme.inversePrimary),
+        secondary = Color(tmpScheme.secondary),
+        onSecondary = Color(tmpScheme.onSecondary),
+        secondaryContainer = Color(tmpScheme.secondaryContainer),
+        onSecondaryContainer = Color(tmpScheme.onSecondaryContainer),
+        tertiary = Color(tmpScheme.tertiary),
+        onTertiary = Color(tmpScheme.onTertiary),
+        tertiaryContainer = Color(tmpScheme.tertiaryContainer),
+        onTertiaryContainer = Color(tmpScheme.onTertiaryContainer),
+        background = Color(tmpScheme.background),
+        onBackground = Color(tmpScheme.onBackground),
+        surface = Color(tmpScheme.surface),
+        onSurface = Color(tmpScheme.onSurface),
+        surfaceVariant = Color(tmpScheme.surfaceVariant),
+        onSurfaceVariant = Color(tmpScheme.onSurfaceVariant),
+        inverseSurface = Color(tmpScheme.inverseSurface),
+        inverseOnSurface = Color(tmpScheme.inverseOnSurface),
+        error = Color(tmpScheme.error),
+        onError = Color(tmpScheme.onError),
+        errorContainer = Color(tmpScheme.errorContainer),
+        onErrorContainer = Color(tmpScheme.onErrorContainer),
+        outline = Color(tmpScheme.outline),
+        outlineVariant = Color(tmpScheme.outlineVariant),
+        scrim = Color(tmpScheme.scrim),
+    )
+}
 
 // Default color palette
 // for devices that do not support or authorize dynamic colors
 object LightCellsScheme {
-    // val primary = Color(0xFF00668B)
-    val primary = Color(0xFF134E6C)
+    //     val primary = Color(0xFF134E6C)
+    val primary = Color(0xFF00668B)
     val onPrimary = Color(0xFFFFFFFF)
     val primaryContainer = Color(0xFFC3E7FF)
     val onPrimaryContainer = Color(0xFF001E2D)

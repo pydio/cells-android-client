@@ -32,17 +32,6 @@ fun MainApp(
     )
 }
 
-@Composable
-fun UseCellsTheme(content: @Composable () -> Unit) {
-    CellsTheme(customPrimaryColor = "#FF5722") {
-        Surface(
-            modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
-        ) {
-            content()
-        }
-    }
-}
-
 class StartingState(val stateID: StateID) {
 
     enum class Key {

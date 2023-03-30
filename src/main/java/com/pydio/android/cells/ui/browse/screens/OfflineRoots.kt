@@ -76,7 +76,7 @@ import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLa
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.CellsTheme
+import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.asAgoString
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -537,7 +537,7 @@ private fun getDesc(item: RLiveOfflineRoot): String {
 )
 @Composable
 private fun SyncStatusPreview() {
-    CellsTheme {
+    UseCellsTheme {
         SyncStatus(
             "Pydio Cells server",
             -1f,
