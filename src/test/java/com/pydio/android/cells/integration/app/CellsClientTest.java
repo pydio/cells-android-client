@@ -7,7 +7,6 @@ import com.pydio.cells.api.Client;
 import com.pydio.cells.api.SdkNames;
 import com.pydio.cells.api.Transport;
 import com.pydio.cells.api.ui.FileNode;
-import com.pydio.cells.api.ui.Message;
 import com.pydio.cells.utils.Log;
 import com.pydio.cells.utils.tests.RemoteServerConfig;
 import com.pydio.cells.utils.tests.TestConfiguration;
@@ -56,7 +55,7 @@ public class CellsClientTest {
         ByteArrayInputStream source = new ByteArrayInputStream(content);
 
 //        Message msg =
-                client.upload(source, content.length, "text/plain", cellsConf.defaultWS, baseDir, fileName, true, (progress) -> {
+        client.upload(source, content.length, "text/plain", cellsConf.defaultWS, baseDir, fileName, true, (progress) -> {
             System.out.printf("\r... %d bytes written\n", progress);
             return "";
         });
@@ -72,8 +71,7 @@ public class CellsClientTest {
         Log.w(logTag, "Path: " + nodePath);
 
         // Bookmark file
-        Message bookmarkMessage = client.bookmark(cellsConf.defaultWS, file, true);
-
+        client.bookmark(cellsConf.defaultWS, file, true);
         client.getBookmarks(new DebugNodeHandler(logTag));
     }
 
