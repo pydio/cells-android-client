@@ -56,10 +56,7 @@ class AuthService(authDB: AuthDB) {
                 val server = sessionFactory.getServer(serverID)
                 // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
                     ?: let {
-                        Log.e(
-                            logTag,
-                            "could not get server $serverID for SessionFactory with url ${url?.id}"
-                        )
+                        Log.e(logTag, "could not get server $serverID  with url ${url.id}")
                         return@withContext null
                     }
 
@@ -99,23 +96,19 @@ class AuthService(authDB: AuthDB) {
         withContext(Dispatchers.IO) {
             var accountID: StateID? = null
 
-            Log.e(logTag, "... handleOAuthResponse")
-
             val rState = authStateDao.get(oauthState)
             if (rState == null) {
                 Log.w(logTag, "Ignored callback with unknown state: $oauthState")
                 return@withContext null
             }
             try {
-                Log.e(logTag, "... Got a state: ${rState.state} + ${rState.serverURL}")
+                Log.i(logTag, "... Handling state ${rState.state} for ${rState.serverURL.url}")
 
                 val transport = sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
-                Log.e(logTag, "... Got a transport")
                 val token = transport.getTokenFromCode(code, encoder)
-                Log.e(logTag, "... Matched the token")
                 accountID = manageRetrievedToken(accountService, transport, token)
-                Log.e(logTag, "... Token managed, post clean. Next action: ${rState.next}")
+                Log.d(logTag, "... Token managed. Next action: ${rState.next}")
 
                 // Leave OAuth state cacheDB clean
                 authStateDao.delete(oauthState)
@@ -184,8 +177,6 @@ class AuthService(authDB: AuthDB) {
         return uriBuilder.build()
     }
 
-    private val seedChars = "abcdef1234567890"
-
     private fun generateOAuthState(): String {
         val sb = StringBuilder()
         val rand = Random()
@@ -194,4 +185,6 @@ class AuthService(authDB: AuthDB) {
         }
         return sb.toString()
     }
+
+    private val seedChars = "abcdef1234567890"
 }

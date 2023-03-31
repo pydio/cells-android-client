@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.runtime.JobDao
@@ -15,6 +16,7 @@ import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -100,15 +102,16 @@ class MigrationVM(
         _migrationJob = jobDao.getLiveById(migrationJob.jobId)
         setStep(Step.MIGRATING_FROM_V2)
 
-        Log.e(logTag, "Created job with id: ${migrationJob.jobId}")
+        viewModelScope.launch {
+            _rootNb = doMigrate(context, viewModelScope, migrationJob, oldVersion, newVersion)
+            val newValue = ClientData.getInstance().versionCode.toInt()
+            prefs.setInstalledVersion(newValue)
+            setStep(Step.AFTER_LEGACY_MIGRATION)
+            Log.i(logTag, "Migration has been done")
+        }
 
-        _rootNb = doMigrate(context, migrationJob, oldVersion, newVersion)
+        Log.i(logTag, "Created migration job with id: ${migrationJob.jobId}")
 
-        val newValue = ClientData.getInstance().versionCode.toInt()
-        prefs.setInstalledVersion(newValue)
-
-        setStep(Step.AFTER_LEGACY_MIGRATION)
-        Log.e(logTag, "DB migration done")
     }
 
     suspend fun launchSync() {
@@ -132,11 +135,12 @@ class MigrationVM(
 
     private suspend fun doMigrate(
         context: Context,
+        scope: CoroutineScope,
         migrationJob: RJob,
         oldValue: Int,
         newValue: Int
     ): Int = withContext(Dispatchers.IO) {
-        val nb = migrationService.migrate(context, migrationJob, oldValue, newValue)
+        val nb = migrationService.migrate(context, scope, migrationJob, oldValue, newValue)
         jobService.i(
             logTag, "${migrationJob.label} terminated",
             "${migrationJob.jobId}"

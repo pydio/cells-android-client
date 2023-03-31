@@ -22,7 +22,9 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -67,15 +69,12 @@ class MigrationServiceV2 : KoinComponent {
      *
      * @return the number of offline roots node that have been migrated */
     @OptIn(ExperimentalTime::class)
-    suspend fun migrate(context: Context, migrationJob: RJob, oldValue: Int, newValue: Int): Int {
-
-//        // FIXME
-//        for (i in 1..20) {
-//            Log.e(logTag, "Preparing step #$i ...")
-//            jobService.incrementProgress(migrationJob, 5, "Preparing step #$i ...")
-//            delay(1500)
-//        }
-//        return 8
+    suspend fun migrate(
+        context: Context,
+        scope: CoroutineScope,
+        migrationJob: RJob,
+        oldValue: Int, newValue: Int
+    ): Int {
 
         delay(1200) // dirty workaround: take a nap even if you're a speedy device
 
@@ -94,12 +93,16 @@ class MigrationServiceV2 : KoinComponent {
             result = try {
                 if (oldValue < 50) {
                     migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
-                        jobService.incrementProgress(migrationJob, it, null)
+                        scope.launch {
+                            jobService.incrementProgress(migrationJob, it, null)
+                        }
                         ""
                     }
                 } else {
                     migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
-                        jobService.incrementProgress(migrationJob, it, null)
+                        scope.launch {
+                            jobService.incrementProgress(migrationJob, it, null)
+                        }
                         ""
                     }
                 }

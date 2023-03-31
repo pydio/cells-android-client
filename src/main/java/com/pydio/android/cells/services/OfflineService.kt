@@ -2,7 +2,6 @@ package com.pydio.android.cells.services
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.ROfflineRoot
@@ -214,9 +213,9 @@ class OfflineService(
             jobService.i(logTag, "Terminated ${job.label}", "$jobId")
         }
 
-    fun getRunningAccountSync(accountID: StateID): LiveData<RJob?> {
-        return jobService.getMostRecentRunning(getSyncTemplateIdForAccount(accountID))
-    }
+//    fun getRunningAccountSync(accountID: StateID): LiveData<RJob?> {
+//        return jobService.getMostRecentRunning(getSyncTemplateIdForAccount(accountID))
+//    }
 
     @OptIn(ExperimentalTime::class)
     suspend fun launchAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
@@ -389,7 +388,7 @@ class OfflineService(
         return String.format(AppNames.JOB_TEMPLATE_RESYNC, accountID.toString())
     }
 
-    private fun hasExistingJob(
+    private suspend fun hasExistingJob(
         label: String,
         template: String,
         timeoutSinceUpdated: Int = 120,

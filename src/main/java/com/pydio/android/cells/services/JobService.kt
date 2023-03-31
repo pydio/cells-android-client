@@ -21,20 +21,7 @@ class JobService(runtimeDB: RuntimeDB) {
     private val jobDao = runtimeDB.jobDao()
     private val logDao = runtimeDB.logDao()
 
-    fun createAndLaunch(
-        owner: String,
-        template: String,
-        label: String,
-        parentId: Long = -1,
-        maxSteps: Long = -1
-    ): RJob? {
-        val newJob = RJob.create(owner, template, label, parentId)
-        newJob.total = maxSteps
-        newJob.status = AppNames.JOB_STATUS_PROCESSING
-        newJob.startTimestamp = currentTimestamp()
-        val jobId = jobDao.insert(newJob)
-        return jobDao.getById(jobId)
-    }
+    suspend fun get(jobId: Long): RJob? = withContext(Dispatchers.IO) { jobDao.getById(jobId) }
 
     suspend fun create(
         owner: String,
@@ -47,6 +34,33 @@ class JobService(runtimeDB: RuntimeDB) {
         newJob.total = maxSteps
         newJob.updateTimestamp = currentTimestamp()
         return@withContext jobDao.insert(newJob)
+    }
+
+    suspend fun createAndLaunch(
+        owner: String,
+        template: String,
+        label: String,
+        parentId: Long = -1,
+        maxSteps: Long = -1
+    ): RJob? = withContext(Dispatchers.IO) {
+        val newJob = RJob.create(owner, template, label, parentId)
+        newJob.total = maxSteps
+        newJob.status = AppNames.JOB_STATUS_PROCESSING
+        newJob.startTimestamp = currentTimestamp()
+        val jobId = jobDao.insert(newJob)
+        return@withContext jobDao.getById(jobId)
+    }
+
+    suspend fun incrementProgress(job: RJob, increment: Long, message: String?) =
+        withContext(Dispatchers.IO) {
+            job.progress = job.progress + increment
+            message?.let { job.progressMessage = message }
+            job.updateTimestamp = currentTimestamp()
+            jobDao.update(job)
+        }
+
+    suspend fun update(job: RJob) = withContext(Dispatchers.IO) {
+        jobDao.update(job)
     }
 
     suspend fun launched(jobId: Long): String? = withContext(Dispatchers.IO) {
@@ -68,7 +82,31 @@ class JobService(runtimeDB: RuntimeDB) {
         return@withContext null
     }
 
-    fun get(jobId: Long): RJob? = jobDao.getById(jobId)
+    suspend fun done(job: RJob, message: String?, lastProgressMsg: String?) =
+        withContext(Dispatchers.IO) {
+            job.status = AppNames.JOB_STATUS_DONE
+            job.doneTimestamp = currentTimestamp()
+            job.updateTimestamp = currentTimestamp()
+            job.progress = job.total
+            job.message = message
+            job.progressMessage = lastProgressMsg
+            jobDao.update(job)
+        }
+
+    suspend fun getRunningJobs(template: String): List<RJob> = withContext(Dispatchers.IO) {
+        return@withContext jobDao.getRunningForTemplate(template)
+    }
+
+    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
+        jobDao.clearTerminatedJobs()
+    }
+
+    // Logs
+    suspend fun clearAllLogs() = withContext(Dispatchers.IO) {
+        logDao.clearLogs()
+    }
+
+    // Live Data
 
     fun getMostRecent(template: String): LiveData<RJob?> {
         return jobDao.getMostRecent(template)
@@ -80,10 +118,6 @@ class JobService(runtimeDB: RuntimeDB) {
         return jobDao.getMostRecentRunning(template)
     }
 
-    fun getRunningJobs(template: String): List<RJob> {
-        return jobDao.getRunningForTemplate(template)
-    }
-
     fun listLiveJobs(showChildren: Boolean): LiveData<List<RJob>> {
         return if (showChildren) {
             jobDao.getLiveJobs()
@@ -92,33 +126,6 @@ class JobService(runtimeDB: RuntimeDB) {
         }
     }
 
-    fun incrementProgress(job: RJob, increment: Long, message: String?) {
-        job.progress = job.progress + increment
-        message?.let { job.progressMessage = message }
-        job.updateTimestamp = currentTimestamp()
-        jobDao.update(job)
-    }
-
-    fun update(job: RJob) {
-        jobDao.update(job)
-    }
-
-// FIXME should be
-    // suspend fun done(job: RJob, message: String?, lastProgressMsg: String?)  = withContext(Dispatchers.IO) {
-
-    fun done(job: RJob, message: String?, lastProgressMsg: String?) {
-        job.status = AppNames.JOB_STATUS_DONE
-        job.doneTimestamp = currentTimestamp()
-        job.updateTimestamp = currentTimestamp()
-        job.progress = job.total
-        job.message = message
-        job.progressMessage = lastProgressMsg
-        jobDao.update(job)
-    }
-
-    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
-        jobDao.clearTerminatedJobs()
-    }
 
     /* MANAGE LOGS */
 
@@ -126,9 +133,6 @@ class JobService(runtimeDB: RuntimeDB) {
         return logDao.getLiveLogs()
     }
 
-    suspend fun clearAllLogs() = withContext(Dispatchers.IO) {
-        logDao.clearLogs()
-    }
 
     // Shortcut for logging
     fun d(tag: String?, message: String, callerId: String?) {

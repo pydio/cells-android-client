@@ -131,7 +131,7 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         }
     }
 
-    private fun finalizeJob() {
+    private suspend fun finalizeJob() {
         // We assume all downloads have been done at this time
         lastIncrementalTotal = totalInBytes
         persistTotal(totalInBytes)
@@ -170,12 +170,12 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
         }
     }
 
-    private fun persistTotal(total: Long) {
+    private suspend fun persistTotal(total: Long) {
         parentJob.total = total
         jobService.update(parentJob)
     }
 
-    private fun persistProgress(progress: Long) {
+    private suspend fun persistProgress(progress: Long) {
         parentJob.progress = progress
         jobService.update(parentJob)
     }
