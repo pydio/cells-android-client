@@ -90,23 +90,23 @@ class ActiveSessionViewModel(
     }
 
     fun afterCreate(accountId: String?) {
-        if (accountId != null) {
-            _accountId = accountId
-            Log.i(logTag, "Initializing active session for $accountId")
-            sessionView = accountService.getLiveSession(accountId)
-            workspaces = accountService.getLiveWorkspaces(accountId)
-            setLoading(true)
-
-            // // FIXME remove this as only been added for debug purposes
-            // vmScope.launch {
-            //     transferService.createJobs(StateID.fromId(accountId))
-            // }
-        } else {
-            // Awful tweak to insure late init objects have been initialized to avoid crash
-            sessionView = accountService.getLiveSession("none")
-            workspaces = accountService.getLiveWorkspaces("none")
-            Log.e(logTag, "Initializing model with no account ID.")
-        }
+//        if (accountId != null) {
+//            _accountId = accountId
+//            Log.i(logTag, "Initializing active session for $accountId")
+//            sessionView = accountService.getLiveSession(accountId)
+//            workspaces = accountService.getLiveWorkspaces(accountId)
+//            setLoading(true)
+//
+//            // // FIXME remove this as only been added for debug purposes
+//            // vmScope.launch {
+//            //     transferService.createJobs(StateID.fromId(accountId))
+//            // }
+//        } else {
+//            // Awful tweak to insure late init objects have been initialized to avoid crash
+//            sessionView = accountService.getLiveSession("none")
+//            workspaces = accountService.getLiveWorkspaces("none")
+//            Log.e(logTag, "Initializing model with no account ID.")
+//        }
     }
 
     fun pause() {

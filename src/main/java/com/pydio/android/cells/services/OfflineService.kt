@@ -150,7 +150,6 @@ class OfflineService(
         return job
     }
 
-
     suspend fun prepareAccountSync(
         stateID: StateID,
         caller: String,

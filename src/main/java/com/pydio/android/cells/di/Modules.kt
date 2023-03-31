@@ -10,7 +10,6 @@ import com.pydio.android.cells.db.preferences.CELLS_PREFERENCES_NAME
 import com.pydio.android.cells.db.preferences.legacyMigrations
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.AccountServiceImpl
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.FileService
@@ -152,7 +151,7 @@ val serviceModule = module {
     // Accounts
     single<Store<Server>>(named("ServerStore")) { MemoryStore() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
-    single<AccountService> { AccountServiceImpl(get(), get(), get(), get(), get(), get()) }
+    single<AccountService> { AccountService(get(), get(), get(), get(), get(), get()) }
 
     // Sessions
     single {
