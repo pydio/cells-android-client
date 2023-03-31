@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.pydio.cells.api.S3Names;
 import com.pydio.cells.api.SDKException;
 import com.pydio.cells.transport.CellsTransport;
+import com.pydio.cells.transport.StateID;
 import com.pydio.cells.utils.Log;
 
 import java.net.URL;
@@ -75,7 +76,7 @@ public class S3Client implements com.pydio.cells.api.S3Client {
 //        }
 //    }
 
-    private String getCleanPath(String slug, String parent, String fileName) {
+    public static String getCleanPath(String slug, String parent, String fileName) {
         if ("/".equals(parent)) {
             return getCleanPath(slug, "/".concat(fileName));
         } else {
@@ -83,7 +84,12 @@ public class S3Client implements com.pydio.cells.api.S3Client {
         }
     }
 
-    private String getCleanPath(String slug, String file) {
+    public static String getCleanPath(StateID stateID) {
+        return stateID.getPath().substring(1);
+    }
+
+
+    private static String getCleanPath(String slug, String file) {
         String path = slug + file;
         if (path.contains("//")) {
             // This should not happen anymore

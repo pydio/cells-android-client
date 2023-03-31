@@ -1,12 +1,26 @@
 package com.pydio.android.cells.services
 
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.amazonaws.ClientConfiguration
+import com.amazonaws.auth.AWSCredentials
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.AWSCredentialsProviderChain
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferType
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.regions.Region
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.AmazonS3Client
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.ListType
@@ -25,6 +39,7 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
+import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.IoHelpers
@@ -114,8 +129,17 @@ class TransferService(
     fun enqueueUpload(parentID: StateID, uri: Uri) {
         val cr = CellsApp.instance.contentResolver
         serviceScope.launch {
-            copyAndRegister(cr, uri, parentID)?.let {
-                uploadOne(it)
+            val tid = register(cr, uri, parentID)
+            launchCopy(cr, uri, parentID, tid.first, tid.second)?.let {
+                launch {
+                    try {
+                        uploadOne(it)
+                        Log.w(logTag, "... $it ==> upload DONE")
+                    } catch (e: Exception) {
+                        Log.e(logTag, "... $it ==> upload FAILED: ${e.message}")
+                        e.printStackTrace()
+                    }
+                }
             }
         }
     }
@@ -492,13 +516,6 @@ class TransferService(
     }
 
     /** UPLOADS **/
-    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
-        val dao = getTransferDao(accountId)
-        val uploadRecord = dao.getById(transferId)
-            ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
-        doUpload(dao, uploadRecord)
-    }
-
     suspend fun uploadOne(stateID: StateID) = withContext(Dispatchers.IO) {
         val dao = getTransferDao(stateID)
         val uploadRecord = dao.getByState(stateID.id)
@@ -506,18 +523,23 @@ class TransferService(
         doUpload(dao, uploadRecord)
     }
 
+    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
+        val dao = getTransferDao(accountId)
+        val uploadRecord = dao.getById(transferId)
+            ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
+        doUpload(dao, uploadRecord)
+    }
+
+
     private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) =
         withContext(Dispatchers.IO) {
-            // Real upload of a single single part
-            var inputStream: InputStream? = null
-            var cancellationMsg: String
+
+            val state = transferRecord.getStateID()
+                ?: throw IllegalStateException("Cannot start upload with no defined StateID")
+            val parent = state.parent()
+            Log.d(logTag, "... About to upload file to $state")
+
             try {
-
-                val state = transferRecord.getStateId()
-                    ?: throw IllegalStateException("Cannot start upload with no defined StateID")
-                val parent = state.parent()
-                Log.d(logTag, "... About to upload file to $state")
-
                 // Mark the upload as started
                 transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
                 // Also reset in case of restart, to be refined
@@ -528,57 +550,110 @@ class TransferService(
                 // Real transfer
                 val srcPath =
                     fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
-                inputStream = FileInputStream(File(srcPath))
+                val srcFile = File(srcPath)
                 var errorMessage: String? = null
                 var lastUpdateTS = 0L
                 var byteWritten = 0L
-                accountService.getClient(state).upload(
-                    inputStream, transferRecord.byteSize,
-                    transferRecord.mime, parent.workspace, parent.file, state.fileName,
-                    true
-                ) { progressL ->
 
-                    byteWritten += progressL
+                // FIXME skipped for the time being
+                if (false && !accountService.getClient(state).isLegacy) { //  && transferRecord.byteSize > 200 * 1024 * 1024) {
+                    // FIXME Launch multipart upload
+                    doMultipartUpload(
+                        context = CellsApp.instance.baseContext,
+                        stateID = state,
+                        file = srcFile,
+                        dao = dao,
+                        transferRecord = transferRecord
+                    )
 
-                    cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
-                        val msg = "Upload cancelled by ${it.owner}"
-                        transferRecord.status = AppNames.JOB_STATUS_CANCELLED
-                        transferRecord.error = msg
-                        Log.e(logTag, "... ### Cancel requested")
+                } else {
 
-                        errorMessage = msg
-                        // We also reset the number of bytes sent, relaunching always triggers a full upload.
-                        // TODO this must be improved when we start doing multi-part
-                        transferRecord.progress = 0
-                        msg
-                    } ?: ""
+                    // Real upload of a single single part
+                    var inputStream: InputStream? = null
+                    var cancellationMsg: String
 
-                    // We only update the records every half second and when the upload is not cancelled)
-                    val newTs = System.currentTimeMillis()
-                    if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
-                        Log.e(
-                            logTag,
-                            "... ### transferring  $byteWritten / ${transferRecord.byteSize}"
-                        )
-
-                        transferRecord.progress += byteWritten
-                        transferRecord.updateTimestamp = newTs
-                        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                    try {
+//                    // Mark the upload as started
+//                    transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+//                    // Also reset in case of restart, to be refined
+//                    transferRecord.error = null
+//                    transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+//                   // Real transfer
+//                    val srcPath =
+//                        fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_FILE)
+//                    inputStream = FileInputStream(File(srcPath))
+//                    var errorMessage: String? = null
+//                    var lastUpdateTS = 0L
+//                    var byteWritten = 0L
+                        inputStream = FileInputStream(srcFile)
                         dao.update(transferRecord)
-                        byteWritten = 0
-                        lastUpdateTS = newTs
+//
+//
+                        accountService.getClient(state).upload(
+                            inputStream, transferRecord.byteSize,
+                            transferRecord.mime, parent.workspace, parent.file, state.fileName,
+                            true
+                        ) { progressL ->
+
+                            byteWritten += progressL
+
+                            cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
+                                val msg = "Upload cancelled by ${it.owner}"
+                                transferRecord.status = AppNames.JOB_STATUS_CANCELLED
+                                transferRecord.error = msg
+                                Log.e(logTag, "... ### Cancel requested")
+
+                                errorMessage = msg
+                                // We also reset the number of bytes sent, relaunching always triggers a full upload.
+                                // TODO this must be improved when we start doing multi-part
+                                transferRecord.progress = 0
+                                msg
+                            } ?: ""
+
+                            // We only update the records every half second and when the upload is not cancelled)
+                            val newTs = System.currentTimeMillis()
+                            if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
+                                Log.e(
+                                    logTag,
+                                    "- Transfer $byteWritten / ${transferRecord.byteSize}"
+                                )
+
+                                transferRecord.progress += byteWritten
+                                transferRecord.updateTimestamp = newTs
+                                transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+                                dao.update(transferRecord)
+                                byteWritten = 0
+                                lastUpdateTS = newTs
+                            }
+                            cancellationMsg
+                        }
+
+                        Log.e(logTag, "... ### Done and not cancelled")
+                        transferRecord.error = null
+                        transferRecord.doneTimestamp = currentTimestamp()
+                        transferRecord.status = AppNames.JOB_STATUS_DONE
+                        // Also send remaining bits to the progress bar
+                        transferRecord.progress += byteWritten
+                        Log.e(logTag, "... ${transferRecord.progress} / ${transferRecord.byteSize}")
+
+//                    } catch (e: Exception) {
+//                        if (e is SDKException && e.code == ErrorCodes.cancelled) {
+//                            Log.e(logTag, "... Got cancelled, acknowledging message...")
+//                            dao.ackCancellation(transferRecord.transferId)
+//                            // FIXME there is still some kind of routine leak here...
+//                            //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
+//                            this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
+//                        } else {
+//                            Log.e(logTag, "... Got an error but it is not a cancel: $e")
+//                            // e.printStackTrace()
+//                            transferRecord.error = e.message
+//                            transferRecord.status = AppNames.JOB_STATUS_ERROR
+//                            transferRecord.doneTimestamp = currentTimestamp()
+//                        }
+                    } finally {
+                        IoHelpers.closeQuietly(inputStream)
                     }
-                    cancellationMsg
                 }
-
-                Log.e(logTag, "... ### Done and not cancelled")
-                transferRecord.error = null
-                transferRecord.doneTimestamp = currentTimestamp()
-                transferRecord.status = AppNames.JOB_STATUS_DONE
-                // Also send remaining bits to the progress bar
-                transferRecord.progress += byteWritten
-                Log.e(logTag, "... ${transferRecord.progress} / ${transferRecord.byteSize}")
-
             } catch (e: Exception) {
                 if (e is SDKException && e.code == ErrorCodes.cancelled) {
                     Log.e(logTag, "... Got cancelled, acknowledging message...")
@@ -588,17 +663,94 @@ class TransferService(
                     this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
                 } else {
                     Log.e(logTag, "... Got an error but it is not a cancel: $e")
-                    // e.printStackTrace()
+                    e.printStackTrace()
                     transferRecord.error = e.message
                     transferRecord.status = AppNames.JOB_STATUS_ERROR
                     transferRecord.doneTimestamp = currentTimestamp()
                 }
             } finally {
                 Log.e(logTag, "... ########### Finally ###########")
-                IoHelpers.closeQuietly(inputStream)
                 dao.update(transferRecord)
             }
         }
+
+    private suspend fun doMultipartUpload(
+        context: Context,
+        stateID: StateID,
+        file: File,
+        dao: TransferDao,
+        transferRecord: RTransfer
+    ) =
+        withContext(Dispatchers.IO) {
+            Log.e(logTag, "... Launching transferUtility upload for ${file.absolutePath}")
+
+            val transferUtility = getTransferUtility(context, stateID)
+                ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
+            Log.e(logTag, "... Got a transferUtility, uploading ${transferRecord.transferId}")
+
+            Log.e(logTag, "... Cleaning old transfers")
+//            transferUtility.cancelAllWithType(TransferType.ANY);
+//            transferUtility.getTransfersWithType(TransferType.ANY)
+//                .forEach { transferUtility.deleteTransferRecord(it.id) }
+            delay(2000)
+
+            val listSize = transferUtility.getTransfersWithType(TransferType.ANY).size
+            Log.e(logTag, "... Size after clean $listSize")
+
+            val key = S3Client.getCleanPath(stateID)
+            val observer = transferUtility.upload(key, file)
+            Log.e(
+                logTag, " Upload launched: ${observer.id} - ${observer.absoluteFilePath} " +
+                        "- ${observer.bytesTransferred} / ${observer.bytesTotal} "
+            )
+            delay(2000)
+
+            observer.setTransferListener(MyTransferListener())
+            // Gets id of the transfer.
+            // val id = observer.id
+            // Pauses the transfer.
+//            transferUtility.pause(id);
+//            // Pause all the transfers.
+//            transferUtility.pauseAllWithType(TransferType.ANY);
+//            // Resumes the transfer.
+//            transferUtility.resume(id);
+//            // Resume all the transfers.
+//            transferUtility.resumeAllWithType(TransferType.ANY);
+
+//            // For canceling and deleting tasks:
+//            // Cancels the transfer.
+//            transferUtility.cancel(id);
+//            // Cancel all the transfers.
+//            transferUtility.cancelAllWithType(TransferType.ANY);
+//            // Deletes the transfer.
+//            transferUtility.cancel(id);
+//            transferUtility.deleteTransferRecord(id);
+
+        }
+
+    private val transferUtilities: MutableMap<String, TransferUtility> = mutableMapOf()
+
+
+    private fun getTransferUtility(context: Context?, accountID: StateID): TransferUtility? {
+        transferUtilities.get(accountID.id)?.let { return it }
+        TransferNetworkLossHandler.getInstance(context)
+        val newTU = TransferUtility.builder()
+            .context(context)
+            .defaultBucket(DEFAULT_BUCKET_NAME)
+            .s3Client(getS3Client(accountService, accountID))
+            .build()
+        transferUtilities[accountID.id] = newTU
+        return newTU
+    }
+
+    private fun getS3Client(accountService: AccountService, accountID: StateID): AmazonS3? {
+        val chain = AWSCredentialsProviderChain(CellsAuthProvider(accountService, accountID))
+        val transport = accountService.getTransport(accountID)
+        val conf = ClientConfiguration().withUserAgent(transport.userAgent)
+        val s3: AmazonS3 = AmazonS3Client(chain, Region.getRegion("us-east-1"), conf)
+        s3.setEndpoint(transport.server.url())
+        return s3
+    }
 
 //    suspend fun uploadAllNew() {
 //        serviceScope.launch {
@@ -661,7 +813,6 @@ class TransferService(
         return@withContext Pair(nodeDB(parentID).transferDao().insert(rec), filename)
     }
 
-
     /**
      * Make a local copy of the file from the device to an in-app folder in order to
      * workaround some permission issues
@@ -682,7 +833,8 @@ class TransferService(
         //   in Cells app storage
         val fs = fileService
         val targetStateID = createLocalState(parentID, filename)
-        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
+        val localPath =
+            fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
         val localFile = File(localPath)
         localFile.parentFile!!.mkdirs()
 
@@ -754,7 +906,8 @@ class TransferService(
         //   in Cells app storage
         val fs = fileService
         val targetStateID = createLocalState(parentID, name as String)
-        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
+        val localPath =
+            fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
         val localFile = File(localPath)
         localFile.parentFile!!.mkdirs()
 
@@ -882,5 +1035,50 @@ class TransferService(
             delay(2000)
             i++
         }
+    }
+}
+
+// private final static String logTag = "S3Client";
+private const val DEFAULT_BUCKET_NAME = "io"
+private const val DEFAULT_GATEWAY_SECRET = "gatewaysecret"
+
+private class CellsAuthProvider(
+    private val accountService: AccountService,
+    private val accountID: StateID
+) : AWSCredentialsProvider {
+
+    private val logTag = "CellsAuthProvider"
+    override fun getCredentials(): AWSCredentials {
+        Log.e(logTag, "Retrieving credentials for $accountID")
+        val token = (accountService.getTransport(accountID) as CellsTransport).accessToken
+        return BasicAWSCredentials(token, DEFAULT_GATEWAY_SECRET)
+    }
+
+    override fun refresh() {
+        Log.e(logTag, "######################################## ")
+        Log.e(logTag, "######################################## ")
+        Log.e(logTag, "######################################## ")
+        Log.e(logTag, "######################################## ")
+        Log.e(logTag, "######################################## ")
+        Log.e(logTag, "Refreshing credentials for $accountID")
+        TODO("Not yet implemented")
+    }
+}
+
+class MyTransferListener() : TransferListener {
+
+    private val logTag = "MyTransferListener"
+    override fun onStateChanged(id: Int, state: TransferState?) {
+        Log.e(logTag, "... #$id - State changed: $state")
+    }
+
+    override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+        Log.e(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
+    }
+
+    override fun onError(id: Int, e: java.lang.Exception) {
+        Log.e(logTag, "... #$id - Error: ${e.message}")
+        e.printStackTrace()
+        // Do something in the callback.
     }
 }

@@ -54,7 +54,9 @@ class AccountService(
 
     fun getTransport(stateID: StateID): Transport {
         return sessionFactory.getTransport(stateID) ?: run {
-            sessionFactory.getAnonymousTransport()
+            Log.e(logTag, "Getting anonymous transport for $stateID")
+            throw SDKException("Bing")
+            // sessionFactory.getAnonymousTransport(stateID.id)
         }
     }
 
