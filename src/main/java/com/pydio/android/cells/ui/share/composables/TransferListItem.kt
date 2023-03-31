@@ -56,7 +56,7 @@ fun TransferListItem(
         0f
     }
 
-    val fName = item.getStateId()?.fileName ?: run { "Processing..." }
+    val fName = item.getStateID()?.fileName ?: run { "Processing..." }
 
     TransferListItem(
         item.type,

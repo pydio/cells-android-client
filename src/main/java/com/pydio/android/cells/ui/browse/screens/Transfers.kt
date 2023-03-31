@@ -141,7 +141,7 @@ private fun WithState(
                 // It is always a file for the time being => we open the parent
                 scope.launch {
                     transfersVM.get(transferID)?.let { rTransfer ->
-                        rTransfer.getStateId()?.let {
+                        rTransfer.getStateID()?.let {
                             // We still have to explicitly call this otherwise the scrim is still here
                             //  when we pass here and then come back using android nav back button
                             //  (maybe just on an overloaded AVD)

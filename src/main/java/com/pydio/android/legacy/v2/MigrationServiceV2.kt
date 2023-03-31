@@ -285,7 +285,7 @@ class MigrationServiceV2 : KoinComponent {
     ): Int {
         // Refresh workspace list and check credentials
         val client = try {
-            sessionFactory.getUnlockedClient(accountID.accountId)
+            sessionFactory.getUnlockedClient(accountID)
         } catch (e: Exception) {
             val msg = "could not retrieve client for $accountID: ${e.message}"
             jobService.e(logTag, msg, "${job.jobId}")

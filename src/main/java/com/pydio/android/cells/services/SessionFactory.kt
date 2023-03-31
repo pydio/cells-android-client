@@ -63,18 +63,22 @@ class SessionFactory(
         throw SDKException(ErrorCodes.not_found, "cannot retrieve server for $stateID")
     }
 
+    fun getTransport(stateID: StateID): Transport? {
+        return transportStore.get(stateID.accountId)
+    }
+
     @Throws(SDKException::class)
-    private fun internalGetClient(accountId: String): Client {
+    private fun internalGetClient(accountID: StateID): Client {
 
         // At this point we are quite sure we have a connection to the internet...
         // Yet we still code defensively afterwards and correctly handle errors
-        val sessionView: RSessionView = sessionViewDao.getSession(accountId)
+        val sessionView: RSessionView = sessionViewDao.getSession(accountID.accountId)
             ?: run {
-                throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountId")
+                throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountID")
             }
 
         if (sessionView.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-            var currTransport = transportStore.get(accountId)
+            var currTransport = transportStore.get(accountID.id)
             if (currTransport == null) {
                 currTransport = prepareTransport(sessionView)
             }
@@ -88,13 +92,13 @@ class SessionFactory(
 
             throw SDKException(
                 ErrorCodes.authentication_required,
-                "cannot unlock session for $accountId, auth status: " + sessionView.authStatus
+                "cannot unlock session for $accountID, auth status: " + sessionView.authStatus
             )
         }
     }
 
     @Throws(SDKException::class)
-    fun getUnlockedClient(accountID: String): Client {
+    fun getUnlockedClient(accountID: StateID): Client {
 
         if (!networkService.isConnected())
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
@@ -145,7 +149,7 @@ class SessionFactory(
         return internalGetClient(accountID)
     }
 
-    fun getUnlockedUnMeteredClient(accountID: String): Client {
+    fun getUnlockedUnMeteredClient(accountID: StateID): Client {
 
         if (networkService.isConnected() && networkService.isMetered())
             throw SDKException(

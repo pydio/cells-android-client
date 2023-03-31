@@ -21,6 +21,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
+import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -48,7 +49,13 @@ class AccountService(
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
     fun getClient(stateID: StateID): Client {
-        return sessionFactory.getUnlockedClient(stateID.accountId)
+        return sessionFactory.getUnlockedClient(stateID.account())
+    }
+
+    fun getTransport(stateID: StateID): Transport {
+        return sessionFactory.getTransport(stateID) ?: run {
+            sessionFactory.getAnonymousTransport()
+        }
     }
 
     // Expose LiveData for the ViewModels
@@ -161,7 +168,7 @@ class AccountService(
                         try {
                             // TODO rather use an API health check and implement finer status check (unauthorized, expired...)
                             // sessionFactory.getUnlockedClient(account.accountID)
-                            val currClient = sessionFactory.getUnlockedClient(account.accountID)
+                            val currClient = sessionFactory.getUnlockedClient(account.account())
                             if (!currClient.stillAuthenticated()) {
                                 Log.e(logTag, "${account.accountID} is not connected anymore")
                                 account.authStatus = AppNames.AUTH_STATUS_NO_CREDS

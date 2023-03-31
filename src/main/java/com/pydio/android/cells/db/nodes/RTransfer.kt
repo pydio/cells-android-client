@@ -45,7 +45,7 @@ data class RTransfer(
     @ColumnInfo(name = "progress") var progress: Long = 0,
 ) {
 
-    fun getStateId(): StateID? {
+    fun getStateID(): StateID? {
         return encodedState?.let { StateID.fromId(it) }
     }
 
