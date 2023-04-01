@@ -18,9 +18,11 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHand
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferType
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtilityOptions
 import com.amazonaws.regions.Region
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.S3ClientOptions
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.ListType
@@ -556,10 +558,18 @@ class TransferService(
                 var byteWritten = 0L
 
                 // FIXME skipped for the time being
+                //  see pydio/minio/cmd/api-errors.go L1304
+                //  We get this error when trying to use the AWS SDK directly to upload a file:
+                // ErrBackendDown: {
+                //		Code:           "XMinioBackendDown",
+                //		Description:    "Object storage backend is unreachable",
+                //		HTTPStatusCode: http.StatusServiceUnavailable,
+                // },
+                //
                 if (false && !accountService.getClient(state).isLegacy) { //  && transferRecord.byteSize > 200 * 1024 * 1024) {
                     // FIXME Launch multipart upload
                     doMultipartUpload(
-                        context = CellsApp.instance.baseContext,
+                        context = CellsApp.instance.applicationContext,
                         stateID = state,
                         file = srcFile,
                         dao = dao,
@@ -585,10 +595,10 @@ class TransferService(
 //                    var errorMessage: String? = null
 //                    var lastUpdateTS = 0L
 //                    var byteWritten = 0L
+
                         inputStream = FileInputStream(srcFile)
                         dao.update(transferRecord)
-//
-//
+
                         accountService.getClient(state).upload(
                             inputStream, transferRecord.byteSize,
                             transferRecord.mime, parent.workspace, parent.file, state.fileName,
@@ -688,7 +698,7 @@ class TransferService(
                 ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
             Log.e(logTag, "... Got a transferUtility, uploading ${transferRecord.transferId}")
 
-            Log.e(logTag, "... Cleaning old transfers")
+//            Log.e(logTag, "... Cleaning old transfers")
 //            transferUtility.cancelAllWithType(TransferType.ANY);
 //            transferUtility.getTransfersWithType(TransferType.ANY)
 //                .forEach { transferUtility.deleteTransferRecord(it.id) }
@@ -730,14 +740,19 @@ class TransferService(
 
     private val transferUtilities: MutableMap<String, TransferUtility> = mutableMapOf()
 
-
     private fun getTransferUtility(context: Context?, accountID: StateID): TransferUtility? {
-        transferUtilities.get(accountID.id)?.let { return it }
+        transferUtilities[accountID.id]?.let { return it }
         TransferNetworkLossHandler.getInstance(context)
+
+        val config = TransferUtilityOptions()
+        config.transferThreadPoolSize = 3
+        config.minimumUploadPartSizeInMB = 10
+
         val newTU = TransferUtility.builder()
             .context(context)
             .defaultBucket(DEFAULT_BUCKET_NAME)
             .s3Client(getS3Client(accountService, accountID))
+            .transferUtilityOptions(config)
             .build()
         transferUtilities[accountID.id] = newTU
         return newTU
@@ -745,11 +760,20 @@ class TransferService(
 
     private fun getS3Client(accountService: AccountService, accountID: StateID): AmazonS3? {
         val chain = AWSCredentialsProviderChain(CellsAuthProvider(accountService, accountID))
-        val transport = accountService.getTransport(accountID)
+        val transport = accountService.getTransport(accountID, true) ?: run {
+            throw SDKException("Cannot get S3 client")
+        }
         val conf = ClientConfiguration().withUserAgent(transport.userAgent)
-        val s3: AmazonS3 = AmazonS3Client(chain, Region.getRegion("us-east-1"), conf)
-        s3.setEndpoint(transport.server.url())
-        return s3
+        // this fails: Regions.US_EAST_1
+        val s3Client = AmazonS3Client(chain, Region.getRegion("us-east-1"), conf)
+        s3Client.setS3ClientOptions(S3ClientOptions.builder().skipContentMd5Check(true).build())
+        s3Client.endpoint = transport.server.url()
+
+        Log.e(logTag, "### Listing buckets:")
+        s3Client.listBuckets().forEach {
+            Log.e(logTag, "- ${it.name}")
+        }
+        return s3Client
     }
 
 //    suspend fun uploadAllNew() {

@@ -22,6 +22,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -52,11 +53,19 @@ class AccountService(
         return sessionFactory.getUnlockedClient(stateID.account())
     }
 
-    fun getTransport(stateID: StateID): Transport {
+    fun getTransport(stateID: StateID, createIfNeeded: Boolean = false): Transport? {
         return sessionFactory.getTransport(stateID) ?: run {
-            Log.e(logTag, "Getting anonymous transport for $stateID")
-            throw SDKException("Bing")
-            // sessionFactory.getAnonymousTransport(stateID.id)
+            var transport: Transport? = null
+            if (createIfNeeded) {
+                sessionViewDao.getSession(stateID.accountId)?.let {
+                    val serverURL = ServerURLImpl.fromAddress(it.url, it.skipVerify())
+                    transport = sessionFactory.restoreAccount(serverURL, it.username)
+                } ?: run {
+                    Log.e(logTag, "No session found for $stateID, cannot get transport")
+                    throw SDKException("No session found for $stateID, cannot get transport")
+                }
+            }
+            transport
         }
     }
 
@@ -217,11 +226,6 @@ class AccountService(
         fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
-//    @Deprecated("Rather use method with the StateID")
-//     suspend fun forgetAccount(accountId: String): String? {
-//        return forgetAccount(StateID.fromId(accountId))
-//    }
-
     suspend fun forgetAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
         //val stateId = StateID.fromId(accountId)
         Log.i(logTag, "### About to forget $accountID")
@@ -250,11 +254,6 @@ class AccountService(
             return@withContext msg
         }
     }
-
-//    @Deprecated("Rather use method with the StateID")
-//     suspend fun logoutAccount(accountId: String): String? {
-//        return logoutAccount(StateID.fromId(accountId))
-//    }
 
     suspend fun logoutAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
         try {
@@ -337,7 +336,6 @@ class AccountService(
                 return@withContext 0 to msg
             }
         }
-
 
     private fun isNetworkDownError(code: Int): Boolean {
         return when (code) {

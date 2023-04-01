@@ -15,6 +15,20 @@ enum class JobStatus(val id: String) {
     NO_FILTER("no filter"),
 }
 
+enum class LoginStatus(val id: String) {
+    // Workaround to store additional destinations as state
+    //    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
+    //    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
+    //    String CUSTOM_PATH_OFFLINE = "/__offline__";
+    //    String CUSTOM_PATH_SHARES = "/__shares__";
+    New("new"),
+    NoCreds("no-credentials"),
+    Unauthorized("unauthorized"),
+    Expired("expired"),
+    Refreshing("refreshing"),
+    Connected("connected"),
+}
+
 enum class ListType {
     DEFAULT, TRANSFER, JOB
 }

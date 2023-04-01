@@ -16,6 +16,7 @@ import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,6 +24,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 class OfflineService(
+    private val credentialService: AppCredentialService,
     private val accountService: AccountService,
     private val treeNodeRepo: TreeNodeRepository,
     private val jobService: JobService,
@@ -46,7 +48,7 @@ class OfflineService(
                 }
             }
         } catch (e: Exception) {
-            Log.e(logTag, "could update offline sync status for ${stateID}: ${e.message}")
+            Log.e(logTag, "could not update offline sync status for ${stateID}: ${e.message}")
             e.printStackTrace()
             return@withContext
         }
@@ -229,6 +231,7 @@ class OfflineService(
                 return@withContext 0
             }
 
+
             var changeNb = 0
             val roots = nodeDB(stateID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
@@ -246,6 +249,19 @@ class OfflineService(
                 jobService.e(logTag, "could not create account sync job for $stateID ")
                 return@withContext 0
             }
+
+            // Insure we have a connection to this account and correct credentials
+            val transport = accountService.getTransport(stateID, true) ?: run {
+                // TODO improve error management
+                jobService.failed(job.jobId, "No transport for $stateID, cannot launch sync")
+                return@withContext 1
+            }
+            if (transport is CellsTransport) {
+                // also insure we have credentials
+                credentialService.safelyRequestRefreshToken(stateID, transport)
+            }
+
+
             val timeToSync = measureTimedValue {
                 for (offlineRoot in roots) {
                     changeNb += syncOfflineRoot(offlineRoot, job)
@@ -254,6 +270,11 @@ class OfflineService(
                         1,
                         "Sync done for ${offlineRoot.getStateID()}"
                     )
+                    // TODO improve this
+                    if (transport is CellsTransport) {
+                        // also insure we have credentials
+                        credentialService.safelyRequestRefreshToken(stateID, transport)
+                    }
                 }
             }
             val msg =

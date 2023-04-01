@@ -143,15 +143,15 @@ val serviceModule = module {
         AppCredentialService(
             get(named("TokenStore")),
             get(named("PasswordStore")),
+            get(),
             get()
         )
     }
     single { AuthService(get()) }
+    single { FileService(get()) }
 
     // Accounts
-    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
-    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
-    single<AccountService> { AccountService(get(), get(), get(), get(), get(), get()) }
+    single { TreeNodeRepository(androidContext().applicationContext, get()) }
 
     // Sessions
     single {
@@ -163,13 +163,14 @@ val serviceModule = module {
             get()
         )
     }
+    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
+    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
+    singleOf(::AccountService)
+//    single { AccountService(get(), get(), get(), get(), get(), get()) }
 
     // Business services
-    single { TreeNodeRepository(androidContext().applicationContext, get()) }
-    singleOf(::OfflineService)
     singleOf(::NodeService)
-    // single { NodeService(androidContext().applicationContext, get(), get(), get(), get()) }
-    single { FileService(get()) }
+    singleOf(::OfflineService)
     single { TransferService(get(), get(), get(), get(), get(), get()) }
 
     worker { (workerParams: WorkerParameters) ->
@@ -188,7 +189,8 @@ val viewModelModule = module {
     viewModel { LoginVM(get(), get(), get()) }
     viewModel { AccountListVM(get()) }
 
-    viewModel { ConnectionVM(get(), get()) }
+//     viewModel { ConnectionVM(get(), get()) }
+    viewModelOf(::ConnectionVM)
     viewModelOf(::NodeActionsVM)
 
     viewModelOf(::TreeNodeVM)

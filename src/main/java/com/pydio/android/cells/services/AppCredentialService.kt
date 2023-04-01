@@ -1,5 +1,7 @@
 package com.pydio.android.cells.services
 
+import com.pydio.android.cells.db.accounts.RSessionView
+import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
@@ -7,6 +9,7 @@ import com.pydio.cells.api.SDKException.RemoteIOException
 import com.pydio.cells.api.Store
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.CellsTransport
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
@@ -15,8 +18,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
 /**
@@ -27,9 +29,12 @@ class AppCredentialService(
     private val tokenStore: Store<Token>,
     passwordStore: Store<String>,
     private val networkService: NetworkService,
+    private val sessionViewDao: SessionViewDao,
 ) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
     private val logTag = "AppCredentialService"
+
+//    private val tokens: MutableMap<StateID, LoginStatus> = mutableMapOf()
 
     // Semaphore for the refresh process.
     private val lock = Any()
@@ -37,108 +42,152 @@ class AppCredentialService(
     private val credServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + credServiceJob)
 
-    // TODO insure this is a clean way to call suspending method from the *JAVA* parent class.
-    override fun refreshToken(id: String, transport: Transport): Token? {
-
-        val token = runBlocking(Dispatchers.IO) {
-            Log.e(logTag, "Launched blocking refresh token for ${transport.id}")
-            // First ping the server: we can use the refresh token only once.
-            try {
-                transport.server.serverURL.ping()
-            } catch (e: Exception) {
-                Log.e(
-                    logTag,
-                    "Could ping remote server, aborting refresh token for ${transport.id}: ${e.message}"
-                )
-                e.printStackTrace()
-                return@runBlocking null
-            }
-            try {
-                doRefreshToken(id, transport)
-            } catch (e: Exception) {
-                Log.e(logTag, "Could not refresh token for ${transport.id}: ${e.message}")
-                e.printStackTrace()
-                return@runBlocking null
-            }
+    /**
+     * This fire and forget a refresh token request if:
+     * - remote is Cells
+     * - we have all that we need
+     * - no refresh is already running
+     */
+    override fun refreshToken(stateID: StateID, transport: Transport) {
+        if (transport !is CellsTransport) {
+            return
+        } else serviceScope.launch {
+            safelyRequestRefreshToken(stateID, transport)
         }
-        return token
     }
 
-    private suspend fun doRefreshToken(id: String?, transport: Transport): Token {
+//    private suspend fun requireRefreshFor(stateID: StateID, cellsTransport: CellsTransport) = withContext(Dispatchers.IO) {
+//        tokens[stateID]?.let {
+//            when (it) {
+//                LoginStatus.Refreshing
+//                -> return@withContext // already asked, simply ignore
+//                else -> {
+//                    tokens[stateID] = LoginStatus.Refreshing
+//                    // TODO
+////                    safelyRefreshToken(stateID)
+//                }
+//            }
+//        } ?: run {
+//            tokens[stateID] = LoginStatus.Refreshing
+////            safelyRefreshToken(stateID)
+//        }
+//    }
 
-        val state = StateID.fromId(id)
-        var token: Token = tokenStore.get(state.id) ?: throw SDKException(
+
+    suspend fun safelyRequestRefreshToken(stateID: StateID, transport: CellsTransport): Token? {
+
+        var token: Token = tokenStore.get(stateID.id) ?: throw SDKException(
             ErrorCodes.no_token_available,
-            "Cannot refresh unknown token $state"
+            "Cannot refresh unknown token $stateID"
         )
 
-        val doing = try {
-            launchRefreshIfNotYetInProcess(state, token, transport)
-        } catch (e: SDKException) {
-            throw SDKException(ErrorCodes.cannot_refresh_token, "Refresh token expired for $state")
-        }
-        Log.d(logTag, "### About to wait for refreshed token, explicitly launched: $doing")
+        val session = sessionViewDao.getSession(stateID.accountId) ?: throw SDKException(
+            ErrorCodes.no_token_available,
+            "Cannot refresh unknown session $stateID"
+        )
+        return doRefreshToken(stateID, token, session, transport)
+    }
 
-        // Wait until token is refreshed
-        val timeout = currentTimestamp() + 30
-        while (token.isExpired && currentTimestamp() < timeout) {
-            Log.d(logTag, "... still waiting")
-            delay(500)
-            token = tokenStore.get(id) ?: token
-        }
 
-        if (token.isExpired) {
+    suspend fun doRefreshToken(
+        stateID: StateID,
+        token: Token,
+        session: RSessionView,
+        transport: CellsTransport
+    ): Token? {
+
+        Log.e(logTag, "Launching refresh token for $stateID")
+        // First ping the server: we can use the refresh token only once.
+        val serverURL = ServerURLImpl.fromAddress(session.url, session.skipVerify())
+        try {
+            serverURL.ping()
+        } catch (e: Exception) {
             throw SDKException(
-                ErrorCodes.cannot_refresh_token,
-                "Time-out while waiting for new token for $state"
+                ErrorCodes.unreachable_host,
+                "Could not ping remote at $serverURL, aborting refresh process. ${e.message}"
             )
         }
-        Log.d(logTag, "### Got a new token, explicitly launched: $doing")
-        // Token has been refreshed
-        return token
+
+        val newToken = launchRefreshIfNotYetInProcess(stateID, token, transport) ?: run {
+            // Unsuccessful process but we can start again, otherwise an exception is launched
+            return null
+        }
+
+        return newToken
+
+//        val doing = try {
+//        } catch (e: SDKException) {
+//            throw SDKException(
+//                ErrorCodes.cannot_refresh_token,
+//                "Refresh token expired for $stateID"
+//            )
+//        }
+//        Log.d(logTag, "### About to wait for refreshed token, explicitly launched: $doing")
+//
+//        // Wait until token is refreshed
+//        val timeout = currentTimestamp() + 30
+//        while (token.isExpired && currentTimestamp() < timeout) {
+//            Log.d(logTag, "... still waiting")
+//            delay(500)
+//            token = tokenStore.get(id) ?: token
+//        }
+//
+//        if (token.isExpired) {
+//            throw SDKException(
+//                ErrorCodes.cannot_refresh_token,
+//                "Time-out while waiting for new token for $stateID"
+//            )
+//        }
+//        Log.d(logTag, "### Got a new token, explicitly launched: $doing")
+//        // Token has been refreshed
+//        return token
     }
 
     private fun launchRefreshIfNotYetInProcess(
-        state: StateID,
+        stateID: StateID,
         token: Token,
-        transport: Transport
-    ): Boolean {
+        transport: CellsTransport
+    ): Token? {
 
         // Sanity checks
-        if (!getRefreshLock(state)) {
-            return false
+        if (!getRefreshLock(stateID)) {
+            Log.e(logTag, "Could not get lock to refresh token for $stateID. Aborting")
+            return null
         }
 
-        if (transport !is CellsTransport) {
-            throw SDKException(
-                ErrorCodes.internal_error,
-                "OAuth refresh token is not implemented for P8, cannot handle refresh for $state"
-            )
-        }
         try {
             val newToken = transport.getRefreshedOAuthToken(token.refreshToken)
-                ?: throw SDKException(
-                    ErrorCodes.refresh_token_expired,
-                    "No new token has been generated for $state"
-                )
-            put(state.id, newToken)
+                ?: run {
+                    Log.e(logTag, "Refresh token process returned null without throwing an error.")
+                    Log.e(logTag, "Keep old credentials and abort.")
+                    return null
+                }
+            put(stateID.id, newToken)
+            return newToken
         } catch (re: RemoteIOException) {
-            Log.e(logTag, "Could not refresh token: ${re.message}. Aborting")
-            return false
-        } catch (se: SDKException) {
-            if (se.code == ErrorCodes.refresh_token_expired) {
-                // could not refresh, finally deleting referential to avoid being stuck
+            Log.e(logTag, "Could not refresh for $stateID. Still keeping old credentials")
+            Log.e(logTag, "  Cause: remoteIOException: ${re.message}")
+            return null
+        } catch (se: Exception) {
+
+            if (se is SDKException && se.code == ErrorCodes.refresh_token_expired) {
+                // Could not refresh, finally deleting referential to avoid being stuck
+                Log.e(logTag, "#######################")
+                Log.e(logTag, "### Refresh token expired for $stateID")
+                Log.e(logTag, "  Cause: ${se.message}")
+                Log.e(logTag, "  !! Removing legacy credentials !! ")
+
                 // Log.e(logTag, "refresh_token_expired for $state")
                 // Log.d(logTag, "Printing stack trace to understand where we come from:")
-                // se.printStackTrace()
                 // Log.e(logTag, "... and deleting credentials")
-                remove(state.id)
+                remove(stateID.id)
                 throw se
             }
-            // throw se
-            return false
+            Log.e(logTag, "Could not refresh for $stateID, unexpected exception: ${se.message}")
+            se.printStackTrace()
+            Log.e(logTag, "Keep old credentials and abort.")
+            return null
         }
-        return true
     }
 
     private fun getRefreshLock(state: StateID): Boolean {

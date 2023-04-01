@@ -47,12 +47,12 @@ class TreeNodeRepository(
 
     fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
-        val accId = sessions[stateID.accountId]
+        val rSession = sessions[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         return TreeNodeDB.getDatabase(
             CellsApp.instance.applicationContext,
             stateID.accountId,
-            accId.dbName,
+            rSession.dbName,
         )
     }
 

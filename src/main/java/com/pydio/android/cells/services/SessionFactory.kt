@@ -31,9 +31,6 @@ class SessionFactory(
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
     private val logTag = "SessionFactory"
-//    private var sessionFactoryJob = Job()
-//    private val sessionFactoryScope = CoroutineScope(Dispatchers.IO + sessionFactoryJob)
-//
 
     private val sessionViewDao = accountDB.sessionViewDao()
     private val accountDao = accountDB.accountDao()
@@ -45,11 +42,9 @@ class SessionFactory(
         // If not yet defined, try to register it
         val sessionView = sessionViewDao.getSession(stateID.accountId)
         if (sessionView != null) {
-            var currTransport = transportStore.get(stateID.accountId)
-            if (currTransport == null) {
-                currTransport = prepareTransport(sessionView)
-            }
-            return currTransport?.server
+            var currTransport =
+                transportStore.get(stateID.accountId) ?: prepareTransport(sessionView)
+            return currTransport.server
         }
 
         if (Str.empty(stateID.username)) {
