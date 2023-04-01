@@ -87,6 +87,13 @@ class AuthService(authDB: AuthDB) {
             }
         }
 
+    suspend fun isAuthStateValid(authState: String): Boolean =
+        withContext(Dispatchers.IO) {
+            val rState = authStateDao.get(authState)
+            return@withContext rState != null
+        }
+
+
     suspend fun handleOAuthResponse(
         accountService: AccountService,
         sessionFactory: SessionFactory,

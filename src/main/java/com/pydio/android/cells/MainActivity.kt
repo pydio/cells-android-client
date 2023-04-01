@@ -22,6 +22,8 @@ import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.system.models.LandingVM
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -63,7 +65,19 @@ class MainActivity : ComponentActivity() {
 
             connectionVM.relaunchMonitoring()
 
-            val startingState = handleIntent(savedInstanceState, landingVM)
+            val startingState = try {
+                handleIntent(savedInstanceState, landingVM)
+            } catch (e: SDKException) {
+                if (e.code == ErrorCodes.unexpected_content) {
+                    // We should never have received this
+                    Log.e(logTag, "Received a launch activity with unvalid state, aborting....")
+                    landActivity.finish()
+                    return@launch
+                } else {
+                    Log.e(logTag, "Could not handle intent, aborting....")
+                    throw e
+                }
+            }
 
             if (Str.empty(startingState.route)) {
                 // FIXME the state is not nul but we still don't know where to go.
@@ -184,6 +198,12 @@ class MainActivity : ComponentActivity() {
                 val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                 val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
                 if (code != null && state != null) {
+                    if (!landingVM.isAuthStateValid(state)) {
+                        throw SDKException(
+                            ErrorCodes.unexpected_content,
+                            "Passed state is wrong or already consumed"
+                        )
+                    }
                     startingState.route = LoginDestinations.ProcessAuth.route
                     startingState.code = code
                     startingState.state = state

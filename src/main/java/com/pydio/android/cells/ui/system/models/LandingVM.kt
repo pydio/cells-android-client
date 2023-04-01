@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.StartingState
@@ -18,6 +19,7 @@ import kotlin.properties.Delegates
 class LandingVM(
     private val prefs: PreferencesService,
     private val jobService: JobService,
+    private val authService: AuthService,
     private val accountService: AccountService,
 ) : ViewModel() {
 
@@ -53,6 +55,10 @@ class LandingVM(
     suspend fun noMigrationNeeded(): Boolean {
         val currInstalled = prefs.getInstalledVersion()
         return newVersion > 100 && newVersion == currInstalled
+    }
+
+    suspend fun isAuthStateValid(state: String): Boolean {
+        return authService.isAuthStateValid(state)
     }
 
     suspend fun getStartingState(): StartingState {
