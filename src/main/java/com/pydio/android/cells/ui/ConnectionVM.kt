@@ -124,7 +124,6 @@ class ConnectionVM(
         Log.e(logTag, " ### Initialised")
     }
 
-
     private var currJob: Job? = null
 
     fun relaunchMonitoring() {
@@ -145,6 +144,7 @@ class ConnectionVM(
         }
         // TODO we should also pause the other LiveData and flows 
     }
+
 
     private suspend fun monitorCredentials(): Token? = withContext(Dispatchers.IO) {
         val currSession = sessionView.value ?: return@withContext null

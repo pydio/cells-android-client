@@ -7,7 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.utils.BackOffTicker
+import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit
  * Central ViewModel when dealing with a user's accounts.
  */
 class AccountListVM(
+    private val appCredentialService: AppCredentialService,
     private val accountService: AccountService,
 ) : ViewModel() {
 
@@ -98,6 +102,9 @@ class AccountListVM(
     }
 
     private suspend fun doCheckAccounts() {
+        // First we check if some token are about to expire
+        checkRegisteredAccounts()
+        // Then we refresh the list
         val result = accountService.checkRegisteredAccounts()
         withContext(Dispatchers.Main) {
             if (result.second != null) {
@@ -113,6 +120,30 @@ class AccountListVM(
                 backOffTicker.resetIndex()
             }
             setLoading(false)
+        }
+    }
+
+    private suspend fun checkRegisteredAccounts() = withContext(Dispatchers.IO) {
+        val sessions = accountService.listSessionViews(false)
+        for (session in sessions) {
+            val currID = session.getStateID()
+            val tmpTransport = accountService.getTransport(currID, true)
+            if (tmpTransport == null || tmpTransport.server.isLegacy) {
+                Log.w(logTag, "Cannot check account $currID with no transport")
+                continue
+            }
+            val transport = tmpTransport as CellsTransport
+            val token = appCredentialService.get(currID.id)
+            if (token == null) {
+                Log.w(logTag, "Cannot refresh session with no credentials for $currID")
+                continue
+            }
+            if (token.expirationTime > (currentTimestamp() + 120)) {
+                // Got a token, not about to expire
+                continue
+            }
+            // We need to require a refresh
+            appCredentialService.doRefreshToken(currID, token, session, transport)
         }
     }
 

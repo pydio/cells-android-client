@@ -187,7 +187,7 @@ val viewModelModule = module {
     viewModelOf(::MigrationVM)
 
     viewModel { LoginVM(get(), get(), get()) }
-    viewModel { AccountListVM(get()) }
+    viewModelOf(::AccountListVM)
 
 //     viewModel { ConnectionVM(get(), get()) }
     viewModelOf(::ConnectionVM)
