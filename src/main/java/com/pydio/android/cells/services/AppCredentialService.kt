@@ -74,7 +74,7 @@ class AppCredentialService(
 //    }
 
 
-    suspend fun safelyRequestRefreshToken(stateID: StateID, transport: CellsTransport): Token? {
+    suspend fun safelyRequestRefreshToken(stateID: StateID, transport: CellsTransport) {
 
         var token: Token = tokenStore.get(stateID.id) ?: throw SDKException(
             ErrorCodes.no_token_available,
@@ -85,9 +85,16 @@ class AppCredentialService(
             ErrorCodes.no_token_available,
             "Cannot refresh unknown session $stateID"
         )
-        return doRefreshToken(stateID, token, session, transport)
-    }
 
+        try {
+            doRefreshToken(stateID, token, session, transport)
+        } catch (e: SDKException) {
+            if (e.code == ErrorCodes.refresh_token_expired || e.code == ErrorCodes.refresh_token_not_valid) {
+                return
+            }
+            throw e
+        }
+    }
 
     suspend fun doRefreshToken(
         stateID: StateID,

@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.pydio.android.cells.ui.ConnectionVM
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
@@ -35,6 +36,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
 
     private val logTag = "MainActivity"
+
+    private val connectionVM by viewModel<ConnectionVM>()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +60,8 @@ class MainActivity : ComponentActivity() {
                 landActivity.finish()
                 return@launch
             }
+
+            connectionVM.relaunchMonitoring()
 
             val startingState = handleIntent(savedInstanceState, landingVM)
 
@@ -94,18 +99,21 @@ class MainActivity : ComponentActivity() {
                 }
 
                 MainApp(
+                    connectionVM = connectionVM,
                     startingState = if (intentHasBeenProcessed.value) null else startingState,
                     startingStateHasBeenProcessed = startingStateHasBeenProcessed,
                     launchIntent = landActivity::launchIntent,
                     launchTaskFor = launchTaskFor,
                     widthSizeClass = widthSizeClass,
                 )
-//                UseCellsTheme {
-//                }
             }
-
             landingVM.recordLaunch()
         }
+    }
+
+    override fun onPause() {
+        connectionVM.pauseMonitoring()
+        super.onPause()
     }
 
     private fun launchIntent(

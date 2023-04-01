@@ -21,6 +21,8 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.Token
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -119,12 +121,29 @@ class ConnectionVM(
 
 
     init {
+        Log.e(logTag, " ### Initialised")
+    }
+
+
+    private var currJob: Job? = null
+
+    fun relaunchMonitoring() {
         viewModelScope.launch {
-            while (true) {
-                monitorCredentials()
-                delay(10000)
+            currJob?.cancelAndJoin()
+            currJob = viewModelScope.launch {
+                while (true) {
+                    monitorCredentials()
+                    delay(10000)
+                }
             }
         }
+    }
+
+    fun pauseMonitoring() {
+        viewModelScope.launch {
+            currJob?.cancelAndJoin()
+        }
+        // TODO we should also pause the other LiveData and flows 
     }
 
     private suspend fun monitorCredentials(): Token? = withContext(Dispatchers.IO) {

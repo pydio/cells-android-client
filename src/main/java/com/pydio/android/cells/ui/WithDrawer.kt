@@ -34,7 +34,6 @@ import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 private const val logTag = "NavHostWithDrawer"
 
@@ -46,7 +45,7 @@ fun NavHostWithDrawer(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
-    connectionVM: ConnectionVM = koinViewModel(),
+    connectionVM: ConnectionVM,
 ) {
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
