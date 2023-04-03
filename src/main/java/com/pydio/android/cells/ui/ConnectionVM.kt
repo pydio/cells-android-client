@@ -153,13 +153,14 @@ class ConnectionVM(
             // this is for Cells only
             return@withContext null
         }
+        Log.e(logTag, "Monitoring Credentials for $currID")
         val tmpTransport = accountService.getTransport(currSession.getStateID()) ?: run {
             Log.w(logTag, "Cannot monitor credentials with no transport for $currID")
             return@withContext null
         }
         val transport = tmpTransport as CellsTransport
         val token = appCredentialService.get(currID.id) ?: run {
-            Log.w(logTag, "Cannot session with no credentials for $currID")
+            Log.w(logTag, "Session $currID has no credentials, aborting")
             return@withContext null
         }
 

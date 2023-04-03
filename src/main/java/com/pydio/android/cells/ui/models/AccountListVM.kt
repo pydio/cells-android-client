@@ -10,6 +10,7 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +144,12 @@ class AccountListVM(
                 continue
             }
             // We need to require a refresh
-            appCredentialService.doRefreshToken(currID, token, session, transport)
+            try {
+                appCredentialService.doRefreshToken(currID, token, session, transport)
+            } catch (e: SDKException) {
+                Log.e(logTag, "Error while launching refresh process for $currID")
+                Log.e(logTag, "Cause: #${e.code} - ${e.message}")
+            }
         }
     }
 

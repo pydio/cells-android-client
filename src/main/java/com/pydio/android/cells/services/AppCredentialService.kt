@@ -34,8 +34,6 @@ class AppCredentialService(
 
     private val logTag = "AppCredentialService"
 
-//    private val tokens: MutableMap<StateID, LoginStatus> = mutableMapOf()
-
     // Semaphore for the refresh process.
     private val lock = Any()
 
@@ -56,29 +54,11 @@ class AppCredentialService(
         }
     }
 
-//    private suspend fun requireRefreshFor(stateID: StateID, cellsTransport: CellsTransport) = withContext(Dispatchers.IO) {
-//        tokens[stateID]?.let {
-//            when (it) {
-//                LoginStatus.Refreshing
-//                -> return@withContext // already asked, simply ignore
-//                else -> {
-//                    tokens[stateID] = LoginStatus.Refreshing
-//                    // TODO
-////                    safelyRefreshToken(stateID)
-//                }
-//            }
-//        } ?: run {
-//            tokens[stateID] = LoginStatus.Refreshing
-////            safelyRefreshToken(stateID)
-//        }
-//    }
-
-
     suspend fun safelyRequestRefreshToken(stateID: StateID, transport: CellsTransport) {
 
         var token: Token = tokenStore.get(stateID.id) ?: throw SDKException(
             ErrorCodes.no_token_available,
-            "Cannot refresh unknown token $stateID"
+            "Cannot refresh, no token for $stateID"
         )
 
         val session = sessionViewDao.getSession(stateID.accountId) ?: throw SDKException(
@@ -103,7 +83,7 @@ class AppCredentialService(
         transport: CellsTransport
     ): Token? {
 
-        Log.e(logTag, "Launching refresh token for $stateID")
+        Log.d(logTag, "Refresh token requested for $stateID")
         // First ping the server: we can use the refresh token only once.
         val serverURL = ServerURLImpl.fromAddress(session.url, session.skipVerify())
         try {
@@ -177,7 +157,7 @@ class AppCredentialService(
             return null
         } catch (se: Exception) {
 
-            if (se is SDKException && se.code == ErrorCodes.refresh_token_expired) {
+            if (se is SDKException && (se.code == ErrorCodes.refresh_token_expired || se.code == ErrorCodes.refresh_token_not_valid)) {
                 // Could not refresh, finally deleting referential to avoid being stuck
                 Log.e(logTag, "#######################")
                 Log.e(logTag, "### Refresh token expired for $stateID")

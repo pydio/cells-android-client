@@ -14,11 +14,13 @@ import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.Client
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -257,10 +259,25 @@ class OfflineService(
                 return@withContext 1
             }
             if (transport is CellsTransport) {
+                delay(2000)
                 // also insure we have credentials
-                credentialService.safelyRequestRefreshToken(stateID, transport)
+                try {
+                    credentialService.safelyRequestRefreshToken(stateID, transport)
+                } catch (e: SDKException) {
+                    if (e.code == ErrorCodes.no_token_available) {
+                        Log.e(logTag, "### No Token Available error, about to logout $stateID")
+                        accountService.logoutAccount(stateID.account())
+                        val msg = "No Token for $stateID aborting: login out account and abort "
+                        jobService.e(logTag, msg, "${job.jobId}")
+                        jobService.failed(job.jobId, msg)
+                        return@withContext 0
+                    }
+                    val msg = "### error while trying to refresh $stateID: ${e.message}"
+                    Log.e(logTag, msg)
+                    jobService.failed(job.jobId, msg)
+                    return@withContext 0
+                }
             }
-
 
             val timeToSync = measureTimedValue {
                 for (offlineRoot in roots) {
@@ -283,11 +300,6 @@ class OfflineService(
             jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
             return@withContext changeNb
         }
-
-//    @Deprecated("Rather use method with StateID")
-//    suspend fun syncOfflineRoot(rTreeNode: RTreeNode): Int = withContext(Dispatchers.IO) {
-//        return@withContext syncOfflineRoot(rTreeNode.getStateID())
-//    }
 
     @OptIn(ExperimentalTime::class)
     suspend fun syncOfflineRoot(stateID: StateID): Int = withContext(Dispatchers.IO) {

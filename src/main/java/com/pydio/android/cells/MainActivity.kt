@@ -130,6 +130,11 @@ class MainActivity : ComponentActivity() {
         super.onPause()
     }
 
+    override fun onResume() {
+        connectionVM.relaunchMonitoring()
+        super.onResume()
+    }
+
     private fun launchIntent(
         intent: Intent?,
         checkIfKnown: Boolean,

@@ -65,7 +65,7 @@ class CellsApp : Application(), KoinComponent {
 
     private suspend fun configureWorkers() {
         val wManager = WorkManager.getInstance(applicationContext)
-        cancelPendingWorkManager(wManager)
+        // cancelPendingWorkManager(wManager)
         val prefs: PreferencesService by inject()
         wManager.enqueueUniquePeriodicWork(
             OfflineSync.WORK_NAME,
@@ -135,26 +135,26 @@ class CellsApp : Application(), KoinComponent {
     /**
      * If there is a pending work because of previous crash we'd like it to not run.
      */
-    private suspend fun cancelPendingWorkManager(manager: WorkManager) {
-        Log.e(logTag, ".... cancelPendingWorkManager")
+//    private suspend fun cancelPendingWorkManager(manager: WorkManager) {
+//        Log.e(logTag, ".... cancelPendingWorkManager")
+//
+//        manager.cancelAllWork()
+//        // manager.cancelAllWork().result.await()
+//
+//        // Test launch with one time worker
+//        //            OneTimeWorkRequestBuilder<OfflineSyncWorker>()
+//        //                .setInputData(Data.EMPTY)
+//        //                .build()
+//        //                .also {
+//        //                    workManager
+//        //                        .enqueueUniqueWork(
+//        //                            OfflineSyncWorker.WORK_NAME + "_" + currentTimestamp(),
+//        //                            ExistingWorkPolicy.APPEND,
+//        //                            it
+//        //                        )
+//        //                }
+//        Log.e(logTag, "One time OfflineSyncWorker created")
+//    }
+//
 
-        manager.cancelAllWork()
-        // manager.cancelAllWork().result.await()
-
-        // Test launch with one time worker
-        //            OneTimeWorkRequestBuilder<OfflineSyncWorker>()
-        //                .setInputData(Data.EMPTY)
-        //                .build()
-        //                .also {
-        //                    workManager
-        //                        .enqueueUniqueWork(
-        //                            OfflineSyncWorker.WORK_NAME + "_" + currentTimestamp(),
-        //                            ExistingWorkPolicy.APPEND,
-        //                            it
-        //                        )
-        //                }
-        Log.e(logTag, "One time OfflineSyncWorker created")
-    }
 }
-
-// }
