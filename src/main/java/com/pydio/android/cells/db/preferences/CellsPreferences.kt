@@ -12,6 +12,7 @@ const val CELLS_PREFERENCES_NAME = "cells_preferences"
 data class CellsPreferences(
     val versionCode: Int,
     val showDebugTools: Boolean,
+    val disablePoll: Boolean,
     val list: ListPreferences,
     val meteredNetwork: MeteredNetworkPreferences,
     val sync: SyncPreferences
@@ -45,6 +46,7 @@ data class SyncPreferences(
 fun defaultCellsPreferences(): CellsPreferences {
     val currVersion = -1
     val showDebug = false
+    val disablePoll = false
 
     // List order, layout and filters
     val listPref = ListPreferences(
@@ -70,7 +72,7 @@ fun defaultCellsPreferences(): CellsPreferences {
         onBatteryNotLow = true,
         onIdle = true
     )
-    return CellsPreferences(currVersion, showDebug, listPref, meteredPref, syncPref)
+    return CellsPreferences(currVersion, showDebug, disablePoll, listPref, meteredPref, syncPref)
 }
 
 // Migration from legacy SharedPreference system

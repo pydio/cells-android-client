@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -29,7 +27,6 @@ import com.pydio.android.cells.ui.core.composables.SwitchSetting
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.system.models.SettingsVM
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     openDrawer: () -> Unit,
@@ -67,7 +64,12 @@ fun SettingsScreen(
             PreferenceDivider(modifier)
             OfflineSection(settingsVM, cellsPreferences.value.sync, modifier)
             PreferenceDivider(modifier)
-            TroubleshootingSection(settingsVM, cellsPreferences.value.showDebugTools, modifier)
+            TroubleshootingSection(
+                settingsVM,
+                cellsPreferences.value.showDebugTools,
+                cellsPreferences.value.disablePoll,
+                modifier
+            )
         }
     }
 }
@@ -186,18 +188,27 @@ fun OfflineSection(
 }
 
 @Composable
-fun TroubleshootingSection(settingsVM: SettingsVM, showSystemPages: Boolean, modifier: Modifier) {
+fun TroubleshootingSection(
+    settingsVM: SettingsVM,
+    showRuntimeTools: Boolean,
+    disablePoll: Boolean,
+    modifier: Modifier
+) {
     TroubleshootingSection(
-        showSystemPages,
+        showRuntimeTools,
         { show -> settingsVM.setShowRuntimeToolsFlag(show) },
+        disablePoll,
+        { disable -> settingsVM.setDisblePollFlag(disable) },
         modifier
     )
 }
 
 @Composable
 fun TroubleshootingSection(
-    showSystemPages: Boolean,
-    onClick: (Boolean) -> Unit,
+    showRuntimeTools: Boolean,
+    onShowRuntimeToolsClick: (Boolean) -> Unit,
+    disablePoll: Boolean,
+    onDisablePollClick: (Boolean) -> Unit,
     modifier: Modifier
 ) {
     PreferenceSectionTitle(
@@ -207,8 +218,17 @@ fun TroubleshootingSection(
     SwitchSetting(
         stringResource(R.string.pref_troubleshooting_show_list_title),
         stringResource(R.string.pref_troubleshooting_show_list_desc),
-        showSystemPages,
-        { onClick(!showSystemPages) },
+        showRuntimeTools,
+        { onShowRuntimeToolsClick(!showRuntimeTools) },
         modifier,
     )
+    if (showRuntimeTools) {
+        SwitchSetting(
+            stringResource(R.string.pref_troubleshooting_disable_poll_title),
+            stringResource(R.string.pref_troubleshooting_disable_poll_desc),
+            disablePoll,
+            { onDisablePollClick(!disablePoll) },
+            modifier,
+        )
+    }
 }

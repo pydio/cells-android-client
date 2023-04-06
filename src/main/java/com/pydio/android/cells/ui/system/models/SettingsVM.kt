@@ -22,6 +22,12 @@ class SettingsVM(
         }
     }
 
+    fun setDisblePollFlag(disablePoll: Boolean) {
+        viewModelScope.launch {
+            prefs.setDisablePollFlag(disablePoll)
+        }
+    }
+
     fun setDefaultOrder(order: String) {
         viewModelScope.launch {
             prefs.setOrder(ListType.DEFAULT, order)

@@ -52,7 +52,9 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
                 }
                 if (Str.notEmpty(errMsg)) {
                     // TODO rather only rely on exception
-                    callback.onLoadFailed(SDKException("could not get $type at $stateId: $errMsg"))
+                    val suffix = "$type at $stateId: $errMsg"
+                    Log.e(logTag, "Got an error message while trying to get $suffix")
+                    callback.onLoadFailed(SDKException("could not get $suffix"))
                 }
             } catch (e: Exception) {
                 Log.e(logTag, "error while trying to get $type at $stateId: ${e.message}")

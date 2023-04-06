@@ -4,9 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pydio.android.cells.db.nodes.RTreeNode
+import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.api.Transport
@@ -19,11 +20,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 class BrowseRemoteVM(
+    prefs: PreferencesService,
     private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {
@@ -34,6 +38,10 @@ class BrowseRemoteVM(
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
+
+    private val disablePoll = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.disablePoll
+    }
 
     private val _stateID = MutableStateFlow(StateID(/* serverUrl = */ Transport.UNDEFINED_URL))
     val stateID: StateFlow<StateID> = _stateID.asStateFlow()
@@ -54,15 +62,22 @@ class BrowseRemoteVM(
         get() = _errorMessage
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
-        pause()
-        _loadingState.value = if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
-        currWatcher?.cancel()
-        _stateID.value = newStateID
-        resume()
-    }
-
-    suspend fun getTreeNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID)
+        Log.e(logTag, "Watching $newStateID")
+        viewModelScope.launch {
+            pause()
+            val doPoll = !(disablePoll.last())
+            Log.e(logTag, "---- with polling $doPoll")
+            if (doPoll) {
+                _loadingState.value =
+                    if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
+                currWatcher?.cancel()
+                _stateID.value = newStateID
+                resume()
+            } else {
+                _stateID.value = newStateID
+                _loadingState.value = LoadingState.IDLE
+            }
+        }
     }
 
     fun pause() {

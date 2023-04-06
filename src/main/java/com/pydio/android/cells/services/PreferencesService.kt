@@ -1,6 +1,5 @@
 package com.pydio.android.cells.services
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -32,6 +31,7 @@ object PreferencesKeys {
 
     // Show technical pages
     var SHOW_DEBUG_TOOLS = booleanPreferencesKey("show_debug_tools")
+    var DISABLE_POLL = booleanPreferencesKey("disable_poll")
 
     // List order, layout and filters
     val DEFAULT_LIST_ORDER = stringPreferencesKey("current_recycler_order")
@@ -56,10 +56,7 @@ object PreferencesKeys {
     var SYNC_CONST_ON_IDLE = booleanPreferencesKey("sync_on_idle")
 }
 
-class PreferencesService(
-    private val dataStore: DataStore<Preferences>,
-    context: Context,
-) {
+class PreferencesService(private val dataStore: DataStore<Preferences>) {
 
     private val logTag = "PreferencesService"
     private val noPref = defaultCellsPreferences()
@@ -94,6 +91,12 @@ class PreferencesService(
     suspend fun setShowDebugToolsFlag(show: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_DEBUG_TOOLS] = show
+        }
+    }
+
+    suspend fun setDisablePollFlag(disablePoll: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DISABLE_POLL] = disablePoll
         }
     }
 
@@ -167,6 +170,7 @@ class PreferencesService(
         val currVersion = toPreferences[PreferencesKeys.INSTALLED_VERSION_CODE] ?: -1
         // Show technical pages
         val showDebug = toPreferences[PreferencesKeys.SHOW_DEBUG_TOOLS] ?: noPref.showDebugTools
+        val disablePoll = toPreferences[PreferencesKeys.DISABLE_POLL] ?: noPref.disablePoll
         val layout =
             if (ListLayout.GRID.name == toPreferences[PreferencesKeys.DEFAULT_LIST_LAYOUT])
                 ListLayout.GRID
@@ -207,29 +211,13 @@ class PreferencesService(
                 ?: noPref.sync.onBatteryNotLow,
             onIdle = toPreferences[PreferencesKeys.SYNC_CONST_ON_IDLE] ?: noPref.sync.onIdle
         )
-        return CellsPreferences(currVersion, showDebug, listPref, meteredPref, syncPref)
+        return CellsPreferences(
+            currVersion,
+            showDebug,
+            disablePoll,
+            listPref,
+            meteredPref,
+            syncPref
+        )
     }
-
-
-//    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-//
-//    fun get(): SharedPreferences {
-//        return sharedPreferences
-//    }
-//
-//    fun getString(key: String, defValue: String): String {
-//        return sharedPreferences.getString(key, defValue) ?: defValue
-//    }
-//
-//    fun setString(key: String, value: String) {
-//        with(sharedPreferences.edit()) {
-//            putString(key, value)
-//            apply()
-//        }
-//    }
-//
-//    fun getInt(key: String, defValue: Int = -1): Int {
-//        return sharedPreferences.getInt(key, defValue)
-//    }
-
 }

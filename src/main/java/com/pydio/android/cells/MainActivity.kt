@@ -68,9 +68,10 @@ class MainActivity : ComponentActivity() {
             val startingState = try {
                 handleIntent(savedInstanceState, landingVM)
             } catch (e: SDKException) {
+                Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
                 if (e.code == ErrorCodes.unexpected_content) {
                     // We should never have received this
-                    Log.e(logTag, "Received a launch activity with unvalid state, aborting....")
+                    Log.e(logTag, "Received a launch activity with un-valid state, aborting....")
                     landActivity.finish()
                     return@launch
                 } else {

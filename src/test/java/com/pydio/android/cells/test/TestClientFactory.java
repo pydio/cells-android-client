@@ -1,6 +1,8 @@
 package com.pydio.android.cells.test;
 
-import com.pydio.android.cells.services.S3Client;
+import androidx.annotation.NonNull;
+
+import com.pydio.android.cells.transfer.CellsS3Client;
 import com.pydio.cells.api.CustomEncoder;
 import com.pydio.cells.api.Server;
 import com.pydio.cells.api.Store;
@@ -25,8 +27,8 @@ public class TestClientFactory extends ClientFactory {
     }
 
     @Override
-    protected CellsClient getCellsClient(CellsTransport transport) {
-        return new CellsClient(transport, new S3Client(transport));
+    protected CellsClient getCellsClient(@NonNull CellsTransport transport) {
+        return new CellsClient(transport, new CellsS3Client(transport));
     }
 
     @Override
