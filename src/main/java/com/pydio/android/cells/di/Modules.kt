@@ -143,8 +143,8 @@ val serviceModule = module {
         AppCredentialService(
             get(named("TokenStore")),
             get(named("PasswordStore")),
-            get(),
-            get()
+            get(), // NetworkService
+            get(), // SessionViewDao
         )
     }
     single { AuthService(get()) }
@@ -222,7 +222,7 @@ val viewModelModule = module {
     viewModel { LogListVM(get()) }
 
     viewModelOf(::AccountHomeVM)
-    viewModel { BrowseRemoteVM(get(), get()) }
+    viewModelOf(::BrowseRemoteVM)
     viewModelOf(::FolderVM)
 
     viewModel { SelectTargetVM(get()) }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.RSessionView
+import com.pydio.android.cells.transfer.CellsS3Client
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
@@ -58,6 +59,16 @@ class SessionFactory(
         throw SDKException(ErrorCodes.not_found, "cannot retrieve server for $stateID")
     }
 
+    /**
+     * Enable Callback from ancestor classes in the JAVA SDK.
+     */
+    override fun getCellsClient(transport: CellsTransport): CellsClient {
+        return CellsClient(
+            transport,
+            CellsS3Client(transport)
+        )
+    }
+    
     fun getTransport(stateID: StateID): Transport? {
         return transportStore.get(stateID.accountId)
     }
@@ -184,12 +195,6 @@ class SessionFactory(
         }
     }
 
-    /**
-     * Enable Callback from ancestor classes in the JAVA SDK.
-     */
-    override fun getCellsClient(transport: CellsTransport?): CellsClient {
-        return CellsClient(transport, S3Client(transport))
-    }
 
 //    private var ready = false
 

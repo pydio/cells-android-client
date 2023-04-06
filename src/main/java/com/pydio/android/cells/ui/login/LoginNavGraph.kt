@@ -17,7 +17,6 @@ private const val logTag = "loginNavGraph"
 fun NavGraphBuilder.loginNavGraph(
     helper: LoginHelper,
     loginVM: LoginVM,
-//    isExpandedScreen: Boolean,
 ) {
 
     composable(LoginDestinations.Starting.route) { nbsEntry ->
