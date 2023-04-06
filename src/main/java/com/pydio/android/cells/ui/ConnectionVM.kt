@@ -14,6 +14,7 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -146,6 +147,7 @@ class ConnectionVM(
     }
 
 
+    // TODO this must be improved
     private suspend fun monitorCredentials(): Token? = withContext(Dispatchers.IO) {
         val currSession = sessionView.value ?: return@withContext null
         val currID = currSession.getStateID()
@@ -153,7 +155,6 @@ class ConnectionVM(
             // this is for Cells only
             return@withContext null
         }
-        Log.e(logTag, "Monitoring Credentials for $currID")
         val tmpTransport = accountService.getTransport(currSession.getStateID()) ?: run {
             Log.w(logTag, "Cannot monitor credentials with no transport for $currID")
             return@withContext null
@@ -168,6 +169,9 @@ class ConnectionVM(
             return@withContext null
         }
 
+        Log.e(logTag, "Monitoring Credentials for $currID, found a token that needs refresh")
+        val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
+        Log.d(logTag, "   Expiration time is $expTimeStr")
         val timeout = currentTimestamp() + 30
         var newToken: Token? = null
         try {

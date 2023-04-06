@@ -66,15 +66,12 @@ fun NavGraphBuilder.shareNavGraph(
                 doAction = { action, currID -> helper.launchTaskFor(action, currID) },
             )
             DisposableEffect(key1 = stateID) {
-                Log.e(logTag, "  ... Launching Disposable Effect for $stateID")
                 if (stateID == StateID.NONE) {
                     browseRemoteVM.pause()
                 } else {
                     browseRemoteVM.watch(stateID, false)
                 }
                 onDispose {
-                    Log.e(logTag, "  ... ####################")
-                    Log.e(logTag, "  ... On dispose called for  $stateID")
                     browseRemoteVM.pause()
                 }
             }

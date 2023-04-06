@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -20,7 +19,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,21 +61,26 @@ class BrowseRemoteVM(
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
         Log.e(logTag, "Watching $newStateID")
-        viewModelScope.launch {
-            pause()
-            val doPoll = !(disablePoll.last())
-            Log.e(logTag, "---- with polling $doPoll")
-            if (doPoll) {
-                _loadingState.value =
-                    if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
-                currWatcher?.cancel()
-                _stateID.value = newStateID
-                resume()
-            } else {
-                _stateID.value = newStateID
-                _loadingState.value = LoadingState.IDLE
-            }
-        }
+        _loadingState.value = if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
+        currWatcher?.cancel()
+        _stateID.value = newStateID
+        resume()
+
+//        viewModelScope.launch {
+//            pause()
+//            val doPoll = !(disablePoll.last())
+//            Log.e(logTag, "---- with polling $doPoll")
+//            if (doPoll) {
+//                _loadingState.value =
+//                    if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
+//                currWatcher?.cancel()
+//                _stateID.value = newStateID
+//                resume()
+//            } else {
+//                _stateID.value = newStateID
+//                _loadingState.value = LoadingState.IDLE
+//            }
+//        }
     }
 
     fun pause() {
@@ -122,6 +125,7 @@ class BrowseRemoteVM(
             }
         }
 
+        delay(200) // Add a small delay. Otherwise the UI sometimes misses the loading state update
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(result.second)) {
                 _errorMessage.value = result.second

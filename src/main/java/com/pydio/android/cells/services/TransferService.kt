@@ -20,6 +20,7 @@ import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.transfer.CellsS3Client
+import com.pydio.android.cells.transfer.CellsTransferListener
 import com.pydio.android.cells.transfer.getTransferUtility
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.computeFileMd5
@@ -579,28 +580,19 @@ class TransferService(
         withContext(Dispatchers.IO) {
             Log.i(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
 
-//            Log.e(logTag, "... Cleaning old transfers")
-//            transferUtility.cancelAllWithType(TransferType.ANY);
-//            transferUtility.getTransfersWithType(TransferType.ANY)
-//                .forEach { transferUtility.deleteTransferRecord(it.id) }
-//             delay(2000)
-//            val listSize = transferUtility.getTransfersWithType(TransferType.ANY).size
-//            Log.e(logTag, "... Size after clean $listSize")
-
             val key = CellsS3Client.getCleanPath(stateID)
             Log.d(
                 logTag, "... About to put\n " +
                         "- key: [$key] \n" +
                         "- file: ${file.absolutePath}"
             )
-            // Single part upload
-            // val s3Client = getS3Client(accountService, stateID.account())
-            // s3Client.putObject("data", key, file)
 
             val transferUtility = getTransferUtility(context, accountService, stateID)
                 ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
             Log.e(logTag, "... Got a transferUtility, uploading ${transferRecord.transferId}")
             val observer = transferUtility.upload(key, file)
+            // TODO improve: we loose the listener if the app is restarted during the upload
+            observer.setTransferListener(CellsTransferListener(this, dao, transferRecord))
 
             // Gets id of the transfer.
             // val id = observer.id

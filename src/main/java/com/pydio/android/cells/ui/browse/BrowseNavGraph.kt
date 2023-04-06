@@ -92,15 +92,15 @@ fun NavGraphBuilder.browseNavGraph(
         }
 
         DisposableEffect(key1 = stateID) {
-            Log.e(logTag, "  ... Launching Disposable Effect for $stateID")
+            Log.d(logTag, "... Launching DisposableEffect for $stateID")
             if (stateID == StateID.NONE) {
                 browseRemoteVM.pause()
             } else {
                 browseRemoteVM.watch(stateID, false)
             }
             onDispose {
-                Log.e(logTag, "  ... ####################")
-                Log.e(logTag, "  ... On dispose called for  $stateID")
+//                Log.e(logTag, "  ... ####################")
+//                Log.e(logTag, "  ... On dispose called for  $stateID")
                 browseRemoteVM.pause()
             }
         }
