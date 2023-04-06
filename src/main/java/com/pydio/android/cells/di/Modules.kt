@@ -75,7 +75,7 @@ val appModule = module {
         }
     }
 
-    single { PreferencesService(get(), androidContext().applicationContext) }
+    singleOf(::PreferencesService)
 }
 
 val dbModule = module {
