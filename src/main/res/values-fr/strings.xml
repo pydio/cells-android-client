@@ -204,15 +204,6 @@
     <string name="link_copy_failed">La copie du lien de partage a échoué</string>
     <!-- Sort By -->
     <string name="sort_by">Trier Par</string>
-    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
-    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
-    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
-    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
-    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
-    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
-    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
-    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
-    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Ouvrir avec…</string>
     <string name="confirm_account_deletion_title">Supprimer le compte\n%s ?</string>
@@ -269,8 +260,10 @@
     <string name="pref_feedback_send_title">Envoyer des commentaires</string>
     <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
     <string name="pref_category_title_troubleshooting">Obtenir de l\'aide</string>
-    <string name="pref_troubleshooting_show_list_desc">Donne accès à plus de pages pour aider au dépannage des tâches de fond</string>
-    <string name="pref_troubleshooting_show_list_title">Afficher les tables de diagnostic</string>
+    <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
+    <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
+    <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
+    <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
     <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
     <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
     <!-- Accessibility various content -->
