@@ -27,6 +27,7 @@ import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,7 +41,7 @@ import java.io.OutputStream
 
 class NodeService(
     private val appContext: Context,
-//     private val jobService: JobService,
+    private val ioDispatcher: CoroutineDispatcher,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val offlineService: OfflineService,
@@ -48,7 +49,7 @@ class NodeService(
 ) {
     private val logTag = "NodeService"
     private val nodeServiceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
+    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
 
     // Query the local index to get LiveData for the ViewModels
     fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
@@ -90,7 +91,7 @@ class NodeService(
         stateID: StateID,
         query: String,
         encodedSortBy: String
-    ): List<RTreeNode> = withContext(Dispatchers.IO) {
+    ): List<RTreeNode> = withContext(ioDispatcher) {
         if (Str.empty(query)) {
             listOf()
         } else {
@@ -113,7 +114,7 @@ class NodeService(
     }
 
     /* Communicate with the DB using suspend functions */
-    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
+    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
         if (stateID == StateID.NONE) {
             null
         } else {
@@ -131,7 +132,7 @@ class NodeService(
 
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode, isDiffRoot: Boolean = false) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
 
             val state = newNode.getStateID()
             val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
@@ -191,7 +192,7 @@ class NodeService(
 
     /* Calls to query both the cache and the remote server */
 
-    suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
@@ -208,7 +209,7 @@ class NodeService(
         }
     }
 
-    suspend fun removeShare(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun removeShare(stateID: StateID) = withContext(ioDispatcher) {
         try {
             val client = getClient(stateID)
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
@@ -227,7 +228,7 @@ class NodeService(
         }
     }
 
-    suspend fun createShare(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun createShare(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             // We still put default values. TODO implement user defined details
             return@withContext getClient(stateID).share(
@@ -244,7 +245,7 @@ class NodeService(
     }
 
     @Deprecated("Rather use createShare() and removeShare()")
-    suspend fun toggleShared(rTreeNode: RTreeNode): String? = withContext(Dispatchers.IO) {
+    suspend fun toggleShared(rTreeNode: RTreeNode): String? = withContext(ioDispatcher) {
         val stateID = rTreeNode.getStateID()
         try {
             val client = getClient(stateID)
@@ -283,7 +284,7 @@ class NodeService(
     }
 
     suspend fun createFolder(parentID: StateID, folderName: String) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 getClient(parentID).mkdir(parentID.workspace, parentID.file, folderName)
             } catch (e: SDKException) {
@@ -295,7 +296,7 @@ class NodeService(
         }
 
     suspend fun copy(sources: List<StateID>, targetParent: StateID) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val srcFiles = mutableListOf<String>()
                 for (source in sources) {
@@ -315,7 +316,7 @@ class NodeService(
         }
 
     suspend fun move(sources: List<StateID>, targetParent: StateID) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val srcFiles = mutableListOf<String>()
                 for (source in sources) {
@@ -342,7 +343,7 @@ class NodeService(
      * Files and thumbs are lazily retrieved by Glide (for images) or upon user request (for all
      * other files).
      */
-    suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
+    suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(ioDispatcher) {
         try {
             val client = getClient(stateID)
             val dao = nodeDB(stateID).treeNodeDao()
@@ -358,7 +359,7 @@ class NodeService(
         }
     }
 
-    suspend fun refreshBookmarks(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun refreshBookmarks(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             // TODO rather use a cursor than loading everything in memory...
             val nodes = mutableListOf<FileNode>()
@@ -401,11 +402,11 @@ class NodeService(
     }
 
     @Deprecated("Rather use the method with the StateID")
-    suspend fun clearAccountCache(stateId: String): String? = withContext(Dispatchers.IO) {
+    suspend fun clearAccountCache(stateId: String): String? = withContext(ioDispatcher) {
         return@withContext clearAccountCache(StateID.fromId(stateId).account())
     }
 
-    suspend fun clearAccountCache(accountID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun clearAccountCache(accountID: StateID): String? = withContext(ioDispatcher) {
         // val accountID = StateID.fromId(stateID).account()
         try {
             // First delete corresponding files
@@ -476,7 +477,7 @@ class NodeService(
      * - size
      */
     suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             Log.d(
                 logTag,
                 "Getting LocalFile for [${rTreeNode.getStateID()}], check: $checkUpToDate"
@@ -513,7 +514,7 @@ class NodeService(
         }
 
     suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext
             val localFile = getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
@@ -547,7 +548,7 @@ class NodeService(
             }
         }
 
-    suspend fun restoreNode(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun restoreNode(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"
@@ -561,7 +562,7 @@ class NodeService(
     }
 
     suspend fun rename(stateID: StateID, newName: String): String? =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                     ?: return@withContext "No node found at $stateID, could not rename"
@@ -574,7 +575,7 @@ class NodeService(
             return@withContext null
         }
 
-    suspend fun delete(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun delete(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not delete"
@@ -589,7 +590,7 @@ class NodeService(
 
     /* Directly communicate with the distant server */
     suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val nodes = getClient(stateID).search(stateID.path ?: "/", query, 20)
                     .map {
@@ -612,7 +613,7 @@ class NodeService(
             }
         }
 
-    private suspend fun remoteRestore(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    private suspend fun remoteRestore(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"

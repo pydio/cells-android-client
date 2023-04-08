@@ -25,7 +25,7 @@ import com.pydio.cells.utils.Str
  */
 class SessionFactory(
     private val networkService: NetworkService,
-    private val credentialService: AppCredentialService,
+    credentialService: AppCredentialService,
     serverStore: Store<Server>,
     private val transportStore: Store<Transport>,
     accountDB: AccountDB
@@ -202,7 +202,7 @@ class SessionFactory(
 //    private var ready = false
 
 //    init {
-//        sessionFactoryScope.launch(Dispatchers.IO) {
+//        sessionFactoryScope.launch(ioDispatcher) {
 //            val sessions = sessionViewDao.getSessions()
 //            // val accounts = accountService.accountDB.accountDao().getAccounts()
 //            Log.i(logTag, "... Initialise SessionFactory")

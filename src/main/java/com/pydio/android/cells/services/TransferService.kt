@@ -34,8 +34,8 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -51,6 +51,7 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
+    private val ioDispatcher: CoroutineDispatcher,
     private val prefs: PreferencesService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
@@ -62,7 +63,7 @@ class TransferService(
     private val logTag = "TransferService"
 
     private val transferServiceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
+    private val serviceScope = CoroutineScope(ioDispatcher + transferServiceJob)
 
     companion object {
         // Hard-coded constants to ease implementation in a first pass. TODO: improve
@@ -135,11 +136,11 @@ class TransferService(
     }
 
     suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             return@withContext getTransferDao(accountID).getById(transferID)
         }
 
-    suspend fun clearTerminated(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun clearTerminated(stateID: StateID) = withContext(ioDispatcher) {
         val dao = nodeDB(stateID).transferDao()
         // val before = dao.getTransferCount()
 
@@ -150,12 +151,12 @@ class TransferService(
         // Log.e(logTag, "After transfer clean: $after (B4: $before)")
     }
 
-    suspend fun deleteRecord(stateID: StateID, transferID: Long) = withContext(Dispatchers.IO) {
+    suspend fun deleteRecord(stateID: StateID, transferID: Long) = withContext(ioDispatcher) {
         nodeDB(stateID).transferDao().deleteTransfer(transferID)
     }
 
     suspend fun cancelTransfer(stateId: StateID, transferID: Long, owner: String) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val dao = nodeDB(stateId).transferDao()
             dao.insert(RTransferCancellation.cancel(transferID, stateId.id, owner))
         }
@@ -166,7 +167,7 @@ class TransferService(
         type: String,
         parentJob: RJob?
     ): Pair<File?, String?> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val accountID = stateID.account()
             val nodeDB = treeNodeRepository.nodeDB(accountID)
             val rNode = nodeDB.treeNodeDao().getNode(stateID.id)
@@ -207,7 +208,7 @@ class TransferService(
         parentJob: RJob?,
         progressChannel: Channel<Long>?
     ): Pair<File?, String?> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val account = state.account()
             val nodeDB = treeNodeRepository.nodeDB(account)
             val rNode = nodeDB.treeNodeDao().getNode(state.id)
@@ -281,7 +282,7 @@ class TransferService(
         type: String,
         parentJob: RJob?
     ): Pair<Long, String?> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
 
             // Retrieve data and sanity check
             val rNode = nodeService.getNode(stateID)
@@ -314,7 +315,7 @@ class TransferService(
         accountID: StateID,
         transferID: Long,
         progressChannel: Channel<Long>?
-    ): String? = withContext(Dispatchers.IO) {
+    ): String? = withContext(ioDispatcher) {
 
         var errorMessage: String? = null
         val dao = getTransferDao(accountID)
@@ -506,14 +507,14 @@ class TransferService(
     }
 
     /** UPLOADS **/
-    suspend fun uploadOne(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun uploadOne(stateID: StateID) = withContext(ioDispatcher) {
         val dao = getTransferDao(stateID)
         val uploadRecord = dao.getByState(stateID.id)
             ?: throw IllegalStateException("No transfer record found for $stateID, cannot upload")
         doUpload(dao, uploadRecord)
     }
 
-    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(Dispatchers.IO) {
+    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(ioDispatcher) {
         val dao = getTransferDao(accountId)
         val uploadRecord = dao.getById(transferId)
             ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
@@ -521,7 +522,7 @@ class TransferService(
     }
 
     private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val stateID = transferRecord.getStateID()
                 ?: throw IllegalStateException("Cannot start upload with no defined StateID")
             try {
@@ -577,7 +578,7 @@ class TransferService(
         dao: TransferDao,
         transferRecord: RTransfer
     ) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             Log.i(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
 
             val key = CellsS3Client.getCleanPath(stateID)
@@ -691,7 +692,7 @@ class TransferService(
         uri: Uri,
         parentID: StateID,
         parentJobID: Long = -1,
-    ): Pair<Long, String> = withContext(Dispatchers.IO) {
+    ): Pair<Long, String> = withContext(ioDispatcher) {
         var name: String? = null
         // TODO rather throw an exception 5 lines below if we do not have a valid size
         var size: Long = 1
@@ -744,7 +745,7 @@ class TransferService(
         parentID: StateID,
         transferID: Long,
         filename: String,
-    ): StateID? = withContext(Dispatchers.IO) {
+    ): StateID? = withContext(ioDispatcher) {
 
         val dao = getTransferDao(parentID)
         val uploadRecord = dao.getById(transferID)
@@ -789,7 +790,7 @@ class TransferService(
         cr: ContentResolver,
         uri: Uri,
         parentID: StateID
-    ): StateID? = withContext(Dispatchers.IO) {
+    ): StateID? = withContext(ioDispatcher) {
         var name: String? = null
         // TODO rather throw an exception 5 lines below if we do not have a valid size
         var size: Long = 1
@@ -913,7 +914,7 @@ class TransferService(
      * Debug method to easily debug transfers live Data issues
      */
     @SuppressLint("SdCardPath")
-    suspend fun createDummyTransfers(accountID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun createDummyTransfers(accountID: StateID) = withContext(ioDispatcher) {
         val dao = getTransferDao(accountID)
         var i = 0
         while (i < 10000) {

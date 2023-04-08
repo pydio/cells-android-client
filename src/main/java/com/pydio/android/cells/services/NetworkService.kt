@@ -11,17 +11,21 @@ import androidx.lifecycle.asFlow
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.reactive.LiveNetwork
 import com.pydio.android.cells.reactive.NetworkStatus
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 
-class NetworkService constructor(context: Context) {
+class NetworkService constructor(
+    context: Context,
+    private val ioDispatcher: CoroutineDispatcher,
+) {
 
     private val logTag = "NetworkService"
     private val serviceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+    private val serviceScope = CoroutineScope(ioDispatcher + serviceJob)
 
     // Business objects
     private var _networkStatus: NetworkStatus = NetworkStatus.Unknown

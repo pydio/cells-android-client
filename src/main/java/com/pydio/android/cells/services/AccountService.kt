@@ -25,7 +25,7 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
@@ -35,6 +35,7 @@ import kotlinx.coroutines.withContext
  * servers.
  */
 class AccountService(
+    private val ioDispatcher: CoroutineDispatcher,
     private val networkService: NetworkService,
     accountDB: AccountDB,
     private val authService: AuthService,
@@ -103,19 +104,19 @@ class AccountService(
 
     // Direct communication with the backend
 
-    suspend fun isLegacy(stateId: StateID): Boolean = withContext(Dispatchers.IO) {
+    suspend fun isLegacy(stateId: StateID): Boolean = withContext(ioDispatcher) {
         return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
     }
 
-    suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(Dispatchers.IO) {
+    suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(ioDispatcher) {
         return@withContext !isLegacy(stateId)
     }
 
-    suspend fun getActiveSession(): RSessionView? = withContext(Dispatchers.IO) {
+    suspend fun getActiveSession(): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
     }
 
-    suspend fun getSession(stateID: StateID): RSessionView? = withContext(Dispatchers.IO) {
+    suspend fun getSession(stateID: StateID): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getSession(stateID.accountId)
     }
 
@@ -150,12 +151,12 @@ class AccountService(
         return state
     }
 
-    suspend fun getWorkspace(stateID: StateID): RWorkspace? = withContext(Dispatchers.IO) {
+    suspend fun getWorkspace(stateID: StateID): RWorkspace? = withContext(ioDispatcher) {
         workspaceDao.getWorkspace(stateID.id)
     }
 
     suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             return@withContext if (includeLegacy) {
                 sessionViewDao.getSessions()
             } else {
@@ -167,54 +168,53 @@ class AccountService(
      * Performs a check on all accounts that are listed as connected
      * to insure we are still correctly logged in.
      */
-    suspend fun checkRegisteredAccounts(): Pair<Int, String?> =
-        withContext(Dispatchers.IO) {
-            try {
-                var changes = 0
-                val accounts = accountDao.getAccounts()
-                for (account in accounts) {
-                    if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-                        continue
-                    }
-                    if (networkService.isConnected()) {
-                        try {
-                            // TODO rather use an API health check and implement finer status check (unauthorized, expired...)
-                            // sessionFactory.getUnlockedClient(account.accountID)
-                            val currClient = sessionFactory.getUnlockedClient(account.account())
-                            if (!currClient.stillAuthenticated()) {
-                                Log.e(logTag, "${account.accountID} is not connected anymore")
-                                account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                                doUpdateAccount(account)
-                                val updatedAccount = accountDao.getAccount(account.accountID)
-                                Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
-                                changes++
-                            }
-                        } catch (e: SDKException) {
-                            Log.e(logTag, "${account.accountID} is not connected: err #${e.code}")
+    suspend fun checkRegisteredAccounts(): Pair<Int, String?> = withContext(ioDispatcher) {
+        try {
+            var changes = 0
+            val accounts = accountDao.getAccounts()
+            for (account in accounts) {
+                if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                    continue
+                }
+                if (networkService.isConnected()) {
+                    try {
+                        // TODO rather use an API health check and implement finer status check (unauthorized, expired...)
+                        // sessionFactory.getUnlockedClient(account.accountID)
+                        val currClient = sessionFactory.getUnlockedClient(account.account())
+                        if (!currClient.stillAuthenticated()) {
+                            Log.e(logTag, "${account.accountID} is not connected anymore")
                             account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                             doUpdateAccount(account)
                             val updatedAccount = accountDao.getAccount(account.accountID)
                             Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
+                            changes++
+                        }
+                    } catch (e: SDKException) {
+                        Log.e(logTag, "${account.accountID} is not connected: err #${e.code}")
+                        account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                        doUpdateAccount(account)
+                        val updatedAccount = accountDao.getAccount(account.accountID)
+                        Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
 //
 //                            Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
 //                            e.printStackTrace()
-                            changes++
-                        }
-                    } else {
-                        Log.w(
-                            logTag, "No network connection, " +
-                                    "cannot check auth status for ${account.account()}"
-                        )
+                        changes++
                     }
+                } else {
+                    Log.w(
+                        logTag, "No network connection, " +
+                                "cannot check auth status for ${account.account()}"
+                    )
                 }
-                return@withContext Pair(changes, null)
-            } catch (e: SDKException) {
-                val msg = "could not refresh account list"
-                return@withContext Pair(0, msg)
             }
+            return@withContext Pair(changes, null)
+        } catch (e: SDKException) {
+            val msg = "could not refresh account list"
+            return@withContext Pair(0, msg)
         }
+    }
 
-    private suspend fun doUpdateAccount(account: RAccount) = withContext(Dispatchers.IO) {
+    private suspend fun doUpdateAccount(account: RAccount) = withContext(ioDispatcher) {
 
         if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
             Log.e(logTag, "## About to update account with status ${account.authStatus}")
@@ -236,7 +236,7 @@ class AccountService(
         fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
-    suspend fun forgetAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun forgetAccount(accountID: StateID): String? = withContext(ioDispatcher) {
         //val stateId = StateID.fromId(accountId)
         Log.i(logTag, "### About to forget $accountID")
         try {
@@ -265,7 +265,7 @@ class AccountService(
         }
     }
 
-    suspend fun logoutAccount(accountID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun logoutAccount(accountID: StateID): String? = withContext(ioDispatcher) {
         try {
             accountDao.getAccount(accountID.id)?.let {
                 Log.i(logTag, "About to logout $accountID")
@@ -292,13 +292,13 @@ class AccountService(
      */
 //    @Deprecated("Rather use method with the StateID")
 //     suspend fun openSession(accountId: String) {
-//        return withContext(Dispatchers.IO) {
+//        return withContext(ioDispatcher) {
 //            openSession(StateID.fromId(accountId))
 //        }
 //    }
 
     suspend fun openSession(accountID: StateID): RSessionView? {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
 
             // Check if a session with this ISD exists
             val newSession = sessionDao.getSession(accountID.id)
@@ -322,7 +322,7 @@ class AccountService(
     }
 
     suspend fun isClientConnected(stateID: StateID): Boolean =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val isConnected = networkService.isConnected()
             val accountID = stateID.account()
             accountDao.getAccount(accountID.id)?.let {
@@ -332,7 +332,7 @@ class AccountService(
         }
 
     suspend fun refreshWorkspaceList(accountID: StateID): Pair<Int, String?> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val client: Client = getClient(accountID)
                 val wsDiff = WorkspaceDiff(accountID, client)
@@ -359,7 +359,7 @@ class AccountService(
         }
     }
 
-    suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
+    suspend fun notifyError(stateID: StateID, code: Int) = withContext(ioDispatcher) {
         Log.e(logTag, "#### Notifying error #$code for $stateID")
 
         try {

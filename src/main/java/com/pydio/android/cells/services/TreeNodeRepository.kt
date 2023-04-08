@@ -9,20 +9,21 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TreeNodeRepository(
     private val applicationContext: Context,
-    private val sessionDao: SessionDao
+    private val ioDispatcher: CoroutineDispatcher,
+    private val sessionDao: SessionDao,
 ) {
 
     private val logTag = "TreeNodeRepository"
     private var treeNodeRepoJob = Job()
-    private val treeNodeRepoScope = CoroutineScope(Dispatchers.IO + treeNodeRepoJob)
+    private val treeNodeRepoScope = CoroutineScope(ioDispatcher + treeNodeRepoJob)
 
     // Holds a map to find DB and files for a given account
     private val _sessions = mutableMapOf<String, RSession>()
@@ -35,7 +36,7 @@ class TreeNodeRepository(
         }
     }
 
-    suspend fun refreshSessionCache() = withContext(Dispatchers.IO) {
+    suspend fun refreshSessionCache() = withContext(ioDispatcher) {
         Log.d(logTag, "... Refreshing session cache. Known accounts:")
         val sessions = sessionDao.getSessions()
         _sessions.clear()
@@ -82,7 +83,7 @@ class TreeNodeRepository(
         nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
-    suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun abortLocalChanges(stateID: StateID) = withContext(ioDispatcher) {
         val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
         node.localModificationTS = node.remoteModificationTS
         node.localModificationStatus = null

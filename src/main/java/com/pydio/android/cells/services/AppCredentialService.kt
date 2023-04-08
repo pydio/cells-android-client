@@ -14,8 +14,8 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
@@ -31,6 +31,7 @@ class AppCredentialService(
     private val tokenStore: Store<Token>,
     passwordStore: Store<String>,
     private val transportStore: Store<Transport>,
+    private val ioDispatcher: CoroutineDispatcher,
     private val networkService: NetworkService,
     private val sessionViewDao: SessionViewDao,
 ) : CredentialService(tokenStore, passwordStore), KoinComponent {
@@ -44,11 +45,11 @@ class AppCredentialService(
     private val lock = Any()
 
     private val credServiceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + credServiceJob)
+    private val serviceScope = CoroutineScope(ioDispatcher + credServiceJob)
 
     init {
         serviceScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 while (this.coroutineContext.isActive) {
                     safelyRefreshToken(requestRefreshChannel.receive())
                 }
@@ -69,11 +70,11 @@ class AppCredentialService(
         }
     }
 
-    public suspend fun getToken(stateID: StateID): Token? = withContext(Dispatchers.IO) {
+    public suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
         tokenStore.get(stateID.id)
     }
 
-    private suspend fun safelyRefreshToken(stateID: StateID) = withContext(Dispatchers.IO) {
+    private suspend fun safelyRefreshToken(stateID: StateID) = withContext(ioDispatcher) {
         synchronized(lock) {
             var token: Token = tokenStore.get(stateID.id) ?: run {
                 Log.e(logTag, "Cannot refresh, no token for $stateID")

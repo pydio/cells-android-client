@@ -16,11 +16,14 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class AuthService(authDB: AuthDB) {
+class AuthService(
+    private val ioDispatcher: CoroutineDispatcher,
+    authDB: AuthDB
+) {
 
     private val tokenDao = authDB.tokenDao()
     private val legacyCredentialsDao = authDB.legacyCredentialsDao()
@@ -49,7 +52,7 @@ class AuthService(authDB: AuthDB) {
         url: ServerURL,
         next: String
     ): Uri? =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val serverID = StateID(url.id).id
 
@@ -88,7 +91,7 @@ class AuthService(authDB: AuthDB) {
         }
 
     suspend fun isAuthStateValid(authState: String): Boolean =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val rState = authStateDao.get(authState)
             return@withContext rState != null
         }
@@ -100,7 +103,7 @@ class AuthService(authDB: AuthDB) {
         oauthState: String,
         code: String
     ): Pair<StateID, String?>? =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             var accountID: StateID? = null
 
             val rState = authStateDao.get(oauthState)

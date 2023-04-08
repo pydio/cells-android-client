@@ -58,6 +58,7 @@ import com.pydio.cells.api.Store
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
+import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -108,8 +109,7 @@ val dbModule = module {
             androidContext().applicationContext,
             AccountDB::class.java,
             "accountdb"
-        )
-            .build()
+        ).build()
     }
 }
 
@@ -130,11 +130,25 @@ val daoModule = module {
 
 val serviceModule = module {
 
-    // Network state
-    single { NetworkService(androidContext()) }
+    // Enable better management of context and testing
+    single(named("IODispatcher")) {
+        Dispatchers.IO
+    }
 
+    // Network state
+    single {
+        NetworkService(
+            androidContext(),
+            get(named("IODispatcher")),
+        )
+    }
     // Long running jobs
-    single { JobService(get()) }
+    single {
+        JobService(
+            get(named("IODispatcher")),
+            get()
+        )
+    }
 
     // Authentication
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
@@ -149,15 +163,32 @@ val serviceModule = module {
             get(named("TokenStore")),
             get(named("PasswordStore")),
             get(named("TransportStore")),
+            get(named("IODispatcher")),
             get(), // NetworkService
             get(), // SessionViewDao
         )
     }
-    single { AuthService(get()) }
-    single { FileService(get()) }
+    single {
+        AuthService(
+            get(named("IODispatcher")),
+            get()
+        )
+    }
+    single {
+        FileService(
+            get(named("IODispatcher")),
+            get()
+        )
+    }
 
     // Accounts
-    single { TreeNodeRepository(androidContext().applicationContext, get()) }
+    single {
+        TreeNodeRepository(
+            androidContext().applicationContext,
+            get(named("IODispatcher")),
+            get()
+        )
+    }
 
     // Sessions
     single {
@@ -169,13 +200,33 @@ val serviceModule = module {
             get()
         )
     }
-    singleOf(::AccountService)
-//    single { AccountService(get(), get(), get(), get(), get(), get()) }
+    single {
+        AccountService(
+            get(named("IODispatcher")),
+            get(), get(), get(), get(), get(), get()
+        )
+    }
 
     // Business services
-    singleOf(::NodeService)
-    singleOf(::OfflineService)
-    single { TransferService(get(), get(), get(), get(), get(), get()) }
+    single {
+        NodeService(
+            androidContext().applicationContext,
+            get(named("IODispatcher")),
+            get(), get(), get(), get()
+        )
+    }
+    single {
+        OfflineService(
+            get(named("IODispatcher")),
+            get(), get(), get(), get()
+        )
+    }
+    single {
+        TransferService(
+            get(named("IODispatcher")),
+            get(), get(), get(), get(), get(), get()
+        )
+    }
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSync(

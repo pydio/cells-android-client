@@ -7,21 +7,24 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.utils.currentTimestamp
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class JobService(runtimeDB: RuntimeDB) {
+class JobService(
+    private val ioDispatcher: CoroutineDispatcher,
+    runtimeDB: RuntimeDB
+) {
 
     private val jobServiceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + jobServiceJob)
+    private val serviceScope = CoroutineScope(ioDispatcher + jobServiceJob)
 
     private val jobDao = runtimeDB.jobDao()
     private val logDao = runtimeDB.logDao()
 
-    suspend fun get(jobId: Long): RJob? = withContext(Dispatchers.IO) { jobDao.getById(jobId) }
+    suspend fun get(jobId: Long): RJob? = withContext(ioDispatcher) { jobDao.getById(jobId) }
 
     suspend fun create(
         owner: String,
@@ -29,7 +32,7 @@ class JobService(runtimeDB: RuntimeDB) {
         label: String,
         parentId: Long = -1,
         maxSteps: Long = -1
-    ): Long = withContext(Dispatchers.IO) {
+    ): Long = withContext(ioDispatcher) {
         val newJob = RJob.create(owner, template, label, parentId)
         newJob.total = maxSteps
         newJob.updateTimestamp = currentTimestamp()
@@ -42,7 +45,7 @@ class JobService(runtimeDB: RuntimeDB) {
         label: String,
         parentId: Long = -1,
         maxSteps: Long = -1
-    ): RJob? = withContext(Dispatchers.IO) {
+    ): RJob? = withContext(ioDispatcher) {
         val newJob = RJob.create(owner, template, label, parentId)
         newJob.total = maxSteps
         newJob.status = AppNames.JOB_STATUS_PROCESSING
@@ -52,18 +55,18 @@ class JobService(runtimeDB: RuntimeDB) {
     }
 
     suspend fun incrementProgress(job: RJob, increment: Long, message: String?) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             job.progress = job.progress + increment
             message?.let { job.progressMessage = message }
             job.updateTimestamp = currentTimestamp()
             jobDao.update(job)
         }
 
-    suspend fun update(job: RJob) = withContext(Dispatchers.IO) {
+    suspend fun update(job: RJob) = withContext(ioDispatcher) {
         jobDao.update(job)
     }
 
-    suspend fun launched(jobId: Long): String? = withContext(Dispatchers.IO) {
+    suspend fun launched(jobId: Long): String? = withContext(ioDispatcher) {
         val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
         job.status = AppNames.JOB_STATUS_PROCESSING
         job.startTimestamp = currentTimestamp()
@@ -73,7 +76,7 @@ class JobService(runtimeDB: RuntimeDB) {
         return@withContext null
     }
 
-    suspend fun failed(jobId: Long, errMessage: String): String? = withContext(Dispatchers.IO) {
+    suspend fun failed(jobId: Long, errMessage: String): String? = withContext(ioDispatcher) {
         val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
         job.status = AppNames.JOB_STATUS_ERROR
         job.doneTimestamp = currentTimestamp()
@@ -83,7 +86,7 @@ class JobService(runtimeDB: RuntimeDB) {
     }
 
     suspend fun done(job: RJob, message: String?, lastProgressMsg: String?) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             job.status = AppNames.JOB_STATUS_DONE
             job.doneTimestamp = currentTimestamp()
             job.updateTimestamp = currentTimestamp()
@@ -93,16 +96,16 @@ class JobService(runtimeDB: RuntimeDB) {
             jobDao.update(job)
         }
 
-    suspend fun getRunningJobs(template: String): List<RJob> = withContext(Dispatchers.IO) {
+    suspend fun getRunningJobs(template: String): List<RJob> = withContext(ioDispatcher) {
         return@withContext jobDao.getRunningForTemplate(template)
     }
 
-    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
+    suspend fun clearTerminated() = withContext(ioDispatcher) {
         jobDao.clearTerminatedJobs()
     }
 
     // Logs
-    suspend fun clearAllLogs() = withContext(Dispatchers.IO) {
+    suspend fun clearAllLogs() = withContext(ioDispatcher) {
         logDao.clearLogs()
     }
 
@@ -159,7 +162,7 @@ class JobService(runtimeDB: RuntimeDB) {
     private fun log(level: String, tag: String?, message: String, callerId: String?) =
         serviceScope.launch {
             val log = RLog.create(level, tag, message, callerId)
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 logDao.insert(log)
             }
         }

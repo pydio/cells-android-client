@@ -19,13 +19,14 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 class OfflineService(
+    private val ioDispatcher: CoroutineDispatcher,
     private val credentialService: AppCredentialService,
     private val accountService: AccountService,
     private val treeNodeRepo: TreeNodeRepository,
@@ -37,7 +38,7 @@ class OfflineService(
         return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
     }
 
-    suspend fun toggleOffline(stateID: StateID, newState: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun toggleOffline(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             if (node.isOfflineRoot()) {
@@ -61,7 +62,7 @@ class OfflineService(
     }
 
     suspend fun updateOfflineRoot(rTreeNode: RTreeNode, status: String) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val stateID = rTreeNode.getStateID()
             val db = nodeDB(stateID)
             val offlineDao = db.offlineRootDao()
@@ -77,7 +78,7 @@ class OfflineService(
             treeNodeRepo.persistUpdated(rTreeNode)
         }
 
-    suspend fun removeOfflineRoot(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun removeOfflineRoot(stateID: StateID) = withContext(ioDispatcher) {
         val db = nodeDB(stateID)
         val offlineDao = db.offlineRootDao()
 
@@ -97,7 +98,7 @@ class OfflineService(
 //    // Finalize this: we should try to move already existing cache file and index
 ////   rather than deleting / recreating the offline root
 //    suspend fun moveOfflineRoot(rTreeNode: RTreeNode, offlineRoot: ROfflineRoot) =
-//        withContext(Dispatchers.IO) {
+//        withContext(ioDispatcher) {
 //            val stateID = rTreeNode.getStateID()
 //            val db = nodeDB(stateID)
 //            val offlineDao = db.offlineRootDao()
@@ -158,7 +159,7 @@ class OfflineService(
         caller: String,
         parentJobId: Long = 0L
     ): Pair<Long, String?> =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
 
             val label = "Account sync for $stateID\nLaunched by $caller"
             val currJobTemplate = getSyncTemplateId(stateID)
@@ -185,7 +186,7 @@ class OfflineService(
         }
 
     suspend fun performAccountSync(accountID: StateID, jobId: Long, context: Context) =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val job = jobService.get(jobId) ?: let {
                 Log.e(logTag, "No job found for id $jobId, aborting launch...")
                 return@withContext
@@ -223,7 +224,7 @@ class OfflineService(
 
     @OptIn(ExperimentalTime::class)
     suspend fun launchAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
 
             val label = "Account sync for $stateID launched by $caller"
             val currJobTemplate = getSyncTemplateIdForAccount(stateID)
@@ -302,7 +303,7 @@ class OfflineService(
         }
 
     @OptIn(ExperimentalTime::class)
-    suspend fun syncOfflineRoot(stateID: StateID): Int = withContext(Dispatchers.IO) {
+    suspend fun syncOfflineRoot(stateID: StateID): Int = withContext(ioDispatcher) {
 
         val caller = AppNames.JOB_OWNER_USER
 
@@ -342,7 +343,7 @@ class OfflineService(
 
     @OptIn(ExperimentalTime::class)
     private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot, job: RJob): Int =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val stateID = offlineRoot.getStateID()
             try {
                 val client = getClient(stateID)
