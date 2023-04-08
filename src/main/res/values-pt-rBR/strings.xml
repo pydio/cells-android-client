@@ -204,15 +204,6 @@
     <string name="link_copy_failed">Falha ao copiar link</string>
     <!-- Sort By -->
     <string name="sort_by">Ordenar por</string>
-    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
-    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
-    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
-    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
-    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
-    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
-    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
-    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
-    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Abrir com…</string>
     <string name="confirm_account_deletion_title">Excluir conta\n%s ?</string>
@@ -269,8 +260,10 @@
     <string name="pref_feedback_send_title">Enviar comentários</string>
     <string name="pref_feedback_send_desc">Relate problemas técnicos ou sugira novos recursos</string>
     <string name="pref_category_title_troubleshooting">Resolução de problemas</string>
-    <string name="pref_troubleshooting_show_list_desc">Dá acesso a mais páginas para ajudar a resolver problemas de fundo</string>
-    <string name="pref_troubleshooting_show_list_title">Mostrar tabelas de tempo de execução</string>
+    <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
+    <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
+    <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
+    <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
     <string name="pref_choose_list_offline_frequency_title">Frequência de sincronização</string>
     <string name="pref_choose_list_offline_frequency_desc">Escolha uma frequência para sincronização em segundo plano</string>
     <!-- Accessibility various content -->

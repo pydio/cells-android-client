@@ -206,15 +206,6 @@
     <string name="link_copy_failed">Nepodařilo se zkopírovat odkaz</string>
     <!-- Sort By -->
     <string name="sort_by">Seřadit podle</string>
-    <!--    <string name="order_by_canon">Canonical (A to Z, folders first)</string>-->
-    <!--    <string name="order_by_name_asc">File name (A to Z)</string>-->
-    <!--    <string name="order_by_name_desc">File name (Z to A)</string>-->
-    <!--    <string name="order_by_remote_ts_asc">Modified (oldest first)</string>-->
-    <!--    <string name="order_by_remote_ts_desc">Modified (newest first)</string>-->
-    <!--    <string name="order_by_mime_asc">Type (A to Z)</string>-->
-    <!--    <string name="order_by_mime_desc">Type (Z to A)</string>-->
-    <!--    <string name="order_by_size_asc">Size (smallest first)</string>-->
-    <!--    <string name="order_by_size_desc">Size (largest first)</string>-->
     <!-- Dialogs -->
     <string name="choose_external_app_title">Otevřít v…</string>
     <string name="confirm_account_deletion_title">Odstranit účet\n%s?</string>
@@ -273,8 +264,10 @@
     <string name="pref_feedback_send_title">Odeslat zpětnou vazbu</string>
     <string name="pref_feedback_send_desc">Nahlásit technické problémy nebo navrhnout nové funkce</string>
     <string name="pref_category_title_troubleshooting">Řešení problémů</string>
-    <string name="pref_troubleshooting_show_list_desc">Poskytuje přístup k dalším stránkám pro řešení problémů ohledně úloh na pozadí</string>
-    <string name="pref_troubleshooting_show_list_title">Zobrazit běhové tabulky</string>
+    <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
+    <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
+    <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
+    <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
     <string name="pref_choose_list_offline_frequency_title">Četnost synchronizace</string>
     <string name="pref_choose_list_offline_frequency_desc">Vyberte četnost synchronizace na pozadí</string>
     <!-- Accessibility various content -->
