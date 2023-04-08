@@ -259,10 +259,10 @@ class OfflineService(
                 return@withContext 1
             }
             if (transport is CellsTransport) {
-                delay(2000)
                 // also insure we have credentials
                 try {
-                    credentialService.safelyRequestRefreshToken(stateID, transport)
+                    credentialService.requestRefreshToken(stateID)
+                    delay(2000)
                 } catch (e: SDKException) {
                     if (e.code == ErrorCodes.no_token_available) {
                         Log.e(logTag, "### No Token Available error, about to logout $stateID")
@@ -290,7 +290,7 @@ class OfflineService(
                     // TODO improve this
                     if (transport is CellsTransport) {
                         // also insure we have credentials
-                        credentialService.safelyRequestRefreshToken(stateID, transport)
+                        credentialService.requestRefreshToken(stateID)
                     }
                 }
             }

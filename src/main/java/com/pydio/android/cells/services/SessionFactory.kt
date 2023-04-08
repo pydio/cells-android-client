@@ -25,7 +25,7 @@ import com.pydio.cells.utils.Str
  */
 class SessionFactory(
     private val networkService: NetworkService,
-    credentialService: AppCredentialService,
+    private val credentialService: AppCredentialService,
     serverStore: Store<Server>,
     private val transportStore: Store<Transport>,
     accountDB: AccountDB
@@ -63,12 +63,17 @@ class SessionFactory(
      * Enable Callback from ancestor classes in the JAVA SDK.
      */
     override fun getCellsClient(transport: CellsTransport): CellsClient {
+
+        // We also check if we need a token refresh at this point
+        // TODO double check if it is the correct point to do so
+        transport.requestTokenRefresh()
+
         return CellsClient(
             transport,
             CellsS3Client(transport)
         )
     }
-    
+
     fun getTransport(stateID: StateID): Transport? {
         return transportStore.get(stateID.accountId)
     }
@@ -90,12 +95,10 @@ class SessionFactory(
             }
             return getClient(currTransport)
         } else {
-
             Log.d(logTag, "... Required session is not connected, listing known sessions:")
             for (currentSession in sessionViewDao.getSessions()) {
                 Log.d(logTag, "$currentSession.dbName} / ${currentSession.authStatus}")
             }
-
             throw SDKException(
                 ErrorCodes.authentication_required,
                 "cannot unlock session for $accountID, auth status: " + sessionView.authStatus

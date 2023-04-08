@@ -36,7 +36,10 @@ class CellsTransferListener(
     override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
         scope.launch {
             transferRecord.progress = bytesCurrent
-            transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+            transferRecord.status = if (bytesCurrent == bytesTotal) {
+                transferRecord.doneTimestamp = currentTimestamp()
+                AppNames.JOB_STATUS_PROCESSING
+            } else AppNames.JOB_STATUS_PROCESSING
             dao.update(transferRecord)
         }
         Log.e(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")

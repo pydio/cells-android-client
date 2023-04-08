@@ -22,11 +22,12 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.api.Transport
+import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
 
 /**
  * AccountService is the single source of truth for accounts, sessions and auth in the app.
@@ -143,7 +144,7 @@ class AccountService(
             accountDao.insert(account)
             safelyCreateSession(account)
         } else { // update
-            accountDao.update(account)
+            doUpdateAccount(account)
         }
 
         return state
@@ -183,7 +184,7 @@ class AccountService(
                             if (!currClient.stillAuthenticated()) {
                                 Log.e(logTag, "${account.accountID} is not connected anymore")
                                 account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                                accountDao.update(account)
+                                doUpdateAccount(account)
                                 val updatedAccount = accountDao.getAccount(account.accountID)
                                 Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
                                 changes++
@@ -191,7 +192,7 @@ class AccountService(
                         } catch (e: SDKException) {
                             Log.e(logTag, "${account.accountID} is not connected: err #${e.code}")
                             account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                            accountDao.update(account)
+                            doUpdateAccount(account)
                             val updatedAccount = accountDao.getAccount(account.accountID)
                             Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
 //
@@ -212,6 +213,15 @@ class AccountService(
                 return@withContext Pair(0, msg)
             }
         }
+
+    private suspend fun doUpdateAccount(account: RAccount) = withContext(Dispatchers.IO) {
+
+        if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+            Log.e(logTag, "## About to update account with status ${account.authStatus}")
+            Thread.dumpStack()
+        }
+        accountDao.update(account)
+    }
 
     private suspend fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
@@ -266,7 +276,7 @@ class AccountService(
 
                 authService.forgetCredentials(accountID, it.isLegacy)
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                accountDao.update(it)
+                doUpdateAccount(it)
                 return@withContext null
             }
         } catch (e: Exception) {
@@ -350,8 +360,11 @@ class AccountService(
     }
 
     suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
+        Log.e(logTag, "#### Notifying error #$code for $stateID")
+
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
+
                 val msg = "Received error $code for $stateID, old status: ${currAccount.authStatus}"
                 Log.i(logTag, msg)
 
@@ -365,26 +378,70 @@ class AccountService(
                     return@withContext
                 }
 
-                // Handle Auth Issue
-                when (code) {
-                    HttpURLConnection.HTTP_UNAUTHORIZED,
-                    ErrorCodes.authentication_required -> {
-                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                            currAccount.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-                            accountDao.update(currAccount)
+                if (currAccount.isLegacy) {
+                    Log.e(logTag, "Got an error but token is refreshing, simply ignoring")
+                    return@withContext
+                } else {
+                    val transport = getTransport(stateID, false)
+                    if (transport != null && transport is CellsTransport) {
+                        transport.token?.let {
+                            if (it.refreshingSinceTs > 1000) {
+                                Log.e(
+                                    logTag,
+                                    "Got an error but token is refreshing, simply ignoring"
+                                )
+                                return@withContext
+                            } else {
+
+                                Log.e(logTag, "##### unexpected error #$code for $stateID")
+
+
+//                                // Handle Auth Issue
+//                                when (code) {
+//                                    HttpURLConnection.HTTP_UNAUTHORIZED,
+//                                    ErrorCodes.authentication_required -> {
+//                                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+//                                            currAccount.authStatus =
+//                                                AppNames.AUTH_STATUS_UNAUTHORIZED
+//                                            doUpdateAccount(currAccount)
+//                                        }
+//                                        return@withContext
+//                                    }
+//                                    ErrorCodes.no_token_available,
+//                                    ErrorCodes.refresh_token_expired -> {
+//                                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+//                                            currAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+//                                            doUpdateAccount(currAccount)
+//                                        }
+//                                        return@withContext
+//                                    }
+//                                    else -> {
+//                                        Log.e(logTag, "##### unexpected error $code")
+//                                    }
+//                                }
+                            }
+                        } ?: run {
+                            Log.e(logTag, "No token found for $stateID")
+                            tmpLoop@ for (i in 1..10) {
+                                delay(1000)
+                                val newTok = transport.token
+                                if (newTok == null) {
+                                    Log.e(logTag, "Still no token for $stateID")
+                                } else {
+                                    Log.e(logTag, "Now we have a token for $stateID")
+                                    Log.e(logTag, "   - Expiration time: ${newTok.expirationTime}")
+                                    Log.e(
+                                        logTag,
+                                        "   - Refreshing since: ${newTok.refreshingSinceTs}"
+                                    )
+
+                                    break@tmpLoop
+                                }
+                            }
                         }
+                    } else {
+                        Log.e(logTag, "Notifying error for $stateID without transport")
                         return@withContext
-                    }
-                    ErrorCodes.no_token_available,
-                    ErrorCodes.refresh_token_expired -> {
-                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                            currAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                            accountDao.update(currAccount)
-                        }
-                        return@withContext
-                    }
-                    else -> {
-                        Log.e(logTag, "##### unexpected error $code")
                     }
                 }
             }

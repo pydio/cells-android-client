@@ -139,10 +139,16 @@ val serviceModule = module {
     // Authentication
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
+
+
+    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
+    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
+
     single {
         AppCredentialService(
             get(named("TokenStore")),
             get(named("PasswordStore")),
+            get(named("TransportStore")),
             get(), // NetworkService
             get(), // SessionViewDao
         )
@@ -163,8 +169,6 @@ val serviceModule = module {
             get()
         )
     }
-    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
-    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
     singleOf(::AccountService)
 //    single { AccountService(get(), get(), get(), get(), get(), get()) }
 

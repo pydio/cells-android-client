@@ -592,7 +592,13 @@ class TransferService(
             Log.e(logTag, "... Got a transferUtility, uploading ${transferRecord.transferId}")
             val observer = transferUtility.upload(key, file)
             // TODO improve: we loose the listener if the app is restarted during the upload
-            observer.setTransferListener(CellsTransferListener(this, dao, transferRecord))
+            observer.setTransferListener(
+                CellsTransferListener(
+                    CellsApp.instance.appScope,
+                    dao,
+                    transferRecord
+                )
+            )
 
             // Gets id of the transfer.
             // val id = observer.id

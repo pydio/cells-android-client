@@ -11,7 +11,6 @@ import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.SDKException
-import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -125,27 +124,31 @@ class AccountListVM(
     }
 
     private suspend fun checkRegisteredAccounts() = withContext(Dispatchers.IO) {
+        Log.e(logTag, "#################################################")
+        Log.e(logTag, "### checkRegisteredAccounts")
+
         val sessions = accountService.listSessionViews(false)
-        for (session in sessions) {
+        sessionLoop@ for (session in sessions) {
             val currID = session.getStateID()
             val tmpTransport = accountService.getTransport(currID, true)
-            if (tmpTransport == null || tmpTransport.server.isLegacy) {
+            if (tmpTransport == null) {
                 Log.w(logTag, "Cannot check account $currID with no transport")
-                continue
+                continue@sessionLoop
+            } else if (tmpTransport.server.isLegacy) {
+                Log.d(logTag, "skipping for $currID, legacy accounts have no token")
+                continue@sessionLoop
             }
-            val transport = tmpTransport as CellsTransport
             val token = appCredentialService.get(currID.id)
             if (token == null) {
                 Log.w(logTag, "Cannot refresh session with no credentials for $currID")
-                continue
+                continue@sessionLoop
             }
             if (token.expirationTime > (currentTimestamp() + 120)) {
-                // Got a token, not about to expire
-                continue
+                continue@sessionLoop
             }
             // We need to require a refresh
             try {
-                appCredentialService.doRefreshToken(currID, token, session, transport)
+                appCredentialService.requestRefreshToken(currID)
             } catch (e: SDKException) {
                 Log.e(logTag, "Error while launching refresh process for $currID")
                 Log.e(logTag, "Cause: #${e.code} - ${e.message}")

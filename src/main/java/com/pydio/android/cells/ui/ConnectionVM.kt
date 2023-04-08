@@ -173,12 +173,17 @@ class ConnectionVM(
         val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
         Log.d(logTag, "   Expiration time is $expTimeStr")
         val timeout = currentTimestamp() + 30
+        val oldTs = token.expirationTime
+        var newTs = oldTs
         var newToken: Token? = null
+
+        appCredentialService.requestRefreshToken(currID)
         try {
-            while (newToken == null && currentTimestamp() < timeout) {
-                newToken = appCredentialService
-                    .doRefreshToken(currID, token, currSession, transport)
-                newToken ?: run { delay(1000) }
+            while (oldTs == newTs && currentTimestamp() < timeout) {
+                delay(1000)
+                appCredentialService.getToken(currID)?.let {
+                    newTs = it.expirationTime
+                }
             }
             return@withContext newToken
         } catch (se: SDKException) {
