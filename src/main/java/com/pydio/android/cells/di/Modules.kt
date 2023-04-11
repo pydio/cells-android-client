@@ -154,7 +154,6 @@ val serviceModule = module {
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
 
-
     single<Store<Server>>(named("ServerStore")) { MemoryStore() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
 

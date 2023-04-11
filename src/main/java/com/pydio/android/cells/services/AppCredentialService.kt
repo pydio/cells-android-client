@@ -16,7 +16,7 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -44,16 +44,21 @@ class AppCredentialService(
     // Semaphore for the refresh process.
     private val lock = Any()
 
-    private val credServiceJob = Job()
+    private val credServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + credServiceJob)
 
     init {
         serviceScope.launch {
-            withContext(ioDispatcher) {
-                while (this.coroutineContext.isActive) {
-                    safelyRefreshToken(requestRefreshChannel.receive())
+            try {
+                withContext(ioDispatcher) {
+                    while (this.coroutineContext.isActive) {
+                        safelyRefreshToken(requestRefreshChannel.receive())
+                    }
+                    Log.e(logTag, "refresh channel has been cancelled")
                 }
-                Log.e(logTag, "refresh channel has been cancelled")
+            } catch (e: Exception) {
+                Log.e(logTag, "Credential request channel consumer has failed with ${e.message}")
+                e.printStackTrace()
             }
         }
     }
@@ -70,13 +75,13 @@ class AppCredentialService(
         }
     }
 
-    public suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
+    suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
         tokenStore.get(stateID.id)
     }
 
     private suspend fun safelyRefreshToken(stateID: StateID) = withContext(ioDispatcher) {
         synchronized(lock) {
-            var token: Token = tokenStore.get(stateID.id) ?: run {
+            val token: Token = tokenStore.get(stateID.id) ?: run {
                 Log.e(logTag, "Cannot refresh, no token for $stateID")
                 return@withContext
             }
@@ -133,13 +138,13 @@ class AppCredentialService(
             token.refreshingSinceTs = currentTimestamp()
             put(stateID.id, token)
 
-            serviceScope.launch {
+            launch {
                 doRefresh(stateID, token, transport)
             }
         }
     }
 
-    private suspend fun doRefresh(
+    private fun doRefresh(
         stateID: StateID,
         token: Token,
         transport: CellsTransport
@@ -190,26 +195,6 @@ class AppCredentialService(
             Log.e(logTag, "Keep old credentials and abort.")
             return
         }
-
-        //
-//
-//        // Wait until token is refreshed
-//        val timeout = currentTimestamp() + 30
-//        while (token.isExpired && currentTimestamp() < timeout) {
-//            Log.d(logTag, "... still waiting")
-//            delay(500)
-//            token = tokenStore.get(id) ?: token
-//        }
-//
-//        if (token.isExpired) {
-//            throw SDKException(
-//                ErrorCodes.cannot_refresh_token,
-//                "Time-out while waiting for new token for $stateID"
-//            )
-//        }
-//        Log.d(logTag, "### Got a new token, explicitly launched: $doing")
-//        return token
-
     }
 
 }

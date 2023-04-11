@@ -36,7 +36,7 @@ import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -62,7 +62,7 @@ class TransferService(
 
     private val logTag = "TransferService"
 
-    private val transferServiceJob = Job()
+    private val transferServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + transferServiceJob)
 
     companion object {

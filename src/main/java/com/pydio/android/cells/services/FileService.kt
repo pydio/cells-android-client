@@ -12,7 +12,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -24,7 +24,7 @@ class FileService(
 
     private val logTag = "FileService"
 
-    private val fileServiceJob = Job()
+    private val fileServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + fileServiceJob)
     private val sep: String = File.separator
 

@@ -14,7 +14,7 @@ import com.pydio.android.cells.reactive.NetworkStatus
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -24,7 +24,7 @@ class NetworkService constructor(
 ) {
 
     private val logTag = "NetworkService"
-    private val serviceJob = Job()
+    private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + serviceJob)
 
     // Business objects

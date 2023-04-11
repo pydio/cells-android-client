@@ -30,7 +30,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -48,7 +48,7 @@ class NodeService(
     private val fileService: FileService,
 ) {
     private val logTag = "NodeService"
-    private val nodeServiceJob = Job()
+    private val nodeServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
 
     // Query the local index to get LiveData for the ViewModels
@@ -87,23 +87,6 @@ class NodeService(
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
     }
 
-    suspend fun searchLocally(
-        stateID: StateID,
-        query: String,
-        encodedSortBy: String
-    ): List<RTreeNode> = withContext(ioDispatcher) {
-        if (Str.empty(query)) {
-            listOf()
-        } else {
-            val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-            val lsQuery = SimpleSQLiteQuery(
-                "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
-                        "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
-            )
-            nodeDB(stateID).treeNodeDao().searchQuery(lsQuery)
-        }
-    }
-
     fun listWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
     }
@@ -119,6 +102,23 @@ class NodeService(
             null
         } else {
             nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+        }
+    }
+
+    suspend fun searchLocally(
+        stateID: StateID,
+        query: String,
+        encodedSortBy: String
+    ): List<RTreeNode> = withContext(ioDispatcher) {
+        if (Str.empty(query)) {
+            listOf()
+        } else {
+            val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
+            val lsQuery = SimpleSQLiteQuery(
+                "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
+                        "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
+            )
+            nodeDB(stateID).treeNodeDao().searchQuery(lsQuery)
         }
     }
 

@@ -9,7 +9,7 @@ import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.utils.currentTimestamp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -18,7 +18,7 @@ class JobService(
     runtimeDB: RuntimeDB
 ) {
 
-    private val jobServiceJob = Job()
+    private val jobServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + jobServiceJob)
 
     private val jobDao = runtimeDB.jobDao()
@@ -71,7 +71,6 @@ class JobService(
         job.status = AppNames.JOB_STATUS_PROCESSING
         job.startTimestamp = currentTimestamp()
         job.updateTimestamp = currentTimestamp()
-
         jobDao.update(job)
         return@withContext null
     }
@@ -129,13 +128,11 @@ class JobService(
         }
     }
 
-
     /* MANAGE LOGS */
 
     fun listLogs(): LiveData<List<RLog>> {
         return logDao.getLiveLogs()
     }
-
 
     // Shortcut for logging
     fun d(tag: String?, message: String, callerId: String?) {
@@ -166,5 +163,4 @@ class JobService(
                 logDao.insert(log)
             }
         }
-
 }

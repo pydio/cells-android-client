@@ -30,16 +30,16 @@ object PreferencesKeys {
     val INSTALLED_VERSION_CODE = intPreferencesKey("installed_version_code")
 
     // Show technical pages
-    var SHOW_DEBUG_TOOLS = booleanPreferencesKey("show_debug_tools")
-    var DISABLE_POLL = booleanPreferencesKey("disable_poll")
+    val SHOW_DEBUG_TOOLS = booleanPreferencesKey("show_debug_tools")
+    val DISABLE_POLL = booleanPreferencesKey("disable_poll")
 
     // List order, layout and filters
     val DEFAULT_LIST_ORDER = stringPreferencesKey("current_recycler_order")
     val DEFAULT_LIST_LAYOUT = stringPreferencesKey("current_recycler_layout")
-    var TRANSFER_SORT_BY = stringPreferencesKey("transfer_sort_by")
-    var TRANSFER_FILTER_BY_STATUS = stringPreferencesKey("transfer_filter_by_status")
-    var JOB_SORT_BY = stringPreferencesKey("job_sort_by")
-    var JOB_FILTER_BY_STATUS = stringPreferencesKey("job_filter_by_status")
+    val TRANSFER_SORT_BY = stringPreferencesKey("transfer_sort_by")
+    val TRANSFER_FILTER_BY_STATUS = stringPreferencesKey("transfer_filter_by_status")
+    val JOB_SORT_BY = stringPreferencesKey("job_sort_by")
+    val JOB_FILTER_BY_STATUS = stringPreferencesKey("job_filter_by_status")
 
     // Metered network limitations
     val APPLY_METERED_LIMITATION = booleanPreferencesKey("apply_metered_limitations")
@@ -49,11 +49,11 @@ object PreferencesKeys {
         longPreferencesKey("on_metered_ask_before_dl_files_greater_than")
 
     // Offline settings
-    var SYNC_FREQ = stringPreferencesKey("sync_frequency")
-    var SYNC_CONST_NETWORK_TYPE = stringPreferencesKey("sync_network_type")
-    var SYNC_CONST_ON_CHARGING = booleanPreferencesKey("sync_on_charging")
-    var SYNC_CONST_ON_BATT_NOT_LOW = booleanPreferencesKey("sync_on_batt_not_low")
-    var SYNC_CONST_ON_IDLE = booleanPreferencesKey("sync_on_idle")
+    val SYNC_FREQ = stringPreferencesKey("sync_frequency")
+    val SYNC_CONST_NETWORK_TYPE = stringPreferencesKey("sync_network_type")
+    val SYNC_CONST_ON_CHARGING = booleanPreferencesKey("sync_on_charging")
+    val SYNC_CONST_ON_BATT_NOT_LOW = booleanPreferencesKey("sync_on_batt_not_low")
+    val SYNC_CONST_ON_IDLE = booleanPreferencesKey("sync_on_idle")
 }
 
 class PreferencesService(private val dataStore: DataStore<Preferences>) {
@@ -71,7 +71,6 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
             }
         }.map { preferences ->
             val currPrefs = mapCellsPreferences(preferences)
-//            Log.d(logTag, "emit: ${currPrefs}")
             currPrefs
         }
 
@@ -100,17 +99,17 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-    /**
-     * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")
-     */
-    suspend fun getOrderByPair(type: ListType): Pair<String, String> {
-        val currentKey = when (type) {
-            ListType.JOB -> PreferencesKeys.JOB_SORT_BY
-            ListType.TRANSFER -> PreferencesKeys.TRANSFER_SORT_BY
-            ListType.DEFAULT -> PreferencesKeys.DEFAULT_LIST_ORDER
-        }
-        return parseOrder(dataStore.data.first().toPreferences()[currentKey], type)
-    }
+//    /**
+//     * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")
+//     */
+//    suspend fun getOrderByPair(type: ListType): Pair<String, String> {
+//        val currentKey = when (type) {
+//            ListType.JOB -> PreferencesKeys.JOB_SORT_BY
+//            ListType.TRANSFER -> PreferencesKeys.TRANSFER_SORT_BY
+//            ListType.DEFAULT -> PreferencesKeys.DEFAULT_LIST_ORDER
+//        }
+//        return parseOrder(dataStore.data.first().toPreferences()[currentKey], type)
+//    }
 
     /**
      * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")

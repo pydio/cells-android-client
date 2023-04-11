@@ -11,7 +11,7 @@ import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,7 +22,7 @@ class TreeNodeRepository(
 ) {
 
     private val logTag = "TreeNodeRepository"
-    private var treeNodeRepoJob = Job()
+    private var treeNodeRepoJob = SupervisorJob()
     private val treeNodeRepoScope = CoroutineScope(ioDispatcher + treeNodeRepoJob)
 
     // Holds a map to find DB and files for a given account

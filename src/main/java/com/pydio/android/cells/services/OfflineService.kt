@@ -234,7 +234,6 @@ class OfflineService(
                 return@withContext 0
             }
 
-
             var changeNb = 0
             val roots = nodeDB(stateID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
