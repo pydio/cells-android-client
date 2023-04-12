@@ -44,7 +44,7 @@ data class RTransfer(
 
     @ColumnInfo(name = "error") var error: String? = null,
 
-    @ColumnInfo(name = "progress") var progress: Long = 0,
+    @ColumnInfo(name = "progress") var progress: Long = 0L,
 ) {
 
     fun getStateID(): StateID? {

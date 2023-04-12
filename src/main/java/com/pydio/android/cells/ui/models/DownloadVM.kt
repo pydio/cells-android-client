@@ -53,21 +53,19 @@ class DownloadVM(
         }
     }
 
-    suspend fun launchDownload(): Boolean {
+    suspend fun launchDownload() {
         val (transferID, errorMsg) =
             transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE, null)
         if (!errorMsg.isNullOrBlank()) {
             Log.e(logTag, "Could not prepare download for $stateID: $errorMsg")
-            return false
+            return
         }
 
         _transferID.value = transferID
         transferService.runDownloadTransfer(stateID.account(), transferID, null)?.let {
             Log.e(logTag, "Could not perform download for $stateID: $errorMsg")
-            return false
+            return
         }
-        // }
-        return true
     }
 
     suspend fun viewFile(context: Context) {

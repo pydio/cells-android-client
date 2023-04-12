@@ -84,7 +84,7 @@ class TransferService(
         jobID: Long
     ): LiveData<List<RTransfer>> {
         val id =
-            if (jobID < 1) -2 else jobID // tweak to insure we return no jobs when no job ID has been explicitly set
+            if (jobID < 1) -1 else jobID // tweak to insure we return no jobs when no job ID has been explicitly set
         return nodeDB(accountID).transferDao().getByJobId(id)
     }
 
@@ -166,61 +166,53 @@ class TransferService(
         stateID: StateID,
         type: String,
         parentJob: RJob?
-    ): Pair<File?, String?> =
-        withContext(ioDispatcher) {
-            val accountID = stateID.account()
-            val nodeDB = treeNodeRepository.nodeDB(accountID)
-            val rNode = nodeDB.treeNodeDao().getNode(stateID.id)
-            if (rNode == null) {
-                // No node found, aborting
-                val errMsg = "No node found for $stateID, aborting $type DL"
-                Log.e(logTag, errMsg)
-                return@withContext null to errMsg
-            }
-
-            // First try to retrieve local file
-            fileService.getLocalFile(stateID, rNode, type)?.let {
-                return@withContext it to null
-            }
-
-            // Otherwise, try to download if network type and user preferences allow it
-            val currSettings = prefs.fetchPreferences()
-//            val applyLimit = prefs.getBoolean(AppKeys.APPLY_METERED_LIMITATION, true)
-//            val dlThumb = prefs.getBoolean(AppKeys.METERED_DL_THUMBS, false)
-            when (networkService.networkStatus) {
-                is NetworkStatus.Unmetered
-                -> return@withContext downloadFile(stateID, rNode, type, parentJob, null)
-                is NetworkStatus.Metered
-                -> if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
-                    return@withContext downloadFile(stateID, rNode, type, parentJob, null)
-                } else {
-                    return@withContext null to "Cannot download preview images on metered network"
-                }
-                else -> return@withContext null to "No network connection: cannot download preview image"
-
-            }
-//            throw SDKException(ErrorCodes.con_failed, "could not dl $type for $state")
+    ): Pair<File?, String?> = withContext(ioDispatcher) {
+        val accountID = stateID.account()
+        val nodeDB = treeNodeRepository.nodeDB(accountID)
+        val rNode = nodeDB.treeNodeDao().getNode(stateID.id) ?: run {
+            // No node found, aborting
+            val errMsg = "No node found for $stateID, aborting $type DL"
+            Log.e(logTag, errMsg)
+            return@withContext null to errMsg
         }
 
+        // First try to retrieve local file
+        fileService.getLocalFile(stateID, rNode, type)?.let {
+            return@withContext it to null
+        }
+
+        // Otherwise, try to download if cuurent network type and user preferences allow it
+        val currSettings = prefs.fetchPreferences()
+        when (networkService.networkStatus) {
+            is NetworkStatus.Unmetered
+            -> return@withContext downloadFile(stateID, rNode, type, parentJob, null)
+            is NetworkStatus.Metered
+            -> if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
+                return@withContext downloadFile(stateID, rNode, type, parentJob, null)
+            } else {
+                return@withContext null to "Cannot download preview images on metered network"
+            }
+            else -> return@withContext null to "No network connection: cannot download preview image"
+        }
+    }
+
     suspend fun getFileForDiff(
-        state: StateID,
+        stateID: StateID,
         type: String,
         parentJob: RJob?,
         progressChannel: Channel<Long>?
-    ): Pair<File?, String?> =
-        withContext(ioDispatcher) {
-            val account = state.account()
-            val nodeDB = treeNodeRepository.nodeDB(account)
-            val rNode = nodeDB.treeNodeDao().getNode(state.id)
-            if (rNode == null) {
-                // No node found, aborting
-                val errMsg = "No node found for $state, aborting $type DL"
-                Log.e(logTag, errMsg)
-                return@withContext null to errMsg
-            }
-
-            downloadFile(state, rNode, type, parentJob, progressChannel)
+    ): Pair<File?, String?> = withContext(ioDispatcher) {
+        val account = stateID.account()
+        val nodeDB = treeNodeRepository.nodeDB(account)
+        val rNode = nodeDB.treeNodeDao().getNode(stateID.id) ?: run {
+            // No node found, aborting
+            val errMsg = "No node found for $stateID, aborting $type DL"
+            Log.e(logTag, errMsg)
+            return@withContext null to errMsg
         }
+
+        downloadFile(stateID, rNode, type, parentJob, progressChannel)
+    }
 
     /**
      * Launch the effective download. No check is done anymore: we assume the caller has
@@ -319,7 +311,6 @@ class TransferService(
 
         var errorMessage: String? = null
         val dao = getTransferDao(accountID)
-        val lfType = AppNames.LOCAL_FILE_TYPE_FILE
 
         // Retrieve data and sanity check
         val rTransfer = dao.getById(transferID) ?: run {
@@ -343,13 +334,77 @@ class TransferService(
             return@withContext errorMessage
         }
 
-        Log.d(logTag, "About to download file from $state")
         // Prepare target file
         val targetFile = File(localPath)
         targetFile.parentFile?.mkdirs()
+
+        if (!accountService.getClient(state).isLegacy) {
+            doS3Download(
+                context = CellsApp.instance.applicationContext,
+                stateID = state,
+                targetFile = targetFile,
+                dao = dao,
+                transferRecord = rTransfer
+            )
+        } else {
+            errorMessage = doP8Download(
+                stateID = state,
+                targetFile = targetFile,
+                progressChannel = progressChannel,
+                dao = dao,
+                rTreeNode = rNode,
+                rTransfer = rTransfer,
+            )
+        }
+
+        return@withContext errorMessage
+    }
+
+    private suspend fun doS3Download(
+        context: Context,
+        stateID: StateID,
+        targetFile: File,
+        dao: TransferDao,
+        transferRecord: RTransfer
+    ) = withContext(ioDispatcher) {
+        Log.d(logTag, "TU download for ${targetFile.absolutePath}")
+        val key = CellsS3Client.getCleanPath(stateID)
+        Log.e(logTag, "... About to get\n- key: [$key] \n- file: ${targetFile.absolutePath}")
+
+        val transferUtility = getTransferUtility(context, accountService, stateID.account())
+            ?: throw SDKException("Could not get a transferUtility to download from $stateID")
+        val observer = transferUtility.download(key, targetFile)
+        transferRecord.externalID = observer.id
+        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+        transferRecord.startTimestamp = currentTimestamp()
+        dao.update(transferRecord)
+
+        observer.setTransferListener(
+            CellsTransferListener(
+                CellsApp.instance.appScope,
+                ioDispatcher,
+                dao,
+                observer.id
+            )
+        )
+    }
+
+    private suspend fun doP8Download(
+        stateID: StateID,
+        targetFile: File,
+        progressChannel: Channel<Long>?,
+        dao: TransferDao,
+        rTreeNode: RTreeNode,
+        rTransfer: RTransfer
+    ): String? {
+
+        val lfType = AppNames.LOCAL_FILE_TYPE_FILE
+
+        var errorMessage: String? = null
         var out: FileOutputStream? = null
         try {
             out = FileOutputStream(targetFile)
+
 
             // Mark the download as started
             rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
@@ -359,8 +414,8 @@ class TransferService(
             // Real transfer
             var lastUpdateTS = 0L
             var byteWritten = 0L
-            accountService.getClient(state)
-                .download(state.workspace, state.file, out) { progressL ->
+            accountService.getClient(stateID)
+                .download(stateID.workspace, stateID.file, out) { progressL ->
                     // TODO also manage parent job cancellation
                     val cancellationMsg = dao.hasBeenCancelled(rTransfer.transferId)?.let {
                         val msg = "Download cancelled by ${it.owner}"
@@ -402,7 +457,7 @@ class TransferService(
 
                 // Double check downloaded file is OK
                 val computedMd5 = computeFileMd5(targetFile)
-                if (rNode.etag != computedMd5) {
+                if (rTreeNode.etag != computedMd5) {
                     rTransfer.error =
                         "MD5 signatures do not match after the download has terminated"
                     rTransfer.status = AppNames.JOB_STATUS_WARNING
@@ -410,7 +465,7 @@ class TransferService(
                     rTransfer.status = AppNames.JOB_STATUS_DONE
                     rTransfer.error = null
                 }
-                fileService.registerLocalFile(state, rNode, lfType, targetFile)
+                fileService.registerLocalFile(stateID, rTreeNode, lfType, targetFile)
                 rTransfer.doneTimestamp = currentTimestamp()
                 rTransfer.updateTimestamp = currentTimestamp()
                 dao.update(rTransfer)
@@ -418,12 +473,12 @@ class TransferService(
                 //   end-user to modify (or delete) the corresponding node before it has been correctly downloaded
             }
         } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
-            errorMessage = "could not download file for " + state + ": " + se.message
+            errorMessage = "could not download file for " + stateID + ": " + se.message
             se.printStackTrace()
         } catch (ioe: IOException) {
             // TODO Could not write the file in the local fs, we should notify the user
             errorMessage =
-                "could not write file for DL of $state to the local device: ${ioe.message}"
+                "could not write file for DL of $stateID to the local device: ${ioe.message}"
             ioe.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(out)
@@ -441,10 +496,10 @@ class TransferService(
                 targetFile.delete()
             }
             // And unregister local file record
-            fileService.unregisterLocalFile(state, lfType)
-            Log.e(logTag, "Could not download file at $state : $errorMessage")
+            fileService.unregisterLocalFile(stateID, lfType)
+            Log.e(logTag, "Could not download file at $stateID : $errorMessage")
         }
-        return@withContext errorMessage
+        return errorMessage
     }
 
     private fun dlThumb(
@@ -625,7 +680,6 @@ class TransferService(
 //            transferUtility.deleteTransferRecord(id);
     }
 
-
     private fun doP8Upload(
         stateID: StateID,
         srcFile: File,
@@ -781,84 +835,6 @@ class TransferService(
         uploadRecord.encodedState = targetStateID.id
         uploadRecord.localPath = localPath
         nodeDB(parentID).transferDao().update(uploadRecord)
-        return@withContext targetStateID
-    }
-
-    /**
-     * Does all the dirty work to copy the file from the device to an in-app folder
-     * and to register a new transfer record in the DB
-     */
-    @Deprecated("rather use register() then copy()")
-    suspend fun copyAndRegister(
-        cr: ContentResolver,
-        uri: Uri,
-        parentID: StateID
-    ): StateID? = withContext(ioDispatcher) {
-        var name: String? = null
-        // TODO rather throw an exception 5 lines below if we do not have a valid size
-        var size: Long = 1
-        cr.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            cursor.moveToFirst()
-            name = cursor.getString(nameIndex)
-            size = cursor.getLong(sizeIndex)
-        }
-        name = name ?: uri.lastPathSegment!!
-        if (Str.empty(name)) {
-            return@withContext null
-        }
-
-        val filename = name!!
-
-        // Mime Type
-        val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
-        Log.e(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
-
-        // TODO should we implement a "clean" of the extensions
-        //   the code below wasn't good enough and led to files named e.g. "img.JPG.jpg".
-        //   Rather doing nothing.
-        /*mimeMap.getExtensionFromMimeType(mime)?.let {
-            //   - retrieve file extension
-            //   - only append if the extension seems to be invalid
-            if (!filename.endsWith(it, true)) {
-                name += ".$it"
-            }
-        }*/
-
-        // TODO to by-pass permission issues, we make a local copy of the file to upload
-        //   in Cells app storage
-        val fs = fileService
-        val targetStateID = createLocalState(parentID, name as String)
-        val localPath =
-            fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_FILE)
-        val localFile = File(localPath)
-        localFile.parentFile!!.mkdirs()
-
-        var inputStream: InputStream? = null
-        var outputStream: OutputStream? = null
-        try {
-            inputStream = cr.openInputStream(uri)
-            outputStream = FileOutputStream(localFile)
-            IoHelpers.pipeRead(inputStream, outputStream)
-        } catch (ioe: IOException) {
-            Log.e(logTag, "could not create local copy of $filename: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext null
-        } finally {
-            IoHelpers.closeQuietly(inputStream)
-            IoHelpers.closeQuietly(outputStream)
-        }
-
-        val rec = RTransfer.fromState(
-            targetStateID.id,
-            AppNames.TRANSFER_TYPE_UPLOAD,
-            localPath,
-            size,
-            mime
-        )
-        nodeDB(parentID).transferDao().insert(rec)
-        Log.e(logTag, "... caching done for $filename, MIME: [$mime], size: $size")
         return@withContext targetStateID
     }
 
