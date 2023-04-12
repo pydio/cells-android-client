@@ -120,7 +120,6 @@ class ConnectionVM(
         .flowOn(Dispatchers.Default)
         .conflate()
 
-
     init {
         Log.e(logTag, " ### Initialised")
     }
@@ -145,7 +144,6 @@ class ConnectionVM(
         }
         // TODO we should also pause the other LiveData and flows 
     }
-
 
     // TODO this must be improved
     private suspend fun monitorCredentials(): Token? = withContext(Dispatchers.IO) {
@@ -197,7 +195,7 @@ class ConnectionVM(
 
     override fun onCleared() {
         super.onCleared()
-        Log.e(logTag, "### Connection VM cleared!!! ")
+        Log.e(logTag, "### Connection VM cleared!")
     }
 
     init {

@@ -50,8 +50,10 @@ fun ProcessAuth(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = stateID, helper.startingState) {
-        Log.e(logTag, "About to launch process Auth for ${helper.startingState?.route}")
-        helper.processAuth(context, stateID, skipVerify)
+        //if (stateID != StateID.NONE) {
+            Log.e(logTag, "About to launch process Auth for ${helper.startingState?.route}")
+            helper.processAuth(context, stateID, skipVerify)
+        //} // else ignore
     }
 
     ProcessAuth(
