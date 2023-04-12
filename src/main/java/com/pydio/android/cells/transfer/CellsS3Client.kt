@@ -1,6 +1,7 @@
 package com.pydio.android.cells.transfer
 
 import android.content.Context
+import android.util.Log
 import com.amazonaws.ClientConfiguration
 import com.amazonaws.HttpMethod
 import com.amazonaws.auth.AWSCredentialsProviderChain
@@ -19,10 +20,10 @@ import com.pydio.cells.api.S3Client
 import com.pydio.cells.api.S3Names
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.CellsTransport
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
+import com.pydio.cells.utils.Str
 import java.net.URL
-
 
 private const val logTag = "CellsS3Client"
 
@@ -107,10 +108,7 @@ class CellsS3Client(private val transport: CellsTransport) : S3Client {
             var path = slug + file
             if (path.contains("//")) {
                 // This should not happen anymore
-                Log.w(
-                    "Legacy",
-                    "Found a double slash in $path, this is most probably a bug. Double check and fix"
-                )
+                Log.w(logTag, "Found a double slash in $path, this is most probably a bug:")
                 Thread.dumpStack()
                 path = path.replace("//", "/")
             }
@@ -122,21 +120,22 @@ class CellsS3Client(private val transport: CellsTransport) : S3Client {
 fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
 
     val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
-
     // Register the Cells specific signers: we do not yet support the streaming signer on the server side
     SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
-    val conf = ClientConfiguration()
+    var conf = ClientConfiguration()
         .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)
         .withUserAgentOverride(transport.userAgent)
     // using the default agent mechanism prefix Cells User Agent
     // with the AWS SDK agent that we do not want to expose
     // .withUserAgent(transport.userAgent)
 
+    if (transport.server.isSSLUnverified) {
+        conf = conf.withTrustManager(ServerURLImpl.SKIP_VERIFY_TRUST_MANAGER[0])
+    }
+
     // TODO using the constant does not work
     // val region = Region.getRegion(Regions.US_EAST_1.name)
     val region = Region.getRegion("us-east-1")
-
-    Log.e(logTag, "Before getting amazon S3 client: $region")
     val s3Client = AmazonS3Client(chain, region, conf)
     s3Client.endpoint = transport.server.url()
     s3Client.setS3ClientOptions(
@@ -147,10 +146,7 @@ fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
             // TODO fix and re-enable md5 checks..
             .skipContentMd5Check(true)
             .build()
-//             .build()
     )
-
-//        val s3Client = AmazonS3Client(chain, Region.getRegion("us-east-1"), conf)
 
 //        Log.e(logTag, "### Listing buckets:")
 //        s3Client.listBuckets().forEach {
@@ -171,9 +167,23 @@ fun getTransferUtility(
     accountService: AccountService,
     accountID: StateID
 ): TransferUtility? {
-    transferUtilities[accountID.id]?.let { return it }
-    TransferNetworkLossHandler.getInstance(context)
 
+    if (Str.notEmpty(accountID.path)) {
+        Log.e(logTag, "You must use an **account** ID to get the transfer utility")
+        return null
+    }
+    transferUtilities[accountID.id]?.let { return it }
+
+    Log.i(logTag, "Instantiating a new transfer utility for $accountID")
+
+    if (transferUtilities.isNotEmpty()) {
+        Log.e(logTag, "Listing defined transfer utilities:")
+        for (tu in transferUtilities) {
+            Log.e(logTag, "  - ${tu.key}")
+        }
+    }
+
+    TransferNetworkLossHandler.getInstance(context)
     val config = TransferUtilityOptions()
     config.transferThreadPoolSize = 3
     config.minimumUploadPartSizeInMB = 10

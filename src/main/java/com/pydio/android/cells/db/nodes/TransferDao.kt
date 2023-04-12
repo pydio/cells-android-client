@@ -32,6 +32,9 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE transfer_id = :transferID LIMIT 1")
     fun getById(transferID: Long): RTransfer?
 
+    @Query("SELECT * FROM transfers WHERE external_id = :tuID LIMIT 1")
+    fun getByExternalID(tuID: Int): RTransfer?
+
     @Query("SELECT * FROM transfers WHERE job_id = :jobID")
     fun getByJobId(jobID: Long): LiveData<List<RTransfer>>
 

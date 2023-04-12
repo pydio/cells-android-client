@@ -7,6 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -56,7 +57,8 @@ class TransfersVM(
     }
 
     fun resumeOne(transferID: Long) {
-        viewModelScope.launch {
+        CellsApp.instance.appScope.launch {
+//        viewModelScope.launch {
             // TODO improve this
             transferService.uploadOne(accountID, transferID)
         }

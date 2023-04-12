@@ -31,6 +31,8 @@ data class RTransfer(
     // Single file: 0, Other wise the number of parts
 //    @ColumnInfo(name = "multipart") val multipart: Int = 0,
 //    @ColumnInfo(name = "parent_id") val parentId: Long = 0,
+    // Used for Cells when relying on the S3 transfer utility to perform uploads and downloads
+    @ColumnInfo(name = "external_id") var externalID: Int = -1,
 
     @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,

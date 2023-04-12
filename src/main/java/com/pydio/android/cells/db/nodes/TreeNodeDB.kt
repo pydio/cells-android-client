@@ -1,7 +1,6 @@
 package com.pydio.android.cells.db.nodes
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
     views = [
         RLiveOfflineRoot::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class TreeNodeDB : RoomDatabase() {
@@ -62,6 +61,7 @@ abstract class TreeNodeDB : RoomDatabase() {
                     // .addMigrations(MIGRATION_3_4)
                     // Ease downgrade for dev purposes, this should not happen in prod
                     .fallbackToDestructiveMigrationOnDowngrade()
+                    .addMigrations(MIGRATION_4_5)
                     .build()
                 INSTANCES.put(accountId, instance)
                 return instance
@@ -96,6 +96,13 @@ abstract class TreeNodeDB : RoomDatabase() {
                         "offline_roots.sort_name FROM offline_roots " +
                         "INNER JOIN tree_nodes ON offline_roots.encoded_state = tree_nodes.encoded_state"
                 database.execSQL(newViewSQL)
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add a column to the transfers table
+                database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER DEFAULT -1")
             }
         }
     }

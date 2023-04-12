@@ -577,33 +577,36 @@ class TransferService(
         file: File,
         dao: TransferDao,
         transferRecord: RTransfer
-    ) =
-        withContext(ioDispatcher) {
-            Log.i(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
+    ) = withContext(ioDispatcher) {
+        Log.d(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
+        val key = CellsS3Client.getCleanPath(stateID)
+        Log.e(
+            logTag, "... About to put\n" +
+                    "- key: [$key] \n" +
+                    "- file: ${file.absolutePath}"
+        )
 
-            val key = CellsS3Client.getCleanPath(stateID)
-            Log.d(
-                logTag, "... About to put\n " +
-                        "- key: [$key] \n" +
-                        "- file: ${file.absolutePath}"
+        val transferUtility = getTransferUtility(context, accountService, stateID.account())
+            ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
+        val observer = transferUtility.upload(key, file)
+        transferRecord.externalID = observer.id
+        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
+        transferRecord.startTimestamp = currentTimestamp()
+        dao.update(transferRecord)
+
+        // TODO improve: we loose the listener if the app is restarted during the upload
+        observer.setTransferListener(
+            CellsTransferListener(
+                CellsApp.instance.appScope,
+                ioDispatcher,
+                dao,
+                observer.id
             )
+        )
 
-            val transferUtility = getTransferUtility(context, accountService, stateID)
-                ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
-            Log.e(logTag, "... Got a transferUtility, uploading ${transferRecord.transferId}")
-            val observer = transferUtility.upload(key, file)
-            // TODO improve: we loose the listener if the app is restarted during the upload
-            observer.setTransferListener(
-                CellsTransferListener(
-                    CellsApp.instance.appScope,
-                    dao,
-                    transferRecord
-                )
-            )
-
-            // Gets id of the transfer.
-            // val id = observer.id
-            // Pauses the transfer.
+        // Gets id of the transfer.
+        // val id = observer.id
+        // Pauses the transfer.
 //            transferUtility.pause(id);
 //            // Pause all the transfers.
 //            transferUtility.pauseAllWithType(TransferType.ANY);
@@ -620,7 +623,7 @@ class TransferService(
 //            // Deletes the transfer.
 //            transferUtility.cancel(id);
 //            transferUtility.deleteTransferRecord(id);
-        }
+    }
 
 
     private fun doP8Upload(
