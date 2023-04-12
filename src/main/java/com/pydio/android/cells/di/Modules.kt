@@ -165,6 +165,7 @@ val serviceModule = module {
             get(named("IODispatcher")),
             get(), // NetworkService
             get(), // SessionViewDao
+            get(), // AccountDao
         )
     }
     single {

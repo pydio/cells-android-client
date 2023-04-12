@@ -16,7 +16,6 @@ import com.pydio.android.cells.transfer.WorkspaceDiff
 import com.pydio.android.cells.utils.logException
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
-import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
@@ -26,7 +25,6 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
@@ -75,18 +73,14 @@ class AccountService(
 
     fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
-//    @Deprecated("Rather use method with the StateID")
-//     fun getLiveSession(accountId: String): LiveData<RSessionView?> =
-//        sessionViewDao.getLiveSession(accountId)
-
     fun getLiveSession(accountID: StateID): LiveData<RSessionView?> =
         sessionViewDao.getLiveSession(accountID.id)
 
-    fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
-        workspaceDao.getLiveWorkspaces(accountId)
-
-    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> =
-        workspaceDao.getLiveWorkspace(stateID.id)
+//    fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
+//        workspaceDao.getLiveWorkspaces(accountId)
+//
+//    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> =
+//        workspaceDao.getLiveWorkspace(stateID.id)
 
     fun getLiveWsByType(type: String, accountID: String)
             : LiveData<List<RWorkspace>> {
@@ -100,7 +94,7 @@ class AccountService(
     val liveActiveSessionView: LiveData<RSessionView?> =
         sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
-    val liveSessionViews: LiveData<List<RSessionView>> = sessionViewDao.getLiveSessions()
+    // val liveSessionViews: LiveData<List<RSessionView>> = sessionViewDao.getLiveSessions()
 
     // Direct communication with the backend
 
@@ -108,9 +102,9 @@ class AccountService(
         return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
     }
 
-    suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(ioDispatcher) {
-        return@withContext !isLegacy(stateId)
-    }
+//    suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(ioDispatcher) {
+//        return@withContext !isLegacy(stateId)
+//    }
 
     suspend fun getActiveSession(): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
@@ -215,7 +209,6 @@ class AccountService(
     }
 
     private suspend fun doUpdateAccount(account: RAccount) = withContext(ioDispatcher) {
-
         if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
             Log.e(logTag, "## About to update account with status ${account.authStatus}")
             Thread.dumpStack()
@@ -290,13 +283,6 @@ class AccountService(
      * Sets the lifecycle_state of a given session to "foreground".
      * WARNING: no check is done on the passed accountID.
      */
-//    @Deprecated("Rather use method with the StateID")
-//     suspend fun openSession(accountId: String) {
-//        return withContext(ioDispatcher) {
-//            openSession(StateID.fromId(accountId))
-//        }
-//    }
-
     suspend fun openSession(accountID: StateID): RSessionView? {
         return withContext(ioDispatcher) {
 
@@ -342,34 +328,25 @@ class AccountService(
                 val msg = "could not get workspace list for $accountID"
                 Log.e(logTag, msg)
                 e.printStackTrace()
-                notifyError(accountID, e.code)
+                notifyError(accountID, msg, e)
                 return@withContext 0 to msg
             }
         }
 
-    private fun isNetworkDownError(code: Int): Boolean {
-        return when (code) {
-            ErrorCodes.unreachable_host,
-            ErrorCodes.no_internet,
-            ErrorCodes.con_failed,
-            ErrorCodes.con_closed,
-            ErrorCodes.con_read_failed,
-            ErrorCodes.con_write_failed -> true
-            else -> false
-        }
-    }
 
-    suspend fun notifyError(stateID: StateID, code: Int) = withContext(ioDispatcher) {
-        Log.e(logTag, "#### Notifying error #$code for $stateID")
+    suspend fun notifyError(
+        stateID: StateID, msg: String, se: SDKException
+    ) = withContext(ioDispatcher) {
 
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
-
-                val msg = "Received error $code for $stateID, old status: ${currAccount.authStatus}"
-                Log.i(logTag, msg)
+                val msg2 = "Received error ${se.code} for $stateID, message: $msg, " +
+                        "Old status: ${currAccount.authStatus}"
+                Log.i(logTag, msg2)
 
                 // First handle network issue
-                if (isNetworkDownError(code)) {
+                if (se.isNetworkError) {
+                    // TODO do something here
 //                    Log.e(logTag, "##### Unreachable host")
 //                    val networkService: NetworkService = get()
 //                    if (networkService.networkInfo()?.isOffline() != true) {
@@ -381,73 +358,32 @@ class AccountService(
                 if (currAccount.isLegacy) {
                     Log.e(logTag, "Got an error but token is refreshing, simply ignoring")
                     return@withContext
-                } else {
+                }
+
+                if (se.isAuthorizationError) {
                     val transport = getTransport(stateID, false)
                     if (transport != null && transport is CellsTransport) {
                         transport.token?.let {
                             if (it.refreshingSinceTs > 1000) {
-                                Log.e(
-                                    logTag,
-                                    "Got an error but token is refreshing, simply ignoring"
-                                )
+                                Log.e(logTag, "Got an error but token is refreshing, ignoring")
                                 return@withContext
-                            } else {
-
-                                Log.e(logTag, "##### unexpected error #$code for $stateID")
-
-
-//                                // Handle Auth Issue
-//                                when (code) {
-//                                    HttpURLConnection.HTTP_UNAUTHORIZED,
-//                                    ErrorCodes.authentication_required -> {
-//                                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-//                                            currAccount.authStatus =
-//                                                AppNames.AUTH_STATUS_UNAUTHORIZED
-//                                            doUpdateAccount(currAccount)
-//                                        }
-//                                        return@withContext
-//                                    }
-//                                    ErrorCodes.no_token_available,
-//                                    ErrorCodes.refresh_token_expired -> {
-//                                        if (currAccount.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-//                                            currAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-//                                            doUpdateAccount(currAccount)
-//                                        }
-//                                        return@withContext
-//                                    }
-//                                    else -> {
-//                                        Log.e(logTag, "##### unexpected error $code")
-//                                    }
-//                                }
-                            }
-                        } ?: run {
-                            Log.e(logTag, "No token found for $stateID")
-                            tmpLoop@ for (i in 1..10) {
-                                delay(1000)
-                                val newTok = transport.token
-                                if (newTok == null) {
-                                    Log.e(logTag, "Still no token for $stateID")
-                                } else {
-                                    Log.e(logTag, "Now we have a token for $stateID")
-                                    Log.e(logTag, "   - Expiration time: ${newTok.expirationTime}")
-                                    Log.e(
-                                        logTag,
-                                        "   - Refreshing since: ${newTok.refreshingSinceTs}"
-                                    )
-
-                                    break@tmpLoop
-                                }
                             }
                         }
+                        // We rely on the transport to update our local repo if necessary
+                        transport.requestTokenRefresh()
+                        return@withContext
                     } else {
-                        Log.e(logTag, "Notifying error for $stateID without transport")
+                        Log.e(logTag, "No transport, ignoring error")
                         return@withContext
                     }
                 }
+
+                Log.e(logTag, "Unexpected error, simply ignoring for the time being")
+                return@withContext
             }
         } catch (e: Exception) {
-            val msg = "Could not update account for $stateID after error $code"
-            logException(logTag, msg, e)
+            val msg2 = "Could not update account for $stateID after error #${se.code}: $msg"
+            logException(logTag, msg2, e)
         }
         return@withContext
     }

@@ -1,6 +1,8 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
+import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.ErrorCodes
@@ -33,8 +35,10 @@ class AppCredentialService(
     private val transportStore: Store<Transport>,
     private val ioDispatcher: CoroutineDispatcher,
     private val networkService: NetworkService,
+    private val accountDao: AccountDao,
     private val sessionViewDao: SessionViewDao,
-) : CredentialService(tokenStore, passwordStore), KoinComponent {
+
+    ) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
     private val logTag = "AppCredentialService"
 
@@ -108,7 +112,7 @@ class AppCredentialService(
             }
 
             val session = sessionViewDao.getSession(stateID.accountId) ?: run {
-                Log.e(logTag, "\"Cannot refresh, unknown session: $stateID\"")
+                Log.e(logTag, "Cannot refresh, unknown session: $stateID")
                 return@withContext
             }
 
@@ -150,7 +154,7 @@ class AppCredentialService(
         transport: CellsTransport
     ) {
         try {
-            Log.e(logTag, "Launching effective refresh token process for $stateID")
+            Log.i(logTag, "Launching effective refresh token process for $stateID")
 
             if (Str.empty(token.refreshToken)) {
                 Log.e(logTag, "No refresh token available for $stateID, cannot refresh")
@@ -178,22 +182,32 @@ class AppCredentialService(
         } catch (se: Exception) {
 
             if (se is SDKException && (se.code == ErrorCodes.refresh_token_expired || se.code == ErrorCodes.refresh_token_not_valid)) {
-                // Could not refresh, finally deleting referential to avoid being stuck
-                Log.e(logTag, "#######################")
-                Log.e(logTag, "### Refresh token expired for $stateID")
-                Log.e(logTag, "  Cause: ${se.message}")
-                Log.e(logTag, "  !! Removing legacy credentials !! ")
-
-                // Log.e(logTag, "refresh_token_expired for $state")
-                // Log.d(logTag, "Printing stack trace to understand where we come from:")
-                // Log.e(logTag, "... and deleting credentials")
-                remove(stateID.id)
+                // Could not refresh, finally deleting credentials to avoid being stuck
+                logout(stateID, "#${se.code}: ${se.message}")
                 throw se
             }
             Log.e(logTag, "Could not refresh for $stateID, unexpected exception: ${se.message}")
             se.printStackTrace()
             Log.e(logTag, "Keep old credentials and abort.")
             return
+        }
+    }
+
+    private fun logout(stateID: StateID, cause: String) {
+        Log.e(logTag, "#######################")
+        Log.e(logTag, "### Refresh token expired for $stateID")
+        Log.e(logTag, "  Cause: $cause")
+        Log.e(logTag, "  !! Removing stored credentials !! ")
+
+        // Log.e(logTag, "refresh_token_expired for $state")
+        // Log.d(logTag, "Printing stack trace to understand where we come from:")
+        // Log.e(logTag, "... and deleting credentials")
+        synchronized(lock) {
+            remove(stateID.id)
+        }
+        accountDao.getAccount(stateID.accountId)?.let {
+            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+            accountDao.update(it)
         }
     }
 

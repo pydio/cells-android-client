@@ -15,12 +15,9 @@ import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
-import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.transport.auth.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -33,10 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-
 /**
- * Hold the session that is currently in foreground for browsing the cache
- * and the remote server.
+ * Hold the session that is currently in foreground for browsing the cache and the remote server.
  */
 class ConnectionVM(
     networkService: NetworkService,
@@ -44,21 +39,33 @@ class ConnectionVM(
     private val appCredentialService: AppCredentialService,
 ) : ViewModel() {
 
-    private val id: String = UUID.randomUUID().toString()
-
     enum class SessionStatus {
         NO_INTERNET, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
     }
 
+    private val id: String = UUID.randomUUID().toString()
     private val logTag = "ConnectionVM[${id.substring(24)}]"
 
     private val liveNetwork = networkService.networkType
 
     val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
     val currAccountID: LiveData<StateID?> = sessionView.map { currSessionView ->
-        currSessionView?.accountID?.let { StateID.fromId(it) }
+        currSessionView?.accountID?.let {
+            StateID.fromId(it)
+        }
     }
+
+//    private val _cachedAccountID = MutableStateFlow<StateID?>(null)
+
     val customColor: LiveData<String?> = sessionView.map { currSessionView ->
+//        // Kind of hack to insure we also restart the session monitoring when switch account
+//        currSessionView?.accountID?.let {
+//            val newStateID = StateID.fromId(it)
+//            if (newStateID != _cachedAccountID.value) {
+//                _cachedAccountID.value = newStateID
+//                relaunchMonitoring()
+//            }
+//        }
         currSessionView?.customColor()
     }
 
@@ -101,8 +108,8 @@ class ConnectionVM(
             Log.d(logTag, " Got a status: $newStatus")
             activeSession?.let {
                 Log.e(logTag, " Got a Session view: ${it.getStateID()}")
-                if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED
-                ) {
+                if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                    pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET) {
                         SessionStatus.CAN_RELOG
                     } else {
@@ -111,6 +118,8 @@ class ConnectionVM(
                         // AUTH_STATUS_EXPIRED, AUTH_STATUS_REFRESHING, AUTH_STATUS_CONNECTED
                         SessionStatus.NOT_LOGGED_IN
                     }
+                } else {
+                    relaunchMonitoring()
                 }
             } ?: run {
                 Log.e(logTag, " **No** Session view...")
@@ -146,25 +155,20 @@ class ConnectionVM(
     }
 
     // TODO this must be improved
-    private suspend fun monitorCredentials(): Token? = withContext(Dispatchers.IO) {
-        val currSession = sessionView.value ?: return@withContext null
+    private suspend fun monitorCredentials() = withContext(Dispatchers.IO) {
+        val currSession = sessionView.value ?: return@withContext
         val currID = currSession.getStateID()
         if (currSession.isLegacy) {
             // this is for Cells only
-            return@withContext null
+            return@withContext
         }
-        val tmpTransport = accountService.getTransport(currSession.getStateID()) ?: run {
-            Log.w(logTag, "Cannot monitor credentials with no transport for $currID")
-            return@withContext null
-        }
-        val transport = tmpTransport as CellsTransport
         val token = appCredentialService.get(currID.id) ?: run {
             Log.w(logTag, "Session $currID has no credentials, aborting")
-            return@withContext null
+            pauseMonitoring()
+            return@withContext
         }
-
         if (token.expirationTime > (currentTimestamp() + 120)) {
-            return@withContext null
+            return@withContext
         }
 
         Log.e(logTag, "Monitoring Credentials for $currID, found a token that needs refresh")
@@ -173,7 +177,6 @@ class ConnectionVM(
         val timeout = currentTimestamp() + 30
         val oldTs = token.expirationTime
         var newTs = oldTs
-        var newToken: Token? = null
 
         appCredentialService.requestRefreshToken(currID)
         try {
@@ -183,13 +186,14 @@ class ConnectionVM(
                     newTs = it.expirationTime
                 }
             }
-            return@withContext newToken
+            return@withContext
         } catch (se: SDKException) {
-            if (se.code == ErrorCodes.refresh_token_expired) {
-                // We cannot refresh anymore, aborting
-                return@withContext null
-            }
-            return@withContext null
+            Log.e(logTag, "Unexpected error while monitoring refresh token process for $currID")
+//            if (se.code == ErrorCodes.refresh_token_expired) {
+//                // We cannot refresh anymore, aborting
+//                return@withContext
+//            }
+//            return@withContext
         }
     }
 

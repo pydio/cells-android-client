@@ -13,8 +13,6 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.externallyView
-import com.pydio.cells.api.ErrorCodes
-import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,14 +34,6 @@ class DownloadVM(
         get() = _transferID.asLiveData(viewModelScope.coroutineContext).switchMap { currID ->
             transferService.liveTransfer(stateID.account(), currID)
         }
-
-    init {
-        viewModelScope.launch {
-            nodeService.getNode(stateID)?.let {
-                _rTreeNode.value = it
-            }
-        }
-    }
 
     fun cancelDownload() {
         viewModelScope.launch {
@@ -74,7 +64,15 @@ class DownloadVM(
                 externallyView(context, file, node)
                 return
             } ?: run {
-                throw SDKException(ErrorCodes.no_local_file)
+                Log.e(logTag, "Could not open file for ${node.getStateID()}")
+            }
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            nodeService.getNode(stateID)?.let {
+                _rTreeNode.value = it
             }
         }
     }

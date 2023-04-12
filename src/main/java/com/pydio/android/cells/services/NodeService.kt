@@ -649,7 +649,7 @@ class NodeService(
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(logTag, "Error #${se.code}: $msg")
         se.printStackTrace()
-        accountService.notifyError(stateID, se.code)
+        accountService.notifyError(stateID, msg, se)
     }
 
     private fun nodeDB(stateID: StateID): TreeNodeDB {

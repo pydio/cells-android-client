@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -12,7 +13,6 @@ import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -32,8 +32,8 @@ class BrowseRemoteVM(
 
     private val logTag = "BrowseRemoteVM"
 
-    private val viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    //    private val viewModelJob = Job()
+//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
 
@@ -45,12 +45,14 @@ class BrowseRemoteVM(
     val stateID: StateFlow<StateID> = _stateID.asStateFlow()
 
     private var _isActive = false
-    private val _loadingState = MutableLiveData<LoadingState>()
+    private val _loadingState = MutableLiveData(LoadingState.IDLE)
     private val _errorMessage = MutableLiveData<String?>()
 
     init {
-        _loadingState.value = LoadingState.STARTING
-        Log.e(logTag, "... Starting for ${stateID.value}")
+        if (stateID.value != StateID.NONE) {
+            _loadingState.value = LoadingState.STARTING
+            Log.i(logTag, "... Starting for ${stateID.value}")
+        }
     }
 
     val loadingState: LiveData<LoadingState>
@@ -60,27 +62,11 @@ class BrowseRemoteVM(
         get() = _errorMessage
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
-        Log.e(logTag, "Watching $newStateID")
+        Log.i(logTag, "Watching $newStateID")
         _loadingState.value = if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
         currWatcher?.cancel()
         _stateID.value = newStateID
         resume()
-
-//        viewModelScope.launch {
-//            pause()
-//            val doPoll = !(disablePoll.last())
-//            Log.e(logTag, "---- with polling $doPoll")
-//            if (doPoll) {
-//                _loadingState.value =
-//                    if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
-//                currWatcher?.cancel()
-//                _stateID.value = newStateID
-//                resume()
-//            } else {
-//                _stateID.value = newStateID
-//                _loadingState.value = LoadingState.IDLE
-//            }
-//        }
     }
 
     fun pause() {
@@ -98,7 +84,7 @@ class BrowseRemoteVM(
     }
 
     // Technical local objects
-    private fun watchFolder() = vmScope.launch {
+    private fun watchFolder() = viewModelScope.launch {
         while (_isActive) {
             doPull()
             val nd = backOffTicker.getNextDelay()
@@ -139,7 +125,7 @@ class BrowseRemoteVM(
     }
 
     override fun onCleared() {
-        viewModelJob.cancel()
         super.onCleared()
+        Log.i(logTag, "ViewModel cleared")
     }
 }
