@@ -28,6 +28,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
 
 /**
  * AccountService is the single source of truth for accounts, sessions and auth in the app.
@@ -78,12 +79,6 @@ class AccountService(
     fun getLiveSession(accountID: StateID): LiveData<RSessionView?> =
         sessionViewDao.getLiveSession(accountID.id)
 
-//    fun getLiveWorkspaces(accountId: String): LiveData<List<RWorkspace>> =
-//        workspaceDao.getLiveWorkspaces(accountId)
-//
-//    fun getLiveWorkspace(stateID: StateID): LiveData<RWorkspace> =
-//        workspaceDao.getLiveWorkspace(stateID.id)
-
     fun getLiveWsByType(type: String, accountID: String)
             : LiveData<List<RWorkspace>> {
         return if (type == SdkNames.WS_TYPE_CELL) {
@@ -95,8 +90,6 @@ class AccountService(
 
     val liveActiveSessionView: LiveData<RSessionView?> =
         sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
-
-    // val liveSessionViews: LiveData<List<RSessionView>> = sessionViewDao.getLiveSessions()
 
     // Direct communication with the backend
 
@@ -164,62 +157,59 @@ class AccountService(
      * Performs a check on all accounts that are listed as connected
      * to insure we are still correctly logged in.
      */
+
+//    private suspend fun checkRegisteredAccounts() = withContext(Dispatchers.IO) {
+//        Log.e(logTag, "#################################################")
+//        Log.e(logTag, "### checkRegisteredAccounts")
+//
+//        val sessions = accountService.listSessionViews(false)
+//        sessionLoop@ for (session in sessions) {
+//
+//            val currID = session.getStateID()
+//            try {
+//
+//                val tmpTransport = accountService.getTransport(currID, true)
+//                if (tmpTransport == null) {
+//                    Log.w(logTag, "Cannot check account $currID with no transport")
+//                    continue@sessionLoop
+//                } else if (tmpTransport.server.isLegacy) {
+//                    Log.d(logTag, "skipping for $currID, legacy accounts have no token")
+//                    continue@sessionLoop
+//                }
+//                val token = appCredentialService.get(currID.id)
+//                if (token == null) {
+//                    Log.w(logTag, "Cannot refresh session with no credentials for $currID")
+//                    continue@sessionLoop
+//                }
+//                if (token.expirationTime > (currentTimestamp() + 120)) {
+//                    continue@sessionLoop
+//                }
+//                // We need to require a refresh
+//                try {
+//                    appCredentialService.requestRefreshToken(currID)
+//                } catch (e: SDKException) {
+//                    Log.e(logTag, "Error while launching refresh process for $currID")
+//                    Log.e(logTag, "Cause: #${e.code} - ${e.message}")
+//                }
+//            } catch (e: Exception) {
+//                Log.e(logTag, "cannot check account $currID, ignoring.")
+//                Log.e(logTag, "Cause: ${e.message}")
+//            }
+//        }
+//    }
+
+
     suspend fun checkRegisteredAccounts(): Pair<Int, String?> = withContext(ioDispatcher) {
         try {
             var changes = 0
             val accounts = accountDao.getAccounts()
-            for (rAccount in accounts) {
+            accountLoop@ for (rAccount in accounts) {
+
                 if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-                    continue
+                    continue@accountLoop
                 }
                 if (networkService.isConnected()) {
-                    try {
-                        val currClient = sessionFactory.getUnlockedClient(rAccount.accountID())
-                        if (!currClient.stillAuthenticated()) {
-                            if (!currClient.isLegacy) {
-                                // Finer check for cells, this also launch a refresh token request under the hood
-                                val transport =
-                                    sessionFactory.getTransport(rAccount.accountID()) as CellsTransport
-                                var currToken = transport.token
-                                val timeout = currentTimestamp() + 30
-                                while (currentTimestamp() < timeout && currToken.isExpired) {
-                                    delay(2000)
-                                    currToken = transport.token
-                                }
-
-                                if (currToken.isExpired) {
-                                    Log.e(
-                                        logTag,
-                                        "Timeout reached while waiting for refreshed token for ${rAccount.accountID()}"
-                                    )
-                                    Log.e(
-                                        logTag,
-                                        "   We should consider updating the corresponding session"
-                                    )
-                                    changes++
-                                }
-                            } else { // P8
-                                Log.e(
-                                    logTag,
-                                    "${rAccount.accountId} is not connected anymore, updating local repo"
-                                )
-                                rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                                doUpdateAccount(rAccount)
-                                changes++
-                            }
-                        }
-                    } catch (e: SDKException) {
-                        Log.e(
-                            logTag,
-                            "${rAccount.accountId} is not connected: #${e.code} - ${e.message}"
-                        )
-                        if (e.isAuthorizationError) {
-                            // TODO double check do we really want to remove known credentials here
-                            rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                            doUpdateAccount(rAccount)
-                            val updatedAccount = accountDao.getAccount(rAccount.accountId)
-                            Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
-                        }
+                    if (checkOneAccount(rAccount)) {
                         changes++
                     }
                 } else {
@@ -234,6 +224,61 @@ class AccountService(
             val msg = "could not refresh account list"
             return@withContext Pair(0, msg)
         }
+    }
+
+    /** Return true if something has changed */
+    private suspend fun checkOneAccount(rAccount: RAccount): Boolean {
+        val currID = rAccount.accountID()
+        try {
+            val currClient = sessionFactory.getUnlockedClient(currID)
+            if (!currClient.stillAuthenticated()) {
+                if (!currClient.isLegacy) {
+
+                    // Finer check for cells, this also launch a refresh token request under the hood
+                    val transport = getTransport(rAccount.accountID(), true) as CellsTransport
+//                   Useless an error is thrown
+//                    if (transport == null) {
+//                        Log.e(logTag, "Cannot check account $currID with no transport")
+//                        return false
+//                    }
+
+                    var currToken = transport.token
+                    if (currToken == null) {
+                        Log.e(logTag, "No token found for $currID, skipping")
+                        return false
+                    }
+                    val timeout = currentTimestamp() + 30
+                    while (currentTimestamp() < timeout && (currToken?.isExpired == true)) {
+                        delay(2000)
+                        currToken = transport.token
+                    }
+
+                    if (currToken.isExpired) {
+                        Log.e(logTag, "Timeout while waiting for refreshed token for $currID")
+                        Log.e(logTag, "   We should consider updating the corresponding session")
+                        return true
+                    }
+                } else { // P8
+                    Log.e(logTag, "${rAccount.accountId} is not connected anymore, updating DB")
+                    logoutAccount(rAccount.accountID())
+//                    rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+//                    doUpdateAccount(rAccount)
+                    return true
+                }
+            }
+        } catch (e: SDKException) {
+            notifyError(currID, "Unexpected error while checking account", e)
+//            Log.e(logTag, "$currID is not connected: #${e.code} - ${e.message}")
+//            if (e.isAuthorizationError) {
+//                // TODO double check do we really want to remove known credentials here
+//                rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+//                doUpdateAccount(rAccount)
+//                val updatedAccount = accountDao.getAccount(currID.id)
+//                Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
+//            }
+            return true
+        }
+        return false
     }
 
     private suspend fun doUpdateAccount(account: RAccount) = withContext(ioDispatcher) {
@@ -290,11 +335,8 @@ class AccountService(
         try {
             accountDao.getAccount(accountID.id)?.let {
                 Log.i(logTag, "About to logout $accountID")
-                Log.i(logTag, "Calling stack:")
-                Thread.dumpStack()
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
-
                 authService.forgetCredentials(accountID, it.isLegacy)
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 doUpdateAccount(it)
@@ -387,27 +429,10 @@ class AccountService(
                 }
 
                 if (se.isAuthorizationError) {
-                    val transport = getTransport(stateID, true)
-                    if (transport != null && transport is CellsTransport) {
-                        transport.token?.let {
-                            if (it.refreshingSinceTs > 1000) {
-                                Log.e(logTag, "Got an error but token is refreshing, ignoring")
-                                return@withContext
-                            }
-                        }
-                        // We rely on the transport to update our local repo if necessary
-                        transport.requestTokenRefresh()
-                        return@withContext
-                    } else {
-                        // We should never land here an exception must have already been thrown
-                        Log.e(logTag, "No transport, ignoring error")
-                        Log.e(logTag, "  but we should not be there, printing stack:")
-                        Thread.dumpStack()
-                        return@withContext
-                    }
+                    handleAuthError(stateID)
+                } else {
+                    Log.e(logTag, "Unexpected error, simply ignoring for the time being")
                 }
-
-                Log.e(logTag, "Unexpected error, simply ignoring for the time being")
                 return@withContext
             }
         } catch (e: Exception) {
@@ -416,4 +441,74 @@ class AccountService(
         }
         return@withContext
     }
+
+    private suspend fun handleAuthError(stateID: StateID) {
+        val transport = getTransport(stateID, true)
+        if (transport == null || transport !is CellsTransport) {
+            // We should never land here an exception must have already been thrown
+            Log.e(logTag, "No transport, ignoring error")
+            Log.e(logTag, "  but we should not be there, printing stack:")
+            Thread.dumpStack()
+            return
+        }
+
+        Log.e(logTag, "In handle auth error, token: ${transport.token}")
+
+        transport.token?.let {
+
+            if (!it.isExpired) {
+                // Handle corner case when we have been kicked off the server:
+                // We perform a supplementary check to insure we still can connect to the server
+                try {
+                    Log.d(logTag, "## Trying to download boot configuration for $stateID")
+                    transport.tryDownloadingBootConf()
+                } catch (e: Exception) {
+                    Log.e(logTag, "## Could not DL boot conf for $stateID : ${e.message}")
+                    e.printStackTrace()
+                    // Cannot get boot conf, so token is not valid anymore
+                    if (e is FileNotFoundException) {
+                        logoutAccount(stateID)
+                    }
+                    return
+                }
+            }
+
+            if (it.refreshingSinceTs > 1000) {
+                Log.e(logTag, "Got an error but token is refreshing, ignoring")
+                return
+            }
+
+            // We rely on the transport to update our local repo if necessary
+            transport.requestTokenRefresh()
+            return
+        }
+    }
+
+//    private class DummyHandler(stateID: StateID) : DefaultHandler() {
+//        private val logTag = "DummyHandler"
+//
+//        var currPath = ""
+//
+//        init {
+//            Log.e(logTag, "New Dummy handler for $stateID")
+//        }
+//
+//        @Throws(SAXException::class)
+//        override fun startElement(
+//            uri: String?,
+//            localName: String?,
+//            qName: String?,
+//            attributes: Attributes?
+//        ) {
+//            currPath += "/$localName"
+//            if (!currPath.startsWith("/pydio_registry/actions/act"))
+//                Log.e(logTag, "$currPath $uri")
+//        }
+//
+//        @Throws(SAXException::class)
+//        override fun endElement(uri: String?, localName: String?, qName: String?) {
+//            currPath.removeSuffix("/$localName")
+//            // Log.e(logTag, "END - $localName $uri")
+//        }
+//    }
 }

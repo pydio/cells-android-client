@@ -103,7 +103,6 @@ fun Download(
 
     val progress = rTransfer.value?.let {
         if (it.byteSize > 0) {
-            Log.e(logTag, "got a new value ${it.byteSize}")
             it.progress.toFloat().div(it.byteSize.toFloat())
         } else {
             0f

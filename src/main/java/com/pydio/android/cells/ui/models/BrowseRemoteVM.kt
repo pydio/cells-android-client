@@ -89,11 +89,11 @@ class BrowseRemoteVM(
             doPull()
             val nd = backOffTicker.getNextDelay()
             delay(TimeUnit.SECONDS.toMillis(nd))
-            val msg = "... Watching folders at ${stateID.value}"
+            val msg = "watching folders at ${stateID.value}"
             if (_isActive) {
                 Log.d(logTag, "$msg, next delay: ${nd}s")
             } else {
-                Log.d(logTag, "$msg has been stopped, leaving the loop")
+                Log.d(logTag, "STOP $msg")
             }
         }
     }

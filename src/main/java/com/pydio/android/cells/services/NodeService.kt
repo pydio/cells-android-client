@@ -648,7 +648,7 @@ class NodeService(
     /* Constants and helpers */
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(logTag, "Error #${se.code}: $msg")
-        se.printStackTrace()
+        // se.printStackTrace()
         accountService.notifyError(stateID, msg, se)
     }
 

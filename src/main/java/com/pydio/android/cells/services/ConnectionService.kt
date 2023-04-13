@@ -58,17 +58,7 @@ class ConnectionService(
         }
     }
 
-//    private val _cachedAccountID = MutableStateFlow<StateID?>(null)
-
     val customColor: LiveData<String?> = sessionView.map { currSessionView ->
-//        // Kind of hack to insure we also restart the session monitoring when switch account
-//        currSessionView?.accountID?.let {
-//            val newStateID = StateID.fromId(it)
-//            if (newStateID != _cachedAccountID.value) {
-//                _cachedAccountID.value = newStateID
-//                relaunchMonitoring()
-//            }
-//        }
         currSessionView?.customColor()
     }
 
@@ -133,16 +123,19 @@ class ConnectionService(
         .conflate()
 
     private var currJob: Job? = null
+    private val lock = Any()
 
     fun relaunchMonitoring() {
         serviceScope.launch {
+            // synchronized(lock) {
             currJob?.cancelAndJoin()
-            currJob = serviceScope.launch {
+            currJob = launch {
                 while (true) {
                     monitorCredentials()
                     delay(10000)
                 }
             }
+//            }
         }
     }
 

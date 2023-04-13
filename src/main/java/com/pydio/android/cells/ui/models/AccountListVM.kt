@@ -9,8 +9,6 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.utils.BackOffTicker
-import com.pydio.android.cells.utils.currentTimestamp
-import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -103,7 +101,7 @@ class AccountListVM(
 
     private suspend fun doCheckAccounts() {
         // First we check if some token are about to expire
-        checkRegisteredAccounts()
+        // accountService.checkRegisteredAccounts()
         // Then we refresh the list
         val result = accountService.checkRegisteredAccounts()
         withContext(Dispatchers.Main) {
@@ -120,46 +118,6 @@ class AccountListVM(
                 backOffTicker.resetIndex()
             }
             setLoading(false)
-        }
-    }
-
-    private suspend fun checkRegisteredAccounts() = withContext(Dispatchers.IO) {
-        Log.e(logTag, "#################################################")
-        Log.e(logTag, "### checkRegisteredAccounts")
-
-        val sessions = accountService.listSessionViews(false)
-        sessionLoop@ for (session in sessions) {
-
-            val currID = session.getStateID()
-            try {
-
-                val tmpTransport = accountService.getTransport(currID, true)
-                if (tmpTransport == null) {
-                    Log.w(logTag, "Cannot check account $currID with no transport")
-                    continue@sessionLoop
-                } else if (tmpTransport.server.isLegacy) {
-                    Log.d(logTag, "skipping for $currID, legacy accounts have no token")
-                    continue@sessionLoop
-                }
-                val token = appCredentialService.get(currID.id)
-                if (token == null) {
-                    Log.w(logTag, "Cannot refresh session with no credentials for $currID")
-                    continue@sessionLoop
-                }
-                if (token.expirationTime > (currentTimestamp() + 120)) {
-                    continue@sessionLoop
-                }
-                // We need to require a refresh
-                try {
-                    appCredentialService.requestRefreshToken(currID)
-                } catch (e: SDKException) {
-                    Log.e(logTag, "Error while launching refresh process for $currID")
-                    Log.e(logTag, "Cause: #${e.code} - ${e.message}")
-                }
-            } catch (e: Exception) {
-                Log.e(logTag, "cannot check account $currID, ignoring.")
-                Log.e(logTag, "Cause: ${e.message}")
-            }
         }
     }
 
