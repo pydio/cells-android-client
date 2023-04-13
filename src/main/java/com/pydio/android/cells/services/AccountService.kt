@@ -13,6 +13,7 @@ import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.db.accounts.WorkspaceDao
 import com.pydio.android.cells.transfer.WorkspaceDiff
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.logException
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
@@ -25,6 +26,7 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
@@ -166,38 +168,64 @@ class AccountService(
         try {
             var changes = 0
             val accounts = accountDao.getAccounts()
-            for (account in accounts) {
-                if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+            for (rAccount in accounts) {
+                if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     continue
                 }
                 if (networkService.isConnected()) {
                     try {
-                        // TODO rather use an API health check and implement finer status check (unauthorized, expired...)
-                        // sessionFactory.getUnlockedClient(account.accountID)
-                        val currClient = sessionFactory.getUnlockedClient(account.account())
+                        val currClient = sessionFactory.getUnlockedClient(rAccount.accountID())
                         if (!currClient.stillAuthenticated()) {
-                            Log.e(logTag, "${account.accountID} is not connected anymore")
-                            account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                            doUpdateAccount(account)
-                            val updatedAccount = accountDao.getAccount(account.accountID)
-                            Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
-                            changes++
+                            if (!currClient.isLegacy) {
+                                // Finer check for cells, this also launch a refresh token request under the hood
+                                val transport =
+                                    sessionFactory.getTransport(rAccount.accountID()) as CellsTransport
+                                var currToken = transport.token
+                                val timeout = currentTimestamp() + 30
+                                while (currentTimestamp() < timeout && currToken.isExpired) {
+                                    delay(2000)
+                                    currToken = transport.token
+                                }
+
+                                if (currToken.isExpired) {
+                                    Log.e(
+                                        logTag,
+                                        "Timeout reached while waiting for refreshed token for ${rAccount.accountID()}"
+                                    )
+                                    Log.e(
+                                        logTag,
+                                        "   We should consider updating the corresponding session"
+                                    )
+                                    changes++
+                                }
+                            } else { // P8
+                                Log.e(
+                                    logTag,
+                                    "${rAccount.accountId} is not connected anymore, updating local repo"
+                                )
+                                rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                                doUpdateAccount(rAccount)
+                                changes++
+                            }
                         }
                     } catch (e: SDKException) {
-                        Log.e(logTag, "${account.accountID} is not connected: err #${e.code}")
-                        account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                        doUpdateAccount(account)
-                        val updatedAccount = accountDao.getAccount(account.accountID)
-                        Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
-//
-//                            Log.e(logTag, "Got an error #${e.code} for ${account.accountID}")
-//                            e.printStackTrace()
+                        Log.e(
+                            logTag,
+                            "${rAccount.accountId} is not connected: #${e.code} - ${e.message}"
+                        )
+                        if (e.isAuthorizationError) {
+                            // TODO double check do we really want to remove known credentials here
+                            rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                            doUpdateAccount(rAccount)
+                            val updatedAccount = accountDao.getAccount(rAccount.accountId)
+                            Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
+                        }
                         changes++
                     }
                 } else {
                     Log.w(
                         logTag, "No network connection, " +
-                                "cannot check auth status for ${account.account()}"
+                                "cannot check auth status for ${rAccount.accountID()}"
                     )
                 }
             }
@@ -226,7 +254,7 @@ class AccountService(
         }
         sessionDao.insert(session)
         treeNodeRepository.refreshSessionCache()
-        fileService.prepareTree(StateID.fromId(account.accountID))
+        fileService.prepareTree(StateID.fromId(account.accountId))
     }
 
     suspend fun forgetAccount(accountID: StateID): String? = withContext(ioDispatcher) {
@@ -325,19 +353,17 @@ class AccountService(
                 val changeNb = wsDiff.compareWithRemote()
                 return@withContext changeNb to null
             } catch (e: SDKException) {
-                val msg = "could not get workspace list for $accountID"
+                val msg = "Could not get workspace list for $accountID"
                 Log.e(logTag, msg)
-                e.printStackTrace()
+                // e.printStackTrace()
                 notifyError(accountID, msg, e)
                 return@withContext 0 to msg
             }
         }
 
-
     suspend fun notifyError(
         stateID: StateID, msg: String, se: SDKException
     ) = withContext(ioDispatcher) {
-
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
                 val msg2 = "Received error ${se.code} for $stateID, message: $msg, " +
@@ -361,7 +387,7 @@ class AccountService(
                 }
 
                 if (se.isAuthorizationError) {
-                    val transport = getTransport(stateID, false)
+                    val transport = getTransport(stateID, true)
                     if (transport != null && transport is CellsTransport) {
                         transport.token?.let {
                             if (it.refreshingSinceTs > 1000) {
@@ -373,7 +399,10 @@ class AccountService(
                         transport.requestTokenRefresh()
                         return@withContext
                     } else {
+                        // We should never land here an exception must have already been thrown
                         Log.e(logTag, "No transport, ignoring error")
+                        Log.e(logTag, "  but we should not be there, printing stack:")
+                        Thread.dumpStack()
                         return@withContext
                     }
                 }

@@ -1,25 +1,23 @@
-package com.pydio.android.cells.ui
+package com.pydio.android.cells.services
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.AppCredentialService
-import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -33,18 +31,23 @@ import java.util.UUID
 /**
  * Hold the session that is currently in foreground for browsing the cache and the remote server.
  */
-class ConnectionVM(
+class ConnectionService(
+    ioDispatcher: CoroutineDispatcher,
     networkService: NetworkService,
     private val accountService: AccountService,
     private val appCredentialService: AppCredentialService,
-) : ViewModel() {
+) {
 
     enum class SessionStatus {
         NO_INTERNET, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
     }
 
     private val id: String = UUID.randomUUID().toString()
-    private val logTag = "ConnectionVM[${id.substring(24)}]"
+    private val logTag = "ConnectionService[${id.substring(24)}]"
+
+    private val connectionServiceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(ioDispatcher + connectionServiceJob)
+
 
     private val liveNetwork = networkService.networkType
 
@@ -129,16 +132,12 @@ class ConnectionVM(
         .flowOn(Dispatchers.Default)
         .conflate()
 
-    init {
-        Log.e(logTag, " ### Initialised")
-    }
-
     private var currJob: Job? = null
 
     fun relaunchMonitoring() {
-        viewModelScope.launch {
+        serviceScope.launch {
             currJob?.cancelAndJoin()
-            currJob = viewModelScope.launch {
+            currJob = serviceScope.launch {
                 while (true) {
                     monitorCredentials()
                     delay(10000)
@@ -148,7 +147,7 @@ class ConnectionVM(
     }
 
     fun pauseMonitoring() {
-        viewModelScope.launch {
+        serviceScope.launch {
             currJob?.cancelAndJoin()
         }
         // TODO we should also pause the other LiveData and flows 
@@ -197,12 +196,12 @@ class ConnectionVM(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.e(logTag, "### Connection VM cleared!")
-    }
+//    override fun onCleared() {
+//        super.onCleared()
+//        Log.e(logTag, "### Connection VM cleared!")
+//    }
 
     init {
-        Log.e(logTag, "### Connection VM initialised")
+        Log.e(logTag, "### ConnectionService initialised")
     }
 }

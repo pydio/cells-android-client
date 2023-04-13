@@ -92,16 +92,13 @@ class AppCredentialService(
 
             if (token.refreshingSinceTs > 0) {
                 // TODO handle a timeout
-                Log.e(
-                    logTag,
-                    "Token for $stateID is already refreshing ignoring<> has just been refreshed, ignoring"
-                )
+                Log.e(logTag, "Token for $stateID is already refreshing ignoring")
                 return@withContext
             }
 
             if (token.expirationTime > currentTimestamp() + token.expiresIn / 2) {
                 // It has been refreshed recently, ignoring
-                Log.e(logTag, "Token for $stateID has just been refreshed, ignoring")
+                Log.d(logTag, "Token for $stateID has just been refreshed, ignoring")
                 return@withContext
             }
 
@@ -171,11 +168,15 @@ class AppCredentialService(
                     "Refresh token process returned null for $stateID"
                 )
 
+            // Token has been refreshed Store and return
             synchronized(lock) {
-                // Token has been refreshed
-                // Store and return
                 put(stateID.id, newToken)
             }
+            accountDao.getAccount(stateID.accountId)?.let {
+                it.authStatus = AppNames.AUTH_STATUS_CONNECTED
+                accountDao.update(it)
+            }
+            Log.i(logTag, "Refresh token process done for $stateID")
         } catch (re: RemoteIOException) {
             Log.e(logTag, "Could not refresh for $stateID. Still keeping old credentials")
             Log.e(logTag, "  Cause: remoteIOException: ${re.message}")
@@ -194,14 +195,10 @@ class AppCredentialService(
     }
 
     private fun logout(stateID: StateID, cause: String) {
-        Log.e(logTag, "#######################")
+        Log.e(logTag, "########################################")
         Log.e(logTag, "### Refresh token expired for $stateID")
         Log.e(logTag, "  Cause: $cause")
         Log.e(logTag, "  !! Removing stored credentials !! ")
-
-        // Log.e(logTag, "refresh_token_expired for $state")
-        // Log.d(logTag, "Printing stack trace to understand where we come from:")
-        // Log.e(logTag, "... and deleting credentials")
         synchronized(lock) {
             remove(stateID.id)
         }
@@ -210,5 +207,4 @@ class AppCredentialService(
             accountDao.update(it)
         }
     }
-
 }

@@ -12,6 +12,7 @@ import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
@@ -25,7 +26,6 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.ui.ActiveSessionViewModel
-import com.pydio.android.cells.ui.ConnectionVM
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
@@ -228,6 +228,13 @@ val serviceModule = module {
         )
     }
 
+    single {
+        ConnectionService(
+            get(named("IODispatcher")),
+            get(), get(), get()
+        )
+    }
+
     worker { (workerParams: WorkerParameters) ->
         OfflineSync(
             appContext = get(),
@@ -245,7 +252,6 @@ val viewModelModule = module {
     viewModelOf(::AccountListVM)
 
 //     viewModel { ConnectionVM(get(), get()) }
-    viewModelOf(::ConnectionVM)
     viewModelOf(::NodeActionsVM)
 
     viewModelOf(::TreeNodeVM)

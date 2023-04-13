@@ -22,7 +22,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.ConnectionVM
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -35,14 +35,14 @@ private enum class Status {
 @Composable
 fun WithInternetBanner(
     contentPadding: PaddingValues,
-    connectionVM: ConnectionVM, // = koinViewModel(),
+    connectionService: ConnectionService, // = koinViewModel(),
     navigateTo: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
 //    val network = connectionVM.liveNetwork.observeAsState()
 //    val sessionStatus = connectionVM.sessionStatus.observeAsState()
-    val sessionStatus = connectionVM.sessionStatusFlow
-        .collectAsState(initial = ConnectionVM.SessionStatus.OK)
+    val sessionStatus = connectionService.sessionStatusFlow
+        .collectAsState(initial = ConnectionService.SessionStatus.OK)
 
     // TODO add Snackbar host
     // TODO add bottom sheet
@@ -52,28 +52,28 @@ fun WithInternetBanner(
             .fillMaxSize()
             .padding(contentPadding)
     ) {
-        if (ConnectionVM.SessionStatus.OK != sessionStatus.value) {
+        if (ConnectionService.SessionStatus.OK != sessionStatus.value) {
             when (sessionStatus.value) {
-                ConnectionVM.SessionStatus.NO_INTERNET
+                ConnectionService.SessionStatus.NO_INTERNET
                 -> ConnectionStatus(
                     icon = CellsIcons.NoInternet,
                     desc = stringResource(R.string.no_internet)
 
                 )
-                ConnectionVM.SessionStatus.METERED,
-                ConnectionVM.SessionStatus.ROAMING
+                ConnectionService.SessionStatus.METERED,
+                ConnectionService.SessionStatus.ROAMING
                 -> ConnectionStatus(
                     icon = CellsIcons.Metered,
                     desc = stringResource(R.string.metered_connection),
                     type = Status.WARNING
                 )
-                ConnectionVM.SessionStatus.CAN_RELOG
+                ConnectionService.SessionStatus.CAN_RELOG
                 -> CredExpiredStatus(
                     icon = CellsIcons.NoValidCredentials,
                     desc = stringResource(R.string.auth_err_expired),
                     type = Status.WARNING,
                     onClick = {
-                        connectionVM.sessionView.value?.let {
+                        connectionService.sessionView.value?.let {
                             val route = if (it.isLegacy) {
                                 LoginDestinations.P8Credentials.createRoute(
                                     it.getStateID(),

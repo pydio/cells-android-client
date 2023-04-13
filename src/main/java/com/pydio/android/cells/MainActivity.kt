@@ -15,7 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.pydio.android.cells.ui.ConnectionVM
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
@@ -27,6 +27,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
     private val logTag = "MainActivity"
 
-    private val connectionVM by viewModel<ConnectionVM>()
+    private val connectionService: ConnectionService by inject()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,19 +52,17 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         // First check if we need a migration
-        val landActivity = this
+        val mainActivity = this
         lifecycleScope.launch {
 
             val landingVM by viewModel<LandingVM>()
             val noMigrationNeeded = landingVM.noMigrationNeeded()
             if (!noMigrationNeeded) { // forward to migration page
-                val intent = Intent(landActivity, MigrateActivity::class.java)
+                val intent = Intent(mainActivity, MigrateActivity::class.java)
                 startActivity(intent)
-                landActivity.finish()
+                mainActivity.finish()
                 return@launch
             }
-
-            connectionVM.relaunchMonitoring()
 
             val startingState = try {
                 handleIntent(savedInstanceState, landingVM)
@@ -72,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 if (e.code == ErrorCodes.unexpected_content) {
                     // We should never have received this
                     Log.e(logTag, "Received a launch activity with un-valid state, aborting....")
-                    landActivity.finish()
+                    mainActivity.finishAndRemoveTask()
                     return@launch
                 } else {
                     Log.e(logTag, "Could not handle intent, aborting....")
@@ -96,7 +95,7 @@ class MainActivity : ComponentActivity() {
             WindowCompat.setDecorFitsSystemWindows(window, true)
 
             setContent {
-                val widthSizeClass = calculateWindowSizeClass(landActivity).widthSizeClass
+                val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
                 val intentHasBeenProcessed = rememberSaveable {
                     mutableStateOf(false) // startingState == null)
                 }
@@ -114,10 +113,9 @@ class MainActivity : ComponentActivity() {
                 }
 
                 MainApp(
-                    connectionVM = connectionVM,
                     startingState = if (intentHasBeenProcessed.value) null else startingState,
                     startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                    launchIntent = landActivity::launchIntent,
+                    launchIntent = mainActivity::launchIntent,
                     launchTaskFor = launchTaskFor,
                     widthSizeClass = widthSizeClass,
                 )
@@ -127,12 +125,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        connectionVM.pauseMonitoring()
+        connectionService.pauseMonitoring()
         super.onPause()
     }
 
     override fun onResume() {
-        connectionVM.relaunchMonitoring()
+        connectionService.relaunchMonitoring()
         super.onResume()
     }
 
@@ -178,13 +176,15 @@ class MainActivity : ComponentActivity() {
                 Thread.dumpStack()
             }
             // TO BE REFINED we assume we have no starting state in such case
+            Log.e(logTag, "#############################")
+            Log.e(logTag, "No Intent and no bundle")
+            Thread.dumpStack()
+            Log.e(logTag, "#############################")
+
+            // TODO find how we can land here and fix.
             val state = StartingState(StateID.NONE)
             state.route = CellsDestinations.Accounts.route
             return state
-//            Log.e(logTag, "No Intent, we rely on the saved bundle: $savedInstanceState")
-//            val encodedState = savedInstanceState?.getString(AppKeys.EXTRA_STATE)
-//            val initialStateID = StateID.fromId(encodedState ?: Transport.UNDEFINED_STATE)
-//            return StartingState(initialStateID)
         }
 
         // Intent is not null
@@ -204,7 +204,8 @@ class MainActivity : ComponentActivity() {
                 val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                 val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
                 if (code != null && state != null) {
-                    if (!landingVM.isAuthStateValid(state)) {
+                    val (isValid, targetStateID) = landingVM.isAuthStateValid(state)
+                    if (!isValid) {
                         throw SDKException(
                             ErrorCodes.unexpected_content,
                             "Passed state is wrong or already consumed"
@@ -213,6 +214,7 @@ class MainActivity : ComponentActivity() {
                     startingState.route = LoginDestinations.ProcessAuth.route
                     startingState.code = code
                     startingState.state = state
+                    startingState.stateID = targetStateID
                 } else {
                     Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
                     if (intent.extras != null) {

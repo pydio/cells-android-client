@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -34,6 +35,7 @@ import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 private const val logTag = "NavHostWithDrawer"
 
@@ -45,7 +47,7 @@ fun NavHostWithDrawer(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
-    connectionVM: ConnectionVM,
+    connectionService: ConnectionService = koinInject(),
 ) {
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
@@ -70,7 +72,7 @@ fun NavHostWithDrawer(
         navHostController.navigate(route)
     }
 
-    val customColor = connectionVM.customColor.observeAsState(null)
+    val customColor = connectionService.customColor.observeAsState(null)
 
     UseCellsTheme(
         customColor = customColor.value
@@ -81,7 +83,7 @@ fun NavHostWithDrawer(
                     currRoute = navBackStackEntry?.destination?.route,
                     currSelectedID = lazyStateID(navBackStackEntry),
                     closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
-                    connectionVM = connectionVM,
+                    connectionService = connectionService,
                     cellsNavActions = cellsNavActions,
                     systemNavActions = systemNavActions,
                     browseNavActions = browseNavActions,
@@ -96,14 +98,14 @@ fun NavHostWithDrawer(
                     AppPermanentDrawer(
                         currRoute = navBackStackEntry?.destination?.route,
                         currSelectedID = lazyStateID(navBackStackEntry),
-                        connectionVM = connectionVM,
+                        connectionService = connectionService,
                         cellsNavActions = cellsNavActions,
                         systemNavActions = systemNavActions,
                         browseNavActions = browseNavActions,
                     )
                 }
                 WithInternetBanner(
-                    connectionVM = connectionVM,
+                    connectionService = connectionService,
                     navigateTo = navigateTo,
                     contentPadding = rememberContentPaddingForScreen(
                         // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,

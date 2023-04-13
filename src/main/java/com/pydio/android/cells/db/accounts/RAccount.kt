@@ -16,7 +16,7 @@ import java.util.*
 data class RAccount(
 
     @PrimaryKey
-    @ColumnInfo(name = "account_id") val accountID: String,
+    @ColumnInfo(name = "account_id") val accountId: String,
 
     @ColumnInfo(name = "url") val url: String,
 
@@ -54,7 +54,7 @@ data class RAccount(
             }
 
             return RAccount(
-                accountID = StateID(username, server.url()).accountId,
+                accountId = StateID(username, server.url()).accountId,
                 username = username,
                 url = server.url(),
                 tlsMode = if (server.serverURL.skipVerify()) 1 else 0,
@@ -65,7 +65,7 @@ data class RAccount(
         }
     }
 
-    fun account(): StateID = StateID.fromId(accountID)
+    fun accountID(): StateID = StateID.fromId(accountId)
 
     fun skipVerify() = tlsMode != 0
 

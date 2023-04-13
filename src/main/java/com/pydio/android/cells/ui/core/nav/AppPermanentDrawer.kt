@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.ConnectionVM
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.MenuTitleText
@@ -54,16 +54,16 @@ fun AppPermanentDrawer(
     currRoute: String?,
     currSelectedID: StateID?,
     prefReadOnlyVM: PrefReadOnlyVM = koinViewModel(),
-    connectionVM: ConnectionVM,
+    connectionService: ConnectionService,
     cellsNavActions: CellsNavigationActions,
     systemNavActions: SystemNavigationActions,
     browseNavActions: BrowseNavigationActions
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    val accountID = connectionVM.currAccountID.observeAsState()
-    val wss = connectionVM.wss.observeAsState()
-    val cells = connectionVM.cells.observeAsState()
+    val accountID = connectionService.currAccountID.observeAsState()
+    val wss = connectionService.wss.observeAsState()
+    val cells = connectionService.cells.observeAsState()
 
     val defaultPadding = PaddingValues(horizontal = dimensionResource(R.dimen.horizontal_padding))
     val defaultModifier = Modifier.padding(defaultPadding)

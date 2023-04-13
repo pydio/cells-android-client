@@ -39,7 +39,7 @@ data class RSession(
             }
 
             return RSession(
-                accountID = account.accountID,
+                accountID = account.accountId,
                 lifecycleState = AppNames.SESSION_STATE_NEW,
                 dirName = cleanUrl,
                 dbName = cleanDbName,

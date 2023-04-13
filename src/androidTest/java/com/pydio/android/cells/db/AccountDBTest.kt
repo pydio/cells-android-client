@@ -71,7 +71,7 @@ class AccountDBTest {
         props.setProperty(RAccount.KEY_WELCOME_MESSAGE, "A dummy server to test")
 
         return RAccount(
-            accountID = StateID(username, url).accountId,
+            accountId = StateID(username, url).accountId,
             username = username,
             url = url,
             tlsMode = if (skipVerify) 1 else 0,

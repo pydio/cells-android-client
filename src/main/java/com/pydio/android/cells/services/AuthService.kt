@@ -90,10 +90,11 @@ class AuthService(
             }
         }
 
-    suspend fun isAuthStateValid(authState: String): Boolean =
+    suspend fun isAuthStateValid(authState: String): Pair<Boolean, StateID> =
         withContext(ioDispatcher) {
             val rState = authStateDao.get(authState)
-            return@withContext rState != null
+                ?: return@withContext false to StateID.NONE
+            return@withContext true to StateID(rState.serverURL.id)
         }
 
 

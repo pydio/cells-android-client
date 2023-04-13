@@ -5,13 +5,11 @@ import android.net.Uri
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import com.pydio.cells.transport.StateID
-import org.koin.androidx.compose.koinViewModel
 
 // private const val logTag = "MainApp"
 
 @Composable
 fun MainApp(
-    connectionVM: ConnectionVM,
     startingState: StartingState?,
     startingStateHasBeenProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
@@ -24,11 +22,10 @@ fun MainApp(
         launchIntent = launchIntent,
         launchTaskFor = launchTaskFor,
         widthSizeClass = widthSizeClass,
-        connectionVM = connectionVM
     )
 }
 
-class StartingState(val stateID: StateID) {
+class StartingState(var stateID: StateID) {
 
 //    enum class Key {
 //        STATE_ID, ROUTE, CODE, STATE, URIS

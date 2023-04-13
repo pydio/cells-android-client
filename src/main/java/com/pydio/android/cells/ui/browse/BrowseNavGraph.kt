@@ -68,7 +68,7 @@ fun NavGraphBuilder.browseNavGraph(
                 var i = 0
                 navController.backQueue.forEach {
                     val currID = lazyStateID(it)
-                    Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
+                    Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
                 }
 
                 val accountHomeVM: AccountHomeVM =
@@ -92,15 +92,12 @@ fun NavGraphBuilder.browseNavGraph(
         }
 
         DisposableEffect(key1 = stateID) {
-            Log.d(logTag, "... Launching DisposableEffect for $stateID")
             if (stateID == StateID.NONE) {
                 browseRemoteVM.pause()
             } else {
                 browseRemoteVM.watch(stateID, false)
             }
             onDispose {
-//                Log.e(logTag, "  ... ####################")
-//                Log.e(logTag, "  ... On dispose called for  $stateID")
                 browseRemoteVM.pause()
             }
         }
