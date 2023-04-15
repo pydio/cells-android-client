@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.browse.menus
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,10 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
@@ -40,7 +37,7 @@ fun RecycleParentMenu(
         BottomSheetHeader(
             thumb = { Thumbnail(rTreeNode) },
             title = stringResource(id = R.string.recycle_bin_label),
-            desc = stateID.parentPath,
+            desc = stateID.parentPath ?: "",
         )
 
         BottomSheetListItem(

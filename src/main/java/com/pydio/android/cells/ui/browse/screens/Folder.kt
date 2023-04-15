@@ -168,13 +168,16 @@ fun Folder(
                 folderVM.setListLayout(ListLayout.GRID)
                 actionDone(true)
             }
+
             is NodeAction.AsList -> {
                 folderVM.setListLayout(ListLayout.LIST)
                 actionDone(true)
             }
+
             is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
                 actionDone(true)
             }
+
             else -> {
                 Log.e(logTag, "Unknown action $action for $currID")
                 actionDone(false)
@@ -333,12 +336,11 @@ private fun FolderList(
     forceRefresh: () -> Unit,
     padding: PaddingValues,
 ) {
-
     // WARNING: pullRefresh API is:
     //   - experimental
     //   - only implemented in material "1" for the time being.
     val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.i(logTag, "Force refresh launched")
+        Log.d(logTag, "Force refresh launched")
         forceRefresh()
     })
 
@@ -369,7 +371,6 @@ private fun FolderList(
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         contentPadding = listPadding,
-                        // modifier = Modifier.fillMaxWidth()
                     ) {
 
                         if (Str.notEmpty(stateID.path)) {
@@ -421,8 +422,8 @@ private fun FolderList(
                         }
                     }
                 }
+
                 else -> {
-//                    val width = LocalConfiguration.current.run { screenWidthDp.dp }
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
                         modifier = Modifier.fillMaxWidth()

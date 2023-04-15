@@ -38,14 +38,12 @@ fun NodeMoreMenuData(
     toOpenStateID: StateID,
     launch: (NodeAction) -> Unit,
 ) {
-
     val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(toOpenStateID) })
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 
     LaunchedEffect(key1 = toOpenStateID) {
         if (toOpenStateID != StateID.NONE) {
-
             moreMenuVM.getTreeNode(toOpenStateID)?.let { currNode ->
                 item.value = currNode
             } ?: { Log.e(logTag, "No node found for $toOpenStateID, aborting") }
@@ -66,36 +64,43 @@ fun NodeMoreMenuData(
                     rTreeNode = myItem,
                     launch = launch,
                 )
+
                 myItem.isInRecycle() -> RecycleMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
                 )
+
                 type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     rWorkspace = workspace.value,
                     launch = launch,
                 )
+
                 type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
                 )
+
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
                 )
+
                 type == NodeMoreMenuType.SEARCH -> SearchMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = { launch(it) },
                 )
+
                 type == NodeMoreMenuType.SORT_BY -> SortByMenu(
                     type = ListType.DEFAULT,
                     done = { launch(NodeAction.SortBy) },
                 )
+
                 type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
                         stateID = toOpenStateID,
@@ -103,6 +108,7 @@ fun NodeMoreMenuData(
                         rWorkspace = workspace.value,
                         launch = launch,
                     )
+
                 else -> Spacer(modifier = Modifier.height(1.dp))
             }
         }

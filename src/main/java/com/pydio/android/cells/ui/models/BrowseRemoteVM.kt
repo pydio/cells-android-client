@@ -32,8 +32,6 @@ class BrowseRemoteVM(
 
     private val logTag = "BrowseRemoteVM"
 
-    //    private val viewModelJob = Job()
-//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private val backOffTicker = BackOffTicker()
     private var currWatcher: Job? = null
 
@@ -62,9 +60,10 @@ class BrowseRemoteVM(
         get() = _errorMessage
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
-        Log.i(logTag, "Watching $newStateID")
+        Log.i(logTag, "Watching $newStateID ${if (isForceRefresh) "(Force refresh)" else ""}")
         _loadingState.value = if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
         currWatcher?.cancel()
+        _isActive = false
         _stateID.value = newStateID
         resume()
     }
@@ -111,7 +110,6 @@ class BrowseRemoteVM(
             }
         }
 
-        delay(200) // Add a small delay. Otherwise the UI sometimes misses the loading state update
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(result.second)) {
                 _errorMessage.value = result.second

@@ -222,13 +222,14 @@ fun TroubleshootingSection(
         { onShowRuntimeToolsClick(!showRuntimeTools) },
         modifier,
     )
-    if (showRuntimeTools) {
-        SwitchSetting(
-            stringResource(R.string.pref_troubleshooting_disable_poll_title),
-            stringResource(R.string.pref_troubleshooting_disable_poll_desc),
-            disablePoll,
-            { onDisablePollClick(!disablePoll) },
-            modifier,
-        )
-    }
+    // TODO re-enable this when ready
+//    if (showRuntimeTools) {
+//        SwitchSetting(
+//            stringResource(R.string.pref_troubleshooting_disable_poll_title),
+//            stringResource(R.string.pref_troubleshooting_disable_poll_desc),
+//            disablePoll,
+//            { onDisablePollClick(!disablePoll) },
+//            modifier,
+//        )
+//    }
 }
