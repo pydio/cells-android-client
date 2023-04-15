@@ -236,11 +236,6 @@ class AccountService(
 
                     // Finer check for cells, this also launch a refresh token request under the hood
                     val transport = getTransport(rAccount.accountID(), true) as CellsTransport
-//                   Useless an error is thrown
-//                    if (transport == null) {
-//                        Log.e(logTag, "Cannot check account $currID with no transport")
-//                        return false
-//                    }
 
                     var currToken = transport.token
                     if (currToken == null) {
@@ -250,7 +245,10 @@ class AccountService(
                     val timeout = currentTimestamp() + 30
                     while (currentTimestamp() < timeout && (currToken?.isExpired == true)) {
                         delay(2000)
-                        currToken = transport.token
+                        currToken = transport.token ?: run {
+                            Log.e(logTag, "Token for $currID has disappeared")
+                            return true
+                        }
                     }
 
                     if (currToken.isExpired) {
