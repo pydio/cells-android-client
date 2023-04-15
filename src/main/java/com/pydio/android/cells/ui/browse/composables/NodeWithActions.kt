@@ -221,6 +221,7 @@ private fun FolderWithDialogs(
     NavHost(navController, FOLDER_MAIN_CONTENT) {
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
+            Log.e(logTag, ".... Navigating to main content for $toOpenStateID}")
             CellsModalBottomSheetLayout(
                 sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
                 sheetState = sheetState,
