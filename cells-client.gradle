@@ -114,7 +114,7 @@ dependencies {
 
     implementation "androidx.palette:palette-ktx:1.0.0"
     // override default platform version 
-    implementation "androidx.compose.material3:material3:1.1.0-beta01"
+    implementation "androidx.compose.material3:material3:1.1.0-beta02"
 
     // Tmp addition
     implementation "androidx.datastore:datastore-preferences:1.0.0"
