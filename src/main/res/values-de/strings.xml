@@ -4,10 +4,10 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Bestätigen</string>
-    <string name="button_next">Next</string>
-    <string name="button_back">Back</string>
-    <string name="button_done_and_exit">Upload done. Exit</string>
-    <string name="button_run_in_background">Run in background</string>
+    <string name="button_next">Weiter</string>
+    <string name="button_back">Zurück</string>
+    <string name="button_done_and_exit">Hochladen abgeschlossen. Beenden</string>
+    <string name="button_run_in_background">Im Hintergrund laufen lassen</string>
     <string name="button_cancel">Abbrechen</string>
     <string name="button_switch_to_grid_layout">Als Raster anzeigen</string>
     <string name="button_switch_to_list_layout">Als Liste anzeigen</string>
@@ -33,7 +33,7 @@
     <string name="action_settings">Einstellungen</string>
     <string name="action_clear_cache">Cache löschen</string>
     <!-- Main Menu (left drawer) -->
-    <string name="open_drawer">Open menu drawer</string>
+    <string name="open_drawer">Menü-Übersicht öffnen</string>
     <!-- Section titles -->
     <string name="my_workspaces">Meine Arbeitsumgebungen</string>
     <string name="quick_access">Schnellzugriff</string>
@@ -69,12 +69,12 @@
     <string name="invalid_tls_certificate">Ungültiges Zertifikat</string>
     <string name="confirm_skip_verify_title">Ungültiges Zertifikat</string>
     <string name="confirm_skip_verify_desc">Wenn Sie wissen, was Sie tun, können Sie den Schritt der TLS-Zertifikatsüberprüfung überspringen</string>
-    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
-    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
+    <string name="confirm_skip_verify_accept">Die Risiken akzeptieren und weitermachen</string>
+    <string name="confirm_skip_verify_cancel">Zurück (empfohlen)</string>
     <string name="button_i_understand_the_risks">Okay, ich verstehe die Risiken</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Bitte geben Sie Ihre Zugangsdaten ein</string>
-    <string name="oauth_code_flow_title">Processing</string>
+    <string name="oauth_code_flow_title">In Bearbeitung</string>
     <string name="oauth_code_flow_desc">Verarbeitung, bitte haben Sie Geduld.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Keine Verbindung</string>
@@ -142,10 +142,10 @@
     <string name="job_sort_by_creation_ts_desc_label">Erstellung (neueste zuerst)</string>
     <string name="job_sort_by_creation_ts_asc_label">Erstellung (älteste zuerst)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Application logs</string>
+    <string name="log_list_title">Anwendungs Logs</string>
     <!-- Transfer Management -->
-    <string name="upload_screen_pending_title">Uploading…</string>
-    <string name="upload_screen_done_title">Upload terminated</string>
+    <string name="upload_screen_pending_title">Hochladen…</string>
+    <string name="upload_screen_done_title">Hochladen erfolgreich beendet</string>
     <string name="transfer_list_title">Aktuelle Übertragungen</string>
     <string name="choose_target_for_share_title">Teilen mit…</string>
     <string name="choose_target_for_copy_title">Kopieren nach…</string>
@@ -159,10 +159,10 @@
     <string name="relaunch_transfer">Transfer erneut starten</string>
     <!-- System -->
     <!-- Jobs -->
-    <string name="clear_terminated">Clear terminated</string>
+    <string name="clear_terminated">Abgeschlossene Aufgaben löschen</string>
     <string name="delete_record">Datensatz löschen</string>
     <!-- Logs -->
-    <string name="clear_all_logs">Clear application logs</string>
+    <string name="clear_all_logs">Anwendungslogs löschen</string>
     <!-- Migration-->
     <string name="migration_message">Migrieren der alten Daten, bitte warten…</string>
     <string name="post_migration_title">Erfolgreich zur neuesten Version aktualisiert!</string>
@@ -182,14 +182,14 @@
     <string name="public_link">Öffentlicher Link</string>
     <string name="public_link_content_desc">Einen öffentlichen Link für dieses Element erstellen oder löschen</string>
     <string name="keep_offline">Offline halten</string>
-    <string name="remove_from_offline">Remove from offline</string>
-    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="remove_from_offline">Aus der Offline-Liste entfernen</string>
+    <string name="remove_bookmark">Favorit entfernen</string>
     <string name="keep_offline_content_desc">Dieses Element offline halten</string>
     <string name="bookmark">Lesezeichen</string>
     <string name="bookmark_element_content_desc">Als Lesezeichen speichern</string>
     <string name="delete">Löschen</string>
-    <string name="pause">Pause</string>
-    <string name="relaunch">Relaunch</string>
+    <string name="pause">Pausieren</string>
+    <string name="relaunch">Neu starten</string>
     <string name="empty_recycle">Papierkorb leeren</string>
     <string name="restore_content">Wiederherstellen</string>
     <string name="permanently_remove">Endgültig entfernen</string>
@@ -216,7 +216,7 @@
     <string name="content_description_media">Vorschau des Inhalts</string>
     <string name="dialog_create_folder_title">Ordner erstellen</string>
     <string name="dialog_create_folder_positive_btn">Erstellen</string>
-    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
+    <string name="dialog_create_folder_support_text">Bitte geben Sie einen Namen für den neuen Ordner ein</string>
     <string name="confirm_move_to_recycle_title">Löschen bestätigen</string>
     <string name="confirm_move_to_recycle_desc">%s wird in den Papierkorb verschoben</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -232,7 +232,7 @@
     <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
     <string name="display_as_qrcode_dialog_title">Direktlink</string>
     <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
-    <string name="running_download_title">Downloading...</string>
+    <string name="running_download_title">Wird heruntergeladen...</string>
     <string name="confirm_download_title">Herunterladen bestätigen</string>
     <string name="confirm_download_desc">Diese Datei ist groß (%s) und Sie sind in einem gemessenen Netzwerk. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <!-- Settings -->
@@ -260,10 +260,10 @@
     <string name="pref_feedback_send_title">Feedback senden</string>
     <string name="pref_feedback_send_desc">Technische Probleme melden oder neue Funktionen vorschlagen</string>
     <string name="pref_category_title_troubleshooting">Fehlerbehebung</string>
-    <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
-    <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
-    <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
-    <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
+    <string name="pref_troubleshooting_show_list_title">Erweiterte Tools anzeigen</string>
+    <string name="pref_troubleshooting_show_list_desc">Gibt Zugriff auf weitere Insider-Informationen, um unerwartete Verhaltensweisen zu beheben</string>
+    <string name="pref_troubleshooting_disable_poll_title">Job deaktivieren</string>
+    <string name="pref_troubleshooting_disable_poll_desc">Schaltet die automatische Abfrage des Servers während des Browsens aus. Dies sollte mit Bedacht eingesetzt werden: z. B. müssen Sie dann eine Seite explizit aktualisieren, um einen neuen Ordner nach der Erstellung zu sehen</string>
     <string name="pref_choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
     <string name="pref_choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
     <!-- Accessibility various content -->
@@ -275,7 +275,7 @@
     <string name="thumb_description">Inhaltsvorschau</string>
     <string name="folder_icon_description">Ordnericon</string>
     <string name="empty_content_icon_description">Leeres Listensymbol</string>
-    <string name="choose_account">Choose an account</string>
+    <string name="choose_account">Konto auswählen</string>
     <string name="switch_account">Konto wechseln</string>
     <string name="switch_workspace">Arbeitsumgebung wechseln</string>
     <string name="parent_folder">Übergeordneter Ordner</string>
