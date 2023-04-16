@@ -20,7 +20,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -37,8 +36,7 @@ class AppCredentialService(
     private val networkService: NetworkService,
     private val accountDao: AccountDao,
     private val sessionViewDao: SessionViewDao,
-
-    ) : CredentialService(tokenStore, passwordStore), KoinComponent {
+) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
     private val logTag = "AppCredentialService"
 
@@ -55,10 +53,13 @@ class AppCredentialService(
         serviceScope.launch {
             try {
                 withContext(ioDispatcher) {
-                    while (this.coroutineContext.isActive) {
-                        safelyRefreshToken(requestRefreshChannel.receive())
+                    while (true) {
+//                        while (this.coroutineContext.isActive) {
+                        val currID = requestRefreshChannel.receive()
+                        Log.e(logTag, "Received refresh token request for $currID")
+                        safelyRefreshToken(currID)
                     }
-                    Log.e(logTag, "refresh channel has been cancelled")
+                    // Log.e(logTag, "refresh channel has been cancelled")
                 }
             } catch (e: Exception) {
                 Log.e(logTag, "Credential request channel consumer has failed with ${e.message}")
@@ -75,6 +76,7 @@ class AppCredentialService(
      */
     override fun requestRefreshToken(stateID: StateID) {
         serviceScope.launch {
+            Log.d(logTag, "Sending refresh token request for $stateID")
             requestRefreshChannel.send(stateID)
         }
     }

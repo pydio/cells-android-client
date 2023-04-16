@@ -5,13 +5,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,7 +21,6 @@ import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
-import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.utils.showMessage
@@ -156,44 +153,54 @@ private fun FolderWithDialogs(
                     "${NodeAction.SelectTargetFolder.id}/${toOpenStateID.parent().id}"
                 navController.navigate(initialRoute)
             }
+
             is NodeAction.MoveTo -> {
                 currentAction.value = AppNames.ACTION_MOVE
                 val initialRoute =
                     "${NodeAction.SelectTargetFolder.id}/${toOpenStateID.parent().id}"
                 navController.navigate(initialRoute)
             }
+
             is NodeAction.ToggleOffline -> {
                 nodeActionsVM.toggleOffline(toOpenStateID, it.isChecked)
                 delayedDone(true)
             }
+
             is NodeAction.ToggleBookmark -> {
                 nodeActionsVM.toggleBookmark(toOpenStateID, it.isChecked)
                 delayedDone(true)
             }
+
             is NodeAction.CreateShare -> {
                 nodeActionsVM.createShare(toOpenStateID)
                 copyLinkToClipboard()
                 delayedDone(true)
             }
+
             is NodeAction.ShareWith -> {
                 nodeActionsVM.createShare(toOpenStateID)
                 actionDone(true)
             }
+
             is NodeAction.CopyToClipboard -> {
                 copyLinkToClipboard()
                 actionDone(true)
             }
+
             is NodeAction.RemoveLink -> {
                 nodeActionsVM.removeShare(toOpenStateID)
                 actionDone(true)
             }
+
             is NodeAction.RestoreFromTrash -> {
                 nodeActionsVM.restoreFromTrash(toOpenStateID)
                 actionDone(true)
             }
+
             is NodeAction.SortBy -> {
                 actionDone(true)
             }
+
             else -> navController.navigate("${it.id}/${toOpenStateID.id}")
         }
     }
@@ -207,6 +214,7 @@ private fun FolderWithDialogs(
                     AppNames.ACTION_MOVE -> {
                         nodeActionsVM.moveTo(toOpenStateID, targetStateID)
                     }
+
                     AppNames.ACTION_COPY -> {
                         nodeActionsVM.copyTo(toOpenStateID, targetStateID)
                     }
@@ -221,7 +229,7 @@ private fun FolderWithDialogs(
     NavHost(navController, FOLDER_MAIN_CONTENT) {
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
-            Log.e(logTag, ".... Navigating to main content for $toOpenStateID}")
+            Log.e(logTag, "... Navigating to main content for $toOpenStateID")
             CellsModalBottomSheetLayout(
                 sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
                 sheetState = sheetState,
@@ -273,48 +281,63 @@ private fun FolderWithDialogs(
         }
 
         dialog(route(NodeAction.ShowQRCode)) { entry ->
-            val stateId = entry.arguments?.getString(STATE_ID_KEY)
-                ?: run { Log.e(logTag, "... ShowQRCode with no ID "); return@dialog }
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "... ShowQRCode with no ID ")
+                return@dialog
+            }
             ShowQRCode(
                 nodeActionsVM,
-                stateID = StateID.fromId(stateId),
+                stateID = currID,
                 dismiss = { closeDialog(true) }
             )
         }
 
-        dialog(route(NodeAction.Delete)) { navBackStackEntry ->
-            val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
-                ?: run { Log.e(logTag, "... Delete with no ID "); return@dialog }
+        dialog(route(NodeAction.Delete)) { entry ->
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "... Delete with no ID ")
+                return@dialog
+            }
             ConfirmDeletion(
                 nodeActionsVM,
-                StateID.fromId(stateId)
+                currID
             ) { closeDialog(it) }
         }
 
-        dialog(route(NodeAction.PermanentlyRemove)) { navBackStackEntry ->
-            val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
-                ?: run { Log.w(logTag, "... PermanentlyRemove with no ID"); return@dialog }
+        dialog(route(NodeAction.PermanentlyRemove)) { entry ->
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "... PermanentlyRemove with no ID")
+                return@dialog
+            }
             ConfirmPermanentDeletion(
                 nodeActionsVM,
-                StateID.fromId(stateId)
+                currID
             ) { closeDialog(it) }
         }
 
-        dialog(route(NodeAction.EmptyRecycle)) { navBackStackEntry ->
-            val stateId = navBackStackEntry.arguments?.getString(STATE_ID_KEY)
-                ?: run { Log.e(logTag, "... EmptyRecycle with no ID"); return@dialog }
+        dialog(route(NodeAction.EmptyRecycle)) { entry ->
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "... EmptyRecycle with no ID")
+                return@dialog
+            }
             ConfirmEmptyRecycle(
                 nodeActionsVM,
-                StateID.fromId(stateId)
+                currID
             ) { closeDialog(it) }
         }
 
         dialog(route(NodeAction.CreateFolder)) { entry ->
-            val stateId = entry.arguments?.getString(STATE_ID_KEY)
-                ?: run { Log.e(logTag, "... CreateFolder with no ID"); return@dialog }
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "... CreateFolder with no ID")
+                return@dialog
+            }
             CreateFolder(
                 nodeActionsVM,
-                stateID = StateID.fromId(stateId),
+                stateID = currID,
                 dismiss = { closeDialog(it) }
             )
         }
@@ -336,6 +359,7 @@ private fun FolderWithDialogs(
                 dismiss = { closeDialog(it) }
             )
         }
+
         dialog(route(NodeAction.TakePicture)) { entry ->
             val stateID = lazyStateID(entry)
             TakePicture(
@@ -347,20 +371,20 @@ private fun FolderWithDialogs(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FolderWithMoreMenu(
-    type: NodeMoreMenuType,
-    toOpenStateID: StateID,
-    sheetState: ModalBottomSheetState,
-    launch: (NodeAction) -> Unit,
-    content: @Composable () -> Unit,
-) {
-    ModalBottomSheetLayout(
-        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
-        modifier = Modifier,
-        sheetState = sheetState,
-        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
-        content = content,
-    )
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//private fun FolderWithMoreMenu(
+//    type: NodeMoreMenuType,
+//    toOpenStateID: StateID,
+//    sheetState: ModalBottomSheetState,
+//    launch: (NodeAction) -> Unit,
+//    content: @Composable () -> Unit,
+//) {
+//    ModalBottomSheetLayout(
+//        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
+//        modifier = Modifier,
+//        sheetState = sheetState,
+//        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
+//        content = content,
+//    )
+//}
