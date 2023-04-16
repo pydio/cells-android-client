@@ -26,9 +26,7 @@ fun NavGraphBuilder.shareNavGraph(
 ) {
     composable(ShareDestination.ChooseAccount.route) {
         Log.i(logTag, "... Open ShareDestination.ChooseAccount")
-
         val accountListVM: AccountListVM = koinViewModel()
-
         SelectTargetAccount(
             accountListVM = accountListVM,
             openAccount = helper::open,
@@ -84,8 +82,12 @@ fun NavGraphBuilder.shareNavGraph(
         Log.i(logTag, ".... ShareDestination.UploadInProgress for #$jobID @ $stateID")
         val monitorUploadsVM: MonitorUploadsVM =
             koinViewModel(parameters = { parametersOf(stateID, jobID) })
-        UploadProgressList(monitorUploadsVM) {
-            helper.launchTaskFor(AppNames.ACTION_CANCEL, stateID)
-        }
+        UploadProgressList(
+            monitorUploadsVM,
+            { helper.runInBackground(stateID) },
+            { helper.done(stateID) },
+            { helper.cancel(stateID) },
+            { helper.openParentLocation(stateID) },
+        )
     }
 }

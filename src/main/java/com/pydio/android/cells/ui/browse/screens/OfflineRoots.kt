@@ -100,13 +100,7 @@ fun OfflineRoots(
 
     val localOpen: (StateID) -> Unit = { stateID ->
         scope.launch {
-            offlineVM.getNode(stateID)?.let {
-                if (it.isFolder()) {
-                    browseHelper.open(context, stateID)
-                } else {
-                    browseHelper.open(context, stateID)
-                }
-            }
+            browseHelper.open(context, stateID)
         }
     }
 
@@ -165,26 +159,32 @@ fun OfflineRoots(
                     }
                 }
             }
+
             is NodeAction.ForceResync -> {
                 offlineVM.forceSync(stateID)
                 moreMenuDone()
             }
+
             is NodeAction.DownloadToDevice -> {
                 destinationPicker.launch(stateID.fileName)
                 // Done is called by the destination picker callback
             }
+
             is NodeAction.ToggleOffline -> {
                 offlineVM.removeFromOffline(stateID)
                 moreMenuDone()
             }
+
             is NodeAction.AsGrid -> {
                 offlineVM.setListLayout(ListLayout.GRID)
                 moreMenuDone()
             }
+
             is NodeAction.AsList -> {
                 offlineVM.setListLayout(ListLayout.LIST)
                 moreMenuDone()
             }
+
             else -> {
                 Log.e(logTag, "Unknown action $action for $stateID")
                 moreMenuDone()
@@ -426,6 +426,7 @@ private fun OfflineRootsList(
                         }
                     }
                 }
+
                 else -> {
 
                     LazyColumn(

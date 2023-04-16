@@ -151,8 +151,8 @@ fun Folder(
     val actionDone: (Boolean) -> Unit = {
         scope.launch {
             if (it) { // Also reset backoff ticker
-                Log.e(logTag, "Action done for $folderID")
-                browseRemoteVM.watch(folderID, true) // TODO is it a force refresh here ?
+                Log.d(logTag, "Action done for $folderID")
+                browseRemoteVM.watch(folderID, true)
             }
             sheetState.hide()
             nodeMoreMenuData.value = Pair(

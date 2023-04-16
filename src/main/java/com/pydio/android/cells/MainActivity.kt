@@ -107,7 +107,14 @@ class MainActivity : ComponentActivity() {
                 val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
                     when (action) {
                         AppNames.ACTION_CANCEL -> {
+                            setResult(RESULT_CANCELED)
                             finishAndRemoveTask()
+                        }
+
+                        AppNames.ACTION_DONE -> {
+//                            Log.e(logTag, "Action Done")
+                            setResult(RESULT_OK)
+                            finish()
                         }
                     }
                 }

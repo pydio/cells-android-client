@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.share.screens
 
 import android.content.res.Configuration
+import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,21 +42,41 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ui.browse.composables.CreateFolder
+import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.BrowseUpItem
+import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.androidx.compose.koinViewModel
 
-// private const val logTag = "SelectFolder.kt"
+private const val logTag = "SelectFolder"
+
+private const val FOLDER_MAIN_CONTENT = "folder-main-content"
+private const val STATE_ID_SUFFIX = "/{state-id}"
+
+private fun routeTemplate(action: NodeAction): String {
+    return "${action.id}$STATE_ID_SUFFIX"
+}
+
+private fun route(action: NodeAction, stateID: StateID): String {
+    return "${action.id}/${stateID.id}"
+}
 
 @Composable
 fun SelectFolderScreen(
@@ -68,6 +89,8 @@ fun SelectFolderScreen(
     doAction: (String, StateID) -> Unit,
 ) {
 
+    val navController = rememberNavController()
+
     val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
     val childNodes by shareVM.childNodes.observeAsState()
 
@@ -76,23 +99,54 @@ fun SelectFolderScreen(
     }
 
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
+        Log.e(logTag, "Intercepting $action  for $currID")
         if (AppNames.ACTION_UPLOAD == action) {
             startUpload(shareVM, currID)
+        } else if (AppNames.ACTION_CREATE_FOLDER == action) {
+            navController.navigate(route(NodeAction.CreateFolder, currID))
         } else {
             doAction(action, currID)
         }
     }
 
-    SelectFolderScaffold(
-        loadingStatus = loadingStatus.value,
-        action = AppNames.ACTION_UPLOAD,
-        stateID = stateID,
-        children = childNodes ?: listOf(),
-        forceRefresh = forceRefresh,
-        open = open,
-        canPost = canPost,
-        doAction = interceptAction,
-    )
+    val closeDialog: (Boolean) -> Unit = { done ->
+        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        if (done) {
+            browseRemoteVM.watch(stateID, true)
+        }
+    }
+
+    NavHost(navController, FOLDER_MAIN_CONTENT) {
+
+        composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
+            Log.e(logTag, "... Navigating to main content for $stateID")
+            SelectFolderScaffold(
+                loadingStatus = loadingStatus.value,
+                action = AppNames.ACTION_UPLOAD,
+                stateID = stateID,
+                children = childNodes ?: listOf(),
+                forceRefresh = forceRefresh,
+                open = open,
+                canPost = canPost,
+                doAction = interceptAction,
+            )
+        }
+
+        dialog(routeTemplate(NodeAction.CreateFolder)) { entry ->
+            val currID = lazyStateID(entry)
+            if (currID == StateID.NONE) {
+                Log.w(logTag, "Cannot create folder with no ID")
+                navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+            } else {
+                val nodeActionsVM: NodeActionsVM = koinViewModel()
+                CreateFolder(
+                    nodeActionsVM,
+                    stateID = currID,
+                    dismiss = { closeDialog(it) }
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,11 +173,13 @@ fun SelectFolderScaffold(
         floatingActionButton = {
             if (Str.notEmpty(stateID.workspace)) {
                 FloatingActionButton(
-                    onClick = { doAction(AppNames.ACTION_CREATE_FOLDER, stateID) }
+                    onClick = {
+                        doAction(AppNames.ACTION_CREATE_FOLDER, stateID)
+                    }
                 ) { Icon(Icons.Filled.Add, contentDescription = "Create folder") }
             }
         },
-    ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
+    ) { padding ->
         FolderList(
             action = action,
             stateID = stateID,
@@ -147,8 +203,6 @@ private fun FolderList(
     open: (StateID) -> Unit,
     modifier: Modifier,
 ) {
-    val ctx = LocalContext.current
-
     val state = rememberPullRefreshState(
         loadingStatus == LoadingState.PROCESSING,
         onRefresh = { forceRefresh() },
@@ -189,8 +243,8 @@ private fun FolderList(
                 SelectFolderItem(
                     oneChild,
                     oneChild.isFolder(),
-                    mime = oneChild.mime,
-                    sortName = oneChild.sortName,
+//                    mime = oneChild.mime,
+//                    sortName = oneChild.sortName,
                     title = getNodeTitle(oneChild.name, oneChild.mime),
                     desc = getNodeDesc(oneChild),
                     modifier = currModifier,
@@ -209,8 +263,8 @@ private fun FolderList(
 private fun SelectFolderItem(
     item: RTreeNode,
     isFolder: Boolean,
-    mime: String,
-    sortName: String?,
+//    mime: String,
+//    sortName: String?,
     title: String,
     desc: String,
     modifier: Modifier = Modifier
@@ -219,19 +273,17 @@ private fun SelectFolderItem(
         val outValue = TypedValue()
         LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
         outValue.float
-
-    } else 1f
+    } else {
+        1f
+    }
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .alpha(alpha)
             .padding(all = dimensionResource(R.dimen.card_padding))
-//            .wrapContentWidth(Alignment.CenterHorizontally)
     ) {
-
         Row(
-            // modifier = Modifier.padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -268,7 +320,7 @@ private fun TopBar(
     stateID: StateID,
     canPost: (StateID) -> Boolean,
     onSelect: (String, StateID) -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    modifier: Modifier = Modifier
 ) {
 
     val title = when (action) {
@@ -282,7 +334,7 @@ private fun TopBar(
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             Modifier
@@ -317,11 +369,11 @@ private fun TopBar(
     }
 }
 
-@Preview(name = "Light Mode")
+@Preview(name = "TableHeader Light")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     showBackground = true,
-    name = "Dark Mode"
+    name = "TableHeader Dark"
 )
 @Composable
 private fun TableHeaderPreview() {

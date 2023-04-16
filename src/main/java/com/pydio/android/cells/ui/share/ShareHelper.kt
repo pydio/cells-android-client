@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.share
 
 import android.util.Log
 import androidx.navigation.NavHostController
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.share.models.ShareVM
@@ -39,6 +40,22 @@ class ShareHelper(
         }
     }
 
+    fun cancel(stateID: StateID) {
+        launchTaskFor(AppNames.ACTION_CANCEL, stateID)
+    }
+
+    fun done(stateID: StateID) {
+        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    }
+
+    fun runInBackground(stateID: StateID) {
+        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    }
+
+    fun openParentLocation(stateID: StateID) {
+        navigation.toParentLocation(stateID)
+    }
+
     fun startUpload(shareVM: ShareVM, stateID: StateID) {
         startingState?.let {
             shareVM.launchPost(
@@ -71,9 +88,4 @@ class ShareHelper(
 //            !((stateID.id.startsWith(initialStateId) && (stateID.id.length > initialStateId.length)))
 //        }
     }
-
-//    fun forceRefresh(it: StateID) {
-//        // FIXME
-//        // browseRemoteVM.watch(it, true)
-//    }
 }

@@ -44,16 +44,22 @@ private const val logTag = "UploadProgressList"
 fun UploadProgressList(
     uploadsVM: MonitorUploadsVM,
     runInBackground: () -> Unit,
+    done: () -> Unit,
+    cancel: () -> Unit,
+    openParentLocation: () -> Unit,
 ) {
 
     val currTransfers = uploadsVM.currRecords.observeAsState()
     val currJob = uploadsVM.parentJob.observeAsState()
 
     UploadProgressList(
-        uploadsVM,
+        uploadsVM = uploadsVM,
+        openParentLocation = openParentLocation,
         currJob = currJob.value,
         uploads = currTransfers.value ?: listOf(),
         runInBackground = runInBackground,
+        done = done,
+        cancel = cancel,
         pauseOne = uploadsVM::pauseOne,
         resumeOne = uploadsVM::resumeOne,
         removeOne = uploadsVM::removeOne,
@@ -66,9 +72,12 @@ fun UploadProgressList(
 @ExperimentalMaterial3Api
 fun UploadProgressList(
     uploadsVM: MonitorUploadsVM,
+    openParentLocation: () -> Unit,
     currJob: RJob?,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
+    done: () -> Unit,
+    cancel: () -> Unit,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
@@ -82,7 +91,6 @@ fun UploadProgressList(
     val transferState: MutableState<RTransfer?> = remember {
         mutableStateOf(null)
     }
-
 
     val jobStatus = remember(key1 = currJob, key2 = uploads) {
         derivedStateOf {
@@ -107,14 +115,17 @@ fun UploadProgressList(
                 AppNames.ACTION_CANCEL -> {
                     pauseOne(transferId)
                 }
+
                 AppNames.ACTION_RESTART -> {
                     resumeOne(transferId)
                 }
+
                 AppNames.ACTION_DELETE_RECORD -> {
                     removeOne(transferId)
                 }
+
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
-                    // TODO
+                    openParentLocation()
                 }
             }
             transferState.value = null
@@ -131,6 +142,8 @@ fun UploadProgressList(
             jobStatus = jobStatus.value,
             uploads = uploads,
             runInBackground = runInBackground,
+            done = done,
+            cancel = cancel,
             pauseOne = pauseOne,
             resumeOne = resumeOne,
             removeOne = removeOne,
@@ -145,69 +158,14 @@ private fun WithScaffold(
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
+    done: () -> Unit,
+    cancel: () -> Unit,
+
     openMenu: (Long) -> Unit,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit
-
-//    forceRefresh: () -> Unit, doAction: (String, Long) -> Unit,
-//    uploads: List<RTransfer>,
-//    moreMenuState: TransferMoreMenuState,
-//    openMenu: (Long) -> Unit,
-//    clearTerminated: () -> Unit,
-//    modifier: Modifier = Modifier
 ) {
-
-//    var isShown by remember { mutableStateOf(false) }
-//    val showMenu: (Boolean) -> Unit = {
-//        if (it != isShown) {
-//            isShown = it
-//        }
-//    }
-
-//    val actionMenuContent: @Composable ColumnScope.() -> Unit = {
-//        DropdownMenuItem(
-//            text = { Text(stringResource(R.string.button_open_sort_by)) },
-//            onClick = {
-//                moreMenuState.openMoreMenu(
-//                    TransferMoreMenuType.SORT_BY,
-//                    0L
-//                )
-//                showMenu(false)
-//            },
-//            leadingIcon = { Icon(CellsIcons.SortBy, stringResource(R.string.button_open_sort_by)) },
-//        )
-//        DropdownMenuItem(
-//            text = { Text(stringResource(R.string.button_open_filter_by)) },
-//            onClick = {
-//                moreMenuState.openMoreMenu(
-//                    TransferMoreMenuType.FILTER_BY,
-//                    0L
-//                )
-//                showMenu(false)
-//            },
-//            leadingIcon = {
-//                Icon(
-//                    CellsIcons.FilterBy,
-//                    stringResource(R.string.button_open_filter_by)
-//                )
-//            },
-//        )
-//        DropdownMenuItem(
-//            text = { Text(stringResource(R.string.clear_terminated)) },
-//            onClick = {
-//                clearTerminated()
-//                showMenu(false)
-//            },
-//            leadingIcon = {
-//                Icon(
-//                    CellsIcons.DeleteForever,
-//                    stringResource(R.string.clear_terminated)
-//                )
-//            },
-//        )
-//    }
-
     Scaffold(
         topBar = {
             DefaultTopBar(
@@ -222,6 +180,8 @@ private fun WithScaffold(
             jobStatus,
             uploads = uploads,
             runInBackground = runInBackground,
+            done = done,
+            cancel = cancel,
             pauseOne = pauseOne,
             resumeOne = resumeOne,
             removeOne = removeOne,
@@ -236,6 +196,8 @@ fun UploadList(
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
+    done: () -> Unit,
+    cancel: () -> Unit,
     openMenu: (Long) -> Unit,
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
@@ -267,7 +229,7 @@ fun UploadList(
         if (jobStatus == JobStatus.DONE) {
             TextButton(
                 onClick = {
-                    runInBackground()
+                    done()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -284,6 +246,8 @@ fun UploadList(
                     .padding(all = dimensionResource(R.dimen.margin))
                     .wrapContentWidth(Alignment.CenterHorizontally)
             ) { Text(stringResource(R.string.button_run_in_background)) }
+
+            // TODO also add a cancel button and implement corresponding cleaning
         }
     }
 }
