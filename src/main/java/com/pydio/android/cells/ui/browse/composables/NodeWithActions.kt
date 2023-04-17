@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse.composables
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -178,8 +179,16 @@ private fun FolderWithDialogs(
             }
 
             is NodeAction.ShareWith -> {
-                nodeActionsVM.createShare(toOpenStateID)
-                actionDone(true)
+                scope.launch {
+                    nodeActionsVM.getShareLink(toOpenStateID)?.let {
+                        context.startActivity(
+                            Intent(Intent.ACTION_SEND)
+                                .setType("text/plain")
+                                .putExtra(Intent.EXTRA_TEXT, it)
+                        )
+                    }
+                    actionDone(true)
+                }
             }
 
             is NodeAction.CopyToClipboard -> {
