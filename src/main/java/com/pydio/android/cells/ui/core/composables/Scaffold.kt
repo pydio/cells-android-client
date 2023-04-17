@@ -71,7 +71,7 @@ fun DefaultTopBar(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = if (isExpandedScreen) {
                 MaterialTheme.colorScheme.surface
             } else {
@@ -132,7 +132,7 @@ fun TopBarWithMoreMenu(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         navigationIcon = {
             if (back != null) {
                 IconButton(onClick = { back() }) {
@@ -186,7 +186,7 @@ fun TopBarWithActions(
     actions: @Composable RowScope.() -> Unit,
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
             Text(
                 text = title,
@@ -233,7 +233,7 @@ fun TopBarWithSearch(
 //    contentPadding: PaddingValues = PaddingValues(all = 16.dp),
 ) {
     TopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
             TextField(
                 value = queryStr,
