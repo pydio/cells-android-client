@@ -7,11 +7,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 interface JobDao {
 
     // MAIN JOB OBJECT

@@ -9,10 +9,10 @@ import androidx.room.RawQuery
 import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 
 @Dao
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 interface TransferDao {
 
     // MAIN TRANSFER OBJECT

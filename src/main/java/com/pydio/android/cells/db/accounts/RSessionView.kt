@@ -3,7 +3,7 @@ package com.pydio.android.cells.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.transport.StateID
 import java.util.*
 
@@ -21,7 +21,7 @@ import java.util.*
             "FROM sessions INNER JOIN accounts " +
             "ON sessions.account_id = accounts.account_id"
 )
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 data class RSessionView(
     @ColumnInfo(name = "account_id") val accountID: String,
     @ColumnInfo(name = "lifecycle_state") val lifecycleState: String,

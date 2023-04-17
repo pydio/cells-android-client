@@ -3,10 +3,9 @@ package com.pydio.android.cells.db.accounts
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
 
 @Dao
-@TypeConverters(Converters::class)
+// @TypeConverters(CellsConverters::class)
 interface SessionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

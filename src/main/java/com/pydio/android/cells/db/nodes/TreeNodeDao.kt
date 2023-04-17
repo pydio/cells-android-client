@@ -10,11 +10,11 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 interface TreeNodeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.transport.StateID
 
 @DatabaseView(
@@ -24,7 +24,7 @@ import com.pydio.cells.transport.StateID
             "FROM offline_roots INNER JOIN tree_nodes " +
             "ON offline_roots.encoded_state = tree_nodes.encoded_state"
 )
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 data class RLiveOfflineRoot(
 
     @ColumnInfo(name = "uuid") val uuid: String?,

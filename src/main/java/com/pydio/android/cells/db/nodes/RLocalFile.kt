@@ -2,9 +2,7 @@ package com.pydio.android.cells.db.nodes
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
 import java.io.File
@@ -16,7 +14,7 @@ import java.io.File
         "type"
     ],
 )
-@TypeConverters(Converters::class)
+// @TypeConverters(Converters::class)
 data class RLocalFile(
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,

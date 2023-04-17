@@ -5,14 +5,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.api.Server
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import java.util.*
 
 @Entity(tableName = "accounts")
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 data class RAccount(
 
     @PrimaryKey

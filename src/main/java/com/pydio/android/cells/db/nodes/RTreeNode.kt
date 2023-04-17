@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.Converters
+import com.pydio.android.cells.db.CellsConverters
 import com.pydio.android.cells.utils.getMimeType
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -16,7 +16,7 @@ import com.pydio.cells.utils.Str
 import java.util.*
 
 @Entity(tableName = "tree_nodes")
-@TypeConverters(Converters::class)
+@TypeConverters(CellsConverters::class)
 data class RTreeNode(
 
     @PrimaryKey
