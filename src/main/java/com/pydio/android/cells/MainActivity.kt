@@ -80,8 +80,7 @@ class MainActivity : ComponentActivity() {
             }
 
             if (Str.empty(startingState.route)) {
-                // FIXME the state is not nul but we still don't know where to go.
-                Log.e(logTag, "#### TODO state is not null but we still do not see where to go")
+                Log.e(logTag, "#### TODO state is not null but we still do not know where to go")
             }
 
             Log.i(logTag, "#######################################")
@@ -112,7 +111,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                         AppNames.ACTION_DONE -> {
-//                            Log.e(logTag, "Action Done")
                             setResult(RESULT_OK)
                             finish()
                         }

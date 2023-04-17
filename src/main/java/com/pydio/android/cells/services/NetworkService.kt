@@ -44,11 +44,12 @@ class NetworkService constructor(
 
     init {
         serviceScope.launch { // Asynchronous is necessary to wait for the context
-
+            Log.i(logTag, "Initialising network watching")
             val liveNetwork = LiveNetwork(context)
             setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unknown)
 
             liveNetwork.asFlow().collect {
+                Log.d(logTag, "Got a new live network event: ${it.toString()}")
                 setNetworkStatus(it)
             }
             Log.i(logTag, "Initial status: ${liveNetwork.value}")
@@ -58,14 +59,16 @@ class NetworkService constructor(
 
     fun isConnected(): Boolean {
         return when (_networkStatus) {
+
             is NetworkStatus.Unknown -> {
                 Log.w(logTag, "Unknown network status, doing as if connected")
                 true
             }
-            is NetworkStatus.Unavailable -> {
-                Log.w(logTag, "Unavailable network status, doing as if connected")
-                true
+
+            is NetworkStatus.Unavailable -> { // There is no network connection
+                false
             }
+
             is NetworkStatus.Unmetered,
             is NetworkStatus.Metered,
             is NetworkStatus.Roaming -> true

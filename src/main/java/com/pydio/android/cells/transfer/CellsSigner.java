@@ -33,7 +33,6 @@ public class CellsSigner extends AWS4Signer {
 
     public static final String CELLS_SIGNER_ID = "CellsSigner";
 
-
     /**
      * Don't double-url-encode path elements; S3 expects path elements to be
      * encoded only once in the canonical URI.
