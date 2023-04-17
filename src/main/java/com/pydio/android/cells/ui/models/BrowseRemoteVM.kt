@@ -69,7 +69,7 @@ class BrowseRemoteVM(
     }
 
     fun pause() {
-        Log.e(logTag, "... About to pause remote VM, state: ${stateID.value}")
+        Log.i(logTag, "... Pause remote watching for ${stateID.value}")
         _isActive = false
         _loadingState.value = LoadingState.IDLE
     }

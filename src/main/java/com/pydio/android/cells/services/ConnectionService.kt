@@ -85,15 +85,16 @@ class ConnectionService(
             Log.d(logTag, "Executing switch map with network type: $currType")
             // we first check the network type
             var newStatus = when (currType) {
-                AppNames.NETWORK_TYPE_UNKNOWN,
-                AppNames.NETWORK_TYPE_UNAVAILABLE -> {
+                AppNames.NETWORK_TYPE_UNKNOWN -> {
                     // TODO enhance this:
                     Log.e(logTag, "unexpected network type: $currType")
                     SessionStatus.OK
                 }
+
                 AppNames.NETWORK_TYPE_UNMETERED -> SessionStatus.OK
                 AppNames.NETWORK_TYPE_METERED -> SessionStatus.METERED
                 AppNames.NETWORK_TYPE_ROAMING -> SessionStatus.ROAMING
+                AppNames.NETWORK_TYPE_UNAVAILABLE -> SessionStatus.NO_INTERNET
                 else -> SessionStatus.NO_INTERNET
             }
 
@@ -127,7 +128,6 @@ class ConnectionService(
 
     fun relaunchMonitoring() {
         serviceScope.launch {
-            // synchronized(lock) {
             currJob?.cancelAndJoin()
             currJob = launch {
                 while (true) {
@@ -135,7 +135,6 @@ class ConnectionService(
                     delay(10000)
                 }
             }
-//            }
         }
     }
 

@@ -64,10 +64,13 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
         val status = when {
             unMeteredConnections.isNotEmpty()
             -> NetworkStatus.Unmetered
+
             notRoamingConnections.isNotEmpty()
             -> NetworkStatus.Metered
+
             validNetworkConnections.isNotEmpty()
             -> NetworkStatus.Roaming
+
             else -> NetworkStatus.Unavailable
         }
         postValue(status)
@@ -95,14 +98,19 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
             val status =
                 if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                    Log.e(logTag, "Announcing network capability: $networkCapabilities")
+
                     when {
                         networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                                 && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
                         -> NetworkStatus.Unmetered
+
                         !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                         -> NetworkStatus.Roaming
+
                         !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
                         -> NetworkStatus.Metered
+
                         else -> {
                             Log.w(logTag, "Could not determine network status for $network")
                             Log.w(logTag, "Capabilities: $networkCapabilities")

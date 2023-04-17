@@ -14,7 +14,6 @@ public interface AppNames {
     String NETWORK_TYPE_ROAMING = "Roaming";
     String NETWORK_TYPE_UNAVAILABLE = "Unavailable";
     String NETWORK_TYPE_UNKNOWN = "Unknown";
-
     String NETWORK_TYPE_CONSTRAINT_NONE = "None";
     String NETWORK_TYPE_CONSTRAINT_UNMETERED = "Unmetered";
     String NETWORK_TYPE_CONSTRAINT_NOT_ROAMING = "Not Roaming";

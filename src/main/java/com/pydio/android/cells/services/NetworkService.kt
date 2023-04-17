@@ -18,9 +18,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class NetworkService constructor(
+class NetworkService(
     context: Context,
-    private val ioDispatcher: CoroutineDispatcher,
+    ioDispatcher: CoroutineDispatcher,
 ) {
 
     private val logTag = "NetworkService"
@@ -28,7 +28,7 @@ class NetworkService constructor(
     private val serviceScope = CoroutineScope(ioDispatcher + serviceJob)
 
     // Business objects
-    private var _networkStatus: NetworkStatus = NetworkStatus.Unknown
+    private var _networkStatus: NetworkStatus = NetworkStatus.Unavailable
     val networkStatus: NetworkStatus
         get() = _networkStatus
 
@@ -46,14 +46,15 @@ class NetworkService constructor(
         serviceScope.launch { // Asynchronous is necessary to wait for the context
             Log.i(logTag, "Initialising network watching")
             val liveNetwork = LiveNetwork(context)
-            setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unknown)
+            setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unavailable)
 
             liveNetwork.asFlow().collect {
-                Log.d(logTag, "Got a new live network event: ${it.toString()}")
+                // Log.e(logTag, "##############################################")
+                Log.d(logTag, "Live network event: $it")
                 setNetworkStatus(it)
             }
             Log.i(logTag, "Initial status: ${liveNetwork.value}")
-            Log.i(logTag, "After init, current network status: $_networkType")
+            Log.d(logTag, "After init, current network status: $_networkType")
         }
     }
 
@@ -75,22 +76,12 @@ class NetworkService constructor(
         }
     }
 
-//    fun isLimited(status: String): Boolean {
-//        return when (status) {
-//            AppNames.NETWORK_TYPE_ROAMING,
-//            AppNames.NETWORK_TYPE_METERED,
-//            -> true
-//            else -> false
-//        }
-//    }
-
     fun isMetered(): Boolean {
         return _networkStatus is NetworkStatus.Metered ||
                 _networkStatus is NetworkStatus.Roaming
     }
 
     private fun setNetworkStatus(status: NetworkStatus) {
-
         Log.i(logTag, "### Setting new status: $status")
         this._networkStatus = status
 
