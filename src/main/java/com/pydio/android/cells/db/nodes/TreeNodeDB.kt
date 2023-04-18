@@ -102,7 +102,8 @@ abstract class TreeNodeDB : RoomDatabase() {
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Add a column to the transfers table
-                database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER DEFAULT -1")
+                //                 database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER DEFAULT -1")
+                database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER")
             }
         }
     }
