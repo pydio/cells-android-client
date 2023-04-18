@@ -20,12 +20,13 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PasswordStore
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.ScopeService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
-import com.pydio.android.cells.services.workers.OfflineSync
-import com.pydio.android.cells.ui.ActiveSessionViewModel
+import com.pydio.android.cells.services.WorkerService
+import com.pydio.android.cells.services.workers.OfflineSyncWorker
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.BrowseHostVM
@@ -131,21 +132,40 @@ val daoModule = module {
 val serviceModule = module {
 
     // Enable better management of context and testing
-    single(named("IODispatcher")) {
+    single(named("uiDispatcher")) {
+        Dispatchers.Main
+    }
+    single(named("ioDispatcher")) {
         Dispatchers.IO
+    }
+    single(named("cpuDispatcher")) {
+        Dispatchers.Default
+    }
+
+    single { ScopeService() }
+
+    single {
+        WorkerService(
+            androidContext(),
+            get(named("ioDispatcher")),
+            get(named("cpuDispatcher")),
+            get(),
+            get(),
+        )
     }
 
     // Network state
     single {
         NetworkService(
             androidContext(),
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
         )
     }
+
     // Long running jobs
     single {
         JobService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get()
         )
     }
@@ -162,7 +182,8 @@ val serviceModule = module {
             get(named("TokenStore")),
             get(named("PasswordStore")),
             get(named("TransportStore")),
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
+            get(named("cpuDispatcher")),
             get(), // NetworkService
             get(), // SessionViewDao
             get(), // AccountDao
@@ -170,13 +191,13 @@ val serviceModule = module {
     }
     single {
         AuthService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get()
         )
     }
     single {
         FileService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get()
         )
     }
@@ -185,7 +206,7 @@ val serviceModule = module {
     single {
         TreeNodeRepository(
             androidContext().applicationContext,
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get()
         )
     }
@@ -202,7 +223,7 @@ val serviceModule = module {
     }
     single {
         AccountService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get(), get(), get(), get(), get(), get()
         )
     }
@@ -211,32 +232,32 @@ val serviceModule = module {
     single {
         NodeService(
             androidContext().applicationContext,
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get(), get(), get(), get()
         )
     }
     single {
         OfflineService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get(), get(), get(), get()
         )
     }
     single {
         TransferService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get(), get(), get(), get(), get(), get()
         )
     }
 
     single {
         ConnectionService(
-            get(named("IODispatcher")),
+            get(named("ioDispatcher")),
             get(), get(), get()
         )
     }
 
     worker { (workerParams: WorkerParameters) ->
-        OfflineSync(
+        OfflineSyncWorker(
             appContext = get(),
             params = workerParams,
         )
@@ -251,7 +272,6 @@ val viewModelModule = module {
     viewModel { LoginVM(get(), get(), get()) }
     viewModelOf(::AccountListVM)
 
-//     viewModel { ConnectionVM(get(), get()) }
     viewModelOf(::NodeActionsVM)
 
     viewModelOf(::TreeNodeVM)
@@ -278,7 +298,6 @@ val viewModelModule = module {
 
     viewModelOf(::CarouselVM)
 
-    viewModel { ActiveSessionViewModel(get(), get(), get(), get()) }
     viewModel { JobListVM(get()) }
     viewModel { LogListVM(get()) }
 
@@ -287,7 +306,6 @@ val viewModelModule = module {
     viewModelOf(::FolderVM)
 
     viewModel { SelectTargetVM(get()) }
-
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule
