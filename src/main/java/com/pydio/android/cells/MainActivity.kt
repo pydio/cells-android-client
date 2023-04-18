@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(logTag, "onCreate: launching new main activity")
+        Log.d(logTag, "onCreate: launching main activity")
         super.onCreate(savedInstanceState)
 
         // We currently still use androidx.core:core-splashscreen library to manage splash
