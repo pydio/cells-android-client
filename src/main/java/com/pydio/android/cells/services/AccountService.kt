@@ -233,9 +233,9 @@ class AccountService(
                         rAccount.setCustomColor(server.customPrimaryColor)
                         hasChanged = true
                     }
-                    if (Str.notEmpty(server.iconURL)) {
-                        Log.w(logTag, "Got an Icon URL: ${server.iconURL} that we **IGNORE**")
-                    }
+//                    if (Str.notEmpty(server.iconURL)) {
+//                        Log.w(logTag, "Got an Icon URL: ${server.iconURL} that we **IGNORE**")
+//                    }
                 }
                 if (hasChanged) {
                     doUpdateAccount(rAccount)
