@@ -5,6 +5,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SDKException.RemoteIOException
@@ -60,7 +61,7 @@ class AppCredentialService(
                 while (failNb < maxFail) {
                     try {
                         val currID = requestRefreshChannel.receive()
-                        Log.e(logTag, "Received refresh token request for $currID")
+//                        Log.e(logTag, "Received refresh token request for $currID")
                         safelyRefreshToken(currID)
                         failNb = 0
                     } catch (e: Exception) {
@@ -113,9 +114,18 @@ class AppCredentialService(
             }
 
             if (token.refreshingSinceTs > 0) {
-                // TODO handle a timeout
-                Log.e(logTag, "Token for $stateID is already refreshing ignoring")
-                return@withContext
+                if (token.refreshingSinceTs + 300 < currentTimestamp()) {
+                    val tsSuffix = timestampToString(token.refreshingSinceTs, "dd/MM HH:mm")
+                    Log.e(logTag, "Token for $stateID is refreshing since $tsSuffix")
+                    Log.e(logTag, "  Removing lock and retrying")
+                    synchronized(lock) {
+                        token.refreshingSinceTs = 0
+                        put(stateID.id, token)
+                    }
+                } else {
+                    Log.e(logTag, "Token for $stateID is already refreshing ignoring")
+                    return@withContext
+                }
             }
 
             if (token.expirationTime > currentTimestamp() + token.expiresIn / 2) {
