@@ -25,6 +25,7 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -97,10 +98,6 @@ class AccountService(
         return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
     }
 
-//    suspend fun isRemoteCells(stateId: StateID): Boolean = withContext(ioDispatcher) {
-//        return@withContext !isLegacy(stateId)
-//    }
-
     suspend fun getActiveSession(): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
     }
@@ -157,48 +154,6 @@ class AccountService(
      * Performs a check on all accounts that are listed as connected
      * to insure we are still correctly logged in.
      */
-
-//    private suspend fun checkRegisteredAccounts() = withContext(Dispatchers.IO) {
-//        Log.e(logTag, "#################################################")
-//        Log.e(logTag, "### checkRegisteredAccounts")
-//
-//        val sessions = accountService.listSessionViews(false)
-//        sessionLoop@ for (session in sessions) {
-//
-//            val currID = session.getStateID()
-//            try {
-//
-//                val tmpTransport = accountService.getTransport(currID, true)
-//                if (tmpTransport == null) {
-//                    Log.w(logTag, "Cannot check account $currID with no transport")
-//                    continue@sessionLoop
-//                } else if (tmpTransport.server.isLegacy) {
-//                    Log.d(logTag, "skipping for $currID, legacy accounts have no token")
-//                    continue@sessionLoop
-//                }
-//                val token = appCredentialService.get(currID.id)
-//                if (token == null) {
-//                    Log.w(logTag, "Cannot refresh session with no credentials for $currID")
-//                    continue@sessionLoop
-//                }
-//                if (token.expirationTime > (currentTimestamp() + 120)) {
-//                    continue@sessionLoop
-//                }
-//                // We need to require a refresh
-//                try {
-//                    appCredentialService.requestRefreshToken(currID)
-//                } catch (e: SDKException) {
-//                    Log.e(logTag, "Error while launching refresh process for $currID")
-//                    Log.e(logTag, "Cause: #${e.code} - ${e.message}")
-//                }
-//            } catch (e: Exception) {
-//                Log.e(logTag, "cannot check account $currID, ignoring.")
-//                Log.e(logTag, "Cause: ${e.message}")
-//            }
-//        }
-//    }
-
-
     suspend fun checkRegisteredAccounts(): Pair<Int, String?> = withContext(ioDispatcher) {
         try {
             var changes = 0
@@ -259,21 +214,36 @@ class AccountService(
                 } else { // P8
                     Log.e(logTag, "${rAccount.accountId} is not connected anymore, updating DB")
                     logoutAccount(rAccount.accountID())
-//                    rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-//                    doUpdateAccount(rAccount)
+                    return true
+                }
+            } else {
+                // We check if the meta of the remote server have changed
+                var hasChanged = false
+                sessionFactory.getTransport(currID)?.server?.let { server ->
+                    server.refresh(true)
+                    if (Str.notEmpty(server.label) && server.label != rAccount.serverLabel()) {
+                        rAccount.setLabel(server.label)
+                        hasChanged = true
+                    }
+                    if (Str.notEmpty(server.welcomeMessage) && server.welcomeMessage != rAccount.welcomeMessage()) {
+                        rAccount.setWelcomeMessage(server.welcomeMessage)
+                        hasChanged = true
+                    }
+                    if (Str.notEmpty(server.customPrimaryColor) && server.customPrimaryColor != rAccount.getCustomColor()) {
+                        rAccount.setCustomColor(server.customPrimaryColor)
+                        hasChanged = true
+                    }
+                    if (Str.notEmpty(server.iconURL)) {
+                        Log.w(logTag, "Got an Icon URL: ${server.iconURL} that we **IGNORE**")
+                    }
+                }
+                if (hasChanged) {
+                    doUpdateAccount(rAccount)
                     return true
                 }
             }
         } catch (e: SDKException) {
             notifyError(currID, "Unexpected error while checking account", e)
-//            Log.e(logTag, "$currID is not connected: #${e.code} - ${e.message}")
-//            if (e.isAuthorizationError) {
-//                // TODO double check do we really want to remove known credentials here
-//                rAccount.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-//                doUpdateAccount(rAccount)
-//                val updatedAccount = accountDao.getAccount(currID.id)
-//                Log.e(logTag, "After update, status: ${updatedAccount?.authStatus}")
-//            }
             return true
         }
         return false

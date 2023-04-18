@@ -76,10 +76,30 @@ data class RAccount(
         return null
     }
 
+    fun setLabel(label: String) {
+        properties[KEY_SERVER_LABEL] = label
+    }
+
+    fun setCustomColor(colorString: String) {
+        properties[KEY_CUSTOM_COLOR] = colorString
+    }
+
+    fun getCustomColor(): String? {
+        if (properties.containsKey(KEY_CUSTOM_COLOR)) {
+            return properties[KEY_CUSTOM_COLOR] as String
+        }
+        return null
+    }
+
+    fun setWelcomeMessage(message: String) {
+        properties[KEY_WELCOME_MESSAGE] = message
+    }
+
     fun welcomeMessage(): String? {
         if (properties.containsKey(KEY_WELCOME_MESSAGE)) {
             return properties[KEY_WELCOME_MESSAGE] as String
         }
         return null
     }
+
 }
