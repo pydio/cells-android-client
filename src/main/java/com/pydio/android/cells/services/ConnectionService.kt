@@ -219,6 +219,6 @@ class ConnectionService(
 //    }
 
     init {
-        Log.e(logTag, "### ConnectionService initialised")
+        Log.i(logTag, "### ConnectionService initialised")
     }
 }

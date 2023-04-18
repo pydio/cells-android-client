@@ -44,7 +44,7 @@ class CellsApp : Application(), KoinComponent {
 
         val userAgent = updateClientData()
         Log.i(logTag, "... $userAgent")
-        Log.e(logTag, "... Pre-init done - Timestamp: ${timestampForLogMessage()}")
+        Log.i(logTag, "... Pre-init done - Timestamp: ${timestampForLogMessage()}")
 
         startKoin {// Launch dependency injection framework
             androidLogger(Level.INFO)
@@ -53,7 +53,6 @@ class CellsApp : Application(), KoinComponent {
             modules(allModules)
         }
 
-//        appScope.launch { withContext(Dispatchers.IO) { configureWorkers() } }
     }
 
 

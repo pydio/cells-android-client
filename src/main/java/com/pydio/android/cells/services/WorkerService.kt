@@ -30,11 +30,9 @@ class WorkerService(
     private lateinit var oldSyncPrefs: SyncPreferences
 
     init {
-        Log.e(logTag, "##################################")
-        Log.e(logTag, ".... Starting offline service")
+        Log.i(logTag, "... Starting offline service")
 
         workerScope.launch {
-            Log.e(logTag, ".... Starting offline service")
             withContext(ioDispatcher) {
                 oldSyncPrefs = prefs.fetchPreferences().sync
             }
