@@ -89,6 +89,19 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
+    fun liveSearch(
+        stateID: StateID,
+        query: String,
+        encodedSortBy: String
+    ): LiveData<List<RTreeNode>> {
+        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
+                    "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
+        )
+        return nodeDB(stateID).treeNodeDao().liveSearchQuery(lsQuery)
+    }
+
     /* Communicate with the DB using suspend functions */
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
         if (stateID == StateID.NONE) {
@@ -270,12 +283,6 @@ class NodeService(
         return@withContext null
     }
 
-//    fun enqueueDownload(stateID: StateID, uri: Uri) {
-//        serviceScope.launch {
-//            saveToSharedStorage(stateID, uri)
-//        }
-//    }
-
     suspend fun createFolder(parentID: StateID, folderName: String) =
         withContext(ioDispatcher) {
             try {
@@ -351,6 +358,23 @@ class NodeService(
             return@withContext Pair(0, msg)
         }
     }
+
+    @Throws(SDKException::class)
+    suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
+        try {
+            val fileNode = getClient(stateID).nodeInfo(stateID.workspace, stateID.path)
+            Log.e(logTag, "Got a file node: ${fileNode}")
+            val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
+            upsertNode(treeNode)
+            return@withContext treeNode
+        } catch (e: SDKException) {
+            val msg = "could not cache node at $stateID"
+            Log.w(logTag, "$msg, cause: ${e.message ?: "NaN"}")
+            e.printStackTrace()
+            return@withContext null
+        }
+    }
+
 
     suspend fun refreshBookmarks(stateID: StateID): String? = withContext(ioDispatcher) {
         try {

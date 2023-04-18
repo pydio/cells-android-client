@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -27,15 +29,13 @@ import kotlinx.coroutines.launch
 
 /** Holds data when performing searches on files on a given remote server defined by its accountID */
 class SearchVM(
-    stateID: StateID,
+    private val stateID: StateID,
     private val prefs: PreferencesService,
     private val nodeService: NodeService,
     private val transferService: TransferService,
 ) : ViewModel() {
 
     private val logTag = "SearchVM"
-//    private var viewModelJob = Job()
-//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private val _loadingState = MutableLiveData(LoadingState.NEW)
     private val _errorMessage = MutableLiveData<String?>()
@@ -47,6 +47,19 @@ class SearchVM(
     }
     private val sortOrderFlow = listPrefs.map { it.order }
     val layout = listPrefs.map { it.layout }
+
+
+    private val orderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        prefs.getOrderByPair(
+            cellsPreferences,
+            ListType.DEFAULT
+        )
+    }.asLiveData(viewModelScope.coroutineContext)
+
+//}: LiveData<List<RTreeNode>>
+//        get() = orderPair.switchMap { currOrder ->
+//            nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
+//        }
 
 
     // TODO double check this we pass the StateID
@@ -61,19 +74,24 @@ class SearchVM(
     @OptIn(FlowPreview::class)
     private var _queryString: Flow<String> = _userInput.debounce(800L)
 
-//    private var queryString: LiveData<String> =
-//        _queryString.asLiveData(viewModelScope.coroutineContext)
-
     private val _hits = MutableStateFlow<List<RTreeNode>>(listOf())
     val hits: StateFlow<List<RTreeNode>>
         get() = _hits
+
+
+    val newHits = sortOrderFlow.combine(_queryString) { order, query ->
+        nodeService.liveSearch(
+            stateID.account(),
+            if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
+            order
+        )
+    }
 
     init {
         viewModelScope.launch {
             _queryString.combine(sortOrderFlow) { q, o -> q to o }.collect { curr ->
                 val (query, order) = curr
                 if (Str.notEmpty(query)) {
-
                     launchProcessing()
                     // TODO skip remote process when the server is unreachable
                     nodeService.remoteQuery(stateID.account(), query)

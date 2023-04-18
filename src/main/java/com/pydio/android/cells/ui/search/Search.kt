@@ -81,7 +81,8 @@ fun Search(
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
     val query by searchVM.userInput.collectAsState("")
-    val hits = searchVM.hits.collectAsState()
+    // val hits = searchVM.hits.collectAsState()
+    val hits2 = searchVM.newHits.collectAsState(null).value?.observeAsState()
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
@@ -124,25 +125,31 @@ fun Search(
                     searchHelper.open(context, currID)
                 }
             }
+
             is NodeAction.OpenParentLocation -> {
                 moreMenuDone()
                 scope.launch {
                     searchHelper.openParentLocation(currID)
                 }
             }
+
             is NodeAction.DownloadToDevice -> {
                 destinationPicker.launch(currID.fileName)
                 // Done is called by the destination picker callback
             }
+
             is NodeAction.AsGrid -> {
                 searchVM.setListLayout(ListLayout.GRID)
             }
+
             is NodeAction.AsList -> {
                 searchVM.setListLayout(ListLayout.LIST)
             }
+
             is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
                 moreMenuDone()
             }
+
             else -> {
                 Log.e(logTag, "Unknown action $action for $currID")
                 moreMenuDone()
@@ -156,7 +163,7 @@ fun Search(
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
         listLayout = listLayout,
-        hits = hits.value,
+        hits = hits2?.value ?: listOf(),
         open = { currID ->
             scope.launch {
                 searchHelper.open(context, currID)
@@ -378,6 +385,7 @@ private fun HitsList(
                     }
                 }
             }
+
             else -> {
                 LazyColumn(
                     contentPadding = padding,
@@ -393,7 +401,10 @@ private fun HitsList(
                                 node.localModificationStatus
                             ),
                             more = { openMoreMenu(node.getStateID()) },
-                            modifier = Modifier.clickable { open(node.getStateID()) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { open(node.getStateID()) }
+                                .animateItemPlacement(),
                         )
                     }
                 }

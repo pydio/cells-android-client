@@ -54,6 +54,9 @@ open class AbstractBrowseVM(
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID)
+        return nodeService.getNode(stateID) ?: run {
+            // also try to remove from the remote
+            nodeService.tryToCacheNode(stateID)
+        }
     }
 }

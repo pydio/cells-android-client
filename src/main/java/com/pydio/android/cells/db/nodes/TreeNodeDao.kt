@@ -55,6 +55,9 @@ interface TreeNodeDao {
     @RawQuery(observedEntities = [RTreeNode::class])
     fun treeNodeQuery(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
 
+    @RawQuery(observedEntities = [RTreeNode::class])
+    fun liveSearchQuery(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
+
     @RawQuery
     fun searchQuery(query: SupportSQLiteQuery): List<RTreeNode>
 
