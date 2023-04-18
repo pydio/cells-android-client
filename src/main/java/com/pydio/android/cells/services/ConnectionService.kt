@@ -138,6 +138,31 @@ class ConnectionService(
         }
     }
 
+//    fun canListMeta(): Boolean {
+//        if (sessionView.value == null) {
+//            return false
+//        }
+//        val reachable =
+//            networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
+//        if (!reachable) {
+//            Log.d(
+//                logTag,
+//                "Un-reachable. Connected: ${networkService.isConnected()} " + ", auth status: ${sessionView.value?.authStatus}"
+//            )
+//        }
+//        return reachable
+//    }
+//
+//    suspend fun canDownloadFiles(): Boolean {
+//        if (sessionView.value == null) {
+//            return false
+//        }
+//
+//        val dlFileOnMetered = prefs.fetchPreferences().meteredNetwork.askBeforeDL
+//        return networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED && (dlFileOnMetered || !networkService.isMetered())
+//    }
+
+
     fun pauseMonitoring() {
         serviceScope.launch {
             currJob?.cancelAndJoin()

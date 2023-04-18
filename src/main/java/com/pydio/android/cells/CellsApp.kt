@@ -5,24 +5,16 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.WorkManager
 import com.pydio.android.cells.di.allModules
-import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.services.workers.OfflineSync
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -35,6 +27,7 @@ class CellsApp : Application(), KoinComponent {
 
     // Exposed to the whole app for tasks that must survive termination of the calling UI element
     // Typically for actions launched from the "More" menu (copy, move...)
+    @Deprecated("Rather us injected @ScopeService::class")
     val appScope = CoroutineScope(SupervisorJob())
 
     companion object {
@@ -60,24 +53,9 @@ class CellsApp : Application(), KoinComponent {
             modules(allModules)
         }
 
-        appScope.launch { withContext(Dispatchers.IO) { configureWorkers() } }
+//        appScope.launch { withContext(Dispatchers.IO) { configureWorkers() } }
     }
 
-    private suspend fun configureWorkers() {
-        val wManager = WorkManager.getInstance(applicationContext)
-        // cancelPendingWorkManager(wManager)
-        val prefs: PreferencesService by inject()
-        wManager.enqueueUniquePeriodicWork(
-            OfflineSync.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            OfflineSync.buildWorkRequest(prefs),
-        )
-        Log.e(logTag, ".... Offline as been started")
-    }
-
-    // TODO implement background cleaning, typically:
-    //  - states
-    //  - upload & downloads
 
     @Throws(SDKException::class)
     private fun updateClientData(): String {
@@ -131,30 +109,4 @@ class CellsApp : Application(), KoinComponent {
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
     }
-
-    /**
-     * If there is a pending work because of previous crash we'd like it to not run.
-     */
-//    private suspend fun cancelPendingWorkManager(manager: WorkManager) {
-//        Log.e(logTag, ".... cancelPendingWorkManager")
-//
-//        manager.cancelAllWork()
-//        // manager.cancelAllWork().result.await()
-//
-//        // Test launch with one time worker
-//        //            OneTimeWorkRequestBuilder<OfflineSyncWorker>()
-//        //                .setInputData(Data.EMPTY)
-//        //                .build()
-//        //                .also {
-//        //                    workManager
-//        //                        .enqueueUniqueWork(
-//        //                            OfflineSyncWorker.WORK_NAME + "_" + currentTimestamp(),
-//        //                            ExistingWorkPolicy.APPEND,
-//        //                            it
-//        //                        )
-//        //                }
-//        Log.e(logTag, "One time OfflineSyncWorker created")
-//    }
-//
-
 }

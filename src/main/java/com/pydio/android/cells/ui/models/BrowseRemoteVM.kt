@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.WorkerService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.api.Transport
@@ -27,7 +28,8 @@ import java.util.concurrent.TimeUnit
 class BrowseRemoteVM(
     prefs: PreferencesService,
     private val accountService: AccountService,
-    private val nodeService: NodeService
+    private val nodeService: NodeService,
+    private val workerService: WorkerService,
 ) : ViewModel() {
 
     private val logTag = "BrowseRemoteVM"

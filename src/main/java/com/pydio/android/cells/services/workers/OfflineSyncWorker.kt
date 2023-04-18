@@ -1,7 +1,6 @@
 package com.pydio.android.cells.services.workers
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -11,6 +10,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.db.preferences.SyncPreferences
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.utils.fromFreqToMinuteInterval
@@ -18,7 +18,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
 
-class OfflineSync(
+class OfflineSyncWorker(
     appContext: Context,
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params), KoinComponent {
@@ -30,46 +30,44 @@ class OfflineSync(
         const val WORK_NAME = "OfflineSyncWorker"
         private const val logTag = "OfflineSync"
 
-        suspend fun buildWorkRequest(prefs: PreferencesService): PeriodicWorkRequest {
+        /** Build a worker with constraints based on preferences */
+        fun buildWorkRequest(pref: SyncPreferences): PeriodicWorkRequest {
 
-            // Build constraints based on preferences
             val constraintBuilder = Constraints.Builder()
 
-            val settings = prefs.fetchPreferences().sync
-
-            val netType = when (settings.onNetworkType) {
+            val netType = when (pref.onNetworkType) {
                 AppNames.NETWORK_TYPE_CONSTRAINT_NOT_ROAMING -> NetworkType.NOT_ROAMING
                 AppNames.NETWORK_TYPE_CONSTRAINT_NONE -> NetworkType.CONNECTED
                 else -> NetworkType.UNMETERED
             }
             constraintBuilder.setRequiredNetworkType(netType)
 
-            if (settings.onCharging) {
+            if (pref.onCharging) {
                 constraintBuilder.setRequiresCharging(true)
             }
 
-            if (settings.onBatteryNotLow) {
+            if (pref.onBatteryNotLow) {
                 constraintBuilder.setRequiresBatteryNotLow(true)
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && settings.onIdle) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && pref.onIdle) {
+//                constraintBuilder.setRequiresDeviceIdle(true)
+//            }
+            if (pref.onIdle) {
                 constraintBuilder.setRequiresDeviceIdle(true)
             }
 
-            val repeatInterval = fromFreqToMinuteInterval(settings.frequency)
+            val repeatInterval = fromFreqToMinuteInterval(pref.frequency)
             Log.e(logTag, "... Built offline request with a frequency of $repeatInterval min.")
-            return PeriodicWorkRequestBuilder<OfflineSync>(
+            return PeriodicWorkRequestBuilder<OfflineSyncWorker>(
                 repeatInterval, TimeUnit.MINUTES
             ).setConstraints(constraintBuilder.build()).build()
         }
     }
 
     override suspend fun doWork(): Result {
-
         if (hasBeenMigrated()) {
             offlineService.runFullSync("Worker")
         }
-
         val d = Data.Builder().putString("yes", "no").build()
         return Result.success(d)
     }
