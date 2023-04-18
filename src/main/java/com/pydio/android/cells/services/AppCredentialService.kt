@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -33,6 +34,7 @@ class AppCredentialService(
     passwordStore: Store<String>,
     private val transportStore: Store<Transport>,
     private val ioDispatcher: CoroutineDispatcher,
+    private val procDispatcher: CoroutineDispatcher,
     private val networkService: NetworkService,
     private val accountDao: AccountDao,
     private val sessionViewDao: SessionViewDao,
@@ -49,23 +51,45 @@ class AppCredentialService(
     private val credServiceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(ioDispatcher + credServiceJob)
 
+    private val maxFail = 300
+    private var failNb: Int = 0
+
     init {
         serviceScope.launch {
-            try {
-                withContext(ioDispatcher) {
-                    while (true) {
-//                        while (this.coroutineContext.isActive) {
+            withContext(procDispatcher) {
+                while (failNb < maxFail) {
+                    try {
                         val currID = requestRefreshChannel.receive()
                         Log.e(logTag, "Received refresh token request for $currID")
                         safelyRefreshToken(currID)
+                        failNb = 0
+                    } catch (e: Exception) {
+                        Log.e(
+                            logTag,
+                            "Credential request channel consumer has failed with ${e.message}"
+                        )
+                        e.printStackTrace()
+                        delay(2000)
+                        failNb++
                     }
-                    // Log.e(logTag, "refresh channel has been cancelled")
                 }
-            } catch (e: Exception) {
-                Log.e(logTag, "Credential request channel consumer has failed with ${e.message}")
-                e.printStackTrace()
+
+                Log.e(
+                    logTag,
+                    "### Too many errors while trying to read channel"
+                )
+                Thread.dumpStack()
+                // We failed more than 1000 times in a row
+                throw SDKException(
+                    ErrorCodes.internal_error,
+                    "Too many errors while trying to read channel"
+                )
             }
         }
+    }
+
+    suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
+        tokenStore.get(stateID.id)
     }
 
     /**
@@ -79,10 +103,6 @@ class AppCredentialService(
             Log.d(logTag, "Sending refresh token request for $stateID")
             requestRefreshChannel.send(stateID)
         }
-    }
-
-    suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
-        tokenStore.get(stateID.id)
     }
 
     private suspend fun safelyRefreshToken(stateID: StateID) = withContext(ioDispatcher) {
@@ -106,7 +126,10 @@ class AppCredentialService(
 
             // Sanity checks
             if (!networkService.isConnected()) {
-                Log.e(logTag, "Cannot refresh token $stateID with no access to the remote server")
+                Log.e(
+                    logTag,
+                    "Cannot refresh token $stateID with no access to the remote server"
+                )
                 return@withContext
             }
 
