@@ -16,6 +16,7 @@ import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -31,6 +32,7 @@ class OfflineVM(
     private val nodeService: NodeService,
     private val networkService: NetworkService,
     private val jobService: JobService,
+    private val transferService: TransferService,
     private val offlineService: OfflineService,
 ) : AbstractBrowseVM(prefs, nodeService) {
 
@@ -62,7 +64,7 @@ class OfflineVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            nodeService.saveToSharedStorage(stateID, uri)
+            transferService.saveToSharedStorage(stateID, uri)
         }
     }
 
@@ -120,13 +122,16 @@ class OfflineVM(
                 // TODO implement settings to force accept this user story
                 Pair(false, "Preventing re-sync on metered network")
             }
+
             is NetworkStatus.Roaming -> {
                 // TODO implement settings to force accept this user story
                 Pair(false, "Preventing re-sync when on roaming network")
             }
+
             is NetworkStatus.Unavailable, is NetworkStatus.Unknown -> {
                 Pair(false, "Cannot launch re-sync with no internet connection")
             }
+
             is NetworkStatus.Unmetered -> {
                 return stateID?.let {
                     if (it != StateID.NONE) {

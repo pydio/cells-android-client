@@ -68,6 +68,29 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+// Well Known IDs
+class DiNames {
+    companion object {
+        // Dispatchers
+        const val uiDispatcher = "uiDispatcher"
+        const val ioDispatcher = "ioDispatcher"
+        const val cpuDispatcher = "cpuDispatcher"
+
+        // Stores
+        const val tokenStore = "TokenStore"
+        const val passwordStore = "PasswordStore"
+        const val serverStore = "ServerStore"
+        const val transportStore = "TransportStore"
+
+    }
+}
+
+// Databases are only referenced locally
+private const val runtimeDBName = "runtimedb"
+private const val authDBName = "authdb"
+private const val accountDBName = "accountdb"
+
+
 val appModule = module {
     single {
         PreferenceDataStoreFactory.create(
@@ -87,7 +110,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             RuntimeDB::class.java,
-            "runtimedb"
+            runtimeDBName
         )
             .addMigrations(RuntimeDB.MIGRATION_1_2)
             .fallbackToDestructiveMigrationOnDowngrade()
@@ -99,7 +122,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             AuthDB::class.java,
-            "authdb"
+            authDBName
         )
             .build()
     }
@@ -109,7 +132,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             AccountDB::class.java,
-            "accountdb"
+            accountDBName
         ).build()
     }
 }
@@ -132,13 +155,13 @@ val daoModule = module {
 val serviceModule = module {
 
     // Enable better management of context and testing
-    single(named("uiDispatcher")) {
+    single(named(DiNames.uiDispatcher)) {
         Dispatchers.Main
     }
-    single(named("ioDispatcher")) {
+    single(named(DiNames.ioDispatcher)) {
         Dispatchers.IO
     }
-    single(named("cpuDispatcher")) {
+    single(named(DiNames.cpuDispatcher)) {
         Dispatchers.Default
     }
 
@@ -147,8 +170,8 @@ val serviceModule = module {
     single {
         WorkerService(
             androidContext(),
-            get(named("ioDispatcher")),
-            get(named("cpuDispatcher")),
+            get(named(DiNames.ioDispatcher)),
+            get(named(DiNames.cpuDispatcher)),
             get(),
             get(),
         )
@@ -158,32 +181,32 @@ val serviceModule = module {
     single {
         NetworkService(
             androidContext(),
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
         )
     }
 
     // Long running jobs
     single {
         JobService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get()
         )
     }
 
     // Authentication
-    single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
-    single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
+    single<Store<Token>>(named(DiNames.tokenStore)) { TokenStore(get()) }
+    single<Store<String>>(named(DiNames.passwordStore)) { PasswordStore(get()) }
 
-    single<Store<Server>>(named("ServerStore")) { MemoryStore() }
-    single<Store<Transport>>(named("TransportStore")) { MemoryStore() }
+    single<Store<Server>>(named(DiNames.serverStore)) { MemoryStore() }
+    single<Store<Transport>>(named(DiNames.transportStore)) { MemoryStore() }
 
     single {
         AppCredentialService(
-            get(named("TokenStore")),
-            get(named("PasswordStore")),
-            get(named("TransportStore")),
-            get(named("ioDispatcher")),
-            get(named("cpuDispatcher")),
+            get(named(DiNames.tokenStore)),
+            get(named(DiNames.passwordStore)),
+            get(named(DiNames.transportStore)),
+            get(named(DiNames.ioDispatcher)),
+            get(named(DiNames.cpuDispatcher)),
             get(), // NetworkService
             get(), // SessionViewDao
             get(), // AccountDao
@@ -191,13 +214,13 @@ val serviceModule = module {
     }
     single {
         AuthService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get()
         )
     }
     single {
         FileService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get()
         )
     }
@@ -206,7 +229,7 @@ val serviceModule = module {
     single {
         TreeNodeRepository(
             androidContext().applicationContext,
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get()
         )
     }
@@ -216,14 +239,14 @@ val serviceModule = module {
         SessionFactory(
             get(),
             get(),
-            get(named("ServerStore")),
-            get(named("TransportStore")),
+            get(named(DiNames.serverStore)),
+            get(named(DiNames.transportStore)),
             get()
         )
     }
     single {
         AccountService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get(), get(), get(), get(), get(), get()
         )
     }
@@ -232,26 +255,26 @@ val serviceModule = module {
     single {
         NodeService(
             androidContext().applicationContext,
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get(), get(), get(), get()
         )
     }
     single {
         OfflineService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get(), get(), get(), get()
         )
     }
     single {
         TransferService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get(), get(), get(), get(), get(), get()
         )
     }
 
     single {
         ConnectionService(
-            get(named("ioDispatcher")),
+            get(named(DiNames.ioDispatcher)),
             get(), get(), get()
         )
     }

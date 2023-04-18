@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
 class SearchVM(
     stateID: StateID,
     private val prefs: PreferencesService,
-    private val nodeService: NodeService
+    private val nodeService: NodeService,
+    private val transferService: TransferService,
 ) : ViewModel() {
 
     private val logTag = "SearchVM"
@@ -158,7 +160,7 @@ class SearchVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            nodeService.saveToSharedStorage(stateID, uri)
+            transferService.saveToSharedStorage(stateID, uri)
         }
     }
 

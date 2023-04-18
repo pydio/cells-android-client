@@ -1,13 +1,11 @@
 package com.pydio.android.cells.services
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
@@ -25,19 +23,14 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
 class NodeService(
     private val appContext: Context,
@@ -277,11 +270,11 @@ class NodeService(
         return@withContext null
     }
 
-    fun enqueueDownload(stateID: StateID, uri: Uri) {
-        serviceScope.launch {
-            saveToSharedStorage(stateID, uri)
-        }
-    }
+//    fun enqueueDownload(stateID: StateID, uri: Uri) {
+//        serviceScope.launch {
+//            saveToSharedStorage(stateID, uri)
+//        }
+//    }
 
     suspend fun createFolder(parentID: StateID, folderName: String) =
         withContext(ioDispatcher) {
@@ -445,7 +438,7 @@ class NodeService(
         return rootPaths.any { currentPath.startsWith(it) }
     }
 
-    private suspend fun isCachedVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
+    suspend fun isCachedVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
         val localFileDao = treeNodeRepository.nodeDB(rTreeNode.getStateID()).localFileDao()
         val localFile = localFileDao.getFile(rTreeNode.encodedState, AppNames.LOCAL_FILE_TYPE_FILE)
@@ -510,41 +503,6 @@ class NodeService(
                 val msg = "could not stat ${rTreeNode.getStateID()}"
                 handleSdkException(rTreeNode.getStateID(), msg, se)
                 return@withContext null
-            }
-        }
-
-    suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
-        withContext(ioDispatcher) {
-            val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-                ?: return@withContext
-            val localFile = getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
-            val resolver = CellsApp.instance.contentResolver
-            var out: OutputStream? = null
-            try {
-                out = resolver.openOutputStream(uri)
-                if (isCachedVersionUpToDate(rTreeNode) ?: return@withContext && localFile.exists()) {
-                    var input: InputStream? = null
-                    try {
-                        input = FileInputStream(localFile)
-                        IoHelpers.pipeRead(input, out)
-                    } finally {
-                        IoHelpers.closeQuietly(input)
-                    }
-                } else {
-                    // Directly download to final destination: we do not save the corresponding file in the cache
-                    // TODO handle progress
-                    getClient(stateID).download(stateID.workspace, stateID.file, out, null)
-                }
-                Log.i(logTag, "... File has been copied to ${uri.path}")
-            } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-                Log.e(logTag, "could not perform DL for " + stateID.id)
-                se.printStackTrace()
-            } catch (ioe: IOException) {
-                // TODO handle this: what should we do ?
-                Log.e(logTag, "cannot write at ${uri.path}: ${ioe.message}")
-                ioe.printStackTrace()
-            } finally {
-                IoHelpers.closeQuietly(out)
             }
         }
 
@@ -660,7 +618,7 @@ class NodeService(
         return accountService.getClient(stateID)
     }
 
-    private fun getLocalFile(item: RTreeNode, type: String): File {
+    fun getLocalFile(item: RTreeNode, type: String): File {
         return File(fileService.getLocalPath(item, type))
     }
 }

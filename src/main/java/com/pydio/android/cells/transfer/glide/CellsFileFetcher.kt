@@ -4,9 +4,9 @@ import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
 import com.pydio.android.cells.services.TransferService
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,22 +43,23 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
         dlScope.launch {
             val (stateId, type) = decodeModel(model)
             try {
-                val (file, errMsg) = transferService.getImageForDisplay(stateId, type, null)
-                file?.let {
-                    // TODO rather use a stream
-                    val bytes = it.readBytes()
-                    val byteBuffer = ByteBuffer.wrap(bytes)
-                    callback.onDataReady(byteBuffer)
-                }
-                if (Str.notEmpty(errMsg)) {
-                    // TODO rather only rely on exception
-                    val suffix = "$type at $stateId: $errMsg"
-                    Log.e(logTag, "Got an error message while trying to get $suffix")
-                    callback.onLoadFailed(SDKException("could not get $suffix"))
-                }
+                val file = transferService.getImageForDisplay(stateId, type, null)
+                val bytes = file.readBytes()
+                val byteBuffer = ByteBuffer.wrap(bytes)
+                callback.onDataReady(byteBuffer)
+            } catch (se: SDKException) {
+                Log.e(logTag, "could not get $type at $stateId: ${se.message}")
+                callback.onLoadFailed(
+                    SDKException(
+                        ErrorCodes.internal_error,
+                        "could not get $type at $stateId",
+                        se
+                    )
+                )
             } catch (e: Exception) {
-                Log.e(logTag, "error while trying to get $type at $stateId: ${e.message}")
-                callback.onLoadFailed(e)
+                val errMsg = "Unexpected error while trying to get $type at $stateId"
+                Log.e(logTag, "$errMsg: ${e.message}")
+                callback.onLoadFailed(SDKException(ErrorCodes.internal_error, errMsg, e))
             }
         }
     }

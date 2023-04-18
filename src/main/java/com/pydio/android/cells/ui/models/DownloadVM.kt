@@ -13,6 +13,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.externallyView
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,17 +45,13 @@ class DownloadVM(
     }
 
     suspend fun launchDownload() {
-        val (transferID, errorMsg) =
-            transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE, null)
-        if (!errorMsg.isNullOrBlank()) {
-            Log.e(logTag, "Could not prepare download for $stateID: $errorMsg")
-            return
-        }
-
-        _transferID.value = transferID
-        transferService.runDownloadTransfer(stateID.account(), transferID, null)?.let {
-            Log.e(logTag, "Could not perform download for $stateID: $errorMsg")
-            return
+        try {
+            val transferID = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
+            _transferID.value = transferID
+            transferService.runDownloadTransfer(stateID.account(), transferID, null)
+        } catch (se: SDKException) {
+            Log.e(logTag, "Could not perform download for $stateID: ${se.message ?: "-"} ")
+            // TODO also notify the end user
         }
     }
 

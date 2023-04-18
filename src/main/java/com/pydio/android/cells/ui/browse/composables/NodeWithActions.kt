@@ -353,7 +353,7 @@ private fun FolderWithDialogs(
 
         dialog(route(NodeAction.DownloadToDevice)) { entry ->
             val stateID = lazyStateID(entry)
-            PickDestination(
+            ChooseDestination(
                 nodeActionsVM,
                 stateID = stateID,
                 dismiss = { closeDialog(it) }

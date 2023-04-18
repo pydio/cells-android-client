@@ -11,6 +11,7 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 class BookmarksVM(
     private val accountID: StateID,
     private val prefs: PreferencesService,
-    private val nodeService: NodeService
+    private val nodeService: NodeService,
+    private val transferService: TransferService,
 ) : AbstractBrowseVM(prefs, nodeService) {
 
     private val logTag = "BookmarksVM"
@@ -56,7 +58,7 @@ class BookmarksVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            nodeService.saveToSharedStorage(stateID, uri)
+            transferService.saveToSharedStorage(stateID, uri)
         }
     }
 

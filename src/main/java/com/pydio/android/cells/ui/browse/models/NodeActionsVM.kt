@@ -99,7 +99,7 @@ class NodeActionsVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            nodeService.saveToSharedStorage(stateID, uri)
+            transferService.saveToSharedStorage(stateID, uri)
             // FIXME handle exception
         }
     }

@@ -90,7 +90,7 @@ fun Download(
 
     LaunchedEffect(key1 = rTransfer.value?.status) {
         val status = rTransfer.value?.status
-        if (AppNames.JOB_STATUS_DONE == status){
+        if (AppNames.JOB_STATUS_DONE == status) {
             downloadVM.viewFile(context)
             dismiss(true)
         }
@@ -140,12 +140,12 @@ fun Download(
 }
 
 @Composable
-fun PickDestination(
+fun ChooseDestination(
     nodeActionsVM: NodeActionsVM,
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
-    Log.d(logTag, "Composing PickDestination for $stateID")
+    Log.d(logTag, "Composing ChooseDestination for $stateID")
     val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
     val destinationPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument(),
