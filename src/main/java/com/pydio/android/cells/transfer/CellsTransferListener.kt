@@ -7,6 +7,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.di.DiNames
+import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.ScopeService
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.ErrorCodes
@@ -31,6 +32,8 @@ class CellsTransferListener(
     private val scope = scopeService.appScope
     private val ioDispatcher: CoroutineDispatcher by inject(named(DiNames.ioDispatcher))
 
+    private val fileService: FileService by inject()
+
     // We rely on an instance object to avoid race conditions.
     // It is still a bit clumsy and we must pay attention to only update distinct
     // fields of the record in the various methods.
@@ -47,6 +50,7 @@ class CellsTransferListener(
             when (state) {
                 TransferState.COMPLETED -> {
                     Log.i(logTag, "... #$id - ${transferRecord.transferId}: Transfer complete")
+                    fileService.registerLocalFile(transferRecord)
                     transferRecord.status = AppNames.JOB_STATUS_DONE
                     transferRecord.doneTimestamp = currentTimestamp()
                     transferDao.update(transferRecord)

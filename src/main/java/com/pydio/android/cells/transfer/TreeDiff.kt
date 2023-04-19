@@ -4,6 +4,7 @@ import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDao
+import com.pydio.android.cells.di.DiNames
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
@@ -15,13 +16,15 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 import java.io.File
 
 class TreeDiff(
@@ -46,8 +49,10 @@ class TreeDiff(
         }
     }
 
-    private val folderDiffJob = Job()
-    private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
+    private val folderDiffJob = SupervisorJob()
+    private val ioDispatcher: CoroutineDispatcher by inject(named(DiNames.ioDispatcher))
+    private val cpuDispatcher: CoroutineDispatcher by inject(named(DiNames.cpuDispatcher))
+    private val diffScope = CoroutineScope(ioDispatcher + folderDiffJob)
 
     private val networkService: NetworkService by inject()
     private val nodeService: NodeService by inject()
@@ -99,11 +104,13 @@ class TreeDiff(
                 local == null -> {
                     putAddChange(remote)
                 }
+
                 areNodeContentEquals(remote, local, client.isLegacy) -> {
                     if (alsoCheckFiles) {
                         checkFiles(local.getStateID(), remote)
                     }
                 }
+
                 else -> {
                     putUpdateChange(remote, local)
                 }
@@ -232,6 +239,7 @@ class TreeDiff(
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_THUMB)
         ) {
             diffScope.launch {
+                // Log.e(logTag, "Launching thumb DL")
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_THUMB)
             }
             changeNumber++
@@ -241,6 +249,7 @@ class TreeDiff(
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_PREVIEW)
         ) {
             diffScope.launch {
+                // Log.e(logTag, "Launching preview DL")
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_PREVIEW)
             }
             changeNumber++
@@ -250,6 +259,7 @@ class TreeDiff(
             fileService.needsUpdate(stateID, remote, AppNames.LOCAL_FILE_TYPE_FILE)
         ) {
             diffScope.launch {
+                // Log.e(logTag, "Launching file DL")
                 fileDL.orderDL(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE, remote.size)
             }
             changeNumber++
