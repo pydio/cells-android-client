@@ -39,6 +39,8 @@ class StartingState(var stateID: StateID) {
 
     // Share with Pydio
     var uris: MutableList<Uri> = mutableListOf()
+
+    var isRestart = false
 }
 
 //// Converts a StartingState object which we don't know how to save to a Map<String, String> which we can save

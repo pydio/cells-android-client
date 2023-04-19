@@ -77,16 +77,20 @@ class LandingVM(
             }
         }
 
+
+        // probably useless, TODO double check
+        // stateID?.let { accountService.openSession(it.account()) }
+
+        val state = StartingState(stateID ?: StateID.NONE)
         val route = when (stateID) {
             null -> LoginDestinations.AskUrl.createRoute()
             StateID.NONE -> CellsDestinations.Accounts.route
-            else -> BrowseDestinations.Open.createRoute(stateID)
+            else -> {
+                // We are most probably in a restart, so we prevent explicit browsing
+                state.isRestart = true
+                BrowseDestinations.Open.createRoute(stateID)
+            }
         }
-
-        // probably useless, TODO double check
-        stateID?.let { accountService.openSession(it.account()) }
-
-        val state = StartingState(stateID ?: StateID.NONE)
         state.route = route
         return state
     }

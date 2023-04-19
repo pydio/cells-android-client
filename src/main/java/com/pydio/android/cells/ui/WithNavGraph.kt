@@ -57,7 +57,16 @@ fun CellsNavGraph(
 
     // Starting state is null once the initial state has been consumed
     if (startingState != null) {
-        LaunchedEffect(key1 = startingState.route) {
+        LaunchedEffect(key1 = startingState.route, key2 = startingState.isRestart) {
+            if (startingState.isRestart) {
+                Log.e(logTag, "## Got a restart preventing navigation")
+                Log.d(
+                    logTag,
+                    "    - route: ${startingState.route}, stateID: ${startingState.stateID}"
+                )
+                return@LaunchedEffect
+            }
+
             Log.e(logTag, "########## Launching side effect for ${startingState.route}")
             Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
             if (startingState.route?.isNotEmpty() == true) {
