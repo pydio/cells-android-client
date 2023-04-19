@@ -81,8 +81,8 @@ fun Search(
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
     val query by searchVM.userInput.collectAsState("")
-    // val hits = searchVM.hits.collectAsState()
-    val hits2 = searchVM.newHits.collectAsState(null).value?.observeAsState()
+    // TODO this seems clumsy. We have a flow of liveData double check and improve
+    val hits = searchVM.hits.collectAsState(null).value?.observeAsState()
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
@@ -163,7 +163,7 @@ fun Search(
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
         listLayout = listLayout,
-        hits = hits2?.value ?: listOf(),
+        hits = hits?.value ?: listOf(),
         open = { currID ->
             scope.launch {
                 searchHelper.open(context, currID)
@@ -195,8 +195,6 @@ private fun WithScaffold(
     moreMenuState: MoreMenuState,
 ) {
 
-    // val context = LocalContext.current
-
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
         if (it != isShown) {
@@ -205,7 +203,6 @@ private fun WithScaffold(
     }
 
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
-
         if (listLayout == ListLayout.GRID) {
             val label = stringResource(R.string.button_switch_to_list_layout)
             DropdownMenuItem(
@@ -325,7 +322,6 @@ private fun HitsList(
         canRefresh = true,
         modifier = Modifier.fillMaxSize()
     ) {
-
 
         when (listLayout) {
             ListLayout.GRID -> {
