@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="package_id" translatable="false">cells</string>
-    <!-- FIXME change this before going live -->
     <string name="application_title" translatable="false">Pydio</string>
+    <!-- Change this for better usability in AVDs when working on the next branch -->
     <!--    <string name="application_title" translatable="false">Pydio Next</string>-->
     <string name="app_name" translatable="false">AndroidClient</string>
     <!-- client ID is used during OAuth process and must be authorized and correctly configured in your server instance -->

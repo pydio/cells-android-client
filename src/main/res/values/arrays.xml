@@ -113,9 +113,4 @@
         <item>status||DESC</item>
     </string-array>
 
-    <!--    <string-array name="job_sort_by_values" translatable="false">-->
-    <!--        <item>creation_ts_desc</item>-->
-    <!--        <item>creation_ts_asc</item>-->
-    <!--    </string-array>-->
-
 </resources>
