@@ -4,10 +4,10 @@
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirmar</string>
-    <string name="button_next">Next</string>
-    <string name="button_back">Back</string>
-    <string name="button_done_and_exit">Upload done. Exit</string>
-    <string name="button_run_in_background">Run in background</string>
+    <string name="button_next">Próximo</string>
+    <string name="button_back">Anterior</string>
+    <string name="button_done_and_exit">Upload concluído. Sair</string>
+    <string name="button_run_in_background">Executar em segundo plano</string>
     <string name="button_cancel">Cancelar</string>
     <string name="button_switch_to_grid_layout">Exibir em grade</string>
     <string name="button_switch_to_list_layout">Exibir em lista</string>
@@ -33,7 +33,7 @@
     <string name="action_settings">Configurações</string>
     <string name="action_clear_cache">Limpar cache</string>
     <!-- Main Menu (left drawer) -->
-    <string name="open_drawer">Open menu drawer</string>
+    <string name="open_drawer">Abrir gaveta do menu</string>
     <!-- Section titles -->
     <string name="my_workspaces">Meu Espaço de Trabalho</string>
     <string name="quick_access">Acesso Rápido</string>
@@ -62,19 +62,19 @@
     <string name="open_website_button">Mais informações em pydio.com</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Cadastrar uma nova conta</string>
-    <string name="ask_url_desc">Digite seu endereço residencial</string>
+    <string name="ask_url_desc">Digite o endereço do seu servidor</string>
     <string name="ask_url_example">ex.: https://files.example.com</string>
     <string name="oauth_callback_waiting">O processo de autenticação foi iniciado</string>
     <string name="oauth_callback_cancel">Cancelar</string>
     <string name="invalid_tls_certificate">Certificado inválido</string>
     <string name="confirm_skip_verify_title">Certificado inválido</string>
     <string name="confirm_skip_verify_desc">Se você sabe o que está fazendo, você pode optar por ignorar a etapa de validação de certificado TLS</string>
-    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
-    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
+    <string name="confirm_skip_verify_accept">Aceitar os riscos e continuar</string>
+    <string name="confirm_skip_verify_cancel">Voltar (recomendado)</string>
     <string name="button_i_understand_the_risks">OK, eu compreendo os riscos</string>
     <string name="p8_credentials_title">Pydio 8</string>
     <string name="p8_credentials_desc">Digite suas credenciais</string>
-    <string name="oauth_code_flow_title">Processing</string>
+    <string name="oauth_code_flow_title">Processando</string>
     <string name="oauth_code_flow_desc">Processando, por favor seja paciente.</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Sem conexão</string>
@@ -142,10 +142,10 @@
     <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
     <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
     <!-- Log Management -->
-    <string name="log_list_title">Application logs</string>
+    <string name="log_list_title">Logs do aplicativo</string>
     <!-- Transfer Management -->
-    <string name="upload_screen_pending_title">Uploading…</string>
-    <string name="upload_screen_done_title">Upload terminated</string>
+    <string name="upload_screen_pending_title">Enviando…</string>
+    <string name="upload_screen_done_title">Upload concluído</string>
     <string name="transfer_list_title">Transferências atuais</string>
     <string name="choose_target_for_share_title">Compartilhar com…</string>
     <string name="choose_target_for_copy_title">Copiar para…</string>
@@ -159,10 +159,10 @@
     <string name="relaunch_transfer">Reiniciar transferência</string>
     <!-- System -->
     <!-- Jobs -->
-    <string name="clear_terminated">Clear terminated</string>
+    <string name="clear_terminated">Apagar finalizadas</string>
     <string name="delete_record">Apagar registro</string>
     <!-- Logs -->
-    <string name="clear_all_logs">Clear application logs</string>
+    <string name="clear_all_logs">Limpar logs do aplicativo</string>
     <!-- Migration-->
     <string name="migration_message">Migrando dados legados, por favor aguarde…</string>
     <string name="post_migration_title">Atualizado com sucesso para a nova versão!</string>
@@ -182,14 +182,14 @@
     <string name="public_link">Link público</string>
     <string name="public_link_content_desc">Criar ou apagar um link público para este elemento</string>
     <string name="keep_offline">Manter offline</string>
-    <string name="remove_from_offline">Remove from offline</string>
-    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="remove_from_offline">Remover cópia offline</string>
+    <string name="remove_bookmark">Remover favorito</string>
     <string name="keep_offline_content_desc">Mantenha este elemento offline</string>
     <string name="bookmark">Marcador</string>
     <string name="bookmark_element_content_desc">Marcar este elemento</string>
     <string name="delete">Excluir</string>
-    <string name="pause">Pause</string>
-    <string name="relaunch">Relaunch</string>
+    <string name="pause">Pausar</string>
+    <string name="relaunch">Reabrir</string>
     <string name="empty_recycle">Esvaziar lixeira</string>
     <string name="restore_content">Restaurar</string>
     <string name="permanently_remove">Remover permanentemente</string>
@@ -216,7 +216,7 @@
     <string name="content_description_media">Pré-visualização do conteúdo</string>
     <string name="dialog_create_folder_title">Criar pasta</string>
     <string name="dialog_create_folder_positive_btn">Criar</string>
-    <string name="dialog_create_folder_support_text">Please enter a name for the new folder</string>
+    <string name="dialog_create_folder_support_text">Por favor, digite o nome da nova pasta</string>
     <string name="confirm_move_to_recycle_title">Confirmar exclusão</string>
     <string name="confirm_move_to_recycle_desc">%s será movido para a lixeira</string>
     <plurals name="confirm_multi_move_to_recycle_desc">
@@ -232,7 +232,7 @@
     <string name="download_wait_message">Baixando, aguarde…</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
     <string name="display_as_qrcode_dialog_desc">Digitalize o código para acessar diretamente %s</string>
-    <string name="running_download_title">Downloading...</string>
+    <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Confirmar para baixar</string>
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
     <!-- Settings -->
@@ -260,10 +260,10 @@
     <string name="pref_feedback_send_title">Enviar comentários</string>
     <string name="pref_feedback_send_desc">Relate problemas técnicos ou sugira novos recursos</string>
     <string name="pref_category_title_troubleshooting">Resolução de problemas</string>
-    <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
-    <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
-    <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
-    <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
+    <string name="pref_troubleshooting_show_list_title">Exibir ferramentas avançadas</string>
+    <string name="pref_troubleshooting_show_list_desc">Dá acesso a mais informações para ajudar na resolução de comportamentos inesperados</string>
+    <string name="pref_troubleshooting_disable_poll_title">Desativar consulta</string>
+    <string name="pref_troubleshooting_disable_poll_desc">Desativa a consulta automática do servidor enquanto navega. Isso deve ser usado com cuidado: você terá que atualizar explicitamente uma página para ver uma nova pasta após a criação</string>
     <string name="pref_choose_list_offline_frequency_title">Frequência de sincronização</string>
     <string name="pref_choose_list_offline_frequency_desc">Escolha uma frequência para sincronização em segundo plano</string>
     <!-- Accessibility various content -->
@@ -275,7 +275,7 @@
     <string name="thumb_description">Pré-visualização de conteúdo pequeno</string>
     <string name="folder_icon_description">Ícone de pasta</string>
     <string name="empty_content_icon_description">Ícone de lista vazia</string>
-    <string name="choose_account">Choose an account</string>
+    <string name="choose_account">Escolha uma conta</string>
     <string name="switch_account">Trocar conta</string>
     <string name="switch_workspace">Trocar de espaço de trabalho</string>
     <string name="parent_folder">Pasta pai</string>

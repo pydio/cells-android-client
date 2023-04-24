@@ -232,7 +232,7 @@
     <string name="download_wait_message">Downloading, please wait…</string>
     <string name="display_as_qrcode_dialog_title">Direct link</string>
     <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s</string>
-    <string name="running_download_title">Downloading...</string>
+    <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Confirm download</string>
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- Settings -->

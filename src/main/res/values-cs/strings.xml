@@ -236,7 +236,7 @@
     <string name="download_wait_message">Stahování – čekejte prosím…</string>
     <string name="display_as_qrcode_dialog_title">Přímý odkaz</string>
     <string name="display_as_qrcode_dialog_desc">Naskenujte kód pro přímý přístup k %s</string>
-    <string name="running_download_title">Downloading...</string>
+    <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Potvrdit stažení</string>
     <string name="confirm_download_desc">Tento soubor je velký (%s) a jste na síti s účtovanými daty. Opravdu chcete pokračovat?</string>
     <!-- Settings -->

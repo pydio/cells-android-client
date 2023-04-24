@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Kanonisch (A bis Z, zuerst Ordner)</item>
-        <item>Dateiname (A bis Z)</item>
-        <item>Dateiname (Z bis A)</item>
+        <item>Kanonisch (A bis Z, Ordner zuerst)</item>
+        <item>Name (A bis Z)</item>
+        <item>Name (Z bis A)</item>
         <item>Geändert (älteste zuerst)</item>
         <item>Geändert (neueste zuerst)</item>
         <item>Größe (kleinste zuerst)</item>
@@ -50,8 +50,4 @@
         <item>Status (A bis Z)</item>
         <item>Status (Z bis A)</item>
     </string-array>
-    <!--    <string-array name="job_sort_by_values" translatable="false">-->
-    <!--        <item>creation_ts_desc</item>-->
-    <!--        <item>creation_ts_asc</item>-->
-    <!--    </string-array>-->
 </resources>
