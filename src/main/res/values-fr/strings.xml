@@ -232,7 +232,7 @@
     <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
     <string name="display_as_qrcode_dialog_title">Lien direct</string>
     <string name="display_as_qrcode_dialog_desc">Scannez le code pour accéder au partage vers %s</string>
-    <string name="running_download_title">Téléchargement...</string>
+    <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Confirmer le téléchargement</string>
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
     <!-- Settings -->

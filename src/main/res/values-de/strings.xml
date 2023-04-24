@@ -22,7 +22,7 @@
     <string name="action_open_app">App öffnen</string>
     <string name="action_choose_account">Konto auswählen</string>
     <string name="action_browse">Durchsuchen</string>
-    <string name="action_open_workspaces">Arbeitsumgebungen</string>
+    <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_offline_roots">Offline-Dateien</string>
     <string name="action_open_bookmarks">Favoriten</string>
     <string name="action_open_transfers">Übertragungen</string>
@@ -35,7 +35,7 @@
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Menü-Übersicht öffnen</string>
     <!-- Section titles -->
-    <string name="my_workspaces">Meine Arbeitsumgebungen</string>
+    <string name="my_workspaces">My Workspaces</string>
     <string name="quick_access">Schnellzugriff</string>
     <string name="my_account">Mein Konto</string>
     <string name="nav_open">Öffnen</string>
@@ -88,14 +88,14 @@
     <string name="account_list_desc">Bereits registrierte Server verwalten</string>
     <string name="account_list_none">Noch kein Konto wurde konfiguriert…</string>
     <!-- Browse management -->
-    <string name="ws_list_subtitle">Wählen Sie eine Arbeitsumgebung zum Durchsuchen</string>
+    <string name="ws_list_subtitle">Wählen Sie einen Workspace zum Durchsuchen</string>
     <string name="browse_list_desc">Durchsuchen Sie Ihre Remote-Server</string>
     <string name="browse_list_none">Leer</string>
     <string name="recycle_bin_label">Papierkorb</string>
     <string name="account_server_label">Server: %s</string>
     <string name="account_logged_in_as_label">Eingeloggt als %s</string>
     <string name="category_cells">Zellen</string>
-    <string name="category_workspaces">Arbeitsumgebungen</string>
+    <string name="category_workspaces">Workspaces</string>
     <string name="last_check">Zuletzt geprüft</string>
     <string name="last_check_never">nie</string>
     <string name="loading_message">Bitte warten Sie, während der Inhalt geladen wird…</string>
@@ -153,7 +153,7 @@
     <!-- Target choice -->
     <string name="choose_target_subtitle">Speicherort wählen</string>
     <string name="pick_up_session">Konto auswählen</string>
-    <string name="pick_up_workspace">Ziel-Arbeitsumgebung auswählen</string>
+    <string name="pick_up_workspace">Ziel-Workspace auswählen</string>
     <string name="pick_up_folder">Zielordner wählen</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Transfer erneut starten</string>
@@ -232,7 +232,7 @@
     <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
     <string name="display_as_qrcode_dialog_title">Direktlink</string>
     <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
-    <string name="running_download_title">Wird heruntergeladen...</string>
+    <string name="running_download_title">Wird heruntergeladen…</string>
     <string name="confirm_download_title">Herunterladen bestätigen</string>
     <string name="confirm_download_desc">Diese Datei ist groß (%s) und Sie sind in einem gemessenen Netzwerk. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <!-- Settings -->
@@ -277,7 +277,7 @@
     <string name="empty_content_icon_description">Leeres Listensymbol</string>
     <string name="choose_account">Konto auswählen</string>
     <string name="switch_account">Konto wechseln</string>
-    <string name="switch_workspace">Arbeitsumgebung wechseln</string>
+    <string name="switch_workspace">Workspace wechseln</string>
     <string name="parent_folder">Übergeordneter Ordner</string>
     <string name="order_by_title">Sortierreihenfolge</string>
 </resources>
