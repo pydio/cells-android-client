@@ -17,7 +17,11 @@ class BrowseHelper(
 ) {
     private val logTag = "BrowseHelper"
 
-    suspend fun open(context: Context, stateID: StateID) {
+    val browse = "browse"
+    val bookmarks = "bookmarks"
+    val offline = "offline"
+
+    suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
         Log.d(logTag, "... Calling open for $stateID")
 
         // Kind of tweak: we check if the target node is the penultimate
@@ -53,7 +57,8 @@ class BrowseHelper(
                 }
                 route = if (item.isFolder()) {
                     BrowseDestinations.Open.createRoute(stateID)
-                } else if (item.isPreViewable()) {
+                } else if (item.isPreViewable() && callingContext == browse) {
+                    // TODO (since v2) Open carousel for bookmark, offline and search result nodes
                     BrowseDestinations.OpenCarousel.createRoute(stateID)
                 } else {
                     try {

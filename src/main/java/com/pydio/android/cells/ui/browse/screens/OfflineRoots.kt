@@ -100,7 +100,7 @@ fun OfflineRoots(
 
     val localOpen: (StateID) -> Unit = { stateID ->
         scope.launch {
-            browseHelper.open(context, stateID)
+            browseHelper.open(context, stateID, browseHelper.offline)
         }
     }
 

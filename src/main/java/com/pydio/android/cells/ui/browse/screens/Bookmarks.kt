@@ -89,15 +89,7 @@ fun Bookmarks(
 
     val localOpen: (StateID) -> Unit = { stateID ->
         scope.launch {
-            bookmarksVM.getNode(stateID)?.let {
-                if (it.isFolder()) {
-                    browseHelper.open(context, stateID)
-//                } else if (it.isPreViewable()) {
-                    // TODO (since v2) Open carousel for bookmark nodes
-                } else {
-                    bookmarksVM.viewFile(context, stateID)
-                }
-            }
+            browseHelper.open(context, stateID, browseHelper.bookmarks)
         }
     }
 
@@ -156,23 +148,29 @@ fun Bookmarks(
                     }
                 }
             }
+
             is NodeAction.DownloadToDevice -> {
                 destinationPicker.launch(stateID.fileName)
                 // Done is called by the destination picker callback
             }
+
             is NodeAction.ToggleBookmark -> {
                 bookmarksVM.removeBookmark(stateID)
                 moreMenuDone()
             }
+
             is NodeAction.AsGrid -> {
                 bookmarksVM.setListLayout(ListLayout.GRID)
             }
+
             is NodeAction.AsList -> {
                 bookmarksVM.setListLayout(ListLayout.LIST)
             }
+
             is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
                 moreMenuDone()
             }
+
             else -> {
                 Log.e(logTag, "Unknown action $action for $stateID")
                 moreMenuDone()
@@ -395,6 +393,7 @@ private fun BookmarkList(
                         }
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         contentPadding = padding,
