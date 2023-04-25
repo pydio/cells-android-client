@@ -17,9 +17,11 @@
     <string name="button_clear_list">Liste leeren</string>
     <string name="button_resync_all">Synchronisieren</string>
     <string name="button_skip">Überspringen</string>
+    <string name="button_launch_sync">Sync starten</string>
     <!-- Navigation labels -->
     <string name="action_home">Startseite</string>
-    <string name="action_open_app">App öffnen</string>
+    <!--    <string name="action_open_app">Open App</string>-->
+    <string name="action_open_after_migration">Los geht\'s!</string>
     <string name="action_choose_account">Konto auswählen</string>
     <string name="action_browse">Durchsuchen</string>
     <string name="action_open_workspaces">Workspaces</string>
@@ -113,6 +115,8 @@
     <string name="no_bookmark_for_account">Für dieses Konto wurde kein Lesezeichen definiert…</string>
     <string name="no_transfer_for_account">Keine kürzlich erfolgten Übertragungen zum Anzeigen</string>
     <string name="no_offline_root_for_account">Es wurde kein Ordner markiert, der für dieses Konto offline gehalten werden soll…</string>
+    <string name="account_home_no_ws_title">Kein Workspace zum Auflisten</string>
+    <string name="account_home_no_ws_desc">Entweder ist der Server nicht erreichbar oder Sie haben möglicherweise Ihre Berechtigungen verloren. In letzterem Fall wenden Sie sich bitte an Ihren Administrator.</string>
     <plurals name="selected_count">
         <item quantity="one">%d Element ausgewählt</item>
         <item quantity="other">%d Elemente ausgewählt</item>

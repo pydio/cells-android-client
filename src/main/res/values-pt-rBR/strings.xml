@@ -17,9 +17,11 @@
     <string name="button_clear_list">Limpar lista</string>
     <string name="button_resync_all">Re-sincronizar</string>
     <string name="button_skip">Pular</string>
+    <string name="button_launch_sync">Launch Sync</string>
     <!-- Navigation labels -->
     <string name="action_home">Início</string>
-    <string name="action_open_app">Abrir App</string>
+    <!--    <string name="action_open_app">Open App</string>-->
+    <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Selecione uma conta</string>
     <string name="action_browse">Navegar</string>
     <string name="action_open_workspaces">Espaços de trabalho</string>
@@ -113,6 +115,8 @@
     <string name="no_bookmark_for_account">Nenhum marcador foi definido para esta conta…</string>
     <string name="no_transfer_for_account">Não há transferência recente para mostrar</string>
     <string name="no_offline_root_for_account">Nenhuma pasta foi marcada para ser mantida offline para esta conta…</string>
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <plurals name="selected_count">
         <item quantity="one">%d item selecionado</item>
         <item quantity="other">%d itens selecionados</item>
