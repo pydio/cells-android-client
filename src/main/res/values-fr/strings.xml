@@ -22,7 +22,7 @@
     <string name="action_open_app">Ouvrir l\'app.</string>
     <string name="action_choose_account">Choisir un compte</string>
     <string name="action_browse">Parcourir</string>
-    <string name="action_open_workspaces">Espaces de travail</string>
+    <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_offline_roots">Fichiers hors ligne</string>
     <string name="action_open_bookmarks">Favoris</string>
     <string name="action_open_transfers">Transferts</string>
@@ -35,7 +35,7 @@
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Ouvrir le menu latéral</string>
     <!-- Section titles -->
-    <string name="my_workspaces">Mes espaces de travail</string>
+    <string name="my_workspaces">Workspaces</string>
     <string name="quick_access">Raccourcis</string>
     <string name="my_account">Mon Compte</string>
     <string name="nav_open">Ouvrir</string>
@@ -88,14 +88,14 @@
     <string name="account_list_desc">Gérer les serveurs distants déjà enregistrés</string>
     <string name="account_list_none">Aucun compte n\'a encore été configuré…</string>
     <!-- Browse management -->
-    <string name="ws_list_subtitle">Choisir un espace de travail à parcourir</string>
+    <string name="ws_list_subtitle">Choisir un workspace à parcourir</string>
     <string name="browse_list_desc">Parcourir les serveurs distants</string>
     <string name="browse_list_none">Vide</string>
     <string name="recycle_bin_label">Corbeille</string>
     <string name="account_server_label">Serveur : %s</string>
     <string name="account_logged_in_as_label">Connecté en tant que %s</string>
-    <string name="category_cells">Cellules</string>
-    <string name="category_workspaces">Espaces de travail</string>
+    <string name="category_cells">Cells</string>
+    <string name="category_workspaces">Workspaces</string>
     <string name="last_check">Dernière vérif.</string>
     <string name="last_check_never">jamais</string>
     <string name="loading_message">Veuillez patienter pendant le chargement…</string>
@@ -153,7 +153,7 @@
     <!-- Target choice -->
     <string name="choose_target_subtitle">Sélectionnez un emplacement</string>
     <string name="pick_up_session">Sélectionner un compte</string>
-    <string name="pick_up_workspace">Sélectionner un espace de travail</string>
+    <string name="pick_up_workspace">Sélectionner un workspace</string>
     <string name="pick_up_folder">Choisir un dossier cible</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Redémarrer le transfert</string>
@@ -277,7 +277,7 @@
     <string name="empty_content_icon_description">Icône de liste vide</string>
     <string name="choose_account">Sélectionner un compte</string>
     <string name="switch_account">Changer de compte</string>
-    <string name="switch_workspace">Changer d\'espace de travail</string>
+    <string name="switch_workspace">Changer de workspace</string>
     <string name="parent_folder">Dossier parent</string>
     <string name="order_by_title">Ordre de tri</string>
 </resources>
