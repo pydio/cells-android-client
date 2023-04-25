@@ -141,7 +141,7 @@ class JobService(
     }
 
     fun i(tag: String?, message: String, callerId: String?) {
-        Log.i(tag, message + " " + (callerId ?: ""))
+        Log.i(tag, "### $message - Caller Job ID: ${callerId ?: "-"}")
         log(AppNames.INFO, tag, message, callerId)
     }
 

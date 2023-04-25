@@ -192,8 +192,7 @@ class OfflineService(
                 return@withContext
             }
             Log.i(logTag, "####### Sync Worker ########")
-            Log.i(logTag, "### Starting ${job.label} with ID: $jobId")
-
+            // Log.i(logTag, "### Starting ${job.label} with ID: $jobId")
             jobService.i(logTag, "Starting ${job.label}", "$jobId")
 
             val roots = nodeDB(accountID).offlineRootDao().getAllActive()
