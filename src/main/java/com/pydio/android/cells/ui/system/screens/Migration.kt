@@ -149,7 +149,7 @@ fun AfterLegacyMigration(
 
                     Row {
                         Text(
-                            text = "Skip",
+                            text = stringResource(R.string.button_skip),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier
@@ -163,7 +163,7 @@ fun AfterLegacyMigration(
                                 .wrapContentWidth(Alignment.CenterHorizontally)
                         )
                         Text(
-                            text = "Launch Sync",
+                            text = stringResource(R.string.button_launch_sync),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier
@@ -179,7 +179,7 @@ fun AfterLegacyMigration(
                     }
                 } else {
                     Text(
-                        text = "Start using the app!",
+                        text = stringResource(R.string.action_open_after_migration),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier

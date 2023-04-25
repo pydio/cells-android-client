@@ -240,14 +240,22 @@ private fun HomeListContent(
                 }
             }
 
-            if (workspaces.isEmpty() && cells.isEmpty()) {
+            if (workspaces.isEmpty() && cells.isEmpty() && loadingState == LoadingState.IDLE) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(text = "Nothing to show (yet...)")
+                    Column {
+                        Text(
+                            text = stringResource(R.string.account_home_no_ws_title),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            text = stringResource(R.string.account_home_no_ws_desc),
+                        )
+                    }
                 }
             }
         }
         PullRefreshIndicator(
-            loadingState == LoadingState.PROCESSING,
+            loadingState == LoadingState.PROCESSING || loadingState == LoadingState.STARTING,
             state,
             Modifier.align(Alignment.TopCenter)
         )
@@ -261,7 +269,6 @@ fun HomeHeader(
     openAccounts: () -> Unit,
     modifier: Modifier,
 ) {
-//    val buttonAlpha = getFloatResource(LocalContext.current, R.dimen.list_button_alpha)
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -288,23 +295,16 @@ fun HomeHeader(
         Surface(
             tonalElevation = 8.dp,
             shadowElevation = 12.dp,
-            //shape =,
             modifier = Modifier
                 .clickable { openAccounts() }
                 .alpha(.7f)
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-            //.alpha(buttonAlpha)
         ) {
             Icon(
                 imageVector = CellsIcons.SwitchAccount,
                 contentDescription = null,
-//                modifier = Modifier.size(dimensionResource(R.dimen.list_button_size))
                 modifier = Modifier
-                    .padding(
-                        all = dimensionResource(R.dimen.margin_xxsmall)
-                        //start = dimensionResource(R.dimen.margin_small),
-                        // end = dimensionResource(id = R.dimen.margin_small)
-                    )
+                    .padding(all = dimensionResource(R.dimen.margin_xxsmall))
                     .size(36.dp)
             )
         }
