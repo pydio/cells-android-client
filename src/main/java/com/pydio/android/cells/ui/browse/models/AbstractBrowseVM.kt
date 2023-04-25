@@ -1,6 +1,8 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
@@ -24,6 +27,28 @@ open class AbstractBrowseVM(
 ) : ViewModel() {
 
     // private val logTag = "AbstractBrowseVM"
+
+    protected val _loadingState = MutableLiveData(LoadingState.STARTING)
+    protected val _errorMessage = MutableLiveData<String?>()
+    val loadingState: LiveData<LoadingState> = _loadingState
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    protected fun launchProcessing() {
+        _loadingState.value = LoadingState.PROCESSING
+        _errorMessage.value = null
+    }
+
+    /* Pass a non-empty err parameter when the process has terminated with an error*/
+    protected fun done(err: String? = null) {
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = err
+    }
+
+    protected fun error(msg: String) {
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = msg
+    }
+
 
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list

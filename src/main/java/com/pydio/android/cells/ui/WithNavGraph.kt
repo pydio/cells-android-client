@@ -179,6 +179,7 @@ fun CellsNavGraph(
         )
 
         loginNavGraph(
+            navController = navController,
             loginVM = loginVM,
             helper = LoginHelper(
                 navController,

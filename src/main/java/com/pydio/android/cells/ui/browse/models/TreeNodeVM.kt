@@ -7,7 +7,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.transport.StateID
 
-/**  Simply provides access to the DB to retrieve basic single objects from the DB */
+/**  Simply provides access to the DB to retrieve basic single objects */
 class TreeNodeVM(
     stateID: StateID,
     private val nodeService: NodeService,

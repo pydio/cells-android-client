@@ -29,7 +29,6 @@ import com.pydio.android.cells.services.WorkerService
 import com.pydio.android.cells.services.workers.OfflineSyncWorker
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
-import com.pydio.android.cells.ui.browse.models.BrowseHostVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.browse.models.FilterTransferByMenuVM
 import com.pydio.android.cells.ui.browse.models.FolderVM
@@ -316,7 +315,7 @@ val viewModelModule = module {
     viewModelOf(::MonitorUploadsVM)
     viewModelOf(::SingleTransferVM)
 
-    viewModel { BrowseHostVM(get()) }
+//    viewModel { BrowseHostVM(get()) }
     viewModelOf(::ShareVM)
 
     viewModelOf(::CarouselVM)

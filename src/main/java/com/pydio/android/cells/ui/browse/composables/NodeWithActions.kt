@@ -7,7 +7,9 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,6 +28,7 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -113,6 +116,14 @@ private fun FolderWithDialogs(
     val scope = rememberCoroutineScope()
     val currentAction: MutableState<String?> = rememberSaveable {
         mutableStateOf(null)
+    }
+
+    val errMsg = nodeActionsVM.errorMessage.observeAsState(null)
+
+    LaunchedEffect(key1 = errMsg) {
+        errMsg.value?.let {
+            showMessage(context, it)
+        }
     }
 
     val delayedDone: (Boolean) -> Unit = { done ->
@@ -380,20 +391,3 @@ private fun FolderWithDialogs(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//private fun FolderWithMoreMenu(
-//    type: NodeMoreMenuType,
-//    toOpenStateID: StateID,
-//    sheetState: ModalBottomSheetState,
-//    launch: (NodeAction) -> Unit,
-//    content: @Composable () -> Unit,
-//) {
-//    ModalBottomSheetLayout(
-//        sheetContent = { NodeMoreMenuData(type, toOpenStateID, launch) },
-//        modifier = Modifier,
-//        sheetState = sheetState,
-//        sheetBackgroundColor = MaterialTheme.colorScheme.surface,
-//        content = content,
-//    )
-//}

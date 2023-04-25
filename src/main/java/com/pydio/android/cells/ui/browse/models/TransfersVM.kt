@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.browse.models
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,6 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
@@ -26,10 +24,10 @@ class TransfersVM(
 
     private val logTag = "TransfersVM"
 
-    // Unused for the time being
-    private val _loadingState = MutableLiveData(LoadingState.IDLE)
-    val loadingState: LiveData<LoadingState>
-        get() = _loadingState
+//    // Unused for the time being
+//    private val _loadingState = MutableLiveData(LoadingState.IDLE)
+//    val loadingState: LiveData<LoadingState>
+//        get() = _loadingState
 
     fun forceRefresh() {
         // DO nothing

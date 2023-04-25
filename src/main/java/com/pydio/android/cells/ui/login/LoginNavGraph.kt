@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.login
 
 import android.util.Log
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -15,6 +16,7 @@ import com.pydio.android.cells.ui.login.screens.StartingLoginProcess
 private const val logTag = "loginNavGraph"
 
 fun NavGraphBuilder.loginNavGraph(
+    navController: NavHostController,
     helper: LoginHelper,
     loginVM: LoginVM,
 ) {
@@ -59,6 +61,13 @@ fun NavGraphBuilder.loginNavGraph(
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
         Log.e(logTag, "... Starting ProcessAuth activity for $stateID")
+        // TMP TODO remove
+        var i = 0
+        navController.backQueue.forEach {
+            val currID = lazyStateID(it)
+            Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
+        }
+
         ProcessAuth(
             stateID = stateID,
             skipVerify = skipVerify,

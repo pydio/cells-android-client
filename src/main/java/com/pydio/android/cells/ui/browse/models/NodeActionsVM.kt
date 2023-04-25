@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.CellsApp
@@ -11,7 +13,9 @@ import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.DEFAULT_FILE_PROVIDER_ID
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
@@ -30,31 +34,50 @@ class NodeActionsVM(
 
     private val logTag = "NodeActionsVM"
 
+    private val _loadingState = MutableLiveData(LoadingState.STARTING)
+    private val _errorMessage = MutableLiveData<String?>()
+    val loadingState: LiveData<LoadingState> = _loadingState
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    private fun launchProcessing() {
+        _loadingState.value = LoadingState.PROCESSING
+        _errorMessage.value = null
+    }
+
+    /* Pass a non-empty err parameter when the process has terminated with an error*/
+    private fun done(err: String? = null, userMsg: String? = null) {
+        if (Str.notEmpty(err)) {
+            Log.e(logTag, "$userMsg, cause: ${err ?: "-"}")
+            _errorMessage.value = userMsg
+        }
+        _loadingState.value = LoadingState.IDLE
+    }
+
+    private fun failed(msg: String) {
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = msg
+    }
+
+
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
         viewModelScope.launch {
             val errMsg = nodeService.createFolder(parentID, name)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not create folder $name at $parentID: $errMsg")
-            }
+            done(errMsg, "Could not create folder $name at $parentID")
         }
     }
 
     fun rename(srcID: StateID, name: String) {
         viewModelScope.launch {
             val errMsg = nodeService.rename(srcID, name)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not rename $srcID to $name: $errMsg")
-            }
+            done(errMsg, "Could not rename $srcID to $name")
         }
     }
 
     fun delete(stateID: StateID) {
         viewModelScope.launch {
             val errMsg = nodeService.delete(stateID)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not delete node at $stateID: $errMsg")
-            }
+            done(errMsg, "Could not delete node at $stateID")
         }
     }
 
@@ -66,10 +89,7 @@ class NodeActionsVM(
             //   - target files
             //   - processing
             val errMsg = nodeService.copy(listOf(stateID), targetParentID)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not move node $stateID to $targetParentID")
-                Log.e(logTag, "Cause: $errMsg")
-            }
+            done(errMsg, "Could not copy node $stateID to $targetParentID")
         }
     }
 
@@ -81,34 +101,38 @@ class NodeActionsVM(
             //   - target files
             //   - processing
             val errMsg = nodeService.move(listOf(stateID), targetParentID)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not move node $stateID to $targetParentID")
-                Log.e(logTag, "Cause: $errMsg")
-            }
+            done(errMsg, "Could not move node $stateID to $targetParentID")
         }
     }
 
     fun emptyRecycle(stateID: StateID) {
         viewModelScope.launch {
             val errMsg = nodeService.delete(stateID)
-            if (Str.notEmpty(errMsg)) {
-                Log.e(logTag, "Could not delete node at $stateID: $errMsg")
-            }
+            done(errMsg, "Could not delete node at $stateID")
         }
     }
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            transferService.saveToSharedStorage(stateID, uri)
-            // FIXME handle exception
+            try {
+                transferService.saveToSharedStorage(stateID, uri)
+                done()
+            } catch (e: SDKException) {
+                done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
+            }
         }
     }
 
     fun importFiles(stateID: StateID, uris: List<Uri>) {
         viewModelScope.launch {
-            for (uri in uris) {
-                transferService.enqueueUpload(stateID, uri)
-            }   // FIXME handle exception
+            try {
+                for (uri in uris) {
+                    transferService.enqueueUpload(stateID, uri)
+                }
+                done()
+            } catch (e: SDKException) {
+                done("#${e.code} - ${e.message}", "Could import files at $stateID")
+            }
         }
     }
 

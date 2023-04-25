@@ -41,12 +41,12 @@ class OfflineVM(
 
     private val accountID = stateID.account()
 
-    private val _loadingState = MutableLiveData(LoadingState.IDLE)
-    private val _errorMessage = MutableLiveData<String?>()
+    //    private val _loadingState = MutableLiveData(LoadingState.IDLE)
+//    private val _errorMessage = MutableLiveData<String?>()
     private val _syncJobID = MutableLiveData(-1L)
 
-    val loadingState: LiveData<LoadingState> = _loadingState
-    val errorMessage: LiveData<String?> = _errorMessage
+//    val loadingState: LiveData<LoadingState> = _loadingState
+//    val errorMessage: LiveData<String?> = _errorMessage
 
     val offlineRoots: LiveData<List<RLiveOfflineRoot>>
         get() = sortOrder.switchMap { currOrder ->
