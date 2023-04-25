@@ -35,7 +35,7 @@
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Menü-Übersicht öffnen</string>
     <!-- Section titles -->
-    <string name="my_workspaces">My Workspaces</string>
+    <string name="my_workspaces">Workspaces</string>
     <string name="quick_access">Schnellzugriff</string>
     <string name="my_account">Mein Konto</string>
     <string name="nav_open">Öffnen</string>
@@ -45,7 +45,7 @@
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Willkommen bei Pydio!</string>
-    <string name="welcome_subtitle">Ein leichter Cell-Client für Android</string>
+    <string name="welcome_subtitle">Ein leichter Cells-Client für Android</string>
     <string name="welcome_text">Alle Ihre Daten auf Ihrem Gerät, überall, zu jeder Zeit!</string>
     <string name="welcome_no_account_instructions">Konfigurieren Sie zuerst eine Verbindung zu Ihrem entfernten Pydio-Server:</string>
     <string name="welcome_add_account_button">Verbindung konfigurieren</string>
@@ -94,7 +94,7 @@
     <string name="recycle_bin_label">Papierkorb</string>
     <string name="account_server_label">Server: %s</string>
     <string name="account_logged_in_as_label">Eingeloggt als %s</string>
-    <string name="category_cells">Zellen</string>
+    <string name="category_cells">Cells</string>
     <string name="category_workspaces">Workspaces</string>
     <string name="last_check">Zuletzt geprüft</string>
     <string name="last_check_never">nie</string>
