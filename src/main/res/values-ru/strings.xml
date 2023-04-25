@@ -17,9 +17,11 @@
     <string name="button_clear_list">Очистить список</string>
     <string name="button_resync_all">Пересинхронизировать</string>
     <string name="button_skip">Пропустить</string>
+    <string name="button_launch_sync">Launch Sync</string>
     <!-- Navigation labels -->
     <string name="action_home">Главная</string>
-    <string name="action_open_app">Открыть приложение</string>
+    <!--    <string name="action_open_app">Open App</string>-->
+    <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Выбрать аккаунт</string>
     <string name="action_browse">Обзор</string>
     <string name="action_open_workspaces">Рабочие области</string>
@@ -113,6 +115,8 @@
     <string name="no_bookmark_for_account">Для этого аккаунта не задано ни одной закладки…</string>
     <string name="no_transfer_for_account">Нет недавних передач для отображения</string>
     <string name="no_offline_root_for_account">Нет папок помеченных как оффлайн для данного аккаунта…</string>
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <plurals name="selected_count">
         <item quantity="one">%d элемент выбран</item>
         <item quantity="few">%d items selected</item>

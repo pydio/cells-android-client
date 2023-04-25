@@ -17,9 +17,11 @@
     <string name="button_clear_list">Vider la liste</string>
     <string name="button_resync_all">Synchroniser</string>
     <string name="button_skip">Passer</string>
+    <string name="button_launch_sync">Lancer la synchro</string>
     <!-- Navigation labels -->
     <string name="action_home">Page d\'accueil</string>
-    <string name="action_open_app">Ouvrir l\'app.</string>
+    <!--    <string name="action_open_app">Open App</string>-->
+    <string name="action_open_after_migration">Ouvrir l\'application</string>
     <string name="action_choose_account">Choisir un compte</string>
     <string name="action_browse">Parcourir</string>
     <string name="action_open_workspaces">Workspaces</string>
@@ -113,6 +115,8 @@
     <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
     <string name="no_transfer_for_account">Aucun transfert récent à afficher</string>
     <string name="no_offline_root_for_account">Aucun dossier n\'a été tagué pour être maintenu hors ligne pour ce compte…</string>
+    <string name="account_home_no_ws_title">Aucun workspace à lister</string>
+    <string name="account_home_no_ws_desc">Soit le serveur est inaccessible, soit vous avez perdu vos autorisations. Dans ce cas, prenez contact avec l\'administrateur du site.</string>
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
@@ -210,7 +214,7 @@
     <string name="confirm_account_deletion_desc">Cela effacera les informations de connexion de votre serveur distant et supprimera également toutes les données et fichiers relatifs à ce compte du cache.</string>
     <string name="confirm_account_logout_title">Se déconnecter de\n%s ?</string>
     <string name="confirm_account_logout_desc">Cela effacera vos identifiants pour ce serveur : vous devrez vous re-identifier pour vous connecter.</string>
-    <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
+    <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace, mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
     <string name="confirm_cache_deletion_title">Vider le cache</string>
     <string name="create_account">Créer un compte</string>
     <string name="content_description_media">Aperçu du contenu</string>
@@ -232,7 +236,7 @@
     <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
     <string name="display_as_qrcode_dialog_title">Lien direct</string>
     <string name="display_as_qrcode_dialog_desc">Scannez le code pour accéder au partage vers %s</string>
-    <string name="running_download_title">Downloading…</string>
+    <string name="running_download_title">Téléchargement</string>
     <string name="confirm_download_title">Confirmer le téléchargement</string>
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
     <!-- Settings -->

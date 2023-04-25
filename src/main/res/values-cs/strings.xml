@@ -17,9 +17,11 @@
     <string name="button_clear_list">Vyčistit seznam</string>
     <string name="button_resync_all">Znovu synchronizovat</string>
     <string name="button_skip">Přeskočit</string>
+    <string name="button_launch_sync">Launch Sync</string>
     <!-- Navigation labels -->
     <string name="action_home">Domů</string>
-    <string name="action_open_app">Otevřít aplikaci</string>
+    <!--    <string name="action_open_app">Open App</string>-->
+    <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Vyberte účet</string>
     <string name="action_browse">Procházet</string>
     <string name="action_open_workspaces">Pracovní prostory</string>
@@ -113,6 +115,8 @@
     <string name="no_bookmark_for_account">Pro tento účet nebyla definována žádná záložka…</string>
     <string name="no_transfer_for_account">Není k dispozici žádný nedávný přenos, proto není co zobrazit</string>
     <string name="no_offline_root_for_account">Nebyla označena žádná složka, aby byla pro tento účet uchovávána offline…</string>
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <plurals name="selected_count">
         <item quantity="one">vybrána %d položka</item>
         <item quantity="few">vybrány %d položky</item>
