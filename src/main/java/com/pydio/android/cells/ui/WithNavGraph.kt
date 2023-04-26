@@ -64,49 +64,48 @@ fun CellsNavGraph(
                     logTag,
                     "    - route: ${startingState.route}, stateID: ${startingState.stateID}"
                 )
-                return@LaunchedEffect
-            }
+                // return@LaunchedEffect
+            } else {
+                Log.e(logTag, "########## Launching side effect for ${startingState.route}")
+                Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
+                if (startingState.route?.isNotEmpty() == true) {
+                    when {
+                        // First we explicitly handle the well known routes for future debugging
+                        // OAuth Call back
+                        LoginDestinations.ProcessAuth.isCurrent(startingState.route)
+                        -> loginNavActions.processAuth(startingState.stateID, false)
+                        // Until we define at least one account
+                        LoginDestinations.AskUrl.isCurrent(startingState.route)
+                        -> loginNavActions.askUrl()
+                        // Share with Pydio from another app
+                        ShareDestination.ChooseAccount.isCurrent(startingState.route)
+                        -> navController.navigate(ShareDestination.ChooseAccount.route)
 
-            Log.e(logTag, "########## Launching side effect for ${startingState.route}")
-            Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
-            if (startingState.route?.isNotEmpty() == true) {
+                        // Failsafe that are still to be investigated
+                        LoginDestinations.isCurrent(startingState.route)
+                        -> {
+                            // TODO When do we pass here?
+                            Thread.dumpStack()
+                            Log.e(logTag, "##########   Got a login destination with route:")
+                            Log.e(logTag, "##########    ${startingState.route}, see above")
+                            loginNavActions.askUrl()
+                        }
 
-                when {
-                    // First we explicitly handle the well known routes for future debugging
-                    // OAuth Call back
-                    LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-                    -> loginNavActions.processAuth(startingState.stateID, false)
-                    // Until we define at least one account
-                    LoginDestinations.AskUrl.isCurrent(startingState.route)
-                    -> loginNavActions.askUrl()
-                    // Share with Pydio from another app
-                    ShareDestination.ChooseAccount.isCurrent(startingState.route)
-                    -> navController.navigate(ShareDestination.ChooseAccount.route)
+                        Str.notEmpty(startingState.route)
+                        -> {
+                            // TODO should be the normal behaviour for starting state
+                            //   normally we can rely on the route if present => that's the goal
+                            navController.navigate(startingState.route!!)
+                        }
 
-                    // Failsafe that are still to be investigated
-                    LoginDestinations.isCurrent(startingState.route)
-                    -> {
-                        // TODO When do we pass here?
-                        Thread.dumpStack()
-                        Log.e(logTag, "##########   Got a login destination with route:")
-                        Log.e(logTag, "##########    ${startingState.route}, see above")
-                        loginNavActions.askUrl()
+                        else  // Nothing special to do, we remove the starting state
+                        -> startingStateHasBeenProcessed(null, StateID.NONE)
                     }
-
-                    Str.notEmpty(startingState.route)
-                    -> {
-                        // TODO should be the normal behaviour for starting state
-                        //   normally we can rely on the route if present => that's the goal
-                        navController.navigate(startingState.route!!)
-                    }
-
-                    else  // Nothing special to do, we remove the starting state
-                    -> startingStateHasBeenProcessed(null, StateID.NONE)
+                } else { // Same as 2 lines above, but this should never happen
+                    Thread.dumpStack()
+                    Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
+                    startingStateHasBeenProcessed(null, StateID.NONE)
                 }
-            } else { // Same as 2 lines above, but this should never happen
-                Thread.dumpStack()
-                Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
-                startingStateHasBeenProcessed(null, StateID.NONE)
             }
         }
     }
