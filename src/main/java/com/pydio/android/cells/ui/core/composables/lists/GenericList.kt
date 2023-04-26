@@ -109,12 +109,14 @@ fun EmptyList(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(dimensionResource(id = R.dimen.margin_large))
+        modifier = modifier.padding(dimensionResource(R.dimen.margin_large))
     ) {
         Icon(
             imageVector = getVectorFromListContext(listContext),
             contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size))
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.list_empty_icon_size))
+                .padding(dimensionResource(R.dimen.margin_medium))
         )
         desc?.let {
             Text(

@@ -390,7 +390,11 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.encodedState }) { node ->
-                            if (node.hasThumb()) {
+                            if (node.isPreViewable() && !node.hasThumb()) {
+                                Log.e(logTag, "Previewable, **NO** thumb")
+                            } else if (node.hasThumb()) {
+                                // TODO this log is important so that we are "notified" when the meta-hash changes
+                                Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
                                 LargeCardWithThumb(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
@@ -445,6 +449,8 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.encodedState }) { node ->
+                            // TODO clean this, see above
+                            Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
                             NodeItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),

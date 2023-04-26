@@ -82,6 +82,7 @@
     <dimen name="item_spacer_width">12dp</dimen>
     <!-- So that the last element of the list is not hidden by the fab ( It used to go with the clipToPadding=false prop in the recycler layout) -->
     <dimen name="list_bottom_fab_padding">76dp</dimen>
+    <dimen name="list_empty_icon_size">96dp</dimen>
 
     <!-- Lists / Lazy Column Items -->
     <dimen name="list_item_selected_elevation">4dp</dimen>

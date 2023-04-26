@@ -21,15 +21,6 @@ fun getNodeTitle(name: String, mime: String): String {
     }
 }
 
-//@Composable
-//fun getNodeTitle(name: String, mime: String): String {
-//    return if (SdkNames.NODE_MIME_RECYCLE == mime) {
-//        stringResource(R.string.recycle_bin_label)
-//    } else {
-//        name
-//    }
-//}
-
 @Composable
 fun getNodeDesc(
     item: RTreeNode,

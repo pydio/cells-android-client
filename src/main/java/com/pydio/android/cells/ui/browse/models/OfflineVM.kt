@@ -169,4 +169,8 @@ class OfflineVM(
             )
         }
     }
+
+    init {
+        done()
+    }
 }
