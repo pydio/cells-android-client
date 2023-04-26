@@ -21,21 +21,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
 
-private const val logTag = "GenericList "
+// private const val logTag = "GenericList "
 
 @Composable
 fun WithLoadingListBackground(
     loadingState: LoadingState,
     isEmpty: Boolean,
     modifier: Modifier = Modifier,
+    listContext: ListContext = ListContext.BROWSE,
     canRefresh: Boolean = true,
     showProgressAtStartup: Boolean = true,
     startingDesc: String = stringResource(R.string.loading_message),
@@ -60,6 +63,7 @@ fun WithLoadingListBackground(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     EmptyList(
+                        listContext = listContext,
                         desc = if (canRefresh) {
                             emptyRefreshableDesc
                         } else {
@@ -98,18 +102,19 @@ fun StartingIndicator(
 
 @Composable
 fun EmptyList(
+    listContext: ListContext,
     modifier: Modifier = Modifier,
     desc: String?
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = modifier.padding(dimensionResource(id = R.dimen.margin_large))
     ) {
         Icon(
-            imageVector = CellsIcons.EmptyFolder,
+            imageVector = getVectorFromListContext(listContext),
             contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.grid_icon_size))
+            modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size))
         )
         desc?.let {
             Text(
@@ -117,6 +122,20 @@ fun EmptyList(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+}
+
+private fun getVectorFromListContext(context: ListContext): ImageVector {
+
+    return when (context) {
+        ListContext.BOOKMARKS ->
+            CellsIcons.Bookmark
+
+        ListContext.OFFLINE ->
+            CellsIcons.KeepOffline
+
+        ListContext.BROWSE ->
+            CellsIcons.EmptyFolder
     }
 }
 

@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
@@ -360,6 +361,7 @@ private fun OfflineRootsList(
     WithLoadingListBackground(
         loadingState = loadingState,
         isEmpty = roots.isEmpty(),
+        listContext = ListContext.OFFLINE,
         canRefresh = true,
         emptyRefreshableDesc = stringResource(id = R.string.no_offline_root_for_account),
         modifier = Modifier.fillMaxSize()
@@ -402,6 +404,7 @@ private fun OfflineRootsList(
                                 LargeCardWithThumb(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
+                                    mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getDesc(node),
                                     openMoreMenu = { openMoreMenu(node.getStateID()) },
@@ -409,6 +412,7 @@ private fun OfflineRootsList(
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }
                                         .animateItemPlacement(),
+                                    sortName = node.sortName,
                                 )
                             } else {
                                 LargeCardWithIcon(

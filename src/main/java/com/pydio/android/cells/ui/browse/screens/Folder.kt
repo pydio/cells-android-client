@@ -49,6 +49,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.BrowseHelper
@@ -347,6 +348,7 @@ private fun FolderList(
     WithLoadingListBackground(
         loadingState = loadingState,
         isEmpty = children.isEmpty(),
+        listContext = ListContext.BROWSE,
         // TODO also handle if server is unreachable
         canRefresh = true,
         modifier = Modifier.padding(padding)
@@ -392,6 +394,7 @@ private fun FolderList(
                                 LargeCardWithThumb(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
+                                    mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getNodeDesc(
                                         node.remoteModificationTS,
@@ -399,6 +402,7 @@ private fun FolderList(
                                         node.localModificationStatus
                                     ),
                                     openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    sortName = node.sortName,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }

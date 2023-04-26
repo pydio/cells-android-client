@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.transfer.glide.encodeModel
@@ -95,9 +97,11 @@ fun LargeCardWithIcon(
 fun LargeCardWithThumb(
     stateID: StateID,
     eTag: String?,
+    mime: String,
     title: String,
     desc: String,
     modifier: Modifier = Modifier,
+    sortName: String? = null,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
@@ -108,16 +112,37 @@ fun LargeCardWithThumb(
                 .size(dimensionResource(R.dimen.grid_ws_image_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
         ) {
-            LoadingAnimation(
-                modifier = Modifier
-                    .padding(dimensionResource(id = R.dimen.list_thumb_padding))
-                    .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-            )
             GlideImage(
                 model = encodeModel(stateID.id, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
                 contentDescription = "$title thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
+                loading = placeholder {
+                    LoadingAnimation(
+                        modifier = Modifier
+                            .padding(dimensionResource(id = R.dimen.list_thumb_padding))
+                            .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
+                    )
+                },
+                failure = placeholder {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .size(dimensionResource(id = R.dimen.grid_ws_image_size))
+                    ) {
+                        getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
+                            Image(
+                                painter = painterResource(t.first),
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(t.second),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .wrapContentSize(Alignment.Center)
+                                    .size(dimensionResource(R.dimen.grid_large_icon_size))
+                            )
+                        }
+                    }
+                },
             )
             openMoreMenu?.let {
                 Box(

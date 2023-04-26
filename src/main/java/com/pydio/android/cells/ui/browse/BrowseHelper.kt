@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse
 import android.content.Context
 import android.util.Log
 import androidx.navigation.NavHostController
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ui.browse.models.AbstractBrowseVM
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
@@ -17,9 +18,9 @@ class BrowseHelper(
 ) {
     private val logTag = "BrowseHelper"
 
-    val browse = "browse"
-    val bookmarks = "bookmarks"
-    val offline = "offline"
+    val browse = ListContext.BROWSE.id
+    val bookmarks = ListContext.BOOKMARKS.id
+    val offline = ListContext.OFFLINE.id
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
         Log.d(logTag, "... Calling open for $stateID")

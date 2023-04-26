@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -325,6 +326,7 @@ private fun BookmarkList(
     WithLoadingListBackground(
         loadingState = loadingState,
         isEmpty = bookmarks.isEmpty(),
+        listContext = ListContext.BOOKMARKS,
         // TODO also handle if server is unreachable
         canRefresh = true,
         emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
@@ -361,17 +363,20 @@ private fun BookmarkList(
                                 LargeCardWithThumb(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
+                                    mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getNodeDesc(
                                         node.remoteModificationTS,
                                         node.size,
                                         node.localModificationStatus
                                     ),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }
                                         .animateItemPlacement(),
+                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    sortName = node.sortName
                                 )
                             } else {
                                 LargeCardWithIcon(

@@ -15,6 +15,12 @@ enum class JobStatus(val id: String) {
     NO_FILTER("no filter"),
 }
 
+enum class ListContext(val id: String) {
+    BROWSE("browse"),
+    BOOKMARKS("bookmarks"),
+    OFFLINE("offline"),
+}
+
 enum class LoginStatus(val id: String) {
     // Workaround to store additional destinations as state
     //    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";

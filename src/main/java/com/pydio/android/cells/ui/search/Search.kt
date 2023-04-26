@@ -347,6 +347,7 @@ private fun HitsList(
                             LargeCardWithThumb(
                                 stateID = node.getStateID(),
                                 eTag = node.etag,
+                                mime = node.mime,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
                                     node.remoteModificationTS,
@@ -359,6 +360,7 @@ private fun HitsList(
                                 modifier = Modifier
                                     .clickable { open(node.getStateID()) }
                                     .animateItemPlacement(),
+                                sortName = node.sortName,
                             )
 
                         } else {

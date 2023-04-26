@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -57,19 +58,38 @@ fun Thumbnail(
                 // .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
-            LoadingAnimation(
-                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
-            )
             GlideImage(
                 model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
                 contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
+                failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
+                loading = placeholder { LoadingThumb() },
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
         }
     } else {
         IconThumb(mime, sortName)
     }
+}
+
+@Composable
+fun LoadingThumb() {
+    LoadingAnimation()
+//    Surface(
+//        tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+//        modifier = Modifier
+//            .size(dimensionResource(R.dimen.list_thumb_size))
+//            .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+//    ) {
+//        Image(
+//            painter = painterResource(id),
+//            contentDescription = null,
+//            colorFilter = ColorFilter.tint(color),
+//            modifier = Modifier
+//                .wrapContentSize(Alignment.Center)
+//                .size(dimensionResource(R.dimen.list_thumb_icon_size))
+//        )
+//    }
 }
 
 @Composable
@@ -180,29 +200,36 @@ fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 
         mime.startsWith("video/", true) -> R.drawable.ic_outline_video_file_24
         mime == "application/rtf" || mime == "text/plain"
         -> R.drawable.file_document_outline
+
         mime == "application/vnd.oasis.opendocument.text"
                 || mime == "application/msword"
                 || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         -> R.drawable.file_word_outline
+
         mime == "text/csv" || mime == "application/vnd.ms-excel"
                 || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         -> R.drawable.file_excel_outline
+
         mime == "application/vnd.oasis.opendocument.presentation"
                 || mime == "application/vnd.ms-powerpoint"
                 || mime == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         -> R.drawable.file_powerpoint_outline
+
         mime == "application/pdf"
         -> R.drawable.file_pdf_box
+
         mime == "application/x-httpd-php" ||
                 mime == "application/xml" ||
                 mime == "text/javascript" ||
                 mime == "application/xhtml+xml"
         -> R.drawable.file_code_outline
+
         mime == "application/zip" ||
                 mime == "application/x-7z-compressed" ||
                 mime == "application/x-tar" ||
                 mime == "application/java-archive"
         -> R.drawable.file_zip_outline
+
         else -> R.drawable.file_outline
     }
 }
