@@ -1,6 +1,5 @@
 package com.pydio.android.cells.services
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -17,6 +16,7 @@ import com.pydio.android.cells.db.preferences.SyncPreferences
 import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.utils.parseOrder
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -65,6 +65,7 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
+                Log.e(logTag, "Unexpected error in cells pref flow: ${exception.message}")
                 emit(emptyPreferences())
             } else {
                 throw exception
@@ -98,18 +99,6 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
             preferences[PreferencesKeys.DISABLE_POLL] = disablePoll
         }
     }
-
-//    /**
-//     * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")
-//     */
-//    suspend fun getOrderByPair(type: ListType): Pair<String, String> {
-//        val currentKey = when (type) {
-//            ListType.JOB -> PreferencesKeys.JOB_SORT_BY
-//            ListType.TRANSFER -> PreferencesKeys.TRANSFER_SORT_BY
-//            ListType.DEFAULT -> PreferencesKeys.DEFAULT_LIST_ORDER
-//        }
-//        return parseOrder(dataStore.data.first().toPreferences()[currentKey], type)
-//    }
 
     /**
      * Returns Pair<ORDER_BY, DIRECTION> e.g Pair("sort_name", "DESC")
@@ -162,7 +151,7 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_LIST_LAYOUT] = layout.name
         }
-        Log.e(logTag, "New layout : $layout")
+        // Log.d(logTag, "New layout : $layout")
     }
 
     private fun mapCellsPreferences(fromPreferences: Preferences): CellsPreferences {
@@ -188,9 +177,8 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
             jobFilter =
             fromPreferences[PreferencesKeys.JOB_FILTER_BY_STATUS] ?: noPref.list.jobFilter,
         )
+
         // Metered network limitations
-
-
         val meteredPref = MeteredNetworkPreferences(
             applyLimits = fromPreferences[PreferencesKeys.APPLY_METERED_LIMITATION]
                 ?: noPref.meteredNetwork.applyLimits,

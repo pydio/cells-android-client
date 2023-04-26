@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.system.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,8 @@ import com.pydio.android.cells.ui.core.composables.PreferenceSectionTitle
 import com.pydio.android.cells.ui.core.composables.SwitchSetting
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.system.models.SettingsVM
+
+private const val logTag = "Settings"
 
 @Composable
 fun SettingsScreen(

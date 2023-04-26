@@ -78,7 +78,6 @@ fun ListSetting(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-//                .fillMaxWidth()
         ) {
             keys.forEachIndexed { index, s ->
                 DropdownMenuItem(
