@@ -114,6 +114,7 @@
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
     <string name="no_transfer_for_account">Aucun transfert récent à afficher</string>
+    <string name="no_transfer_with_filter">Aucun transfert ayant un statut \"%s\"</string>
     <string name="no_offline_root_for_account">Aucun dossier n\'a été tagué pour être maintenu hors ligne pour ce compte…</string>
     <string name="account_home_no_ws_title">Aucun workspace à lister</string>
     <string name="account_home_no_ws_desc">Soit le serveur est inaccessible, soit vous avez perdu vos autorisations. Dans ce cas, prenez contact avec l\'administrateur du site.</string>

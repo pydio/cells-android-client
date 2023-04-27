@@ -114,6 +114,7 @@
     <string name="empty_content_message">Noch kein Inhalt vorhanden</string>
     <string name="no_bookmark_for_account">Für dieses Konto wurde kein Lesezeichen definiert…</string>
     <string name="no_transfer_for_account">Keine kürzlich erfolgten Übertragungen zum Anzeigen</string>
+    <string name="no_transfer_with_filter">Keine Übertragung mit \"%s\" Status</string>
     <string name="no_offline_root_for_account">Es wurde kein Ordner markiert, der für dieses Konto offline gehalten werden soll…</string>
     <string name="account_home_no_ws_title">Kein Workspace zum Auflisten</string>
     <string name="account_home_no_ws_desc">Entweder ist der Server nicht erreichbar oder Sie haben möglicherweise Ihre Berechtigungen verloren. In letzterem Fall wenden Sie sich bitte an Ihren Administrator.</string>
