@@ -21,7 +21,16 @@
         android:label="@string/application_title"
         android:roundIcon="@mipmap/ic_launcher2_round"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@style/CellsV31">
+
+        <!-- TODO: Add
+               android:enableOnBackInvokedCallback="true"
+               see https://stackoverflow.com/questions/73782320/onbackinvokedcallback-is-not-enabled-for-the-application-in-set-androidenableo
+               Or you will get this warning:
+                        >> OnBackInvokedCallback is not enabled for the application.
+                        >> Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+           -->
 
         <activity
             android:name=".MainActivity"
@@ -67,7 +76,7 @@
 
         <!-- Also change this when using another client ID -->
         <!-- android:authorities="com.pydio.android.Client.fileprovider" -->
-        
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.pydio.android.Client.fileprovider"
