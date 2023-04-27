@@ -80,7 +80,7 @@ fun WithInternetBanner(
                                     it.skipVerify()
                                 )
                             } else {
-                                LoginDestinations.ProcessAuth.createRoute(
+                                LoginDestinations.LaunchAuthProcessing.createRoute(
                                     it.getStateID(),
                                     it.skipVerify()
                                 )

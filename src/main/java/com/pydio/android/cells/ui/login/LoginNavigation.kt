@@ -31,21 +31,21 @@ class LoginNavigation(private val navController: NavHostController) {
         navController.navigate(route)
     }
 
-    fun p8Credentials(stateID: StateID?, skipVerify: Boolean) {
-        val route = LoginDestinations.P8Credentials.createRoute(
-            stateID ?: StateID.NONE,
-            skipVerify
-        )
-        navController.navigate(route)
-    }
+//    fun p8Credentials(stateID: StateID?, skipVerify: Boolean) {
+//        val route = LoginDestinations.P8Credentials.createRoute(
+//            stateID ?: StateID.NONE,
+//            skipVerify
+//        )
+//        navController.navigate(route)
+//    }
 
-    fun processAuth(stateID: StateID?, skipVerify: Boolean) {
-        val route = LoginDestinations.ProcessAuth.createRoute(
-            stateID ?: StateID.NONE,
-            skipVerify
-        )
-        navController.navigate(route)
-    }
+//    fun processAuth(stateID: StateID?, skipVerify: Boolean) {
+//        val route = LoginDestinations.ProcessAuth.createRoute(
+//            stateID ?: StateID.NONE,
+//            skipVerify
+//        )
+//        navController.navigate(route)
+//    }
 
     fun back() {
         navController.popBackStack()

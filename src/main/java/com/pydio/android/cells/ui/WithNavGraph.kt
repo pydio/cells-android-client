@@ -17,7 +17,6 @@ import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyQueryContext
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
-import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
@@ -27,12 +26,10 @@ import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
 import com.pydio.android.cells.ui.search.SearchVM
-import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -55,60 +52,77 @@ fun CellsNavGraph(
         LoginNavigation(navController)
     }
 
-    // Starting state is null once the initial state has been consumed
-    if (startingState != null) {
-        LaunchedEffect(key1 = startingState.route, key2 = startingState.isRestart) {
-            if (startingState.isRestart) {
-                Log.e(logTag, "## Got a restart preventing navigation")
-                Log.d(
-                    logTag,
-                    "    - route: ${startingState.route}, stateID: ${startingState.stateID}"
-                )
-                // return@LaunchedEffect
-            } else {
-                Log.e(logTag, "########## Launching side effect for ${startingState.route}")
-                Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
-                if (startingState.route?.isNotEmpty() == true) {
-                    when {
-                        // First we explicitly handle the well known routes for future debugging
-                        // OAuth Call back
-                        LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-                        -> loginNavActions.processAuth(startingState.stateID, false)
-                        // Until we define at least one account
-                        LoginDestinations.AskUrl.isCurrent(startingState.route)
-                        -> loginNavActions.askUrl()
-                        // Share with Pydio from another app
-                        ShareDestination.ChooseAccount.isCurrent(startingState.route)
-                        -> navController.navigate(ShareDestination.ChooseAccount.route)
+    Log.i(logTag, "### Composing nav graph for ${startingState?.route}")
+    Log.i(logTag, "      isRestart: ${startingState?.isRestart ?: "false"}")
 
-                        // Failsafe that are still to be investigated
-                        LoginDestinations.isCurrent(startingState.route)
-                        -> {
-                            // TODO When do we pass here?
-                            Thread.dumpStack()
-                            Log.e(logTag, "##########   Got a login destination with route:")
-                            Log.e(logTag, "##########    ${startingState.route}, see above")
-                            loginNavActions.askUrl()
-                        }
-
-                        Str.notEmpty(startingState.route)
-                        -> {
-                            // TODO should be the normal behaviour for starting state
-                            //   normally we can rely on the route if present => that's the goal
-                            navController.navigate(startingState.route!!)
-                        }
-
-                        else  // Nothing special to do, we remove the starting state
-                        -> startingStateHasBeenProcessed(null, StateID.NONE)
-                    }
-                } else { // Same as 2 lines above, but this should never happen
+    startingState?.let {
+        LaunchedEffect(key1 = it.route) {
+            it.route?.let { dest ->
+                if (!it.isRestart) {
+                    Log.e(logTag, "########## Launching navigation to $dest")
+                    navController.navigate(dest)
+                } else {
                     Thread.dumpStack()
-                    Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
-                    startingStateHasBeenProcessed(null, StateID.NONE)
+                    Log.e(logTag, "### Restart, preventing navigation to $dest")
                 }
             }
         }
     }
+
+//    // Starting state is null once the initial state has been consumed
+//    if (startingState != null) {
+//        LaunchedEffect(key1 = startingState.route, key2 = startingState.isRestart) {
+//            if (startingState.isRestart) {
+//                Log.e(logTag, "## Got a restart preventing navigation")
+//                Log.d(
+//                    logTag,
+//                    "    - route: ${startingState.route}, stateID: ${startingState.stateID}"
+//                )
+//                // return@LaunchedEffect
+//            } else {
+//                Log.e(logTag, "########## Launching side effect for ${startingState.route}")
+//                Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
+//                if (startingState.route?.isNotEmpty() == true) {
+//                    when {
+//                        // First we explicitly handle the well known routes for future debugging
+//                        // OAuth Call back
+//                        LoginDestinations.ProcessAuth.isCurrent(startingState.route)
+//                        -> loginNavActions.processAuth(startingState.stateID, false)
+//                        // Until we define at least one account
+//                        LoginDestinations.AskUrl.isCurrent(startingState.route)
+//                        -> loginNavActions.askUrl()
+//                        // Share with Pydio from another app
+//                        ShareDestination.ChooseAccount.isCurrent(startingState.route)
+//                        -> navController.navigate(ShareDestination.ChooseAccount.route)
+//
+//                        // Failsafe that are still to be investigated
+//                        LoginDestinations.isCurrent(startingState.route)
+//                        -> {
+//                            // TODO When do we pass here?
+//                            Thread.dumpStack()
+//                            Log.e(logTag, "##########   Got a login destination with route:")
+//                            Log.e(logTag, "##########    ${startingState.route}, see above")
+//                            loginNavActions.askUrl()
+//                        }
+//
+//                        Str.notEmpty(startingState.route)
+//                        -> {
+//                            // TODO should be the normal behaviour for starting state
+//                            //   normally we can rely on the route if present => that's the goal
+//                            navController.navigate(startingState.route!!)
+//                        }
+//
+//                        else  // Nothing special to do, we remove the starting state
+//                        -> startingStateHasBeenProcessed(null, StateID.NONE)
+//                    }
+//                } else { // Same as 2 lines above, but this should never happen
+//                    Thread.dumpStack()
+//                    Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
+//                    startingStateHasBeenProcessed(null, StateID.NONE)
+//                }
+//            }
+//        }
+//    }
 
     NavHost(
         navController = navController,

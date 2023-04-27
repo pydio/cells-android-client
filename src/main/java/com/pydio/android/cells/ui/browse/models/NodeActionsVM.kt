@@ -113,23 +113,29 @@ class NodeActionsVM(
     }
 
     fun download(stateID: StateID, uri: Uri) {
-        viewModelScope.launch {
+        CellsApp.instance.appScope.launch {
             try {
                 transferService.saveToSharedStorage(stateID, uri)
-                done()
+                withContext(Dispatchers.Main) {
+                    done()
+                }
             } catch (e: SDKException) {
-                done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
+                withContext(Dispatchers.Main) {
+                    done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
+                }
             }
         }
     }
 
     fun importFiles(stateID: StateID, uris: List<Uri>) {
-        viewModelScope.launch {
+        CellsApp.instance.appScope.launch {
             try {
                 for (uri in uris) {
                     transferService.enqueueUpload(stateID, uri)
                 }
-                done()
+                withContext(Dispatchers.Main) {
+                    done()
+                }
             } catch (e: SDKException) {
                 done("#${e.code} - ${e.message}", "Could import files at $stateID")
             }

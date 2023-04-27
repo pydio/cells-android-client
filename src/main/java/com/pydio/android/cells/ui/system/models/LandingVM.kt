@@ -77,7 +77,6 @@ class LandingVM(
             }
         }
 
-
         // probably useless, TODO double check
         // stateID?.let { accountService.openSession(it.account()) }
 

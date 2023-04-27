@@ -224,15 +224,18 @@ class TransferService(
     suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) = withContext(ioDispatcher) {
         val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
             ?: return@withContext
-        val localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
+        var localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
         val resolver = CellsApp.instance.contentResolver
         try {
             if (!localFile.exists() || nodeService.isCachedVersionUpToDate(rTreeNode) == false) {
                 // TODO handle no network use case
                 val jobId = prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
                 runDownloadAndWait(stateID, jobId)
+                localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
             }
 
+            // TODO if the user chooses a name that already exists,
+            //   the downloaded doc might end up being corrupted and un-readable
             if (localFile.exists()) {
                 var out: OutputStream? = null
                 var input: InputStream? = null
@@ -324,10 +327,9 @@ class TransferService(
         return@withContext transferID
     }
 
-
     /**
-     * Performs the real download for the pre-registered transfer record and update
-     * both the RTreeNode and RTransfer records depending on the output status.
+     * Performs the real download for the pre-registered transfer record and
+     * wait until it is finished or we reach a 300 seconds timeout.
      */
     @Throws(SDKException::class)
     suspend fun runDownloadAndWait(
@@ -335,13 +337,26 @@ class TransferService(
         transferID: Long,
         parentJobProgress: Channel<Long>? = null
     ) = withContext(ioDispatcher) {
-        // FIXME we should wait until the transfer has been effectively done
-        Log.e(logTag, "########################################")
-        Log.e(logTag, "########################################")
-        Log.e(logTag, "########################################")
-        Log.e(logTag, "########################################")
-        Log.e(logTag, "## implement wait")
+
         runDownloadTransfer(accountID, transferID, parentJobProgress)
+        val dao = getTransferDao(accountID)
+        val limit = currentTimestamp() + 300
+        loop@ while (currentTimestamp() < limit) {
+            val currRecord = dao.getById(transferID)
+            if (currRecord != null && currRecord.doneTimestamp > 0) {
+                break@loop
+            }
+            delay(2000)
+        }
+        if (currentTimestamp() > limit) {
+            Log.e(logTag, "########################################")
+            Log.e(logTag, "########################################")
+            val msg = "## 5mn timeout reached while waiting for transfer #$transferID to complete"
+            Thread.dumpStack()
+            Log.e(logTag, "$msg, see stack above.")
+            throw SDKException(ErrorCodes.timeout, msg)
+        }
+        Log.e(logTag, "## After wait")
     }
 
     /**

@@ -8,16 +8,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
@@ -25,8 +28,6 @@ import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -53,79 +54,93 @@ class MainActivity : ComponentActivity() {
 
         // First check if we need a migration
         val mainActivity = this
-        lifecycleScope.launch {
 
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+
+        setContent {
             val landingVM by viewModel<LandingVM>()
-            val noMigrationNeeded = landingVM.noMigrationNeeded()
-            if (!noMigrationNeeded) { // forward to migration page
-                val intent = Intent(mainActivity, MigrateActivity::class.java)
-                startActivity(intent)
-                mainActivity.finish()
-                return@launch
-            }
 
-            val startingState = try {
-                handleIntent(savedInstanceState, landingVM)
-            } catch (e: SDKException) {
-                Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-                if (e.code == ErrorCodes.unexpected_content) {
-                    // We should never have received this
-                    Log.e(logTag, "Received a launch activity with un-valid state, aborting....")
-                    mainActivity.finishAndRemoveTask()
-                    return@launch
-                } else {
-                    Log.e(logTag, "Could not handle intent, aborting....")
-                    throw e
-                }
-            }
+            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+                when (action) {
+                    AppNames.ACTION_CANCEL -> {
+                        setResult(RESULT_CANCELED)
+                        finishAndRemoveTask()
+                    }
 
-            if (Str.empty(startingState.route)) {
-                Log.e(logTag, "#### TODO state is not null but we still do not know where to go")
-            }
-
-            Log.i(logTag, "#######################################")
-            Log.i(logTag, "onCreate with starting state:")
-            Log.i(logTag, "  StateID: ${startingState.stateID}")
-            Log.i(logTag, "  Route: ${startingState.route}")
-
-            // Rework this: we have the default for the time being.
-            // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
-            // WindowCompat.setDecorFitsSystemWindows(window, false)
-            WindowCompat.setDecorFitsSystemWindows(window, true)
-
-            setContent {
-                val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
-                val intentHasBeenProcessed = rememberSaveable {
-                    mutableStateOf(false) // startingState == null)
-                }
-
-                val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
-                    intentHasBeenProcessed.value = true
-                }
-
-                val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
-                    when (action) {
-                        AppNames.ACTION_CANCEL -> {
-                            setResult(RESULT_CANCELED)
-                            finishAndRemoveTask()
-                        }
-
-                        AppNames.ACTION_DONE -> {
-                            setResult(RESULT_OK)
-                            finish()
-                        }
+                    AppNames.ACTION_DONE -> {
+                        setResult(RESULT_OK)
+                        finish()
                     }
                 }
-
-                MainApp(
-                    startingState = if (intentHasBeenProcessed.value) null else startingState,
-                    startingStateHasBeenProcessed = startingStateHasBeenProcessed,
-                    launchIntent = mainActivity::launchIntent,
-                    launchTaskFor = launchTaskFor,
-                    widthSizeClass = widthSizeClass,
-                )
             }
-            landingVM.recordLaunch()
+
+            Box {
+
+                val ready = remember { mutableStateOf(false) }
+                val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
+                val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
+
+                val startingState = remember { mutableStateOf<StartingState?>(null) }
+
+                // var startingState: StartingState? = null
+                val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
+                    intentHasBeenProcessed.value = true
+                    startingState.value = null
+                }
+
+                LaunchedEffect(key1 = intent.toString()) {
+                    Log.i(logTag, "## Launching main effect for $intent")
+                    Log.d(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
+
+                    // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
+                    val noMigrationNeeded = landingVM.noMigrationNeeded()
+                    if (!noMigrationNeeded) { // forward to migration page
+                        val intent = Intent(mainActivity, MigrateActivity::class.java)
+                        startActivity(intent)
+                        mainActivity.finish()
+                        return@LaunchedEffect
+                    }
+
+                    try {
+                        startingState.value = handleIntent(savedInstanceState, landingVM)
+                    } catch (e: SDKException) {
+                        Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
+                        if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
+                            Log.e(logTag, "Launch activity with un-valid state, ignoring...")
+                            mainActivity.finishAndRemoveTask()
+                            return@LaunchedEffect
+                        } else {
+                            Log.e(logTag, "Could not handle intent, aborting....")
+                            throw e
+                        }
+                    }
+
+                    Log.i(logTag, "#######################################")
+                    Log.i(logTag, "onCreate with starting state:")
+                    Log.i(logTag, "  StateID: ${startingState.value?.stateID}")
+                    Log.i(logTag, "  Route: ${startingState.value?.route}")
+
+                    // Rework this: we have the default for the time being.
+                    // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
+                    // WindowCompat.setDecorFitsSystemWindows(window, false)
+                    WindowCompat.setDecorFitsSystemWindows(window, true)
+                    ready.value = true
+                    landingVM.recordLaunch()
+                }
+
+                LoadingAnimation()
+
+                if (ready.value) {
+                    Log.e(logTag, "#### Recomposing for ${startingState.value?.route}")
+                    MainApp(
+                        startingState = startingState.value,
+                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        launchIntent = mainActivity::launchIntent,
+                        launchTaskFor = launchTaskFor,
+                        widthSizeClass = widthSizeClass,
+                    )
+                }
+            }
         }
     }
 
@@ -211,15 +226,20 @@ class MainActivity : ComponentActivity() {
                 if (code != null && state != null) {
                     val (isValid, targetStateID) = landingVM.isAuthStateValid(state)
                     if (!isValid) {
+                        Log.e(
+                            logTag,
+                            "Received a OAuth flow callback intent, but it has already been consumed, ignoring "
+                        )
                         throw SDKException(
                             ErrorCodes.unexpected_content,
                             "Passed state is wrong or already consumed"
                         )
                     }
-                    startingState.route = LoginDestinations.ProcessAuth.route
                     startingState.code = code
                     startingState.state = state
                     startingState.stateID = targetStateID
+                    startingState.route = LoginDestinations.ProcessAuth.createRoute(targetStateID)
+
                 } else {
                     Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
                     if (intent.extras != null) {
@@ -268,6 +288,74 @@ class MainActivity : ComponentActivity() {
                 Log.w(logTag, "... Unexpected intent: $action - $categories")
             }
         }
+
+//        var newRoute: String? = null
+
+//        startingState.value?.let { oldState ->
+//
+//            if (oldState.isRestart) {
+//                Log.e(logTag, "## Got a restart preventing navigation")
+//                Log.d(
+//                    logTag,
+//                    "    - route: ${oldState.route}, stateID: ${oldState.stateID}"
+//                )
+//                // return@LaunchedEffect
+//            } else {
+//                Log.e(logTag, "#### B4 handling starting state: ${oldState.route}")
+//                Log.e(logTag, "####   for stateID: ${oldState.stateID}")
+//                if (oldState.route?.isNotEmpty() == true) {
+//                    newRoute = when {
+//                        // First we explicitly handle the well known routes for future debugging
+//                        // OAuth Call back
+//                        LoginDestinations.ProcessAuth.isCurrent(oldState.route)
+//                        -> LoginDestinations.ProcessAuth.createRoute(
+//                            oldState.stateID,
+//                            false
+//                        )
+//                        // Until we define at least one account
+//                        LoginDestinations.AskUrl.isCurrent(oldState.route)
+//                        -> oldState.route
+////                                        LoginDestinations.AskUrl.createRoute()
+//                        // Share with Pydio from another app
+//                        ShareDestination.ChooseAccount.isCurrent(oldState.route)
+//                        -> ShareDestination.ChooseAccount.route //  navController.navigate(ShareDestination.ChooseAccount.route)
+//
+//                        // Failsafe that are still to be investigated
+//                        LoginDestinations.isCurrent(oldState.route) -> {
+//                            // TODO When do we pass here?
+//                            Thread.dumpStack()
+//                            Log.e(logTag, "# Got a login destination with route:")
+//                            Log.e(logTag, "##########    ${oldState.route}, see above")
+//                            LoginDestinations.AskUrl.createRoute() // loginNavActions.askUrl()
+//                        }
+//
+//                        else -> {
+//                            Log.e(
+//                                logTag,
+//                                "## Nothing to special do for ${oldState.route}"
+//                            )
+//                            Thread.dumpStack()
+//                            oldState.route // navController.navigate(it.route!!)
+//                        }
+//                    }
+//                    Log.e(
+//                        logTag,
+//                        "#### Got a new route: $newRoute (old: ${oldState.route})"
+//                    )
+//                    oldState.route = newRoute
+//                    startingState.value = oldState
+//
+//                } else { // Same as 2 lines above, but this should never happen
+//                    Thread.dumpStack()
+//                    Log.e(
+//                        logTag,
+//                        "## Starting state for ${oldState.stateID} with no route"
+//                    )
+//                }
+//
+//            }
+//        }
+
         return startingState
     }
 }

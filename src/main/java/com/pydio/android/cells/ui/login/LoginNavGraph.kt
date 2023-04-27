@@ -8,6 +8,7 @@ import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.login.screens.AskServerUrl
+import com.pydio.android.cells.ui.login.screens.LaunchAuthProcessing
 import com.pydio.android.cells.ui.login.screens.P8Credentials
 import com.pydio.android.cells.ui.login.screens.ProcessAuth
 import com.pydio.android.cells.ui.login.screens.SkipVerify
@@ -57,9 +58,19 @@ fun NavGraphBuilder.loginNavGraph(
         )
     }
 
-    composable(LoginDestinations.ProcessAuth.route) { nbsEntry ->
+    composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
+        LaunchAuthProcessing(
+            stateID = stateID,
+            skipVerify = skipVerify,
+            loginVM = loginVM,
+            helper = helper,
+        )
+    }
+
+    composable(LoginDestinations.ProcessAuth.route) { nbsEntry ->
+        val stateID = lazyStateID(nbsEntry)
         Log.e(logTag, "... Starting ProcessAuth activity for $stateID")
         // TMP TODO remove
         var i = 0
@@ -70,7 +81,6 @@ fun NavGraphBuilder.loginNavGraph(
 
         ProcessAuth(
             stateID = stateID,
-            skipVerify = skipVerify,
             loginVM = loginVM,
             helper = helper,
         )

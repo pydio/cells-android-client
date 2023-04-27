@@ -59,7 +59,7 @@ fun AccountsScreen(
             val route = if (isLegacy) {
                 LoginDestinations.P8Credentials.createRoute(stateID, skipVerify)
             } else {
-                LoginDestinations.ProcessAuth.createRoute(stateID, skipVerify)
+                LoginDestinations.LaunchAuthProcessing.createRoute(stateID, skipVerify)
             }
             navigateTo(route)
         },

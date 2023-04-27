@@ -35,10 +35,10 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "ProcessAuth"
+private const val logTag = "OAuthFlow"
 
 @Composable
-fun ProcessAuth(
+fun LaunchAuthProcessing(
     stateID: StateID,
     skipVerify: Boolean,
     loginVM: LoginVM,
@@ -49,14 +49,12 @@ fun ProcessAuth(
 
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = stateID, helper.startingState) {
-        //if (stateID != StateID.NONE) {
-            Log.e(logTag, "About to launch process Auth for ${helper.startingState?.route}")
-            helper.processAuth(context, stateID, skipVerify)
-        //} // else ignore
+    LaunchedEffect(key1 = stateID) {
+        Log.i(logTag, "-- Launch auth process for ${stateID}")
+        helper.launchAuth(context, stateID, skipVerify)
     }
 
-    ProcessAuth(
+    AuthScreen(
         isProcessing = Str.empty(errMsg.value),
         message = message.value,
         errMsg = errMsg.value,
@@ -66,6 +64,29 @@ fun ProcessAuth(
 
 @Composable
 fun ProcessAuth(
+    stateID: StateID,
+    loginVM: LoginVM,
+    helper: LoginHelper,
+) {
+    val message = loginVM.message.collectAsState()
+    val errMsg = loginVM.errorMessage.collectAsState()
+
+    LaunchedEffect(key1 = stateID) {
+        Log.e(logTag, "About to Process Auth for ${helper.startingState?.route}")
+        helper.processAuth(stateID)
+    }
+
+    AuthScreen(
+        isProcessing = Str.empty(errMsg.value),
+        message = message.value,
+        errMsg = errMsg.value,
+        cancel = helper::cancel
+    )
+}
+
+
+@Composable
+private fun AuthScreen(
     isProcessing: Boolean,
     message: String?,
     errMsg: String?,
@@ -166,7 +187,7 @@ fun ProcessAuth(
 @Composable
 private fun ProcessAuthPreview() {
     UseCellsTheme {
-        ProcessAuth(
+        AuthScreen(
             isProcessing = true,
             message = "Getting credentials...",
             errMsg = null,

@@ -159,7 +159,7 @@ class LoginVM(
 //                triggerOAuthProcess(serverURL)
 //            }
             // FIXME this is not satisfying: error won't be processed correctly
-            return LoginDestinations.ProcessAuth.createRoute(serverID, skipVerify)
+            return LoginDestinations.LaunchAuthProcessing.createRoute(serverID, skipVerify)
         }
     }
 

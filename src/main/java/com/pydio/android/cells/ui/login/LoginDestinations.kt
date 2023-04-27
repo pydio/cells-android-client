@@ -49,11 +49,23 @@ sealed class LoginDestinations(val route: String) {
             route?.startsWith("${PREFIX}/p8-credentials/") ?: false
     }
 
-    object ProcessAuth :
-        LoginDestinations("${PREFIX}/process-auth/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
+
+    object LaunchAuthProcessing :
+        LoginDestinations("${PREFIX}/launch-auth-processing/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
 
         fun createRoute(stateID: StateID, skipVerify: Boolean) =
-            "${PREFIX}/process-auth/${stateID.id}/$skipVerify"
+            "${PREFIX}/launch-auth-processing/${stateID.id}/$skipVerify"
+
+        fun isCurrent(route: String?): Boolean =
+            route?.startsWith("${PREFIX}/launch-auth-processing/") ?: false
+    }
+
+    object ProcessAuth :
+//        LoginDestinations("${PREFIX}/process-auth/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
+        LoginDestinations("${PREFIX}/process-auth/{${AppKeys.STATE_ID}}") {
+
+        fun createRoute(stateID: StateID) =
+            "${PREFIX}/process-auth/${stateID.id}"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/process-auth/") ?: false
