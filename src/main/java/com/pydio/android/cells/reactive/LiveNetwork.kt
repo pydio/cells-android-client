@@ -4,11 +4,13 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.LiveData
 
+/**
+ * Relies on the device connectivity manager to expose current Network status as liveData
+ * to ease use in the UI layers.
+ */
 class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
     private val logTag = "LiveNetwork"
@@ -20,19 +22,8 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
     override fun onActive() {
         Log.i(logTag, "onActive()")
         super.onActive()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManagerCallback = getConnectivityManagerCallback()
-            connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
-        } else {
-            connectivityManagerCallback = getLegacyCallback()
-
-            val networkRequest = NetworkRequest
-                .Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build()
-            connectivityManager.registerNetworkCallback(networkRequest, connectivityManagerCallback)
-        }
+        connectivityManagerCallback = getConnectivityManagerCallback()
+        connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
     }
 
     override fun onInactive() {
@@ -41,68 +32,31 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
         connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
     }
 
-    private fun announceStatus(network: Network, status: NetworkStatus) {
-        Log.d(logTag, "Using network $network")
-        Log.d(
-            logTag, "we have ${validNetworkConnections.size} live connections " +
-                    "(${unMeteredConnections.size} un-metered and ${notRoamingConnections.size} not roaming )"
-        )
-        postValue(status)
-    }
-
-    val validNetworkConnections: MutableSet<Network> = mutableSetOf()
-    val unMeteredConnections: MutableSet<Network> = mutableSetOf()
-    val notRoamingConnections: MutableSet<Network> = mutableSetOf()
-
-    private fun announceLegacyStatus() {
-        Log.d(
-            logTag, "About to announce status for $this, " +
-                    "we have ${validNetworkConnections.size} live connections" +
-                    " (${unMeteredConnections.size} un-metered and ${notRoamingConnections.size} not roaming )"
-        )
-
-        val status = when {
-            unMeteredConnections.isNotEmpty()
-            -> NetworkStatus.Unmetered
-
-            notRoamingConnections.isNotEmpty()
-            -> NetworkStatus.Metered
-
-            validNetworkConnections.isNotEmpty()
-            -> NetworkStatus.Roaming
-
-            else -> NetworkStatus.Unavailable
-        }
-        postValue(status)
-    }
-
     // See https://developer.android.com/training/basics/network-ops/reading-network-state
     // we only use the default network in a first pass
     private fun getConnectivityManagerCallback() = object : ConnectivityManager.NetworkCallback() {
+
         override fun onAvailable(network: Network) {
-            Log.i(logTag, "The default network is now: $network")
+            Log.i(logTag, "## Using network #$network")
+            // TODO manage sockets.
         }
 
         override fun onLost(network: Network) {
-            Log.i(
-                logTag,
-                "The app no longer has a default network. The last default network was $network"
-            )
-            announceStatus(network, NetworkStatus.Unavailable)
+            Log.i(logTag, "## After loosing network #$network")
+            postValue(NetworkStatus.Unavailable)
         }
 
         override fun onCapabilitiesChanged(
             network: Network,
             networkCapabilities: NetworkCapabilities
         ) {
-
             val status =
                 if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                    Log.e(logTag, "Announcing network capability: $networkCapabilities")
-
+                    Log.i(logTag, "   capabilities: $networkCapabilities.")
                     when {
                         networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                                 && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                                || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
                         -> NetworkStatus.Unmetered
 
                         !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
@@ -112,8 +66,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
                         -> NetworkStatus.Metered
 
                         else -> {
-                            Log.w(logTag, "Could not determine network status for $network")
-                            Log.w(logTag, "Capabilities: $networkCapabilities")
+                            Log.w(logTag, "Unexpected status for network #$network")
                             NetworkStatus.Unknown
                         }
                     }
@@ -122,57 +75,7 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
                 }
 
             // TODO re-implement a valid check to insure we can really access the internet
-            announceStatus(network, status)
-        }
-
-//        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-//            Log.d(logTag, "The default network changed link properties: $linkProperties")
-//        }
-    }
-
-    private fun getLegacyCallback() = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            Log.d(logTag, "New network available: $network")
-            // this is a known gotcha, we should not verify the status here
-//                val networkCapability = connectivityManager.getNetworkCapabilities(network)
-//                val hasNetworkConnection =
-//                    networkCapability?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//                        ?: false
-//                if (hasNetworkConnection) {
-//                    determineInternetAccess(network, networkCapability)
-//                }
-        }
-
-        override fun onLost(network: Network) {
-            super.onLost(network)
-            validNetworkConnections.remove(network)
-            unMeteredConnections.remove(network)
-            notRoamingConnections.remove(network)
-            announceLegacyStatus()
-        }
-
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities
-        ) {
-            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                validNetworkConnections.add(network)
-                if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)) {
-                    unMeteredConnections.add(network)
-                } else {
-                    unMeteredConnections.remove(network)
-                }
-                if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)) {
-                    notRoamingConnections.add(network)
-                } else {
-                    notRoamingConnections.remove(network)
-                }
-            } else {
-                validNetworkConnections.remove(network)
-                unMeteredConnections.remove(network)
-                notRoamingConnections.remove(network)
-            }
-            announceLegacyStatus()
+            postValue(status)
         }
     }
 }
@@ -184,33 +87,3 @@ sealed class NetworkStatus {
     object Unavailable : NetworkStatus()
     object Unknown : NetworkStatus()
 }
-
-//private object InternetAvailability {
-//
-//    // private val logTag = InternetAvailability::class.simpleName
-//
-//    fun check(network: Network): Boolean {
-//        return try {
-//            val socket = Socket()
-//            socket.connect(InetSocketAddress("8.8.8.8", 53))
-//            socket.close()
-//
-//            // TODO should we really check Google DNS?
-////            val pydioUrl = ServerURLImpl.fromAddress("https://files.example.com")
-////            try {
-////                Log.e(logTag, "About to ping: $network")
-////                pydioUrl.ping()
-////                Log.e(logTag, "Ping succeed")
-////                true
-////            } catch (e: Exception) {
-////                e.printStackTrace()
-////                false
-////            }
-////            Log.e(logTag, "Checking internet connectivity for: ${network.toString()}")
-//            true
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            false
-//        }
-//    }
-//}
