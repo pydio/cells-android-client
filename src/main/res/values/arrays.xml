@@ -62,7 +62,7 @@
     </string-array>
 
     <string-array name="filter_transfer_by_status_values" translatable="false">
-        <item>show_all</item>
+        <item>no_filter</item>
         <item>new</item>
         <item>processing</item>
         <item>cancelled</item>

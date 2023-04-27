@@ -56,7 +56,7 @@ fun FilterTransfersByMenu(
                 icon = null,
                 title = labels[i],
                 onItemClick = {
-                    Log.d(logTag, "New filter: ${keys[i]}")
+                    Log.e(logTag, "-- New filter: ${keys[i]}")
                     filterByMenuVM.setFilterBy(keys[i])
                     done()
                 },

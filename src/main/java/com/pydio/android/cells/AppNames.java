@@ -5,8 +5,9 @@ public interface AppNames {
     // OAuth Code Flow when remote is Cells
     String QUERY_KEY_CODE = "code";
     String QUERY_KEY_STATE = "state";
+
     // For OAuth callback
-    String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
+    // String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
 
     // Network management
     String NETWORK_TYPE_UNMETERED = "Unmetered";
@@ -92,19 +93,25 @@ public interface AppNames {
     String JOB_TEMPLATE_CLEAN = "clean";
     String JOB_TEMPLATE_SHARE = "share";
 
-    String JOB_SORT_BY_DEFAULT = "creation_ts_desc";
-    // Status: Warning, same value list must be defined in the res/values/arrays.xml file
-    String FILTER_BY_STATUS = "filter_by_status";
+//    String JOB_SORT_BY_DEFAULT = "creation_ts_desc";
+//    // Status: Warning, same value list must be defined in the res/values/arrays.xml file
+//    String FILTER_BY_STATUS = "filter_by_status";
+//
+
+    // TODO rather use the JobStatus ENUM
     String JOB_STATUS_NEW = "new";
     String JOB_STATUS_PROCESSING = "processing";
-    String JOB_STATUS_DONE = "done";
     String JOB_STATUS_CANCELLING = "cancelling";
-    String JOB_STATUS_CANCELLED = "cancelled";
+    String JOB_STATUS_PAUSING = "pausing";
+
+    String JOB_STATUS_DONE = "done";
+    String JOB_STATUS_PAUSED = "paused";
     String JOB_STATUS_WARNING = "warning";
     String JOB_STATUS_ERROR = "error";
     String JOB_STATUS_TIMEOUT = "timeout";
     // Short cut used in filtering
-    String JOB_STATUS_NO_FILTER = "show_all";
+    String JOB_STATUS_NO_FILTER = "no_filter";
+
     // Specific additional status to manage uploads when remote server is not currently available
     String UPLOAD_STATUS_PRE_PROCESSING = "pre_processing";
     String UPLOAD_STATUS_LOCALLY_CACHED = "locally_cached";

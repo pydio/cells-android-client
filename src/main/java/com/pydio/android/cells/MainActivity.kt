@@ -238,7 +238,8 @@ class MainActivity : ComponentActivity() {
                     startingState.code = code
                     startingState.state = state
                     startingState.stateID = targetStateID
-                    startingState.route = LoginDestinations.ProcessAuth.createRoute(targetStateID)
+                    startingState.route =
+                        LoginDestinations.ProcessAuthCallback.createRoute(targetStateID)
 
                 } else {
                     Log.e(logTag, "Unexpected ACTION_VIEW: $intent")

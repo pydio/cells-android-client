@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.browse.models
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
@@ -11,6 +12,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
@@ -23,11 +25,6 @@ class TransfersVM(
 ) : AbstractBrowseVM(prefs, nodeService) {
 
     private val logTag = "TransfersVM"
-
-//    // Unused for the time being
-//    private val _loadingState = MutableLiveData(LoadingState.IDLE)
-//    val loadingState: LiveData<LoadingState>
-//        get() = _loadingState
 
     fun forceRefresh() {
         // DO nothing
@@ -42,6 +39,10 @@ class TransfersVM(
                 it.transferFilter,
                 it.transferOrder
             )
+        }
+    val liveFilter: LiveData<String>
+        get() = livePrefs.map {
+            it.transferFilter
         }
 
     suspend fun get(transferID: Long): RTransfer? =
@@ -80,5 +81,10 @@ class TransfersVM(
         viewModelScope.launch {
             transferService.clearTerminated(accountID)
         }
+    }
+
+    init {
+        // We are always "idle" in this view
+        _loadingState.value = LoadingState.IDLE
     }
 }

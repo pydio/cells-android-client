@@ -42,7 +42,7 @@ fun TransferBottomSheet(
             ),
         )
     }
-    if (AppNames.JOB_STATUS_CANCELLED == item.status
+    if (AppNames.JOB_STATUS_PAUSED == item.status
         || AppNames.JOB_STATUS_ERROR == item.status
     ) {
         simpleMenuItems.add(
@@ -54,7 +54,7 @@ fun TransferBottomSheet(
         )
     }
     if (AppNames.JOB_STATUS_DONE == item.status
-        || AppNames.JOB_STATUS_CANCELLED == item.status
+        || AppNames.JOB_STATUS_PAUSED == item.status
         || AppNames.JOB_STATUS_ERROR == item.status
     ) {
         simpleMenuItems.add(

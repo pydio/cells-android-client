@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -68,11 +70,13 @@ fun Transfers(
 
     val loadingState by transfersVM.loadingState.observeAsState()
     val currTransfers = transfersVM.transfers.observeAsState()
+    val currFilter = transfersVM.liveFilter.observeAsState()
 
     WithState(
         loadingState = loadingState ?: LoadingState.STARTING,
         forceRefresh = transfersVM::forceRefresh,
         accountID = accountID,
+        currFilter = currFilter.value ?: JobStatus.NO_FILTER.id,
         transfers = currTransfers.value ?: listOf(),
         transfersVM = transfersVM,
         openDrawer = openDrawer,
@@ -89,6 +93,7 @@ fun Transfers(
 private fun WithState(
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
+    currFilter: String,
     accountID: StateID,
     transfers: List<RTransfer>,
     transfersVM: TransfersVM,
@@ -128,15 +133,19 @@ private fun WithState(
             AppNames.ACTION_MORE -> {
                 openMoreMenu(TransferMoreMenuType.MORE, transferID)
             }
+
             AppNames.ACTION_CANCEL -> {
                 pauseOne(transferID)
             }
+
             AppNames.ACTION_RESTART -> {
                 resumeOne(transferID)
             }
+
             AppNames.ACTION_DELETE_RECORD -> {
                 removeOne(transferID)
             }
+
             AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
                 // It is always a file for the time being => we open the parent
                 scope.launch {
@@ -157,6 +166,7 @@ private fun WithState(
     WithBottomSheet(
         loadingState = loadingState,
         forceRefresh = forceRefresh,
+        currFilter = currFilter,
         accountID = accountID,
         transfers = transfers,
         moreMenuState = TransferMoreMenuState(
@@ -177,6 +187,7 @@ private fun WithState(
 private fun WithBottomSheet(
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
+    currFilter: String,
     accountID: StateID,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
@@ -193,10 +204,12 @@ private fun WithBottomSheet(
                         type = ListType.TRANSFER,
                         done = moreMenuState.closeMoreMenu,
                     )
+
                 TransferMoreMenuType.FILTER_BY ->
                     FilterTransfersByMenu(
                         done = moreMenuState.closeMoreMenu,
                     )
+
                 TransferMoreMenuType.MORE -> {
                     TransferMoreMenu(
                         accountID = accountID,
@@ -207,9 +220,9 @@ private fun WithBottomSheet(
                         }
                     )
                 }
+
                 else -> {
-                    // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.
-                    // when no item is defined (default case at starting point)
+                    // Prevent java.lang.IllegalArgumentException when no item is defined (default case at starting point) -> The initial value must have an associated anchor
                     Spacer(modifier = Modifier.height(1.dp))
                 }
             }
@@ -220,6 +233,7 @@ private fun WithBottomSheet(
         WithScaffold(
             loadingState = loadingState,
             forceRefresh = forceRefresh,
+            currFilter = currFilter,
             transfers = transfers,
             doAction = doAction,
             openDrawer = openDrawer,
@@ -230,11 +244,11 @@ private fun WithBottomSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithScaffold(
     loadingState: LoadingState,
     forceRefresh: () -> Unit, doAction: (String, Long) -> Unit,
+    currFilter: String,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
     openDrawer: () -> Unit,
@@ -307,6 +321,7 @@ private fun WithScaffold(
         TransferList(
             loadingState,
             forceRefresh,
+            currFilter,
             transfers,
             doAction,
             innerPadding,
@@ -319,6 +334,7 @@ private fun WithScaffold(
 private fun TransferList(
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
+    currFilter: String,
     transfers: List<RTransfer>,
     doAction: (String, Long) -> Unit,
     innerPadding: PaddingValues
@@ -329,11 +345,17 @@ private fun TransferList(
         forceRefresh()
     })
 
+    var emptyMsg = if (currFilter != JobStatus.NO_FILTER.id) {
+        stringResource(R.string.no_transfer_with_filter, currFilter)
+    } else {
+        stringResource(R.string.no_transfer_for_account)
+    }
+
     WithLoadingListBackground(
+        listContext = ListContext.TRANSFERS,
         loadingState = loadingState,
         isEmpty = transfers.isEmpty(),
-        emptyRefreshableDesc = stringResource(R.string.no_transfer_for_account),
-        canRefresh = true,
+        emptyRefreshableDesc = emptyMsg,
         modifier = Modifier.fillMaxSize()
     ) {
         Box(Modifier.pullRefresh(state)) {

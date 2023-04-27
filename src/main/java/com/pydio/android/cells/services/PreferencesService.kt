@@ -113,7 +113,7 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun setOrder(type: ListType, order: String) {
-        // edit handles data transactionally, ensuring that if the sort is updated at the same  time from another thread, we won't have conflicts
+        // edit handles data transactionally, ensuring that if the sort is updated at the same time from another thread, we won't have conflicts
         dataStore.edit { preferences ->
             val currentKey = when (type) {
                 ListType.JOB -> PreferencesKeys.JOB_SORT_BY
@@ -136,22 +136,21 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-    suspend fun setFilter(type: ListType, filter: String) {
-        dataStore.edit { preferences ->
-            val currentKey = when (type) {
-                ListType.JOB -> PreferencesKeys.JOB_FILTER_BY_STATUS
-                ListType.TRANSFER -> PreferencesKeys.TRANSFER_FILTER_BY_STATUS
-                else -> throw RuntimeException("Unsupported filter type: ${type.name}")
-            }
-            preferences[currentKey] = filter
-        }
-    }
+//    suspend fun setFilter(type: ListType, filter: String) {
+//        dataStore.edit { preferences ->
+//            val currentKey = when (type) {
+//                ListType.JOB -> PreferencesKeys.JOB_FILTER_BY_STATUS
+//                ListType.TRANSFER -> PreferencesKeys.TRANSFER_FILTER_BY_STATUS
+//                else -> throw RuntimeException("Unsupported filter type: ${type.name}")
+//            }
+//            preferences[currentKey] = filter
+//        }
+//    }
 
     suspend fun setListLayout(layout: ListLayout) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_LIST_LAYOUT] = layout.name
         }
-        // Log.d(logTag, "New layout : $layout")
     }
 
     private fun mapCellsPreferences(fromPreferences: Preferences): CellsPreferences {
@@ -212,7 +211,6 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
             syncPref
         )
     }
-
 
     // Avoid a crash when migrating from an older version
     private fun safelyGetLongPref(

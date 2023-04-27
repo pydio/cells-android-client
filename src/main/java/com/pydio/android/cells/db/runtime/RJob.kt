@@ -41,7 +41,7 @@ data class RJob(
     fun isFail(): Boolean {
         return status == AppNames.JOB_STATUS_ERROR ||
                 status == AppNames.JOB_STATUS_TIMEOUT ||
-                status == AppNames.JOB_STATUS_CANCELLED
+                status == AppNames.JOB_STATUS_PAUSED
     }
 
     fun isDone(): Boolean {

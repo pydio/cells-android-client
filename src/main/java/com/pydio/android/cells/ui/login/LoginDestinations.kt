@@ -60,14 +60,13 @@ sealed class LoginDestinations(val route: String) {
             route?.startsWith("${PREFIX}/launch-auth-processing/") ?: false
     }
 
-    object ProcessAuth :
-//        LoginDestinations("${PREFIX}/process-auth/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
-        LoginDestinations("${PREFIX}/process-auth/{${AppKeys.STATE_ID}}") {
+    object ProcessAuthCallback :
+        LoginDestinations("${PREFIX}/process-auth-callback/{${AppKeys.STATE_ID}}") {
 
         fun createRoute(stateID: StateID) =
-            "${PREFIX}/process-auth/${stateID.id}"
+            "${PREFIX}/process-auth-callback/${stateID.id}"
 
         fun isCurrent(route: String?): Boolean =
-            route?.startsWith("${PREFIX}/process-auth/") ?: false
+            route?.startsWith("${PREFIX}/process-auth-callback/") ?: false
     }
 }

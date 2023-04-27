@@ -7,18 +7,22 @@ enum class RemoteType {
 enum class JobStatus(val id: String) {
     NEW("new"),
     PROCESSING("processing"),
+    CANCELLING("cancelling"),
+    PAUSING("pausing"),
     CANCELLED("cancelled"),
     DONE("done"),
+    PAUSED("paused"),
     WARNING("warning"),
     ERROR("error"),
     TIMEOUT("timeout"),
-    NO_FILTER("no filter"),
+    NO_FILTER("no_filter"),
 }
 
 enum class ListContext(val id: String) {
     BROWSE("browse"),
     BOOKMARKS("bookmarks"),
     OFFLINE("offline"),
+    TRANSFERS("transfers"),
 }
 
 enum class LoginStatus(val id: String) {

@@ -138,6 +138,9 @@ private fun getVectorFromListContext(context: ListContext): ImageVector {
 
         ListContext.BROWSE ->
             CellsIcons.EmptyFolder
+
+        ListContext.TRANSFERS ->
+            CellsIcons.Processing
     }
 }
 

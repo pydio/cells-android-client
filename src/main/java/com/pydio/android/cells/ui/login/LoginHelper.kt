@@ -96,7 +96,7 @@ class LoginHelper(
 
     suspend fun processAuth(stateID: StateID) {
 
-        if (startingState == null || !LoginDestinations.ProcessAuth.isCurrent(startingState.route)) {
+        if (startingState == null || !LoginDestinations.ProcessAuthCallback.isCurrent(startingState.route)) {
             Log.e(logTag, "## In processAuth for state: $stateID")
             Log.e(logTag, "##  invalid starting state or route: ${startingState?.route}")
             Thread.dumpStack()

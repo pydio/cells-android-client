@@ -79,10 +79,11 @@ fun isFailed(item: RTransfer): Boolean {
 
 fun isPaused(item: RTransfer): Boolean {
     return when (item.status) {
-        AppNames.JOB_STATUS_CANCELLED,
-        AppNames.JOB_STATUS_CANCELLING,
+        AppNames.JOB_STATUS_PAUSED,
+        AppNames.JOB_STATUS_PAUSING,
         AppNames.UPLOAD_STATUS_LOCALLY_CACHED,
         -> true
+
         else -> false
     }
 }
@@ -167,16 +168,19 @@ private fun TransferListItem(
                 btnVectorImg = CellsIcons.Pause
                 btnModifier = Modifier.clickable { pause() }
             }
-            AppNames.JOB_STATUS_CANCELLED,
+
+            AppNames.JOB_STATUS_PAUSED,
             AppNames.JOB_STATUS_ERROR,
             -> {
                 btnVectorImg = CellsIcons.Resume
                 btnModifier = Modifier.clickable { resume() }
             }
+
             AppNames.JOB_STATUS_DONE -> {
                 btnVectorImg = CellsIcons.Delete
                 btnModifier = Modifier.clickable { remove() }
             }
+
             else -> {
                 btnVectorImg = CellsIcons.Pause
                 btnModifier = Modifier.alpha(0.6f)
@@ -227,6 +231,7 @@ fun buildStatusString(item: RTransfer): AnnotatedString {
             Str.notEmpty(item.error) -> {
                 append(" ${item.error}")
             }
+
             item.doneTimestamp > 0 -> {
                 val mTimeValue = DateUtils.formatDateTime(
                     ctx, item.doneTimestamp * 1000L, DateUtils.FORMAT_ABBREV_RELATIVE
@@ -236,12 +241,14 @@ fun buildStatusString(item: RTransfer): AnnotatedString {
                     if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "uploaded" else "downloaded"
                 append(" $verb on $mTimeValue")
             }
+
             item.startTimestamp > 0 -> {
                 val mTimeValue = DateUtils.formatDateTime(
                     ctx, item.startTimestamp * 1000L, DateUtils.FORMAT_ABBREV_RELATIVE
                 )
                 append(" started on $mTimeValue")
             }
+
             else -> {
                 val mTimeValue = DateUtils.formatDateTime(
                     ctx, item.creationTimestamp * 1000L, DateUtils.FORMAT_ABBREV_RELATIVE
@@ -269,7 +276,7 @@ private fun TransferListItemPreview() {
         byteSize = 13551193L,
         mime = "image/jpeg",
         parentJobId = 0L,
-        status = AppNames.JOB_STATUS_CANCELLED,
+        status = AppNames.JOB_STATUS_PAUSED,
     )
 
     UseCellsTheme {

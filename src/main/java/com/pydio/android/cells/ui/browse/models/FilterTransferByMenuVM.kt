@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.PreferencesKeys
@@ -12,7 +13,7 @@ class FilterTransferByMenuVM(
     private val prefs: PreferencesService,
 ) : ViewModel() {
 
-    // private val logTag = FilterTransferByMenuVM::class.simpleName
+    private val logTag = "FilterTransferByMenuVM"
 
     val jobFilter = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list.jobFilter
@@ -20,7 +21,8 @@ class FilterTransferByMenuVM(
 
     fun setFilterBy(newFilterByStatus: String) {
         viewModelScope.launch {
-            prefs.setString(PreferencesKeys.JOB_FILTER_BY_STATUS, newFilterByStatus)
+            Log.e(logTag, "Got a new filter: $newFilterByStatus")
+            prefs.setString(PreferencesKeys.TRANSFER_FILTER_BY_STATUS, newFilterByStatus)
         }
     }
 }

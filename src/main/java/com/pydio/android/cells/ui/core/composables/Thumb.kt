@@ -72,7 +72,7 @@ private fun JobDecorator(status: String, modifier: Modifier) {
         AppNames.JOB_STATUS_NEW -> CellsIcons.New
         AppNames.JOB_STATUS_PROCESSING -> CellsIcons.Processing
         AppNames.JOB_STATUS_ERROR -> CellsIcons.ErrorDecorator
-        AppNames.JOB_STATUS_CANCELLED -> CellsIcons.Pause
+        AppNames.JOB_STATUS_PAUSED -> CellsIcons.Pause
         AppNames.JOB_STATUS_DONE -> CellsIcons.Check
         else -> {
             Log.e(logTag, "Adding unknown decorator for status $status")
@@ -83,7 +83,7 @@ private fun JobDecorator(status: String, modifier: Modifier) {
     val color = when (status) {
         AppNames.JOB_STATUS_NEW -> MaterialTheme.colorScheme.primary
         AppNames.JOB_STATUS_PROCESSING -> MaterialTheme.colorScheme.primary
-        AppNames.JOB_STATUS_CANCELLED -> CellsColor.warning
+        AppNames.JOB_STATUS_PAUSED -> CellsColor.warning
         AppNames.JOB_STATUS_ERROR -> CellsColor.danger
         AppNames.JOB_STATUS_DONE -> CellsColor.ok
         else -> CellsColor.warning

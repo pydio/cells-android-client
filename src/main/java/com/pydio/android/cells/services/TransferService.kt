@@ -474,8 +474,8 @@ class TransferService(
                 .download(stateID.workspace, stateID.file, out) { progressL ->
                     // TODO also manage parent job cancellation
                     val cancellationMsg = dao.hasBeenCancelled(rTransfer.transferId)?.let {
-                        val msg = "Download cancelled by ${it.owner}"
-                        rTransfer.status = AppNames.JOB_STATUS_CANCELLED
+                        val msg = "Download paused by ${it.owner}"
+                        rTransfer.status = AppNames.JOB_STATUS_PAUSED
                         rTransfer.doneTimestamp = currentTimestamp()
                         rTransfer.error = msg
                         // TODO register a cancellation exception ?
@@ -762,7 +762,7 @@ class TransferService(
 
                 cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
                     val msg = "Upload cancelled by ${it.owner}"
-                    transferRecord.status = AppNames.JOB_STATUS_CANCELLED
+                    transferRecord.status = AppNames.JOB_STATUS_PAUSED
                     transferRecord.error = msg
                     Log.w(logTag, "### Cancel requested: $msg")
                     // We also reset the number of bytes sent, relaunching always triggers a full upload.
