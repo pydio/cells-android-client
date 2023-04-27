@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.FileDownloadDone
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FolderDelete
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.DriveFileMove
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
+import androidx.compose.material.icons.outlined.FiberNew
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
@@ -65,6 +67,7 @@ import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.sharp.FiberNew
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -121,6 +124,7 @@ object CellsIcons {
     val MoveTo = Icons.Outlined.DriveFileMove
     val MyFiles = Icons.Default.FolderShared
     val MyFilesThumb = Icons.Outlined.FolderSpecial
+    val New = Icons.Outlined.FiberNew
     val NoInternet = Icons.Default.CloudOff
     val NoValidCredentials = Icons.Outlined.PersonOff
     val OpenLocation = Icons.Default.OpenInBrowser
