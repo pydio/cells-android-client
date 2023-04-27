@@ -114,6 +114,7 @@
     <string name="empty_content_message">Todavía no hay contenido aquí</string>
     <string name="no_bookmark_for_account">No se ha definido ningún marcador para esta cuenta…</string>
     <string name="no_transfer_for_account">No hay ninguna transferencia reciente para mostrar</string>
+    <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">Ninguna carpeta ha sido etiquetada para ser mantenida fuera de línea para esta cuenta…</string>
     <string name="account_home_no_ws_title">No workspace to list</string>
     <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>

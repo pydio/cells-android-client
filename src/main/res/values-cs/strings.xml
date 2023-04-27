@@ -114,6 +114,7 @@
     <string name="empty_content_message">Zatím zde není žádný obsah</string>
     <string name="no_bookmark_for_account">Pro tento účet nebyla definována žádná záložka…</string>
     <string name="no_transfer_for_account">Není k dispozici žádný nedávný přenos, proto není co zobrazit</string>
+    <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">Nebyla označena žádná složka, aby byla pro tento účet uchovávána offline…</string>
     <string name="account_home_no_ws_title">No workspace to list</string>
     <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
