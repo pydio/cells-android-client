@@ -3,12 +3,10 @@ package com.pydio.android.cells.ui.theme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.FileDownloadDone
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FolderDelete
@@ -56,6 +54,7 @@ import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.ViewList
@@ -67,7 +66,6 @@ import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.sharp.FiberNew
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -90,6 +88,9 @@ object CellsIcons {
     val AsList = Icons.Outlined.ViewList
     val AsSmallerGrid = Icons.Default.ViewCompact
     val Bookmark = Icons.Outlined.StarBorder
+    val ButtonFavorite = Icons.Outlined.StarBorder
+    val ButtonOffline = Icons.Outlined.CloudDownload
+    val ButtonShare = Icons.Outlined.Share
     val Cancel = Icons.Outlined.Cancel
     val CancelSearch = Icons.Filled.Close
     val Check = Icons.Default.Check
@@ -197,29 +198,36 @@ fun getIconTypeFromMime(originalMime: String, sortName: String?): CellsIconType 
         mime.startsWith("video/", true) -> CellsIconType.VIDEO
         mime == "application/rtf" || mime == "text/plain"
         -> CellsIconType.DOCUMENT
+
         mime == "application/vnd.oasis.opendocument.text"
                 || mime == "application/msword"
                 || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         -> CellsIconType.WORD
+
         mime == "text/csv" || mime == "application/vnd.ms-excel"
                 || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         -> CellsIconType.CALC
+
         mime == "application/vnd.oasis.opendocument.presentation"
                 || mime == "application/vnd.ms-powerpoint"
                 || mime == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         -> CellsIconType.PRESENTATION
+
         mime == "application/pdf"
         -> CellsIconType.PDF
+
         mime == "application/x-httpd-php" ||
                 mime == "application/xml" ||
                 mime == "text/javascript" ||
                 mime == "application/xhtml+xml"
         -> CellsIconType.CODE
+
         mime == "application/zip" ||
                 mime == "application/x-7z-compressed" ||
                 mime == "application/x-tar" ||
                 mime == "application/java-archive"
         -> CellsIconType.ZIP
+
         else -> CellsIconType.FILE
     }
 }
