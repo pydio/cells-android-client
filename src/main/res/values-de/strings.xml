@@ -128,6 +128,8 @@
     <string name="in_progress_moving">Verschiebung…</string>
     <string name="in_progress_restoring">Wiederherstellung…</string>
     <!-- Search -->
+    <string name="search_label">Suchen…</string>
+    <string name="search_hint">Geben Sie einen Begriff ein, um Ihre Dateien zu durchsuchen!</string>
     <!--Offline -->
     <string name="sync_in_progress">Synchronisierung…</string>
     <string name="sync_downloading">Dateien werden heruntergeladen…</string>
@@ -136,13 +138,6 @@
     <!-- Job Management -->
     <string name="job_list_title">Hintergrundprozesse</string>
     <string name="filter_by_status_title">Nach Status filtern</string>
-    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
-    <!--    <string name="filter_by_status_new_label">New</string>-->
-    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
-    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
-    <!--    <string name="filter_by_status_done_label">Done</string>-->
-    <!--    <string name="filter_by_status_error_label">Error</string>-->
-    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Sortieren nach</string>
     <string name="job_sort_by_creation_ts_desc_label">Erstellung (neueste zuerst)</string>
     <string name="job_sort_by_creation_ts_asc_label">Erstellung (älteste zuerst)</string>
