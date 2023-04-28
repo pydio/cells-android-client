@@ -127,6 +127,8 @@
     <string name="in_progress_moving">Moving…</string>
     <string name="in_progress_restoring">Restoring…</string>
     <!-- Search -->
+    <string name="search_label">Search…</string>
+    <string name="search_hint">Enter a term to search your files!</string>
     <!--Offline -->
     <string name="sync_in_progress">Synchronising…</string>
     <string name="sync_downloading">Downloading files…</string>
@@ -135,13 +137,6 @@
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
     <string name="filter_by_status_title">Filter by status</string>
-    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
-    <!--    <string name="filter_by_status_new_label">New</string>-->
-    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
-    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
-    <!--    <string name="filter_by_status_done_label">Done</string>-->
-    <!--    <string name="filter_by_status_error_label">Error</string>-->
-    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Sort by</string>
     <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
     <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>

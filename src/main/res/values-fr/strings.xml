@@ -128,6 +128,8 @@
     <string name="in_progress_moving">Déplacement en cours…</string>
     <string name="in_progress_restoring">Restauration en cours…</string>
     <!-- Search -->
+    <string name="search_label">Rechercher…</string>
+    <string name="search_hint">Entrez un terme pour lancer la recherche !</string>
     <!--Offline -->
     <string name="sync_in_progress">En cours de synchronisation…</string>
     <string name="sync_downloading">Téléchargement des fichiers…</string>
@@ -136,13 +138,6 @@
     <!-- Job Management -->
     <string name="job_list_title">Tâches de fond</string>
     <string name="filter_by_status_title">Filtrer par statut</string>
-    <!--    <string name="filter_by_status_show_all_label">Show all (no filter)</string>-->
-    <!--    <string name="filter_by_status_new_label">New</string>-->
-    <!--    <string name="filter_by_status_processing_label">Processing</string>-->
-    <!--    <string name="filter_by_status_cancelled_label">Cancelled</string>-->
-    <!--    <string name="filter_by_status_done_label">Done</string>-->
-    <!--    <string name="filter_by_status_error_label">Error</string>-->
-    <!--    <string name="filter_by_status_timeout_label">Timeout</string>-->
     <string name="job_sort_by_title">Trier par</string>
     <string name="job_sort_by_creation_ts_desc_label">Date de création (le plus récent en premier)</string>
     <string name="job_sort_by_creation_ts_asc_label">Date de création (le plus ancien en premier)</string>
