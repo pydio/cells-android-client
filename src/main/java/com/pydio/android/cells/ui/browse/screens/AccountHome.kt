@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +18,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -27,7 +30,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -270,7 +273,7 @@ fun HomeHeader(
     modifier: Modifier,
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.clickable { openAccounts() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -292,20 +295,24 @@ fun HomeHeader(
             )
         }
 
-        Surface(
-            tonalElevation = 8.dp,
-            shadowElevation = 12.dp,
+        IconButton(
+            onClick = { openAccounts() },
             modifier = Modifier
-                .clickable { openAccounts() }
-                .alpha(.7f)
-                .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
+                .size(dimensionResource(R.dimen.default_button_size))
+                .clip(CircleShape)
+                .background(
+                    SolidColor(MaterialTheme.colorScheme.secondaryContainer),
+                    CircleShape,
+                    0.8f
+                )
         ) {
             Icon(
                 imageVector = CellsIcons.SwitchAccount,
                 contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .padding(all = dimensionResource(R.dimen.margin_xxsmall))
-                    .size(36.dp)
+                    .size(dimensionResource(R.dimen.default_button_inner_size))
             )
         }
     }

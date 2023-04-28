@@ -5,6 +5,9 @@
     <dimen name="default_layout_margin">16dp</dimen>
 
     <dimen name="icon_size">48dp</dimen>
+    <dimen name="default_button_size">48dp</dimen>
+    <dimen name="default_button_inner_size">24dp</dimen>
+
     <dimen name="grid_icon_inner_margin">20dp</dimen>
     <dimen name="spinner_size">96</dimen>
     <dimen name="margin_xxsmall">1dp</dimen>

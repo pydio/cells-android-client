@@ -203,10 +203,13 @@ fun LargeCard(
 
     Card(
         shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(0.8f)
+        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp,// dimensionResource(R.dimen.grid_ws_card_elevation)
         ),
-        border = BorderStroke(1.dp, SolidColor(MaterialTheme.colorScheme.outline)),
+        border = BorderStroke(1.dp, SolidColor(MaterialTheme.colorScheme.outlineVariant)),
         modifier = modifier
     ) {
 
