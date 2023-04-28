@@ -101,7 +101,7 @@ fun SingleNodeMenu(
 
         BottomSheetFlagItem(
             rTreeNode = rTreeNode,
-            icon = CellsIcons.KeepOffline,
+            iconId = R.drawable.cloud_download_24px,
             title = stringResource(R.string.keep_offline),
             flagType = AppNames.FLAG_OFFLINE,
             onItemClick = { launch(NodeAction.ToggleOffline(it)) },
@@ -112,35 +112,41 @@ fun SingleNodeMenu(
 
             DefaultTitleText(
                 text = stringResource(R.string.public_link),
+                modifier = Modifier.padding(
+                    start = dimensionResource(R.dimen.bottom_sheet_start_padding),
+                    end = dimensionResource(R.dimen.bottom_sheet_start_padding),
+                    top = dimensionResource(R.dimen.bottom_sheet_v_spacing),
+                    bottom = dimensionResource(R.dimen.bottom_sheet_v_padding),
+                ),
             )
 
             // TODO provide a better user interface for this
-            Column(Modifier.padding(start = dimensionResource(id = R.dimen.margin))) {
-                BottomSheetListItem(
-                    icon = CellsIcons.Share,
-                    title = stringResource(R.string.share_with),
-                    onItemClick = { launch(NodeAction.ShareWith) },
-                )
-                BottomSheetListItem(
-                    icon = CellsIcons.CopyTo,
-                    title = stringResource(R.string.copy_to_clipboard),
-                    onItemClick = { launch(NodeAction.CopyToClipboard) },
-                )
-                BottomSheetListItem(
-                    icon = CellsIcons.QRCode,
-                    title = stringResource(R.string.display_as_qrcode),
-                    onItemClick = { launch(NodeAction.ShowQRCode) },
-                )
-                BottomSheetListItem(
-                    icon = CellsIcons.Delete,
-                    title = stringResource(R.string.remove_link),
-                    onItemClick = { launch(NodeAction.RemoveLink) },
-                )
-            }
+            // Column(Modifier.padding(start = dimensionResource(id = R.dimen.margin))) {
+            BottomSheetListItem(
+                icon = CellsIcons.Share,
+                title = stringResource(R.string.share_with),
+                onItemClick = { launch(NodeAction.ShareWith) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.CopyTo,
+                title = stringResource(R.string.copy_to_clipboard),
+                onItemClick = { launch(NodeAction.CopyToClipboard) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.QRCode,
+                title = stringResource(R.string.display_as_qrcode),
+                onItemClick = { launch(NodeAction.ShowQRCode) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.Delete,
+                title = stringResource(R.string.remove_link),
+                onItemClick = { launch(NodeAction.RemoveLink) },
+            )
+            // }
         } else {
             BottomSheetFlagItem(
                 rTreeNode = rTreeNode,
-                icon = CellsIcons.Link,
+                icon = CellsIcons.ButtonShare,
                 title = stringResource(R.string.public_link),
                 flagType = AppNames.FLAG_SHARE,
                 onItemClick = { if (it) launch(NodeAction.CreateShare) },

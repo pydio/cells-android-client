@@ -53,6 +53,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
@@ -174,85 +175,87 @@ private fun HomeListContent(
     })
 
     Box(modifier.pullRefresh(state)) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
-            contentPadding = padding,
-        ) {
+        WithListTheme {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
+                contentPadding = padding,
+            ) {
 
-            item(span = {
-                GridItemSpan(maxLineSpan)
-            }) {
-                HomeHeader(
-                    username = stateID.username,
-                    address = stateID.serverUrl,
-                    openAccounts = openAccounts,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = dimensionResource(id = R.dimen.margin_small))
-                )
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Divider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = .3f),
-                    thickness = 0.3.dp,
-                )
-            }
-            if (workspaces.isNotEmpty()) {
                 item(span = {
                     GridItemSpan(maxLineSpan)
                 }) {
-                    MainTitleText(
-                        text = stringResource(R.string.category_workspaces),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                items(workspaces, key = { it.encodedState }) { ws ->
-                    LargeCardWithIcon(
-                        sortName = ws.sortName,
-                        title = ws.label ?: "",
-                        desc = ws.description ?: "",
-                        mime = ws.type,
+                    HomeHeader(
+                        username = stateID.username,
+                        address = stateID.serverUrl,
+                        openAccounts = openAccounts,
                         modifier = Modifier
-                            .wrapContentSize(align = Alignment.Center)
-                            .clickable { open(ws.getStateID()) },
+                            .fillMaxWidth()
+                            .padding(top = dimensionResource(id = R.dimen.margin_small))
                     )
                 }
-            }
-
-            if (cells.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    MainTitleText(
-                        text = stringResource(R.string.category_cells),
-                        color = MaterialTheme.colorScheme.onSurface,
+                    Divider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = .3f),
+                        thickness = 0.3.dp,
                     )
                 }
-                items(cells, key = { it.encodedState }) { ws ->
-                    LargeCardWithIcon(
-                        sortName = ws.sortName,
-                        title = ws.label ?: "",
-                        desc = ws.description
-                            ?: "", // TODO provide another string for nicer UI when the description when ws."",
-                        mime = ws.type,
-                        modifier = Modifier
-                            .wrapContentSize(align = Alignment.Center)
-                            .clickable { open(ws.getStateID()) },
-                    )
+                if (workspaces.isNotEmpty()) {
+                    item(span = {
+                        GridItemSpan(maxLineSpan)
+                    }) {
+                        MainTitleText(
+                            text = stringResource(R.string.category_workspaces),
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    items(workspaces, key = { it.encodedState }) { ws ->
+                        LargeCardWithIcon(
+                            sortName = ws.sortName,
+                            title = ws.label ?: "",
+                            desc = ws.description ?: "",
+                            mime = ws.type,
+                            modifier = Modifier
+                                .wrapContentSize(align = Alignment.Center)
+                                .clickable { open(ws.getStateID()) },
+                        )
+                    }
                 }
-            }
 
-            if (workspaces.isEmpty() && cells.isEmpty() && loadingState == LoadingState.IDLE) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.account_home_no_ws_title),
-                            style = MaterialTheme.typography.titleMedium,
+                if (cells.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        MainTitleText(
+                            text = stringResource(R.string.category_cells),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
-                        Text(
-                            text = stringResource(R.string.account_home_no_ws_desc),
+                    }
+                    items(cells, key = { it.encodedState }) { ws ->
+                        LargeCardWithIcon(
+                            sortName = ws.sortName,
+                            title = ws.label ?: "",
+                            desc = ws.description
+                                ?: "", // TODO provide another string for nicer UI when the description when ws."",
+                            mime = ws.type,
+                            modifier = Modifier
+                                .wrapContentSize(align = Alignment.Center)
+                                .clickable { open(ws.getStateID()) },
                         )
+                    }
+                }
+
+                if (workspaces.isEmpty() && cells.isEmpty() && loadingState == LoadingState.IDLE) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.account_home_no_ws_title),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Text(
+                                text = stringResource(R.string.account_home_no_ws_desc),
+                            )
+                        }
                     }
                 }
             }

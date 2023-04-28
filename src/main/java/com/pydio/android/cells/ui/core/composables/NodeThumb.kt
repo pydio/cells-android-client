@@ -100,10 +100,10 @@ fun IconThumb(mime: String, sortName: String?) {
 }
 
 @Composable
-fun M3IconThumb(@DrawableRes id: Int, color: Color) {
+fun M3IconThumb(@DrawableRes id: Int, color: Color, modifier: Modifier = Modifier) {
     Surface(
         tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-        modifier = Modifier
+        modifier = modifier
             .size(dimensionResource(R.dimen.list_thumb_size))
             .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
     ) {

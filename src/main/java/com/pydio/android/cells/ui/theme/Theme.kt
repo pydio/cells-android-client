@@ -142,11 +142,10 @@ fun CellsTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = CellsTypography,
         content = content,
     )
 }
-
 
 /**
  * A sample theme overlay to be used with dark dialogs.

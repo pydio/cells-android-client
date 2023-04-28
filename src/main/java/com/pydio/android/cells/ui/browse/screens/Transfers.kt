@@ -345,11 +345,12 @@ private fun TransferList(
         forceRefresh()
     })
 
-    var emptyMsg = if (currFilter != JobStatus.NO_FILTER.id) {
-        stringResource(R.string.no_transfer_with_filter, currFilter)
-    } else {
-        stringResource(R.string.no_transfer_for_account)
-    }
+    var emptyMsg =
+        if (!(currFilter == JobStatus.NO_FILTER.id || currFilter == "show_all")) { // dirty fix to address legacy filter value
+            stringResource(R.string.no_transfer_with_filter, currFilter)
+        } else {
+            stringResource(R.string.no_transfer_for_account)
+        }
 
     WithLoadingListBackground(
         listContext = ListContext.TRANSFERS,

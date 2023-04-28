@@ -30,6 +30,7 @@ import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.android.cells.ui.theme.CellsListTypography
 
 // private const val logTag = "GenericList "
 
@@ -76,8 +77,23 @@ fun WithLoadingListBackground(
                 }
             }
         }
+        WithListTheme {
+            content()
+        }
+    }
+}
+
+@Composable
+fun WithListTheme(
+    content: @Composable () -> Unit,
+) {
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme,
+        typography = CellsListTypography
+    ) {
         content()
     }
+
 }
 
 @Composable

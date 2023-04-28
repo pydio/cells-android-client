@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.pydio.android.cells.R
@@ -38,7 +39,12 @@ fun M3BrowseUpListItem(
         leadingContent = {
             M3IconThumb(
                 R.drawable.aa_200_arrow_back_ios_new_24px,
-                color = color
+                color = color,
+                // TODO rather provide an "already rotated" drawable resource
+                modifier = Modifier
+                    .graphicsLayer {
+                        this.rotationZ = 90f
+                    }
             )
         },
     )
