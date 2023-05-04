@@ -48,8 +48,9 @@ fun Decorated(
         content()
 
         val decMod = Modifier
-            .size(dimensionResource(R.dimen.list_thumb_decorator_size))
+            .padding(dimensionResource(R.dimen.list_thumb_decorator_padding))
             .wrapContentSize(Alignment.BottomEnd)
+            .size(dimensionResource(R.dimen.list_thumb_decorator_size))
 
         when (type) {
             Type.AUTH -> AuthDecorator(
@@ -126,29 +127,3 @@ private fun AuthDecorator(authStatus: String, modifier: Modifier) {
         modifier = modifier
     )
 }
-
-//@Deprecated("Rather use decorated with type")
-//@Composable
-//fun AuthDecorated(
-//    authStatus: String,
-//    content: @Composable () -> Unit,
-//) {
-//    Surface(
-//        tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-//        modifier = Modifier
-//            .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
-//            .clip(RoundedCornerShape(dimensionResource(R.dimen.list_thumb_corner_radius)))
-//            .size(48.dp)
-//
-//    ) {
-//
-//        content()
-//
-//        AuthDecorator(
-//            authStatus = authStatus,
-//            modifier = Modifier
-//                .size(dimensionResource(R.dimen.list_thumb_decorator_size))
-//                .wrapContentSize(Alignment.BottomEnd)
-//        )
-//    }
-//}

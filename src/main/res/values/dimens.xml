@@ -103,7 +103,8 @@
     <dimen name="list_thumb_icon_size">24dp</dimen>
     <dimen name="list_thumb_padding">8dp</dimen>
     <dimen name="list_thumb_margin">4dp</dimen>
-    <dimen name="list_thumb_decorator_size">12dp</dimen>
+    <dimen name="list_thumb_decorator_size">16dp</dimen>
+    <dimen name="list_thumb_decorator_padding">4dp</dimen>
     <dimen name="list_thumb_corner_radius">6dp</dimen>
     <dimen name="list_trailing_icon_size">24dp</dimen>
 
