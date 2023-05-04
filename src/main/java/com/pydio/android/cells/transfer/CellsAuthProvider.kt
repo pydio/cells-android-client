@@ -17,13 +17,11 @@ class CellsAuthProvider(
     private val logTag = "CellsAuthProvider"
 
     override fun getCredentials(): AWSCredentials {
-//        Log.e(logTag, "Retrieving credentials for $accountID")
-        val token = transport.accessToken
-        return BasicAWSCredentials(token, DEFAULT_GATEWAY_SECRET)
+        return BasicAWSCredentials(transport.accessToken, DEFAULT_GATEWAY_SECRET)
     }
 
     override fun refresh() {
-        Log.e(logTag, "Got a token refresh request for $accountID")
+        Log.i(logTag, "Explicit token refresh request for $accountID")
         try {
             transport.requestTokenRefresh()
         } catch (se: SDKException) {

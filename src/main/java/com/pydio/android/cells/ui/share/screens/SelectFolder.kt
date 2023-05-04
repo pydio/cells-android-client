@@ -119,7 +119,7 @@ fun SelectFolderScreen(
     NavHost(navController, FOLDER_MAIN_CONTENT) {
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
-            Log.e(logTag, "... Navigating to main content for $stateID")
+            Log.d(logTag, "... Navigating to main content for $stateID")
             SelectFolderScaffold(
                 loadingStatus = loadingStatus.value,
                 action = AppNames.ACTION_UPLOAD,

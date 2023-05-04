@@ -199,6 +199,18 @@ class NodeActionsVM(
         }
     }
 
+
+//    suspend fun createShare(stateID: StateID) {
+//        // FIXME
+////        viewModelScope.async {
+////            try {
+////                nodeService.createShare(stateID)
+////            } catch (e: SDKException) {
+////                Log.e(logTag, "#${e.code}: ${e.message}, cause: ${e.cause?.message}")
+////            }
+////        }.await()
+//    }
+
     fun removeShare(stateID: StateID) {
         viewModelScope.launch {
             nodeService.removeShare(stateID)

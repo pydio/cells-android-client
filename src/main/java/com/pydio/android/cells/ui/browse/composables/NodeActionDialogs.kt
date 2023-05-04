@@ -330,9 +330,9 @@ fun ShowQRCode(
 
     val writer = QRCodeWriter()
     LaunchedEffect(stateID) {
-        nodeActionsVM.getShareLink(stateID)?.let {
+        nodeActionsVM.getShareLink(stateID)?.let { linkStr ->
             val bitMatrix = writer.encode(
-                it,
+                linkStr,
                 BarcodeFormat.QR_CODE,
                 context.resources.getInteger(R.integer.qrcode_width),
                 context.resources.getInteger(R.integer.qrcode_width)
