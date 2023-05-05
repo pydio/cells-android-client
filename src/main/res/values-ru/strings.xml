@@ -100,6 +100,7 @@
     <string name="category_workspaces">Рабочие области</string>
     <string name="last_check">Последняя проверка</string>
     <string name="last_check_never">никогда</string>
+    <string name="appears_in_prefix">Inside %s</string>
     <string name="loading_message">Пожалуйста, дождитесь загрузки…</string>
     <string name="no_internet">Нет подключения к интернету</string>
     <string name="metered_connection">On a metered connection</string>
