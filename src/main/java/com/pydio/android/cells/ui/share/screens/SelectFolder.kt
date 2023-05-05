@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,8 +38,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
@@ -56,7 +54,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
-import com.pydio.android.cells.ui.core.composables.lists.BrowseUpItem
+import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.share.models.ShareVM
@@ -225,11 +223,9 @@ private fun FolderList(
                     } else {
                         stateID.parent()
                     }
-                    BrowseUpItem(
-                        parentDescription,
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { open(targetID) }
+                    M3BrowseUpListItem(
+                        parentDescription = parentDescription,
+                        modifier = Modifier.clickable { open(targetID) }
                     )
                 }
             }
@@ -263,8 +259,6 @@ private fun FolderList(
 private fun SelectFolderItem(
     item: RTreeNode,
     isFolder: Boolean,
-//    mime: String,
-//    sortName: String?,
     title: String,
     desc: String,
     modifier: Modifier = Modifier
@@ -277,41 +271,90 @@ private fun SelectFolderItem(
         1f
     }
 
-    Surface(
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .fillMaxWidth()
             .alpha(alpha)
-            .padding(all = dimensionResource(R.dimen.card_padding))
+            .padding(
+                top = dimensionResource(R.dimen.list_item_inner_padding),
+                bottom = dimensionResource(R.dimen.list_item_inner_padding),
+                start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
+                end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
+            )
+
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+
+        Thumbnail(
+            item.encodedState,
+            item.sortName,
+            item.name,
+            item.mime,
+            item.etag,
+            item.hasThumb()
+        )
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.card_padding),
+                    vertical = dimensionResource(R.dimen.margin_xsmall)
+                )
+                .wrapContentWidth(Alignment.Start)
         ) {
-
-            Thumbnail(item)
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.card_padding),
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = desc,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
+
+
+//
+//    Surface(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .alpha(alpha)
+//            .padding(all = dimensionResource(R.dimen.card_padding))
+//    ) {
+//        Row(
+//            horizontalArrangement = Arrangement.spacedBy(8.dp),
+//            verticalAlignment = Alignment.CenterVertically,
+//        ) {
+//
+//            Thumbnail(item)
+//
+//            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
+//
+//            Column(
+//                modifier = modifier
+//                    .fillMaxWidth()
+//                    .padding(
+//                        horizontal = dimensionResource(R.dimen.card_padding),
+//                        vertical = dimensionResource(R.dimen.margin_xsmall)
+//                    )
+//                    .wrapContentWidth(Alignment.Start)
+//            ) {
+//                Text(
+//                    text = title,
+//                    style = MaterialTheme.typography.bodyMedium,
+//                )
+//                Text(
+//                    text = desc,
+//                    style = MaterialTheme.typography.bodySmall,
+//                )
+//            }
+//        }
+//    }
 }
 
 @Composable

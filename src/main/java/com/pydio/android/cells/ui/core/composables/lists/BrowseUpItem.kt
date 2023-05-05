@@ -73,6 +73,9 @@ fun M3BrowseUpLargeGridItem(
                 modifier = Modifier
                     .wrapContentSize(Alignment.Center)
                     .size(dimensionResource(R.dimen.grid_large_icon_size))
+                    .graphicsLayer {
+                        this.rotationZ = 90f
+                    }
             )
         }
     }

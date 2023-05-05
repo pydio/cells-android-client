@@ -51,11 +51,11 @@ fun Thumbnail(
     mime: String,
     eTag: String?,
     hasThumb: Boolean,
+//     modifier: Modifier = Modifier
 ) {
     if (hasThumb) {
         Surface(
             modifier = Modifier
-                // .padding(all = dimensionResource(id = R.dimen.list_thumb_margin))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
             GlideImage(

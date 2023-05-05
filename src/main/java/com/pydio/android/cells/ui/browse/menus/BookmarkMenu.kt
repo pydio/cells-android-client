@@ -18,7 +18,6 @@ import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.Thumbnail
-import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
 import com.pydio.android.cells.ui.models.BookmarkItem
@@ -59,21 +58,12 @@ fun BookmarkMenu(
                 onItemClick = { launch(NodeAction.OpenInApp, stateID) },
             )
         }
-//        BottomSheetListItem(
-//            icon = CellsIcons.OpenLocation,
-//            title = if (rTreeNode.isFile()) {
-//                stringResource(R.string.open_parent_in_workspaces)
-//            } else {
-//                stringResource(R.string.open_in_workspaces)
-//            },
-//            onItemClick = { launch(NodeAction.OpenInApp, stateID) },
-//        )
 
         val appearsIn = remember { mutableStateOf<BookmarkItem?>(null) }
 
         appearsIn.value?.let {
-            // TODO  appearsIn.value.appearsInWorkspace.size > 1
-            BottomSheetDivider()
+//            BottomSheetDivider()
+
             DefaultTitleText(
                 text = if (rTreeNode.isFile()) {
                     stringResource(R.string.open_parent_in_workspaces)

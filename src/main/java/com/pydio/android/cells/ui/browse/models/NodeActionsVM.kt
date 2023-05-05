@@ -45,13 +45,14 @@ class NodeActionsVM(
     }
 
     /* Pass a non-empty err parameter when the process has terminated with an error*/
-    private fun done(err: String? = null, userMsg: String? = null) {
-        if (Str.notEmpty(err)) {
-            Log.e(logTag, "$userMsg, cause: ${err ?: "-"}")
-            _errorMessage.value = userMsg
+    private suspend fun done(err: String? = null, userMsg: String? = null) =
+        withContext(Dispatchers.Main) {
+            if (Str.notEmpty(err)) {
+                Log.e(logTag, "$userMsg, cause: ${err ?: "-"}")
+                _errorMessage.value = userMsg
+            }
+            _loadingState.value = LoadingState.IDLE
         }
-        _loadingState.value = LoadingState.IDLE
-    }
 
     private fun failed(msg: String) {
         _loadingState.value = LoadingState.IDLE
@@ -116,13 +117,9 @@ class NodeActionsVM(
         CellsApp.instance.appScope.launch {
             try {
                 transferService.saveToSharedStorage(stateID, uri)
-                withContext(Dispatchers.Main) {
-                    done()
-                }
+                done()
             } catch (e: SDKException) {
-                withContext(Dispatchers.Main) {
-                    done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
-                }
+                done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
             }
         }
     }
@@ -133,9 +130,7 @@ class NodeActionsVM(
                 for (uri in uris) {
                     transferService.enqueueUpload(stateID, uri)
                 }
-                withContext(Dispatchers.Main) {
-                    done()
-                }
+                done()
             } catch (e: SDKException) {
                 done("#${e.code} - ${e.message}", "Could import files at $stateID")
             }
