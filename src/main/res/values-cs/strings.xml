@@ -100,6 +100,7 @@
     <string name="category_workspaces">Pracovní prostory</string>
     <string name="last_check">Naposledy zkontrolováno</string>
     <string name="last_check_never">nikdy</string>
+    <string name="appears_in_prefix">Inside %s</string>
     <string name="loading_message">Počkejte na načtení obsahu…</string>
     <string name="no_internet">Není k dispozici připojení k Internetu</string>
     <string name="metered_connection">Na připojení s účtovanými daty</string>

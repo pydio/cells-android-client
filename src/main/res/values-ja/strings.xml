@@ -100,6 +100,7 @@
     <string name="category_workspaces">Workspaces</string>
     <string name="last_check">Last check</string>
     <string name="last_check_never">never</string>
+    <string name="appears_in_prefix">Inside %s</string>
     <string name="loading_message">Please wait while loading content…</string>
     <string name="no_internet">No internet connection</string>
     <string name="metered_connection">On a metered connection</string>

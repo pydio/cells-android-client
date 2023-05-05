@@ -100,6 +100,7 @@
     <string name="category_workspaces">Workspaces</string>
     <string name="last_check">Zuletzt geprüft</string>
     <string name="last_check_never">nie</string>
+    <string name="appears_in_prefix">Innerhalb %s</string>
     <string name="loading_message">Bitte warten Sie, während der Inhalt geladen wird…</string>
     <string name="no_internet">Keine Internetverbindung</string>
     <string name="metered_connection">Begrenzter Anschluss</string>
