@@ -71,7 +71,7 @@ class TreeDiff(
         val local = dao.getNode(baseFolderStateId.id)
         var remote: FileNode? = null
         try {
-            remote = client.nodeInfo(baseFolderStateId.workspace, baseFolderStateId.file)
+            remote = client.nodeInfo(baseFolderStateId.slug, baseFolderStateId.file)
         } catch (e: SDKException) {
             val msg = "stat failed at ${baseFolderStateId}: ${e.message}"
             Log.e(logTag, msg)
@@ -321,7 +321,7 @@ class TreeDiff(
             if (client.isLegacy) {
                 getAllSorted()
             } else {
-                nextPage = client.ls(parentId.workspace, parentId.file, page) {
+                nextPage = client.ls(parentId.slug, parentId.file, page) {
                     if (it !is FileNode) {
                         Log.w(logTag, "could not store node: $it")
                     } else {
@@ -336,7 +336,7 @@ class TreeDiff(
         private fun getAllSorted() {
             val unsorted = mutableListOf<FileNode>()
             while (nextPage.currentPage != nextPage.totalPages) {
-                nextPage = client.ls(parentId.workspace, parentId.file, nextPage) {
+                nextPage = client.ls(parentId.slug, parentId.file, nextPage) {
                     if (it !is FileNode) {
                         Log.w(logTag, "could not store node: $it")
                     } else {

@@ -414,7 +414,7 @@ class MigrationServiceV2 : KoinComponent {
             inputStream = FileInputStream(file)
             accountService.getClient(stateID).upload(
                 inputStream, file.length(),
-                mime, stateID.workspace, stateID.file, file.name,
+                mime, stateID.slug, stateID.file, file.name,
                 true, null
             )
         } catch (e: Exception) {

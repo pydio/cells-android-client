@@ -171,7 +171,7 @@ fun SelectFolderScaffold(
             )
         },
         floatingActionButton = {
-            if (Str.notEmpty(stateID.workspace)) {
+            if (Str.notEmpty(stateID.slug)) {
                 FloatingActionButton(
                     onClick = {
                         doAction(AppNames.ACTION_CREATE_FOLDER, stateID)
@@ -220,7 +220,7 @@ private fun FolderList(
                         Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
                         else -> stringResource(R.string.parent_folder)
                     }
-                    val targetID = if (Str.empty(stateID.workspace)) {
+                    val targetID = if (Str.empty(stateID.slug)) {
                         StateID.NONE
                     } else {
                         stateID.parent()

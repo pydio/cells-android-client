@@ -29,7 +29,7 @@ class FolderVM(
 
     val childNodes: LiveData<List<RTreeNode>>
         get() = sortOrder.switchMap { currOrder ->
-            if (Str.empty(stateID.workspace)) {
+            if (Str.empty(stateID.slug)) {
                 Log.e(logTag, "Listing workspaces in folderVM, this should never happen")
                 nodeService.listWorkspaces(stateID)
             } else {

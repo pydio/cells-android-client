@@ -56,7 +56,7 @@ fun NodeMoreMenuData(
         }
     }
 
-    if (toOpenStateID.workspace != null) {
+    if (toOpenStateID.slug != null) {
         item.value?.let { myItem ->
             when {
                 myItem.isRecycle() -> RecycleParentMenu(

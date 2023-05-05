@@ -47,7 +47,8 @@ fun NavGraphBuilder.browseNavGraph(
                     openDrawer = openDrawer,
                     addAccount = {},
                 )
-            Str.notEmpty(stateID.workspace) -> {
+
+            Str.notEmpty(stateID.slug) -> {
                 Folder(
                     stateID,
                     openDrawer = openDrawer,
@@ -64,6 +65,7 @@ fun NavGraphBuilder.browseNavGraph(
                     browseHelper = helper,
                 )
             }
+
             else -> {
                 var i = 0
                 navController.backQueue.forEach {

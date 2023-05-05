@@ -174,11 +174,11 @@ data class RTreeNode(
             try {
                 val node = RTreeNode(
                     encodedState = childStateID.id,
-                    workspace = childStateID.workspace,
+                    workspace = childStateID.slug,
                     parentPath = childStateID.parentFile ?: "",
                     name = childStateID.fileName ?: run {
                         Log.e(logTag, "Using slug instead of filename")
-                        childStateID.workspace
+                        childStateID.slug
                     },
                     uuid = fileNode.id,
                     etag = fileNode.eTag,
@@ -229,7 +229,7 @@ data class RTreeNode(
 
                 return RTreeNode(
                     encodedState = storedID.id,
-                    workspace = storedID.workspace,
+                    workspace = storedID.slug,
                     parentPath = "",
                     name = node.name,
                     uuid = nodeUuid,

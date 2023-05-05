@@ -182,10 +182,10 @@ class NodeService(
             if (isShared) {
                 val client = accountService.getClient(state)
                 if (client.isLegacy) {
-                    address = client.getShareAddress(state.workspace, state.file)
+                    address = client.getShareAddress(state.slug, state.file)
                 } else {
                     newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                        address = client.getShareAddress(state.workspace, it)
+                        address = client.getShareAddress(state.slug, it)
                     }
                 }
             }
@@ -224,7 +224,7 @@ class NodeService(
                 ?: return@withContext // TODO throw an error ?
 
             getNodesByUuid(stateID, node1.uuid).forEach { curr ->
-                getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
+                getClient(stateID).bookmark(stateID.slug, stateID.file, newState)
                 curr.setBookmarked(newState)
                 curr.localModificationTS = currentTimestamp()
                 nodeDB(stateID).treeNodeDao().update(curr)
@@ -252,10 +252,10 @@ class NodeService(
             val client = getClient(stateID)
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             if (client.isLegacy) {
-                client.unshare(stateID.workspace, stateID.file)
+                client.unshare(stateID.slug, stateID.file)
             } else {
                 node.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                    client.unshare(stateID.workspace, it)
+                    client.unshare(stateID.slug, it)
                 }
             }
         } catch (se: SDKException) {
@@ -271,7 +271,7 @@ class NodeService(
         try {
             // We still put default values. TODO implement user defined details
             return@withContext getClient(stateID).share(
-                stateID.workspace, stateID.file, stateID.fileName,
+                stateID.slug, stateID.file, stateID.fileName,
                 "Created on ${currentTimestampAsString()}",
                 null, true, true
             )
@@ -289,16 +289,16 @@ class NodeService(
             val client = getClient(stateID)
             if (rTreeNode.isShared()) {
                 if (client.isLegacy) {
-                    client.unshare(stateID.workspace, stateID.file)
+                    client.unshare(stateID.slug, stateID.file)
                 } else {
                     rTreeNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                        client.unshare(stateID.workspace, it)
+                        client.unshare(stateID.slug, it)
                     }
                 }
             } else {
                 // We still put default values. TODO implement user defined details
                 return@withContext client.share(
-                    stateID.workspace, stateID.file, stateID.fileName,
+                    stateID.slug, stateID.file, stateID.fileName,
                     "Created on ${currentTimestampAsString()}",
                     null, true, true
                 )
@@ -318,7 +318,7 @@ class NodeService(
     suspend fun createFolder(parentID: StateID, folderName: String) =
         withContext(ioDispatcher) {
             try {
-                getClient(parentID).mkdir(parentID.workspace, parentID.file, folderName)
+                getClient(parentID).mkdir(parentID.slug, parentID.file, folderName)
             } catch (e: SDKException) {
                 val msg = "could not create folder at ${parentID.path}"
                 handleSdkException(parentID, msg, e)
@@ -335,7 +335,7 @@ class NodeService(
                     srcFiles.add(source.file)
                 }
                 getClient(targetParent).copy(
-                    targetParent.workspace,
+                    targetParent.slug,
                     srcFiles.toTypedArray(),
                     targetParent.file
                 )
@@ -355,7 +355,7 @@ class NodeService(
                     srcFiles.add(source.file)
                 }
                 getClient(targetParent).move(
-                    targetParent.workspace,
+                    targetParent.slug,
                     srcFiles.toTypedArray(),
                     targetParent.file
                 )
@@ -394,7 +394,7 @@ class NodeService(
     @Throws(SDKException::class)
     suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
         try {
-            val fileNode = getClient(stateID).nodeInfo(stateID.workspace, stateID.file)
+            val fileNode = getClient(stateID).nodeInfo(stateID.slug, stateID.file)
             val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
             upsertNode(treeNode)
             return@withContext treeNode
@@ -435,7 +435,7 @@ class NodeService(
 
     private suspend fun getNodeInfo(stateID: StateID): FileNode? {
         try {
-            return getClient(stateID).nodeInfo(stateID.workspace, stateID.file)
+            return getClient(stateID).nodeInfo(stateID.slug, stateID.file)
         } catch (e: SDKException) {
             handleSdkException(stateID, "could not getNodeInfo for $stateID", e)
             throw e
@@ -625,7 +625,7 @@ class NodeService(
                 ?: return@withContext "No node found at $stateID, could not restore"
 
             val nodes = arrayOf(node.toFileNode())
-            getClient(stateID).restore(stateID.workspace, nodes)
+            getClient(stateID).restore(stateID.slug, nodes)
 
             remoteDelete(stateID)
             treeNodeRepository.persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
@@ -638,17 +638,17 @@ class NodeService(
 
     @Throws(SDKException::class)
     fun remoteEmptyRecycle(stateID: StateID) {
-        getClient(stateID).emptyRecycleBin(stateID.workspace)
+        getClient(stateID).emptyRecycleBin(stateID.slug)
     }
 
     @Throws(SDKException::class)
     fun remoteRename(stateID: StateID, newName: String) {
-        getClient(stateID).rename(stateID.workspace, stateID.file, newName)
+        getClient(stateID).rename(stateID.slug, stateID.file, newName)
     }
 
     @Throws(SDKException::class)
     fun remoteDelete(stateID: StateID) {
-        getClient(stateID).delete(stateID.workspace, arrayOf<String>(stateID.file))
+        getClient(stateID).delete(stateID.slug, arrayOf<String>(stateID.file))
     }
 
     /* Constants and helpers */

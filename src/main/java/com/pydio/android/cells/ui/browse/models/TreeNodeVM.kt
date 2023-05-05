@@ -38,7 +38,7 @@ class TreeNodeVM(
                 isFolder = node.isFolder(),
             )
             nodeService.getNodesByUuid(stateID, node.uuid).forEach { curr ->
-                val slug = curr.getStateID().workspace!!
+                val slug = curr.getStateID().slug!!
                 newItem.appearsIn.add(curr.getStateID())
                 newItem.appearsInWorkspace[slug] =
                     nodeService.getWorkspace(curr.getStateID().workspace())?.let {

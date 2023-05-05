@@ -31,7 +31,7 @@ class ShareVM(
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
 
-    val childNodes: LiveData<List<RTreeNode>> = if (Str.empty(stateID.workspace)) {
+    val childNodes: LiveData<List<RTreeNode>> = if (Str.empty(stateID.slug)) {
         nodeService.listWorkspaces(stateID)
     } else {
         nodeService.listViewable(stateID, "")

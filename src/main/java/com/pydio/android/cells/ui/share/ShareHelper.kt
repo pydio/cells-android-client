@@ -76,7 +76,7 @@ class ShareHelper(
 
     fun canPost(stateID: StateID): Boolean {
         // TODO also check permissions on remote server
-        return Str.notEmpty(stateID.workspace)
+        return Str.notEmpty(stateID.slug)
         // true
 //        if (action == AppNames.ACTION_UPLOAD) {
 //            true

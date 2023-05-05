@@ -61,7 +61,7 @@ class BookmarksVM(
                     hasThumb = node.hasThumb(),
                     isFolder = node.isFolder(),
                 )
-                val slug = node.getStateID().workspace!!
+                val slug = node.getStateID().slug!!
                 if (!wss.containsKey(slug)) {
                     nodeService.getWorkspace(node.getStateID().workspace())?.let {
                         wss[slug] = it.label ?: slug

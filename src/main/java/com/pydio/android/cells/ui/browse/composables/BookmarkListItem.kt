@@ -103,6 +103,6 @@ fun BookmarkGridItem(
 @Composable
 private fun getAppearsInDesc(item: BookmarkItem): String {
     val suffix = item.appearsIn
-        .joinToString(", ") { item.appearsInWorkspace[it.workspace] ?: it.workspace }
+        .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug }
     return stringResource(R.string.appears_in_prefix, suffix)
 }

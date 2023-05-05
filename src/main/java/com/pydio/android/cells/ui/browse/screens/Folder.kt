@@ -109,7 +109,7 @@ fun Folder(
 
     val label by remember(key1 = treeNode, key2 = workspace) {
         derivedStateOf {
-            var tmpLabel = folderID.fileName ?: workspace?.label ?: folderID.workspace
+            var tmpLabel = folderID.fileName ?: workspace?.label ?: folderID.slug
             if (treeNode?.isRecycle() == true) {
                 tmpLabel = binLabel
             }

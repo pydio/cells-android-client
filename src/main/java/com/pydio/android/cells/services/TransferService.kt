@@ -471,7 +471,7 @@ class TransferService(
             var lastUpdateTS = 0L
             var byteWritten = 0L
             accountService.getClient(stateID)
-                .download(stateID.workspace, stateID.file, out) { progressL ->
+                .download(stateID.slug, stateID.file, out) { progressL ->
                     // TODO also manage parent job cancellation
                     val cancellationMsg = dao.hasBeenCancelled(rTransfer.transferId)?.let {
                         val msg = "Download paused by ${it.owner}"
@@ -754,7 +754,7 @@ class TransferService(
 
             accountService.getClient(stateID).upload(
                 inputStream, transferRecord.byteSize,
-                transferRecord.mime, parentID.workspace, parentID.file, stateID.fileName,
+                transferRecord.mime, parentID.slug, parentID.file, stateID.fileName,
                 true
             ) { progressL ->
 

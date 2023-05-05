@@ -87,7 +87,7 @@ fun resetToHomeStateIfNecessary(manager: FragmentManager, currentState: StateID)
     // when we are in a special page
     val count = manager.backStackEntryCount
     if (count == 0 && currentState.path?.length ?: 0 > 0
-        || currentState.path == "/${currentState.workspace}"
+        || currentState.path == "/${currentState.slug}"
     ) {
 //        CellsApp.instance.setCurrentState(StateID.fromId(currentState.accountId))
     }

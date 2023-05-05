@@ -50,7 +50,7 @@ class BrowseHelper(
             navController.popBackStack()
         } else {
             val route: String
-            if (Str.notEmpty(stateID.workspace)) {
+            if (Str.notEmpty(stateID.slug)) {
                 val item = browseVM.getNode(stateID) ?: run {
                     // We cannot navigate to an unknown node item
                     Log.e(logTag, "No TreeNode found for $stateID in local repo, aborting")
