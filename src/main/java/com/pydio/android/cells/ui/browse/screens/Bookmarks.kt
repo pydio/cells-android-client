@@ -42,10 +42,10 @@ import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.BrowseHelper
+import com.pydio.android.cells.ui.browse.composables.BookmarkGridItem
+import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
@@ -54,14 +54,11 @@ import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
-import com.pydio.android.cells.ui.core.composables.getNodeDesc
-import com.pydio.android.cells.ui.core.composables.getNodeTitle
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.models.BookmarkItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -76,13 +73,12 @@ fun Bookmarks(
     bookmarksVM: BookmarksVM,
     browseHelper: BrowseHelper,
 ) {
-
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val loadingState by bookmarksVM.loadingState.observeAsState()
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
-    val bookmarks = bookmarksVM.bookmarks.observeAsState()
+    val bookmarks = bookmarksVM.bookmarks.collectAsState()
 
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)
@@ -203,7 +199,7 @@ private fun BookmarkScaffold(
     loadingState: LoadingState,
     listLayout: ListLayout,
     title: String,
-    bookmarks: List<RTreeNode>,
+    bookmarks: List<BookmarkItem>,
     openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
@@ -285,7 +281,7 @@ private fun BookmarkScaffold(
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
                         toOpenStateID = moreMenuState.stateID,
-                        launch = { launch(it, moreMenuState.stateID) },
+                        launch = launch,
                     )
                 }
             },
@@ -309,7 +305,7 @@ private fun BookmarkScaffold(
 private fun BookmarkList(
     loadingState: LoadingState,
     listLayout: ListLayout,
-    bookmarks: List<RTreeNode>,
+    bookmarks: List<BookmarkItem>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
@@ -358,43 +354,53 @@ private fun BookmarkList(
                     ) {
                         items(
                             items = bookmarks,
-                            key = { it.encodedState }) { node ->
-                            if (node.hasThumb()) {
-                                LargeCardWithThumb(
-                                    stateID = node.getStateID(),
-                                    eTag = node.etag,
-                                    mime = node.mime,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModificationTS,
-                                        node.size,
-                                        node.localModificationStatus
-                                    ),
-
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
-                                    sortName = node.sortName
-                                )
-                            } else {
-                                LargeCardWithIcon(
-                                    sortName = node.sortName,
-                                    mime = node.mime,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModificationTS,
-                                        node.size,
-                                        node.localModificationStatus
-                                    ),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
-                                )
-                            }
+                            key = { it.uuid }) { node ->
+                            BookmarkGridItem(
+                                item = node,
+                                more = { openMoreMenu(node.getStateID()) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { open(node.getStateID()) }
+                                    .animateItemPlacement(),
+                            )
+//                            if (node.hasThumb()) {
+//                                LargeCardWithThumb(
+//                                    stateID = node.getStateID(),
+//                                    eTag = node.etag,
+//                                    mime = node.mime,
+//                                    title = getNodeTitle(name = node.name, mime = node.mime),
+//                                    desc = getNodeDesc(
+//                                        node.remoteModificationTS,
+//                                        node.size,
+//                                        node.localModificationStatus
+//                                    ),
+//
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .clickable { open(node.getStateID()) }
+//                                        .animateItemPlacement(),
+//                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+//                                    sortName = node.sortName
+//                                )
+//                            } else {
+//                            LargeCardWithIcon(
+//                                sortName = node.sortName,
+//                                mime = node.mime,
+//                                title = getNodeTitle(name = node.name, mime = node.mime),
+//                                desc = "implement me",
+////                                            getNodeDesc(
+////
+////                                        node.remoteModificationTS,
+////                                        node.size,
+////                                        node.localModificationStatus
+////                                    ),
+//                                openMoreMenu = { openMoreMenu(node.getStateID()) },
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .clickable { open(node.getStateID()) }
+//                                    .animateItemPlacement(),
+//                            )
+//                            }
                         }
                     }
                 }
@@ -404,15 +410,9 @@ private fun BookmarkList(
                         contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(bookmarks, key = { it.encodedState }) { node ->
-                            NodeItem(
+                        items(bookmarks, key = { it.uuid }) { node ->
+                            BookmarkListItem(
                                 item = node,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
                                 more = { openMoreMenu(node.getStateID()) },
                                 modifier = Modifier
                                     .fillMaxWidth()

@@ -41,6 +41,9 @@ interface TreeNodeDao {
     @Query("SELECT * FROM tree_nodes WHERE encoded_state = :encodedState LIMIT 1")
     fun getNode(encodedState: String): RTreeNode?
 
+    @Query("SELECT * FROM tree_nodes WHERE uuid = :uuid")
+    fun getNodesByUuid(uuid: String): List<RTreeNode>
+
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
     fun ls(
         encodedParentStateID: String,
@@ -48,7 +51,6 @@ interface TreeNodeDao {
         order: String
     ): LiveData<List<RTreeNode>>
 
-    //    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
     @RawQuery(observedEntities = [RTreeNode::class])
     fun lsFlow(query: SupportSQLiteQuery): Flow<List<RTreeNode>>
 

@@ -71,7 +71,7 @@ import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgre
 import com.pydio.android.cells.ui.core.composables.getJobStatus
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
@@ -308,7 +308,7 @@ private fun WithScaffold(
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.OFFLINE,
                         toOpenStateID = moreMenuState.stateID,
-                        launch = { launch(it, moreMenuState.stateID) },
+                        launch = launch,
                     )
                 }
             },
@@ -401,7 +401,7 @@ private fun OfflineRootsList(
                             items = roots,
                             key = { it.encodedState }) { node ->
                             if (node.hasThumb()) {
-                                LargeCardWithThumb(
+                                LargeCardWithImage(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
                                     mime = node.mime,
@@ -546,7 +546,7 @@ private fun SyncStatusPreview() {
         SyncStatus(
             "Pydio Cells server",
             -1f,
-            Modifier.fillMaxWidth()
+            Modifier
         )
     }
 }

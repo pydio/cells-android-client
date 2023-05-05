@@ -28,7 +28,6 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -156,42 +155,42 @@ private fun FolderWithDialogs(
         }
     }
 
-    val launch: (NodeAction) -> Unit = { it ->
-        Log.i(logTag, "About to navigate to ${it.id}/${toOpenStateID}")
+    val launch: (NodeAction, StateID) -> Unit = { it, passedStateID ->
+        Log.i(logTag, "About to navigate to ${it.id}/${passedStateID}")
         when (it) {
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
                 val initialRoute =
-                    "${NodeAction.SelectTargetFolder.id}/${toOpenStateID.parent().id}"
+                    "${NodeAction.SelectTargetFolder.id}/${passedStateID.parent().id}"
                 navController.navigate(initialRoute)
             }
 
             is NodeAction.MoveTo -> {
                 currentAction.value = AppNames.ACTION_MOVE
                 val initialRoute =
-                    "${NodeAction.SelectTargetFolder.id}/${toOpenStateID.parent().id}"
+                    "${NodeAction.SelectTargetFolder.id}/${passedStateID.parent().id}"
                 navController.navigate(initialRoute)
             }
 
             is NodeAction.ToggleOffline -> {
-                nodeActionsVM.toggleOffline(toOpenStateID, it.isChecked)
+                nodeActionsVM.toggleOffline(passedStateID, it.isChecked)
                 delayedDone(true)
             }
 
             is NodeAction.ToggleBookmark -> {
-                nodeActionsVM.toggleBookmark(toOpenStateID, it.isChecked)
+                nodeActionsVM.toggleBookmark(passedStateID, it.isChecked)
                 delayedDone(true)
             }
 
             is NodeAction.CreateShare -> {
-                nodeActionsVM.createShare(toOpenStateID)
+                nodeActionsVM.createShare(passedStateID)
                 copyLinkToClipboard()
                 delayedDone(true)
             }
 
             is NodeAction.ShareWith -> {
                 scope.launch {
-                    nodeActionsVM.getShareLink(toOpenStateID)?.let {
+                    nodeActionsVM.getShareLink(passedStateID)?.let {
                         context.startActivity(
                             Intent(Intent.ACTION_SEND)
                                 .setType("text/plain")
@@ -208,12 +207,12 @@ private fun FolderWithDialogs(
             }
 
             is NodeAction.RemoveLink -> {
-                nodeActionsVM.removeShare(toOpenStateID)
+                nodeActionsVM.removeShare(passedStateID)
                 actionDone(true)
             }
 
             is NodeAction.RestoreFromTrash -> {
-                nodeActionsVM.restoreFromTrash(toOpenStateID)
+                nodeActionsVM.restoreFromTrash(passedStateID)
                 actionDone(true)
             }
 
@@ -221,7 +220,7 @@ private fun FolderWithDialogs(
                 actionDone(true)
             }
 
-            else -> navController.navigate("${it.id}/${toOpenStateID.id}")
+            else -> navController.navigate("${it.id}/${passedStateID.id}")
         }
     }
 

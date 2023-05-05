@@ -65,7 +65,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpLargeGridItem
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
@@ -395,7 +395,7 @@ private fun FolderList(
                             } else if (node.hasThumb()) {
                                 // TODO this log is important so that we are "notified" when the meta-hash changes
                                 Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
-                                LargeCardWithThumb(
+                                LargeCardWithImage(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
                                     mime = node.mime,

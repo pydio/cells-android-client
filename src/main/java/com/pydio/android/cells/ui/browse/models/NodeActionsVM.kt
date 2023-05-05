@@ -183,7 +183,15 @@ class NodeActionsVM(
 
     fun toggleBookmark(stateID: StateID, newState: Boolean) {
         viewModelScope.launch {
-            nodeService.toggleBookmark(stateID, newState)
+            try {
+                nodeService.toggleBookmark(stateID, newState)
+            } catch (e: Exception) {
+                Log.e(
+                    logTag,
+                    "Unhandled error when flaging bookmark=$newState for $stateID, cause:  ${e.message}"
+                )
+                e.printStackTrace()
+            }
         }
     }
 

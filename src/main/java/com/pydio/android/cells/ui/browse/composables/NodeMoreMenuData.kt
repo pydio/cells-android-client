@@ -36,7 +36,7 @@ enum class NodeMoreMenuType {
 fun NodeMoreMenuData(
     type: NodeMoreMenuType,
     toOpenStateID: StateID,
-    launch: (NodeAction) -> Unit,
+    launch: (NodeAction, StateID) -> Unit,
 ) {
     val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(toOpenStateID) })
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
@@ -62,29 +62,30 @@ fun NodeMoreMenuData(
                 myItem.isRecycle() -> RecycleParentMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
-                    launch = launch,
+                    launch = { launch(it, toOpenStateID) },
                 )
 
                 myItem.isInRecycle() -> RecycleMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
-                    launch = launch,
+                    launch = { launch(it, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     rWorkspace = workspace.value,
-                    launch = launch,
+                    launch = { launch(it, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
-                    launch = launch,
+                    launch = { launch(it, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
+                    moreMenuVM = moreMenuVM,
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
@@ -93,12 +94,12 @@ fun NodeMoreMenuData(
                 type == NodeMoreMenuType.SEARCH -> SearchMenu(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
-                    launch = { launch(it) },
+                    launch = { launch(it, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.SORT_BY -> SortByMenu(
                     type = ListType.DEFAULT,
-                    done = { launch(NodeAction.SortBy) },
+                    done = { launch(NodeAction.SortBy, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.MORE ->
@@ -106,7 +107,7 @@ fun NodeMoreMenuData(
                         stateID = toOpenStateID,
                         rTreeNode = myItem,
                         rWorkspace = workspace.value,
-                        launch = launch,
+                        launch = { launch(it, toOpenStateID) },
                     )
 
                 else -> Spacer(modifier = Modifier.height(1.dp))

@@ -50,7 +50,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithThumb
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
@@ -270,10 +270,7 @@ private fun WithScaffold(
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.SEARCH,
                         toOpenStateID = moreMenuState.stateID,
-                        launch = {
-                            Log.e(logTag, "Calling $it for ${moreMenuState.stateID}")
-                            launch(it, moreMenuState.stateID)
-                        },
+                        launch = launch,
                     )
                 }
             },
@@ -344,7 +341,7 @@ private fun HitsList(
                         items = hits,
                         key = { it.encodedState }) { node ->
                         if (node.hasThumb()) {
-                            LargeCardWithThumb(
+                            LargeCardWithImage(
                                 stateID = node.getStateID(),
                                 eTag = node.etag,
                                 mime = node.mime,

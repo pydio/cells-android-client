@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -67,6 +68,19 @@ class NodeService(
         )
         return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
     }
+
+    fun listBookmarkFlow(
+        accountID: StateID,
+        sortByCol: String,
+        sortByOrder: String
+    ): Flow<List<RTreeNode>> {
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
+                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
+        )
+        return nodeDB(accountID).treeNodeDao().lsFlow(lsQuery)
+    }
+
 
     fun listOfflineRoots(
         accountID: StateID,
@@ -110,6 +124,11 @@ class NodeService(
             nodeDB(stateID).treeNodeDao().getNode(stateID.id)
         }
     }
+
+    suspend fun getNodesByUuid(stateID: StateID, uuid: String): List<RTreeNode> =
+        withContext(ioDispatcher) {
+            nodeDB(stateID).treeNodeDao().getNodesByUuid(uuid)
+        }
 
     suspend fun searchLocally(
         stateID: StateID,
@@ -198,20 +217,33 @@ class NodeService(
 
     /* Calls to query both the cache and the remote server */
 
+    @Throws(SDKException::class)
     suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
         try {
-            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
-            getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
-            node.setBookmarked(newState)
-            node.localModificationTS = currentTimestamp()
-            nodeDB(stateID).treeNodeDao().update(node)
+            val node1 = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                ?: return@withContext // TODO throw an error ?
+
+            getNodesByUuid(stateID, node1.uuid).forEach { curr ->
+                getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
+                curr.setBookmarked(newState)
+                curr.localModificationTS = currentTimestamp()
+                nodeDB(stateID).treeNodeDao().update(curr)
+            }
+
+
+//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+//            getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
+//            node.setBookmarked(newState)
+//            node.localModificationTS = currentTimestamp()
+//            nodeDB(stateID).treeNodeDao().update(node)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
-            return@withContext
-        } catch (ioe: IOException) {
-            Log.e(logTag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext
+            throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
+//            return@withContext
+//        } catch (ioe: IOException) {
+//            Log.e(logTag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
+//            ioe.printStackTrace()
+//            return@withContext
         }
     }
 
