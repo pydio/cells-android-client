@@ -33,17 +33,6 @@ public interface AppNames {
     String SYNC_FREQ_DAY = "day";
     String SYNC_FREQ_WEEK = "week";
 
-//    int ITEM_TYPE_HEADER = 0;
-//    int ITEM_TYPE_WS = 1;
-//    int ITEM_TYPE_NODE = 2;
-
-//    String SORT_BY_NAME = "name";
-//    String SORT_BY_MIME = "mime";
-//    String SORT_BY_SIZE = "size";
-//    String SORT_BY_REMOTE_TS = "remote_mod_ts";
-//    String SORT_BY_LAST_CHECK = "last_check_ts";
-//    String SORT_BY_DESC = "DESC";
-
     /* Generic actions */
     // Rather make this generic
     String KEY_PREFIX = "com.pydio.android.cells";

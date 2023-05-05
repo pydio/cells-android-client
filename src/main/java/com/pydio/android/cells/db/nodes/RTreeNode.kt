@@ -169,7 +169,7 @@ data class RTreeNode(
             // Construct the path from file node info
             val childStateID = StateID.fromId(stateID.accountId)
                 .withPath("/${fileNode.workspace}${fileNode.path}")
-            Log.d(logTag, "... fromFileNode $childStateID")
+            // Log.d(logTag, "... fromFileNode $childStateID")
 
             try {
                 val node = RTreeNode(

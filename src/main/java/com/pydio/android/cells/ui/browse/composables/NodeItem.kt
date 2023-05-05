@@ -20,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -71,14 +70,14 @@ fun M3NodeItem(
 ) {
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(
-                top = 8.dp,
-                bottom = 8.dp,
-                start = 16.dp,
-                end = 4.dp,
+                top = dimensionResource(R.dimen.list_item_inner_padding),
+                bottom = dimensionResource(R.dimen.list_item_inner_padding),
+                start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
+                end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
             )
     ) {
 
@@ -108,12 +107,6 @@ fun M3NodeItem(
         }
 
         if (isBookmarked) {
-//            Image(
-//                painter = painterResource(R.drawable.ic_baseline_star_border_24),
-//                colorFilter = ColorFilter.tint(CellsColor.flagBookmark),
-//                modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator)),
-//                contentDescription = ""
-//            )
             Image(
                 imageVector = CellsIcons.ButtonFavorite,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
@@ -123,8 +116,6 @@ fun M3NodeItem(
         }
         if (isShared) {
             Image(
-//                painter = painterResource(R.drawable.ic_baseline_link_24),
-//                colorFilter = ColorFilter.tint(CellsColor.flagShare),
                 imageVector = CellsIcons.ButtonShare,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
                 contentDescription = "",
@@ -134,21 +125,14 @@ fun M3NodeItem(
         if (isOfflineRoot) {
             Image(
                 painter = painterResource(R.drawable.cloud_download_24px),
-//                colorFilter = ColorFilter.tint(CellsColor.flagOffline),
-//                imageVector = CellsIcons.ButtonOffline,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
                 contentDescription = "",
                 modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator))
             )
         }
 
-//        Box(
-//            Modifier
-//                .clickable { more() }
-//        ) {
         IconButton(onClick = { more() }) {
             Icon(
-                //imageVector = CellsIcons.MoreVert,
                 painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
                 contentDescription = stringResource(id = R.string.open_more_menu),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -156,8 +140,6 @@ fun M3NodeItem(
             )
 
         }
-
-//        }
     }
 }
 

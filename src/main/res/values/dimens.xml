@@ -92,7 +92,7 @@
     <dimen name="list_item_elevation">1dp</dimen>
     <dimen name="list_horizontal_padding">4dp</dimen>
     <dimen name="list_vertical_padding">2dp</dimen>
-    <dimen name="list_item_inner_padding">4dp</dimen>
+    <dimen name="list_item_inner_padding">8dp</dimen>
     <dimen name="list_item_inner_h_padding">8dp</dimen>
     <dimen name="list_item_inner_v_padding">4dp</dimen>
 
