@@ -11,6 +11,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -39,7 +40,16 @@ class BookmarksVM(
     fun forceRefresh(stateID: StateID) {
         viewModelScope.launch {
             launchProcessing()
-            done(nodeService.refreshBookmarks(stateID))
+            try {
+                nodeService.refreshBookmarks(stateID)
+                done()
+            } catch (e: Exception) {
+                val msg = if (e is SDKException && e.message != null) e.message!! else {
+                    "Unexpected error while refreshing bookmarks for $stateID"
+                }
+                Log.e(logTag, msg)
+                done(msg)
+            }
         }
     }
 

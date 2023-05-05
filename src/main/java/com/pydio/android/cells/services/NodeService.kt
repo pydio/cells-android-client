@@ -234,6 +234,7 @@ class NodeService(
         }
     }
 
+    @Throws(SDKException::class)
     suspend fun createShare(stateID: StateID): String? = withContext(ioDispatcher) {
         try {
             // We still put default values. TODO implement user defined details
@@ -243,11 +244,10 @@ class NodeService(
                 null, true, true
             )
         } catch (se: SDKException) {
-            Log.e(logTag, "could create link for " + stateID.id)
+            throw SDKException(se.code, "could create link for $stateID", se)
         } catch (ioe: IOException) {
-            Log.e(logTag, "could create link for ${stateID}: ${ioe.message}")
+            throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
         }
-        return@withContext null
     }
 
     @Deprecated("Rather use createShare() and removeShare()")
@@ -362,8 +362,7 @@ class NodeService(
     @Throws(SDKException::class)
     suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
         try {
-            val fileNode = getClient(stateID).nodeInfo(stateID.workspace, stateID.path)
-            Log.e(logTag, "Got a file node: ${fileNode}")
+            val fileNode = getClient(stateID).nodeInfo(stateID.workspace, stateID.file)
             val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
             upsertNode(treeNode)
             return@withContext treeNode
@@ -375,38 +374,31 @@ class NodeService(
         }
     }
 
-
-    suspend fun refreshBookmarks(stateID: StateID): String? = withContext(ioDispatcher) {
+    suspend fun refreshBookmarks(stateID: StateID) = withContext(ioDispatcher) {
         try {
-            // TODO rather use a cursor than loading everything in memory...
+            val dao = nodeDB(stateID).treeNodeDao()
             val nodes = mutableListOf<FileNode>()
             getClient(stateID).getBookmarks { node: Node? ->
                 if (node !is FileNode) {
                     Log.w(logTag, "could not store node: $node")
                 } else {
                     nodes.add(node)
-                }
-            }
-            // Manage results
-            Log.d(logTag, "Got a bookmark list of ${nodes.size} nodes, about to process")
-            val dao = nodeDB(stateID).treeNodeDao()
-            for (node in nodes) {
-                val currNode = RTreeNode.fromFileNode(stateID, node)
-                currNode.setBookmarked(true)
-                val oldNode = dao.getNode(currNode.encodedState)
-                if (oldNode == null) {
-                    dao.insert(currNode)
-                } else if (!oldNode.isBookmarked()) {
-                    oldNode.setBookmarked(true)
-                    dao.update(oldNode)
+                    val currNode = RTreeNode.fromFileNode(stateID, node)
+                    currNode.setBookmarked(true)
+                    val oldNode = dao.getNode(currNode.encodedState)
+                    if (oldNode == null) {
+                        dao.insert(currNode)
+                    } else if (!oldNode.isBookmarked()) {
+                        oldNode.setBookmarked(true)
+                        dao.update(oldNode)
+                    }
                 }
             }
         } catch (se: SDKException) {
             val msg = "Could not refresh bookmarks from server: ${se.message}"
             handleSdkException(stateID, msg, se)
-            return@withContext msg
+            throw SDKException(ErrorCodes.api_error, "Could not refresh bookmarks for $stateID", se)
         }
-        return@withContext null
     }
 
     private suspend fun getNodeInfo(stateID: StateID): FileNode? {
