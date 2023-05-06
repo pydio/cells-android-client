@@ -84,7 +84,7 @@ class LoginVM(
     }
 
     suspend fun handleOAuthResponse(state: String, code: String): Pair<StateID, String?>? {
-        Log.e(logTag, "Handling OAuth response")
+        Log.i(logTag, "Handling OAuth response")
 
         switchLoading(true)
         updateMessage("Retrieving authentication token...")

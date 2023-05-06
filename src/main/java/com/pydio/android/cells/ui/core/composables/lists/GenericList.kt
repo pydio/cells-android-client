@@ -42,7 +42,7 @@ fun WithLoadingListBackground(
         if (isEmpty) {
             if (loadingState == LoadingState.STARTING) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    StartingIndicator(
+                    StartingBackground(
                         desc = startingDesc,
                         showProgressAtStartup = showProgressAtStartup,
                         modifier = Modifier
@@ -88,7 +88,7 @@ fun WithListTheme(
 }
 
 @Composable
-fun StartingIndicator(
+fun StartingBackground(
     modifier: Modifier = Modifier,
     showProgressAtStartup: Boolean = true,
     desc: String?
@@ -96,10 +96,14 @@ fun StartingIndicator(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = modifier.padding(dimensionResource(R.dimen.margin_large))
     ) {
         if (showProgressAtStartup) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.list_empty_icon_size))
+                    .alpha(.8f)
+            )
         }
         desc?.let {
             Text(it)
@@ -150,51 +154,3 @@ private fun getVectorFromListContext(context: ListContext): ImageVector {
             CellsIcons.Processing
     }
 }
-
-//@Composable
-//fun BrowseUpItem(
-//    parentDescription: String,
-//    modifier: Modifier = Modifier
-//) {
-//    Surface(modifier) {
-//        Row(Modifier.padding(horizontal = 8.dp)) {
-//            Surface(
-//                Modifier
-//                // .size(40.dp)
-//                // .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-//                // .background(MaterialTheme.colorScheme.error)
-//            ) {
-//                Image(
-//                    painter = painterResource(R.drawable.ic_baseline_arrow_back_ios_new_24),
-//                    contentDescription = null,
-//                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-//                    modifier = Modifier
-//                        // .fillMaxSize()
-//                        .size(dimensionResource(R.dimen.list_thumb_size))
-//                        .wrapContentSize(Alignment.Center)
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-//
-//            Column(
-//                modifier = modifier
-//                    .fillMaxSize()
-//                    .padding(
-//                        horizontal = dimensionResource(R.dimen.card_padding),
-//                        vertical = dimensionResource(R.dimen.margin_xsmall)
-//                    )
-//                    .wrapContentSize(Alignment.CenterStart)
-//            ) {
-//                Text(
-//                    text = "..",
-//                    style = MaterialTheme.typography.bodyMedium,
-//                )
-//                Text(
-//                    text = parentDescription,
-//                    style = MaterialTheme.typography.bodySmall,
-//                )
-//            }
-//        }
-//    }
-//}

@@ -353,11 +353,7 @@ private fun FolderList(
         canRefresh = true,
         modifier = Modifier.padding(padding)
     ) {
-        Box(
-            Modifier
-                //   .fillMaxSize()
-                .pullRefresh(state)
-        ) {
+        Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
