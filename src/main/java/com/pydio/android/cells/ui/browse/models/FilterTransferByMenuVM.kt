@@ -15,8 +15,8 @@ class FilterTransferByMenuVM(
 
     private val logTag = "FilterTransferByMenuVM"
 
-    val jobFilter = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.list.jobFilter
+    val transferFilter = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list.transferFilter
     }
 
     fun setFilterBy(newFilterByStatus: String) {

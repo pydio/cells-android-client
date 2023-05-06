@@ -101,7 +101,8 @@ fun StartingBackground(
         if (showProgressAtStartup) {
             CircularProgressIndicator(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.list_empty_icon_size))
+                    .size(dimensionResource(R.dimen.spinner_size))
+                    .padding(dimensionResource(R.dimen.margin_medium))
                     .alpha(.8f)
             )
         }

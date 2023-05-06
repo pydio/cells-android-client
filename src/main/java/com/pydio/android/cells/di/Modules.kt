@@ -315,7 +315,6 @@ val viewModelModule = module {
     viewModelOf(::MonitorUploadsVM)
     viewModelOf(::SingleTransferVM)
 
-//    viewModel { BrowseHostVM(get()) }
     viewModelOf(::ShareVM)
 
     viewModelOf(::CarouselVM)

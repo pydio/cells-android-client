@@ -87,6 +87,21 @@ interface TreeNodeDao {
     ): LiveData<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")
+    fun lsWithMimeFlow(
+        encodedParentStateID: String,
+        parentPath: String,
+        mime: String
+    ): Flow<List<RTreeNode>>
+
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime like :mime || '%' ORDER BY sort_name")
+    fun lsWithMimeFilterFlow(
+        encodedParentStateID: String,
+        parentPath: String,
+        mime: String
+    ): Flow<List<RTreeNode>>
+
+
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")
     fun listWithMime(
         encodedParentStateID: String,
         parentPath: String,

@@ -1,8 +1,8 @@
 package com.pydio.android.cells.ui.browse.composables
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.share.screens.SelectFolderScaffold
@@ -20,13 +20,13 @@ fun SelectFolderPage(
     folderVM: FolderVM,
 ) {
 
-    val childNodes by folderVM.childNodes.observeAsState()
+    val childNodes by folderVM.children.collectAsState()
 
     SelectFolderScaffold(
         loadingStatus = loadingStatus,
         action = action,
         stateID = stateID,
-        children = childNodes ?: listOf(),
+        children = childNodes,
         forceRefresh = { forceRefresh(stateID) },
         open = open,
         canPost = canPost,

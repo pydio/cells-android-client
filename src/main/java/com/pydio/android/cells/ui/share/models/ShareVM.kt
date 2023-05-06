@@ -2,17 +2,25 @@ package com.pydio.android.cells.ui.share.models
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.models.TreeNodeItem
+import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -21,8 +29,9 @@ import kotlinx.coroutines.launch
  * */
 class ShareVM(
     stateID: StateID,
-    nodeService: NodeService,
+    private val prefs: PreferencesService,
     private val jobService: JobService,
+    private val nodeService: NodeService,
     private val transferService: TransferService
 ) : ViewModel() {
 
@@ -31,11 +40,28 @@ class ShareVM(
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
 
-    val childNodes: LiveData<List<RTreeNode>> = if (Str.empty(stateID.slug)) {
-        nodeService.listWorkspaces(stateID)
-    } else {
-        nodeService.listViewable(stateID, "")
+    private val orderFlow = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        // TODO we do not support order yet but we keep this just in case for a while
+        ListType.DEFAULT
+//        prefs.getOrderByPair(
+//            cellsPreferences,
+//            ListType.DEFAULT
+//        )
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val children: StateFlow<List<TreeNodeItem>> = orderFlow.flatMapLatest { currPair ->
+        val rtNodes = if (Str.empty(stateID.slug)) {
+            nodeService.listWorkspaces(stateID)
+        } else {
+            nodeService.listChildren(stateID, "")
+        }
+        rtNodes.map { nodes -> toTreeNodeItems(nodeService, nodes) }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = listOf()
+    )
 
     fun launchPost(stateID: StateID, uris: List<Uri>, postLaunched: (Long) -> Unit) {
         val ids: MutableMap<Long, Pair<String, Uri>> = HashMap()
@@ -50,7 +76,7 @@ class ShareVM(
 
             // Register the uploads
             for (uri in uris) {
-                Log.e(logTag, "#### processing $uri ")
+                Log.i(logTag, "... Processing $uri ")
                 try {
                     val tid = transferService.register(cr, uri, stateID, jobID)
                     ids[tid.first] = Pair(tid.second, uri)

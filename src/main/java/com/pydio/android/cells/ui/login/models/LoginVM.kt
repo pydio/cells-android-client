@@ -172,7 +172,7 @@ class LoginVM(
         skipVerify: Boolean
     ): Pair<ServerURL?, String?> {
         return withContext(Dispatchers.IO) {
-            Log.i(logTag, "Pinging $serverAddress")
+            Log.i(logTag, "... About to ping $serverAddress")
             val tmpURL: ServerURL?
             var newURL: ServerURL? = null
             try {
@@ -312,11 +312,11 @@ class LoginVM(
     }
 
     override fun onCleared() {
-        Log.e(logTag, "################## onCleared")
+        Log.i(logTag, "################## onCleared")
         super.onCleared()
     }
 
     init {
-        Log.e(logTag, "################## Created")
+        Log.i(logTag, "################## Created")
     }
 }

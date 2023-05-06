@@ -2,12 +2,8 @@ package com.pydio.android.cells.ui.browse.models
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
@@ -89,12 +85,12 @@ class BookmarksVM(
         initialValue = listOf()
     )
 
-    private val orderPair = orderFlow.asLiveData(viewModelScope.coroutineContext)
-
-    val bookmarksOld: LiveData<List<RTreeNode>>
-        get() = orderPair.switchMap { currOrder ->
-            nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
-        }
+//    private val orderPair = orderFlow.asLiveData(viewModelScope.coroutineContext)
+//
+//    val bookmarksOld: LiveData<List<RTreeNode>>
+//        get() = orderPair.switchMap { currOrder ->
+//            nodeService.listBookmarks(accountID, currOrder.first, currOrder.second)
+//        }
 
     fun forceRefresh(stateID: StateID) {
         viewModelScope.launch {

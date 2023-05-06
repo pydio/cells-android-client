@@ -30,7 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +46,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.CreateFolder
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
@@ -57,6 +56,7 @@ import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
@@ -90,7 +90,7 @@ fun SelectFolderScreen(
     val navController = rememberNavController()
 
     val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
-    val childNodes by shareVM.childNodes.observeAsState()
+    val children = shareVM.children.collectAsState()
 
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(stateID, true)
@@ -122,7 +122,7 @@ fun SelectFolderScreen(
                 loadingStatus = loadingStatus.value,
                 action = AppNames.ACTION_UPLOAD,
                 stateID = stateID,
-                children = childNodes ?: listOf(),
+                children = children.value,
                 forceRefresh = forceRefresh,
                 open = open,
                 canPost = canPost,
@@ -153,7 +153,7 @@ fun SelectFolderScaffold(
     loadingStatus: LoadingState,
     action: String,
     stateID: StateID,
-    children: List<RTreeNode>,
+    children: List<TreeNodeItem>,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
@@ -195,7 +195,7 @@ fun SelectFolderScaffold(
 private fun FolderList(
     action: String,
     stateID: StateID,
-    children: List<RTreeNode>,
+    children: List<TreeNodeItem>,
     loadingStatus: LoadingState,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
@@ -230,19 +230,14 @@ private fun FolderList(
                 }
             }
             items(children) { oneChild ->
-                val currModifier = if (oneChild.isFolder()) {
-                    Modifier.clickable { open(oneChild.getStateID()) }
+                val currModifier = if (oneChild.isFolder) {
+                    Modifier.clickable { open(oneChild.stateID) }
                 } else {
                     Modifier
                 }
 
                 SelectFolderItem(
                     oneChild,
-                    oneChild.isFolder(),
-//                    mime = oneChild.mime,
-//                    sortName = oneChild.sortName,
-                    title = getNodeTitle(oneChild.name, oneChild.mime),
-                    desc = getNodeDesc(oneChild),
                     modifier = currModifier,
                 )
             }
@@ -257,13 +252,11 @@ private fun FolderList(
 
 @Composable
 private fun SelectFolderItem(
-    item: RTreeNode,
-    isFolder: Boolean,
-    title: String,
-    desc: String,
+    item: TreeNodeItem,
     modifier: Modifier = Modifier
 ) {
-    val alpha = if (!isFolder) {
+
+    val alpha = if (!item.isFolder) {
         val outValue = TypedValue()
         LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
         outValue.float
@@ -286,12 +279,12 @@ private fun SelectFolderItem(
     ) {
 
         Thumbnail(
-            item.encodedState,
+            item.stateID.id,
             item.sortName,
             item.name,
             item.mime,
-            item.etag,
-            item.hasThumb()
+            item.eTag,
+            item.hasThumb
         )
 
         Column(
@@ -304,11 +297,18 @@ private fun SelectFolderItem(
                 .wrapContentWidth(Alignment.Start)
         ) {
             Text(
-                text = title,
+                text = getNodeTitle(item.name, item.mime),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
             )
+            val desc = if (item.isWsRoot) item.desc ?: "-" else {
+                getNodeDesc(
+                    remoteModificationTS = item.remoteModTs,
+                    size = item.size,
+                    localModificationStatus = item.localModStatus
+                )
+            }
             Text(
                 text = desc,
                 maxLines = 1,
@@ -317,44 +317,6 @@ private fun SelectFolderItem(
             )
         }
     }
-
-
-//
-//    Surface(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .alpha(alpha)
-//            .padding(all = dimensionResource(R.dimen.card_padding))
-//    ) {
-//        Row(
-//            horizontalArrangement = Arrangement.spacedBy(8.dp),
-//            verticalAlignment = Alignment.CenterVertically,
-//        ) {
-//
-//            Thumbnail(item)
-//
-//            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.list_thumb_margin)))
-//
-//            Column(
-//                modifier = modifier
-//                    .fillMaxWidth()
-//                    .padding(
-//                        horizontal = dimensionResource(R.dimen.card_padding),
-//                        vertical = dimensionResource(R.dimen.margin_xsmall)
-//                    )
-//                    .wrapContentWidth(Alignment.Start)
-//            ) {
-//                Text(
-//                    text = title,
-//                    style = MaterialTheme.typography.bodyMedium,
-//                )
-//                Text(
-//                    text = desc,
-//                    style = MaterialTheme.typography.bodySmall,
-//                )
-//            }
-//        }
-//    }
 }
 
 @Composable

@@ -50,7 +50,7 @@ fun LaunchAuthProcessing(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = stateID) {
-        Log.i(logTag, "-- Launch auth process for ${stateID}")
+        Log.i(logTag, "... Launch auth process for $stateID")
         helper.launchAuth(context, stateID, skipVerify)
     }
 
@@ -72,7 +72,7 @@ fun ProcessAuth(
     val errMsg = loginVM.errorMessage.collectAsState()
 
     LaunchedEffect(key1 = stateID) {
-        Log.e(logTag, "About to Process Auth for ${helper.startingState?.route}")
+        Log.d(logTag, "About to Process Auth for ${helper.startingState?.route}")
         helper.processAuth(stateID)
     }
 
@@ -100,7 +100,6 @@ private fun AuthScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                // .padding(horizontal = dimensionResource(R.dimen.card_padding))
                 .padding(dimensionResource(R.dimen.form_page_padding))
                 .wrapContentWidth(Alignment.Start)
         ) {

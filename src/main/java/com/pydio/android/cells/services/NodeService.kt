@@ -57,17 +57,32 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
     }
 
-    fun listBookmarks(
-        accountID: StateID,
+    fun sortedListFlow(
+        stateID: StateID,
         sortByCol: String,
         sortByOrder: String
-    ): LiveData<List<RTreeNode>> {
+    ): Flow<List<RTreeNode>> {
+        val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
-                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
+            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
+                    "AND parent_path = ? " +
+                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
-        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
+        return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
     }
+
+
+//    fun listBookmarks(
+//        accountID: StateID,
+//        sortByCol: String,
+//        sortByOrder: String
+//    ): LiveData<List<RTreeNode>> {
+//        val lsQuery = SimpleSQLiteQuery(
+//            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
+//                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
+//        )
+//        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
+//    }
 
     fun listBookmarkFlow(
         accountID: StateID,
@@ -79,6 +94,17 @@ class NodeService(
                     " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
         )
         return nodeDB(accountID).treeNodeDao().lsFlow(lsQuery)
+    }
+
+    fun listWorkspaces(stateID: StateID): Flow<List<RTreeNode>> {
+        return nodeDB(stateID).treeNodeDao()
+            .lsWithMimeFlow(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
+    }
+
+    fun listChildren(stateID: StateID, mimeFilter: String): Flow<List<RTreeNode>> {
+        Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
+        return nodeDB(stateID).treeNodeDao()
+            .lsWithMimeFilterFlow(stateID.id, stateID.file, mimeFilter)
     }
 
 
@@ -94,11 +120,11 @@ class NodeService(
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
     }
 
-    fun listWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
+    fun listLiveWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
     }
 
-    fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
+    fun listLiveChildren(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }

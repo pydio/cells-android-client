@@ -34,7 +34,8 @@ class CarouselVM(
     // FIXME this must be the first seen index
     val currentID: StateFlow<StateID> = MutableStateFlow(initialStateID)
 
-    private val allChildren: LiveData<List<RTreeNode>> = nodeService.listViewable(parentStateID, "")
+    private val allChildren: LiveData<List<RTreeNode>> =
+        nodeService.listLiveChildren(parentStateID, "")
 
     val preViewableItems: LiveData<List<RTreeNode>>
         get() = allChildren.switchMap { childList ->
