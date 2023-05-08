@@ -46,11 +46,10 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching main activity")
-        super.onCreate(savedInstanceState)
 
-        // We currently still use androidx.core:core-splashscreen library to manage splash
-        // Re-add the Splash composable here? - cf system/screens/splash.kt
+        // We use androidx.core:core-splashscreen library to manage splash screen
         installSplashScreen()
+        super.onCreate(savedInstanceState)
 
         // First check if we need a migration
         val mainActivity = this
