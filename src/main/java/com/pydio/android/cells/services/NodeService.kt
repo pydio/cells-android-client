@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -294,51 +295,23 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun createShare(stateID: StateID): String? = withContext(ioDispatcher) {
-        try {
-            // We still put default values. TODO implement user defined details
-            return@withContext getClient(stateID).share(
-                stateID.slug, stateID.file, stateID.fileName,
-                "Created on ${currentTimestampAsString()}",
-                null, true, true
-            )
-        } catch (se: SDKException) {
-            throw SDKException(se.code, "could create link for $stateID", se)
-        } catch (ioe: IOException) {
-            throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
-        }
-    }
+        val client = getClient(stateID)
 
-    @Deprecated("Rather use createShare() and removeShare()")
-    suspend fun toggleShared(rTreeNode: RTreeNode): String? = withContext(ioDispatcher) {
-        val stateID = rTreeNode.getStateID()
-        try {
-            val client = getClient(stateID)
-            if (rTreeNode.isShared()) {
-                if (client.isLegacy) {
-                    client.unshare(stateID.slug, stateID.file)
-                } else {
-                    rTreeNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-                        client.unshare(stateID.slug, it)
-                    }
-                }
-            } else {
-                // We still put default values. TODO implement user defined details
-                return@withContext client.share(
+        // We do not want to cancel share creation even if user navigates away.
+        return@withContext serviceScope.async {
+            // We still put default values. TODO implement user defined details
+            try {
+                client.share(
                     stateID.slug, stateID.file, stateID.fileName,
                     "Created on ${currentTimestampAsString()}",
                     null, true, true
                 )
+            } catch (se: SDKException) {
+                throw SDKException(se.code, "could create link for $stateID", se)
+            } catch (ioe: IOException) {
+                throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
             }
-        } catch (se: SDKException) {
-            Log.e(logTag, "could update share link for " + stateID.id)
-            se.printStackTrace()
-            return@withContext null
-        } catch (ioe: IOException) {
-            Log.e(logTag, "could update share link for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext null
-        }
-        return@withContext null
+        }.await()
     }
 
     suspend fun createFolder(parentID: StateID, folderName: String) =
@@ -394,7 +367,7 @@ class NodeService(
         }
 
 
-    // Handle communication with the remote server to refresh locally stored data.
+// Handle communication with the remote server to refresh locally stored data.
 
     /**
      * Retrieve the meta of all readable nodes that are at the passed stateID.

@@ -30,6 +30,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,22 +93,22 @@ fun Folder(
     browseHelper: BrowseHelper,
 ) {
 
+    // UI States
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     val loadingState by browseRemoteVM.loadingState.observeAsState()
-    val forceRefresh: () -> Unit = {
-        browseRemoteVM.watch(folderID, true)
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val snackBarHostState = remember {
+        SnackbarHostState()
     }
-
     val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
 
+    // Business States
+    val scope = rememberCoroutineScope()
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
     val children by folderVM.childNodes.observeAsState()
 
     val binLabel = stringResource(R.string.recycle_bin_label)
-
     val label by remember(key1 = treeNode, key2 = workspace) {
         derivedStateOf {
             var tmpLabel = folderID.fileName ?: workspace?.label ?: folderID.slug
@@ -117,6 +119,10 @@ fun Folder(
         }
     }
 
+    val forceRefresh: () -> Unit = {
+        browseRemoteVM.watch(folderID, true)
+    }
+
     val showFAB by remember(key1 = treeNode) {
         derivedStateOf {
             val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
@@ -125,7 +131,6 @@ fun Folder(
     }
 
     // State for the more Menus
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
         mutableStateOf(
             Pair(
@@ -191,7 +196,9 @@ fun Folder(
         type = nodeMoreMenuData.value.first,
         toOpenStateID = nodeMoreMenuData.value.second,
         sheetState = sheetState,
+        snackBarHostState = snackBarHostState,
     ) {
+
         FolderScaffold(
             loadingState = loadingState ?: LoadingState.STARTING,
             listLayout = listLayout,
@@ -210,7 +217,8 @@ fun Folder(
                 sheetState,
                 nodeMoreMenuData.value.second,
                 openMoreMenu
-            )
+            ),
+            snackBarHostState = snackBarHostState
         )
     }
 }
@@ -231,6 +239,7 @@ private fun FolderScaffold(
     open: (StateID) -> Unit,
     launch: (NodeAction, StateID) -> Unit,
     moreMenuState: MoreMenuState,
+    snackBarHostState: SnackbarHostState,
 ) {
 
     var isShown by remember { mutableStateOf(false) }
@@ -309,6 +318,7 @@ private fun FolderScaffold(
                 }
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding -> // Compulsory padding parameter. Must be applied to the topmost container/view in content:
         FolderList(
             loadingState = loadingState,

@@ -249,19 +249,8 @@ fun BottomSheetFlagItem(
     flagType: Int,
     onItemClick: (Boolean) -> Unit
 ) {
-    Log.e(
-        logTag,
-        ".... Composing BottomSheet for ${rTreeNode?.getStateID()}, toggle value: ${
-            rTreeNode?.isFlag(flagType)
-        }"
-    )
-
     var localSelected by remember(key1 = rTreeNode, key2 = flagType) {
         val selected = rTreeNode?.isFlag(flagType) ?: false
-        Log.e(
-            logTag,
-            "Setting BottomSheet Toggle value for ${rTreeNode?.getStateID()}, selected: $selected"
-        )
         mutableStateOf(selected)
     }
 
@@ -271,7 +260,6 @@ fun BottomSheetFlagItem(
             .clickable(onClick = { onItemClick(!localSelected) })
             .padding(
                 horizontal = dimensionResource(R.dimen.bottom_sheet_start_padding),
-//                 vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

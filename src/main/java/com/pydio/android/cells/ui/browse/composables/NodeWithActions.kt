@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -87,6 +89,7 @@ fun WrapWithActions(
     type: NodeMoreMenuType,
     toOpenStateID: StateID,
     sheetState: ModalBottomSheetState,
+    snackBarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
 ) {
     FolderWithDialogs(
@@ -94,6 +97,7 @@ fun WrapWithActions(
         type = type,
         toOpenStateID = toOpenStateID,
         sheetState = sheetState,
+        snackBarHostState = snackBarHostState,
         content = content
     )
 }
@@ -106,6 +110,7 @@ private fun FolderWithDialogs(
     type: NodeMoreMenuType,
     toOpenStateID: StateID,
     sheetState: ModalBottomSheetState,
+    snackBarHostState: SnackbarHostState,
     nodeActionsVM: NodeActionsVM = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
@@ -119,9 +124,28 @@ private fun FolderWithDialogs(
 
     val errMsg = nodeActionsVM.errorMessage.observeAsState(null)
 
-    LaunchedEffect(key1 = errMsg) {
+    LaunchedEffect(key1 = errMsg.value) {
         errMsg.value?.let {
-            showMessage(context, it)
+            // TODO finalise this
+            snackBarHostState.showSnackbar(
+                message = it,
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+//            val snackBarResult = snackBarHostState.showSnackbar(
+//                message = it,
+//                withDismissAction = false,
+//                duration = SnackbarDuration.Short
+//            )
+//            when (snackBarResult) {
+//                SnackbarResult.ActionPerformed -> {
+//                    Log.e("Snackbar", "Action Performed")
+//                }
+//
+//                else -> {
+//                    Log.e("Snackbar", "Snackbar dismissed")
+//                }
+//            }
         }
     }
 
@@ -140,18 +164,15 @@ private fun FolderWithDialogs(
         }
     }
 
-    val copyLinkToClipboard: () -> Unit = {
+    val copyLinkToClipboard: (String) -> Unit = { link ->
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-        scope.launch {
-            val link = nodeActionsVM.getShareLink(toOpenStateID)
-            if (clipboard != null && link != null) {
-                val clip = ClipData.newPlainText(toOpenStateID.fileName, link)
-                clipboard.setPrimaryClip(clip)
-                showMessage(
-                    context,
-                    context.resources.getString(R.string.link_copied_to_clip)
-                )
-            }
+        if (clipboard != null) {
+            val clip = ClipData.newPlainText(toOpenStateID.fileName, link)
+            clipboard.setPrimaryClip(clip)
+            showMessage(
+                context,
+                context.resources.getString(R.string.link_copied_to_clip)
+            )
         }
     }
 
@@ -183,9 +204,12 @@ private fun FolderWithDialogs(
             }
 
             is NodeAction.CreateShare -> {
-                nodeActionsVM.createShare(passedStateID)
-                copyLinkToClipboard()
-                delayedDone(true)
+                scope.launch {
+                    nodeActionsVM.createShare(passedStateID)?.let {
+                        copyLinkToClipboard(it)
+                    }
+                    actionDone(true)
+                }
             }
 
             is NodeAction.ShareWith -> {
@@ -202,8 +226,12 @@ private fun FolderWithDialogs(
             }
 
             is NodeAction.CopyToClipboard -> {
-                copyLinkToClipboard()
-                actionDone(true)
+                scope.launch {
+                    nodeActionsVM.getShareLink(toOpenStateID)?.let {
+                        copyLinkToClipboard(it)
+                    }
+                    actionDone(true)
+                }
             }
 
             is NodeAction.RemoveLink -> {

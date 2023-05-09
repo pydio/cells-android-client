@@ -44,11 +44,11 @@ class NodeActionsVM(
         _errorMessage.value = null
     }
 
-    /* Pass a non-empty err parameter when the process has terminated with an error*/
+    /* Pass a non-empty err parameter when the process has terminated with an error */
     private suspend fun done(err: String? = null, userMsg: String? = null) =
         withContext(Dispatchers.Main) {
             if (Str.notEmpty(err)) {
-                Log.e(logTag, "$userMsg, cause: ${err ?: "-"}")
+                Log.e(logTag, "${err ?: userMsg}")
                 _errorMessage.value = userMsg
             }
             _loadingState.value = LoadingState.IDLE
@@ -196,23 +196,15 @@ class NodeActionsVM(
         }
     }
 
-    fun createShare(stateID: StateID) {
-        viewModelScope.launch {
+    suspend fun createShare(stateID: StateID): String? {
+        launchProcessing()
+        return try {
             nodeService.createShare(stateID)
+        } catch (e: SDKException) {
+            done("#${e.code}: ${e.message}, cause: ${e.cause?.message}", e.message)
+            null
         }
     }
-
-
-//    suspend fun createShare(stateID: StateID) {
-//        // FIXME
-////        viewModelScope.async {
-////            try {
-////                nodeService.createShare(stateID)
-////            } catch (e: SDKException) {
-////                Log.e(logTag, "#${e.code}: ${e.message}, cause: ${e.cause?.message}")
-////            }
-////        }.await()
-//    }
 
     fun removeShare(stateID: StateID) {
         viewModelScope.launch {
@@ -226,7 +218,7 @@ class NodeActionsVM(
         }
     }
 
-    suspend fun getShareLink(stateID: StateID): String? = withContext(Dispatchers.IO) {
-        nodeService.getNode(stateID)?.getShareAddress()
+    suspend fun getShareLink(stateID: StateID): String? {
+        return nodeService.getNode(stateID)?.getShareAddress()
     }
 }
