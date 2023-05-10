@@ -27,7 +27,10 @@ import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 
@@ -52,6 +55,9 @@ class AccountService(
     private val sessionDao: SessionDao = accountDB.sessionDao()
     private val sessionViewDao: SessionViewDao = accountDB.sessionViewDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
+
+    private val nodeServiceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
 
     fun getClient(stateID: StateID): Client {
         return sessionFactory.getUnlockedClient(stateID.account())
@@ -397,7 +403,10 @@ class AccountService(
                 }
 
                 if (se.isAuthorizationError) {
-                    handleAuthError(stateID)
+                    serviceScope.launch {
+                        // We use another coroutine to give time to retry...
+                        handleAuthError(stateID)
+                    }
                 } else {
                     Log.e(logTag, "Unexpected error, simply ignoring for the time being")
                 }
@@ -431,13 +440,32 @@ class AccountService(
                     Log.d(logTag, "## Trying to download boot configuration for $stateID")
                     transport.tryDownloadingBootConf()
                 } catch (e: Exception) {
-                    Log.e(logTag, "## Could not DL boot conf for $stateID : ${e.message}")
-                    e.printStackTrace()
                     // Cannot get boot conf, so token is not valid anymore
                     if (e is FileNotFoundException) {
-                        logoutAccount(stateID)
+                        var i = 0
+                        loop@ while (i != 3) {
+                            try {
+                                Log.d(logTag, "## Trying to get boot conf for $stateID")
+                                transport.tryDownloadingBootConf()
+                                break@loop
+                            } catch (e: FileNotFoundException) {
+                                if (i == 2) {
+                                    // finally logout
+                                    logoutAccount(stateID)
+                                    return
+                                } else {
+                                    delay(1000)
+                                }
+                            } catch (e: Exception) {
+                                Log.e(logTag, "unexpected error while retrying bootconf")
+                                e.printStackTrace()
+                                return
+                            }
+                            i++
+                        }
+                    } else {
+                        return
                     }
-                    return
                 }
             }
 
@@ -451,6 +479,7 @@ class AccountService(
             return
         }
     }
+
 
 //    private class DummyHandler(stateID: StateID) : DefaultHandler() {
 //        private val logTag = "DummyHandler"
