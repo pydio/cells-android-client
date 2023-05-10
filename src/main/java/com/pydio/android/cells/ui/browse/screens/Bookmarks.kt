@@ -43,7 +43,6 @@ import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.BrowseHelper
-import com.pydio.android.cells.ui.browse.composables.BookmarkGridItem
 import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
@@ -54,11 +53,12 @@ import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
+import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.BookmarkItem
+import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -179,7 +179,7 @@ fun Bookmarks(
         loadingState = loadingState ?: LoadingState.STARTING,
         listLayout = listLayout,
         title = stringResource(id = R.string.action_open_bookmarks),
-        bookmarks = bookmarks.value ?: listOf(),
+        bookmarks = bookmarks.value,
         openDrawer = openDrawer,
         forceRefresh = forceRefresh,
         open = localOpen,
@@ -199,7 +199,7 @@ private fun BookmarkScaffold(
     loadingState: LoadingState,
     listLayout: ListLayout,
     title: String,
-    bookmarks: List<BookmarkItem>,
+    bookmarks: List<MultipleItem>,
     openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
@@ -305,7 +305,7 @@ private fun BookmarkScaffold(
 private fun BookmarkList(
     loadingState: LoadingState,
     listLayout: ListLayout,
-    bookmarks: List<BookmarkItem>,
+    bookmarks: List<MultipleItem>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit,
@@ -355,52 +355,14 @@ private fun BookmarkList(
                         items(
                             items = bookmarks,
                             key = { it.uuid }) { node ->
-                            BookmarkGridItem(
+                            MultipleGridItem(
                                 item = node,
-                                more = { openMoreMenu(node.getStateID()) },
+                                more = { openMoreMenu(node.defaultStateID()) },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) }
+                                    .clickable { open(node.defaultStateID()) }
                                     .animateItemPlacement(),
                             )
-//                            if (node.hasThumb()) {
-//                                LargeCardWithThumb(
-//                                    stateID = node.getStateID(),
-//                                    eTag = node.etag,
-//                                    mime = node.mime,
-//                                    title = getNodeTitle(name = node.name, mime = node.mime),
-//                                    desc = getNodeDesc(
-//                                        node.remoteModificationTS,
-//                                        node.size,
-//                                        node.localModificationStatus
-//                                    ),
-//
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .clickable { open(node.getStateID()) }
-//                                        .animateItemPlacement(),
-//                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
-//                                    sortName = node.sortName
-//                                )
-//                            } else {
-//                            LargeCardWithIcon(
-//                                sortName = node.sortName,
-//                                mime = node.mime,
-//                                title = getNodeTitle(name = node.name, mime = node.mime),
-//                                desc = "implement me",
-////                                            getNodeDesc(
-////
-////                                        node.remoteModificationTS,
-////                                        node.size,
-////                                        node.localModificationStatus
-////                                    ),
-//                                openMoreMenu = { openMoreMenu(node.getStateID()) },
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .clickable { open(node.getStateID()) }
-//                                    .animateItemPlacement(),
-//                            )
-//                            }
                         }
                     }
                 }
@@ -413,10 +375,10 @@ private fun BookmarkList(
                         items(bookmarks, key = { it.uuid }) { node ->
                             BookmarkListItem(
                                 item = node,
-                                more = { openMoreMenu(node.getStateID()) },
+                                more = { openMoreMenu(node.defaultStateID()) },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) }
+                                    .clickable { open(node.defaultStateID()) }
                                     .animateItemPlacement(),
                             )
                         }

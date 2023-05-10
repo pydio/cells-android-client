@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
@@ -19,7 +20,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -218,7 +226,7 @@ fun TopBarWithActions(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun TopBarWithSearch(
     queryStr: String,
@@ -228,10 +236,35 @@ fun TopBarWithSearch(
     isActionMenuShown: Boolean,
     showMenu: (Boolean) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
-    imeAction: ImeAction = ImeAction.Default,
+    imeAction: ImeAction = ImeAction.Done,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-//    contentPadding: PaddingValues = PaddingValues(all = 16.dp),
 ) {
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val onDone: () -> Unit = {
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
+
+    val keyboardActions = KeyboardActions(
+        onNext = { onDone() },
+        onDone = { onDone() }
+    )
+
+    val modifier = Modifier.onPreviewKeyEvent {
+        if (it.key == Key.Tab && it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+            focusManager.moveFocus(FocusDirection.Down)
+            true
+        } else if (it.key == Key.Enter) {
+            onDone()
+            true
+        } else {
+            false
+        }
+    }
+
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
@@ -255,6 +288,7 @@ fun TopBarWithSearch(
                 keyboardOptions = KeyboardOptions(imeAction = imeAction),
                 keyboardActions = keyboardActions,
                 onValueChange = { newValue -> updateQuery(newValue) },
+                modifier = modifier
             )
         },
         navigationIcon = {

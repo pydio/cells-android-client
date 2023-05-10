@@ -130,6 +130,21 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
+
+    fun liveSearchFlow(
+        stateID: StateID,
+        query: String,
+        encodedSortBy: String
+    ): Flow<List<RTreeNode>> {
+        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
+                    "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
+        )
+        return nodeDB(stateID).treeNodeDao().searchQueryFlow(lsQuery)
+    }
+
+
     fun liveSearch(
         stateID: StateID,
         query: String,
@@ -594,12 +609,12 @@ class NodeService(
     }
 
     /* Directly communicate with the distant server */
+    @Throws(SDKException::class)
     suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
         withContext(ioDispatcher) {
             try {
                 val nodes = getClient(stateID).search(stateID.path ?: "/", query, 20)
                     .map {
-//                        Log.e(logTag, "mapping query result for $stateID: ${it.path}")
                         RTreeNode.fromFileNode(stateID, it)
                     }
 

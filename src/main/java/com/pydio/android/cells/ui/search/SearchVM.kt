@@ -13,16 +13,23 @@ import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.models.ErrorMessage
+import com.pydio.android.cells.ui.models.MultipleItem
+import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -39,15 +46,24 @@ class SearchVM(
 ) : ViewModel() {
 
     private val logTag = "SearchVM"
-    private val _currQueryContext = MutableLiveData("browse")
-    private val _loadingState = MutableLiveData(LoadingState.NEW)
-    private val _errorMessage = MutableLiveData<String?>()
+
+    // TODO finalize this
+    private val _currQueryContextF = MutableStateFlow<String>("browse")
+    private val _loadingStateF = MutableStateFlow(LoadingState.NEW)
+    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
+
     private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list
     }
     private val sortOrderFlow = listPrefs.map { it.order }
+
     private var localStateID: StateID = stateID
+
     private val _userInput = MutableStateFlow("")
+
+    private val _currQueryContext = MutableLiveData("browse")
+    private val _loadingState = MutableLiveData(LoadingState.NEW)
+    private val _errorMessage = MutableLiveData<String?>()
 
     // Exposed to the UI
     val loadingState: LiveData<LoadingState> = _loadingState
@@ -63,12 +79,30 @@ class SearchVM(
     private var _queryString: Flow<String> = _userInput.debounce(800L)
 
     val hits = sortOrderFlow.combine(_queryString) { order, query ->
-        nodeService.liveSearch(
+        nodeService.liveSearchFlow(
             localStateID.account(),
             if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
             order
         )
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val newHits: StateFlow<List<MultipleItem>> = sortOrderFlow
+        .combine(_queryString) { order, query -> order to query }
+        .flatMapLatest { currPair ->
+            val (order, query) = currPair
+            nodeService.liveSearchFlow(
+                localStateID.account(),
+                if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
+                order
+            ).map { nodes ->
+                deduplicateNodes(nodeService, nodes)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = listOf()
+        )
 
     init {
         viewModelScope.launch {

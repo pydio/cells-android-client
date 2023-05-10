@@ -20,7 +20,7 @@ import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
-import com.pydio.android.cells.ui.models.BookmarkItem
+import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
@@ -59,7 +59,7 @@ fun BookmarkMenu(
             )
         }
 
-        val appearsIn = remember { mutableStateOf<BookmarkItem?>(null) }
+        val appearsIn = remember { mutableStateOf<MultipleItem?>(null) }
 
         appearsIn.value?.let {
 //            BottomSheetDivider()

@@ -19,14 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.Thumbnail
-import com.pydio.android.cells.ui.core.composables.lists.LargeCard
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardIconThumb
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardImageThumb
-import com.pydio.android.cells.ui.models.BookmarkItem
+import com.pydio.android.cells.ui.core.composables.lists.getAppearsInDesc
+import com.pydio.android.cells.ui.models.MultipleItem
 
 @Composable
 fun BookmarkListItem(
-    item: BookmarkItem,
+    item: MultipleItem,
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -43,7 +41,7 @@ fun BookmarkListItem(
     ) {
 
         Thumbnail(
-            item.getStateID().id, item.sortName, item.name, item.mime, item.eTag, item.hasThumb
+            item.defaultStateID().id, item.sortName, item.name, item.mime, item.eTag, item.hasThumb
         )
 
         Column(
@@ -76,33 +74,4 @@ fun BookmarkListItem(
             )
         }
     }
-}
-
-@Composable
-fun BookmarkGridItem(
-    item: BookmarkItem,
-    more: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LargeCard(title = item.name, desc = getAppearsInDesc(item), modifier = modifier) {
-        if (item.hasThumb) {
-            LargeCardImageThumb(
-                item.getStateID(),
-                item.eTag,
-                item.mime,
-                item.name,
-                item.sortName,
-                more
-            )
-        } else {
-            LargeCardIconThumb(item.name, item.mime, item.sortName, more)
-        }
-    }
-}
-
-@Composable
-private fun getAppearsInDesc(item: BookmarkItem): String {
-    val suffix = item.appearsIn
-        .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug }
-    return stringResource(R.string.appears_in_prefix, suffix)
 }

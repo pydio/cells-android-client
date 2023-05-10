@@ -6,19 +6,19 @@ import com.pydio.cells.transport.StateID
 
 data class TreeNodeItem(
     val stateID: StateID,
-    val uuid: String,
-    val mime: String,
-    val name: String,
-    val eTag: String?,
-    val sortName: String?,
+    override val uuid: String,
+    override val mime: String,
+    override val name: String,
+    override val eTag: String?,
+    override val sortName: String?,
     val isWsRoot: Boolean,
-    val isFolder: Boolean,
-    val hasThumb: Boolean,
-    val size: Long = -1L,
-    val remoteModTs: Long = -1L,
+    override val isFolder: Boolean,
+    override val hasThumb: Boolean,
+    override val size: Long = -1L,
+    override val remoteModTs: Long = -1L,
     val localModStatus: String?,
     var desc: String? = null,
-) {
+) : GenericItem {
 
     override fun equals(other: Any?): Boolean {
         if (other !is TreeNodeItem) {
@@ -29,6 +29,10 @@ data class TreeNodeItem(
 
     override fun hashCode(): Int {
         return this.uuid.hashCode()
+    }
+
+    override fun defaultStateID(): StateID {
+        return stateID
     }
 }
 

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.ui.models.BookmarkItem
+import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.cells.transport.StateID
 
 /**  Simply provides access to the DB to retrieve basic single objects */
@@ -24,9 +24,9 @@ class TreeNodeVM(
         return nodeService.getWorkspace(stateID)
     }
 
-    suspend fun appearsIn(stateID: StateID): BookmarkItem? {
+    suspend fun appearsIn(stateID: StateID): MultipleItem? {
         getTreeNode(stateID)?.let { node ->
-            val newItem = BookmarkItem(
+            val newItem = MultipleItem(
                 uuid = node.uuid,
                 mime = node.mime,
                 eTag = node.etag,

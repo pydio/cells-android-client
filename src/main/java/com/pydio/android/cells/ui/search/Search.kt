@@ -3,19 +3,7 @@ package com.pydio.android.cells.ui.search
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,16 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
@@ -47,17 +31,12 @@ import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
-import com.pydio.android.cells.ui.core.composables.getNodeDesc
-import com.pydio.android.cells.ui.core.composables.getNodeTitle
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
-import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -81,8 +60,7 @@ fun Search(
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
     val query by searchVM.userInput.collectAsState("")
-    // TODO this seems clumsy. We have a flow of liveData double check and improve
-    val hits = searchVM.hits.collectAsState(null).value?.observeAsState()
+    val hits = searchVM.newHits.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
@@ -118,6 +96,10 @@ fun Search(
     )
 
     val launch: (NodeAction, StateID) -> Unit = { action, currID ->
+
+        // Todo also unify with browse helper
+        Log.e(logTag, "Launching action $action for $currID")
+
         when (action) {
             is NodeAction.OpenInApp -> {
                 moreMenuDone()
@@ -163,7 +145,7 @@ fun Search(
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
         listLayout = listLayout,
-        hits = hits?.value ?: listOf(),
+        hits = hits.value,
         open = { currID ->
             scope.launch {
                 searchHelper.open(context, currID)
@@ -188,12 +170,13 @@ private fun WithScaffold(
     errMsg: String?,
     updateQuery: (String) -> Unit,
     listLayout: ListLayout,
-    hits: List<RTreeNode>,
+    hits: List<MultipleItem>,
     open: (StateID) -> Unit,
     launch: (NodeAction, StateID) -> Unit,
     cancel: () -> Unit,
     moreMenuState: MoreMenuState,
 ) {
+    val focusManager = LocalFocusManager.current
 
     var isShown by remember { mutableStateOf(false) }
     val showMenu: (Boolean) -> Unit = {
@@ -282,128 +265,15 @@ private fun WithScaffold(
                 query = query,
                 hits = hits,
                 openMoreMenu = {
-                    // TODO hide keyboard here
-//                    context.getSystemService(InputMethod.SERVICE_INTERFACE).
+                    focusManager.clearFocus()
                     moreMenuState.openMoreMenu(NodeMoreMenuType.SEARCH, it)
                 },
-                open = open,
+                open = {
+                    focusManager.clearFocus()
+                    open(it)
+                },
                 padding = padding,
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
-@Composable
-private fun HitsList(
-    loadingState: LoadingState,
-    query: String,
-    listLayout: ListLayout,
-    hits: List<RTreeNode>,
-    openMoreMenu: (StateID) -> Unit,
-    open: (StateID) -> Unit,
-    padding: PaddingValues,
-) {
-
-    WithLoadingListBackground(
-        loadingState = loadingState,
-        isEmpty = hits.isEmpty(),
-        showProgressAtStartup = false,
-        startingDesc = stringResource(R.string.search_hint),
-        emptyRefreshableDesc = if (Str.empty(query)) {
-            stringResource(R.string.search_hint, query)
-        } else {
-            stringResource(R.string.no_result_for_search, query)
-        },
-        // TODO also handle if server is unreachable
-        canRefresh = true,
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        when (listLayout) {
-            ListLayout.GRID -> {
-                val listPadding = PaddingValues(
-                    top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
-                    bottom = padding.calculateBottomPadding()
-                        .plus(dimensionResource(R.dimen.margin)),
-                    start = dimensionResource(id = R.dimen.margin_medium),
-                    end = dimensionResource(id = R.dimen.margin_medium),
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_col_min_width)),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = listPadding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(
-                        items = hits,
-                        key = { it.encodedState }) { node ->
-                        if (node.hasThumb()) {
-                            LargeCardWithImage(
-                                stateID = node.getStateID(),
-                                eTag = node.etag,
-                                mime = node.mime,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
-                                openMoreMenu = {
-                                    openMoreMenu(node.getStateID())
-                                },
-                                modifier = Modifier
-                                    .clickable { open(node.getStateID()) }
-                                    .animateItemPlacement(),
-                                sortName = node.sortName,
-                            )
-
-                        } else {
-                            LargeCardWithIcon(
-                                sortName = node.sortName,
-                                mime = node.mime,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
-                                desc = getNodeDesc(
-                                    node.remoteModificationTS,
-                                    node.size,
-                                    node.localModificationStatus
-                                ),
-                                openMoreMenu = { openMoreMenu(node.getStateID()) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) }
-                                    .animateItemPlacement(),
-                            )
-                        }
-                    }
-                }
-            }
-
-            else -> {
-                LazyColumn(
-                    contentPadding = padding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(hits, key = { it.encodedState }) { node ->
-                        NodeItem(
-                            item = node,
-                            title = getNodeTitle(name = node.name, mime = node.mime),
-                            desc = getNodeDesc(
-                                node.remoteModificationTS,
-                                node.size,
-                                node.localModificationStatus
-                            ),
-                            more = { openMoreMenu(node.getStateID()) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { open(node.getStateID()) }
-                                .animateItemPlacement(),
-                        )
-                    }
-                }
-            }
         }
     }
 }
