@@ -100,8 +100,10 @@ class MainActivity : ComponentActivity() {
                         return@LaunchedEffect
                     }
 
-                    try {
-                        startingState.value = handleIntent(savedInstanceState, landingVM)
+                    try { // We only handle intent when we have no bundle state
+                        savedInstanceState ?: run {
+                            startingState.value = handleIntent(landingVM)
+                        }
                     } catch (e: SDKException) {
                         Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
                         if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
@@ -183,23 +185,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun handleIntent(
-        savedInstanceState: Bundle?,
         landingVM: LandingVM
     ): StartingState {
         Log.e(logTag, "#############################")
         Log.e(logTag, "Handle Intent: $intent")
-        if (intent == null) { // we then rely on saved state or defaults
-            if (savedInstanceState != null) {
-                Log.e(logTag, "No intent **BUT WE HAVE A NON NULL BUNDLE**, investigate!")
-                Log.e(logTag, "Saved state: " + savedInstanceState.describeContents())
-                Thread.dumpStack()
-            }
-            // TO BE REFINED we assume we have no starting state in such case
+        if (intent == null) {
+
             Log.e(logTag, "#############################")
             Log.e(logTag, "No Intent and no bundle")
             Thread.dumpStack()
             Log.e(logTag, "#############################")
-
             // TODO find how we can land here and fix.
             val state = StartingState(StateID.NONE)
             state.route = CellsDestinations.Accounts.route
@@ -288,74 +283,6 @@ class MainActivity : ComponentActivity() {
                 Log.w(logTag, "... Unexpected intent: $action - $categories")
             }
         }
-
-//        var newRoute: String? = null
-
-//        startingState.value?.let { oldState ->
-//
-//            if (oldState.isRestart) {
-//                Log.e(logTag, "## Got a restart preventing navigation")
-//                Log.d(
-//                    logTag,
-//                    "    - route: ${oldState.route}, stateID: ${oldState.stateID}"
-//                )
-//                // return@LaunchedEffect
-//            } else {
-//                Log.e(logTag, "#### B4 handling starting state: ${oldState.route}")
-//                Log.e(logTag, "####   for stateID: ${oldState.stateID}")
-//                if (oldState.route?.isNotEmpty() == true) {
-//                    newRoute = when {
-//                        // First we explicitly handle the well known routes for future debugging
-//                        // OAuth Call back
-//                        LoginDestinations.ProcessAuth.isCurrent(oldState.route)
-//                        -> LoginDestinations.ProcessAuth.createRoute(
-//                            oldState.stateID,
-//                            false
-//                        )
-//                        // Until we define at least one account
-//                        LoginDestinations.AskUrl.isCurrent(oldState.route)
-//                        -> oldState.route
-////                                        LoginDestinations.AskUrl.createRoute()
-//                        // Share with Pydio from another app
-//                        ShareDestination.ChooseAccount.isCurrent(oldState.route)
-//                        -> ShareDestination.ChooseAccount.route //  navController.navigate(ShareDestination.ChooseAccount.route)
-//
-//                        // Failsafe that are still to be investigated
-//                        LoginDestinations.isCurrent(oldState.route) -> {
-//                            // TODO When do we pass here?
-//                            Thread.dumpStack()
-//                            Log.e(logTag, "# Got a login destination with route:")
-//                            Log.e(logTag, "##########    ${oldState.route}, see above")
-//                            LoginDestinations.AskUrl.createRoute() // loginNavActions.askUrl()
-//                        }
-//
-//                        else -> {
-//                            Log.e(
-//                                logTag,
-//                                "## Nothing to special do for ${oldState.route}"
-//                            )
-//                            Thread.dumpStack()
-//                            oldState.route // navController.navigate(it.route!!)
-//                        }
-//                    }
-//                    Log.e(
-//                        logTag,
-//                        "#### Got a new route: $newRoute (old: ${oldState.route})"
-//                    )
-//                    oldState.route = newRoute
-//                    startingState.value = oldState
-//
-//                } else { // Same as 2 lines above, but this should never happen
-//                    Thread.dumpStack()
-//                    Log.e(
-//                        logTag,
-//                        "## Starting state for ${oldState.stateID} with no route"
-//                    )
-//                }
-//
-//            }
-//        }
-
         return startingState
     }
 }
