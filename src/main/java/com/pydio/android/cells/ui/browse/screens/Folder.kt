@@ -96,11 +96,9 @@ fun Folder(
     // UI States
     val context = LocalContext.current
     val loadingState by browseRemoteVM.loadingState.observeAsState()
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val snackBarHostState = remember {
-        SnackbarHostState()
-    }
     val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val snackBarHostState = remember { SnackbarHostState() }
 
     // Business States
     val scope = rememberCoroutineScope()

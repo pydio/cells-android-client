@@ -389,7 +389,7 @@ class OfflineService(
                 }
                 return@withContext changeNb
             } catch (se: SDKException) {
-                Log.e(logTag, "could update offline sync status for " + stateID.id)
+                Log.e(logTag, "could update offline sync status for $stateID")
                 se.printStackTrace()
                 return@withContext 0
             }

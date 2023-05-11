@@ -69,81 +69,21 @@ fun CellsNavGraph(
         }
     }
 
-//    // Starting state is null once the initial state has been consumed
-//    if (startingState != null) {
-//        LaunchedEffect(key1 = startingState.route, key2 = startingState.isRestart) {
-//            if (startingState.isRestart) {
-//                Log.e(logTag, "## Got a restart preventing navigation")
-//                Log.d(
-//                    logTag,
-//                    "    - route: ${startingState.route}, stateID: ${startingState.stateID}"
-//                )
-//                // return@LaunchedEffect
-//            } else {
-//                Log.e(logTag, "########## Launching side effect for ${startingState.route}")
-//                Log.e(logTag, "##########     with stateID: ${startingState.stateID}")
-//                if (startingState.route?.isNotEmpty() == true) {
-//                    when {
-//                        // First we explicitly handle the well known routes for future debugging
-//                        // OAuth Call back
-//                        LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-//                        -> loginNavActions.processAuth(startingState.stateID, false)
-//                        // Until we define at least one account
-//                        LoginDestinations.AskUrl.isCurrent(startingState.route)
-//                        -> loginNavActions.askUrl()
-//                        // Share with Pydio from another app
-//                        ShareDestination.ChooseAccount.isCurrent(startingState.route)
-//                        -> navController.navigate(ShareDestination.ChooseAccount.route)
-//
-//                        // Failsafe that are still to be investigated
-//                        LoginDestinations.isCurrent(startingState.route)
-//                        -> {
-//                            // TODO When do we pass here?
-//                            Thread.dumpStack()
-//                            Log.e(logTag, "##########   Got a login destination with route:")
-//                            Log.e(logTag, "##########    ${startingState.route}, see above")
-//                            loginNavActions.askUrl()
-//                        }
-//
-//                        Str.notEmpty(startingState.route)
-//                        -> {
-//                            // TODO should be the normal behaviour for starting state
-//                            //   normally we can rely on the route if present => that's the goal
-//                            navController.navigate(startingState.route!!)
-//                        }
-//
-//                        else  // Nothing special to do, we remove the starting state
-//                        -> startingStateHasBeenProcessed(null, StateID.NONE)
-//                    }
-//                } else { // Same as 2 lines above, but this should never happen
-//                    Thread.dumpStack()
-//                    Log.e(logTag, "## Starting state for ${startingState.stateID} with no route")
-//                    startingStateHasBeenProcessed(null, StateID.NONE)
-//                }
-//            }
-//        }
-//    }
-
     NavHost(
         navController = navController,
         startDestination = CellsDestinations.Accounts.route,
-        // route = CellsDestinations.Home.route
         route = CellsDestinations.Root.route
     ) {
 
         composable(CellsDestinations.Home.route) {
             NoAccount(
                 openDrawer = { openDrawer() },
-                addAccount = {
-                    loginNavActions.askUrl()
-                },
+                addAccount = { loginNavActions.askUrl() },
             )
         }
 
         composable(CellsDestinations.Accounts.route) {
-
             val accountListVM: AccountListVM = koinViewModel()
-
             AccountsScreen(
                 isExpandedScreen = isExpandedScreen,
                 accountListVM = accountListVM,

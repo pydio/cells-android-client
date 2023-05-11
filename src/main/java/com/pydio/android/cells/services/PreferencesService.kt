@@ -136,17 +136,6 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-//    suspend fun setFilter(type: ListType, filter: String) {
-//        dataStore.edit { preferences ->
-//            val currentKey = when (type) {
-//                ListType.JOB -> PreferencesKeys.JOB_FILTER_BY_STATUS
-//                ListType.TRANSFER -> PreferencesKeys.TRANSFER_FILTER_BY_STATUS
-//                else -> throw RuntimeException("Unsupported filter type: ${type.name}")
-//            }
-//            preferences[currentKey] = filter
-//        }
-//    }
-
     suspend fun setListLayout(layout: ListLayout) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_LIST_LAYOUT] = layout.name
