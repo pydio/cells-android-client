@@ -10,6 +10,7 @@ import com.pydio.android.cells.utils.currentTimestamp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -108,17 +109,23 @@ class JobService(
         logDao.clearLogs()
     }
 
-    // Live Data
-
-    fun getMostRecent(template: String): LiveData<RJob?> {
-        return jobDao.getMostRecent(template)
+    suspend fun getLatestRunning(template: String): RJob? = withContext(ioDispatcher) {
+        return@withContext jobDao.getLatestRunning(template)
     }
+
+    // Flows and Live Data
+    fun getLiveJobByID(jobID: Long): Flow<RJob?> = jobDao.getJobById(jobID)
+
+
+//    fun getMostRecent(template: String): LiveData<RJob?> {
+//        return jobDao.getMostRecent(template)
+//    }
 
     fun getLiveJob(jobId: Long): LiveData<RJob?> = jobDao.getLiveById(jobId)
 
-    fun getMostRecentRunning(template: String): LiveData<RJob?> {
-        return jobDao.getMostRecentRunning(template)
-    }
+//    fun getMostRecentRunning(template: String): LiveData<RJob?> {
+//        return jobDao.getMostRecentRunning(template)
+//    }
 
     fun listLiveJobs(showChildren: Boolean): LiveData<List<RJob>> {
         return if (showChildren) {

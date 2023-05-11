@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -35,6 +36,21 @@ open class AbstractBrowseVM(
     val loadingState: Flow<LoadingState> = _loadingStateF
     val errorMessage: Flow<ErrorMessage?> = _errorMessageF
 
+    protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list
+    }
+    val layout = listPrefs.map { it.layout }
+
+    protected val defaultListOrderFlow = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        prefs.getOrderByPair(
+            cellsPreferences,
+            ListType.DEFAULT
+        )
+    }
+
+    protected val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+
+
     protected fun launchProcessing() {
         _loadingStateF.value = LoadingState.PROCESSING
         _errorMessageF.value = null
@@ -56,12 +72,6 @@ open class AbstractBrowseVM(
         _errorMessageF.value = ErrorMessage(msg, -1, listOf())
     }
 
-    protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.list
-    }
-
-    protected val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
-    val layout = listPrefs.map { it.layout }
 
     fun setListLayout(listLayout: ListLayout) {
         viewModelScope.launch {

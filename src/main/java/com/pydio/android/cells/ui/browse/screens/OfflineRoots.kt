@@ -44,7 +44,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -103,9 +102,8 @@ fun OfflineRoots(
     val listLayout by offlineVM.layout.collectAsState(ListLayout.LIST)
     val loadingState = offlineVM.loadingState.collectAsState(LoadingState.STARTING)
     val errMsg = offlineVM.errorMessage.collectAsState(null)
-    val syncJob = offlineVM.syncJob.observeAsState()
-    val roots = offlineVM.offlineRoots.observeAsState()
-
+    val syncJob = offlineVM.syncJob.collectAsState()
+    val roots = offlineVM.offlineRoots.collectAsState()
 
     LaunchedEffect(key1 = errMsg.value) {
         errMsg.value?.let {
@@ -216,7 +214,7 @@ fun OfflineRoots(
         listLayout = listLayout,
         syncJob = syncJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
-        roots = roots.value ?: listOf(),
+        roots = roots.value,
         openDrawer = openDrawer,
         forceRefresh = offlineVM::forceFullSync,
         open = localOpen,

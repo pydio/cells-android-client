@@ -13,6 +13,7 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
+import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
@@ -164,13 +165,20 @@ val serviceModule = module {
         Dispatchers.Default
     }
 
+    single {
+        CoroutineService(
+            get(named(DiNames.uiDispatcher)),
+            get(named(DiNames.ioDispatcher)),
+            get(named(DiNames.cpuDispatcher)),
+        )
+    }
+
     single { ScopeService() }
 
     single {
         WorkerService(
             androidContext(),
-            get(named(DiNames.ioDispatcher)),
-            get(named(DiNames.cpuDispatcher)),
+            get(),
             get(),
             get(),
         )
@@ -258,12 +266,7 @@ val serviceModule = module {
             get(), get(), get(), get()
         )
     }
-    single {
-        OfflineService(
-            get(named(DiNames.ioDispatcher)),
-            get(), get(), get(), get()
-        )
-    }
+    single { OfflineService(get(), get(), get(), get(), get()) }
     single {
         TransferService(
             get(named(DiNames.ioDispatcher)),

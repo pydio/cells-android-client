@@ -6,7 +6,6 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import com.pydio.android.cells.db.preferences.SyncPreferences
 import com.pydio.android.cells.services.workers.OfflineSyncWorker
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
@@ -16,15 +15,13 @@ import org.koin.core.component.KoinComponent
 
 class WorkerService(
     context: Context,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val cpuDispatcher: CoroutineDispatcher,
+    private val coroutineService: CoroutineService,
     private val prefs: PreferencesService,
     private val jobService: JobService,
 ) : KoinComponent {
 
     private val logTag = "WorkerService"
     private val workerScope = CoroutineScope(SupervisorJob())
-
     private val workManager = WorkManager.getInstance(context)
 
     private lateinit var oldSyncPrefs: SyncPreferences
@@ -32,12 +29,12 @@ class WorkerService(
     init {
         Log.i(logTag, "... Starting offline service")
 
-        workerScope.launch {
-            withContext(ioDispatcher) {
-                oldSyncPrefs = prefs.fetchPreferences().sync
+        coroutineService.cellsIoScope.launch {
+            oldSyncPrefs = prefs.fetchPreferences().sync
+            withContext(coroutineService.cpuDispatcher) {
+                initOfflineWorkers()
+                configureOfflinePrefObserver()
             }
-            initOfflineWorkers()
-            configureOfflinePrefObserver()
         }
     }
 
@@ -51,7 +48,7 @@ class WorkerService(
     }
 
     // Insure that the worker is correctly started at launch time
-    private suspend fun initOfflineWorkers() {
+    private fun initOfflineWorkers() {
         workManager.enqueueUniquePeriodicWork(
             OfflineSyncWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
@@ -69,12 +66,16 @@ class WorkerService(
         }
     }
 
-    private suspend fun resetOfflineWorker(syncPref: SyncPreferences) {
+    private fun resetOfflineWorker(syncPref: SyncPreferences) {
         // Debug info
         val prefix = "### Cancel and restart offline worker with [$syncPref] "
         try {
             jobService.i(logTag, prefix, "SyncPref Observer")
+            Log.e(logTag, "###############################")
+            Log.e(logTag, "###############################")
             Log.i(logTag, prefix)
+            Log.e(logTag, "###############################")
+            Log.e(logTag, "###############################")
         } catch (e: Exception) {
             Log.e(logTag, "$prefix: could not log with job service: ${e.message}")
         }

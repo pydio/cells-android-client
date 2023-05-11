@@ -37,6 +37,9 @@ interface JobDao {
     @Query("SELECT * FROM jobs WHERE template = :template ORDER BY start_ts DESC LIMIT 1")
     fun getMostRecent(template: String): LiveData<RJob?>
 
+    @Query("SELECT * FROM jobs WHERE template = :template and done_ts < 1000 ORDER BY start_ts DESC LIMIT 1")
+    fun getLatestRunning(template: String): RJob?
+
     @Query("SELECT * FROM jobs WHERE template = :template AND done_ts = -1 ORDER BY start_ts DESC LIMIT 1")
     fun getMostRecentRunning(template: String): LiveData<RJob?>
 

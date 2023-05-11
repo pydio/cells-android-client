@@ -2,9 +2,6 @@ package com.pydio.android.cells.ui.browse.models
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -20,10 +17,14 @@ import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Expose methods used by Offline pages */
 class OfflineVM(
@@ -36,26 +37,36 @@ class OfflineVM(
     private val offlineService: OfflineService,
 ) : AbstractBrowseVM(prefs, nodeService) {
 
-
     private val logTag = "OfflineVM"
 
     private val accountID = stateID.account()
 
-    private val _syncJobID = MutableLiveData(-1L)
+    private val _syncJobID = MutableStateFlow<Long>(-1L)
 
-    val offlineRoots: LiveData<List<RLiveOfflineRoot>>
-        get() = sortOrder.switchMap { currOrder ->
-            nodeService.listOfflineRoots(accountID, currOrder)
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val offlineRoots: StateFlow<List<RLiveOfflineRoot>> =
+        defaultListOrderFlow.flatMapLatest { currPair ->
+            nodeService.listOfflineRootsFlow(accountID, currPair.first, currPair.second)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = listOf()
+        )
 
-    val syncJob: LiveData<RJob?>
-        get() = _syncJobID.switchMap { currID ->
-            if (currID < 1) {
-                jobService.getMostRecent(offlineService.getSyncTemplateId(accountID))
-            } else {
-                jobService.getLiveJob(currID)
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val syncJob: StateFlow<RJob?> = _syncJobID.flatMapLatest { passedID ->
+        // Not satisfying, if the job ID is not explicitly given, we retrieve the latest not done from the DB
+        val currID = if (passedID < 1) {
+            jobService.getLatestRunning(offlineService.getSyncTemplateId(accountID))?.jobId ?: -1
+        } else {
+            passedID
         }
+        jobService.getLiveJobByID(currID)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
@@ -70,18 +81,14 @@ class OfflineVM(
     }
 
     fun forceFullSync() {
-
         viewModelScope.launch {
             if (!checkBeforeLaunch(accountID)) {
                 return@launch
             }
             doForceAccountSync(accountID) // we insure the current account value is valid in the sanity check
-            // TODO handle errors
             delay(1500)
             Log.e(logTag, "Setting loading state to IDLE")
-            withContext(Dispatchers.Main) {
-                done()
-            }
+            done()
         }
     }
 
@@ -90,12 +97,9 @@ class OfflineVM(
             if (!checkBeforeLaunch(stateID)) {
                 return@launch
             }
-
             doForceSingleRootSync(stateID)
             Log.e(logTag, "Setting loading state to IDLE")
-            withContext(Dispatchers.Main) {
-                done()
-            }
+            done()
         }
     }
 
@@ -109,7 +113,6 @@ class OfflineVM(
         }
         return true
     }
-
 
     private suspend fun canLaunchSync(stateID: StateID?): Pair<Boolean, String?> {
 
@@ -157,7 +160,7 @@ class OfflineVM(
     }
 
     private fun doForceSingleRootSync(stateID: StateID) {
-        CellsApp.instance.appScope.launch {
+        viewModelScope.launch {
             offlineService.syncOfflineRoot(stateID)
         }
     }
@@ -173,13 +176,11 @@ class OfflineVM(
 
         _syncJobID.value = jobID
         jobService.launched(jobID)
-        CellsApp.instance.appScope.launch {
-            offlineService.performAccountSync(
-                accID,
-                jobID,
-                CellsApp.instance.applicationContext
-            )
-        }
+        offlineService.performAccountSync(
+            accID,
+            jobID,
+            CellsApp.instance.applicationContext
+        )
     }
 
     init {

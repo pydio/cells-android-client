@@ -108,7 +108,6 @@ class NodeService(
             .lsWithMimeFilterFlow(stateID.id, stateID.file, mimeFilter)
     }
 
-
     fun listOfflineRoots(
         accountID: StateID,
         encodedOrder: String,
@@ -119,6 +118,18 @@ class NodeService(
                     "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
         )
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
+    }
+
+    fun listOfflineRootsFlow(
+        accountID: StateID,
+        sortByCol: String,
+        sortByOrder: String
+    ): Flow<List<RLiveOfflineRoot>> {
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM RLiveOfflineRoot WHERE " +
+                    "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
+        )
+        return nodeDB(accountID).liveOfflineRootDao().offlineRootQueryF(lsQuery)
     }
 
     fun listLiveWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
