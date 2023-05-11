@@ -1,8 +1,10 @@
 package com.pydio.android.cells.ui.models
 
+import android.content.Context
 import androidx.annotation.StringRes
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import com.pydio.android.cells.R
+
+const val unknownError = R.string.generic_error_message
 
 data class ErrorMessage(
     val defaultMessage: String?,
@@ -10,10 +12,13 @@ data class ErrorMessage(
     val formatArgs: List<Any>,
 )
 
-@Composable
-fun toErrorMessage(msg: ErrorMessage): String {
-    return msg.defaultMessage ?: stringResource(
-        id = msg.id,
+fun toErrorMessage(context: Context, msg: ErrorMessage): String {
+    return msg.defaultMessage ?: context.getString(
+        msg.id,
         *msg.formatArgs.map { it }.toTypedArray()
     )
+}
+
+fun fromException(e: Exception): ErrorMessage {
+    return ErrorMessage(e.message, unknownError, listOf())
 }

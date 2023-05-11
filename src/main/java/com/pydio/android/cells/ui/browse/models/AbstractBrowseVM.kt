@@ -1,8 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,10 +9,14 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.models.ErrorMessage
+import com.pydio.android.cells.ui.models.fromException
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -27,28 +29,32 @@ open class AbstractBrowseVM(
 ) : ViewModel() {
 
     // private val logTag = "AbstractBrowseVM"
+    private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
+    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
-    protected val _loadingState = MutableLiveData(LoadingState.STARTING)
-    protected val _errorMessage = MutableLiveData<String?>()
-    val loadingState: LiveData<LoadingState> = _loadingState
-    val errorMessage: LiveData<String?> = _errorMessage
+    val loadingState: Flow<LoadingState> = _loadingStateF
+    val errorMessage: Flow<ErrorMessage?> = _errorMessageF
 
     protected fun launchProcessing() {
-        _loadingState.value = LoadingState.PROCESSING
-        _errorMessage.value = null
+        _loadingStateF.value = LoadingState.PROCESSING
+        _errorMessageF.value = null
     }
 
     /* Pass a non-empty err parameter when the process has terminated with an error*/
-    protected fun done(err: String? = null) {
-        _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = err
+    protected fun done(err: ErrorMessage? = null) {
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = err
+    }
+
+    protected fun done(e: Exception) {
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = fromException(e)
     }
 
     protected fun error(msg: String) {
-        _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = msg
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = ErrorMessage(msg, -1, listOf())
     }
-
 
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list

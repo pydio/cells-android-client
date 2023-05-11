@@ -34,9 +34,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -76,6 +80,7 @@ import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackgrou
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.asAgoString
@@ -93,11 +98,24 @@ fun OfflineRoots(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
 
-    val loadingState by offlineVM.loadingState.observeAsState()
-    val syncJob = offlineVM.syncJob.observeAsState()
     val listLayout by offlineVM.layout.collectAsState(ListLayout.LIST)
+    val loadingState = offlineVM.loadingState.collectAsState(LoadingState.STARTING)
+    val errMsg = offlineVM.errorMessage.collectAsState(null)
+    val syncJob = offlineVM.syncJob.observeAsState()
     val roots = offlineVM.offlineRoots.observeAsState()
+
+
+    LaunchedEffect(key1 = errMsg.value) {
+        errMsg.value?.let {
+            snackBarHostState.showSnackbar(
+                message = toErrorMessage(context, it),
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
 
     val localOpen: (StateID) -> Unit = { stateID ->
         scope.launch {
@@ -194,7 +212,7 @@ fun OfflineRoots(
     }
 
     WithScaffold(
-        loadingState = loadingState ?: LoadingState.STARTING,
+        loadingState = loadingState.value,
         listLayout = listLayout,
         syncJob = syncJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
@@ -208,7 +226,8 @@ fun OfflineRoots(
             sheetState,
             nodeMoreMenuData.value.second,
             openMoreMenu
-        )
+        ),
+        snackBarHostState = snackBarHostState
     )
 }
 
@@ -225,6 +244,7 @@ private fun WithScaffold(
     open: (StateID) -> Unit,
     launch: (NodeAction, StateID) -> Unit,
     moreMenuState: MoreMenuState,
+    snackBarHostState: SnackbarHostState,
 ) {
 
     var isShown by remember { mutableStateOf(false) }
@@ -295,6 +315,7 @@ private fun WithScaffold(
                 content = actionMenuContent
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
 
         CellsModalBottomSheetLayout(

@@ -9,7 +9,6 @@ import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
-import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -54,11 +53,12 @@ class BookmarksVM(
                 nodeService.refreshBookmarks(stateID)
                 done()
             } catch (e: Exception) {
-                val msg = if (e is SDKException && e.message != null) e.message!! else {
-                    "Unexpected error while refreshing bookmarks for $stateID"
-                }
-                Log.e(logTag, msg)
-                done(msg)
+                done(e)
+//                val msg = if (e is SDKException && e.message != null) e.message!! else {
+//                    "Unexpected error while refreshing bookmarks for $stateID"
+//                }
+//                Log.e(logTag, msg)
+//                done(e)
             }
         }
     }

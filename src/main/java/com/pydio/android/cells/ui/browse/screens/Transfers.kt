@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -68,12 +69,12 @@ fun Transfers(
     browseHelper: BrowseHelper,
 ) {
 
-    val loadingState by transfersVM.loadingState.observeAsState()
+    val loadingState = transfersVM.loadingState.collectAsState(LoadingState.STARTING)
     val currTransfers = transfersVM.transfers.observeAsState()
     val currFilter = transfersVM.liveFilter.observeAsState()
 
     WithState(
-        loadingState = loadingState ?: LoadingState.STARTING,
+        loadingState = loadingState.value,
         forceRefresh = transfersVM::forceRefresh,
         accountID = accountID,
         currFilter = currFilter.value ?: JobStatus.NO_FILTER.id,

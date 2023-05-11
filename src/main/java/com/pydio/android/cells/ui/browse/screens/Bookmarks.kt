@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,7 +75,7 @@ fun Bookmarks(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val loadingState by bookmarksVM.loadingState.observeAsState()
+    val loadingState by bookmarksVM.loadingState.collectAsState(LoadingState.IDLE)
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
     val bookmarks = bookmarksVM.bookmarks.collectAsState()
 

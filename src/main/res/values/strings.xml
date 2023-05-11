@@ -51,6 +51,8 @@
     <string name="nav_close">Close</string>
 
     <!-- Various -->
+
+    <!-- ERRORS -->
     <string name="generic_error_message">Unexpected error…</string>
 
     <!-- PAGE SPECIFIC MESSAGES -->
