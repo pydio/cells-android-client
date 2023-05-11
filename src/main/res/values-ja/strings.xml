@@ -43,6 +43,7 @@
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
     <!-- Various -->
+    <!-- ERRORS -->
     <string name="generic_error_message">Unexpected error…</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
@@ -135,6 +136,8 @@
     <string name="sync_downloading">Downloading files…</string>
     <string name="sync_tree_walking">Walking the tree to look for changes…</string>
     <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
     <string name="filter_by_status_title">Filter by status</string>

@@ -43,6 +43,7 @@
     <string name="nav_open">Öffnen</string>
     <string name="nav_close">Schließen</string>
     <!-- Various -->
+    <!-- ERRORS -->
     <string name="generic_error_message">Unerwarteter Fehler…</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
@@ -136,6 +137,8 @@
     <string name="sync_downloading">Dateien werden heruntergeladen…</string>
     <string name="sync_tree_walking">Durchsuchen des Baums nach Änderungen…</string>
     <string name="sync_already_running">Ein Synchronisierungsprozess läuft bereits. Bitte warten Sie, bevor Sie einen neuen starten</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Hintergrundprozesse</string>
     <string name="filter_by_status_title">Nach Status filtern</string>
