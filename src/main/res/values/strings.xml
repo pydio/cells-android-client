@@ -269,7 +269,7 @@
     <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
     <string name="confirm_empty_recycle_message">This empties the recycle bin for %s: all trashed content will be definitively deleted.</string>
     <string name="rename_dialog_title">Rename</string>
-    <string name="rename_dialog_message">Please enter a new name for:\n%s</string>
+    <string name="rename_dialog_message">Please enter a new name for %s</string>
     <string name="rename_dialog_confirm_button">Rename</string>
     <string name="download_wait_message">Downloading, please wait…</string>
     <string name="display_as_qrcode_dialog_title">Direct link</string>
@@ -278,6 +278,9 @@
     <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Confirm download</string>
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
+
+    <!-- TextFields Labels -->
+    <string name="name_label">Name</string>
 
     <!-- Settings -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
