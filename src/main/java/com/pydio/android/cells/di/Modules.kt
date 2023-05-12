@@ -21,7 +21,6 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PasswordStore
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.services.ScopeService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
 import com.pydio.android.cells.services.TransferService
@@ -173,8 +172,6 @@ val serviceModule = module {
         )
     }
 
-    single { ScopeService() }
-
     single {
         WorkerService(
             androidContext(),
@@ -267,12 +264,7 @@ val serviceModule = module {
         )
     }
     single { OfflineService(get(), get(), get(), get(), get()) }
-    single {
-        TransferService(
-            get(named(DiNames.ioDispatcher)),
-            get(), get(), get(), get(), get(), get()
-        )
-    }
+    single { TransferService(get(), get(), get(), get(), get(), get(), get()) }
 
     single {
         ConnectionService(

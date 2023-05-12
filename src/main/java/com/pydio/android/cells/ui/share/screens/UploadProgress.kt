@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -49,14 +50,14 @@ fun UploadProgressList(
     openParentLocation: () -> Unit,
 ) {
 
-    val currTransfers = uploadsVM.currRecords.observeAsState()
-    val currJob = uploadsVM.parentJob.observeAsState()
+    val currJob = uploadsVM.parentJob.collectAsState(null)
+    val currTransfers = uploadsVM.currRecords.collectAsState(listOf())
 
     UploadProgressList(
         uploadsVM = uploadsVM,
         openParentLocation = openParentLocation,
         currJob = currJob.value,
-        uploads = currTransfers.value ?: listOf(),
+        uploads = currTransfers.value,
         runInBackground = runInBackground,
         done = done,
         cancel = cancel,

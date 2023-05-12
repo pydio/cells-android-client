@@ -10,6 +10,7 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.pydio.android.cells.db.CellsConverters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(CellsConverters::class)
@@ -17,6 +18,7 @@ interface TransferDao {
 
     // MAIN TRANSFER OBJECT
 
+    // CRUDs
     @Insert
     fun insert(transfer: RTransfer): Long
 
@@ -26,17 +28,26 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE encoded_state = :stateId LIMIT 1")
     fun getByState(stateId: String): RTransfer?
 
-    @Query("SELECT * FROM transfers WHERE transfer_id IN (:ids)")
-    fun getCurrents(ids: Set<Long>): LiveData<List<RTransfer>>
-
     @Query("SELECT * FROM transfers WHERE transfer_id = :transferID LIMIT 1")
     fun getById(transferID: Long): RTransfer?
 
     @Query("SELECT * FROM transfers WHERE external_id = :tuID LIMIT 1")
     fun getByExternalID(tuID: Int): RTransfer?
 
+    @Query("DELETE FROM transfers WHERE done_ts = -1 AND update_ts < :staleLimit ")
+    fun clearStaleTransfers(staleLimit: Long)
+
+    @Query("DELETE FROM transfers WHERE done_ts > 0")
+    fun clearTerminatedTransfers()
+
+    @Query("DELETE FROM transfers WHERE transfer_id = :transferID")
+    fun deleteTransfer(transferID: Long)
+
+    @Query("SELECT * FROM transfers WHERE transfer_id IN (:ids)")
+    fun getCurrents(ids: Set<Long>): LiveData<List<RTransfer>>
+
     @Query("SELECT * FROM transfers WHERE job_id = :jobID")
-    fun getByJobId(jobID: Long): LiveData<List<RTransfer>>
+    fun getByJobId(jobID: Long): Flow<List<RTransfer>>
 
     @Query("SELECT * FROM transfers WHERE transfer_id = :transferID LIMIT 1")
     fun getLiveById(transferID: Long): LiveData<RTransfer?>
@@ -52,15 +63,6 @@ interface TransferDao {
 
     @Query("SELECT * FROM transfers ORDER BY start_ts DESC")
     fun getActiveTransfers(): LiveData<List<RTransfer>?>
-
-    @Query("DELETE FROM transfers WHERE done_ts = -1 AND update_ts < :staleLimit ")
-    fun clearStaleTransfers(staleLimit: Long)
-
-    @Query("DELETE FROM transfers WHERE done_ts > 0")
-    fun clearTerminatedTransfers()
-
-    @Query("DELETE FROM transfers WHERE transfer_id = :transferID")
-    fun deleteTransfer(transferID: Long)
 
     @RawQuery(observedEntities = [RTransfer::class])
     fun transferQuery(query: SupportSQLiteQuery): LiveData<List<RTransfer>>

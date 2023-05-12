@@ -34,12 +34,10 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -51,7 +49,8 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
-    private val ioDispatcher: CoroutineDispatcher,
+    // private val
+    coroutineService: CoroutineService,
     private val prefs: PreferencesService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
@@ -62,8 +61,9 @@ class TransferService(
 
     private val logTag = "TransferService"
 
-    private val transferServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + transferServiceJob)
+    //    private val transferServiceJob = SupervisorJob()
+    private val serviceScope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     companion object {
         // Hard-coded constants to ease implementation in a first pass. TODO: improve
@@ -79,20 +79,13 @@ class TransferService(
         return nodeDB(accountId).transferDao()
     }
 
-    fun getTransfersRecordsForJob(
+    fun getChildTransfersRecords(
         accountID: StateID,
         jobID: Long
-    ): LiveData<List<RTransfer>> {
-        val id =
-            if (jobID < 1) -1 else jobID // tweak to insure we return no jobs when no job ID has been explicitly set
+    ): Flow<List<RTransfer>> {
+        // tweak to insure we return no jobs when no job ID has been explicitly set
+        val id = if (jobID < 1) -1 else jobID
         return nodeDB(accountID).transferDao().getByJobId(id)
-    }
-
-    fun getCurrentTransfersRecords(
-        accountID: StateID,
-        transferIDs: Set<Long>
-    ): LiveData<List<RTransfer>> {
-        return nodeDB(accountID).transferDao().getCurrents(transferIDs)
     }
 
     fun queryTransfersExplicitFilter(
@@ -220,6 +213,7 @@ class TransferService(
         downloadFile(stateID, rNode, type, parentJob, progressChannel)
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext") // injected dispatcher is not recognised by the linter
     @Throws(SDKException::class)
     suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) = withContext(ioDispatcher) {
         val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -444,6 +438,7 @@ class TransferService(
         )
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     @Throws(SDKException::class)
     private suspend fun doP8Download(
         stateID: StateID,
@@ -452,7 +447,7 @@ class TransferService(
         dao: TransferDao,
         rTreeNode: RTreeNode,
         rTransfer: RTransfer
-    ) {
+    ) = withContext(ioDispatcher) {
 
         val lfType = AppNames.LOCAL_FILE_TYPE_FILE
 
@@ -614,7 +609,7 @@ class TransferService(
      * that are provided by the android platform.
      */
     private fun handleOrientation(rTreeNode: RTreeNode, absPath: String) {
-        // EXIF DATA must be manually retrieved from main image and applied
+        // EXIF data must be manually retrieved from main image and applied
         val exifInterface = ExifInterface(absPath)
         if (rTreeNode.meta.containsKey(SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION)) {
             var orientation = rTreeNode.meta[SdkNames.NODE_PROPERTY_IMG_EXIF_ORIENTATION] as String
@@ -880,6 +875,7 @@ class TransferService(
         var outputStream: OutputStream? = null
         try {
             inputStream = cr.openInputStream(uri)
+            @Suppress("BlockingMethodInNonBlockingContext")
             outputStream = FileOutputStream(localFile)
             IoHelpers.pipeRead(inputStream, outputStream)
         } catch (ioe: IOException) {

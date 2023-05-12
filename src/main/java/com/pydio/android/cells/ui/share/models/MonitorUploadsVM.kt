@@ -1,7 +1,5 @@
 package com.pydio.android.cells.ui.share.models
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
@@ -12,6 +10,8 @@ import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -23,11 +23,17 @@ class MonitorUploadsVM(
     val transferService: TransferService,
 ) : ViewModel() {
 
-    private val logTag = "MonitorUploadsVM"
+    // private val logTag = "MonitorUploadsVM"
 
-    val currRecords: LiveData<List<RTransfer>> =
-        transferService.getTransfersRecordsForJob(accountID, jobID)
-    val parentJob: LiveData<RJob?> = jobService.getLiveJob(jobID)
+    val parentJob: Flow<RJob?> = jobService.getLiveJobByID(jobID)
+
+    //    val currRecords: LiveData<List<RTransfer>> =
+//        transferService.getTransfersRecordsForJob(accountID, jobID)
+//
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currRecords: Flow<List<RTransfer>> =
+        transferService.getChildTransfersRecords(accountID, jobID)
+
 
     fun getStatusFromListAndJob(job: RJob?, rTransfers: List<RTransfer>): JobStatus {
         var newStatus = JobStatus.NEW
@@ -57,15 +63,12 @@ class MonitorUploadsVM(
     private fun markJobAsDone(job: RJob) {
         viewModelScope.launch {
             if (!job.isDone()) {
-                // TODO remove explicit context once it has been fixed in the jobService
-                withContext(Dispatchers.IO) {
-                    jobService.done(job, "All files have been uploaded", null)
-                }
+                jobService.done(job, "All files have been uploaded", null)
             }
         }
     }
 
-    // TODO add filter and sort
+    // Also add filter and sort ??
 
     suspend fun get(transferId: Long): RTransfer? = withContext(Dispatchers.IO) {
         transferService.getRecord(accountID, transferId)
@@ -98,13 +101,13 @@ class MonitorUploadsVM(
         }
     }
 
-    fun cancelAll() {
-        currRecords.value?.forEach {
-            try {
-                cancelOne(it.transferId)
-            } catch (e: Exception) {
-                Log.e(logTag, "could not cancel job #$it, cause: ${e.message}")
-            }
-        }
-    }
+//    fun cancelAll() {
+//        currRecords.value?.forEach {
+//            try {
+//                cancelOne(it.transferId)
+//            } catch (e: Exception) {
+//                Log.e(logTag, "could not cancel job #$it, cause: ${e.message}")
+//            }
+//        }
+//    }
 }

@@ -6,19 +6,16 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.TransferDao
-import com.pydio.android.cells.di.DiNames
+import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.services.ScopeService
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.core.qualifier.named
 
 class CellsTransferListener(
     private val externalID: Int,
@@ -28,9 +25,9 @@ class CellsTransferListener(
 
     private val logTag = "CellsTransferListener"
 
-    private val scopeService: ScopeService by inject()
-    private val scope = scopeService.appScope
-    private val ioDispatcher: CoroutineDispatcher by inject(named(DiNames.ioDispatcher))
+    private val coroutineService: CoroutineService by inject()
+    private val scope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     private val fileService: FileService by inject()
 
@@ -43,7 +40,7 @@ class CellsTransferListener(
             "Could not retrieve transfer with external ID $externalID, aborting"
         )
     }
-    private var alreadyTransfered = 0L
+    private var alreadyTransferred = 0L
 
     override fun onStateChanged(id: Int, state: TransferState?) {
         scope.launch(context = ioDispatcher) {
@@ -72,7 +69,7 @@ class CellsTransferListener(
                 transferDao.update(transferRecord)
 
                 parentJobProgress?.let {
-                    val diff = bytesCurrent - alreadyTransfered
+                    val diff = bytesCurrent - alreadyTransferred
                     if (diff > 0) {
                         try {
                             it.send(diff)
@@ -84,7 +81,7 @@ class CellsTransferListener(
 
                         }
                     }
-                    alreadyTransfered = bytesCurrent
+                    alreadyTransferred = bytesCurrent
                 }
             }
         }
