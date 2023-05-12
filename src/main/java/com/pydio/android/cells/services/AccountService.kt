@@ -26,9 +26,6 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,9 +37,10 @@ import java.io.FileNotFoundException
  * servers.
  */
 class AccountService(
-    private val ioDispatcher: CoroutineDispatcher,
-    private val networkService: NetworkService,
+    // private val
+    coroutineService: CoroutineService,
     accountDB: AccountDB,
+    private val networkService: NetworkService,
     private val authService: AuthService,
     private val sessionFactory: SessionFactory,
     private val treeNodeRepository: TreeNodeRepository,
@@ -56,8 +54,10 @@ class AccountService(
     private val sessionViewDao: SessionViewDao = accountDB.sessionViewDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
-    private val nodeServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
+    //    private val nodeServiceJob = SupervisorJob()
+    private val serviceScope =
+        coroutineService.cellsIoScope // CoroutineScope(ioDispatcher + nodeServiceJob)
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     fun getClient(stateID: StateID): Client {
         return sessionFactory.getUnlockedClient(stateID.account())
@@ -398,7 +398,7 @@ class AccountService(
                 }
 
                 if (currAccount.isLegacy) {
-                    Log.e(logTag, "Got an error but token is refreshing, simply ignoring")
+                    Log.w(logTag, "Error while connecting to remote P8 server, ignoring")
                     return@withContext
                 }
 
@@ -408,7 +408,10 @@ class AccountService(
                         handleAuthError(stateID)
                     }
                 } else {
-                    Log.e(logTag, "Unexpected error, simply ignoring for the time being")
+                    Log.e(
+                        logTag, "Unexpected error #${se.code}: ${se.message}," +
+                                " simply ignoring for the time being"
+                    )
                 }
                 return@withContext
             }
@@ -420,63 +423,63 @@ class AccountService(
     }
 
     private suspend fun handleAuthError(stateID: StateID) {
-        val transport = getTransport(stateID, true)
-        if (transport == null || transport !is CellsTransport) {
-            // We should never land here an exception must have already been thrown
-            Log.e(logTag, "No transport, ignoring error")
-            Log.e(logTag, "  but we should not be there, printing stack:")
-            Thread.dumpStack()
-            return
-        }
+        serviceScope.launch {
 
-        Log.e(logTag, "In handle auth error, token: ${transport.token}")
+            val transport = getTransport(stateID, true)
+            if (transport == null || transport !is CellsTransport) {
+                // We should never land here an exception must have already been thrown
+                Log.e(logTag, "No transport, ignoring error")
+                Log.e(logTag, "  but we should not be there, printing stack:")
+                Thread.dumpStack()
+                return@launch
+            }
 
-        transport.token?.let {
+            Log.e(logTag, "In handle auth error, token: ${transport.token}")
 
-            if (!it.isExpired) {
-                // Handle corner case when we have been kicked off the server:
-                // We perform a supplementary check to insure we still can connect to the server
-                try {
-                    Log.d(logTag, "## Trying to download boot configuration for $stateID")
-                    transport.tryDownloadingBootConf()
-                } catch (e: Exception) {
-                    // Cannot get boot conf, so token is not valid anymore
-                    if (e is FileNotFoundException) {
-                        var i = 0
-                        loop@ while (i != 3) {
-                            try {
-                                Log.d(logTag, "## Trying to get boot conf for $stateID")
-                                transport.tryDownloadingBootConf()
-                                break@loop
-                            } catch (e: FileNotFoundException) {
-                                if (i == 2) {
-                                    // finally logout
-                                    logoutAccount(stateID)
-                                    return
-                                } else {
-                                    delay(1000)
+            transport.token?.let {
+
+                if (!it.isExpired) {
+                    // Handle corner case when we have been kicked off the server:
+                    // We perform a supplementary check to insure we still can connect to the server
+                    try {
+                        Log.d(logTag, "## Trying to download boot configuration for $stateID")
+                        transport.tryDownloadingBootConf()
+                    } catch (e: Exception) {
+                        // Cannot get boot conf, so token is not valid anymore
+                        if (e is FileNotFoundException) {
+                            var i = 0
+                            loop@ while (i < 3) {
+                                delay(1000)
+                                i++
+                                try {
+                                    Log.d(logTag, "## Trying to get boot conf for $stateID")
+                                    transport.tryDownloadingBootConf()
+                                    break@loop
+                                } catch (e: FileNotFoundException) {
+                                    if (i == 3) {
+                                        // finally logout
+                                        logoutAccount(stateID)
+                                        return@launch
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(logTag, "unexpected error while retrying bootconf")
+                                    e.printStackTrace()
+                                    return@launch
                                 }
-                            } catch (e: Exception) {
-                                Log.e(logTag, "unexpected error while retrying bootconf")
-                                e.printStackTrace()
-                                return
                             }
-                            i++
+                        } else {
+                            return@launch
                         }
-                    } else {
-                        return
                     }
                 }
-            }
 
-            if (it.refreshingSinceTs > 1000) {
-                Log.e(logTag, "Got an error but token is refreshing, ignoring")
-                return
+                if (it.refreshingSinceTs > 1000) {
+                    Log.e(logTag, "Got an error but token is refreshing, ignoring")
+                } else { // We rely on the transport to update our local repo if necessary
+                    transport.requestTokenRefresh()
+                }
+                return@launch
             }
-
-            // We rely on the transport to update our local repo if necessary
-            transport.requestTokenRefresh()
-            return
         }
     }
 

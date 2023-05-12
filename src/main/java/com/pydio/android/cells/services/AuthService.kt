@@ -16,14 +16,15 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.*
 
 class AuthService(
-    private val ioDispatcher: CoroutineDispatcher,
+//    private val
+    coroutineService: CoroutineService,
     authDB: AuthDB
 ) {
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     private val tokenDao = authDB.tokenDao()
     private val legacyCredentialsDao = authDB.legacyCredentialsDao()

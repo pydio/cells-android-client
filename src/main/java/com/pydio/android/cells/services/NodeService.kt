@@ -23,11 +23,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -36,15 +32,19 @@ import java.io.IOException
 
 class NodeService(
     private val appContext: Context,
-    private val ioDispatcher: CoroutineDispatcher,
+    coroutineService: CoroutineService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val offlineService: OfflineService,
     private val fileService: FileService,
 ) {
     private val logTag = "NodeService"
-    private val nodeServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
+
+    //    private val nodeServiceJob = SupervisorJob()
+//    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
+
 
     // Query the local index to get LiveData for the ViewModels
     fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
@@ -108,19 +108,19 @@ class NodeService(
             .lsWithMimeFilterFlow(stateID.id, stateID.file, mimeFilter)
     }
 
-    fun listOfflineRoots(
-        accountID: StateID,
-        encodedOrder: String,
-    ): LiveData<List<RLiveOfflineRoot>> {
-        val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.DEFAULT)
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM RLiveOfflineRoot WHERE " +
-                    "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
-        )
-        return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
-    }
+//    fun listOfflineRoots(
+//        accountID: StateID,
+//        encodedOrder: String,
+//    ): LiveData<List<RLiveOfflineRoot>> {
+//        val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.DEFAULT)
+//        val lsQuery = SimpleSQLiteQuery(
+//            "SELECT * FROM RLiveOfflineRoot WHERE " +
+//                    "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
+//        )
+//        return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
+//    }
 
-    fun listOfflineRootsFlow(
+    fun listOfflineRoots(
         accountID: StateID,
         sortByCol: String,
         sortByOrder: String
@@ -141,8 +141,7 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
-
-    fun liveSearchFlow(
+    fun liveSearch(
         stateID: StateID,
         query: String,
         encodedSortBy: String
@@ -155,19 +154,18 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().searchQueryFlow(lsQuery)
     }
 
-
-    fun liveSearch(
-        stateID: StateID,
-        query: String,
-        encodedSortBy: String
-    ): LiveData<List<RTreeNode>> {
-        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
-                    "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
-        )
-        return nodeDB(stateID).treeNodeDao().liveSearchQuery(lsQuery)
-    }
+//    fun liveSearch(
+//        stateID: StateID,
+//        query: String,
+//        encodedSortBy: String
+//    ): LiveData<List<RTreeNode>> {
+//        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
+//        val lsQuery = SimpleSQLiteQuery(
+//            "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
+//                    "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
+//        )
+//        return nodeDB(stateID).treeNodeDao().liveSearchQuery(lsQuery)
+//    }
 
     /* Communicate with the DB using suspend functions */
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
@@ -183,22 +181,22 @@ class NodeService(
             nodeDB(stateID).treeNodeDao().getNodesByUuid(uuid)
         }
 
-    suspend fun searchLocally(
-        stateID: StateID,
-        query: String,
-        encodedSortBy: String
-    ): List<RTreeNode> = withContext(ioDispatcher) {
-        if (Str.empty(query)) {
-            listOf()
-        } else {
-            val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-            val lsQuery = SimpleSQLiteQuery(
-                "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
-                        "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
-            )
-            nodeDB(stateID).treeNodeDao().searchQuery(lsQuery)
-        }
-    }
+//    suspend fun searchLocally(
+//        stateID: StateID,
+//        query: String,
+//        encodedSortBy: String
+//    ): List<RTreeNode> = withContext(ioDispatcher) {
+//        if (Str.empty(query)) {
+//            listOf()
+//        } else {
+//            val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
+//            val lsQuery = SimpleSQLiteQuery(
+//                "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
+//                        "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
+//            )
+//            nodeDB(stateID).treeNodeDao().searchQuery(lsQuery)
+//        }
+//    }
 
     suspend fun getWorkspace(stateID: StateID): RWorkspace? {
         return if (stateID == StateID.NONE) {
@@ -679,7 +677,6 @@ class NodeService(
     /* Constants and helpers */
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(logTag, "Error #${se.code}: $msg")
-        // se.printStackTrace()
         accountService.notifyError(stateID, msg, se)
     }
 

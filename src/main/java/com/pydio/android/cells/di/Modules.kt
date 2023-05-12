@@ -182,20 +182,10 @@ val serviceModule = module {
     }
 
     // Network state
-    single {
-        NetworkService(
-            androidContext(),
-            get(named(DiNames.ioDispatcher)),
-        )
-    }
+    single { NetworkService(androidContext(), get()) }
 
     // Long running jobs
-    single {
-        JobService(
-            get(named(DiNames.ioDispatcher)),
-            get()
-        )
-    }
+    single { JobService(get(), get()) }
 
     // Authentication
     single<Store<Token>>(named(DiNames.tokenStore)) { TokenStore(get()) }
@@ -209,31 +199,20 @@ val serviceModule = module {
             get(named(DiNames.tokenStore)),
             get(named(DiNames.passwordStore)),
             get(named(DiNames.transportStore)),
-            get(named(DiNames.ioDispatcher)),
-            get(named(DiNames.cpuDispatcher)),
+            get(), // CoroutineService
             get(), // NetworkService
             get(), // SessionViewDao
             get(), // AccountDao
         )
     }
-    single {
-        AuthService(
-            get(named(DiNames.ioDispatcher)),
-            get()
-        )
-    }
-    single {
-        FileService(
-            get(named(DiNames.ioDispatcher)),
-            get()
-        )
-    }
+    single { AuthService(get(), get()) }
+    single { FileService(get(), get()) }
 
     // Accounts
     single {
         TreeNodeRepository(
             androidContext().applicationContext,
-            get(named(DiNames.ioDispatcher)),
+            get(),
             get()
         )
     }
@@ -248,30 +227,14 @@ val serviceModule = module {
             get()
         )
     }
-    single {
-        AccountService(
-            get(named(DiNames.ioDispatcher)),
-            get(), get(), get(), get(), get(), get()
-        )
-    }
+    single { AccountService(get(), get(), get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get()) }
 
     // Business services
-    single {
-        NodeService(
-            androidContext().applicationContext,
-            get(named(DiNames.ioDispatcher)),
-            get(), get(), get(), get()
-        )
-    }
+    single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
     single { OfflineService(get(), get(), get(), get(), get()) }
     single { TransferService(get(), get(), get(), get(), get(), get(), get()) }
 
-    single {
-        ConnectionService(
-            get(named(DiNames.ioDispatcher)),
-            get(), get(), get()
-        )
-    }
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSyncWorker(

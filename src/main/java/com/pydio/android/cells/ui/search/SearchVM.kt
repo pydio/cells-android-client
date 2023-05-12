@@ -79,7 +79,7 @@ class SearchVM(
     private var _queryString: Flow<String> = _userInput.debounce(800L)
 
     val hits = sortOrderFlow.combine(_queryString) { order, query ->
-        nodeService.liveSearchFlow(
+        nodeService.liveSearch(
             localStateID.account(),
             if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
             order
@@ -91,7 +91,7 @@ class SearchVM(
         .combine(_queryString) { order, query -> order to query }
         .flatMapLatest { currPair ->
             val (order, query) = currPair
-            nodeService.liveSearchFlow(
+            nodeService.liveSearch(
                 localStateID.account(),
                 if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
                 order

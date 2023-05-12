@@ -47,7 +47,7 @@ class OfflineVM(
     @OptIn(ExperimentalCoroutinesApi::class)
     val offlineRoots: StateFlow<List<RLiveOfflineRoot>> =
         defaultListOrderFlow.flatMapLatest { currPair ->
-            nodeService.listOfflineRootsFlow(accountID, currPair.first, currPair.second)
+            nodeService.listOfflineRoots(accountID, currPair.first, currPair.second)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

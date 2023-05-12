@@ -11,22 +11,18 @@ import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
 class FileService(
-    ioDispatcher: CoroutineDispatcher,
+    coroutineService: CoroutineService,
     private val treeNodeRepository: TreeNodeRepository
 ) {
 
     private val logTag = "FileService"
 
-    private val fileServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + fileServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
     private val sep: String = File.separator
 
     private val appCacheDir = CellsApp.instance.cacheDir.absolutePath

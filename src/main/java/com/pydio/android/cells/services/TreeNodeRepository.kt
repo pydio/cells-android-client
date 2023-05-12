@@ -9,21 +9,19 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TreeNodeRepository(
     private val applicationContext: Context,
-    private val ioDispatcher: CoroutineDispatcher,
+//    private val
+    coroutineService: CoroutineService,
     private val sessionDao: SessionDao,
 ) {
 
     private val logTag = "TreeNodeRepository"
-    private var treeNodeRepoJob = SupervisorJob()
-    private val treeNodeRepoScope = CoroutineScope(ioDispatcher + treeNodeRepoJob)
+    private val treeNodeRepoScope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     // Holds a map to find DB and files for a given account
     private val _sessions = mutableMapOf<String, RSession>()

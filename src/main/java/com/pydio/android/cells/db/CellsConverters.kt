@@ -8,7 +8,7 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.ServerURLImpl
 import java.util.Properties
 
-/** Enable serialization / deserialization to store complex objects in the DB using JSON*/
+/** Enable serialization / deserialization to store complex objects in the DB using JSON */
 class CellsConverters {
 
     @TypeConverter

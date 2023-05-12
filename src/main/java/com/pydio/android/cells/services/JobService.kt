@@ -7,20 +7,18 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.utils.currentTimestamp
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class JobService(
-    private val ioDispatcher: CoroutineDispatcher,
+//    private val
+    coroutineService: CoroutineService,
     runtimeDB: RuntimeDB
 ) {
 
-    private val jobServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + jobServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
 
     private val jobDao = runtimeDB.jobDao()
     private val logDao = runtimeDB.logDao()
@@ -121,7 +119,7 @@ class JobService(
 //        return jobDao.getMostRecent(template)
 //    }
 
-    fun getLiveJob(jobId: Long): LiveData<RJob?> = jobDao.getLiveById(jobId)
+//     fun getLiveJob(jobId: Long): LiveData<RJob?> = jobDao.getLiveById(jobId)
 
 //    fun getMostRecentRunning(template: String): LiveData<RJob?> {
 //        return jobDao.getMostRecentRunning(template)

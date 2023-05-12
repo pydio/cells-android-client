@@ -13,11 +13,8 @@ import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +29,7 @@ import java.util.UUID
  * Hold the session that is currently in foreground for browsing the cache and the remote server.
  */
 class ConnectionService(
-    ioDispatcher: CoroutineDispatcher,
+    coroutineService: CoroutineService,
     networkService: NetworkService,
     private val accountService: AccountService,
     private val appCredentialService: AppCredentialService,
@@ -45,8 +42,7 @@ class ConnectionService(
     private val id: String = UUID.randomUUID().toString()
     private val logTag = "ConnectionService[${id.substring(24)}]"
 
-    private val connectionServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + connectionServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
 
 
     private val liveNetwork = networkService.networkType

@@ -17,9 +17,6 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,8 +31,7 @@ class AppCredentialService(
     private val tokenStore: Store<Token>,
     passwordStore: Store<String>,
     private val transportStore: Store<Transport>,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val procDispatcher: CoroutineDispatcher,
+    private val coroutineService: CoroutineService,
     private val networkService: NetworkService,
     private val accountDao: AccountDao,
     private val sessionViewDao: SessionViewDao,
@@ -49,15 +45,16 @@ class AppCredentialService(
     // Semaphore for the refresh process.
     private val lock = Any()
 
-    private val credServiceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(ioDispatcher + credServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
+    private val ioDispatcher = coroutineService.ioDispatcher
+    private val cpuDispatcher = coroutineService.cpuDispatcher
 
     private val maxFail = 300
     private var failNb: Int = 0
 
     init {
         serviceScope.launch {
-            withContext(procDispatcher) {
+            withContext(cpuDispatcher) {
                 while (failNb < maxFail) {
                     try {
                         val currID = requestRefreshChannel.receive()
