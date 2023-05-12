@@ -7,6 +7,7 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.core.AbstractBrowseVM
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID

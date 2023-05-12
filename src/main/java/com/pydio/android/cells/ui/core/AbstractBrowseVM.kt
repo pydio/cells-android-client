@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.browse.models
+package com.pydio.android.cells.ui.core
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -8,8 +8,6 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.fromException
 import com.pydio.android.cells.utils.externallyView
@@ -50,29 +48,6 @@ open class AbstractBrowseVM(
 
     protected val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
 
-
-    protected fun launchProcessing() {
-        _loadingStateF.value = LoadingState.PROCESSING
-        _errorMessageF.value = null
-    }
-
-    /* Pass a non-empty err parameter when the process has terminated with an error*/
-    protected fun done(err: ErrorMessage? = null) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = err
-    }
-
-    protected fun done(e: Exception) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = fromException(e)
-    }
-
-    protected fun error(msg: String) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = ErrorMessage(msg, -1, listOf())
-    }
-
-
     fun setListLayout(listLayout: ListLayout) {
         viewModelScope.launch {
             prefs.setListLayout(listLayout)
@@ -99,5 +74,28 @@ open class AbstractBrowseVM(
             // also try to remove from the remote
             nodeService.tryToCacheNode(stateID)
         }
+    }
+
+    // Entry points for children models to update current UI state
+
+    protected fun launchProcessing() {
+        _loadingStateF.value = LoadingState.PROCESSING
+        _errorMessageF.value = null
+    }
+
+    /* Pass a non-null errorMsg parameter when the process has terminated with an error*/
+    protected fun done(errorMsg: ErrorMessage? = null) {
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = errorMsg
+    }
+
+    protected fun done(e: Exception) {
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = fromException(e)
+    }
+
+    protected fun error(msg: String) {
+        _loadingStateF.value = LoadingState.IDLE
+        _errorMessageF.value = ErrorMessage(msg, -1, listOf())
     }
 }

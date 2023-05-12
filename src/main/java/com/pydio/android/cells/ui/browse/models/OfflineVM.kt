@@ -15,6 +15,7 @@ import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
+import com.pydio.android.cells.ui.core.AbstractBrowseVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi

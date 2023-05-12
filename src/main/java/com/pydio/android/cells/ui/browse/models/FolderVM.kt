@@ -8,6 +8,7 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.ui.core.AbstractBrowseVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
