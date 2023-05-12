@@ -97,7 +97,7 @@ fun SelectFolderScreen(
     }
 
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
-        Log.e(logTag, "Intercepting $action  for $currID")
+        Log.e(logTag, "Intercepting $action for $currID")
         if (AppNames.ACTION_UPLOAD == action) {
             startUpload(shareVM, currID)
         } else if (AppNames.ACTION_CREATE_FOLDER == action) {
