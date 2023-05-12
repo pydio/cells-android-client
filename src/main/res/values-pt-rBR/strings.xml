@@ -231,7 +231,7 @@
     <string name="confirm_permanent_deletion_desc">%s será definitivamente excluído</string>
     <string name="confirm_empty_recycle_message">Isso esvazia a lixeira para %s: todo o conteúdo na lixeira será definitivamente excluído.</string>
     <string name="rename_dialog_title">Renomear</string>
-    <string name="rename_dialog_message">Insira um novo nome para:\n%s</string>
+    <string name="rename_dialog_message">Please enter a new name for %s</string>
     <string name="rename_dialog_confirm_button">Renomear</string>
     <string name="download_wait_message">Baixando, aguarde…</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
@@ -239,6 +239,8 @@
     <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Confirmar para baixar</string>
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
+    <!-- TextFields Labels -->
+    <string name="name_label">Name</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personalizar listas (quando aplicável)</string>
     <string name="pref_choose_list_layout">Tipo de leiaute</string>
