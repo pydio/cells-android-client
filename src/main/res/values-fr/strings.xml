@@ -137,8 +137,8 @@
     <string name="sync_downloading">Téléchargement des fichiers…</string>
     <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements…</string>
     <string name="sync_already_running">Une synchronisation est déjà en cours. Veuillez patienter avant d\'en lancer une nouvelle</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
+    <string name="confirm_remove_offline_title">Confirmer votre choix</string>
+    <string name="confirm_remove_offline_desc">La suppression du statut hors ligne de ce nœud peut conduire à la perte des données téléchargées. Êtes-vous sûr de vouloir continuer</string>
     <!-- Job Management -->
     <string name="job_list_title">Tâches de fond</string>
     <string name="filter_by_status_title">Filtrer par statut</string>
@@ -231,7 +231,7 @@
     <string name="confirm_permanent_deletion_desc">%s sera supprimé définitivement</string>
     <string name="confirm_empty_recycle_message">Cela va vider la corbeille pour %s, tout le contenu mis à la corbeille sera définitivement supprimé.</string>
     <string name="rename_dialog_title">Renommer</string>
-    <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour:\n%s</string>
+    <string name="rename_dialog_message">Veuillez saisir un nouveau nom pour : %s</string>
     <string name="rename_dialog_confirm_button">Renommer</string>
     <string name="download_wait_message">Téléchargement en cours, veuillez patienter…</string>
     <string name="display_as_qrcode_dialog_title">Lien direct</string>
@@ -239,6 +239,8 @@
     <string name="running_download_title">Téléchargement</string>
     <string name="confirm_download_title">Confirmer le téléchargement</string>
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
+    <!-- TextFields Labels -->
+    <string name="name_label">Nom</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="pref_choose_list_layout">Type de mise en page</string>

@@ -235,7 +235,7 @@
     <string name="confirm_permanent_deletion_desc">%s bude definitivně smazán</string>
     <string name="confirm_empty_recycle_message">Toto vyprázdní koš pro %s: veškerý obsah v koši bude definitivně smazán.</string>
     <string name="rename_dialog_title">Přejmenovat</string>
-    <string name="rename_dialog_message">Zadejte nový název pro:\n%s</string>
+    <string name="rename_dialog_message">Please enter a new name for %s</string>
     <string name="rename_dialog_confirm_button">Přejmenovat</string>
     <string name="download_wait_message">Stahování – čekejte prosím…</string>
     <string name="display_as_qrcode_dialog_title">Přímý odkaz</string>
@@ -243,6 +243,8 @@
     <string name="running_download_title">Downloading…</string>
     <string name="confirm_download_title">Potvrdit stažení</string>
     <string name="confirm_download_desc">Tento soubor je velký (%s) a jste na síti s účtovanými daty. Opravdu chcete pokračovat?</string>
+    <!-- TextFields Labels -->
+    <string name="name_label">Name</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Přizpůsobit si seznamy (pokud je uplatnitelné)</string>
     <string name="pref_choose_list_layout">Typ rozložení</string>
