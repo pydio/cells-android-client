@@ -2,7 +2,6 @@ package com.pydio.android.cells.ui.core.nav
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,14 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.ShapeDefaults
@@ -25,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -37,7 +33,6 @@ import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.MenuTitleText
-import com.pydio.android.cells.ui.core.composables.SwitchAccountButton
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.system.SystemDestinations
@@ -90,17 +85,15 @@ fun AppPermanentDrawer(
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
-            DrawerHeader(
+//            DrawerHeader(
+            AccountRailHeader(
                 username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
                 address = accountID.value?.serverUrl ?: "",
                 openAccounts = { cellsNavActions.navigateToAccounts() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(defaultPadding)
-                    .padding(
-                        bottom = 16.dp,
-                        top = 16.dp,
-                    )
+                    .padding(vertical = dimensionResource(id = R.dimen.margin))
             )
             accountID.value?.let { currAccountID ->
 
@@ -220,38 +213,4 @@ fun MyNavigationRailItem(
         modifier = Modifier.height(dimensionResource(R.dimen.menu_item_height)),
         shape = ShapeDefaults.Small,
     )
-}
-
-@Composable
-private fun DrawerHeader(
-    username: String,
-    address: String,
-    openAccounts: () -> Unit,
-    modifier: Modifier,
-) {
-    Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Text(
-                text = username,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(
-                        vertical = dimensionResource(R.dimen.margin_xsmall)
-                    )
-                    .wrapContentWidth(Alignment.Start)
-            )
-
-            SwitchAccountButton(
-                openAccounts = openAccounts,
-                modifier = Modifier
-            )
-        }
-        Text(
-            text = address,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
 }

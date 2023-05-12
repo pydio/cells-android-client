@@ -23,7 +23,6 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
-import com.pydio.android.cells.ui.browse.screens.HomeHeader
 import com.pydio.android.cells.ui.core.composables.MenuTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
@@ -76,7 +75,7 @@ fun AppDrawer(
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
-            HomeHeader(
+            AccountHeader(
                 username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
                 address = accountID.value?.serverUrl ?: "",
                 openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },

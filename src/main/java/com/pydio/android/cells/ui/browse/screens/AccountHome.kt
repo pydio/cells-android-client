@@ -2,32 +2,24 @@ package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.IconButton
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,9 +29,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -54,8 +43,8 @@ import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
 import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
+import com.pydio.android.cells.ui.core.nav.AccountHeader
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -186,7 +175,7 @@ private fun HomeListContent(
                 item(span = {
                     GridItemSpan(maxLineSpan)
                 }) {
-                    HomeHeader(
+                    AccountHeader(
                         username = stateID.username,
                         address = stateID.serverUrl,
                         openAccounts = openAccounts,
@@ -264,77 +253,6 @@ private fun HomeListContent(
             loadingState == LoadingState.PROCESSING || loadingState == LoadingState.STARTING,
             state,
             Modifier.align(Alignment.TopCenter)
-        )
-    }
-}
-
-@Composable
-fun HomeHeader(
-    username: String,
-    address: String,
-    openAccounts: () -> Unit,
-    modifier: Modifier,
-) {
-    Row(
-        modifier = modifier.clickable { openAccounts() },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.card_padding),
-                    vertical = dimensionResource(R.dimen.margin_xsmall)
-                )
-                .wrapContentWidth(Alignment.Start)
-        ) {
-            Text(
-                text = username,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Text(
-                text = address,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-
-        IconButton(
-            onClick = { openAccounts() },
-            modifier = Modifier
-                .size(dimensionResource(R.dimen.default_button_size))
-                .clip(CircleShape)
-                .background(
-                    SolidColor(MaterialTheme.colorScheme.secondaryContainer),
-                    CircleShape,
-                    0.8f
-                )
-        ) {
-            Icon(
-                imageVector = CellsIcons.SwitchAccount,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier
-                    .padding(all = dimensionResource(R.dimen.margin_xxsmall))
-                    .size(dimensionResource(R.dimen.default_button_inner_size))
-            )
-        }
-    }
-}
-
-@Preview(name = "HomeHeader Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "HomeHeader Dark Mode"
-)
-@Composable
-private fun HomeHeaderPreview() {
-    UseCellsTheme {
-        HomeHeader(
-            "alice",
-            "https://www.example.com",
-            { },
-            Modifier.fillMaxWidth()
         )
     }
 }
