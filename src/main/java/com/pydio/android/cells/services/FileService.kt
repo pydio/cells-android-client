@@ -146,6 +146,10 @@ class FileService(
             return false
         }
 
+        if (localFile.etag == null) { // We have a P8 distant server, no more checks
+            return true
+        }
+
         // Finally recompute local file md5 to insure it corresponds with the expected value (corrupted file)
         val computedMd5 = computeFileMd5(lf)
         if (localFile.etag != computedMd5) {

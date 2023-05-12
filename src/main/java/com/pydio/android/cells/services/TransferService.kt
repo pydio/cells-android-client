@@ -512,13 +512,18 @@ class TransferService(
                 rTransfer.updateTimestamp = currentTimestamp()
                 dao.update(rTransfer)
 
-                // Double check downloaded file is OK
-                val computedMd5 = computeFileMd5(targetFile)
-                if (rTreeNode.etag != computedMd5) {
-                    rTransfer.error =
-                        "MD5 signatures do not match after the download has terminated"
-                    rTransfer.status = AppNames.JOB_STATUS_WARNING
-                } else {
+                // Double check downloaded file is OK, skip for P8
+                if (rTreeNode.etag != null) {
+                    val computedMd5 = computeFileMd5(targetFile)
+                    if (rTreeNode.etag != computedMd5) {
+                        rTransfer.error =
+                            "MD5 signatures do not match after the download has terminated"
+                        rTransfer.status = AppNames.JOB_STATUS_WARNING
+                    } else {
+                        rTransfer.status = AppNames.JOB_STATUS_DONE
+                        rTransfer.error = null
+                    }
+                } else { // No check for P8
                     rTransfer.status = AppNames.JOB_STATUS_DONE
                     rTransfer.error = null
                 }
