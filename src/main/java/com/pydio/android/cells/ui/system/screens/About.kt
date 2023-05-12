@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,7 +29,6 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.android.cells.utils.getTimestampAsString
 import com.pydio.cells.transport.ClientData
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
     openDrawer: () -> Unit,
@@ -109,11 +107,26 @@ private fun VersionCard(
             modifier = baseModifier.padding(bottom = dimensionResource(R.dimen.margin_small))
         )
 
-        VersionLine(stringResource(R.string.version_name_display, version), lineModifier)
-        VersionLine(stringResource(R.string.version_code_display, code), lineModifier)
-        VersionLine(stringResource(R.string.last_update_time_display, lastUpdateTime), lineModifier)
-        VersionLine(stringResource(R.string.about_page_copyright), lineModifier)
-        VersionLine(stringResource(R.string.copyright_string), lineModifier)
+        val desc = stringResource(
+            R.string.version_name_display,
+            version
+        ) + "\n" + stringResource(
+            R.string.version_code_display,
+            code
+        ) + "\n" + stringResource(
+            R.string.last_update_time_display,
+            lastUpdateTime
+        ) + "\n\n" + stringResource(
+            R.string.about_page_copyright
+        ) + "\n" + stringResource(R.string.copyright_string)
+
+        VersionLine(desc, lineModifier)
+
+//        VersionLine(stringResource(R.string.version_name_display, version), lineModifier)
+//        VersionLine(stringResource(R.string.version_code_display, code), lineModifier)
+//        VersionLine(stringResource(R.string.last_update_time_display, lastUpdateTime), lineModifier)
+//        VersionLine(stringResource(R.string.about_page_copyright), lineModifier)
+//        VersionLine(stringResource(R.string.copyright_string), lineModifier)
 
         Button(
             onClick = onUriClick,
@@ -162,11 +175,7 @@ private fun TroubleShootingCard(
         )
         Button(
             onClick = onEmailClick,
-            modifier = baseModifier
-//                .padding(
-//                    top = dimensionResource(R.dimen.margin_small),
-//                )
-                .wrapContentWidth(Alignment.End)
+            modifier = baseModifier.wrapContentWidth(Alignment.End)
         ) {
             Text(text = emailLabel)
         }
