@@ -117,7 +117,6 @@ dependencies {
     // override default platform version
     // e.G    implementation "androidx.compose.material3:material3:1.2.0-alpha1"
 
-
     // Enable custom data loader for glide library (display images)
     annotationProcessor processors
 

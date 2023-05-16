@@ -27,7 +27,7 @@ class CellsApp : Application(), KoinComponent {
 
     // Exposed to the whole app for tasks that must survive termination of the calling UI element
     // Typically for actions launched from the "More" menu (copy, move...)
-    @Deprecated("Rather us injected @ScopeService::class")
+    @Deprecated("Rather us injected @CoroutineService::class")
     val appScope = CoroutineScope(SupervisorJob())
 
     companion object {
@@ -52,9 +52,7 @@ class CellsApp : Application(), KoinComponent {
             workManagerFactory()
             modules(allModules)
         }
-
     }
-
 
     @Throws(SDKException::class)
     private fun updateClientData(): String {

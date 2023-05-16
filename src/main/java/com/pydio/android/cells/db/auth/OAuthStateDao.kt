@@ -9,7 +9,7 @@ import androidx.room.Query
 interface OAuthStateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(account: ROAuthState)
+    fun insert(roAuthState: ROAuthState)
 
     @Query("SELECT * FROM oauth_states WHERE oauth_state = :state LIMIT 1")
     fun get(state: String): ROAuthState?

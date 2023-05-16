@@ -84,7 +84,7 @@ class WorkerService(
         workManager.cancelUniqueWork(OfflineSyncWorker.WORK_NAME)
         workManager.enqueueUniquePeriodicWork(
             OfflineSyncWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             OfflineSyncWorker.buildWorkRequest(oldSyncPrefs),
         )
     }
