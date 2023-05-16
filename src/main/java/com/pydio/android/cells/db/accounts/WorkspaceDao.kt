@@ -29,7 +29,7 @@ interface WorkspaceDao {
     fun getLiveWorkspace(stateId: String): LiveData<RWorkspace>
 
     @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '8%' ORDER BY sort_name")
-    fun getLiveCells(accountId: String): LiveData<List<RWorkspace>>
+    fun getLiveCells(accountId: String): Flow<List<RWorkspace>>
 
     @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '8%' ORDER BY sort_name")
     fun getCellsFlow(accountId: String): Flow<List<RWorkspace>>

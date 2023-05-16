@@ -2,11 +2,12 @@ package com.pydio.android.cells.ui.account
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,14 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
 import com.pydio.android.cells.ui.core.composables.Type
+import com.pydio.android.cells.ui.core.composables.lists.EmptyList
 import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -42,38 +46,51 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun AccountList(
-    accounts: List<RSessionView>?,
+    accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
     login: (stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    verticalArrangement: Arrangement.Vertical,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
+    Box(modifier = Modifier.padding(contentPadding)) {
+        if (accounts.isEmpty()) {
+            EmptyList(
+                listContext = ListContext.ACCOUNTS,
+                desc = stringResource(R.string.account_list_none),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(.5f)
+                    .wrapContentSize(Alignment.Center)
+            )
+        }
+        WithListTheme {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(accounts) { account ->
 
-    WithListTheme {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = contentPadding,
-            verticalArrangement = verticalArrangement
-
-        ) {
-            items(accounts ?: listOf()) { account ->
-
-                AccountListItem(
-                    title = "${account.serverLabel()}",
-                    username = account.username,
-                    url = account.url,
-                    authStatus = account.authStatus,
-                    isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                    login = { login(account.getStateID(), account.skipVerify(), account.isLegacy) },
-                    logout = { logout(account.getStateID()) },
-                    forget = forget,
-                    modifier = modifier.clickable {
-                        openAccount(StateID(account.username, account.url))
-                    }
-                )
+                    AccountListItem(
+                        title = "${account.serverLabel()}",
+                        username = account.username,
+                        url = account.url,
+                        authStatus = account.authStatus,
+                        isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
+                        login = {
+                            login(
+                                account.getStateID(),
+                                account.skipVerify(),
+                                account.isLegacy
+                            )
+                        },
+                        logout = { logout(account.getStateID()) },
+                        forget = forget,
+                        modifier = modifier.clickable {
+                            openAccount(StateID(account.username, account.url))
+                        }
+                    )
+                }
             }
         }
     }

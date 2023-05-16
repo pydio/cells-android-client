@@ -171,14 +171,18 @@
 
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
+    <string name="job_list_empty_message">There is no job to show</string>
+
     <string name="filter_by_status_title">Filter by status</string>
 
     <string name="job_sort_by_title">Sort by</string>
     <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
     <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
 
+
     <!-- Log Management -->
     <string name="log_list_title">Application logs</string>
+    <string name="log_list_empty_message">The journal is empty</string>
 
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Uploading…</string>
@@ -194,7 +198,6 @@
     <string name="pick_up_folder">Choose a target folder</string>
     <!--Transfers -->
     <string name="relaunch_transfer">Re-launch transfer</string>
-
 
     <!-- System -->
     <!-- Jobs -->

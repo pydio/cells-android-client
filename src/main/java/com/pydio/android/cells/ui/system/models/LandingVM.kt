@@ -63,7 +63,7 @@ class LandingVM(
 
     suspend fun getStartingState(): StartingState {
 
-        var stateID: StateID?
+        val stateID: StateID?
         // TODO get latest known state from preferences and navigate to it
 
         // Fallback on defined accounts:

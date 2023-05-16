@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.account
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -10,11 +9,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
@@ -38,11 +35,11 @@ fun AccountsScreen(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val scope = rememberCoroutineScope()
-    val accounts by accountListVM.sessions.observeAsState()
+    val accounts = accountListVM.sessions.collectAsState(listOf())
 
     AccountsScreen(
         isExpandedScreen = isExpandedScreen,
-        accounts = accounts.orEmpty(),
+        accounts = accounts.value,
         openAccount = {
             scope.launch {
                 accountListVM.openSession(it)?.let {
@@ -117,7 +114,6 @@ private fun AccountsScreen(
                 confirmForget,
                 modifier,
                 innerPadding,
-                Arrangement.spacedBy(dimensionResource(R.dimen.list_vertical_padding)),
             )
         }
     )

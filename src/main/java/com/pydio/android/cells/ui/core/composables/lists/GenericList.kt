@@ -142,6 +142,9 @@ fun EmptyList(
 private fun getVectorFromListContext(context: ListContext): ImageVector {
 
     return when (context) {
+        ListContext.ACCOUNTS ->
+            CellsIcons.AccountCircle
+
         ListContext.BOOKMARKS ->
             CellsIcons.Bookmark
 
@@ -153,5 +156,8 @@ private fun getVectorFromListContext(context: ListContext): ImageVector {
 
         ListContext.TRANSFERS ->
             CellsIcons.Processing
+
+        ListContext.SYSTEM ->
+            CellsIcons.Jobs
     }
 }

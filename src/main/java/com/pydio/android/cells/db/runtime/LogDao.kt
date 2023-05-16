@@ -1,9 +1,9 @@
 package com.pydio.android.cells.db.runtime
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LogDao {
@@ -12,7 +12,7 @@ interface LogDao {
     fun insert(log: RLog): Long
 
     @Query("SELECT * FROM logs ORDER BY log_id DESC")
-    fun getLiveLogs(): LiveData<List<RLog>>
+    fun getLiveLogs(): Flow<List<RLog>>
 
     @Query("SELECT * FROM logs ORDER BY timestamp DESC LIMIT 100")
     fun getLatest(): List<RLog>

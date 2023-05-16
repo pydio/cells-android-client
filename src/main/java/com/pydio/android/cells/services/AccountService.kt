@@ -1,7 +1,6 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
@@ -38,7 +37,6 @@ import java.io.FileNotFoundException
  * servers.
  */
 class AccountService(
-    // private val
     coroutineService: CoroutineService,
     accountDB: AccountDB,
     private val networkService: NetworkService,
@@ -55,9 +53,7 @@ class AccountService(
     private val sessionViewDao: SessionViewDao = accountDB.sessionViewDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
 
-    //    private val nodeServiceJob = SupervisorJob()
-    private val serviceScope =
-        coroutineService.cellsIoScope // CoroutineScope(ioDispatcher + nodeServiceJob)
+    private val serviceScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
 
     fun getClient(stateID: StateID): Client {
@@ -80,14 +76,17 @@ class AccountService(
         }
     }
 
-    // Expose LiveData for the ViewModels
+    // Expose Flows for the ViewModels
 
     fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
-    fun getLiveSession(accountID: StateID): LiveData<RSessionView?> =
-        sessionViewDao.getLiveSession(accountID.id)
+    fun getLiveSession(accountID: StateID): Flow<RSessionView?> =
+        sessionViewDao.getSessionFlow(accountID.id)
 
-    fun getWsByTypeF(type: String, accountID: String)
+    val activeSessionViewF: Flow<RSessionView?> =
+        sessionViewDao.getActiveSessionFlow(AppNames.LIFECYCLE_STATE_FOREGROUND)
+
+    fun getWsByTypeFlow(type: String, accountID: String)
             : Flow<List<RWorkspace>> {
         return if (type == SdkNames.WS_TYPE_CELL) {
             workspaceDao.getCellsFlow(accountID)
@@ -95,21 +94,6 @@ class AccountService(
             workspaceDao.getNotCellsFlow(accountID)
         }
     }
-
-    fun getLiveWsByType(type: String, accountID: String)
-            : LiveData<List<RWorkspace>> {
-        return if (type == SdkNames.WS_TYPE_CELL) {
-            workspaceDao.getLiveCells(accountID)
-        } else {
-            workspaceDao.getLiveNotCells(accountID)
-        }
-    }
-
-    val liveActiveSessionView: LiveData<RSessionView?> =
-        sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
-
-    val activeSessionViewF: Flow<RSessionView?> =
-        sessionViewDao.getActiveSessionFlow(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
     // Direct communication with the backend
 

@@ -29,10 +29,10 @@ interface JobDao {
     fun getRunningForTemplate(template: String): List<RJob>
 
     @Query("SELECT * FROM jobs ORDER BY job_id DESC")
-    fun getLiveJobs(): LiveData<List<RJob>>
+    fun getLiveJobs(): Flow<List<RJob>>
 
     @Query("SELECT * FROM jobs WHERE parent_id < 1 ORDER BY creation_ts DESC")
-    fun getRootJobs(): LiveData<List<RJob>>
+    fun getRootJobs(): Flow<List<RJob>>
 
     @Query("SELECT * FROM jobs WHERE template = :template ORDER BY start_ts DESC LIMIT 1")
     fun getMostRecent(template: String): LiveData<RJob?>

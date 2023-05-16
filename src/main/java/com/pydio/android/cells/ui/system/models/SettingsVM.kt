@@ -14,7 +14,7 @@ class SettingsVM(
     // private val nodeService: NodeService
 ) : ViewModel() {
 
-    private val logTag = "SettingsVM"
+    // private val logTag = "SettingsVM"
 
     val cellsPreferences = prefs.cellsPreferencesFlow
 
@@ -24,7 +24,7 @@ class SettingsVM(
         }
     }
 
-    fun setDisblePollFlag(disablePoll: Boolean) {
+    fun setDisablePollFlag(disablePoll: Boolean) {
         viewModelScope.launch {
             prefs.setDisablePollFlag(disablePoll)
         }

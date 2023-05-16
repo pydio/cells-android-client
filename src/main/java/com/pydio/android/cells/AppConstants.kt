@@ -19,10 +19,12 @@ enum class JobStatus(val id: String) {
 }
 
 enum class ListContext(val id: String) {
+    ACCOUNTS("accounts"),
     BROWSE("browse"),
     BOOKMARKS("bookmarks"),
     OFFLINE("offline"),
     TRANSFERS("transfers"),
+    SYSTEM("system"),
 }
 
 enum class LoginStatus(val id: String) {

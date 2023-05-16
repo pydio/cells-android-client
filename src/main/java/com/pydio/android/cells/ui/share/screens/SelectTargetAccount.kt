@@ -9,8 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import com.pydio.android.cells.ui.models.AccountListVM
@@ -27,7 +26,7 @@ fun SelectTargetAccount(
     modifier: Modifier = Modifier,
 ) {
 
-    val accounts by accountListVM.sessions.observeAsState()
+    val accounts = accountListVM.sessions.collectAsState(listOf())
 
     val interceptOpen: (stateID: StateID) -> Unit = {
         accountListVM.pause()
@@ -56,7 +55,7 @@ fun SelectTargetAccount(
         },
         content = { innerPadding ->
             TargetAccountList(
-                accounts.orEmpty(),
+                accounts.value,
                 interceptOpen,
                 login,
                 modifier,

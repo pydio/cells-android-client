@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -21,15 +20,12 @@ import java.util.concurrent.TimeUnit
  * Central ViewModel when dealing with a user's accounts.
  */
 class AccountListVM(
-    private val appCredentialService: AppCredentialService,
     private val accountService: AccountService,
 ) : ViewModel() {
 
     private val logTag = "AccountListVM"
 
-    private var _sessions = accountService.getLiveSessions()
-    val sessions: LiveData<List<RSessionView>>
-        get() = _sessions
+    val sessions = accountService.getLiveSessions()
 
     private val backOffTicker = BackOffTicker()
     private var _isActive = false

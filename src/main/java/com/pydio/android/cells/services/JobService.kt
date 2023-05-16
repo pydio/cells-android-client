@@ -1,7 +1,6 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
@@ -125,7 +124,7 @@ class JobService(
 //        return jobDao.getMostRecentRunning(template)
 //    }
 
-    fun listLiveJobs(showChildren: Boolean): LiveData<List<RJob>> {
+    fun listLiveJobs(showChildren: Boolean): Flow<List<RJob>> {
         return if (showChildren) {
             jobDao.getLiveJobs()
         } else {
@@ -135,7 +134,7 @@ class JobService(
 
     /* MANAGE LOGS */
 
-    fun listLogs(): LiveData<List<RLog>> {
+    fun listLogs(): Flow<List<RLog>> {
         return logDao.getLiveLogs()
     }
 

@@ -1,13 +1,13 @@
 package com.pydio.android.cells.ui.system.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,10 +16,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -27,9 +27,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.ui.core.composables.TopBarWithActions
+import com.pydio.android.cells.ui.core.composables.lists.EmptyList
+import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.system.models.LogListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -42,15 +45,14 @@ fun LogScreen(
     openDrawer: () -> Unit,
     logVM: LogListVM = koinViewModel()
 ) {
-    val logs by logVM.logs.observeAsState()
+    val logs = logVM.logs.collectAsState(listOf())
     LogScreen(
-        logs = logs ?: listOf(),
+        logs = logs.value,
         openDrawer = openDrawer,
         clearLogs = logVM::clearAllLogs
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogScreen(
     logs: List<RLog>,
@@ -72,19 +74,30 @@ fun LogScreen(
                 },
             )
         }
-    ) { innerPadding -> LogList(logs, innerPadding) }
+    ) { innerPadding ->
+
+        Box(modifier = Modifier.padding(innerPadding)) {
+            if (logs.isEmpty()) {
+                EmptyList(
+                    listContext = ListContext.SYSTEM,
+                    desc = stringResource(R.string.log_list_empty_message),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(.5f)
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+            WithListTheme {
+                LogList(logs)
+            }
+        }
+    }
 }
 
 @Composable
-fun LogList(
-    logs: List<RLog>,
-    innerPadding: PaddingValues,
-    modifier: Modifier = Modifier
-) {
+fun LogList(logs: List<RLog>) {
     LazyColumn(
-        Modifier
-            .fillMaxWidth()
-            .padding(innerPadding)
+        Modifier.fillMaxWidth()
     ) {
         items(logs) { log ->
             LogListItem(
@@ -92,10 +105,7 @@ fun LogList(
                 level = log.getLevelString(),
                 callerId = log.callerId,
                 message = log.message ?: "",
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.card_padding))
-                    .wrapContentWidth(Alignment.Start)
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.card_padding))
             )
         }
     }

@@ -1,9 +1,11 @@
 package com.pydio.android.cells.ui.system.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,10 +19,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -29,9 +32,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.JobStatus
+import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.ui.core.composables.TopBarWithActions
+import com.pydio.android.cells.ui.core.composables.lists.EmptyList
+import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -46,9 +52,9 @@ fun JobScreen(
     openDrawer: () -> Unit,
     jobVM: JobListVM = koinViewModel(),
 ) {
-    val jobs by jobVM.jobs.observeAsState()
+    val jobs by jobVM.jobs.collectAsState(listOf())
     JobScreen(
-        jobs ?: listOf(),
+        jobs,
         openDrawer,
         jobVM::clearTerminated,
     )
@@ -77,21 +83,31 @@ private fun JobScreen(
             )
         },
     ) { innerPadding ->
-        JobList(jobs, innerPadding)
+        
+        Box(modifier = Modifier.padding(innerPadding)) {
+            if (jobs.isEmpty()) {
+                EmptyList(
+                    listContext = ListContext.SYSTEM,
+                    desc = stringResource(R.string.job_list_empty_message),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(.5f)
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+            WithListTheme {
+                JobList(jobs)
+            }
+        }
     }
 }
 
 @Composable
 fun JobList(
-    jobs: List<RJob>,
-    innerPadding: PaddingValues
+    jobs: List<RJob>
 ) {
 
-    LazyColumn(
-        Modifier
-            .fillMaxWidth()
-            .padding(innerPadding)
-    ) {
+    LazyColumn(Modifier.fillMaxWidth()) {
         items(jobs) { job ->
 
             val jobTitle = "#${job.jobId}: ${job.label}"
@@ -177,10 +193,13 @@ private fun buildStatusString(
     val bgColor = when (status) {
         JobStatus.ERROR.id,
         JobStatus.TIMEOUT.id -> MaterialTheme.colorScheme.error
+
         JobStatus.WARNING.id,
         JobStatus.CANCELLED.id -> CellsColor.warning
+
         JobStatus.NEW.id,
         JobStatus.PROCESSING.id -> CellsColor.debug
+
         else -> CellsColor.info
     }
     val overStyle = SpanStyle(background = bgColor, color = contentColorFor(bgColor))
@@ -196,18 +215,21 @@ private fun buildStatusString(
                 }
                 append(" at $doneTs: $message")
             }
+
             status == JobStatus.CANCELLED.id -> {
                 withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" at $doneTs: $message")
             }
+
             doneTimestamp > 0 -> {
                 withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
                 }
                 append(" at $doneTs: $message")
             }
+
             startTimestamp > 0 -> {
                 withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")
@@ -219,6 +241,7 @@ private fun buildStatusString(
                     append(" idle ${asSinceString(updateTimestamp)}\nlast message: $progressMessage")
                 }
             }
+
             else -> {
                 withStyle(style = overStyle) {
                     append(" ${status.uppercase()} ")

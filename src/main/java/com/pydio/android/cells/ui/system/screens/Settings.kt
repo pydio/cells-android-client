@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.system.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -201,7 +200,7 @@ fun TroubleshootingSection(
         showRuntimeTools,
         { show -> settingsVM.setShowRuntimeToolsFlag(show) },
         disablePoll,
-        { disable -> settingsVM.setDisblePollFlag(disable) },
+        { disable -> settingsVM.setDisablePollFlag(disable) },
         modifier
     )
 }

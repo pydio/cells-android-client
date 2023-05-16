@@ -54,7 +54,7 @@ class ConnectionService(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
-        accountService.getWsByTypeF(
+        accountService.getWsByTypeFlow(
             SdkNames.WS_TYPE_DEFAULT,
             currSessionView?.accountID ?: StateID.NONE.id
         )
@@ -62,7 +62,7 @@ class ConnectionService(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val cells: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
-        accountService.getWsByTypeF(
+        accountService.getWsByTypeFlow(
             SdkNames.WS_TYPE_CELL,
             currSessionView?.accountID ?: StateID.NONE.id
         )
