@@ -58,6 +58,8 @@ class OfflineSyncWorker(
 
             val repeatInterval = fromFreqToMinuteInterval(pref.frequency)
             Log.e(logTag, "... Built offline request with a frequency of $repeatInterval min.")
+            Log.e(logTag, "... Constraint on network: ${netType.name}")
+
             return PeriodicWorkRequestBuilder<OfflineSyncWorker>(
                 repeatInterval, TimeUnit.MINUTES
             ).setConstraints(constraintBuilder.build()).build()
@@ -66,6 +68,7 @@ class OfflineSyncWorker(
 
     override suspend fun doWork(): Result {
         if (hasBeenMigrated()) {
+            Log.e(logTag, "... Has been migrated, launching full sync")
             offlineService.runFullSync("Worker")
         }
         val d = Data.Builder().putString("yes", "no").build()

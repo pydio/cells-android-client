@@ -89,7 +89,7 @@ fun SelectFolderScreen(
 
     val navController = rememberNavController()
 
-    val loadingStatus = browseRemoteVM.loadingState.observeAsState(LoadingState.STARTING)
+    val loadingStatus = browseRemoteVM.loadingState.collectAsState()
     val children = shareVM.children.collectAsState()
 
     val forceRefresh: () -> Unit = {

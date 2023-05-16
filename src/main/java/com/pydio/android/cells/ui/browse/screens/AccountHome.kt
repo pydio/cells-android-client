@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,7 +64,7 @@ fun AccountHome(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val loadingState by browseRemoteVM.loadingState.observeAsState()
+    val loadingState = browseRemoteVM.loadingState.collectAsState()
     val sessionView by accountHomeVM.currSession.observeAsState()
     val workspaces by accountHomeVM.wss.observeAsState()
     val cells by accountHomeVM.cells.observeAsState()
@@ -79,7 +80,7 @@ fun AccountHome(
         title = title,
         workspaces = workspaces ?: listOf(),
         cells = cells ?: listOf(),
-        loadingState = loadingState ?: LoadingState.STARTING,
+        loadingState = loadingState.value,
         openDrawer = openDrawer,
         openAccounts = {
             scope.launch {

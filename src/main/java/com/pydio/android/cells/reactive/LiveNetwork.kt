@@ -7,13 +7,14 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.LiveData
 
+private const val logTag = "LiveNetwork"
+
 /**
  * Relies on the device connectivity manager to expose current Network status as liveData
  * to ease use in the UI layers.
  */
 class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
-    private val logTag = "LiveNetwork"
 
     private var connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -42,12 +43,12 @@ class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
     private val logTag = "CellsNetworkCallback"
     override fun onAvailable(network: Network) {
-        Log.i(logTag, "## Using network #$network")
+        Log.e(logTag, "## Using network #$network")
         // TODO manage sockets.
     }
 
     override fun onLost(network: Network) {
-        Log.i(logTag, "## After loosing network #$network")
+        Log.e(logTag, "## After loosing network #$network")
         postValue(NetworkStatus.Unavailable)
     }
 
@@ -55,33 +56,39 @@ class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
         network: Network,
         networkCapabilities: NetworkCapabilities
     ) {
-        val status =
-            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                Log.i(logTag, "   capabilities: $networkCapabilities.")
-                when {
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                            && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                            || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
-                    -> NetworkStatus.Unmetered
+        Log.e(logTag, "## Capability changed for #$network")
 
-                    !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                    -> NetworkStatus.Roaming
-
-                    !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                    -> NetworkStatus.Metered
-
-                    else -> {
-                        Log.w(logTag, "Unexpected status for network #$network")
-                        NetworkStatus.Unknown
-                    }
-                }
-            } else {
-                NetworkStatus.Unavailable
-            }
-
-        // TODO re-implement a valid check to insure we can really access the internet
+        val status = fromCapabilities(networkCapabilities)
+        if (NetworkStatus.Unknown == status) {
+            Log.w(logTag, "Unexpected status for network #$network")
+        }
         postValue(status)
     }
+}
+
+fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
+    return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+        Log.i(logTag, "   capabilities: $networkCapabilities.")
+        when {
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+            -> NetworkStatus.Unmetered
+
+            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+            -> NetworkStatus.Roaming
+
+            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+            -> NetworkStatus.Metered
+
+            else -> {
+                NetworkStatus.Unknown
+            }
+        }
+    } else {
+        NetworkStatus.Unavailable
+    }
+
 }
 
 

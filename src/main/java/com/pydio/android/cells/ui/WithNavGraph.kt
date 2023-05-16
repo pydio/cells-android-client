@@ -58,13 +58,16 @@ fun CellsNavGraph(
     startingState?.let {
         LaunchedEffect(key1 = it.route) {
             it.route?.let { dest ->
-                if (!it.isRestart) {
-                    Log.e(logTag, "########## Launching navigation to $dest")
-                    navController.navigate(dest)
-                } else {
-                    Thread.dumpStack()
-                    Log.e(logTag, "### Restart, preventing navigation to $dest")
-                }
+                // TODO double check, seems like we do not need this anymore
+                navController.navigate(dest)
+//
+//                if (!it.isRestart) {
+//                    Log.e(logTag, "########## Launching navigation to $dest")
+//                    navController.navigate(dest)
+//                } else {
+//                    Thread.dumpStack()
+//                    Log.e(logTag, "### Restart, preventing navigation to $dest")
+//                }
             }
         }
     }

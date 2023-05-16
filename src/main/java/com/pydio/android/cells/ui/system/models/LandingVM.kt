@@ -86,7 +86,9 @@ class LandingVM(
             StateID.NONE -> CellsDestinations.Accounts.route
             else -> {
                 // We are most probably in a restart, so we prevent explicit browsing
+                // FIXME Do we really still need this ?
                 state.isRestart = true
+
                 BrowseDestinations.Open.createRoute(stateID)
             }
         }

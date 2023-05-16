@@ -35,7 +35,6 @@ class ConnectionService(
     private val accountService: AccountService,
     private val appCredentialService: AppCredentialService,
 ) {
-
     enum class SessionStatus {
         NO_INTERNET, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
     }
@@ -45,26 +44,14 @@ class ConnectionService(
 
     private val serviceScope = coroutineService.cellsIoScope
 
-    private val liveNetwork = networkService.networkTypeFlow
-
+    private val networkStatusFlow = networkService.networkStatusFlow
     val sessionView: Flow<RSessionView?> = accountService.activeSessionViewF
+    val sessionStatusFlow: Flow<SessionStatus> = getSessionFlow()
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
     val customColor: Flow<String?> = sessionView.map { currSessionView ->
         currSessionView?.customColor()
     }
-    val sessionStatusFlow: Flow<SessionStatus> = getSessionFlow()
-
-//    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
-//    val currAccountID: LiveData<StateID?> = sessionView.map { currSessionView ->
-//        currSessionView?.accountID?.let {
-//            StateID.fromId(it)
-//        }
-//    }
-
-//    val customColor: LiveData<String?> = sessionView.map { currSessionView ->
-//        currSessionView?.customColor()
-//    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
@@ -82,25 +69,10 @@ class ConnectionService(
         )
     }
 
-//    val wss: LiveData<List<RWorkspace>>
-//        get() = sessionView.switchMap { currSessionView ->
-//            accountService.getLiveWsByType(
-//                SdkNames.WS_TYPE_DEFAULT,
-//                currSessionView?.accountID ?: StateID.NONE.id
-//            )
-//        }
-//    val cells: LiveData<List<RWorkspace>>
-//        get() = sessionView.switchMap { currSessionView ->
-//            accountService.getLiveWsByType(
-//                SdkNames.WS_TYPE_CELL,
-//                currSessionView?.accountID ?: StateID.NONE.id
-//            )
-//        }
-
     private fun getSessionFlow(): Flow<SessionStatus> = sessionView
-        .combine(liveNetwork) { activeSession, networkStatus ->
-
-            Log.d(logTag, "Combining session with network: $networkStatus")
+        .combine(networkStatusFlow) { activeSession, networkStatus ->
+            Log.e(logTag, "###############################################")
+            Log.e(logTag, "Combining session with network: $networkStatus")
 
             var newStatus = when (networkStatus) {
                 NetworkStatus.Unknown -> {
@@ -141,6 +113,7 @@ class ConnectionService(
                 }
             } ?: run {
                 Log.e(logTag, " **No** Session view...")
+                newStatus = SessionStatus.SERVER_UNREACHABLE
             }
             newStatus
         }
@@ -161,31 +134,6 @@ class ConnectionService(
             }
         }
     }
-
-//    fun canListMeta(): Boolean {
-//        if (sessionView.value == null) {
-//            return false
-//        }
-//        val reachable =
-//            networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED
-//        if (!reachable) {
-//            Log.d(
-//                logTag,
-//                "Un-reachable. Connected: ${networkService.isConnected()} " + ", auth status: ${sessionView.value?.authStatus}"
-//            )
-//        }
-//        return reachable
-//    }
-//
-//    suspend fun canDownloadFiles(): Boolean {
-//        if (sessionView.value == null) {
-//            return false
-//        }
-//
-//        val dlFileOnMetered = prefs.fetchPreferences().meteredNetwork.askBeforeDL
-//        return networkService.isConnected() && sessionView.value?.authStatus == AppNames.AUTH_STATUS_CONNECTED && (dlFileOnMetered || !networkService.isMetered())
-//    }
-
 
     fun pauseMonitoring() {
         serviceScope.launch {

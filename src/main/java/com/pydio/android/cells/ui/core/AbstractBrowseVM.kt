@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.core
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -17,9 +18,11 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -32,15 +35,17 @@ open class AbstractBrowseVM(
     private val nodeService: NodeService,
 ) : ViewModel(), KoinComponent {
 
-    // private val logTag = "AbstractBrowseVM"
+    private val logTag = "AbstractBrowseVM"
 
     private val connectionService: ConnectionService by inject()
 
     private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
     private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
-    val loadingState: Flow<LoadingState> =
+    val loadingState: StateFlow<LoadingState> =
         _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
+            Log.e(logTag, "Computing loading sate with:")
+            Log.e(logTag, "State: $state, status: $status")
             if (ConnectionService.SessionStatus.NO_INTERNET == status
                 || ConnectionService.SessionStatus.SERVER_UNREACHABLE == status
             ) {
@@ -48,7 +53,11 @@ open class AbstractBrowseVM(
             } else {
                 state
             }
-        }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LoadingState.SERVER_UNREACHABLE
+        )
     val errorMessage: Flow<ErrorMessage?> = _errorMessageF
 
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -78,10 +87,12 @@ open class AbstractBrowseVM(
     }
 
     private suspend fun viewFile(context: Context, node: RTreeNode) {
-        val checkUpToDate = loadingState.last() != LoadingState.SERVER_UNREACHABLE
+        Log.e(logTag, "About to launch view file, loading state: ${loadingState.value}")
+        val checkUpToDate = LoadingState.SERVER_UNREACHABLE != loadingState.value
+
+        Log.e(logTag, "About to launch view file, check up to date: $checkUpToDate")
         nodeService.getLocalFile(node, checkUpToDate)?.let { file ->
             externallyView(context, file, node)
-            return
         } ?: run {
             throw SDKException(ErrorCodes.no_local_file)
         }

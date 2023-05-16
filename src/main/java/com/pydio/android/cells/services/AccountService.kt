@@ -393,6 +393,7 @@ class AccountService(
     suspend fun notifyError(
         stateID: StateID, msg: String, se: SDKException
     ) = withContext(ioDispatcher) {
+        Log.e(logTag, "Notifying error for $stateID: #${se.code} - ${se.message}")
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
                 val msg2 = "Received error ${se.code} for $stateID, message: $msg, " +

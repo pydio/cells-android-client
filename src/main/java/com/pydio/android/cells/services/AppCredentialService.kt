@@ -106,6 +106,7 @@ class AppCredentialService(
     }
 
     private suspend fun safelyRefreshToken(stateID: StateID) = withContext(ioDispatcher) {
+        val isConnected = networkService.isConnected()
         synchronized(lock) {
             val token: Token = tokenStore.get(stateID.id) ?: run {
                 Log.e(logTag, "Cannot refresh, no token for $stateID")
@@ -134,7 +135,7 @@ class AppCredentialService(
             }
 
             // Sanity checks
-            if (!networkService.isConnected()) {
+            if (!isConnected) {
                 Log.e(
                     logTag,
                     "Cannot refresh token $stateID with no access to the remote server"

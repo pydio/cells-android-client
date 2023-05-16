@@ -158,22 +158,22 @@ class SessionFactory(
         return internalGetClient(accountID)
     }
 
-    fun getUnlockedUnMeteredClient(accountID: StateID): Client {
-
-        if (networkService.isConnected() && networkService.isMetered())
-            throw SDKException(
-                ErrorCodes.no_internet,
-                "No un-metered internet connection is available"
-            )
-
-//        if (!hasUnMeteredNetwork(CellsApp.instance.applicationContext)) {
+//    fun getUnlockedUnMeteredClient(accountID: StateID): Client {
+//
+//        if (networkService.isConnected() && networkService.isMetered())
 //            throw SDKException(
-//                ErrorCodes.no_un_metered_connection,
-//                "No un-metered connection available"
+//                ErrorCodes.no_internet,
+//                "No un-metered internet connection is available"
 //            )
-//        }
-        return internalGetClient(accountID)
-    }
+//
+////        if (!hasUnMeteredNetwork(CellsApp.instance.applicationContext)) {
+////            throw SDKException(
+////                ErrorCodes.no_un_metered_connection,
+////                "No un-metered connection available"
+////            )
+////        }
+//        return internalGetClient(accountID)
+//    }
 
 
     private fun prepareTransport(sessionView: RSessionView): Transport {
