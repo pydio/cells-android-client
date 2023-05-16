@@ -106,7 +106,7 @@
     <string name="no_internet">Aucune connexion internet</string>
     <string name="metered_connection">Connecté à un réseau limité</string>
     <string name="roaming_connection">Connecté en itinérance</string>
-    <string name="server_unreachable">Aucune connexion au serveur distant…</string>
+    <string name="server_unreachable">Impossible de se connecter au serveur</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
     <string name="no_download_on_metered">Les téléchargements sur les réseaux limités sont bridés, vous pouvez modifier cela dans les préférences de l\'application</string>
@@ -141,12 +141,14 @@
     <string name="confirm_remove_offline_desc">La suppression du statut hors ligne de ce nœud peut conduire à la perte des données téléchargées. Êtes-vous sûr de vouloir continuer</string>
     <!-- Job Management -->
     <string name="job_list_title">Tâches de fond</string>
+    <string name="job_list_empty_message">Aucune tâche de fond à afficher</string>
     <string name="filter_by_status_title">Filtrer par statut</string>
     <string name="job_sort_by_title">Trier par</string>
     <string name="job_sort_by_creation_ts_desc_label">Date de création (le plus récent en premier)</string>
     <string name="job_sort_by_creation_ts_asc_label">Date de création (le plus ancien en premier)</string>
     <!-- Log Management -->
     <string name="log_list_title">Journal d\'application</string>
+    <string name="log_list_empty_message">Le journal est vide</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Envoi en cours…</string>
     <string name="upload_screen_done_title">Téléversement terminé</string>

@@ -106,7 +106,7 @@
     <string name="no_internet">Keine Internetverbindung</string>
     <string name="metered_connection">Begrenzter Anschluss</string>
     <string name="roaming_connection">Roaming-Anschluss</string>
-    <string name="server_unreachable">Keine Verbindung zum Server…</string>
+    <string name="server_unreachable">Der Server kann nicht erreicht werden</string>
     <string name="empty_cache">Ordnerinhalt kann nicht aufgelistet werden</string>
     <string name="cannot_download_file">Datei kann nicht heruntergeladen werden</string>
     <string name="no_download_on_metered">Downloads in gemessenen Netzwerken sind eingeschränkt, Sie können dies in den App-Einstellungen ändern</string>
@@ -141,12 +141,14 @@
     <string name="confirm_remove_offline_desc">Das Entfernen des Offline-Status dieses Knotens kann dazu führen, dass die heruntergeladenen Daten verloren gehen. Sind Sie sicher, dass Sie fortfahren möchten</string>
     <!-- Job Management -->
     <string name="job_list_title">Hintergrundprozesse</string>
+    <string name="job_list_empty_message">Es gibt keinen Job zum Anzeigen</string>
     <string name="filter_by_status_title">Nach Status filtern</string>
     <string name="job_sort_by_title">Sortieren nach</string>
     <string name="job_sort_by_creation_ts_desc_label">Erstellung (neueste zuerst)</string>
     <string name="job_sort_by_creation_ts_asc_label">Erstellung (älteste zuerst)</string>
     <!-- Log Management -->
     <string name="log_list_title">Anwendungs Logs</string>
+    <string name="log_list_empty_message">Journal ist leer</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Hochladen…</string>
     <string name="upload_screen_done_title">Hochladen erfolgreich beendet</string>

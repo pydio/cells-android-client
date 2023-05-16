@@ -106,7 +106,7 @@
     <string name="no_internet">Není k dispozici připojení k Internetu</string>
     <string name="metered_connection">Na připojení s účtovanými daty</string>
     <string name="roaming_connection">Použití roamingového připojení</string>
-    <string name="server_unreachable">Není spojení se serverem…</string>
+    <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Nedaří se vypsat obsah složky</string>
     <string name="cannot_download_file">Soubor se nedaří stáhnout</string>
     <string name="no_download_on_metered">Stahování na sítích s účtovanými daty jsou omezena. Toto je možné změnit vpředvolbách aplikace</string>
@@ -143,12 +143,14 @@
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Úlohy na pozadí</string>
+    <string name="job_list_empty_message">There is no job to show</string>
     <string name="filter_by_status_title">Filtrovat podle stavu</string>
     <string name="job_sort_by_title">Seřadit podle</string>
     <string name="job_sort_by_creation_ts_desc_label">Vytvoření (od nejnovějších)</string>
     <string name="job_sort_by_creation_ts_asc_label">Vytvoření (od nejstarších)</string>
     <!-- Log Management -->
     <string name="log_list_title">Application logs</string>
+    <string name="log_list_empty_message">The journal is empty</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Uploading…</string>
     <string name="upload_screen_done_title">Upload terminated</string>

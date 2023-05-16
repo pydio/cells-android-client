@@ -106,7 +106,7 @@
     <string name="no_internet">Нет подключения к интернету</string>
     <string name="metered_connection">On a metered connection</string>
     <string name="roaming_connection">Using a roaming connection</string>
-    <string name="server_unreachable">Нет соединения с сервером…</string>
+    <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Невозможно отобразить содержимое</string>
     <string name="cannot_download_file">Не удается загрузить файл</string>
     <string name="no_download_on_metered">Загрузки в сетях с учетом трафика ограничены, вы можете изменить это в настройках</string>
@@ -143,12 +143,14 @@
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Фоновые процессы</string>
+    <string name="job_list_empty_message">There is no job to show</string>
     <string name="filter_by_status_title">Фильтр по статусу</string>
     <string name="job_sort_by_title">Сортировать по</string>
     <string name="job_sort_by_creation_ts_desc_label">Создание (сначала новые)</string>
     <string name="job_sort_by_creation_ts_asc_label">Создание (сначала старые)</string>
     <!-- Log Management -->
     <string name="log_list_title">Application logs</string>
+    <string name="log_list_empty_message">The journal is empty</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Uploading…</string>
     <string name="upload_screen_done_title">Upload terminated</string>
