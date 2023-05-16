@@ -11,16 +11,16 @@ import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import java.util.Locale
 
 private const val logTag = "NetworkService"
 
 class NetworkService(
     context: Context,
-    coroutineService: CoroutineService,
+    // coroutineService: CoroutineService,
 ) {
 
     private val connectivityManager: ConnectivityManager =
@@ -31,8 +31,10 @@ class NetworkService(
     // TODO not good enough => relies on the fact that the networkStatusFLow that is a **cold** flow
     //   has already been called
     private var _networkStatus: NetworkStatus = NetworkStatus.Unmetered
-    val networkStatus: NetworkStatus
+    private val networkStatus: NetworkStatus
         get() = _networkStatus
+
+    suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
 
     val networkStatusFlow: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
@@ -45,34 +47,37 @@ class NetworkService(
         }
         connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
 
-        delay(600)
-        // Force initialisation --> TODO double check and remove if not necessary
-        connectivityManager.activeNetwork?.let { network ->
-            Log.i(logTag, "Initialising network status flow with network $network")
-            connectivityManager.getNetworkCapabilities(network)?.let {
-                val status = fromCapabilities(it)
-                trySend(status)
-            }
-        } ?: run {
-            _networkStatus = NetworkStatus.Unavailable
-            trySend(NetworkStatus.Unavailable)
-            Log.e(logTag, "Initializing with **NO** status")
-        }
+//        delay(600)
+//        // Force initialisation --> TODO double check and remove if not necessary
+//        connectivityManager.activeNetwork?.let { network ->
+//            Log.i(logTag, "Initialising network status flow with network $network")
+//            connectivityManager.getNetworkCapabilities(network)?.let {
+//                val status = fromCapabilities(it)
+//                trySend(status)
+//            }
+//        } ?: run {
+//            _networkStatus = NetworkStatus.Unavailable
+//            trySend(NetworkStatus.Unavailable)
+//            Log.e(logTag, "Initializing with **NO** status")
+//        }
 
         /* Suspends until either 'onCompleted'/'onApiError' from the callback is invoked
         * or flow collector is cancelled (e.g. by 'take(1)' or because a collector's coroutine was cancelled).
        * In both cases, callback will be properly unregistered. */
         awaitClose {
-            Log.e(logTag, "####################################################")
-            Log.e(logTag, "Current active network: ${connectivityManager.activeNetwork}")
-            Log.e(logTag, "In await close, about to unregister Network Callback")
+//            Log.e(logTag, "####################################################")
+//            Log.e(logTag, "Current active network: ${connectivityManager.activeNetwork}")
+//            Log.e(logTag, "In await close, about to unregister Network Callback")
             connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
         }
     }
 
-    fun isConnected(): Boolean {
-        return when (_networkStatus) {
+    suspend fun isConnected(): Boolean {
+        return isConnected(fetchNetworkStatus())
+    }
 
+    fun isConnected(networkStatus: NetworkStatus): Boolean {
+        return when (networkStatus) {
             is NetworkStatus.Unknown -> {
                 Log.w(logTag, "Unknown network status, doing as if connected")
                 true

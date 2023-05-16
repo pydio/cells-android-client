@@ -80,7 +80,7 @@ class AccountListVM(
 
     fun logoutAccount(stateID: StateID) {
         viewModelScope.launch {
-            accountService.logoutAccount(stateID)
+            accountService.logoutAccount(stateID.account())
         }
     }
 

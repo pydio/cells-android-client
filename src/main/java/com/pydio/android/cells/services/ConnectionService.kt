@@ -70,8 +70,6 @@ class ConnectionService(
 
     private fun getSessionFlow(): Flow<SessionStatus> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
-            Log.e(logTag, "###############################################")
-            Log.e(logTag, "Combining session with network: $networkStatus")
 
             var newStatus = when (networkStatus) {
                 NetworkStatus.Unknown -> {
@@ -87,14 +85,13 @@ class ConnectionService(
             }
 
             // We then refine based on the current foreground session
-            // Log.d(logTag, " Got a status: $newStatus")
-
             activeSession?.let {
                 if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
+                    // We have internet access but cannot ping the server
                     newStatus = SessionStatus.SERVER_UNREACHABLE
                 }
 
-                Log.e(logTag, " Got a Session view: ${it.getStateID()}")
+                Log.e(logTag, " Got a Session view: ${it.getStateID()}, status: $newStatus")
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET
@@ -102,10 +99,8 @@ class ConnectionService(
                     ) {
                         SessionStatus.CAN_RELOG
                     } else {
-                        // TODO refine, we have following sessions status:
-                        // AUTH_STATUS_NEW, AUTH_STATUS_NO_CREDS, AUTH_STATUS_UNAUTHORIZED
-                        // AUTH_STATUS_EXPIRED, AUTH_STATUS_REFRESHING, AUTH_STATUS_CONNECTED
-                        SessionStatus.NOT_LOGGED_IN
+                        // SessionStatus.NOT_LOGGED_IN
+                        newStatus // We want to keep internet status rather than "not logged in"
                     }
                 } else {
                     relaunchMonitoring()

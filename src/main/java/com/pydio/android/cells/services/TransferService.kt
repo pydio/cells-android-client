@@ -48,8 +48,7 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
-    // private val
-    coroutineService: CoroutineService,
+    private val coroutineService: CoroutineService,
     private val prefs: PreferencesService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
@@ -174,7 +173,7 @@ class TransferService(
 
         // Otherwise, try to download if current network type and user preferences allow it
         val currSettings = prefs.fetchPreferences()
-        when (networkService.networkStatus) {
+        when (networkService.fetchNetworkStatus()) {
             is NetworkStatus.Unmetered
             -> return@withContext downloadFile(stateID, rNode, type, parentJob, null)
 
@@ -559,7 +558,7 @@ class TransferService(
         }
     }
 
-    private fun dlThumb(
+    private suspend fun dlThumb(
         state: StateID,
         rNode: RTreeNode,
         parPath: String,
@@ -733,12 +732,12 @@ class TransferService(
 //            transferUtility.deleteTransferRecord(id);
     }
 
-    private fun doP8Upload(
+    private suspend fun doP8Upload(
         stateID: StateID,
         srcFile: File,
         dao: TransferDao,
         transferRecord: RTransfer
-    ) {
+    ) = withContext(coroutineService.ioDispatcher) {
         dao.ackCancellation(transferRecord.transferId)
         var inputStream: InputStream? = null
         var cancellationMsg: String

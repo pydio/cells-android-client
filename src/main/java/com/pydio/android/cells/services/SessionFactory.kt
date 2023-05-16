@@ -107,7 +107,7 @@ class SessionFactory(
     }
 
     @Throws(SDKException::class)
-    fun getUnlockedClient(accountID: StateID): Client {
+    suspend fun getUnlockedClient(accountID: StateID): Client {
         if (!networkService.isConnected())
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
 

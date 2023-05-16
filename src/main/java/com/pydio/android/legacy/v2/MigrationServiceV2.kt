@@ -23,8 +23,10 @@ import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -408,7 +410,7 @@ class MigrationServiceV2 : KoinComponent {
         }
     }
 
-    fun doUpload(stateID: StateID, file: File, mime: String) {
+    suspend fun doUpload(stateID: StateID, file: File, mime: String) = withContext(Dispatchers.IO) {
         var inputStream: InputStream? = null
         try {
             inputStream = FileInputStream(file)

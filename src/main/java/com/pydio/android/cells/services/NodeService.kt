@@ -43,17 +43,7 @@ class NodeService(
     private val serviceScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
 
-    // Query the local index to get LiveData for the ViewModels
-    fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
-        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-        val parPath = stateID.file
-        val lsQuery = SimpleSQLiteQuery(
-            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
-                    "AND parent_path = ? " +
-                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
-        )
-        return nodeDB(stateID).treeNodeDao().treeNodeQuery(lsQuery)
-    }
+    // Query the local index to get Flows for the ViewModels
 
     fun sortedListFlow(
         stateID: StateID,
@@ -104,9 +94,9 @@ class NodeService(
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQueryF(lsQuery)
     }
 
-    fun listLiveWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
-    }
+//    fun listLiveWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
+//        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
+//    }
 
     fun listLiveChildren(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
@@ -589,18 +579,18 @@ class NodeService(
         return@withContext null
     }
 
-    @Throws(SDKException::class)
-    fun remoteEmptyRecycle(stateID: StateID) {
-        getClient(stateID).emptyRecycleBin(stateID.slug)
-    }
+//    @Throws(SDKException::class)
+//    suspend fun remoteEmptyRecycle(stateID: StateID) = withContext(ioDispatcher) {
+//        getClient(stateID).emptyRecycleBin(stateID.slug)
+//    }
 
     @Throws(SDKException::class)
-    fun remoteRename(stateID: StateID, newName: String) {
+    suspend fun remoteRename(stateID: StateID, newName: String) = withContext(ioDispatcher) {
         getClient(stateID).rename(stateID.slug, stateID.file, newName)
     }
 
     @Throws(SDKException::class)
-    fun remoteDelete(stateID: StateID) {
+    suspend fun remoteDelete(stateID: StateID) = withContext(ioDispatcher) {
         getClient(stateID).delete(stateID.slug, arrayOf<String>(stateID.file))
     }
 
@@ -614,7 +604,7 @@ class NodeService(
         return treeNodeRepository.nodeDB(stateID)
     }
 
-    private fun getClient(stateID: StateID): Client {
+    private suspend fun getClient(stateID: StateID): Client {
         return accountService.getClient(stateID)
     }
 

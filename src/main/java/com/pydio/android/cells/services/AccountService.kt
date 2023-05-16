@@ -56,7 +56,7 @@ class AccountService(
     private val serviceScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
 
-    fun getClient(stateID: StateID): Client {
+    suspend fun getClient(stateID: StateID): Client {
         return sessionFactory.getUnlockedClient(stateID.account())
     }
 
@@ -166,7 +166,7 @@ class AccountService(
                 if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     continue@accountLoop
                 }
-                if (networkService.isConnected()) {
+                if (networkService.isConnected(networkService.fetchNetworkStatus())) {
                     if (checkOneAccount(rAccount)) {
                         changes++
                     }
@@ -303,6 +303,7 @@ class AccountService(
     }
 
     suspend fun logoutAccount(accountID: StateID): String? = withContext(ioDispatcher) {
+        Log.e(logTag, "In logout account for $accountID")
         try {
             accountDao.getAccount(accountID.id)?.let {
                 Log.i(logTag, "About to logout $accountID")
@@ -450,14 +451,15 @@ class AccountService(
                                 delay(1000)
                                 i++
                                 try {
-                                    Log.d(logTag, "#$i try to get boot conf for $stateID")
+                                    Log.d(logTag, "#$i: trying to get boot conf for $stateID")
                                     transport.tryDownloadingBootConf()
                                     break@loop
                                 } catch (e: FileNotFoundException) {
                                     Log.d(logTag, "#$i exception: ${e.message}")
                                     if (i == 4) {
+                                        Log.d(logTag, "In the if, about top logout")
                                         // finally logout
-                                        logoutAccount(stateID)
+                                        logoutAccount(stateID.account())
                                         return@launch
                                     }
                                 } catch (e: Exception) {

@@ -125,7 +125,7 @@ class OfflineVM(
             defaultCellsPreferences()
         }
 
-        return when (networkService.networkStatus) {
+        return when (networkService.fetchNetworkStatus()) {
             is NetworkStatus.Unmetered -> {
                 return stateID?.let {
                     if (it != StateID.NONE) {

@@ -482,7 +482,7 @@ class OfflineService(
         return treeNodeRepo.nodeDB(stateID)
     }
 
-    private fun getClient(stateID: StateID): Client {
+    private suspend fun getClient(stateID: StateID): Client {
         return accountService.getClient(stateID)
     }
 }
