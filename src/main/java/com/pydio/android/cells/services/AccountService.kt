@@ -27,6 +27,7 @@ import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
@@ -86,6 +87,15 @@ class AccountService(
     fun getLiveSession(accountID: StateID): LiveData<RSessionView?> =
         sessionViewDao.getLiveSession(accountID.id)
 
+    fun getWsByTypeF(type: String, accountID: String)
+            : Flow<List<RWorkspace>> {
+        return if (type == SdkNames.WS_TYPE_CELL) {
+            workspaceDao.getCellsFlow(accountID)
+        } else {
+            workspaceDao.getNotCellsFlow(accountID)
+        }
+    }
+
     fun getLiveWsByType(type: String, accountID: String)
             : LiveData<List<RWorkspace>> {
         return if (type == SdkNames.WS_TYPE_CELL) {
@@ -97,6 +107,9 @@ class AccountService(
 
     val liveActiveSessionView: LiveData<RSessionView?> =
         sessionViewDao.getLiveActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
+
+    val activeSessionViewF: Flow<RSessionView?> =
+        sessionViewDao.getActiveSessionFlow(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
     // Direct communication with the backend
 
@@ -447,16 +460,17 @@ class AccountService(
                     } catch (e: Exception) {
                         // Cannot get boot conf, so token is not valid anymore
                         if (e is FileNotFoundException) {
-                            var i = 0
-                            loop@ while (i < 3) {
+                            var i = 1
+                            loop@ while (i < 4) {
                                 delay(1000)
                                 i++
                                 try {
-                                    Log.d(logTag, "## Trying to get boot conf for $stateID")
+                                    Log.d(logTag, "#$i try to get boot conf for $stateID")
                                     transport.tryDownloadingBootConf()
                                     break@loop
                                 } catch (e: FileNotFoundException) {
-                                    if (i == 3) {
+                                    Log.d(logTag, "#$i exception: ${e.message}")
+                                    if (i == 4) {
                                         // finally logout
                                         logoutAccount(stateID)
                                         return@launch

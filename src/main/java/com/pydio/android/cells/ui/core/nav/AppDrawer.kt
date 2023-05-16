@@ -13,7 +13,6 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -50,9 +49,9 @@ fun AppDrawer(
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    val accountID = connectionService.currAccountID.observeAsState()
-    val wss = connectionService.wss.observeAsState()
-    val cells = connectionService.cells.observeAsState()
+    val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
+    val wss = connectionService.wss.collectAsState(listOf())
+    val cells = connectionService.cells.collectAsState(listOf())
 
     val defaultPadding = PaddingValues(horizontal = dimensionResource(R.dimen.horizontal_padding))
     val defaultModifier = Modifier.padding(defaultPadding)
@@ -114,7 +113,7 @@ fun AppDrawer(
                 BottomSheetDivider()
 
                 MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-                wss.value?.listIterator()?.forEach {
+                wss.value.listIterator().forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
                     MyNavigationDrawerItem(
@@ -124,7 +123,7 @@ fun AppDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
                     )
                 }
-                cells.value?.listIterator()?.forEach {
+                cells.value.listIterator().forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
                     MyNavigationDrawerItem(

@@ -3,6 +3,7 @@ package com.pydio.android.cells.db.accounts
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SessionViewDao {
@@ -27,5 +28,8 @@ interface SessionViewDao {
 
     @Query("SELECT * FROM RSessionView where lifecycle_state = :state LIMIT 1")
     fun getLiveActiveSession(state: String): LiveData<RSessionView?>
+
+    @Query("SELECT * FROM RSessionView where lifecycle_state = :state LIMIT 1")
+    fun getActiveSessionFlow(state: String): Flow<RSessionView?>
 
 }

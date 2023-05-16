@@ -2,6 +2,7 @@ package com.pydio.android.cells.db.accounts
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WorkspaceDao {
@@ -29,6 +30,12 @@ interface WorkspaceDao {
 
     @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '8%' ORDER BY sort_name")
     fun getLiveCells(accountId: String): LiveData<List<RWorkspace>>
+
+    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name LIKE '8%' ORDER BY sort_name")
+    fun getCellsFlow(accountId: String): Flow<List<RWorkspace>>
+
+    @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name NOT LIKE '8%' ORDER BY sort_name")
+    fun getNotCellsFlow(accountId: String): Flow<List<RWorkspace>>
 
     @Query("SELECT * FROM workspaces WHERE encoded_state LIKE :accountId || '%' AND sort_name NOT LIKE '8%' ORDER BY sort_name")
     fun getLiveNotCells(accountId: String): LiveData<List<RWorkspace>>

@@ -21,7 +21,6 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -56,9 +55,9 @@ fun AppPermanentDrawer(
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    val accountID = connectionService.currAccountID.observeAsState()
-    val wss = connectionService.wss.observeAsState()
-    val cells = connectionService.cells.observeAsState()
+    val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
+    val wss = connectionService.wss.collectAsState(listOf())
+    val cells = connectionService.cells.collectAsState(listOf())
 
     val defaultPadding = PaddingValues(horizontal = dimensionResource(R.dimen.horizontal_padding))
     val defaultModifier = Modifier.padding(defaultPadding)

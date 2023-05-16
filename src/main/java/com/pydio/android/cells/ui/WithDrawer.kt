@@ -16,8 +16,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.Dp
@@ -72,7 +72,7 @@ fun NavHostWithDrawer(
         navHostController.navigate(route)
     }
 
-    val customColor = connectionService.customColor.observeAsState(null)
+    val customColor = connectionService.customColor.collectAsState(null)
 
     UseCellsTheme(
         customColor = customColor.value

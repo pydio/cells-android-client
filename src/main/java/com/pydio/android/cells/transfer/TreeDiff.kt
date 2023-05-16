@@ -51,7 +51,8 @@ class TreeDiff(
 
     private val folderDiffJob = SupervisorJob()
     private val ioDispatcher: CoroutineDispatcher by inject(named(DiNames.ioDispatcher))
-    private val cpuDispatcher: CoroutineDispatcher by inject(named(DiNames.cpuDispatcher))
+
+    //    private val cpuDispatcher: CoroutineDispatcher by inject(named(DiNames.cpuDispatcher))
     private val diffScope = CoroutineScope(ioDispatcher + folderDiffJob)
 
     private val networkService: NetworkService by inject()

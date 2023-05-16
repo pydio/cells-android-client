@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +28,8 @@ import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.launch
 
 private enum class Status {
     OK, WARNING, DANGER
@@ -44,6 +47,8 @@ fun WithInternetBanner(
     val sessionStatus = connectionService.sessionStatusFlow
         .collectAsState(initial = ConnectionService.SessionStatus.OK)
 
+    val scope = rememberCoroutineScope()
+
     // TODO add Snackbar host
     // TODO add bottom sheet
 
@@ -60,6 +65,7 @@ fun WithInternetBanner(
                     desc = stringResource(R.string.no_internet)
 
                 )
+
                 ConnectionService.SessionStatus.METERED,
                 ConnectionService.SessionStatus.ROAMING
                 -> ConnectionStatus(
@@ -67,25 +73,28 @@ fun WithInternetBanner(
                     desc = stringResource(R.string.metered_connection),
                     type = Status.WARNING
                 )
+
                 ConnectionService.SessionStatus.CAN_RELOG
                 -> CredExpiredStatus(
                     icon = CellsIcons.NoValidCredentials,
                     desc = stringResource(R.string.auth_err_expired),
                     type = Status.WARNING,
                     onClick = {
-                        connectionService.sessionView.value?.let {
-                            val route = if (it.isLegacy) {
-                                LoginDestinations.P8Credentials.createRoute(
-                                    it.getStateID(),
-                                    it.skipVerify()
-                                )
-                            } else {
-                                LoginDestinations.LaunchAuthProcessing.createRoute(
-                                    it.getStateID(),
-                                    it.skipVerify()
-                                )
+                        scope.launch {
+                            connectionService.sessionView.last()?.let {
+                                val route = if (it.isLegacy) {
+                                    LoginDestinations.P8Credentials.createRoute(
+                                        it.getStateID(),
+                                        it.skipVerify()
+                                    )
+                                } else {
+                                    LoginDestinations.LaunchAuthProcessing.createRoute(
+                                        it.getStateID(),
+                                        it.skipVerify()
+                                    )
+                                }
+                                navigateTo(route)
                             }
-                            navigateTo(route)
                         }
                     }
                 )

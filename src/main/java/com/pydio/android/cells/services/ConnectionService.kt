@@ -1,10 +1,7 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
@@ -14,13 +11,17 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -43,40 +44,58 @@ class ConnectionService(
     private val logTag = "ConnectionService[${id.substring(24)}]"
 
     private val serviceScope = coroutineService.cellsIoScope
-
-
     private val liveNetwork = networkService.networkType
-
-    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
-    val currAccountID: LiveData<StateID?> = sessionView.map { currSessionView ->
-        currSessionView?.accountID?.let {
-            StateID.fromId(it)
-        }
-    }
-
-    val customColor: LiveData<String?> = sessionView.map { currSessionView ->
+    val sessionView: Flow<RSessionView?> = accountService.activeSessionViewF
+    val currAccountID: Flow<StateID?> =
+        sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
+    val customColor: Flow<String?> = sessionView.map { currSessionView ->
         currSessionView?.customColor()
     }
+    val sessionStatusFlow: Flow<SessionStatus> = getSessionFlow()
 
-    val wss: LiveData<List<RWorkspace>>
-        get() = sessionView.switchMap { currSessionView ->
-            accountService.getLiveWsByType(
-                SdkNames.WS_TYPE_DEFAULT,
-                currSessionView?.accountID ?: StateID.NONE.id
-            )
-        }
-    val cells: LiveData<List<RWorkspace>>
-        get() = sessionView.switchMap { currSessionView ->
-            accountService.getLiveWsByType(
-                SdkNames.WS_TYPE_CELL,
-                currSessionView?.accountID ?: StateID.NONE.id
-            )
-        }
+//    val sessionView: LiveData<RSessionView?> = accountService.liveActiveSessionView
+//    val currAccountID: LiveData<StateID?> = sessionView.map { currSessionView ->
+//        currSessionView?.accountID?.let {
+//            StateID.fromId(it)
+//        }
+//    }
 
-    val sessionStatusFlow: Flow<SessionStatus>
-        get() = getSessionFlow()
+//    val customColor: LiveData<String?> = sessionView.map { currSessionView ->
+//        currSessionView?.customColor()
+//    }
 
-    private fun getSessionFlow(): Flow<SessionStatus> = sessionView.asFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
+        accountService.getWsByTypeF(
+            SdkNames.WS_TYPE_DEFAULT,
+            currSessionView?.accountID ?: StateID.NONE.id
+        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val cells: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
+        accountService.getWsByTypeF(
+            SdkNames.WS_TYPE_CELL,
+            currSessionView?.accountID ?: StateID.NONE.id
+        )
+    }
+
+//    val wss: LiveData<List<RWorkspace>>
+//        get() = sessionView.switchMap { currSessionView ->
+//            accountService.getLiveWsByType(
+//                SdkNames.WS_TYPE_DEFAULT,
+//                currSessionView?.accountID ?: StateID.NONE.id
+//            )
+//        }
+//    val cells: LiveData<List<RWorkspace>>
+//        get() = sessionView.switchMap { currSessionView ->
+//            accountService.getLiveWsByType(
+//                SdkNames.WS_TYPE_CELL,
+//                currSessionView?.accountID ?: StateID.NONE.id
+//            )
+//        }
+
+    private fun getSessionFlow(): Flow<SessionStatus> = sessionView
         .combine(liveNetwork.asFlow()) { activeSession, currType ->
             Log.d(logTag, "Executing switch map with network type: $currType")
             // we first check the network type
@@ -120,7 +139,7 @@ class ConnectionService(
         .conflate()
 
     private var currJob: Job? = null
-    private val lock = Any()
+//    private val lock = Any()
 
     fun relaunchMonitoring() {
         serviceScope.launch {
@@ -163,12 +182,12 @@ class ConnectionService(
         serviceScope.launch {
             currJob?.cancelAndJoin()
         }
-        // TODO we should also pause the other LiveData and flows 
+        // TODO we should also pause the other hot flows ?
     }
 
     // TODO this must be improved
     private suspend fun monitorCredentials() = withContext(Dispatchers.IO) {
-        val currSession = sessionView.value ?: return@withContext
+        val currSession = sessionView.last() ?: return@withContext
         val currID = currSession.getStateID()
         if (currSession.isLegacy) {
             // this is for Cells only
