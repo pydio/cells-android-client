@@ -22,14 +22,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.Thumbnail
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 
 @Composable
 fun NodeItem(
-    item: RTreeNode,
+    item: TreeNodeItem,
     title: String,
     desc: String,
     more: () -> Unit,
@@ -38,15 +38,15 @@ fun NodeItem(
     M3NodeItem(
         title = title,
         desc = desc,
-        encodedState = item.encodedState,
+        encodedState = item.stateID.id,
         name = item.name,
         sortName = item.sortName,
         mime = item.mime,
-        eTag = item.etag,
-        hasThumb = item.hasThumb(),
-        isBookmarked = item.isBookmarked(),
-        isOfflineRoot = item.isOfflineRoot(),
-        isShared = item.isShared(),
+        eTag = item.eTag,
+        hasThumb = item.hasThumb,
+        isBookmarked = item.isBookmarked,
+        isOfflineRoot = item.isOfflineRoot,
+        isShared = item.isShared,
         more = more,
         modifier = modifier,
     )

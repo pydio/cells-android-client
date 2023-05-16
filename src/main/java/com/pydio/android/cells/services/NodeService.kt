@@ -40,11 +40,8 @@ class NodeService(
 ) {
     private val logTag = "NodeService"
 
-    //    private val nodeServiceJob = SupervisorJob()
-//    private val serviceScope = CoroutineScope(ioDispatcher + nodeServiceJob)
     private val serviceScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
-
 
     // Query the local index to get LiveData for the ViewModels
     fun sortedList(stateID: StateID, encodedSortBy: String): LiveData<List<RTreeNode>> {
@@ -72,19 +69,6 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
     }
 
-
-//    fun listBookmarks(
-//        accountID: StateID,
-//        sortByCol: String,
-//        sortByOrder: String
-//    ): LiveData<List<RTreeNode>> {
-//        val lsQuery = SimpleSQLiteQuery(
-//            "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
-//                    " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
-//        )
-//        return nodeDB(accountID).treeNodeDao().treeNodeQuery(lsQuery)
-//    }
-
     fun listBookmarkFlow(
         accountID: StateID,
         sortByCol: String,
@@ -107,18 +91,6 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao()
             .lsWithMimeFilterFlow(stateID.id, stateID.file, mimeFilter)
     }
-
-//    fun listOfflineRoots(
-//        accountID: StateID,
-//        encodedOrder: String,
-//    ): LiveData<List<RLiveOfflineRoot>> {
-//        val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.DEFAULT)
-//        val lsQuery = SimpleSQLiteQuery(
-//            "SELECT * FROM RLiveOfflineRoot WHERE " +
-//                    "status != '${AppNames.OFFLINE_STATUS_LOST}' ORDER BY $sortByCol $sortByOrder"
-//        )
-//        return nodeDB(accountID).liveOfflineRootDao().offlineRootQuery(lsQuery)
-//    }
 
     fun listOfflineRoots(
         accountID: StateID,
@@ -154,19 +126,6 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().searchQueryFlow(lsQuery)
     }
 
-//    fun liveSearch(
-//        stateID: StateID,
-//        query: String,
-//        encodedSortBy: String
-//    ): LiveData<List<RTreeNode>> {
-//        val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-//        val lsQuery = SimpleSQLiteQuery(
-//            "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
-//                    "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
-//        )
-//        return nodeDB(stateID).treeNodeDao().liveSearchQuery(lsQuery)
-//    }
-
     /* Communicate with the DB using suspend functions */
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
         if (stateID == StateID.NONE) {
@@ -180,23 +139,6 @@ class NodeService(
         withContext(ioDispatcher) {
             nodeDB(stateID).treeNodeDao().getNodesByUuid(uuid)
         }
-
-//    suspend fun searchLocally(
-//        stateID: StateID,
-//        query: String,
-//        encodedSortBy: String
-//    ): List<RTreeNode> = withContext(ioDispatcher) {
-//        if (Str.empty(query)) {
-//            listOf()
-//        } else {
-//            val (sortByCol, sortByOrder) = parseOrder(encodedSortBy, ListType.DEFAULT)
-//            val lsQuery = SimpleSQLiteQuery(
-//                "SELECT * FROM tree_nodes WHERE name like '%${query}%' " +
-//                        "ORDER BY $sortByCol $sortByOrder LIMIT 100 "
-//            )
-//            nodeDB(stateID).treeNodeDao().searchQuery(lsQuery)
-//        }
-//    }
 
     suspend fun getWorkspace(stateID: StateID): RWorkspace? {
         return if (stateID == StateID.NONE) {
@@ -281,20 +223,9 @@ class NodeService(
                 nodeDB(stateID).treeNodeDao().update(curr)
             }
 
-
-//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
-//            getClient(stateID).bookmark(stateID.workspace, stateID.file, newState)
-//            node.setBookmarked(newState)
-//            node.localModificationTS = currentTimestamp()
-//            nodeDB(stateID).treeNodeDao().update(node)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
-//            return@withContext
-//        } catch (ioe: IOException) {
-//            Log.e(logTag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
-//            ioe.printStackTrace()
-//            return@withContext
         }
     }
 
@@ -391,7 +322,7 @@ class NodeService(
         }
 
 
-// Handle communication with the remote server to refresh locally stored data.
+    // Handle communication with the remote server to refresh locally stored data.
 
     /**
      * Retrieve the meta of all readable nodes that are at the passed stateID.
@@ -471,7 +402,6 @@ class NodeService(
     }
 
     suspend fun clearAccountCache(accountID: StateID): String? = withContext(ioDispatcher) {
-        // val accountID = StateID.fromId(stateID).account()
         try {
             // First delete corresponding files
             fileService.cleanFileCacheFor(accountID)

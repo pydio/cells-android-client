@@ -25,5 +25,4 @@ interface LiveOfflineRootDao {
 
     @Query("SELECT * FROM RLiveOfflineRoot ORDER BY sort_name")
     fun getAll(): List<RLiveOfflineRoot>
-
 }

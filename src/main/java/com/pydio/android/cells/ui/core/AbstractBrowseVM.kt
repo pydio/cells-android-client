@@ -87,10 +87,8 @@ open class AbstractBrowseVM(
     }
 
     private suspend fun viewFile(context: Context, node: RTreeNode) {
-        Log.e(logTag, "About to launch view file, loading state: ${loadingState.value}")
         val checkUpToDate = LoadingState.SERVER_UNREACHABLE != loadingState.value
-
-        Log.e(logTag, "About to launch view file, check up to date: $checkUpToDate")
+        Log.e(logTag, "Launch view file, check: $checkUpToDate, loading: ${loadingState.value}")
         nodeService.getLocalFile(node, checkUpToDate)?.let { file ->
             externallyView(context, file, node)
         } ?: run {

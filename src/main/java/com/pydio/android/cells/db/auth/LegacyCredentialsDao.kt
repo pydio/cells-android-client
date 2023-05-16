@@ -26,5 +26,4 @@ interface LegacyCredentialsDao {
 
     @Query("SELECT * FROM legacy_credentials")
     fun getAll(): List<RLegacyCredentials>
-
 }

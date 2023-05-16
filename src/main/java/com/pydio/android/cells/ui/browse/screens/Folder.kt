@@ -39,7 +39,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
@@ -74,6 +72,7 @@ import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackgrou
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
@@ -104,7 +103,7 @@ fun Folder(
     val scope = rememberCoroutineScope()
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
-    val children by folderVM.childNodes.observeAsState()
+    val children by folderVM.children.collectAsState()
 
     val binLabel = stringResource(R.string.recycle_bin_label)
     val label by remember(key1 = treeNode, key2 = workspace) {
@@ -203,7 +202,7 @@ fun Folder(
             showFAB = showFAB,
             label = label,
             stateID = folderID,
-            children = children ?: listOf(),
+            children = children,
             forceRefresh = forceRefresh,
             openDrawer = openDrawer,
             openSearch = openSearch,
@@ -221,7 +220,6 @@ fun Folder(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderScaffold(
     loadingState: LoadingState,
@@ -229,7 +227,7 @@ private fun FolderScaffold(
     showFAB: Boolean,
     label: String,
     stateID: StateID,
-    children: List<RTreeNode>,
+    children: List<TreeNodeItem>,
     forceRefresh: () -> Unit,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
@@ -338,7 +336,7 @@ private fun FolderList(
     loadingState: LoadingState,
     listLayout: ListLayout,
     stateID: StateID,
-    children: List<RTreeNode>,
+    children: List<TreeNodeItem>,
     openParent: (StateID) -> Unit,
     open: (StateID) -> Unit,
     openMoreMenu: (StateID) -> Unit,
@@ -393,27 +391,25 @@ private fun FolderList(
                                 )
                             }
                         }
-                        items(children, key = { it.encodedState }) { node ->
-                            if (node.isPreViewable() && !node.hasThumb()) {
-                                Log.e(logTag, "Previewable, **NO** thumb")
-                            } else if (node.hasThumb()) {
+                        items(children, key = { it.stateID.id }) { node ->
+                            if (node.hasThumb) {
                                 // TODO this log is important so that we are "notified" when the meta-hash changes
                                 Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
                                 LargeCardWithImage(
-                                    stateID = node.getStateID(),
-                                    eTag = node.etag,
+                                    stateID = node.stateID,
+                                    eTag = node.eTag,
                                     mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getNodeDesc(
-                                        node.remoteModificationTS,
+                                        node.remoteModTs,
                                         node.size,
-                                        node.localModificationStatus
+                                        node.localModStatus
                                     ),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    openMoreMenu = { openMoreMenu(node.stateID) },
                                     sortName = node.sortName,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { open(node.getStateID()) }
+                                        .clickable { open(node.stateID) }
                                 )
                             } else {
                                 LargeCardWithIcon(
@@ -421,14 +417,14 @@ private fun FolderList(
                                     mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getNodeDesc(
-                                        node.remoteModificationTS,
+                                        node.remoteModTs,
                                         node.size,
-                                        node.localModificationStatus
+                                        node.localModStatus
                                     ),
-                                    openMoreMenu = { openMoreMenu(node.getStateID()) },
+                                    openMoreMenu = { openMoreMenu(node.stateID) },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { open(node.getStateID()) }
+                                        .clickable { open(node.stateID) }
                                 )
                             }
                         }
@@ -452,22 +448,22 @@ private fun FolderList(
                                 )
                             }
                         }
-                        items(children, key = { it.encodedState }) { node ->
+                        items(children, key = { it.stateID.id }) { node ->
                             // TODO clean this, see above
                             Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
                             NodeItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),
                                 desc = getNodeDesc(
-                                    node.remoteModificationTS,
+                                    node.remoteModTs,
                                     node.size,
-                                    node.localModificationStatus
+                                    node.localModStatus
                                 ),
-                                more = { openMoreMenu(node.getStateID()) },
+                                more = { openMoreMenu(node.stateID) },
                                 modifier = Modifier
                                     .padding(0.dp)
                                     .fillMaxWidth()
-                                    .clickable { open(node.getStateID()) }
+                                    .clickable { open(node.stateID) }
                                     // This breaks the layout and makes the trailing buttons disappear
                                     .animateItemPlacement()
                             )

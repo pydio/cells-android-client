@@ -14,7 +14,6 @@ import java.io.File
         "type"
     ],
 )
-// @TypeConverters(Converters::class)
 data class RLocalFile(
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,

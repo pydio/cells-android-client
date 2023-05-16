@@ -3,12 +3,11 @@ package com.pydio.android.cells.services
 import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
-import com.pydio.android.cells.reactive.CellsNetworkCallback
-import com.pydio.android.cells.reactive.NetworkStatus
-import com.pydio.android.cells.reactive.fromCapabilities
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
@@ -17,34 +16,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.util.Locale
 
+private const val logTag = "NetworkService"
+
 class NetworkService(
     context: Context,
     coroutineService: CoroutineService,
 ) {
 
-    private val logTag = "NetworkService"
-
-    private val serviceScope = coroutineService.cellsIoScope
-
     private val connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
-
     // Local cache to avoid suspend functions while checking current network
+    // TODO not good enough => relies on the fact that the networkStatusFLow that is a **cold** flow
+    //   has already been called
     private var _networkStatus: NetworkStatus = NetworkStatus.Unmetered
     val networkStatus: NetworkStatus
         get() = _networkStatus
-
-//    // Default is rather optimistic, otherwise we get some UI glitches while the app starts
-//    private val _networkType = MutableLiveData(AppNames.NETWORK_TYPE_UNMETERED)
-//    val networkType: LiveData<String>
-//        get() = _networkType
-//
-//    val _networkTypeFlow: MutableSharedFlow<String> = mutable
-//    val networkTypeFlow: Flow<String> = Flow<String>(AppNames.NETWORK_TYPE_UNMETERED)
-//        get() = _networkType
-
 
     val networkStatusFlow: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
@@ -57,14 +45,12 @@ class NetworkService(
         }
         connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
 
-        // Leave some time for the app to start
         delay(600)
+        // Force initialisation --> TODO double check and remove if not necessary
         connectivityManager.activeNetwork?.let { network ->
-            Log.e(logTag, "#################################")
-            Log.e(logTag, "Got an active network $network")
+            Log.i(logTag, "Initialising network status flow with network $network")
             connectivityManager.getNetworkCapabilities(network)?.let {
                 val status = fromCapabilities(it)
-                Log.e(logTag, "Initializing network service with status $it")
                 trySend(status)
             }
         } ?: run {
@@ -84,36 +70,6 @@ class NetworkService(
         }
     }
 
-//    // Manage UI
-//    private val _errorMessage = MutableLiveData<String?>()
-//    val errorMessage: LiveData<String?>
-//        get() = _errorMessage
-
-
-    init {
-//        serviceScope.launch { // Asynchronous is necessary to wait for the context
-//            Log.i(logTag, "Initialising network watching")
-//            val liveNetwork = LiveNetwork(context)
-//            setNetworkStatus(liveNetwork.value ?: NetworkStatus.Unavailable)
-//
-//            liveNetwork.asFlow().collect {
-//                // Log.e(logTag, "##############################################")
-//                Log.d(logTag, "Live network event: $it")
-//                setNetworkStatus(it)
-//            }
-//            Log.i(logTag, "Initial status: ${liveNetwork.value}")
-//            Log.d(logTag, "After init, current network status: $_networkType")
-//        }
-
-//        serviceScope.launch {
-//            connectivityManagerCallback = CellsNetworkCallback {
-//
-//            }
-//            connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
-//        }
-    }
-
-
     fun isConnected(): Boolean {
         return when (_networkStatus) {
 
@@ -132,56 +88,12 @@ class NetworkService(
         }
     }
 
-//    suspend fun isConnected(): Boolean {
-//        val _networkStatus = networkStatusFlow.last()
-//        return when (_networkStatus) {
-//
-//            is NetworkStatus.Unknown -> {
-//                Log.w(logTag, "Unknown network status, doing as if connected")
-//                true
-//            }
-//
-//            is NetworkStatus.Unavailable -> { // There is no network connection
-//                false
-//            }
-//
-//            is NetworkStatus.Unmetered,
-//            is NetworkStatus.Metered,
-//            is NetworkStatus.Roaming -> true
-//        }
-//    }
-
-//    suspend fun isMetered(): Boolean {
-//        return when (networkStatusFlow.last()) {
-//            is NetworkStatus.Metered,
-//            is NetworkStatus.Roaming
-//            -> true
-//
-//            else
-//            -> false
-//        }
-//    }
-
     fun isMetered(): Boolean {
         return _networkStatus is NetworkStatus.Metered ||
                 _networkStatus is NetworkStatus.Roaming
     }
 
-//    private fun setNetworkStatus(status: NetworkStatus) {
-//        Log.i(logTag, "### Setting new status: $status")
-//        this._networkStatus = status
-//
-//        serviceScope.launch(Dispatchers.Main) {
-//            _networkType.value = when (status) {
-//                is NetworkStatus.Unmetered -> AppNames.NETWORK_TYPE_UNMETERED
-//                is NetworkStatus.Metered -> AppNames.NETWORK_TYPE_METERED
-//                is NetworkStatus.Roaming -> AppNames.NETWORK_TYPE_ROAMING
-//                is NetworkStatus.Unavailable -> AppNames.NETWORK_TYPE_UNAVAILABLE
-//                else -> AppNames.NETWORK_TYPE_UNKNOWN
-//            }
-//        }
-//    }
-
+    // TODO retrieve and expose App network usage to the end user
     private fun networkUsage(context: Context) {
         // Get running processes
         // val manager = getSystemService(AppCompatActivity.ACTIVITY_SERVICE) as ActivityManager
@@ -203,4 +115,65 @@ class NetworkService(
             )
         }
     }
+}
+
+class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
+    ConnectivityManager.NetworkCallback() {
+
+    private val logTag = "CellsNetworkCallback"
+    override fun onAvailable(network: Network) {
+        Log.e(logTag, "## Using network #$network")
+        // TODO manage sockets.
+    }
+
+    override fun onLost(network: Network) {
+        Log.e(logTag, "## After loosing network #$network")
+        postValue(NetworkStatus.Unavailable)
+    }
+
+    override fun onCapabilitiesChanged(
+        network: Network,
+        networkCapabilities: NetworkCapabilities
+    ) {
+        Log.e(logTag, "## Capability changed for #$network")
+
+        val status = fromCapabilities(networkCapabilities)
+        if (NetworkStatus.Unknown == status) {
+            Log.w(logTag, "Unexpected status for network #$network")
+        }
+        postValue(status)
+    }
+}
+
+fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
+    return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+        Log.i(logTag, "   capabilities: $networkCapabilities.")
+        when {
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+            -> NetworkStatus.Unmetered
+
+            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+            -> NetworkStatus.Roaming
+
+            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+            -> NetworkStatus.Metered
+
+            else -> {
+                NetworkStatus.Unknown
+            }
+        }
+    } else {
+        NetworkStatus.Unavailable
+    }
+
+}
+
+sealed class NetworkStatus {
+    object Unmetered : NetworkStatus()
+    object Metered : NetworkStatus()
+    object Roaming : NetworkStatus()
+    object Unavailable : NetworkStatus()
+    object Unknown : NetworkStatus()
 }

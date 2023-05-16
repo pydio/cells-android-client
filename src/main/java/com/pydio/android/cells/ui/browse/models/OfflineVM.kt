@@ -8,9 +8,9 @@ import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
+import com.pydio.android.cells.services.NetworkStatus
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
@@ -44,6 +44,7 @@ class OfflineVM(
 
     private val _syncJobID = MutableStateFlow<Long>(-1L)
 
+    // Observe the defined offline roots for current account
     @OptIn(ExperimentalCoroutinesApi::class)
     val offlineRoots: StateFlow<List<RLiveOfflineRoot>> =
         defaultListOrderFlow.flatMapLatest { currPair ->
@@ -54,6 +55,7 @@ class OfflineVM(
             initialValue = listOf()
         )
 
+    // Observe latest sync job
     @OptIn(ExperimentalCoroutinesApi::class)
     val syncJob: StateFlow<RJob?> = _syncJobID.flatMapLatest { passedID ->
         // Not satisfying, if the job ID is not explicitly given, we retrieve the latest not done from the DB
@@ -156,7 +158,6 @@ class OfflineVM(
             is NetworkStatus.Unavailable, is NetworkStatus.Unknown -> {
                 Pair(false, "Cannot launch re-sync with no internet connection")
             }
-
         }
     }
 

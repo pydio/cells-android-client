@@ -6,7 +6,7 @@ import com.pydio.cells.transport.StateID
 /** Simply expose navigation actions for the Browse subGraph */
 class BrowseNavigationActions(private val navController: NavHostController) {
 
-    private val logTag = "BrowseNavigationActions"
+    // private val logTag = "BrowseNavigationActions"
 
     fun toBrowse(stateID: StateID) {
         val route = BrowseDestinations.Open.createRoute(stateID)

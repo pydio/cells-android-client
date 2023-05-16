@@ -18,7 +18,6 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.transfer.CellsS3Client
 import com.pydio.android.cells.transfer.CellsTransferListener
 import com.pydio.android.cells.transfer.getTransferUtility

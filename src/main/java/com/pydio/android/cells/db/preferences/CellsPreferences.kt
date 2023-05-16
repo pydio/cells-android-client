@@ -42,7 +42,6 @@ data class SyncPreferences(
     val onIdle: Boolean,
 )
 
-
 fun defaultCellsPreferences(): CellsPreferences {
     val currVersion = -1
     val showDebug = false
@@ -83,36 +82,3 @@ val legacyMigrations: (Context) -> List<DataMigration<Preferences>> = { context 
     // Since we're migrating from SharedPreferences, add a migration based on the SharedPreferences name
     listOf(SharedPreferencesMigration(context, LEGACY_PREFERENCES_KEY))
 }
-
-//fun ListPreferences.orderLabel(resource: Resources): String {
-//    val labels = resource.getStringArray(R.array.order_by_labels)
-//    val keys = resource.getStringArray(R.array.order_by_values)
-//    keys.forEachIndexed { index, key ->
-//        if (key == this.order) {
-//            return labels[index]
-//        }
-//    }
-//    return "-"
-//}
-//fun SyncPreferences.frequencyLabel(resource: Resources): String {
-//    val labels = resource.getStringArray(R.array.offline_frequency_labels)
-//    val keys = resource.getStringArray(R.array.offline_frequency_values)
-//    keys.forEachIndexed { index, key ->
-//        if (key == this.frequency) {
-//            return labels[index]
-//        }
-//    }
-//    return "-"
-//}
-//
-//fun SyncPreferences.onNetworkTypeLabel(resource: Resources): String {
-//    val labels = resource.getStringArray(R.array.network_type_labels)
-//    val keys = resource.getStringArray(R.array.network_type_values)
-//    keys.forEachIndexed { index, key ->
-//        if (key == this.onNetworkType) {
-//            return labels[index]
-//        }
-//    }
-//    return "-"
-//}
-

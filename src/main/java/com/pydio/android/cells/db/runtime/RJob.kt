@@ -35,8 +35,7 @@ data class RJob(
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
     @ColumnInfo(name = "update_ts") var updateTimestamp: Long = -1L,
     @ColumnInfo(name = "done_ts") var doneTimestamp: Long = -1L,
-
-    ) {
+) {
 
     fun isFail(): Boolean {
         return status == AppNames.JOB_STATUS_ERROR ||

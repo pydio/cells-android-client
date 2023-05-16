@@ -8,7 +8,7 @@ import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.api.ServerURL
 
 /**
- *  Stores a map between the state that are generated during the OAuth process
+ * Stores the OAuth state that is used as unique identifier during the Credentials flow
  * and the corresponding {@code ServerURL}
  */
 @Entity(tableName = "oauth_states")
@@ -23,6 +23,5 @@ data class ROAuthState(
     @ColumnInfo(name = "start_ts") val startTimestamp: Long,
 
     @ColumnInfo(name = "next") val next: String?,
-
-    )
+)
     

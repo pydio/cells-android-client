@@ -25,5 +25,4 @@ interface TokenDao {
 
     @Query("SELECT * FROM tokens")
     fun getAll(): List<RToken>
-
 }

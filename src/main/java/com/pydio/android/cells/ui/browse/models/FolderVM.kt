@@ -1,9 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
@@ -12,7 +9,6 @@ import com.pydio.android.cells.ui.core.AbstractBrowseVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +21,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * Simple ViewModel for the UI that only holds the current parent folder state ID
- * and a LiveData list of its children to be used while selecting a target folder.
+ * Main ViewModel when browsing a Cells or P8 server. It holds the current parent folder state ID
+ * and a Flow list of its children.
  */
 class FolderVM(
     private val stateID: StateID,
@@ -34,28 +30,17 @@ class FolderVM(
     private val nodeService: NodeService
 ) : AbstractBrowseVM(prefs, nodeService) {
 
-    private val logTag = "FolderVM"
+//    private val logTag = "FolderVM"
 
-    val childNodes: LiveData<List<RTreeNode>>
-        get() = sortOrder.switchMap { currOrder ->
-            if (Str.empty(stateID.slug)) {
-                Log.e(logTag, "Listing workspaces in folderVM, this should never happen")
-                nodeService.listLiveWorkspaces(stateID)
-            } else {
-                nodeService.sortedList(stateID, currOrder)
-            }
-        }
+    // Load the current parent for various labels and generic actions
+    private val _rTreeNode = MutableStateFlow<RTreeNode?>(null)
+    val treeNode: StateFlow<RTreeNode?> = _rTreeNode.asStateFlow()
+    private val _rWorkspace = MutableStateFlow<RWorkspace?>(null)
+    val workspace: StateFlow<RWorkspace?> = _rWorkspace.asStateFlow()
 
-    // TODO this is the new approach, validate, factorize and remove LiveData
-    private val orderFlow = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        prefs.getOrderByPair(
-            cellsPreferences,
-            ListType.DEFAULT
-        )
-    }
-
+    // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
-    val children: StateFlow<List<TreeNodeItem>> = orderFlow.flatMapLatest { currPair ->
+    val children: StateFlow<List<TreeNodeItem>> = defaultListOrderFlow.flatMapLatest { currPair ->
         val rtNodes = if (Str.empty(stateID.slug)) {
             nodeService.listWorkspaces(stateID)
         } else {
@@ -67,12 +52,6 @@ class FolderVM(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = listOf()
     )
-
-    private val _rTreeNode = MutableStateFlow<RTreeNode?>(null)
-    val treeNode: StateFlow<RTreeNode?> = _rTreeNode.asStateFlow()
-
-    private val _rWorkspace = MutableStateFlow<RWorkspace?>(null)
-    val workspace: StateFlow<RWorkspace?> = _rWorkspace.asStateFlow()
 
     init {
         viewModelScope.launch {

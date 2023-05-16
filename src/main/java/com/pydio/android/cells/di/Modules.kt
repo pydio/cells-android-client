@@ -80,7 +80,6 @@ class DiNames {
         const val passwordStore = "PasswordStore"
         const val serverStore = "ServerStore"
         const val transportStore = "TransportStore"
-
     }
 }
 

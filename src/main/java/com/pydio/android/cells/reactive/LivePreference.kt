@@ -1,7 +1,7 @@
 package com.pydio.android.cells.reactive
 
 
-interface LivePreference<T> {}
+//interface LivePreference<T> {}
 
 //
 //    /** A live preference that can be observed, using RxJava */

@@ -4,7 +4,6 @@ import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.SDKException

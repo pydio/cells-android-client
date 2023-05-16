@@ -52,8 +52,7 @@ data class RLiveOfflineRoot(
     @ColumnInfo(name = "etag") val etag: String?,
 
     @ColumnInfo(name = "flags") val flags: Int,
-
-    ) {
+) {
 
     fun getStateID(): StateID {
         return StateID.fromId(encodedState)

@@ -108,142 +108,19 @@ class SessionFactory(
 
     @Throws(SDKException::class)
     fun getUnlockedClient(accountID: StateID): Client {
-
         if (!networkService.isConnected())
             throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
 
-//        // TODO An idea might be to leave a hook here to enable network status refresh
-//        if (!forceCall && networkService.networkInfo()?.isOnline() != true) {
-//            Log.d(logTag, "... Refreshing network status")
-//            try {
-//                var serverURL = transportStore.get(accountID)?.server?.serverURL
-//                if (serverURL == null) {
-//                    for (currentSession in sessionViewDao.getSessions()) {
-//                        if (currentSession.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-//                            serverURL = ServerURLImpl.fromAddress(
-//                                currentSession.url,
-//                                currentSession.skipVerify()
-//                            )
-//                            break
-//                        }
-//                    }
-//                }
-//                if (serverURL != null) {
-//                    serverURL.ping()
-//                    // No exception, network is back
-//                    networkService.updateStatus(AppNames.NETWORK_STATUS_OK, 200)
-//                    Log.d(logTag, "    ---> back online")
-//                } else {
-//                    throw SDKException(
-//                        ErrorCodes.no_internet,
-//                        "Could not check if internet is back"
-//                    )
-//                }
-//            } catch (e: Exception) {
-//                // Expected, we cannot ping server
-////                Log.d(logTag, "   Error while pinging server: " + e.message)
-////                e.printStackTrace()
-//                val code = if (e is SDKException) e.code else ErrorCodes.no_internet
-//                if (networkService.networkInfo()?.isOffline() != true) {
-//                    networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
-//                }
-//                Log.e(logTag, "    ---> still offline")
-//                throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
-//            }
-//        }
-
-//        if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
-//            throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
-//        }
         return internalGetClient(accountID)
     }
 
-//    fun getUnlockedUnMeteredClient(accountID: StateID): Client {
-//
-//        if (networkService.isConnected() && networkService.isMetered())
-//            throw SDKException(
-//                ErrorCodes.no_internet,
-//                "No un-metered internet connection is available"
-//            )
-//
-////        if (!hasUnMeteredNetwork(CellsApp.instance.applicationContext)) {
-////            throw SDKException(
-////                ErrorCodes.no_un_metered_connection,
-////                "No un-metered connection available"
-////            )
-////        }
-//        return internalGetClient(accountID)
-//    }
-
-
     private fun prepareTransport(sessionView: RSessionView): Transport {
-        try {
-            val skipVerify = sessionView.tlsMode == 1
-            val serverURL = ServerURLImpl.fromAddress(sessionView.url, skipVerify)
-            return restoreAccount(serverURL, sessionView.username)
-        } catch (se: SDKException) {
-//            Log.e(logTag, "could not resurrect session: " + se.message)
-//            // Handle well known errors and transfer the error to the caller
-//            when (se.code) {
-//                ErrorCodes.authentication_required -> {
-//                    account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-//                    db.accountDao().update(account)
-//                }
-//                ErrorCodes.token_expired -> {
-//                    account.authStatus = AppNames.AUTH_STATUS_EXPIRED
-//                    db.accountDao().update(account)
-//                }
-//            }
-            throw se
-        }
-    }
-
-
-//    private var ready = false
-
-//    init {
-//        sessionFactoryScope.launch(ioDispatcher) {
-//            val sessions = sessionViewDao.getSessions()
-//            // val accounts = accountService.accountDB.accountDao().getAccounts()
-//            Log.i(logTag, "... Initialise SessionFactory")
-//            for (rLiveSession in sessions) {
-//                // TODO skip sessions when we know they are not usable?
-//                Log.i(logTag, "... Preparing transport for ${rLiveSession.getStateID()}")
-//                try {
-//                    prepareTransport(rLiveSession)
-//                } catch (e: SDKException) {
-//                    // TODO update live session depending on the error
-//                    Log.e(
-//                        logTag,
-//                        "Cannot restore session for " + rLiveSession.accountID + ": " + e.message
-//                    )
-//                }
-//            }
-//            Log.i(logTag, "... Session factory initialised")
-//            ready = true
-//        }
-//    }
-
-
-//    private fun registerTransport(accountID: StateID): Transport {
 //        try {
-//            val skipVerify = sessionView.tlsMode == 1
-//            val serverURL = ServerURLImpl.fromAddress(sessionView.url, skipVerify)
-//            return restoreAccount(serverURL, sessionView.username)
+        val skipVerify = sessionView.tlsMode == 1
+        val serverURL = ServerURLImpl.fromAddress(sessionView.url, skipVerify)
+        return restoreAccount(serverURL, sessionView.username)
 //        } catch (se: SDKException) {
-////            Log.e(logTag, "could not resurrect session: " + se.message)
-////            // Handle well known errors and transfer the error to the caller
-////            when (se.code) {
-////                ErrorCodes.authentication_required -> {
-////                    account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-////                    db.accountDao().update(account)
-////                }
-////                ErrorCodes.token_expired -> {
-////                    account.authStatus = AppNames.AUTH_STATUS_EXPIRED
-////                    db.accountDao().update(account)
-////                }
-////            }
 //            throw se
 //        }
-// }
+    }
 }

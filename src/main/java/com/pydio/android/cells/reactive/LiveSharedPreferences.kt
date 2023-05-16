@@ -1,6 +1,6 @@
 package com.pydio.android.cells.reactive
 
-interface LiveSharedPreferences {}
+// interface LiveSharedPreferences {}
 
 
 ///**

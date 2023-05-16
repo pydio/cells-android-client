@@ -29,5 +29,4 @@ interface AccountDao {
 
     @Query("SELECT * FROM accounts")
     fun getAccounts(): List<RAccount>
-
 }

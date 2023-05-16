@@ -18,9 +18,7 @@ data class RJobCancellation(
 ) {
 
     companion object {
-        fun cancel(
-            jobId: Long,
-        ): RJobCancellation {
+        fun cancel(jobId: Long): RJobCancellation {
             return RJobCancellation(
                 jobId = jobId,
                 requestTimestamp = currentTimestamp(),

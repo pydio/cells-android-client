@@ -121,9 +121,6 @@ private fun WithScaffold(
         },
     ) { padding -> // Since Compose 1.2.0 it's required to use padding parameter, passed into Scaffold content composable. You should apply it to the topmost container/view in content:
 
-//        Log.e(logTag, "### About to create the list passed content padding")
-//        Log.e(logTag, "$padding")
-
         val listPadding = PaddingValues(
             top = padding.calculateTopPadding(),
             bottom = padding.calculateBottomPadding().plus(dimensionResource(R.dimen.margin)),

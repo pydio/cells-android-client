@@ -10,9 +10,13 @@ data class TreeNodeItem(
     override val mime: String,
     override val name: String,
     override val eTag: String?,
+    val metaHash: Int,
     override val sortName: String?,
     val isWsRoot: Boolean,
     override val isFolder: Boolean,
+    val isBookmarked: Boolean,
+    val isShared: Boolean,
+    val isOfflineRoot: Boolean,
     override val hasThumb: Boolean,
     override val size: Long = -1L,
     override val remoteModTs: Long = -1L,
@@ -47,6 +51,7 @@ suspend fun toTreeNodeItems(
             uuid = node.uuid,
             mime = node.mime,
             eTag = node.etag,
+            metaHash = node.metaHash,
             name = node.name,
             sortName = node.sortName ?: node.name,
             size = node.size,
@@ -55,6 +60,9 @@ suspend fun toTreeNodeItems(
             hasThumb = node.hasThumb(),
             isFolder = node.isFolder(),
             isWsRoot = node.isWorkspaceRoot(),
+            isBookmarked = node.isBookmarked(),
+            isOfflineRoot = node.isOfflineRoot(),
+            isShared = node.isShared()
         )
 
         if (newItem.isWsRoot) {

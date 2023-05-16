@@ -4,7 +4,7 @@ import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDao
-import com.pydio.android.cells.di.DiNames
+import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
@@ -16,15 +16,11 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.core.qualifier.named
 import java.io.File
 
 class TreeDiff(
@@ -49,11 +45,9 @@ class TreeDiff(
         }
     }
 
-    private val folderDiffJob = SupervisorJob()
-    private val ioDispatcher: CoroutineDispatcher by inject(named(DiNames.ioDispatcher))
-
-    //    private val cpuDispatcher: CoroutineDispatcher by inject(named(DiNames.cpuDispatcher))
-    private val diffScope = CoroutineScope(ioDispatcher + folderDiffJob)
+    //     private val folderDiffJob = SupervisorJob()
+    private val coroutineService: CoroutineService by inject()
+    private val diffScope = coroutineService.cellsIoScope
 
     private val networkService: NetworkService by inject()
     private val nodeService: NodeService by inject()

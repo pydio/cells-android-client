@@ -52,7 +52,6 @@ class TreeNodeVM(
         return null
     }
 
-
     init {
         Log.i(logTag, "Created TreeNodeVM")
     }
