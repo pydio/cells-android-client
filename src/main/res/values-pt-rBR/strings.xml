@@ -106,7 +106,7 @@
     <string name="no_internet">Sem conexão à internet</string>
     <string name="metered_connection">Conexão limitada</string>
     <string name="roaming_connection">Usando uma conexão de roaming</string>
-    <string name="server_unreachable">Sem conexão ao servidor remoto…</string>
+    <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Impossível listar o conteúdo da pasta</string>
     <string name="cannot_download_file">Não é possível baixar o arquivo</string>
     <string name="no_download_on_metered">Descargas em redes limitadas são restritas. Você pode alterar isso nas preferências do aplicativo</string>
@@ -141,12 +141,14 @@
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Tarefas em segundo plano</string>
+    <string name="job_list_empty_message">There is no job to show</string>
     <string name="filter_by_status_title">Filtrar por status</string>
     <string name="job_sort_by_title">Classificar por</string>
     <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
     <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
     <!-- Log Management -->
     <string name="log_list_title">Logs do aplicativo</string>
+    <string name="log_list_empty_message">The journal is empty</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Enviando…</string>
     <string name="upload_screen_done_title">Upload concluído</string>

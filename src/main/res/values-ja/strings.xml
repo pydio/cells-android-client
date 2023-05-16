@@ -106,7 +106,7 @@
     <string name="no_internet">No internet connection</string>
     <string name="metered_connection">On a metered connection</string>
     <string name="roaming_connection">Using a roaming connection</string>
-    <string name="server_unreachable">No connection to remote server…</string>
+    <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>
     <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
@@ -140,12 +140,14 @@
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
+    <string name="job_list_empty_message">There is no job to show</string>
     <string name="filter_by_status_title">Filter by status</string>
     <string name="job_sort_by_title">Sort by</string>
     <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
     <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
     <!-- Log Management -->
     <string name="log_list_title">Application logs</string>
+    <string name="log_list_empty_message">The journal is empty</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Uploading…</string>
     <string name="upload_screen_done_title">Upload terminated</string>
