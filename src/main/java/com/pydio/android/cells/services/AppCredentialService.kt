@@ -3,6 +3,7 @@ package com.pydio.android.cells.services
 import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.AccountDao
+import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
@@ -34,6 +35,7 @@ class AppCredentialService(
     private val coroutineService: CoroutineService,
     private val networkService: NetworkService,
     private val accountDao: AccountDao,
+    private val sessionDao: SessionDao,
     private val sessionViewDao: SessionViewDao,
 ) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
@@ -140,20 +142,32 @@ class AppCredentialService(
                 return@withContext
             }
 
-            val session = sessionViewDao.getSession(stateID.accountId) ?: run {
+            val sessionView = sessionViewDao.getSession(stateID.accountId) ?: run {
                 Log.e(logTag, "Cannot refresh, unknown session: $stateID")
+                return@withContext
+            }
+            val session = sessionDao.getSession(stateID.accountId) ?: run {
+                Log.e(logTag, "Session view with no session for $stateID: something went wrong")
+                Thread.dumpStack()
                 return@withContext
             }
 
             // First ping the server: we can use the refresh token only once.
-            val serverURL = ServerURLImpl.fromAddress(session.url, session.skipVerify())
+            val serverURL = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
             try {
                 serverURL.ping()
+                if (!session.isReachable) { // Update reachable flag ASAP
+                    session.isReachable = true
+                    sessionDao.update(session)
+                }
             } catch (e: Exception) {
                 Log.e(
                     logTag,
                     "Could not ping remote at $serverURL, aborting refresh process. ${e.message}"
                 )
+                // Update reachable flag in the Session DB
+                session.isReachable = false
+                sessionDao.update(session)
                 return@withContext
             }
 

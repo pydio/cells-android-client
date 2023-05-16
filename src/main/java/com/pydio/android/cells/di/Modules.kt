@@ -201,8 +201,9 @@ val serviceModule = module {
             get(named(DiNames.transportStore)),
             get(), // CoroutineService
             get(), // NetworkService
-            get(), // SessionViewDao
             get(), // AccountDao
+            get(), // SessionDao
+            get(), // SessionViewDao
         )
     }
     single { AuthService(get(), get()) }

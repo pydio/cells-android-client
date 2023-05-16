@@ -34,51 +34,56 @@ class LiveNetwork(context: Context) : LiveData<NetworkStatus>() {
 
     // See https://developer.android.com/training/basics/network-ops/reading-network-state
     // we only use the default network in a first pass
-    private fun getConnectivityManagerCallback() = object : ConnectivityManager.NetworkCallback() {
+    private fun getConnectivityManagerCallback() = CellsNetworkCallback { postValue(it) }
+}
 
-        override fun onAvailable(network: Network) {
-            Log.i(logTag, "## Using network #$network")
-            // TODO manage sockets.
-        }
+class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
+    ConnectivityManager.NetworkCallback() {
 
-        override fun onLost(network: Network) {
-            Log.i(logTag, "## After loosing network #$network")
-            postValue(NetworkStatus.Unavailable)
-        }
+    private val logTag = "CellsNetworkCallback"
+    override fun onAvailable(network: Network) {
+        Log.i(logTag, "## Using network #$network")
+        // TODO manage sockets.
+    }
 
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities
-        ) {
-            val status =
-                if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                    Log.i(logTag, "   capabilities: $networkCapabilities.")
-                    when {
-                        networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                                && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                                || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
-                        -> NetworkStatus.Unmetered
+    override fun onLost(network: Network) {
+        Log.i(logTag, "## After loosing network #$network")
+        postValue(NetworkStatus.Unavailable)
+    }
 
-                        !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                        -> NetworkStatus.Roaming
+    override fun onCapabilitiesChanged(
+        network: Network,
+        networkCapabilities: NetworkCapabilities
+    ) {
+        val status =
+            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                Log.i(logTag, "   capabilities: $networkCapabilities.")
+                when {
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                            && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                            || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+                    -> NetworkStatus.Unmetered
 
-                        !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                        -> NetworkStatus.Metered
+                    !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                    -> NetworkStatus.Roaming
 
-                        else -> {
-                            Log.w(logTag, "Unexpected status for network #$network")
-                            NetworkStatus.Unknown
-                        }
+                    !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    -> NetworkStatus.Metered
+
+                    else -> {
+                        Log.w(logTag, "Unexpected status for network #$network")
+                        NetworkStatus.Unknown
                     }
-                } else {
-                    NetworkStatus.Unavailable
                 }
+            } else {
+                NetworkStatus.Unavailable
+            }
 
-            // TODO re-implement a valid check to insure we can really access the internet
-            postValue(status)
-        }
+        // TODO re-implement a valid check to insure we can really access the internet
+        postValue(status)
     }
 }
+
 
 sealed class NetworkStatus {
     object Unmetered : NetworkStatus()

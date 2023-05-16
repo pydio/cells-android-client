@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.DomainDisabled
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileDownloadDone
 import androidx.compose.material.icons.filled.FilterList
@@ -139,6 +140,7 @@ object CellsIcons {
     val RestoreFromTrash = Icons.Outlined.RestoreFromTrash
     val Resume = Icons.Default.Replay
     val Search = Icons.Default.Search
+    val ServerUnreachable = Icons.Default.DomainDisabled
     val Settings = Icons.Outlined.Settings
     val Share = Icons.Default.Share
     val SortBy = Icons.Default.Sort

@@ -129,7 +129,7 @@
     <string name="metered_connection">On a metered connection</string>
     <string name="roaming_connection">Using a roaming connection</string>
 
-    <string name="server_unreachable">No connection to remote server…</string>
+    <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>
     <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>

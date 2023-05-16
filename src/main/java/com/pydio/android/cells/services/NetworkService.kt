@@ -2,6 +2,7 @@ package com.pydio.android.cells.services
 
 import android.app.ActivityManager
 import android.content.Context
+import android.net.ConnectivityManager
 import android.net.TrafficStats
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
@@ -9,9 +10,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.reactive.CellsNetworkCallback
 import com.pydio.android.cells.reactive.LiveNetwork
 import com.pydio.android.cells.reactive.NetworkStatus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -24,6 +31,11 @@ class NetworkService(
 
     private val serviceScope = coroutineService.cellsIoScope
 
+    private val connectivityManager: ConnectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
+
+
     // Business objects
     private var _networkStatus: NetworkStatus = NetworkStatus.Unavailable
     val networkStatus: NetworkStatus
@@ -33,11 +45,32 @@ class NetworkService(
     private val _networkType = MutableLiveData(AppNames.NETWORK_TYPE_UNMETERED)
     val networkType: LiveData<String>
         get() = _networkType
+//
+//    val _networkTypeFlow: MutableSharedFlow<String> = mutable
+//    val networkTypeFlow: Flow<String> = Flow<String>(AppNames.NETWORK_TYPE_UNMETERED)
+//        get() = _networkType
 
-    // Manage UI
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
+
+    val networkTypeFlow: Flow<NetworkStatus> = callbackFlow {
+        connectivityManagerCallback = CellsNetworkCallback {
+            trySendBlocking(it)
+                .onFailure { throwable ->
+                    Log.e(logTag, "Could not emit in flow: ${throwable?.message}")
+                }
+        }
+        connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
+
+        /* Suspends until either 'onCompleted'/'onApiError' from the callback is invoked
+        * or flow collector is cancelled (e.g. by 'take(1)' or because a collector's coroutine was cancelled).
+       * In both cases, callback will be properly unregistered. */
+        awaitClose { connectivityManager.unregisterNetworkCallback(connectivityManagerCallback) }
+    }
+
+//    // Manage UI
+//    private val _errorMessage = MutableLiveData<String?>()
+//    val errorMessage: LiveData<String?>
+//        get() = _errorMessage
+
 
     init {
         serviceScope.launch { // Asynchronous is necessary to wait for the context
@@ -53,7 +86,15 @@ class NetworkService(
             Log.i(logTag, "Initial status: ${liveNetwork.value}")
             Log.d(logTag, "After init, current network status: $_networkType")
         }
+
+//        serviceScope.launch {
+//            connectivityManagerCallback = CellsNetworkCallback {
+//
+//            }
+//            connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
+//        }
     }
+
 
     fun isConnected(): Boolean {
         return when (_networkStatus) {

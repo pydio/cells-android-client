@@ -1,5 +1,6 @@
 package com.pydio.android.cells.db.accounts
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
@@ -10,10 +11,12 @@ import androidx.room.RoomDatabase
         RWorkspace::class,
     ],
     views = [RSessionView::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ],
 )
-
 abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao

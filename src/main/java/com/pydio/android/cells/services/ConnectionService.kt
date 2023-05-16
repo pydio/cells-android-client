@@ -1,10 +1,10 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import androidx.lifecycle.asFlow
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.reactive.NetworkStatus
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.SDKException
@@ -30,21 +30,23 @@ import java.util.UUID
  * Hold the session that is currently in foreground for browsing the cache and the remote server.
  */
 class ConnectionService(
-    coroutineService: CoroutineService,
+    private val coroutineService: CoroutineService,
     networkService: NetworkService,
     private val accountService: AccountService,
     private val appCredentialService: AppCredentialService,
 ) {
 
     enum class SessionStatus {
-        NO_INTERNET, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
+        NO_INTERNET, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
     }
 
     private val id: String = UUID.randomUUID().toString()
     private val logTag = "ConnectionService[${id.substring(24)}]"
 
     private val serviceScope = coroutineService.cellsIoScope
-    private val liveNetwork = networkService.networkType
+
+    private val liveNetwork = networkService.networkTypeFlow
+
     val sessionView: Flow<RSessionView?> = accountService.activeSessionViewF
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
@@ -96,30 +98,37 @@ class ConnectionService(
 //        }
 
     private fun getSessionFlow(): Flow<SessionStatus> = sessionView
-        .combine(liveNetwork.asFlow()) { activeSession, currType ->
-            Log.d(logTag, "Executing switch map with network type: $currType")
-            // we first check the network type
-            var newStatus = when (currType) {
-                AppNames.NETWORK_TYPE_UNKNOWN -> {
+        .combine(liveNetwork) { activeSession, networkStatus ->
+
+            Log.d(logTag, "Combining session with network: $networkStatus")
+
+            var newStatus = when (networkStatus) {
+                NetworkStatus.Unknown -> {
                     // TODO enhance this:
-                    Log.e(logTag, "unexpected network type: $currType")
+                    Log.e(logTag, "unexpected network type: $networkStatus")
                     SessionStatus.OK
                 }
 
-                AppNames.NETWORK_TYPE_UNMETERED -> SessionStatus.OK
-                AppNames.NETWORK_TYPE_METERED -> SessionStatus.METERED
-                AppNames.NETWORK_TYPE_ROAMING -> SessionStatus.ROAMING
-                AppNames.NETWORK_TYPE_UNAVAILABLE -> SessionStatus.NO_INTERNET
-                else -> SessionStatus.NO_INTERNET
+                NetworkStatus.Unmetered -> SessionStatus.OK
+                NetworkStatus.Metered -> SessionStatus.METERED
+                NetworkStatus.Roaming -> SessionStatus.ROAMING
+                NetworkStatus.Unavailable -> SessionStatus.NO_INTERNET
             }
 
             // We then refine based on the current foreground session
-            Log.d(logTag, " Got a status: $newStatus")
+            // Log.d(logTag, " Got a status: $newStatus")
+
             activeSession?.let {
+                if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
+                    newStatus = SessionStatus.SERVER_UNREACHABLE
+                }
+
                 Log.e(logTag, " Got a Session view: ${it.getStateID()}")
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
-                    newStatus = if (newStatus != SessionStatus.NO_INTERNET) {
+                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
+                        && newStatus != SessionStatus.SERVER_UNREACHABLE
+                    ) {
                         SessionStatus.CAN_RELOG
                     } else {
                         // TODO refine, we have following sessions status:
@@ -135,7 +144,7 @@ class ConnectionService(
             }
             newStatus
         }
-        .flowOn(Dispatchers.Default)
+        .flowOn(coroutineService.ioDispatcher)
         .conflate()
 
     private var currJob: Job? = null
@@ -227,11 +236,6 @@ class ConnectionService(
 //            return@withContext
         }
     }
-
-//    override fun onCleared() {
-//        super.onCleared()
-//        Log.e(logTag, "### Connection VM cleared!")
-//    }
 
     init {
         Log.i(logTag, "### ConnectionService initialised")

@@ -103,8 +103,8 @@ class LoginHelper(
             return
         }
 
-        Log.e(logTag, "## In processAuth for: $stateID")
-        Log.e(logTag, "##    route: ${startingState.route}")
+        Log.i(logTag, "## In processAuth for: $stateID")
+        Log.d(logTag, "##    route: ${startingState.route}")
         Log.d(logTag, "##    OAuth state: ${startingState.state}")
 
         loginVM.handleOAuthResponse(
@@ -160,8 +160,8 @@ class LoginHelper(
     }
 
     private fun afterAuth(stateID: StateID, nextAction: String?) {
-        Log.e(logTag, "#########################")
-        Log.e(logTag, "## After OAuth: $stateID")
+        Log.d(logTag, "#########################")
+        Log.i(logTag, "## After OAuth: $stateID")
 
         val route = BrowseDestinations.Open.createRoute(stateID)
 
@@ -180,7 +180,7 @@ class LoginHelper(
             }
         }
         targetEntry?.destination?.route?.let {
-            Log.e(logTag, "##### About to nav back to $route ")
+            Log.i(logTag, "##### About to nav back to $route ")
             navController.navigate(route) {
                 popUpTo(it) {
                     inclusive = false

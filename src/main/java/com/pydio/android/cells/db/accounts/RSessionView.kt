@@ -12,6 +12,7 @@ import java.util.*
             "sessions.lifecycle_state, " +
             "sessions.dir_name, " +
             "sessions.db_name, " +
+            "sessions.is_reachable, " +
             "accounts.url, " +
             "accounts.username, " +
             "accounts.auth_status, " +
@@ -25,6 +26,7 @@ import java.util.*
 data class RSessionView(
     @ColumnInfo(name = "account_id") val accountID: String,
     @ColumnInfo(name = "lifecycle_state") val lifecycleState: String,
+    @ColumnInfo(name = "is_reachable") val isReachable: Boolean,
     @ColumnInfo(name = "dir_name") var dirName: String,
     @ColumnInfo(name = "db_name") var dbName: String,
 
@@ -55,10 +57,3 @@ data class RSessionView(
         return StateID.fromId(accountID)
     }
 }
-
-//// Not very useful for the time being, kept here for the pattern
-//fun List<RLiveSession>.asDomainModel(): List<RLiveSession> {
-//    return map {
-//        it
-//    }
-//}

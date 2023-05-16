@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.models.ErrorMessage
@@ -16,8 +17,12 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Only provide access to the repository while browsing, does not hold any state.
@@ -25,13 +30,25 @@ import kotlinx.coroutines.launch
 open class AbstractBrowseVM(
     private val prefs: PreferencesService,
     private val nodeService: NodeService,
-) : ViewModel() {
+) : ViewModel(), KoinComponent {
 
     // private val logTag = "AbstractBrowseVM"
+
+    private val connectionService: ConnectionService by inject()
+
     private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
     private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
-    val loadingState: Flow<LoadingState> = _loadingStateF
+    val loadingState: Flow<LoadingState> =
+        _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
+            if (ConnectionService.SessionStatus.NO_INTERNET == status
+                || ConnectionService.SessionStatus.SERVER_UNREACHABLE == status
+            ) {
+                LoadingState.SERVER_UNREACHABLE
+            } else {
+                state
+            }
+        }
     val errorMessage: Flow<ErrorMessage?> = _errorMessageF
 
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -61,7 +78,8 @@ open class AbstractBrowseVM(
     }
 
     private suspend fun viewFile(context: Context, node: RTreeNode) {
-        nodeService.getLocalFile(node, true)?.let { file ->
+        val checkUpToDate = loadingState.last() != LoadingState.SERVER_UNREACHABLE
+        nodeService.getLocalFile(node, checkUpToDate)?.let { file ->
             externallyView(context, file, node)
             return
         } ?: run {
