@@ -57,7 +57,7 @@ class NetworkService(
     val networkStatusFlow: StateFlow<NetworkStatus> = networkStatusFlowCold.stateIn(
         scope = coroutineService.cellsIoScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = NetworkStatus.Unknown
+        initialValue = NetworkStatus.Unavailable
     )
 
     suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
