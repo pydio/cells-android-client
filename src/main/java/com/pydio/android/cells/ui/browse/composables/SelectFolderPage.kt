@@ -20,7 +20,7 @@ fun SelectFolderPage(
     folderVM: FolderVM,
 ) {
 
-    val childNodes by folderVM.children.collectAsState()
+    val childNodes by folderVM.children.collectAsState(listOf())
 
     SelectFolderScaffold(
         loadingStatus = loadingStatus,

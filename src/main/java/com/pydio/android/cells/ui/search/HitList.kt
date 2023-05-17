@@ -139,7 +139,7 @@ private fun HitListItem(
     ) {
 
         Thumbnail(
-            item.defaultStateID().id, item.sortName, item.name, item.mime, item.eTag, item.hasThumb
+            item.defaultStateID(), item.sortName, item.name, item.mime, item.eTag, -1, item.hasThumb
         )
 
         Column(

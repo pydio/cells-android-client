@@ -17,6 +17,8 @@ fun MultipleGridItem(
             LargeCardImageThumb(
                 item.defaultStateID(),
                 item.eTag,
+                // FIXME
+                -1,
                 item.mime,
                 item.name,
                 item.sortName,

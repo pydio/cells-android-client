@@ -4,16 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.FileService
-import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.core.AbstractCellsVM
+import com.pydio.android.cells.ui.models.fromMessage
 import com.pydio.android.cells.utils.DEFAULT_FILE_PROVIDER_ID
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
@@ -26,37 +23,45 @@ import java.io.IOException
 
 /**  Centralize methods to manage a TreeNode */
 class NodeActionsVM(
-    private val nodeService: NodeService,
     private val fileService: FileService,
     private val transferService: TransferService,
     private val offlineService: OfflineService,
-) : ViewModel() {
+) : AbstractCellsVM() {
 
     private val logTag = "NodeActionsVM"
 
-    private val _loadingState = MutableLiveData(LoadingState.STARTING)
-    private val _errorMessage = MutableLiveData<String?>()
-    val loadingState: LiveData<LoadingState> = _loadingState
-    val errorMessage: LiveData<String?> = _errorMessage
-
-    private fun launchProcessing() {
-        _loadingState.value = LoadingState.PROCESSING
-        _errorMessage.value = null
-    }
+//    private val _loadingState = MutableLiveData(LoadingState.STARTING)
+//    private val _errorMessage = MutableLiveData<String?>()
+//    val loadingState: LiveData<LoadingState> = _loadingState
+//    val errorMessage: LiveData<String?> = _errorMessage
+//
+//    private fun launchProcessing() {
+//        _loadingState.value = LoadingState.PROCESSING
+//        _errorMessage.value = null
+//    }
 
     /* Pass a non-empty err parameter when the process has terminated with an error */
-    private suspend fun done(err: String? = null, userMsg: String? = null) =
-        withContext(Dispatchers.Main) {
-            if (Str.notEmpty(err)) {
-                Log.e(logTag, "${err ?: userMsg}")
-                _errorMessage.value = userMsg
-            }
-            _loadingState.value = LoadingState.IDLE
-        }
+//    private suspend fun done(err: String? = null, userMsg: String? = null) =
+//        withContext(Dispatchers.Main) {
+//            if (Str.notEmpty(err)) {
+//                Log.e(logTag, "${err ?: userMsg}")
+//                _errorMessage.value = userMsg
+//            }
+//            _loadingState.value = LoadingState.IDLE
+//        }
+//
+//    private fun failed(msg: String) {
+//        _loadingState.value = LoadingState.IDLE
+//        _errorMessage.value = msg
+//    }
 
-    private fun failed(msg: String) {
-        _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = msg
+    private fun localDone(err: String? = null, userMsg: String? = null) {
+        if (Str.notEmpty(err)) {
+            Log.e(logTag, "${err ?: userMsg}")
+            done(fromMessage(userMsg!!))
+        } else {
+            done()
+        }
     }
 
 
@@ -64,33 +69,28 @@ class NodeActionsVM(
     fun createFolder(parentID: StateID, name: String) {
         viewModelScope.launch {
             val errMsg = nodeService.createFolder(parentID, name)
-            done(errMsg, "Could not create folder $name at $parentID")
+            localDone(errMsg, "Could not create folder $name at $parentID")
         }
     }
 
     fun rename(srcID: StateID, name: String) {
         viewModelScope.launch {
             val errMsg = nodeService.rename(srcID, name)
-            done(errMsg, "Could not rename $srcID to $name")
+            localDone(errMsg, "Could not rename $srcID to $name")
         }
     }
 
     fun delete(stateID: StateID) {
         viewModelScope.launch {
             val errMsg = nodeService.delete(stateID)
-            done(errMsg, "Could not delete node at $stateID")
+            localDone(errMsg, "Could not delete node at $stateID")
         }
     }
 
     fun copyTo(stateID: StateID, targetParentID: StateID) {
-        // TODO better handling of scope and error messages
-        CellsApp.instance.appScope.launch {
-            // TODO what do we store/show?
-            //   - source files
-            //   - target files
-            //   - processing
+        viewModelScope.launch {
             val errMsg = nodeService.copy(listOf(stateID), targetParentID)
-            done(errMsg, "Could not copy node $stateID to $targetParentID")
+            localDone(errMsg, "Could not copy node $stateID to $targetParentID")
         }
     }
 
@@ -102,14 +102,14 @@ class NodeActionsVM(
             //   - target files
             //   - processing
             val errMsg = nodeService.move(listOf(stateID), targetParentID)
-            done(errMsg, "Could not move node $stateID to $targetParentID")
+            localDone(errMsg, "Could not move node $stateID to $targetParentID")
         }
     }
 
     fun emptyRecycle(stateID: StateID) {
         viewModelScope.launch {
             val errMsg = nodeService.delete(stateID)
-            done(errMsg, "Could not delete node at $stateID")
+            localDone(errMsg, "Could not delete node at $stateID")
         }
     }
 
@@ -119,7 +119,7 @@ class NodeActionsVM(
                 transferService.saveToSharedStorage(stateID, uri)
                 done()
             } catch (e: SDKException) {
-                done("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
+                localDone("#${e.code} - ${e.message}", "Could not save $stateID to share storage")
             }
         }
     }
@@ -132,7 +132,7 @@ class NodeActionsVM(
                 }
                 done()
             } catch (e: SDKException) {
-                done("#${e.code} - ${e.message}", "Could import files at $stateID")
+                localDone("#${e.code} - ${e.message}", "Could import files at $stateID")
             }
         }
     }
@@ -181,10 +181,10 @@ class NodeActionsVM(
             try {
                 nodeService.toggleBookmark(stateID, newState)
             } catch (e: Exception) {
-                Log.e(
-                    logTag,
-                    "Unhandled error when flaging bookmark=$newState for $stateID, cause:  ${e.message}"
-                )
+                val msg = "Cannot toggle ($newState) bookmark for $stateID, cause: ${e.message}"
+                val userMsg = if (newState) "Cannot add bookmark on $stateID"
+                else "Cannot remove bookmark on $stateID"
+                localDone(msg, userMsg)
                 e.printStackTrace()
             }
         }
@@ -201,7 +201,7 @@ class NodeActionsVM(
         return try {
             nodeService.createShare(stateID)
         } catch (e: SDKException) {
-            done("#${e.code}: ${e.message}, cause: ${e.cause?.message}", e.message)
+            localDone("#${e.code}: ${e.message}, cause: ${e.cause?.message}", e.message)
             null
         }
     }

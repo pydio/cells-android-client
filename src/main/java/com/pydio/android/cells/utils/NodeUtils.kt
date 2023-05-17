@@ -28,9 +28,9 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
 
     var isEqual: Boolean
 
-    isEqual = local.remoteModificationTS == remote.getLastModified()
+    isEqual = local.remoteModificationTS == remote.lastModified
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
+        Log.d(NODE_UTILS, "Differ: modification times are not equals")
         return false
     }
 

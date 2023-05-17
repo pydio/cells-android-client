@@ -423,6 +423,8 @@ private fun OfflineRootsList(
                                 LargeCardWithImage(
                                     stateID = node.getStateID(),
                                     eTag = node.etag,
+                                    // TODO fix this: we will miss some changes
+                                    metaHash = -1,
                                     mime = node.mime,
                                     title = getNodeTitle(name = node.name, mime = node.mime),
                                     desc = getDesc(node),

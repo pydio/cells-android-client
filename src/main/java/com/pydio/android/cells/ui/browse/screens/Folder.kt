@@ -56,6 +56,7 @@ import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
+import com.pydio.android.cells.ui.browse.composables.TreeNodeLargeCard
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
@@ -64,8 +65,6 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpLargeGridItem
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
@@ -103,7 +102,7 @@ fun Folder(
     val scope = rememberCoroutineScope()
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
-    val children by folderVM.children.collectAsState()
+    val children = folderVM.children.collectAsState(listOf())
 
     val binLabel = stringResource(R.string.recycle_bin_label)
     val label by remember(key1 = treeNode, key2 = workspace) {
@@ -202,7 +201,7 @@ fun Folder(
             showFAB = showFAB,
             label = label,
             stateID = folderID,
-            children = children,
+            children = children.value,
             forceRefresh = forceRefresh,
             openDrawer = openDrawer,
             openSearch = openSearch,
@@ -355,15 +354,14 @@ private fun FolderList(
         loadingState = loadingState,
         isEmpty = children.isEmpty(),
         listContext = ListContext.BROWSE,
-        // TODO also handle if server is unreachable
-        canRefresh = true,
+        canRefresh = LoadingState.SERVER_UNREACHABLE != loadingState,
         modifier = Modifier.padding(padding)
     ) {
         Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
-                        top = dimensionResource(id = R.dimen.margin_medium), // padding.calculateTopPadding(),
+                        top = dimensionResource(id = R.dimen.margin_medium),
                         bottom = padding.calculateBottomPadding()
                             .plus(dimensionResource(R.dimen.list_bottom_fab_padding)),
                         start = dimensionResource(id = R.dimen.margin_medium),
@@ -392,41 +390,8 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.stateID.id }) { node ->
-                            if (node.hasThumb) {
-                                // TODO this log is important so that we are "notified" when the meta-hash changes
-                                Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
-                                LargeCardWithImage(
-                                    stateID = node.stateID,
-                                    eTag = node.eTag,
-                                    mime = node.mime,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModTs,
-                                        node.size,
-                                        node.localModStatus
-                                    ),
-                                    openMoreMenu = { openMoreMenu(node.stateID) },
-                                    sortName = node.sortName,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { open(node.stateID) }
-                                )
-                            } else {
-                                LargeCardWithIcon(
-                                    sortName = node.sortName,
-                                    mime = node.mime,
-                                    title = getNodeTitle(name = node.name, mime = node.mime),
-                                    desc = getNodeDesc(
-                                        node.remoteModTs,
-                                        node.size,
-                                        node.localModStatus
-                                    ),
-                                    openMoreMenu = { openMoreMenu(node.stateID) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { open(node.stateID) }
-                                )
-                            }
+                            // Log.e("test", "Meta hash: ${node.metaHash}")
+                            TreeNodeLargeCard(node, openMoreMenu, open)
                         }
                     }
                 }
@@ -449,8 +414,6 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.stateID.id }) { node ->
-                            // TODO clean this, see above
-                            Log.d(logTag, "Thumb for ${node.name}, M-Hash: ${node.metaHash}")
                             NodeItem(
                                 item = node,
                                 title = getNodeTitle(name = node.name, mime = node.mime),

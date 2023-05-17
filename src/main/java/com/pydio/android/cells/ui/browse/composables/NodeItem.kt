@@ -26,6 +26,7 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
+import com.pydio.cells.transport.StateID
 
 @Composable
 fun NodeItem(
@@ -36,13 +37,14 @@ fun NodeItem(
     modifier: Modifier = Modifier
 ) {
     M3NodeItem(
+        stateID = item.stateID,
         title = title,
         desc = desc,
-        encodedState = item.stateID.id,
         name = item.name,
         sortName = item.sortName,
         mime = item.mime,
         eTag = item.eTag,
+        metaHash = item.metaHash,
         hasThumb = item.hasThumb,
         isBookmarked = item.isBookmarked,
         isOfflineRoot = item.isOfflineRoot,
@@ -54,13 +56,14 @@ fun NodeItem(
 
 @Composable
 fun M3NodeItem(
+    stateID: StateID,
     title: String,
     desc: String,
-    encodedState: String,
     name: String,
     sortName: String?,
     mime: String,
     eTag: String?,
+    metaHash: Int,
     hasThumb: Boolean,
     isBookmarked: Boolean,
     isOfflineRoot: Boolean,
@@ -81,7 +84,7 @@ fun M3NodeItem(
             )
     ) {
 
-        Thumbnail(encodedState, sortName, name, mime, eTag, hasThumb)
+        Thumbnail(stateID, sortName, name, mime, eTag, metaHash, hasThumb)
 
         Column(
             modifier = Modifier
@@ -153,13 +156,14 @@ fun OfflineRootItem(
 ) {
 
     M3NodeItem(
-        encodedState = item.encodedState,
+        stateID = item.getStateID(),
         sortName = item.sortName,
         name = item.name,
         title = title,
         desc = desc,
         mime = item.mime,
         eTag = item.etag,
+        metaHash = -1,
         hasThumb = item.hasThumb(),
         isBookmarked = item.isBookmarked(),
         isShared = item.isShared(),
@@ -180,19 +184,21 @@ fun NodeItemPreview() {
     val sortName = "3_Images with a very long name but very very very long. And this is the END!"
     val mime = "pydio/nodes-list"
     val eTag = "92a05680b0066fbf6d418b882225e0dc"
+    val metaHash = 667783986
     val hasThumb = false
     val isBookmarked = true
     val isOfflineRoot = false
     val isShared = true
     UseCellsTheme {
         M3NodeItem(
+            stateID = StateID.fromId(encodedState),
             title = title,
             desc = desc,
-            encodedState = encodedState,
             name = name,
             sortName = sortName,
             mime = mime,
             eTag = eTag,
+            metaHash = metaHash,
             hasThumb = hasThumb,
             isBookmarked = isBookmarked,
             isOfflineRoot = isOfflineRoot,
@@ -202,4 +208,3 @@ fun NodeItemPreview() {
         )
     }
 }
-

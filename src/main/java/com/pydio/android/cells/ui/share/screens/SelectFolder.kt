@@ -278,12 +278,13 @@ private fun SelectFolderItem(
     ) {
 
         Thumbnail(
-            item.stateID.id,
+            item.stateID,
             item.sortName,
             item.name,
             item.mime,
             item.eTag,
-            item.hasThumb
+            item.metaHash,
+            item.hasThumb,
         )
 
         Column(

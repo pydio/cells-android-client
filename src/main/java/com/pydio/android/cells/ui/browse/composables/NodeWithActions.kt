@@ -11,7 +11,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,6 +28,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
@@ -122,13 +123,13 @@ private fun FolderWithDialogs(
         mutableStateOf(null)
     }
 
-    val errMsg = nodeActionsVM.errorMessage.observeAsState(null)
+    val errMsg = nodeActionsVM.errorMessage.collectAsState(null)
 
-    LaunchedEffect(key1 = errMsg.value) {
-        errMsg.value?.let {
+    errMsg.value?.let {
+        LaunchedEffect(key1 = it) {
             // TODO finalise this
             snackBarHostState.showSnackbar(
-                message = it,
+                message = toErrorMessage(context, it),
                 withDismissAction = false,
                 duration = SnackbarDuration.Short
             )

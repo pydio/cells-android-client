@@ -28,7 +28,12 @@ data class TreeNodeItem(
         if (other !is TreeNodeItem) {
             return false
         }
-        return (this.uuid == other.uuid) && (stateID == other.stateID)
+        return (this.uuid == other.uuid)
+                && (stateID == other.stateID)
+                && remoteModTs == other.remoteModTs
+                && metaHash == other.metaHash
+                && ((eTag ?: "") == (other.eTag ?: ""))
+                && ((localModStatus ?: "") == (other.localModStatus ?: ""))
     }
 
     override fun hashCode(): Int {

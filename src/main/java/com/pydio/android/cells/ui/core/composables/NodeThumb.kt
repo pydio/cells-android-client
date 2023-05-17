@@ -35,23 +35,32 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Thumbnail(item: RTreeNode) {
-    Thumbnail(item.encodedState, item.sortName, item.name, item.mime, item.etag, item.hasThumb())
+    Thumbnail(
+        item.getStateID(),
+        item.sortName,
+        item.name,
+        item.mime,
+        item.etag,
+        item.metaHash,
+        item.hasThumb()
+    )
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Thumbnail(
-    encodedState: String,
+    stateID: StateID,
     sortName: String?,
     name: String,
     mime: String,
     eTag: String?,
+    metaHash: Int,
     hasThumb: Boolean,
-//     modifier: Modifier = Modifier
 ) {
     if (hasThumb) {
         Surface(
@@ -59,7 +68,7 @@ fun Thumbnail(
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
             GlideImage(
-                model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
+                model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
                 contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
                 failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
@@ -118,59 +127,59 @@ fun M3IconThumb(@DrawableRes id: Int, color: Color, modifier: Modifier = Modifie
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-fun GridThumb(
-    encodedState: String,
-    sortName: String?,
-    name: String,
-    mime: String,
-    eTag: String?,
-    hasThumb: Boolean,
-    outerSize: Dp,
-    iconSize: Dp,
-    padding: PaddingValues = PaddingValues(0.dp),
-    clipShape: Shape,
-) {
-
-    if (hasThumb) {
-        Surface(
-            // tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(padding)
-                .clip(clipShape)
-        ) {
-            LoadingAnimation(
-                modifier = Modifier
-                    .padding(dimensionResource(id = R.dimen.list_thumb_padding))
-                    .size(outerSize),
-            )
-            GlideImage(
-                model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
-                contentDescription = "$name thumbnail",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(outerSize),
-            )
-        }
-    } else {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(padding)
-                .size(outerSize)
-                .clip(clipShape)
-                .wrapContentSize(Alignment.Center)
-        ) {
-            Icon(
-                painter = painterResource(getDrawableFromMime(mime, sortName, iconSize)),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(iconSize)
-            )
-        }
-    }
-}
+//@OptIn(ExperimentalGlideComposeApi::class)
+//@Composable
+//fun GridThumb(
+//    encodedState: String,
+//    sortName: String?,
+//    name: String,
+//    mime: String,
+//    eTag: String?,
+//    hasThumb: Boolean,
+//    outerSize: Dp,
+//    iconSize: Dp,
+//    padding: PaddingValues = PaddingValues(0.dp),
+//    clipShape: Shape,
+//) {
+//
+//    if (hasThumb) {
+//        Surface(
+//            // tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(padding)
+//                .clip(clipShape)
+//        ) {
+//            LoadingAnimation(
+//                modifier = Modifier
+//                    .padding(dimensionResource(id = R.dimen.list_thumb_padding))
+//                    .size(outerSize),
+//            )
+//            GlideImage(
+//                model = encodeModel(encodedState, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
+//                contentDescription = "$name thumbnail",
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier.size(outerSize),
+//            )
+//        }
+//    } else {
+//        Surface(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(padding)
+//                .size(outerSize)
+//                .clip(clipShape)
+//                .wrapContentSize(Alignment.Center)
+//        ) {
+//            Icon(
+//                painter = painterResource(getDrawableFromMime(mime, sortName, iconSize)),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(iconSize)
+//            )
+//        }
+//    }
+//}
 
 fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp): Int {
 

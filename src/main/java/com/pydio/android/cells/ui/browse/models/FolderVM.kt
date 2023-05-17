@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -9,13 +10,12 @@ import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
  */
 class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
 
-//    private val logTag = "FolderVM"
+    private val logTag = "FolderVM"
 
     // Load the current parent for various labels and generic actions
     private val _rTreeNode = MutableStateFlow<RTreeNode?>(null)
@@ -34,18 +34,17 @@ class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
 
     // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
-    val children: StateFlow<List<TreeNodeItem>> = defaultOrderPair.flatMapLatest { currPair ->
-        val rtNodes = if (Str.empty(stateID.slug)) {
+    val tnChildren: Flow<List<RTreeNode>> = defaultOrderPair.flatMapLatest { currPair ->
+        if (Str.empty(stateID.slug)) {
             nodeService.listWorkspaces(stateID)
         } else {
             nodeService.sortedListFlow(stateID, currPair.first, currPair.second)
         }
-        rtNodes.map { nodes -> toTreeNodeItems(nodeService, nodes) }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = listOf()
-    )
+    }
+    val children: Flow<List<TreeNodeItem>> = tnChildren.map { nodes ->
+        toTreeNodeItems(nodeService, nodes)
+    }
+
 
     init {
         viewModelScope.launch {

@@ -43,7 +43,24 @@ import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
 import com.pydio.cells.transport.StateID
 
-private const val logTag = "GridLargeCard"
+// private const val logTag = "GridLargeCard"
+
+@Composable
+fun LargeCardWithImage(
+    stateID: StateID,
+    eTag: String?,
+    metaHash: Int,
+    mime: String,
+    title: String,
+    desc: String,
+    modifier: Modifier = Modifier,
+    sortName: String? = null,
+    openMoreMenu: (() -> Unit)? = null,
+) {
+    LargeCard(title = title, desc = desc, modifier = modifier) {
+        LargeCardImageThumb(stateID, eTag, metaHash, mime, title, sortName, openMoreMenu)
+    }
+}
 
 @Composable
 fun LargeCardWithIcon(
@@ -56,22 +73,6 @@ fun LargeCardWithIcon(
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
         LargeCardIconThumb(title, mime, sortName, openMoreMenu)
-    }
-}
-
-@Composable
-fun LargeCardWithImage(
-    stateID: StateID,
-    eTag: String?,
-    mime: String,
-    title: String,
-    desc: String,
-    modifier: Modifier = Modifier,
-    sortName: String? = null,
-    openMoreMenu: (() -> Unit)? = null,
-) {
-    LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardImageThumb(stateID, eTag, mime, title, sortName, openMoreMenu)
     }
 }
 
@@ -118,100 +119,12 @@ fun LargeCardIconThumb(
     }
 }
 
-//@OptIn(ExperimentalGlideComposeApi::class)
-//@Composable
-//fun LargeCardWithThumb(
-//    stateID: StateID,
-//    eTag: String?,
-//    mime: String,
-//    title: String,
-//    desc: String,
-//    modifier: Modifier = Modifier,
-//    sortName: String? = null,
-//    openMoreMenu: (() -> Unit)? = null,
-//) {
-//    LargeCard(title = title, desc = desc, modifier = modifier) {
-//        Surface(
-//            tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-//            modifier = Modifier
-//                .fillMaxWidth(1f)
-//                .size(dimensionResource(R.dimen.grid_ws_image_size))
-//                .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
-//        ) {
-//            GlideImage(
-//                model = encodeModel(stateID.id, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
-//                contentDescription = "$title thumbnail",
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-//                loading = placeholder {
-//                    LoadingAnimation(
-//                        modifier = Modifier
-//                            .padding(dimensionResource(id = R.dimen.list_thumb_padding))
-//                            .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-//                    )
-//                },
-//                failure = placeholder {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .size(dimensionResource(id = R.dimen.grid_ws_image_size))
-//                    ) {
-//                        getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
-//                            Image(
-//                                painter = painterResource(t.first),
-//                                contentDescription = null,
-//                                colorFilter = ColorFilter.tint(t.second),
-//                                modifier = Modifier
-//                                    .fillMaxSize()
-//                                    .wrapContentSize(Alignment.Center)
-//                                    .size(dimensionResource(R.dimen.grid_large_icon_size))
-//                            )
-//                        }
-//                    }
-//                },
-//            )
-//            openMoreMenu?.let {
-//                Box(
-//                    modifier = Modifier
-//                        .wrapContentSize(Alignment.TopEnd)
-//                        .clip(
-//                            RoundedCornerShape(
-//                                topStart = dimensionResource(R.dimen.grid_large_corner_radius),
-//                                bottomStart = dimensionResource(R.dimen.grid_large_more_size) * 2,
-//                                bottomEnd = 2.dp,
-//                            ),
-//                        )
-//                        .background(
-//                            Brush.horizontalGradient(
-//                                0.2f to Color.Transparent,
-//                                1.0f to MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
-//                            )
-//                        )
-//                        .clickable { it() }
-//                ) {
-//                    Icon(
-//                        imageVector = CellsIcons.MoreVert,
-//                        contentDescription = "open more menu for $title",
-//                        modifier = Modifier
-//                            .padding(
-//                                top = dimensionResource(id = R.dimen.grid_large_v_inner_padding),
-//                                bottom = dimensionResource(id = R.dimen.grid_large_v_inner_padding),
-//                                start = dimensionResource(id = R.dimen.grid_large_v_inner_padding),
-//                                end = 4.dp
-//                            )
-//                            .size(dimensionResource(R.dimen.grid_large_more_size))
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun LargeCardImageThumb(
     stateID: StateID,
     eTag: String?,
+    metaHash: Int,
     mime: String,
     title: String,
     sortName: String? = null,
@@ -225,7 +138,7 @@ fun LargeCardImageThumb(
             .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
     ) {
         GlideImage(
-            model = encodeModel(stateID.id, eTag, AppNames.LOCAL_FILE_TYPE_THUMB),
+            model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
             contentDescription = "$title thumbnail",
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),

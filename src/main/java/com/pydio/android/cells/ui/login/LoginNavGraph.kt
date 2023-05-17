@@ -71,7 +71,7 @@ fun NavGraphBuilder.loginNavGraph(
 
     composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.e(logTag, "... Starting ProcessAuth activity for $stateID")
+        Log.i(logTag, "... Starting ProcessAuth activity for $stateID")
         // TMP TODO remove
         var i = 0
         navController.backQueue.forEach {

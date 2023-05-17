@@ -200,7 +200,7 @@ class TreeDiff(
     }
 
     private suspend fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(logTag, "update for ${remote.name}")
+        Log.d(logTag, "Updating ${remote.name} - ${remote.path}")
 
         changeNumber++
 
