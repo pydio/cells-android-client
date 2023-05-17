@@ -8,38 +8,32 @@ import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import java.util.Locale
 
 private const val logTag = "NetworkService"
 
 class NetworkService(
     context: Context,
-    // coroutineService: CoroutineService,
+    coroutineService: CoroutineService,
 ) {
 
     private val connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
-//    // Local cache to avoid suspend functions while checking current network
-//    // TODO not good enough => relies on the fact that the networkStatusFLow that is a **cold** flow
-//    //   has already been called
-//    private var _networkStatus: NetworkStatus = NetworkStatus.Unmetered
-//    private val networkStatus: NetworkStatus
-//        get() = _networkStatus
-
-    suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
-
-    val networkStatusFlow: Flow<NetworkStatus> = callbackFlow {
+    private val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
             Log.e(logTag, "Updating current network status to $it")
-//            _networkStatus = it
             trySendBlocking(it)
                 .onFailure { throwable ->
                     Log.e(logTag, "Could not emit in flow: ${throwable?.message}")
@@ -47,34 +41,26 @@ class NetworkService(
         }
         connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
 
-//        delay(600)
-//        // Force initialisation --> TODO double check and remove if not necessary
-//        connectivityManager.activeNetwork?.let { network ->
-//            Log.i(logTag, "Initialising network status flow with network $network")
-//            connectivityManager.getNetworkCapabilities(network)?.let {
-//                val status = fromCapabilities(it)
-//                trySend(status)
-//            }
-//        } ?: run {
-//            _networkStatus = NetworkStatus.Unavailable
-//            trySend(NetworkStatus.Unavailable)
-//            Log.e(logTag, "Initializing with **NO** status")
-//        }
-
-        /* Suspends until either 'onCompleted'/'onApiError' from the callback is invoked
-        * or flow collector is cancelled (e.g. by 'take(1)' or because a collector's coroutine was cancelled).
-       * In both cases, callback will be properly unregistered. */
         awaitClose {
-//            Log.e(logTag, "####################################################")
-//            Log.e(logTag, "Current active network: ${connectivityManager.activeNetwork}")
-//            Log.e(logTag, "In await close, about to unregister Network Callback")
             try {
+                Log.w(logTag, "In await close, about to unregister Network Callback")
                 connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
             } catch (e: IllegalArgumentException) { // Sometimes the callback has not been registered fast enough
                 Log.e(logTag, "Could not unregister: ${e.message}")
             }
         }
     }
+
+    // We register a hot flow here that can be subscribed to by various callers to avoid
+    // systematically register / unregister the above cold flow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val networkStatusFlow: StateFlow<NetworkStatus> = networkStatusFlowCold.stateIn(
+        scope = coroutineService.cellsIoScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = NetworkStatus.Unknown
+    )
+
+    suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
 
     suspend fun isConnected(): Boolean {
         return isConnected(fetchNetworkStatus())
@@ -96,11 +82,6 @@ class NetworkService(
             is NetworkStatus.Roaming -> true
         }
     }
-
-//    fun isMetered(): Boolean {
-//        return _networkStatus is NetworkStatus.Metered ||
-//                _networkStatus is NetworkStatus.Roaming
-//    }
 
     // TODO retrieve and expose App network usage to the end user
     private fun networkUsage(context: Context) {
@@ -131,12 +112,12 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
     private val logTag = "CellsNetworkCallback"
     override fun onAvailable(network: Network) {
-        Log.e(logTag, "## Using network #$network")
+        Log.i(logTag, "## Using network #$network")
         // TODO manage sockets.
     }
 
     override fun onLost(network: Network) {
-        Log.e(logTag, "## After loosing network #$network")
+        Log.i(logTag, "## After loosing network #$network")
         postValue(NetworkStatus.Unavailable)
     }
 
@@ -144,8 +125,7 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
         network: Network,
         networkCapabilities: NetworkCapabilities
     ) {
-        Log.e(logTag, "## Capability changed for #$network")
-
+        Log.d(logTag, "## Capability changed for #$network")
         val status = fromCapabilities(networkCapabilities)
         if (NetworkStatus.Unknown == status) {
             Log.w(logTag, "Unexpected status for network #$network")
@@ -156,7 +136,7 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
 fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
     return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-        Log.i(logTag, "  capabilities: $networkCapabilities.")
+        Log.d(logTag, ".. capabilities: $networkCapabilities.")
         when {
             networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                     && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
@@ -176,7 +156,6 @@ fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
     } else {
         NetworkStatus.Unavailable
     }
-
 }
 
 sealed class NetworkStatus {

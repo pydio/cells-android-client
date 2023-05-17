@@ -179,7 +179,7 @@ val serviceModule = module {
     }
 
     // Network state
-    single { NetworkService(androidContext()) }
+    single { NetworkService(androidContext(), get()) }
 
     // Long running jobs
     single { JobService(get(), get()) }
