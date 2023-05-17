@@ -1,11 +1,9 @@
 package com.pydio.android.cells.db.accounts
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.pydio.android.cells.AppNames
 
 @Dao
-// @TypeConverters(CellsConverters::class)
 interface SessionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -20,20 +18,11 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE account_id = :accountID LIMIT 1")
     fun getSession(accountID: String): RSession?
 
-    @Query("SELECT * FROM sessions WHERE account_id = :accountID LIMIT 1")
-    fun getLiveSession(accountID: String): LiveData<RSession?>
-
     @Query("SELECT * FROM sessions")
     fun getSessions(): List<RSession>
 
-    @Query("SELECT * FROM sessions")
-    fun getLiveSessions(): LiveData<List<RSession>>
-
     @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState LIMIT 1")
     fun getForegroundSession(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): RSession?
-
-    @Query("SELECT * FROM sessions WHERE lifecycle_state = :lifecycleState")
-    fun getLiveForegroundSession(lifecycleState: String = AppNames.LIFECYCLE_STATE_FOREGROUND): LiveData<RSession?>
 
     /**
      * Convenience method to insure we reset all sessions to be in the background before
@@ -47,5 +36,4 @@ interface SessionDao {
 
     @Query("SELECT * FROM sessions WHERE dir_name = :dirName")
     fun getWithDirName(dirName: String): List<RSession>
-
 }

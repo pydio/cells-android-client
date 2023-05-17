@@ -112,13 +112,13 @@ class OfflineService(
 
     /* Offline synchronisation */
     @OptIn(ExperimentalTime::class)
-    suspend fun runFullSync(caller: String): RJob? {
+    suspend fun runFullSync(caller: String): RJob? = withContext(ioDispatcher) {
 
         val label = "Full sync requested by $caller"
         val template = AppNames.JOB_TEMPLATE_FULL_RESYNC
 
         if (hasExistingJob(label, template, 120)) {
-            return null
+            return@withContext null
         }
 
         val sessions = accountService.listSessionViews(false).filter {
@@ -128,7 +128,7 @@ class OfflineService(
 
         val job =
             jobService.createAndLaunch(caller, template, label, maxSteps = sessions.size.toLong())
-                ?: return null
+                ?: return@withContext null
 
         val startTS = timestampForLogMessage()
         val firstMsg = "Full sync started at $startTS by $caller"
@@ -153,7 +153,7 @@ class OfflineService(
         jobService.done(job, msg, progressMsg)
         jobService.i(logTag, msg, "${job.jobId}")
 
-        return job
+        return@withContext job
     }
 
     suspend fun prepareAccountSync(

@@ -2,7 +2,6 @@ package com.pydio.android.cells.services
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
 import com.pydio.android.cells.AppNames
@@ -56,7 +55,7 @@ class NodeService(
                     "AND parent_path = ? " +
                     "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
         )
-        return nodeDB(stateID).treeNodeDao().lsFlow(lsQuery)
+        return nodeDB(stateID).treeNodeDao().searchQueryFlow(lsQuery)
     }
 
     fun listBookmarkFlow(
@@ -68,7 +67,7 @@ class NodeService(
             "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
                     " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
         )
-        return nodeDB(accountID).treeNodeDao().lsFlow(lsQuery)
+        return nodeDB(accountID).treeNodeDao().searchQueryFlow(lsQuery)
     }
 
     fun listWorkspaces(stateID: StateID): Flow<List<RTreeNode>> {
@@ -98,7 +97,7 @@ class NodeService(
 //        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
 //    }
 
-    fun listLiveChildren(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
+    fun listLiveChildren(stateID: StateID, mimeFilter: String): Flow<List<RTreeNode>> {
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }

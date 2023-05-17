@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,6 +33,7 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
@@ -55,8 +55,8 @@ fun Search(
 
     searchVM.newContext(queryContext, stateID)
 
-    val loadingState by searchVM.loadingState.observeAsState()
-    val errMessage by searchVM.errorMessage.observeAsState()
+    val loadingState by searchVM.loadingState.collectAsState(LoadingState.STARTING)
+    val errMessage by searchVM.errorMessage.collectAsState(null)
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
     val query by searchVM.userInput.collectAsState("")
@@ -140,7 +140,7 @@ fun Search(
     }
 
     WithScaffold(
-        loadingState = loadingState ?: LoadingState.STARTING,
+        loadingState = loadingState,
         query = query,
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
@@ -167,7 +167,7 @@ fun Search(
 private fun WithScaffold(
     loadingState: LoadingState,
     query: String,
-    errMsg: String?,
+    errMsg: ErrorMessage?,
     updateQuery: (String) -> Unit,
     listLayout: ListLayout,
     hits: List<MultipleItem>,

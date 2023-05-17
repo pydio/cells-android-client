@@ -11,11 +11,9 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NetworkStatus
-import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
-import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.core.AbstractBrowseVM
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,13 +28,11 @@ import kotlinx.coroutines.launch
 /** Expose methods used by Offline pages */
 class OfflineVM(
     stateID: StateID,
-    private val prefs: PreferencesService,
-    private val nodeService: NodeService,
     private val networkService: NetworkService,
     private val jobService: JobService,
     private val transferService: TransferService,
     private val offlineService: OfflineService,
-) : AbstractBrowseVM(prefs, nodeService) {
+) : AbstractCellsVM() {
 
     private val logTag = "OfflineVM"
 
@@ -47,7 +43,7 @@ class OfflineVM(
     // Observe the defined offline roots for current account
     @OptIn(ExperimentalCoroutinesApi::class)
     val offlineRoots: StateFlow<List<RLiveOfflineRoot>> =
-        defaultListOrderFlow.flatMapLatest { currPair ->
+        defaultOrderPair.flatMapLatest { currPair ->
             nodeService.listOfflineRoots(accountID, currPair.first, currPair.second)
         }.stateIn(
             scope = viewModelScope,

@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -48,7 +48,7 @@ fun TransferMoreMenu(
 ) {
 
     val transferVM: SingleTransferVM = koinViewModel { parametersOf(accountID) }
-    val liveItem = transferVM.getTransfer(transferID).observeAsState()
+    val liveItem = transferVM.getTransfer(transferID).collectAsState(null)
 
     liveItem.value?.let { item ->
         val simpleMenuItems: MutableList<SimpleMenuItem> = mutableListOf()

@@ -166,7 +166,7 @@ class AccountService(
                 if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     continue@accountLoop
                 }
-                if (networkService.isConnected(networkService.fetchNetworkStatus())) {
+                if (networkService.isConnected()) {
                     if (checkOneAccount(rAccount)) {
                         changes++
                     }

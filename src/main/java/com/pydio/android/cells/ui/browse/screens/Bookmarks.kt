@@ -175,7 +175,7 @@ fun Bookmarks(
     }
 
     BookmarkScaffold(
-        loadingState = loadingState ?: LoadingState.STARTING,
+        loadingState = loadingState,
         listLayout = listLayout,
         title = stringResource(id = R.string.action_open_bookmarks),
         bookmarks = bookmarks.value,

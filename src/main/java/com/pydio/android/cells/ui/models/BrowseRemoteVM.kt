@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.CoroutineService
@@ -47,8 +48,8 @@ class BrowseRemoteVM(
         _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
             Log.e(logTag, "Computing loading state with:")
             Log.e(logTag, "State: $state, status: $status")
-            if (ConnectionService.SessionStatus.NO_INTERNET == status
-                || ConnectionService.SessionStatus.SERVER_UNREACHABLE == status
+            if (SessionStatus.NO_INTERNET == status
+                || SessionStatus.SERVER_UNREACHABLE == status
             ) {
                 LoadingState.SERVER_UNREACHABLE
             } else {

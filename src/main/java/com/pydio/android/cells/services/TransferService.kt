@@ -7,7 +7,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
@@ -90,7 +89,7 @@ class TransferService(
         stateID: StateID,
         filterByStatus: String,
         encodedOrder: String,
-    ): LiveData<List<RTransfer>> {
+    ): Flow<List<RTransfer>> {
         val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.TRANSFER)
         val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
             SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
@@ -104,7 +103,7 @@ class TransferService(
         return nodeDB(stateID).transferDao().transferQuery(lsQuery)
     }
 
-    fun liveTransfer(accountID: StateID, transferID: Long): LiveData<RTransfer?> {
+    fun liveTransfer(accountID: StateID, transferID: Long): Flow<RTransfer?> {
         return nodeDB(accountID).transferDao().getLiveById(transferID)
     }
 

@@ -28,17 +28,16 @@ enum class ListContext(val id: String) {
 }
 
 enum class LoginStatus(val id: String) {
-    // Workaround to store additional destinations as state
-    //    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
-    //    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
-    //    String CUSTOM_PATH_OFFLINE = "/__offline__";
-    //    String CUSTOM_PATH_SHARES = "/__shares__";
     New("new"),
     NoCreds("no-credentials"),
     Unauthorized("unauthorized"),
     Expired("expired"),
     Refreshing("refreshing"),
     Connected("connected"),
+}
+
+enum class SessionStatus {
+    NO_INTERNET, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
 }
 
 enum class ListType {

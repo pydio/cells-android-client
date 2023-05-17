@@ -3,9 +3,7 @@ package com.pydio.android.cells.ui.browse.models
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.ui.core.AbstractBrowseVM
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
@@ -24,11 +22,7 @@ import kotlinx.coroutines.launch
  * Main ViewModel when browsing a Cells or P8 server. It holds the current parent folder state ID
  * and a Flow list of its children.
  */
-class FolderVM(
-    private val stateID: StateID,
-    prefs: PreferencesService,
-    private val nodeService: NodeService
-) : AbstractBrowseVM(prefs, nodeService) {
+class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
 
 //    private val logTag = "FolderVM"
 
@@ -40,7 +34,7 @@ class FolderVM(
 
     // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
-    val children: StateFlow<List<TreeNodeItem>> = defaultListOrderFlow.flatMapLatest { currPair ->
+    val children: StateFlow<List<TreeNodeItem>> = defaultOrderPair.flatMapLatest { currPair ->
         val rtNodes = if (Str.empty(stateID.slug)) {
             nodeService.listWorkspaces(stateID)
         } else {

@@ -10,7 +10,7 @@ import com.pydio.cells.transport.StateID
 
 /**  Simply provides access to the DB to retrieve basic single objects */
 class TreeNodeVM(
-    stateID: StateID,
+//    stateID: StateID,
     private val nodeService: NodeService,
 ) : ViewModel() {
 

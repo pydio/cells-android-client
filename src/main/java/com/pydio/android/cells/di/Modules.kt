@@ -43,7 +43,6 @@ import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
-import com.pydio.android.cells.ui.models.SelectTargetVM
 import com.pydio.android.cells.ui.search.SearchVM
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM
@@ -60,7 +59,6 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.androidx.workmanager.dsl.worker
 import org.koin.core.module.dsl.singleOf
@@ -249,42 +247,38 @@ val viewModelModule = module {
     viewModelOf(::LandingVM)
     viewModelOf(::MigrationVM)
 
-    viewModel { LoginVM(get(), get(), get()) }
-    viewModelOf(::AccountListVM)
-
-    viewModelOf(::NodeActionsVM)
-
-    viewModelOf(::TreeNodeVM)
-    viewModelOf(::SortByMenuVM)
-    viewModelOf(::FilterTransferByMenuVM)
-
     viewModelOf(::SettingsVM)
     viewModelOf(::PrefReadOnlyVM)
 
-    viewModelOf(::SearchVM)
+    viewModelOf(::LoginVM)
+    viewModelOf(::AccountListVM)
 
-    viewModel { HouseKeepingVM(get()) }
+    viewModelOf(::BrowseRemoteVM)
+    viewModelOf(::AccountHomeVM)
+    viewModelOf(::FolderVM)
+    viewModelOf(::CarouselVM)
 
-    viewModelOf(::DownloadVM)
+    viewModelOf(::TreeNodeVM)
+    viewModelOf(::SortByMenuVM)
 
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)
-    viewModelOf(::TransfersVM)
-    viewModelOf(::MonitorUploadsVM)
+
+    viewModelOf(::NodeActionsVM)
+
+    viewModelOf(::DownloadVM)
     viewModelOf(::SingleTransferVM)
 
+    viewModelOf(::SearchVM)
+
     viewModelOf(::ShareVM)
+    viewModelOf(::MonitorUploadsVM)
+    viewModelOf(::TransfersVM)
+    viewModelOf(::FilterTransferByMenuVM)
 
-    viewModelOf(::CarouselVM)
-
-    viewModel { JobListVM(get()) }
-    viewModel { LogListVM(get()) }
-
-    viewModelOf(::AccountHomeVM)
-    viewModelOf(::BrowseRemoteVM)
-    viewModelOf(::FolderVM)
-
-    viewModel { SelectTargetVM(get()) }
+    viewModelOf(::JobListVM)
+    viewModelOf(::LogListVM)
+    viewModelOf(::HouseKeepingVM)
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

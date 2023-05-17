@@ -3,9 +3,9 @@ package com.pydio.android.cells.ui.core
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
+import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.NodeService
@@ -28,55 +28,66 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
- * Only provide access to the repository while browsing, does not hold any state.
+ * Provides generic flows to ease cells app page implementation
  */
-open class AbstractBrowseVM(
-    private val prefs: PreferencesService,
-    private val nodeService: NodeService,
-) : ViewModel(), KoinComponent {
+open class AbstractCellsVM() : ViewModel(), KoinComponent {
 
     private val logTag = "AbstractBrowseVM"
 
+    // Avoid boiling plate to have the connection service here.
     private val connectionService: ConnectionService by inject()
+    protected val prefs: PreferencesService by inject()
+    protected val nodeService: NodeService by inject()
 
-    private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
-    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
+    // Expose a flow of error messages for the end-user.
+    private val _errorMessage = MutableStateFlow<ErrorMessage?>(null)
+    val errorMessage: Flow<ErrorMessage?> = _errorMessage
 
+    // Loading data from server state
+    private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val loadingState: StateFlow<LoadingState> =
-        _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
+        _loadingState.combine(connectionService.sessionStatusFlow) { currLoadingState, sessionStatus ->
             Log.e(logTag, "Computing loading sate with:")
-            Log.e(logTag, "State: $state, status: $status")
-            if (ConnectionService.SessionStatus.NO_INTERNET == status
-                || ConnectionService.SessionStatus.SERVER_UNREACHABLE == status
-            ) {
+            Log.e(logTag, "State: $currLoadingState, status: $sessionStatus")
+            if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
                 LoadingState.SERVER_UNREACHABLE
             } else {
-                state
+                currLoadingState
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingState.SERVER_UNREACHABLE
         )
-    val errorMessage: Flow<ErrorMessage?> = _errorMessageF
 
+    // Preferences
     protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list
     }
-    val layout = listPrefs.map { it.layout }
+    protected val defaultOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list.order
+    }
 
-    protected val defaultListOrderFlow = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+    protected val defaultOrderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         prefs.getOrderByPair(
             cellsPreferences,
             ListType.DEFAULT
         )
     }
-
-    protected val sortOrder = listPrefs.map { it.order }.asLiveData(viewModelScope.coroutineContext)
+    val layout = listPrefs.map { it.layout }
 
     fun setListLayout(listLayout: ListLayout) {
         viewModelScope.launch {
             prefs.setListLayout(listLayout)
+        }
+    }
+
+    // Generic access to the underlying objects
+
+    suspend fun getNode(stateID: StateID): RTreeNode? {
+        return nodeService.getNode(stateID) ?: run {
+            // also try to remove from the remote
+            nodeService.tryToCacheNode(stateID)
         }
     }
 
@@ -96,33 +107,26 @@ open class AbstractBrowseVM(
         }
     }
 
-    suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID) ?: run {
-            // also try to remove from the remote
-            nodeService.tryToCacheNode(stateID)
-        }
-    }
-
     // Entry points for children models to update current UI state
 
     protected fun launchProcessing() {
-        _loadingStateF.value = LoadingState.PROCESSING
-        _errorMessageF.value = null
+        _loadingState.value = LoadingState.PROCESSING
+        _errorMessage.value = null
     }
 
     /* Pass a non-null errorMsg parameter when the process has terminated with an error*/
     protected fun done(errorMsg: ErrorMessage? = null) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = errorMsg
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = errorMsg
     }
 
     protected fun done(e: Exception) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = fromException(e)
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = fromException(e)
     }
 
     protected fun error(msg: String) {
-        _loadingStateF.value = LoadingState.IDLE
-        _errorMessageF.value = ErrorMessage(msg, -1, listOf())
+        _loadingState.value = LoadingState.IDLE
+        _errorMessage.value = ErrorMessage(msg, -1, listOf())
     }
 }

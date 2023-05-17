@@ -27,19 +27,19 @@ class NetworkService(
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
-    // Local cache to avoid suspend functions while checking current network
-    // TODO not good enough => relies on the fact that the networkStatusFLow that is a **cold** flow
-    //   has already been called
-    private var _networkStatus: NetworkStatus = NetworkStatus.Unmetered
-    private val networkStatus: NetworkStatus
-        get() = _networkStatus
+//    // Local cache to avoid suspend functions while checking current network
+//    // TODO not good enough => relies on the fact that the networkStatusFLow that is a **cold** flow
+//    //   has already been called
+//    private var _networkStatus: NetworkStatus = NetworkStatus.Unmetered
+//    private val networkStatus: NetworkStatus
+//        get() = _networkStatus
 
     suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
 
     val networkStatusFlow: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
             Log.e(logTag, "Updating current network status to $it")
-            _networkStatus = it
+//            _networkStatus = it
             trySendBlocking(it)
                 .onFailure { throwable ->
                     Log.e(logTag, "Could not emit in flow: ${throwable?.message}")
@@ -68,7 +68,11 @@ class NetworkService(
 //            Log.e(logTag, "####################################################")
 //            Log.e(logTag, "Current active network: ${connectivityManager.activeNetwork}")
 //            Log.e(logTag, "In await close, about to unregister Network Callback")
-            connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
+            try {
+                connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
+            } catch (e: IllegalArgumentException) { // Sometimes the callback has not been registered fast enough
+                Log.e(logTag, "Could not unregister: ${e.message}")
+            }
         }
     }
 
@@ -76,7 +80,7 @@ class NetworkService(
         return isConnected(fetchNetworkStatus())
     }
 
-    fun isConnected(networkStatus: NetworkStatus): Boolean {
+    private fun isConnected(networkStatus: NetworkStatus): Boolean {
         return when (networkStatus) {
             is NetworkStatus.Unknown -> {
                 Log.w(logTag, "Unknown network status, doing as if connected")
@@ -93,10 +97,10 @@ class NetworkService(
         }
     }
 
-    fun isMetered(): Boolean {
-        return _networkStatus is NetworkStatus.Metered ||
-                _networkStatus is NetworkStatus.Roaming
-    }
+//    fun isMetered(): Boolean {
+//        return _networkStatus is NetworkStatus.Metered ||
+//                _networkStatus is NetworkStatus.Roaming
+//    }
 
     // TODO retrieve and expose App network usage to the end user
     private fun networkUsage(context: Context) {
@@ -122,7 +126,7 @@ class NetworkService(
     }
 }
 
-class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
+private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
     ConnectivityManager.NetworkCallback() {
 
     private val logTag = "CellsNetworkCallback"
@@ -152,7 +156,7 @@ class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
 fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
     return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-        Log.i(logTag, "   capabilities: $networkCapabilities.")
+        Log.i(logTag, "  capabilities: $networkCapabilities.")
         when {
             networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                     && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)

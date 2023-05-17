@@ -2,10 +2,7 @@ package com.pydio.android.cells.ui.models
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
@@ -15,9 +12,13 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class DownloadVM(
@@ -31,10 +32,15 @@ class DownloadVM(
     val treeNode: StateFlow<RTreeNode?> = _rTreeNode.asStateFlow()
 
     private val _transferID = MutableStateFlow(-1L)
-    val transfer: LiveData<RTransfer?>
-        get() = _transferID.asLiveData(viewModelScope.coroutineContext).switchMap { currID ->
-            transferService.liveTransfer(stateID.account(), currID)
-        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val transfer: StateFlow<RTransfer?> = _transferID.flatMapLatest { currID ->
+        transferService.liveTransfer(stateID.account(), currID)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
 
     fun cancelDownload() {
         viewModelScope.launch {

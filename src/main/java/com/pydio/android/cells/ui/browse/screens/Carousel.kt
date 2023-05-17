@@ -13,7 +13,7 @@ import androidx.compose.material.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -33,18 +33,15 @@ private const val logTag = "Carousel"
 @Composable
 fun Carousel(
     initialStateID: StateID,
-//    back: () -> Unit,
     carouselVM: CarouselVM,
 ) {
+    val filteredItems = carouselVM.preViewableItems.collectAsState(listOf())
 
-    val filteredItems = carouselVM.preViewableItems.observeAsState()
-    filteredItems.value?.let {
-        HorizontalPagerWithOffsetTransition(
-            initialStateID = initialStateID,
-            carouselVM,
-            it,
-        )
-    }
+    HorizontalPagerWithOffsetTransition(
+        initialStateID = initialStateID,
+        carouselVM,
+        filteredItems.value,
+    )
 }
 
 /**

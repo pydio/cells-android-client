@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,15 +69,15 @@ fun Transfers(
 ) {
 
     val loadingState = transfersVM.loadingState.collectAsState(LoadingState.STARTING)
-    val currTransfers = transfersVM.transfers.observeAsState()
-    val currFilter = transfersVM.liveFilter.observeAsState()
+    val currTransfers = transfersVM.transfers.collectAsState(listOf())
+    val currFilter = transfersVM.liveFilter.collectAsState(JobStatus.NO_FILTER.id)
 
     WithState(
         loadingState = loadingState.value,
         forceRefresh = transfersVM::forceRefresh,
         accountID = accountID,
-        currFilter = currFilter.value ?: JobStatus.NO_FILTER.id,
-        transfers = currTransfers.value ?: listOf(),
+        currFilter = currFilter.value,
+        transfers = currTransfers.value,
         transfersVM = transfersVM,
         openDrawer = openDrawer,
         browseHelper = browseHelper,
@@ -346,7 +345,7 @@ private fun TransferList(
         forceRefresh()
     })
 
-    var emptyMsg =
+    val emptyMsg =
         if (!(currFilter == JobStatus.NO_FILTER.id || currFilter == "show_all")) { // dirty fix to address legacy filter value
             stringResource(R.string.no_transfer_with_filter, currFilter)
         } else {

@@ -2,6 +2,7 @@ package com.pydio.android.cells.services
 
 import android.util.Log
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.utils.currentTimestamp
@@ -34,9 +35,6 @@ class ConnectionService(
     private val accountService: AccountService,
     private val appCredentialService: AppCredentialService,
 ) {
-    enum class SessionStatus {
-        NO_INTERNET, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
-    }
 
     private val id: String = UUID.randomUUID().toString()
     private val logTag = "ConnectionService[${id.substring(24)}]"

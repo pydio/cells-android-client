@@ -3,11 +3,8 @@ package com.pydio.android.cells.ui.browse.models
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.ListType
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.core.AbstractBrowseVM
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID
@@ -22,22 +19,13 @@ import kotlinx.coroutines.launch
 /** Expose methods used by bookmark pages */
 class BookmarksVM(
     private val accountID: StateID,
-    private val prefs: PreferencesService,
-    private val nodeService: NodeService,
     private val transferService: TransferService,
-) : AbstractBrowseVM(prefs, nodeService) {
+) : AbstractCellsVM() {
 
     private val logTag = "BookmarksVM"
 
-    private val orderFlow = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        prefs.getOrderByPair(
-            cellsPreferences,
-            ListType.DEFAULT
-        )
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    val bookmarks: StateFlow<List<MultipleItem>> = orderFlow.flatMapLatest { currPair ->
+    val bookmarks: StateFlow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
         nodeService.listBookmarkFlow(accountID, currPair.first, currPair.second).map { nodes ->
             deduplicateNodes(nodeService, nodes)
         }
@@ -55,11 +43,6 @@ class BookmarksVM(
                 done()
             } catch (e: Exception) {
                 done(e)
-//                val msg = if (e is SDKException && e.message != null) e.message!! else {
-//                    "Unexpected error while refreshing bookmarks for $stateID"
-//                }
-//                Log.e(logTag, msg)
-//                done(e)
             }
         }
     }
@@ -74,6 +57,7 @@ class BookmarksVM(
                     "Unhandled error while removing bookmark for $stateID, cause:  ${e.message}"
                 )
                 e.printStackTrace()
+                done(e)
             }
         }
     }
@@ -93,11 +77,4 @@ class BookmarksVM(
     override fun onCleared() {
         Log.d(logTag, "BookmarksVM cleared")
     }
-
-//    // Represents different states for the Bookmark screen
-//    sealed class BookmarksUiState {
-//        data class Success(val news: List<BookmarkItem>) : BookmarksUiState()
-//        data class Error(val exception: Throwable) : BookmarksUiState()
-//        object Loading : BookmarksUiState()
-//    }
 }

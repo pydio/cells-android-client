@@ -5,7 +5,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -82,7 +81,7 @@ fun MigrationHost(
         }
 
         composable(Destinations.MigrateFromV2.route) {
-            val currJob = migrationVM.migrationJob.observeAsState()
+            val currJob = migrationVM.migrationJob.collectAsState(null)
             val oldVersion = migrationVM.versionCode.collectAsState(initial = -1)
             val d = (currJob.value?.progress ?: 0f).toFloat()
             val n = (currJob.value?.total ?: 1f).toFloat()

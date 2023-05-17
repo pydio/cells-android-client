@@ -24,6 +24,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
+import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
@@ -62,33 +63,33 @@ private fun InternetBanner(
     navigateTo: (String) -> Unit,
 ) {
     val sessionStatus = connectionService.sessionStatusFlow
-        .collectAsState(initial = ConnectionService.SessionStatus.OK)
+        .collectAsState(initial = SessionStatus.OK)
 
     val scope = rememberCoroutineScope()
 
-    if (ConnectionService.SessionStatus.OK != sessionStatus.value) {
+    if (SessionStatus.OK != sessionStatus.value) {
         when (sessionStatus.value) {
-            ConnectionService.SessionStatus.NO_INTERNET
+            SessionStatus.NO_INTERNET
             -> ConnectionStatus(
                 icon = CellsIcons.NoInternet,
                 desc = stringResource(R.string.no_internet)
             )
 
-            ConnectionService.SessionStatus.SERVER_UNREACHABLE
+            SessionStatus.SERVER_UNREACHABLE
             -> ConnectionStatus(
                 icon = CellsIcons.ServerUnreachable,
                 desc = stringResource(R.string.server_unreachable)
             )
 
-            ConnectionService.SessionStatus.METERED,
-            ConnectionService.SessionStatus.ROAMING
+            SessionStatus.METERED,
+            SessionStatus.ROAMING
             -> ConnectionStatus(
                 icon = CellsIcons.Metered,
                 desc = stringResource(R.string.metered_connection),
                 type = Status.WARNING
             )
 
-            ConnectionService.SessionStatus.CAN_RELOG
+            SessionStatus.CAN_RELOG
             -> CredExpiredStatus(
                 icon = CellsIcons.NoValidCredentials,
                 desc = stringResource(R.string.auth_err_expired),

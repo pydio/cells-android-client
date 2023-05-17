@@ -1,11 +1,11 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.flow.Flow
 
 /** Provides access to a RTransfer record given an account and a transfer ID*/
 class SingleTransferVM(
@@ -15,7 +15,7 @@ class SingleTransferVM(
 
     private val logTag = "SingleTransferVM"
 
-    fun getTransfer(transferID: Long): LiveData<RTransfer?> =
+    fun getTransfer(transferID: Long): Flow<RTransfer?> =
         transferService.liveTransfer(accountID, transferID)
 
     init {

@@ -1,62 +1,48 @@
 package com.pydio.android.cells.ui.browse.models
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.utils.isPreViewable
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Expose methods to simplify navigation while browsing*/
 class CarouselVM(
     initialStateID: StateID,
     private val accountService: AccountService,
-    nodeService: NodeService,
-) : ViewModel() {
+) : AbstractCellsVM() {
 
     // private val logTag = "CarouselVM"
 
-    private val viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+//    private val viewModelJob = Job()
+//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private val parentStateID = initialStateID.parent()
-
-    // FIXME this must be the first seen index
-    val currentID: StateFlow<StateID> = MutableStateFlow(initialStateID)
-
-    private val allChildren: LiveData<List<RTreeNode>> =
-        nodeService.listLiveChildren(parentStateID, "")
-
-    val preViewableItems: LiveData<List<RTreeNode>>
-        get() = allChildren.switchMap { childList ->
-            val filteredChildren = MutableLiveData<List<RTreeNode>>()
-            val filteredList = childList.filter { item ->
-                val preViewable = isPreViewable(item)
-                preViewable
-            }
-            filteredChildren.value = filteredList
-            filteredChildren
-        }
+//    private val parentStateID = initialStateID.parent()
+//
+//    first shown index is handled in the composable
+//    val currentID: StateFlow<StateID> = MutableStateFlow(initialStateID)
 
     private var _isRemoteLegacy = false
     val isRemoteLegacy: Boolean
         get() = _isRemoteLegacy
 
+    private val allChildren: Flow<List<RTreeNode>> =
+        nodeService.listLiveChildren(initialStateID.parent(), "")
+
+    val preViewableItems: Flow<List<RTreeNode>> = allChildren.map { childList ->
+        childList.filter { item ->
+            val preViewable = isPreViewable(item)
+            preViewable
+        }
+    }
+
     init {
-        vmScope.launch {
-            withContext(Dispatchers.IO) {
-                _isRemoteLegacy = accountService.isLegacy(initialStateID)
-            }
+        viewModelScope.launch {
+            _isRemoteLegacy = accountService.isLegacy(initialStateID)
         }
     }
 }

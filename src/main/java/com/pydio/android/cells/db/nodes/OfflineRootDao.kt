@@ -1,6 +1,5 @@
 package com.pydio.android.cells.db.nodes
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.pydio.android.cells.AppNames
 
@@ -28,6 +27,6 @@ interface OfflineRootDao {
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
     fun getAll(): List<ROfflineRoot>
 
-    @Query("SELECT * FROM offline_roots ORDER BY sort_name")
-    fun getAllLive(): LiveData<List<ROfflineRoot>>
+//    @Query("SELECT * FROM offline_roots ORDER BY sort_name")
+//    fun getAllLive(): Flow<List<ROfflineRoot>>
 }

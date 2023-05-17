@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
@@ -34,9 +35,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.models.ErrorMessage
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
-import com.pydio.cells.utils.Str
 
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
@@ -230,16 +232,16 @@ fun TopBarWithActions(
 @Composable
 fun TopBarWithSearch(
     queryStr: String,
-    errorMessage: String?,
+    errorMessage: ErrorMessage?,
     updateQuery: (String) -> Unit,
     cancel: (() -> Unit),
     isActionMenuShown: Boolean,
     showMenu: (Boolean) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
-    imeAction: ImeAction = ImeAction.Done,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    imeAction: ImeAction = ImeAction.Done
 ) {
 
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -279,8 +281,12 @@ fun TopBarWithSearch(
                     )
                 },
                 supportingText = {
-                    if (Str.notEmpty(errorMessage)) {
-                        Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+                    errorMessage?.let {
+                        Text(
+                            text = toErrorMessage(context, errorMessage),
+                            color = MaterialTheme.colorScheme.error
+                        )
+
                     }
                 },
                 enabled = true,

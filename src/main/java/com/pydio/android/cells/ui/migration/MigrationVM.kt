@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
@@ -18,6 +17,7 @@ import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -53,8 +53,8 @@ class MigrationVM(
     val rootNb: Int
         get() = _rootNb
 
-    private var _migrationJob: LiveData<RJob?> = jobDao.getLiveById(_noJobID)
-    val migrationJob: LiveData<RJob?>
+    private var _migrationJob: Flow<RJob?> = jobDao.getJobById(_noJobID)
+    val migrationJob: Flow<RJob?>
         get() = _migrationJob
 
     init {
@@ -99,7 +99,7 @@ class MigrationVM(
         }
 
         // We notify the first
-        _migrationJob = jobDao.getLiveById(migrationJob.jobId)
+        _migrationJob = jobDao.getJobById(migrationJob.jobId)
         setStep(Step.MIGRATING_FROM_V2)
 
         viewModelScope.launch {
@@ -116,9 +116,7 @@ class MigrationVM(
 
     suspend fun launchSync() {
         CellsApp.instance.appScope.launch {
-            withContext(Dispatchers.IO) {
-                offlineService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
-            }
+            offlineService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
         }
     }
 
@@ -127,7 +125,6 @@ class MigrationVM(
         val newValue = ClientData.getInstance().versionCode.toInt()
         return needsMigration(context, oldValue, newValue)
     }
-
 
     private fun setStep(currStep: Step) {
         _currDestination.value = currStep

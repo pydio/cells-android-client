@@ -1,52 +1,50 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.core.AbstractBrowseVM
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
     private val accountID: StateID,
-    prefs: PreferencesService,
     private val transferService: TransferService,
-    nodeService: NodeService,
-) : AbstractBrowseVM(prefs, nodeService) {
+) : AbstractCellsVM() {
 
     private val logTag = "TransfersVM"
 
-    fun forceRefresh() {
-        // DO nothing
+
+    private val transferOrderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        prefs.getOrderByPair(
+            cellsPreferences,
+            ListType.TRANSFER
+        )
     }
 
-    // TODO only use flows (no more live data)
-    private val livePrefs = listPrefs.asLiveData(viewModelScope.coroutineContext)
-    val transfers: LiveData<List<RTransfer>>
-        get() = livePrefs.switchMap {
-            transferService.queryTransfersExplicitFilter(
-                accountID,
-                it.transferFilter,
-                it.transferOrder
-            )
-        }
-    val liveFilter: LiveData<String>
-        get() = livePrefs.map {
-            it.transferFilter
-        }
+    val liveFilter: Flow<String> = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list.transferFilter
+    }
 
-    suspend fun get(transferID: Long): RTransfer? =
-        transferService.getRecord(accountID, transferID)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val transfers: Flow<List<RTransfer>> = transferOrderPair.flatMapLatest { currPair ->
+        transferService.queryTransfersExplicitFilter(
+            accountID,
+            currPair.first,
+            currPair.second
+        )
+    }
+
+    suspend fun get(transferID: Long): RTransfer? = transferService.getRecord(accountID, transferID)
 
     fun pauseOne(transferID: Long) {
         viewModelScope.launch {
@@ -82,6 +80,11 @@ class TransfersVM(
             transferService.clearTerminated(accountID)
         }
     }
+
+    fun forceRefresh() {
+        // DO nothing
+    }
+
 
     init {
         // We are always "idle" in this view

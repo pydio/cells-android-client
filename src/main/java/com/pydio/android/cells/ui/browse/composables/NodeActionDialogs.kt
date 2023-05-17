@@ -85,7 +85,7 @@ fun Download(
     dismiss: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
-    val rTransfer = downloadVM.transfer.observeAsState()
+    val rTransfer = downloadVM.transfer.collectAsState(null)
     val rTreeNode = downloadVM.treeNode.collectAsState()
 
     LaunchedEffect(key1 = rTransfer.value?.status) {

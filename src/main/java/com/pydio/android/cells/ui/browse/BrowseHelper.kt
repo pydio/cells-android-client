@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ListContext
-import com.pydio.android.cells.ui.core.AbstractBrowseVM
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.cells.api.ErrorCodes
@@ -14,7 +14,7 @@ import com.pydio.cells.utils.Str
 
 class BrowseHelper(
     private val navController: NavHostController,
-    private val browseVM: AbstractBrowseVM,
+    private val browseVM: AbstractCellsVM,
 ) {
     private val logTag = "BrowseHelper"
 
