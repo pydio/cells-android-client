@@ -100,7 +100,7 @@ class AppCredentialService(
      */
     override fun requestRefreshToken(stateID: StateID) {
         serviceScope.launch {
-            Log.d(logTag, "Sending refresh token request for $stateID")
+            // Log.d(logTag, "Sending refresh token request for $stateID")
             requestRefreshChannel.send(stateID)
         }
     }
@@ -130,7 +130,7 @@ class AppCredentialService(
 
             if (token.expirationTime > currentTimestamp() + token.expiresIn / 2) {
                 // It has been refreshed recently, ignoring
-                Log.d(logTag, "Token for $stateID has just been refreshed, ignoring")
+                // Log.d(logTag, "Token for $stateID has just been refreshed, ignoring")
                 return@withContext
             }
 

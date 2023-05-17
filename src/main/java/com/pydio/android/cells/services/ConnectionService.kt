@@ -89,7 +89,7 @@ class ConnectionService(
                     newStatus = SessionStatus.SERVER_UNREACHABLE
                 }
 
-                Log.e(logTag, " Got a Session view: ${it.getStateID()}, status: $newStatus")
+                Log.i(logTag, "Got a Session view: ${it.getStateID()}, status: $newStatus")
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET

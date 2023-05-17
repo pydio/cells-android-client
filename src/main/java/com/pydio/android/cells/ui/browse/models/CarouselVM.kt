@@ -18,14 +18,6 @@ class CarouselVM(
 
     // private val logTag = "CarouselVM"
 
-//    private val viewModelJob = Job()
-//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-//    private val parentStateID = initialStateID.parent()
-//
-//    first shown index is handled in the composable
-//    val currentID: StateFlow<StateID> = MutableStateFlow(initialStateID)
-
     private var _isRemoteLegacy = false
     val isRemoteLegacy: Boolean
         get() = _isRemoteLegacy

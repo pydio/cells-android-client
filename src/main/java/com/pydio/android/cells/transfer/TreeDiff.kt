@@ -60,8 +60,9 @@ class TreeDiff(
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
-        Log.i(logTag, "Launching diff for $baseFolderStateId (with check file: $alsoCheckFiles)")
-
+        if (alsoCheckFiles) {
+            Log.i(logTag, "Launching diff for $baseFolderStateId with check file")
+        }
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(baseFolderStateId.id)
         var remote: FileNode? = null

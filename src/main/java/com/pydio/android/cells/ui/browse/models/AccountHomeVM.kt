@@ -28,11 +28,11 @@ class AccountHomeVM(
         accountService.getWsByTypeFlow(SdkNames.WS_TYPE_CELL, accountID.id)
 
     init {
-        Log.e(logTag, "Created")
+        Log.i(logTag, "Created")
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.e(logTag, "Cleared")
+        Log.i(logTag, "Cleared")
     }
 }

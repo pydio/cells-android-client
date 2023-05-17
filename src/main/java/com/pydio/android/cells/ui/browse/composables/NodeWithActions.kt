@@ -254,7 +254,7 @@ private fun FolderWithDialogs(
     }
 
     val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
-        Log.e(logTag, "Do Copy/Move for $targetStateID")
+        Log.i(logTag, "launch $action action for $targetStateID")
         when (action) {
             AppNames.ACTION_CANCEL -> closeDialog(false)
             else -> {
@@ -293,7 +293,7 @@ private fun FolderWithDialogs(
             }
 
             val action = currentAction.value ?: run {
-                Log.e(logTag, "... cannot for selection with no action set")
+                Log.e(logTag, "... cannot launch target selection with no action set")
                 return@composable
             }
             Log.i(logTag, ".... Open choose *folder* page, with ID: $stateID}")
