@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.browse.screens
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,6 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -36,12 +37,15 @@ fun Carousel(
     carouselVM: CarouselVM,
 ) {
     val filteredItems = carouselVM.preViewableItems.collectAsState(listOf())
-
-    HorizontalPagerWithOffsetTransition(
-        initialStateID = initialStateID,
-        carouselVM,
-        filteredItems.value,
-    )
+    // We have to wait until the list is loaded to display the pager otherwise
+    // the scroll-to-page action is ignored
+    if (filteredItems.value.isNotEmpty()) {
+        HorizontalPagerWithOffsetTransition(
+            initialStateID = initialStateID,
+            carouselVM,
+            filteredItems.value,
+        )
+    }
 }
 
 /**
@@ -57,6 +61,15 @@ fun HorizontalPagerWithOffsetTransition(
 ) {
 
     val pagerState = rememberPagerState()
+    val index = remember(key1 = items.size) {
+        derivedStateOf {
+            getItemIndex(initialStateID, items)
+        }
+    }
+
+    LaunchedEffect(key1 = index.value) {
+        pagerState.scrollToPage(index.value)
+    }
 
     HorizontalPager(
         pageCount = items.size,
@@ -100,16 +113,6 @@ fun HorizontalPagerWithOffsetTransition(
                 }
             }
         }
-    }
-
-    // scroll to initial page
-    LaunchedEffect(key1 = initialStateID) {
-        val index = getItemIndex(initialStateID, items)
-        if (index >= 0) {
-            // Log.e(logTag, "About to scroll to page #$index")
-            pagerState.scrollToPage(index)
-        } else
-            Log.e(logTag, "No index found for $initialStateID")
     }
 }
 
