@@ -12,6 +12,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,11 +44,12 @@ class BrowseRemoteVM(
     private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
     private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
+    // TODO reset backoff ticker when we pass from offline to connected.
+
     // We derive the Loading state to also expose Unreachable status to calling composables.
     val loadingState: StateFlow<LoadingState> =
         _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
-            Log.e(logTag, "Computing loading state with:")
-            Log.e(logTag, "State: $state, status: $status")
+            Log.d(logTag, "Computing loading state with state: $state & status: $status")
             if (SessionStatus.NO_INTERNET == status
                 || SessionStatus.SERVER_UNREACHABLE == status
             ) {
@@ -98,8 +100,8 @@ class BrowseRemoteVM(
     // Technical local objects
     private fun watchFolder() = viewModelScope.launch {
         loop@ while (_isActive) {
-            doPull()
             try {
+                doPull()
                 val nd = withContext(coroutineService.cpuDispatcher) {
                     backOffTicker.getNextDelay()
                 }
@@ -108,8 +110,11 @@ class BrowseRemoteVM(
                 if (_isActive) {
                     Log.d(logTag, "$msg, next delay: ${nd}s")
                 } else {
-                    Log.d(logTag, "STOP $msg")
+                    Log.d(logTag, "Stop $msg")
                 }
+            } catch (e: CancellationException) {
+                Log.e(logTag, "Job has been cancelled, pausing poll")
+                pause()
             } catch (e: Exception) {
                 Log.e(logTag, "Unexpected error: $e")
                 e.printStackTrace()
