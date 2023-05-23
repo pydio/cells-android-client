@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +42,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
+import com.pydio.android.cells.ui.core.composables.lists.StartingBackground
 import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.core.nav.AccountHeader
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -228,16 +231,28 @@ private fun HomeListContent(
                     }
                 }
 
-                if (workspaces.isEmpty() && cells.isEmpty() && loadingState == LoadingState.IDLE) {
+                if (workspaces.isEmpty() && cells.isEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.account_home_no_ws_title),
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            Text(
-                                text = stringResource(R.string.account_home_no_ws_desc),
-                            )
+                        Box(modifier = Modifier.fillMaxSize(1f)) {
+                            if (loadingState == LoadingState.IDLE) {
+                                Column {
+                                    Text(
+                                        text = stringResource(R.string.account_home_no_ws_title),
+                                        style = MaterialTheme.typography.titleMedium,
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.account_home_no_ws_desc),
+                                    )
+                                }
+                            } else {
+                                StartingBackground(
+                                    desc = stringResource(R.string.loading_message),
+                                    showProgressAtStartup = true,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .alpha(.5f)
+                                )
+                            }
                         }
                     }
                 }

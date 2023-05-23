@@ -60,7 +60,7 @@ class BrowseRemoteVM(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LoadingState.IDLE
+            initialValue = LoadingState.STARTING
         )
 
     private val _stateID = MutableStateFlow(StateID.NONE)
@@ -106,7 +106,7 @@ class BrowseRemoteVM(
                     backOffTicker.getNextDelay()
                 }
                 delay(TimeUnit.SECONDS.toMillis(nd))
-                val msg = "watching folders at ${stateID.value}"
+                val msg = "Watching folders at ${stateID.value}"
                 if (_isActive) {
                     Log.d(logTag, "$msg, next delay: ${nd}s")
                 } else {
@@ -128,7 +128,12 @@ class BrowseRemoteVM(
         var result: Pair<Int, String?> = Pair(0, "")
 
         stateID.value.let {
-            if (StateID.NONE != it && loadingState.value != LoadingState.SERVER_UNREACHABLE) {
+            if (loadingState.value == LoadingState.SERVER_UNREACHABLE) {
+                // TODO insure we do not want to display an error message to the end user
+                Log.w(logTag, "$it: server is unreachable")
+                pause()
+                return
+            } else if (StateID.NONE != it) {
                 result = if (Str.empty(it.file)) {
                     accountService.refreshWorkspaceList(it.account())
                 } else {

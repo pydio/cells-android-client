@@ -336,17 +336,10 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
-        try {
-            val fileNode = getClient(stateID).nodeInfo(stateID.slug, stateID.file)
-            val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
-            upsertNode(treeNode)
-            return@withContext treeNode
-        } catch (e: SDKException) {
-            val msg = "could not cache node at $stateID"
-            Log.w(logTag, "$msg, cause: ${e.message ?: "NaN"}")
-            e.printStackTrace()
-            return@withContext null
-        }
+        val fileNode = getClient(stateID).nodeInfo(stateID.slug, stateID.file)
+        val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
+        upsertNode(treeNode)
+        return@withContext treeNode
     }
 
     suspend fun refreshBookmarks(stateID: StateID) = withContext(ioDispatcher) {

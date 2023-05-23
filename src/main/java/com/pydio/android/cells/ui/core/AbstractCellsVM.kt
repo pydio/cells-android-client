@@ -86,8 +86,13 @@ open class AbstractCellsVM() : ViewModel(), KoinComponent {
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID) ?: run {
-            // also try to remove from the remote
-            nodeService.tryToCacheNode(stateID)
+            try {
+                // also try to remove from the remote
+                nodeService.tryToCacheNode(stateID)
+            } catch (se: SDKException) {
+                done(se)
+                return null
+            }
         }
     }
 

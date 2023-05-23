@@ -45,7 +45,6 @@ class TreeDiff(
         }
     }
 
-    //     private val folderDiffJob = SupervisorJob()
     private val coroutineService: CoroutineService by inject()
     private val diffScope = coroutineService.cellsIoScope
 
@@ -69,10 +68,10 @@ class TreeDiff(
         try {
             remote = client.nodeInfo(baseFolderStateId.slug, baseFolderStateId.file)
         } catch (e: SDKException) {
-            val msg = "stat failed at ${baseFolderStateId}: ${e.message}"
+            val msg = "Stat failed at $baseFolderStateId with error ${e.code}: ${e.message}"
             Log.e(logTag, msg)
             // Corner case: connection failed, we just return with no change
-            if (e.isAuthorizationError) {
+            if (e.isAuthorizationError || e.isNetworkError) {
                 throw e
             }
 
@@ -127,7 +126,7 @@ class TreeDiff(
 
         // Update info for current folder
         if (baseFolderStateId.file == "/") {
-            // TODO ws root specific management smells
+            // TODO we must perform better checks for workspace roots
             nodeService.getNode(baseFolderStateId)?.let {
                 it.lastCheckTS = currentTimestamp()
                 dao.update(it)
@@ -141,6 +140,11 @@ class TreeDiff(
                     RTreeNode.fromFileNode(baseFolderStateId, remote),
                     true
                 )
+            } else { // Simply update last time checked TS on local object
+                nodeService.getNode(baseFolderStateId)?.let {
+                    it.lastCheckTS = currentTimestamp()
+                    dao.update(it)
+                }
             }
         }
     }

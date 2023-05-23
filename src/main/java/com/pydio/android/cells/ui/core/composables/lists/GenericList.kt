@@ -40,8 +40,8 @@ fun WithLoadingListBackground(
 ) {
     Box(modifier = modifier) {
         if (isEmpty) {
-            if (loadingState == LoadingState.STARTING) {
-                Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (loadingState == LoadingState.STARTING) {
                     StartingBackground(
                         desc = startingDesc,
                         showProgressAtStartup = showProgressAtStartup,
@@ -49,11 +49,9 @@ fun WithLoadingListBackground(
                             .fillMaxSize()
                             .alpha(.5f)
                     )
-                }
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
+
+                } else {
+
                     EmptyList(
                         listContext = listContext,
                         desc = if (canRefresh) {

@@ -16,6 +16,7 @@ import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.logException
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
+import com.pydio.cells.api.HttpStatus
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.Server
@@ -57,7 +58,22 @@ class AccountService(
     private val ioDispatcher = coroutineService.ioDispatcher
 
     suspend fun getClient(stateID: StateID): Client {
-        return sessionFactory.getUnlockedClient(stateID.account())
+        try {
+            return sessionFactory.getUnlockedClient(stateID.account())
+        } catch (se: SDKException) {
+            if (se.code == HttpStatus.BAD_GATEWAY.value
+                || se.code == HttpStatus.SERVICE_UNAVAILABLE.value
+                || se.code == HttpStatus.GATEWAY_TIMEOUT.value
+            ) {
+                sessionDao.getSession(stateID.accountId)?.let {
+                    if (it.isReachable) {
+                        it.isReachable = false
+                        sessionDao.update(it)
+                    }
+                }
+            }
+            throw se
+        }
     }
 
     fun getTransport(stateID: StateID, createIfNeeded: Boolean = false): Transport? {
@@ -244,6 +260,14 @@ class AccountService(
                     doUpdateAccount(rAccount)
                     return true
                 }
+
+                // Also insure the server is set has reachable
+                sessionDao.getSession(rAccount.accountId)?.let {
+                    if (!it.isReachable) { // Update reachable flag ASAP
+                        it.isReachable = true
+                        sessionDao.update(it)
+                    }
+                }
             }
         } catch (e: SDKException) {
             notifyError(currID, "Unexpected error while checking account", e)
@@ -378,21 +402,20 @@ class AccountService(
     suspend fun notifyError(
         stateID: StateID, msg: String, se: SDKException
     ) = withContext(ioDispatcher) {
-        Log.e(logTag, "Notifying error for $stateID: #${se.code} - ${se.message}")
+        Log.i(logTag, "Notifying error for $stateID: #${se.code} - ${se.message}")
         try {
             accountDao.getAccount(stateID.accountId)?.let { currAccount ->
                 val msg2 = "Received error ${se.code} for $stateID, message: $msg, " +
                         "Old status: ${currAccount.authStatus}"
-                Log.i(logTag, msg2)
-
+                Log.w(logTag, msg2)
                 // First handle network issue
                 if (se.isNetworkError) {
-                    // TODO do something here
-//                    Log.e(logTag, "##### Unreachable host")
-//                    val networkService: NetworkService = get()
-//                    if (networkService.networkInfo()?.isOffline() != true) {
-//                        networkService.updateStatus(AppNames.NETWORK_STATUS_NO_INTERNET, code)
-//                    }
+                    sessionDao.getSession(stateID.accountId)?.let {
+                        if (it.isReachable) { // Update reachable flag ASAP
+                            it.isReachable = false
+                            sessionDao.update(it)
+                        }
+                    }
                     return@withContext
                 }
 
