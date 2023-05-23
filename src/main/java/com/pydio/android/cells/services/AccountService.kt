@@ -447,7 +447,13 @@ class AccountService(
     private suspend fun handleAuthError(stateID: StateID) {
         serviceScope.launch {
 
-            val transport = getTransport(stateID, true)
+            val transport = try {
+                getTransport(stateID, true)
+            } catch (e: Exception) {
+                Log.e(logTag, "Could not retrieve transport, cause: ${e.message}")
+                Thread.dumpStack()
+                return@launch
+            }
             if (transport == null || transport !is CellsTransport) {
                 // We should never land here an exception must have already been thrown
                 Log.e(logTag, "No transport, ignoring error")
