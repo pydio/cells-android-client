@@ -201,7 +201,6 @@ fun LargeCardImageThumb(
                         .size(dimensionResource(R.dimen.grid_large_more_size))
                 )
             }
-
         }
     }
 }
