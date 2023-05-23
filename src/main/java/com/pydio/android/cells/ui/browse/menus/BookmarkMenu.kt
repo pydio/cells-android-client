@@ -55,15 +55,13 @@ fun BookmarkMenu(
             BottomSheetListItem(
                 icon = CellsIcons.DownloadToDevice,
                 title = stringResource(R.string.download_to_device),
-                onItemClick = { launch(NodeAction.OpenInApp, stateID) },
+                onItemClick = { launch(NodeAction.DownloadToDevice, stateID) },
             )
         }
 
         val appearsIn = remember { mutableStateOf<MultipleItem?>(null) }
 
         appearsIn.value?.let {
-//            BottomSheetDivider()
-
             DefaultTitleText(
                 text = if (rTreeNode.isFile()) {
                     stringResource(R.string.open_parent_in_workspaces)

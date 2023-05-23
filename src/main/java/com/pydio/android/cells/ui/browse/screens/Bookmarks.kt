@@ -133,7 +133,6 @@ fun Bookmarks(
     val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
         when (action) {
             is NodeAction.OpenInApp -> {
-                moreMenuDone()
                 scope.launch {
                     bookmarksVM.getNode(stateID)?.let {
                         if (it.isFolder()) {
@@ -143,6 +142,7 @@ fun Bookmarks(
                         }
                     }
                 }
+                moreMenuDone()
             }
 
             is NodeAction.DownloadToDevice -> {
