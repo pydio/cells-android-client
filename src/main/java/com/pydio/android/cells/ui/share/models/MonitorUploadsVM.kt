@@ -27,13 +27,9 @@ class MonitorUploadsVM(
 
     val parentJob: Flow<RJob?> = jobService.getLiveJobByID(jobID)
 
-    //    val currRecords: LiveData<List<RTransfer>> =
-//        transferService.getTransfersRecordsForJob(accountID, jobID)
-//
     @OptIn(ExperimentalCoroutinesApi::class)
     val currRecords: Flow<List<RTransfer>> =
         transferService.getChildTransfersRecords(accountID, jobID)
-
 
     fun getStatusFromListAndJob(job: RJob?, rTransfers: List<RTransfer>): JobStatus {
         var newStatus = JobStatus.NEW

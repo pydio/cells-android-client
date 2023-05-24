@@ -153,7 +153,7 @@ object CellsIcons {
 }
 
 object CellsDrawableIcons {
-    const val Bookmark = R.drawable.ic_baseline_star_24
+//    const val Bookmark = R.drawable.ic_baseline_star_border_24
 //    val FileDownload = R.drawable.ic_outline_file_download_24
 //    val FileUpload = R.drawable.ic_outline_file_upload_24
 }

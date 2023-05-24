@@ -30,31 +30,6 @@ class NodeActionsVM(
 
     private val logTag = "NodeActionsVM"
 
-//    private val _loadingState = MutableLiveData(LoadingState.STARTING)
-//    private val _errorMessage = MutableLiveData<String?>()
-//    val loadingState: LiveData<LoadingState> = _loadingState
-//    val errorMessage: LiveData<String?> = _errorMessage
-//
-//    private fun launchProcessing() {
-//        _loadingState.value = LoadingState.PROCESSING
-//        _errorMessage.value = null
-//    }
-
-    /* Pass a non-empty err parameter when the process has terminated with an error */
-//    private suspend fun done(err: String? = null, userMsg: String? = null) =
-//        withContext(Dispatchers.Main) {
-//            if (Str.notEmpty(err)) {
-//                Log.e(logTag, "${err ?: userMsg}")
-//                _errorMessage.value = userMsg
-//            }
-//            _loadingState.value = LoadingState.IDLE
-//        }
-//
-//    private fun failed(msg: String) {
-//        _loadingState.value = LoadingState.IDLE
-//        _errorMessage.value = msg
-//    }
-
     private fun localDone(err: String? = null, userMsg: String? = null) {
         if (Str.notEmpty(err)) {
             Log.e(logTag, "${err ?: userMsg}")
@@ -63,8 +38,7 @@ class NodeActionsVM(
             done()
         }
     }
-
-
+    
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
         viewModelScope.launch {

@@ -2,8 +2,10 @@
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #
-# For more details, see
+# For more details, see:
 #   http://developer.android.com/guide/developing/tools/proguard.html
+# and: 
+#   https://developer.android.com/build/shrink-code#native-crash-support
 
 # More info for debugging
 -verbose
@@ -11,7 +13,7 @@
 # Preserve the line number information for debugging stack traces.
 -keepattributes SourceFile,LineNumberTable
 # We could use this to hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 
 #
 -addconfigurationdebugging

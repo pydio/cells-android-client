@@ -95,6 +95,7 @@ class BrowseRemoteVM(
             currWatcher = watchFolder()
         }
         backOffTicker.resetIndex()
+        Log.i(logTag, "... Remote watching for ${stateID.value} has been resumed")
     }
 
     // Technical local objects
@@ -113,7 +114,7 @@ class BrowseRemoteVM(
                     Log.d(logTag, "Stop $msg")
                 }
             } catch (e: CancellationException) {
-                Log.e(logTag, "Job has been cancelled, pausing poll")
+                Log.e(logTag, "Job has been cancelled, pausing poll. Msg: ${e.message}")
                 pause()
             } catch (e: Exception) {
                 Log.e(logTag, "Unexpected error: $e")

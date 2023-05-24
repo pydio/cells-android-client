@@ -93,10 +93,6 @@ class NodeService(
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQueryF(lsQuery)
     }
 
-//    fun listLiveWorkspaces(stateID: StateID): LiveData<List<RTreeNode>> {
-//        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
-//    }
-
     fun listLiveChildren(stateID: StateID, mimeFilter: String): Flow<List<RTreeNode>> {
         Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)

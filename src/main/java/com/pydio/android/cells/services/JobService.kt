@@ -114,16 +114,6 @@ class JobService(
     fun getLiveJobByID(jobID: Long): Flow<RJob?> = jobDao.getJobById(jobID)
 
 
-//    fun getMostRecent(template: String): LiveData<RJob?> {
-//        return jobDao.getMostRecent(template)
-//    }
-
-//     fun getLiveJob(jobId: Long): LiveData<RJob?> = jobDao.getLiveById(jobId)
-
-//    fun getMostRecentRunning(template: String): LiveData<RJob?> {
-//        return jobDao.getMostRecentRunning(template)
-//    }
-
     fun listLiveJobs(showChildren: Boolean): Flow<List<RJob>> {
         return if (showChildren) {
             jobDao.getLiveJobs()

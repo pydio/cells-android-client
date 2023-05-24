@@ -42,8 +42,4 @@ class SearchHelper(
     fun cancel() {
         navController.popBackStack()
     }
-
-//    fun forceRefresh() {
-//        searchVM.doQuery()
-//    }
 }
