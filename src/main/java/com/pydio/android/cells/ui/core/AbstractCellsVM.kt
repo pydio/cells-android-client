@@ -8,10 +8,10 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.ConnectionService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.ui.models.ErrorMessage
-import com.pydio.android.cells.ui.models.fromException
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
@@ -30,18 +30,19 @@ import org.koin.core.component.inject
 /**
  * Provides generic flows to ease cells app page implementation
  */
-open class AbstractCellsVM() : ViewModel(), KoinComponent {
+open class AbstractCellsVM : ViewModel(), KoinComponent {
 
-    private val logTag = "AbstractBrowseVM"
+    private val logTag = "AbstractCellsVM"
 
     // Avoid boiling plate to have the connection service here.
+    private val errorService: ErrorService by inject()
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
     protected val nodeService: NodeService by inject()
 
-    // Expose a flow of error messages for the end-user.
-    private val _errorMessage = MutableStateFlow<ErrorMessage?>(null)
-    val errorMessage: Flow<ErrorMessage?> = _errorMessage
+    //    // Expose a flow of error messages for the end-user.
+//    private val _errorMessage = MutableStateFlow<ErrorMessage?>(null)
+    val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
 
     // Loading data from server state
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
@@ -116,22 +117,22 @@ open class AbstractCellsVM() : ViewModel(), KoinComponent {
 
     protected fun launchProcessing() {
         _loadingState.value = LoadingState.PROCESSING
-        _errorMessage.value = null
+        errorService.appendError(errorMsg = null)
     }
 
     /* Pass a non-null errorMsg parameter when the process has terminated with an error*/
     protected fun done(errorMsg: ErrorMessage? = null) {
         _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = errorMsg
+        errorService.appendError(errorMsg)
     }
 
     protected fun done(e: Exception) {
         _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = fromException(e)
+        errorService.appendError(e)
     }
 
     protected fun error(msg: String) {
         _loadingState.value = LoadingState.IDLE
-        _errorMessage.value = ErrorMessage(msg, -1, listOf())
+        errorService.appendError(msg)
     }
 }

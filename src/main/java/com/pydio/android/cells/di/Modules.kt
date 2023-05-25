@@ -14,6 +14,7 @@ import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.CoroutineService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NetworkService
@@ -27,6 +28,7 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.services.TreeNodeRepository
 import com.pydio.android.cells.services.WorkerService
 import com.pydio.android.cells.services.workers.OfflineSyncWorker
+import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.browse.models.CarouselVM
@@ -40,7 +42,6 @@ import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.migration.MigrationVM
-import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.SearchVM
@@ -85,7 +86,6 @@ class DiNames {
 private const val runtimeDBName = "runtimedb"
 private const val authDBName = "authdb"
 private const val accountDBName = "accountdb"
-
 
 val appModule = module {
     single {
@@ -168,6 +168,8 @@ val serviceModule = module {
             get(named(DiNames.cpuDispatcher)),
         )
     }
+
+    single { ErrorService(get()) }
 
     single {
         WorkerService(

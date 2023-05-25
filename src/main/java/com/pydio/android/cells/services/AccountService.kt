@@ -178,7 +178,6 @@ class AccountService(
             var changes = 0
             val accounts = accountDao.getAccounts()
             accountLoop@ for (rAccount in accounts) {
-
                 if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     continue@accountLoop
                 }
@@ -239,7 +238,17 @@ class AccountService(
                 // We check if the meta of the remote server have changed
                 var hasChanged = false
                 sessionFactory.getTransport(currID)?.server?.let { server ->
+                    //  This throws an exception if we cannot each the server
                     server.refresh(true)
+
+                    // Also insure the server is set has reachable
+                    sessionDao.getSession(rAccount.accountId)?.let {
+                        if (!it.isReachable) {
+                            it.isReachable = true
+                            sessionDao.update(it)
+                        }
+                    }
+
                     if (Str.notEmpty(server.label) && server.label != rAccount.serverLabel()) {
                         rAccount.setLabel(server.label)
                         hasChanged = true
@@ -261,13 +270,6 @@ class AccountService(
                     return true
                 }
 
-                // Also insure the server is set has reachable
-                sessionDao.getSession(rAccount.accountId)?.let {
-                    if (!it.isReachable) { // Update reachable flag ASAP
-                        it.isReachable = true
-                        sessionDao.update(it)
-                    }
-                }
             }
         } catch (e: SDKException) {
             notifyError(currID, "Unexpected error while checking account", e)
@@ -298,8 +300,7 @@ class AccountService(
     }
 
     suspend fun forgetAccount(accountID: StateID): String? = withContext(ioDispatcher) {
-        //val stateId = StateID.fromId(accountId)
-        Log.i(logTag, "### About to forget $accountID")
+        Log.i(logTag, "... About to forget $accountID")
         try {
             val oldAccount = accountDao.getAccount(accountID.id)
                 ?: return@withContext null // nothing to forget

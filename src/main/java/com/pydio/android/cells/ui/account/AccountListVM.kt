@@ -1,10 +1,11 @@
-package com.pydio.android.cells.ui.models
+package com.pydio.android.cells.ui.account
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
+import com.pydio.android.cells.ui.models.fromMessage
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -40,18 +41,18 @@ class AccountListVM(
     }
 
     private fun resume() {
+        backOffTicker.resetIndex()
         if (!_isActive) {
             _isActive = true
             currWatcher = watchAccounts()
         }
-        backOffTicker.resetIndex()
     }
 
     fun pause() {
         currWatcher?.cancel()
         _isActive = false
         setLoading(false)
-        Log.e(logTag, "... Account watching paused.")
+        Log.i(logTag, "... Remote **ACCOUNT** watching paused.")
     }
 
     fun forgetAccount(stateID: StateID) {

@@ -151,7 +151,7 @@ class OfflineVM(
                 Pair(false, "Preventing re-sync when on roaming network")
             }
 
-            is NetworkStatus.Unavailable, is NetworkStatus.Unknown -> {
+            is NetworkStatus.Unavailable, is NetworkStatus.Captive, is NetworkStatus.Unknown -> {
                 Pair(false, "Cannot launch re-sync with no internet connection")
             }
         }

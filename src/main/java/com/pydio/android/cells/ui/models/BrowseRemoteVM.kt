@@ -7,6 +7,7 @@ import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.CoroutineService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
 
 class BrowseRemoteVM(
@@ -35,6 +37,9 @@ class BrowseRemoteVM(
 
     private val logTag = "BrowseRemoteVM"
 
+
+    private val errorService: ErrorService by inject()
+
     // Manage poll jobs
     private var currWatcher: Job? = null
     private var _isActive = false
@@ -42,7 +47,7 @@ class BrowseRemoteVM(
 
     // UI State
     private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
-    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
+//    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
     // TODO reset backoff ticker when we pass from offline to connected.
 
@@ -144,7 +149,7 @@ class BrowseRemoteVM(
         }
 
         if (Str.notEmpty(result.second)) {
-            _errorMessageF.value = fromMessage(result.second!!)
+            errorService.appendError(result.second!!)
             pause()
         }
         if (result.first > 0) { // At least one change => reset backoff ticker
@@ -155,6 +160,6 @@ class BrowseRemoteVM(
 
     override fun onCleared() {
         super.onCleared()
-        Log.i(logTag, "ViewModel cleared")
+        Log.i(logTag, "cleared")
     }
 }

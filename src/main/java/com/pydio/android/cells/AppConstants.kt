@@ -37,7 +37,7 @@ enum class LoginStatus(val id: String) {
 }
 
 enum class SessionStatus {
-    NO_INTERNET, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
+    NO_INTERNET, CAPTIVE, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
 }
 
 enum class ListType {

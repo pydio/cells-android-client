@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.composables.Download
@@ -21,7 +22,6 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
@@ -60,7 +60,7 @@ fun CellsNavGraph(
             it.route?.let { dest ->
                 // TODO double check, seems like we do not need this anymore
                 navController.navigate(dest)
-//
+
 //                if (!it.isRestart) {
 //                    Log.e(logTag, "########## Launching navigation to $dest")
 //                    navController.navigate(dest)

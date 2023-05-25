@@ -80,11 +80,14 @@ class ConnectionService(
                 NetworkStatus.Metered -> SessionStatus.METERED
                 NetworkStatus.Roaming -> SessionStatus.ROAMING
                 NetworkStatus.Unavailable -> SessionStatus.NO_INTERNET
+                NetworkStatus.Captive -> SessionStatus.CAPTIVE
             }
 
             // We then refine based on the current foreground session
             activeSession?.let {
-                if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
+                if (newStatus == SessionStatus.CAPTIVE) {
+                    // We do not change the status yet
+                } else if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
                     // We have internet access but cannot ping the server
                     newStatus = SessionStatus.SERVER_UNREACHABLE
                 }
@@ -93,6 +96,7 @@ class ConnectionService(
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET
+                        && newStatus != SessionStatus.CAPTIVE
                         && newStatus != SessionStatus.SERVER_UNREACHABLE
                     ) {
                         SessionStatus.CAN_RELOG

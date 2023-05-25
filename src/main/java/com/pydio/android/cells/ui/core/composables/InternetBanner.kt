@@ -74,6 +74,11 @@ private fun InternetBanner(
                 icon = CellsIcons.NoInternet,
                 desc = stringResource(R.string.no_internet)
             )
+            SessionStatus.CAPTIVE
+            -> ConnectionStatus(
+                icon = CellsIcons.CaptivePortal,
+                desc = stringResource(R.string.captive_portal)
+            )
 
             SessionStatus.SERVER_UNREACHABLE
             -> ConnectionStatus(

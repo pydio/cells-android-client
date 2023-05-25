@@ -5,9 +5,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.lazyUID
-import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.share.models.MonitorUploadsVM
 import com.pydio.android.cells.ui.share.models.ShareVM

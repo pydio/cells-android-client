@@ -9,11 +9,9 @@ import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Expose methods used by bookmark pages */
@@ -24,16 +22,23 @@ class BookmarksVM(
 
     private val logTag = "BookmarksVM"
 
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    val bookmarks: StateFlow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
+//        nodeService.listBookmarkFlow(accountID, currPair.first, currPair.second).map { nodes ->
+//            deduplicateNodes(nodeService, nodes)
+//        }
+//    }.stateIn(
+//        scope = viewModelScope,
+//        started = WhileSubscribed(5000),
+//        initialValue = listOf()
+//    )
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val bookmarks: StateFlow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
+    val bookmarks: Flow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
         nodeService.listBookmarkFlow(accountID, currPair.first, currPair.second).map { nodes ->
             deduplicateNodes(nodeService, nodes)
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = WhileSubscribed(5000),
-        initialValue = listOf()
-    )
+    }
 
     fun forceRefresh(stateID: StateID) {
         viewModelScope.launch {
@@ -52,10 +57,7 @@ class BookmarksVM(
             try {
                 nodeService.toggleBookmark(stateID, false)
             } catch (e: Exception) {
-                Log.e(
-                    logTag,
-                    "Unhandled error while removing bookmark for $stateID, cause:  ${e.message}"
-                )
+                Log.e(logTag, "Cannot delete bookmark for $stateID, cause:  ${e.message}")
                 e.printStackTrace()
                 done(e)
             }
@@ -64,17 +66,21 @@ class BookmarksVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            transferService.saveToSharedStorage(stateID, uri)
+            try {
+                transferService.saveToSharedStorage(stateID, uri)
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 
     /* Helpers */
     init {
         forceRefresh(accountID)
-        Log.d(logTag, "Initialising BookmarksVM")
+        Log.d(logTag, "... Initialising")
     }
 
     override fun onCleared() {
-        Log.d(logTag, "BookmarksVM cleared")
+        Log.d(logTag, "... Cleared")
     }
 }

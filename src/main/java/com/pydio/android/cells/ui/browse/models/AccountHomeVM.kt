@@ -1,10 +1,10 @@
 package com.pydio.android.cells.ui.browse.models
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 class AccountHomeVM(
     val accountID: StateID,
     accountService: AccountService,
-) : ViewModel() {
+) : AbstractCellsVM() {
 
     private val logTag = "AccountHomeVM"
 

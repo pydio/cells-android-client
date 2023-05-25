@@ -19,7 +19,6 @@ import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.login.LoginDestinations
-import com.pydio.android.cells.ui.models.AccountListVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch

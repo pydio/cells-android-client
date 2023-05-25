@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.ViewCompact
@@ -94,6 +95,7 @@ object CellsIcons {
     val ButtonShare = Icons.Outlined.Share
     val Cancel = Icons.Outlined.Cancel
     val CancelSearch = Icons.Filled.Close
+    val CaptivePortal = Icons.Default.SignalWifiStatusbarConnectedNoInternet4
     val Check = Icons.Default.Check
     val CellThumb = Icons.Outlined.FolderShared
     val ClearCache = Icons.Default.FolderDelete

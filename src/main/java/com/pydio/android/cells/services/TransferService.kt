@@ -218,8 +218,10 @@ class TransferService(
         var localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
         val resolver = CellsApp.instance.contentResolver
         try {
-            if (!localFile.exists() || nodeService.isCachedVersionUpToDate(rTreeNode) == false) {
-                // TODO handle no network use case
+            if (!localFile.exists() || (networkService.isConnected() && nodeService.isCachedVersionUpToDate(
+                    rTreeNode
+                ) == false)
+            ) {
                 val jobId = prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
                 runDownloadAndWait(stateID, jobId)
                 localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
@@ -242,7 +244,7 @@ class TransferService(
             Log.i(logTag, "... File has been copied to ${uri.path}")
         } catch (ioe: IOException) {
             throw SDKException(ErrorCodes.local_io_error, "cannot write at ${uri.path}", ioe)
-        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+        } catch (se: SDKException) {
             throw SDKException(
                 ErrorCodes.internal_error,
                 "could not perform DL for " + stateID.id,

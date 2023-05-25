@@ -77,6 +77,10 @@ class NetworkService(
                 false
             }
 
+            is NetworkStatus.Captive -> {
+                false
+            }
+
             is NetworkStatus.Unmetered,
             is NetworkStatus.Metered,
             is NetworkStatus.Roaming -> true
@@ -149,6 +153,9 @@ fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
             !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
             -> NetworkStatus.Metered
 
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+            -> NetworkStatus.Captive
+
             else -> {
                 NetworkStatus.Unknown
             }
@@ -162,6 +169,7 @@ sealed class NetworkStatus {
     object Unmetered : NetworkStatus()
     object Metered : NetworkStatus()
     object Roaming : NetworkStatus()
+    object Captive : NetworkStatus()
     object Unavailable : NetworkStatus()
     object Unknown : NetworkStatus()
 }

@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import com.pydio.android.cells.ui.models.AccountListVM
+import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.share.composables.TargetAccountList
 import com.pydio.cells.transport.StateID
 

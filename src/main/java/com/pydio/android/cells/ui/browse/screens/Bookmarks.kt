@@ -77,7 +77,7 @@ fun Bookmarks(
 
     val loadingState by bookmarksVM.loadingState.collectAsState(LoadingState.IDLE)
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
-    val bookmarks = bookmarksVM.bookmarks.collectAsState()
+    val bookmarks = bookmarksVM.bookmarks.collectAsState(listOf())
 
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)

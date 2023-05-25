@@ -126,6 +126,7 @@
     <string name="loading_message">Please wait while loading content…</string>
 
     <string name="no_internet">No internet connection</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
     <string name="metered_connection">On a metered connection</string>
     <string name="roaming_connection">Using a roaming connection</string>
 
