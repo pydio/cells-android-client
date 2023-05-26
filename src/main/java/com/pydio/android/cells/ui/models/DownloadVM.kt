@@ -2,14 +2,12 @@ package com.pydio.android.cells.ui.models
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.utils.externallyView
+import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,9 +20,8 @@ import kotlinx.coroutines.launch
 
 class DownloadVM(
     private val stateID: StateID,
-    private val nodeService: NodeService,
     private val transferService: TransferService
-) : ViewModel() {
+) : AbstractCellsVM() {
 
     private val logTag = "DownloadVM"
     private val _rTreeNode = MutableStateFlow<RTreeNode?>(null)
@@ -51,20 +48,22 @@ class DownloadVM(
             _transferID.value = transferID
             transferService.runDownloadTransfer(stateID.account(), transferID, null)
         } catch (se: SDKException) {
-            Log.e(logTag, "Could not perform download for $stateID: ${se.message ?: "-"} ")
-            // TODO also notify the end user
+            val msg = "Cannot download file for $stateID"
+            Log.e(logTag, "$msg, cause: ${se.message ?: "-"} ")
+            showError(ErrorMessage(msg, -1, listOf()))
         }
     }
 
     suspend fun viewFile(context: Context) {
-        _rTreeNode.value?.let { node ->
-            nodeService.getLocalFile(node, true)?.let { file ->
-                externallyView(context, file, node)
-                return
-            } ?: run {
-                Log.e(logTag, "Could not open file for ${node.getStateID()}")
-            }
-        }
+        viewFile(context, stateID)
+//        _rTreeNode.value?.let { node ->
+//            nodeService.getLocalFile(node, true)?.let { file ->
+//                externallyView(context, file, node)
+//                return
+//            } ?: run {
+//                Log.e(logTag, "Could not open file for ${node.getStateID()}")
+//            }
+//        }
     }
 
     init {

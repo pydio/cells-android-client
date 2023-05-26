@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ui.core.AbstractCellsVM
+import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
+import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
@@ -66,16 +68,25 @@ class BrowseHelper(
                         browseVM.viewFile(context, stateID)
                     } catch (e: SDKException) {
                         if (e.code == ErrorCodes.no_local_file) {
-                            // File has not yet been downloaded
-                            navController.navigate(CellsDestinations.Download.createRoute(stateID))
+                            if (browseVM.loadingState.value == LoadingState.SERVER_UNREACHABLE) {
+                                browseVM.showError(
+                                    ErrorMessage(
+                                        "Cannot get un-cached file, server is unreachable",
+                                        -1,
+                                        listOf()
+                                    )
+                                )
+                            } else {
+                                // Download the file now
+                                navController.navigate(
+                                    CellsDestinations.Download.createRoute(stateID)
+                                )
+                            }
                             return
                         } else {
-                            Log.e(
-                                logTag,
-                                "Unexpected error while trying to view file: ${e.message}"
-                            )
+                            Log.e(logTag, "Unexpected error trying to open file: ${e.message}")
                             e.printStackTrace()
-                            throw e // FIXME: this makes the app crash, good for debugging but remove before going live
+                            // throw e // FIXME: this makes the app crash, good for debugging but remove before going live
                         }
                     }
                     return
@@ -92,8 +103,4 @@ class BrowseHelper(
     fun cancel() {
         navController.popBackStack()
     }
-
-//    fun forceRefresh() {
-//        browseRemoteVM.watch(currFolderStateID, true)
-//    }
 }

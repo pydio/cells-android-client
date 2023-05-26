@@ -26,12 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.services.ConnectionService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 private enum class Status {
     OK, WARNING, DANGER
@@ -44,15 +46,23 @@ fun WithInternetBanner(
     contentPadding: PaddingValues,
     connectionService: ConnectionService,
     navigateTo: (String) -> Unit,
+    errorService: ErrorService = koinInject(),
     content: @Composable () -> Unit
 ) {
+
+    val localNavigateTo: (String) -> Unit =
+        {    // clean error stack before launching the relog process
+            errorService.clearStack()
+            navigateTo(it)
+        }
+
     // TODO add bottom sheet
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)
     ) {
-        InternetBanner(connectionService, navigateTo)
+        InternetBanner(connectionService, localNavigateTo)
         content()
     }
 }
@@ -74,6 +84,7 @@ private fun InternetBanner(
                 icon = CellsIcons.NoInternet,
                 desc = stringResource(R.string.no_internet)
             )
+
             SessionStatus.CAPTIVE
             -> ConnectionStatus(
                 icon = CellsIcons.CaptivePortal,
@@ -117,6 +128,7 @@ private fun InternetBanner(
                                     )
                                 }
                                 navigateTo(route)
+
                             } ?: run {
                                 Log.e(logTag, "... Cannot launch, empty session view")
                             }
@@ -140,13 +152,13 @@ private fun ConnectionStatus(icon: ImageVector, desc: String, type: Status = Sta
     val tint = when (type) {
         Status.WARNING -> CellsColor.warning
         Status.DANGER -> CellsColor.danger
-        else -> MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     val bg = when (type) {
         Status.WARNING -> CellsColor.warning.copy(alpha = .1f)
         Status.DANGER -> CellsColor.danger.copy(alpha = .1f)
-        else -> MaterialTheme.colorScheme.surface
+        else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Row(
@@ -185,13 +197,13 @@ private fun CredExpiredStatus(
     val tint = when (type) {
         Status.WARNING -> CellsColor.warning
         Status.DANGER -> CellsColor.danger
-        else -> MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     val bg = when (type) {
         Status.WARNING -> CellsColor.warning.copy(alpha = .1f)
         Status.DANGER -> CellsColor.danger.copy(alpha = .1f)
-        else -> MaterialTheme.colorScheme.surface
+        else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Row(

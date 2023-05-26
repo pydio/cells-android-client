@@ -324,7 +324,7 @@ class NodeService(
             val changeNb = folderDiff.compareWithRemote()
             return@withContext Pair(changeNb, null)
         } catch (e: SDKException) {
-            val msg = "could not perform ls for $stateID"
+            val msg = "Could not refresh folder at $stateID"
             handleSdkException(stateID, msg, e)
             return@withContext Pair(0, msg)
         }

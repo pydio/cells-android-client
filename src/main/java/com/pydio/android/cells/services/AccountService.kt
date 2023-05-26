@@ -394,7 +394,7 @@ class AccountService(
             } catch (e: SDKException) {
                 val msg = "Could not get workspace list for $accountID"
                 Log.e(logTag, msg)
-                // e.printStackTrace()
+                e.printStackTrace()
                 notifyError(accountID, msg, e)
                 return@withContext 0 to msg
             }

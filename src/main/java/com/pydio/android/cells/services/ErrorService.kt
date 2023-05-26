@@ -6,10 +6,11 @@ import com.pydio.android.cells.ui.models.fromException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 
 /**
  * Holds a shared flow of errors to notify the end user.
@@ -32,10 +33,18 @@ class ErrorService(
     @OptIn(FlowPreview::class)
     private var _userMessages: Flow<ErrorMessage?> = _allMessages.debounce(errorDebounceDelay)
 
-    val userMessages: StateFlow<ErrorMessage?> = _userMessages.stateIn(
+    //    val userMessages: StateFlow<ErrorMessage?> = _userMessages.stateIn(
+//        scope = serviceScope,
+//        started = SharingStarted.WhileSubscribed(5000),
+//        initialValue = null
+//    )
+
+    // We rather use a shared flow to be able to see messages only once
+    // otherwise, each view model will show latest error message when starting to listen
+    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.buffer(0).shareIn(
         scope = serviceScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = null
+        replay = 0
     )
 
     fun appendError(errorMsg: ErrorMessage? = null) {
@@ -48,6 +57,10 @@ class ErrorService(
 
     fun appendError(msg: String) {
         _allMessages.value = ErrorMessage(msg, -1, listOf())
+    }
+
+    fun clearStack() {
+        _allMessages.value = null
     }
 
     init {

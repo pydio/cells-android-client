@@ -8,6 +8,7 @@ import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.ErrorService
+import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.utils.BackOffTicker
@@ -30,13 +31,13 @@ import java.util.concurrent.TimeUnit
 
 class BrowseRemoteVM(
     private val coroutineService: CoroutineService,
+    private val networkService: NetworkService,
     connectionService: ConnectionService,
     private val accountService: AccountService,
     private val nodeService: NodeService,
 ) : ViewModel(), KoinComponent {
 
     private val logTag = "BrowseRemoteVM"
-
 
     private val errorService: ErrorService by inject()
 
@@ -46,14 +47,14 @@ class BrowseRemoteVM(
     private val backOffTicker = BackOffTicker()
 
     // UI State
-    private val _loadingStateF = MutableStateFlow(LoadingState.STARTING)
+    private val _loadingState = MutableStateFlow(LoadingState.STARTING)
 //    private val _errorMessageF = MutableStateFlow<ErrorMessage?>(null)
 
     // TODO reset backoff ticker when we pass from offline to connected.
 
     // We derive the Loading state to also expose Unreachable status to calling composables.
     val loadingState: StateFlow<LoadingState> =
-        _loadingStateF.combine(connectionService.sessionStatusFlow) { state, status ->
+        _loadingState.combine(connectionService.sessionStatusFlow) { state, status ->
             Log.d(logTag, "Computing loading state with state: $state & status: $status")
             if (SessionStatus.NO_INTERNET == status
                 || SessionStatus.SERVER_UNREACHABLE == status
@@ -73,25 +74,44 @@ class BrowseRemoteVM(
 
     init {
         if (stateID.value != StateID.NONE) {
-            _loadingStateF.value = LoadingState.STARTING
-            Log.i(logTag, "... Starting for ${stateID.value}")
+            _loadingState.value = LoadingState.STARTING
+            Log.e(logTag, "####################################")
+            Log.e(logTag, "####################################")
+            Log.e(logTag, "####################################")
+            Log.e(logTag, "####################################")
+            Log.e(logTag, "... Starting for ${stateID.value}")
         }
     }
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
-        Log.i(logTag, "Watching $newStateID ${if (isForceRefresh) "(Force refresh)" else ""}")
-        _loadingStateF.value =
-            if (isForceRefresh) LoadingState.PROCESSING else LoadingState.STARTING
-        currWatcher?.cancel()
-        _isActive = false
-        _stateID.value = newStateID
-        resume()
+        viewModelScope.launch {
+            try {
+                delay(1000)
+                Log.e(
+                    logTag,
+                    "Watching $newStateID ${if (isForceRefresh) "(Force refresh)" else ""}"
+                )
+                Log.e(logTag, "    Loading state: ${_loadingState.value}")
+                _loadingState.value = when {
+                    !networkService.isConnected() -> return@launch // Do nothing
+                    isForceRefresh -> LoadingState.PROCESSING
+                    else -> LoadingState.STARTING
+                }
+                currWatcher?.cancel()
+                _isActive = false
+                _stateID.value = newStateID
+                resume()
+            } catch (e: Exception) {
+                Log.e(logTag, "could not start watching, error: ${e.message}")
+                e.printStackTrace()
+            }
+        }
     }
 
     fun pause() {
         Log.i(logTag, "... Pause remote watching for ${stateID.value}")
         _isActive = false
-        _loadingStateF.value = LoadingState.IDLE
+        _loadingState.value = LoadingState.IDLE
     }
 
     private fun resume() {
@@ -119,7 +139,7 @@ class BrowseRemoteVM(
                     Log.d(logTag, "Stop $msg")
                 }
             } catch (e: CancellationException) {
-                Log.e(logTag, "Job has been cancelled, pausing poll. Msg: ${e.message}")
+                Log.w(logTag, "Pausing poll: ${e.message}")
                 pause()
             } catch (e: Exception) {
                 Log.e(logTag, "Unexpected error: $e")
@@ -155,7 +175,7 @@ class BrowseRemoteVM(
         if (result.first > 0) { // At least one change => reset backoff ticker
             backOffTicker.resetIndex()
         }
-        _loadingStateF.value = LoadingState.IDLE
+        _loadingState.value = LoadingState.IDLE
     }
 
     override fun onCleared() {

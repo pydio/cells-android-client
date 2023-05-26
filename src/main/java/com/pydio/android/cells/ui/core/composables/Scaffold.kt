@@ -40,29 +40,6 @@ import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun WithDefaultScaffold(
-//    title: String,
-//    openDrawer: () -> Unit,
-//    modifier: Modifier = Modifier,
-//    content: @Composable (PaddingValues) -> Unit,
-//) {
-////    val topAppBarState = rememberTopAppBarState()
-//    Scaffold(
-//        topBar = {
-//            DefaultTopAppBar(
-//                title = title,
-//                openDrawer = openDrawer,
-////                topAppBarState = topAppBarState
-//            )
-//        },
-//        modifier = modifier
-//    ) { innerPadding ->
-//        content(innerPadding)
-//    }
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefaultTopBar(

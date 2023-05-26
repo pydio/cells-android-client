@@ -142,10 +142,8 @@ fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
     return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
         Log.d(logTag, ".. capabilities: $networkCapabilities.")
         when {
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                    || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
-            -> NetworkStatus.Unmetered
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+            -> NetworkStatus.Captive
 
             !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
             -> NetworkStatus.Roaming
@@ -153,8 +151,10 @@ fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
             !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
             -> NetworkStatus.Metered
 
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
-            -> NetworkStatus.Captive
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+            -> NetworkStatus.Unmetered
 
             else -> {
                 NetworkStatus.Unknown

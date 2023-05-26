@@ -135,4 +135,8 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         _loadingState.value = LoadingState.IDLE
         errorService.appendError(msg)
     }
+
+    fun showError(errorMsg: ErrorMessage) {
+        errorService.appendError(errorMsg)
+    }
 }
