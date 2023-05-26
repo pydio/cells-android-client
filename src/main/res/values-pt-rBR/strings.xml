@@ -104,6 +104,7 @@
     <string name="appears_in_prefix">Inside %s</string>
     <string name="loading_message">Aguarde enquanto carrega o conteúdo…</string>
     <string name="no_internet">Sem conexão à internet</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
     <string name="metered_connection">Conexão limitada</string>
     <string name="roaming_connection">Usando uma conexão de roaming</string>
     <string name="server_unreachable">Cannot reach server</string>

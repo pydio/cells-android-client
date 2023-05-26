@@ -104,6 +104,7 @@
     <string name="appears_in_prefix">Inside %s</string>
     <string name="loading_message">Počkejte na načtení obsahu…</string>
     <string name="no_internet">Není k dispozici připojení k Internetu</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
     <string name="metered_connection">Na připojení s účtovanými daty</string>
     <string name="roaming_connection">Použití roamingového připojení</string>
     <string name="server_unreachable">Cannot reach server</string>

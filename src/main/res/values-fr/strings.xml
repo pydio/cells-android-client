@@ -104,6 +104,7 @@
     <string name="appears_in_prefix">Dans %s</string>
     <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <string name="no_internet">Aucune connexion internet</string>
+    <string name="captive_portal">Portail captif: connexion requise</string>
     <string name="metered_connection">Connecté à un réseau limité</string>
     <string name="roaming_connection">Connecté en itinérance</string>
     <string name="server_unreachable">Impossible de se connecter au serveur</string>
