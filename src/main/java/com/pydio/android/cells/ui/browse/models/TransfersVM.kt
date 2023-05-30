@@ -4,13 +4,13 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,12 +23,8 @@ class TransfersVM(
 
     private val logTag = "TransfersVM"
 
-
-    private val transferOrderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        prefs.getOrderByPair(
-            cellsPreferences,
-            ListType.TRANSFER
-        )
+    private val transferOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.list.transferOrder
     }
 
     val liveFilter: Flow<String> = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -36,13 +32,15 @@ class TransfersVM(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val transfers: Flow<List<RTransfer>> = transferOrderPair.flatMapLatest { currPair ->
-        transferService.queryTransfersExplicitFilter(
-            accountID,
-            currPair.first,
-            currPair.second
-        )
-    }
+    val transfers: Flow<List<RTransfer>> =
+        liveFilter.combine(transferOrder) { filter, order -> filter to order }
+            .flatMapLatest { pair ->
+                transferService.queryTransfersExplicitFilter(
+                    accountID,
+                    pair.first,
+                    pair.second
+                )
+            }
 
     suspend fun get(transferID: Long): RTransfer? = transferService.getRecord(accountID, transferID)
 
