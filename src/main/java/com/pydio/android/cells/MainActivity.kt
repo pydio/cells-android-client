@@ -6,6 +6,8 @@ import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -20,7 +22,6 @@ import androidx.core.view.WindowCompat
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
-import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.core.screens.WhiteScreen
 import com.pydio.android.cells.ui.login.LoginDestinations
@@ -57,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
+        var appIsReady = false
         setContent {
             val landingVM by viewModel<LandingVM>()
 
@@ -127,10 +129,11 @@ class MainActivity : ComponentActivity() {
                     // WindowCompat.setDecorFitsSystemWindows(window, false)
                     WindowCompat.setDecorFitsSystemWindows(window, true)
                     ready.value = true
+                    appIsReady = true
                     landingVM.recordLaunch()
                 }
 
-                LoadingAnimation()
+//                LoadingAnimation()
                 if (ready.value) {
                     Log.e(logTag, "#### Recomposing for ${startingState.value?.route}")
                     MainApp(
@@ -145,6 +148,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        // Set up an OnPreDrawListener to the root view.
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    // Check whether the initial data is ready.
+                    return if (appIsReady) {
+                        // The content is ready. Start drawing.
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        // The content isn't ready. Suspend.
+                        false
+                    }
+                }
+            }
+        )
     }
 
     override fun onPause() {

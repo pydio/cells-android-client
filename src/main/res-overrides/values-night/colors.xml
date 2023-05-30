@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- Main Cells colors for dark mode -->
+    <color name="cells_blue">#00BCD4</color>
+    <color name="cells_orange">#EE776C</color>
+
+</resources>

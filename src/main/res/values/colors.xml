@@ -3,8 +3,9 @@
 <resources>
 
     <!-- We still have a few hard coded colors for Mime Type Icons-->
-    <!-- Main Cells Color -->
-    <color name="cells_primary">#00668B</color>
+    <!-- Main Cells colors -->
+    <color name="cells_blue">#00668B</color>
+    <color name="cells_orange">#EE776C</color>
     <!-- Document icon colors -->
     <color name="material_yellow">#FFE500</color>
     <color name="material_orange">#FF9800</color>
