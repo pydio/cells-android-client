@@ -94,13 +94,13 @@ class AccountService(
 
     // Expose Flows for the ViewModels
 
-    fun getLiveSessions() = sessionViewDao.getLiveSessions()
+    val activeSessionView: Flow<RSessionView?> =
+        sessionViewDao.getActiveSessionFlow(AppNames.LIFECYCLE_STATE_FOREGROUND)
 
     fun getLiveSession(accountID: StateID): Flow<RSessionView?> =
         sessionViewDao.getSessionFlow(accountID.id)
 
-    val activeSessionViewF: Flow<RSessionView?> =
-        sessionViewDao.getActiveSessionFlow(AppNames.LIFECYCLE_STATE_FOREGROUND)
+    fun getLiveSessions() = sessionViewDao.getLiveSessions()
 
     fun getWsByTypeFlow(type: String, accountID: String)
             : Flow<List<RWorkspace>> {

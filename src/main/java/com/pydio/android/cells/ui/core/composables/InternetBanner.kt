@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.SessionStatus
+import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.ui.login.LoginDestinations
@@ -46,6 +47,7 @@ fun WithInternetBanner(
     contentPadding: PaddingValues,
     connectionService: ConnectionService,
     navigateTo: (String) -> Unit,
+    accountService: AccountService = koinInject(),
     errorService: ErrorService = koinInject(),
     content: @Composable () -> Unit
 ) {
@@ -62,18 +64,21 @@ fun WithInternetBanner(
             .fillMaxSize()
             .padding(contentPadding)
     ) {
-        InternetBanner(connectionService, localNavigateTo)
+        InternetBanner(accountService, connectionService, localNavigateTo)
         content()
     }
 }
 
 @Composable
 private fun InternetBanner(
+    accountService: AccountService,
     connectionService: ConnectionService,
     navigateTo: (String) -> Unit,
 ) {
     val sessionStatus = connectionService.sessionStatusFlow
         .collectAsState(initial = SessionStatus.OK)
+
+    val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     val scope = rememberCoroutineScope()
 
@@ -92,10 +97,19 @@ private fun InternetBanner(
             )
 
             SessionStatus.SERVER_UNREACHABLE
-            -> ConnectionStatus(
-                icon = CellsIcons.ServerUnreachable,
-                desc = stringResource(R.string.server_unreachable)
-            )
+            -> {
+                if (knownSessions.value.isEmpty()) {
+                    ConnectionStatus(
+                        icon = CellsIcons.ServerUnreachable,
+                        desc = stringResource(R.string.no_account)
+                    )
+                } else {
+                    ConnectionStatus(
+                        icon = CellsIcons.ServerUnreachable,
+                        desc = stringResource(R.string.server_unreachable)
+                    )
+                }
+            }
 
             SessionStatus.METERED,
             SessionStatus.ROAMING

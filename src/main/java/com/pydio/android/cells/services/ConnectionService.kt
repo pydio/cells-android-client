@@ -42,7 +42,7 @@ class ConnectionService(
     private val serviceScope = coroutineService.cellsIoScope
 
     private val networkStatusFlow = networkService.networkStatusFlow
-    val sessionView: Flow<RSessionView?> = accountService.activeSessionViewF
+    val sessionView: Flow<RSessionView?> = accountService.activeSessionView
     val sessionStatusFlow: Flow<SessionStatus> = getSessionFlow()
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
@@ -117,7 +117,6 @@ class ConnectionService(
         .conflate()
 
     private var currJob: Job? = null
-//    private val lock = Any()
 
     fun relaunchMonitoring() {
         serviceScope.launch {
@@ -155,7 +154,7 @@ class ConnectionService(
             return@withContext
         }
 
-        Log.e(logTag, "Monitoring Credentials for $currID, found a token that needs refresh")
+        Log.w(logTag, "Monitoring Credentials for $currID, found a token that needs refresh")
         val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
         Log.d(logTag, "   Expiration time is $expTimeStr")
         val timeout = currentTimestamp() + 30

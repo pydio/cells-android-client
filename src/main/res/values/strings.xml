@@ -22,7 +22,6 @@
     <string name="button_skip">Skip</string>
     <string name="button_launch_sync">Launch Sync</string>
 
-
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
     <!--    <string name="action_open_app">Open App</string>-->
@@ -130,6 +129,7 @@
     <string name="metered_connection">On a metered connection</string>
     <string name="roaming_connection">Using a roaming connection</string>
 
+    <string name="no_account">No account, please configure at least a connection</string>
     <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>
@@ -168,7 +168,7 @@
     <string name="sync_tree_walking">Walking the tree to look for changes…</string>
     <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
     <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
 
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
@@ -179,7 +179,6 @@
     <string name="job_sort_by_title">Sort by</string>
     <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
     <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
-
 
     <!-- Log Management -->
     <string name="log_list_title">Application logs</string>
@@ -305,7 +304,7 @@
     <string name="pref_offline_constraint_charging_title">When charging</string>
     <string name="pref_offline_constraint_charging_desc">Only launch sync when the device is charging</string>
     <string name="pref_offline_constraint_idle_title">When Idle</string>
-    <string name="pref_offline_constraint_idle_desc">When the device is idle (works for Android 6+)</string>
+    <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
     <string name="pref_offline_constraint_batt_not_low_title">When battery not low</string>
     <string name="pref_offline_constraint_batt_not_low_desc">When the battery is not low</string>
 
