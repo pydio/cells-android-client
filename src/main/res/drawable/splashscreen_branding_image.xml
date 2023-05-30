@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="142dp"
+        android:height="70dp"
+        android:gravity="center">
+        <shape android:shape="rectangle" />
+    </item>
+    <item
+        android:width="142dp"
+        android:height="70dp"
+        android:drawable="@drawable/branding_image_nobg"
+        android:gravity="center" />
+</layer-list>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="CellsTheme.SplashScreen" parent="Theme.SplashScreen.IconBackground">
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon_v31</item>
+        <item name="postSplashScreenTheme">@style/CellsTheme</item>
+        <item name="android:windowSplashScreenBrandingImage">
+            @drawable/splashscreen_branding_image
+        </item>
+    </style>
+
+</resources>

@@ -22,6 +22,7 @@ import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
+import com.pydio.android.cells.ui.core.screens.WhiteScreen
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.ShareDestination
 import com.pydio.android.cells.ui.system.models.LandingVM
@@ -130,7 +131,6 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LoadingAnimation()
-
                 if (ready.value) {
                     Log.e(logTag, "#### Recomposing for ${startingState.value?.route}")
                     MainApp(
@@ -140,6 +140,8 @@ class MainActivity : ComponentActivity() {
                         launchTaskFor = launchTaskFor,
                         widthSizeClass = widthSizeClass,
                     )
+                } else {
+                    WhiteScreen()
                 }
             }
         }
