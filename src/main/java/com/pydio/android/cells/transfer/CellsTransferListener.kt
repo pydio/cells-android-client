@@ -1,8 +1,10 @@
 package com.pydio.android.cells.transfer
 
+import android.text.Html
 import android.util.Log
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.services.s3.model.AmazonS3Exception
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.TransferDao
@@ -88,12 +90,31 @@ class CellsTransferListener(
     }
 
     override fun onError(id: Int, e: java.lang.Exception) {
-        Log.e(logTag, "... #$id - Error: ${e.message}")
-        e.printStackTrace()
+        val msg = if (e is AmazonS3Exception) {
+            Log.e(logTag, "Could not transfer #$id - ${e.errorMessage}")
+            // TODO perform a better parsing of the XML
+            val parsed = try {
+                val tmp = e.localizedMessage!!.subSequence(
+                    e.localizedMessage!!.indexOf("<Message>") + "<Message>".length,
+                    e.localizedMessage!!.indexOf("</Message>")
+                ).toString()
+                Html.fromHtml(tmp, Html.FROM_HTML_MODE_LEGACY).toString()
+            } catch (e2: Exception) {
+                Log.e(logTag, "Could not parse error ${e.errorMessage}: ${e2.message}")
+                e.errorMessage ?: "Could not perform transfer"
+            }
+            Log.e(logTag, "Parsed Error ${e.errorCode}: $parsed")
+            "${e.errorCode}: $parsed"
+        } else {
+            Log.e(logTag, "Unexpected Error for transfer #$id: ${e.message}")
+            e.printStackTrace()
+            e.message
+        }
+
         scope.launch(context = ioDispatcher) {
             transferRecord.status = AppNames.JOB_STATUS_ERROR
             transferRecord.doneTimestamp = currentTimestamp()
-            transferRecord.error = e.message
+            transferRecord.error = msg
             transferDao.update(transferRecord)
         }
     }
