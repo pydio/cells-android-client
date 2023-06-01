@@ -107,6 +107,7 @@
     <string name="captive_portal">Captive Portal: Anmeldung erforderlich</string>
     <string name="metered_connection">Begrenzter Anschluss</string>
     <string name="roaming_connection">Roaming-Anschluss</string>
+    <string name="no_account">Kein Konto: bitte mindestens eine Verbindung konfigurieren</string>
     <string name="server_unreachable">Der Server kann nicht erreicht werden</string>
     <string name="empty_cache">Ordnerinhalt kann nicht aufgelistet werden</string>
     <string name="cannot_download_file">Datei kann nicht heruntergeladen werden</string>
@@ -197,6 +198,7 @@
     <string name="delete">Löschen</string>
     <string name="pause">Pausieren</string>
     <string name="relaunch">Neu starten</string>
+    <string name="resume">Fortsetzen</string>
     <string name="empty_recycle">Papierkorb leeren</string>
     <string name="restore_content">Wiederherstellen</string>
     <string name="permanently_remove">Endgültig entfernen</string>
@@ -262,7 +264,7 @@
     <string name="pref_offline_constraint_charging_title">Beim Laden</string>
     <string name="pref_offline_constraint_charging_desc">Sync nur starten, wenn das Gerät geladen wird</string>
     <string name="pref_offline_constraint_idle_title">Wenn im Ruhezustand</string>
-    <string name="pref_offline_constraint_idle_desc">Wenn das Gerät inaktiv ist (funktioniert für Android 6+)</string>
+    <string name="pref_offline_constraint_idle_desc">Wenn das Gerät inaktiv ist</string>
     <string name="pref_offline_constraint_batt_not_low_title">Wenn der Akku nicht schwach ist</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Bei nicht niedrigem Akkustand</string>
     <string name="pref_category_title_feedback">Feedback und Hilfe</string>

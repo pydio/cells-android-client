@@ -107,6 +107,7 @@
     <string name="captive_portal">Captive portal: sign in required</string>
     <string name="metered_connection">Conexão limitada</string>
     <string name="roaming_connection">Usando uma conexão de roaming</string>
+    <string name="no_account">No account, please configure at least a connection</string>
     <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Impossível listar o conteúdo da pasta</string>
     <string name="cannot_download_file">Não é possível baixar o arquivo</string>
@@ -139,7 +140,7 @@
     <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças…</string>
     <string name="sync_already_running">Um processo de sincronização já está em execução, por favor aguarde antes de iniciar um novo</string>
     <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Tarefas em segundo plano</string>
     <string name="job_list_empty_message">There is no job to show</string>
@@ -197,6 +198,7 @@
     <string name="delete">Excluir</string>
     <string name="pause">Pausar</string>
     <string name="relaunch">Reabrir</string>
+    <string name="resume">Resume</string>
     <string name="empty_recycle">Esvaziar lixeira</string>
     <string name="restore_content">Restaurar</string>
     <string name="permanently_remove">Remover permanentemente</string>
@@ -262,7 +264,7 @@
     <string name="pref_offline_constraint_charging_title">Durante carregamento</string>
     <string name="pref_offline_constraint_charging_desc">Só iniciar a sincronização quando o dispositivo estiver carregando</string>
     <string name="pref_offline_constraint_idle_title">Quando ocioso</string>
-    <string name="pref_offline_constraint_idle_desc">Quando o dispositivo estiver ocioso (funciona para Android 6 +)</string>
+    <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
     <string name="pref_offline_constraint_batt_not_low_title">Quando a bateria estiver cheia</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Quando a bateria estiver cheia</string>
     <string name="pref_category_title_feedback">Comentários e ajuda</string>
