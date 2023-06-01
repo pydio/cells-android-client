@@ -18,6 +18,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -70,11 +71,13 @@ fun Decorated(
 private fun JobDecorator(status: String, modifier: Modifier) {
 
     val imageId = when (status) {
-        AppNames.JOB_STATUS_NEW -> CellsIcons.New
-        AppNames.JOB_STATUS_PROCESSING -> CellsIcons.Processing
-        AppNames.JOB_STATUS_ERROR -> CellsIcons.ErrorDecorator
-        AppNames.JOB_STATUS_PAUSED -> CellsIcons.Pause
-        AppNames.JOB_STATUS_DONE -> CellsIcons.Check
+        JobStatus.NEW.id -> CellsIcons.New
+        JobStatus.PROCESSING.id -> CellsIcons.Processing
+        JobStatus.PAUSED.id -> CellsIcons.Pause
+        JobStatus.CANCELLED.id -> CellsIcons.Cancel
+        JobStatus.WARNING.id -> CellsIcons.ErrorDecorator
+        JobStatus.ERROR.id -> CellsIcons.ErrorDecorator
+        JobStatus.DONE.id -> CellsIcons.Check
         else -> {
             Log.e(logTag, "Adding unknown decorator for status $status")
             CellsIcons.Unknown
@@ -82,12 +85,14 @@ private fun JobDecorator(status: String, modifier: Modifier) {
     }
 
     val color = when (status) {
-        AppNames.JOB_STATUS_NEW -> MaterialTheme.colorScheme.primary
-        AppNames.JOB_STATUS_PROCESSING -> MaterialTheme.colorScheme.primary
-        AppNames.JOB_STATUS_PAUSED -> CellsColor.warning
-        AppNames.JOB_STATUS_ERROR -> CellsColor.danger
-        AppNames.JOB_STATUS_DONE -> CellsColor.ok
-        else -> CellsColor.warning
+        JobStatus.NEW.id -> CellsColor.warning
+        JobStatus.PROCESSING.id -> CellsColor.warning
+        JobStatus.PAUSED.id -> CellsColor.warning
+        JobStatus.CANCELLED.id -> CellsColor.danger
+        JobStatus.WARNING.id -> CellsColor.warning
+        JobStatus.ERROR.id -> CellsColor.danger
+        JobStatus.DONE.id -> CellsColor.ok
+        else -> CellsColor.danger
     }
 
     Icon(

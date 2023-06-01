@@ -5,7 +5,7 @@ import android.util.Log
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.services.s3.model.AmazonS3Exception
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.services.CoroutineService
@@ -28,29 +28,21 @@ class CellsTransferListener(
     private val logTag = "CellsTransferListener"
 
     private val coroutineService: CoroutineService by inject()
-    private val scope = coroutineService.cellsIoScope
+    private val ioScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
 
     private val fileService: FileService by inject()
 
-    // We rely on an instance object to avoid race conditions.
-    // It is still a bit clumsy and we must pay attention to only update distinct
-    // fields of the record in the various methods.
-    private val transferRecord: RTransfer = transferDao.getByExternalID(externalID) ?: run {
-        throw SDKException(
-            ErrorCodes.internal_error,
-            "Could not retrieve transfer with external ID $externalID, aborting"
-        )
-    }
     private var alreadyTransferred = 0L
 
     override fun onStateChanged(id: Int, state: TransferState?) {
-        scope.launch(context = ioDispatcher) {
+        ioScope.launch(context = ioDispatcher) {
+            val transferRecord = getTransferRecord()
             when (state) {
                 TransferState.COMPLETED -> {
                     Log.i(logTag, "... #$id - ${transferRecord.transferId}: Transfer complete")
                     fileService.registerLocalFile(transferRecord)
-                    transferRecord.status = AppNames.JOB_STATUS_DONE
+                    transferRecord.status = JobStatus.DONE.id
                     transferRecord.doneTimestamp = currentTimestamp()
                     transferDao.update(transferRecord)
                 }
@@ -64,7 +56,8 @@ class CellsTransferListener(
     }
 
     override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-        scope.launch(context = ioDispatcher) {
+        ioScope.launch {
+            val transferRecord = getTransferRecord()
             if (bytesCurrent != transferRecord.progress) {
                 Log.d(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
                 transferRecord.progress = bytesCurrent
@@ -111,11 +104,19 @@ class CellsTransferListener(
             e.message
         }
 
-        scope.launch(context = ioDispatcher) {
-            transferRecord.status = AppNames.JOB_STATUS_ERROR
+        ioScope.launch(context = ioDispatcher) {
+            val transferRecord = getTransferRecord()
+            transferRecord.status = JobStatus.ERROR.id
             transferRecord.doneTimestamp = currentTimestamp()
             transferRecord.error = msg
             transferDao.update(transferRecord)
         }
+    }
+
+    private fun getTransferRecord(): RTransfer = transferDao.getByExternalID(externalID) ?: run {
+        throw SDKException(
+            ErrorCodes.internal_error,
+            "Could not retrieve transfer with external ID $externalID, aborting"
+        )
     }
 }

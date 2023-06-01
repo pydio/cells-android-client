@@ -30,23 +30,20 @@ private const val logTag = "BrowseNavGraph"
 
 fun NavGraphBuilder.browseNavGraph(
     navController: NavHostController,
+    browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
 ) {
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        val browseRemoteVM: BrowseRemoteVM = koinViewModel()
         val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
         val helper = BrowseHelper(navController, folderVM)
 
         Log.i(logTag, "## BrowseDestinations.open - $stateID")
         when {
             stateID == StateID.NONE ->
-                NoAccount(
-                    openDrawer = openDrawer,
-                    addAccount = {},
-                )
+                NoAccount(openDrawer = openDrawer, addAccount = {})
 
             Str.notEmpty(stateID.slug) -> {
                 Folder(
@@ -152,11 +149,13 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
+
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()
         } else {
-            val transfersVM: TransfersVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val transfersVM: TransfersVM =
+                koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID) })
             val helper = BrowseHelper(navController, transfersVM)
             Transfers(
                 accountID = stateID.account(),

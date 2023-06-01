@@ -20,7 +20,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -70,28 +69,23 @@ class BrowseRemoteVM(
         )
 
     private val _stateID = MutableStateFlow(StateID.NONE)
-    val stateID: StateFlow<StateID> = _stateID.asStateFlow()
+    val stateID: StateFlow<StateID> = _stateID // .asStateFlow()
 
-    init {
-        if (stateID.value != StateID.NONE) {
-            _loadingState.value = LoadingState.STARTING
-            Log.e(logTag, "####################################")
-            Log.e(logTag, "####################################")
-            Log.e(logTag, "####################################")
-            Log.e(logTag, "####################################")
-            Log.e(logTag, "... Starting for ${stateID.value}")
-        }
-    }
+    // Expose a flag to the various screens to know if remote is Cells or P8
+    private var _isLegacy = false
+    val isLegacy: Boolean = _isLegacy
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
         viewModelScope.launch {
             try {
-                delay(1000)
-                Log.e(
-                    logTag,
-                    "Watching $newStateID ${if (isForceRefresh) "(Force refresh)" else ""}"
-                )
-                Log.e(logTag, "    Loading state: ${_loadingState.value}")
+                accountService.getSession(newStateID)?.let {
+                    _isLegacy = it.isLegacy
+                }
+//                delay(1000)
+                var msg = "Watching${if (isLegacy) " P8 server at" else ""} $newStateID "
+                if (isForceRefresh) msg += " (Force refresh)"
+                msg += "\n    Loading state: ${_loadingState.value}"
+                Log.e(logTag, msg)
                 _loadingState.value = when {
                     !networkService.isConnected() -> return@launch // Do nothing
                     isForceRefresh -> LoadingState.PROCESSING
@@ -176,6 +170,11 @@ class BrowseRemoteVM(
             backOffTicker.resetIndex()
         }
         _loadingState.value = LoadingState.IDLE
+    }
+
+    init {
+        Log.e(logTag, "#################################################")
+        Log.e(logTag, "... Main browse view model has been initialised")
     }
 
     override fun onCleared() {

@@ -37,7 +37,11 @@ class DownloadVM(
     fun cancelDownload() {
         viewModelScope.launch {
             if (_transferID.value >= 0) {
-                transferService.cancelTransfer(stateID, _transferID.value, AppNames.JOB_OWNER_USER)
+                transferService.cancelTransfer(
+                    stateID,
+                    _transferID.value,
+                    AppNames.JOB_OWNER_USER
+                )
             }
         }
     }

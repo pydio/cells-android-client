@@ -35,7 +35,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
@@ -89,7 +89,7 @@ fun Download(
 
     LaunchedEffect(key1 = rTransfer.value?.status) {
         val status = rTransfer.value?.status
-        if (AppNames.JOB_STATUS_DONE == status) {
+        if (JobStatus.DONE.id == status) {
             downloadVM.viewFile(context)
             dismiss(true)
         }

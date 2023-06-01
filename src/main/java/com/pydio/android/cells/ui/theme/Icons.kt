@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
@@ -138,9 +139,10 @@ object CellsIcons {
     val Processing = Icons.Outlined.RocketLaunch
     val QRCode = Icons.Default.QrCode
     val Refresh = Icons.Default.Refresh
+    val Relaunch = Icons.Default.Replay
     val Rename = Icons.Outlined.DriveFileRenameOutline
     val RestoreFromTrash = Icons.Outlined.RestoreFromTrash
-    val Resume = Icons.Default.Replay
+    val Resume = Icons.Default.Redo
     val Search = Icons.Default.Search
     val ServerUnreachable = Icons.Default.DomainDisabled
     val Settings = Icons.Outlined.Settings

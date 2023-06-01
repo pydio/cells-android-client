@@ -21,6 +21,7 @@ import org.koin.core.parameter.parametersOf
 private const val logTag = "shareNavGraph"
 
 fun NavGraphBuilder.shareNavGraph(
+    browseRemoteVM: BrowseRemoteVM,
     helper: ShareHelper,
     back: () -> Unit,
 ) {
@@ -52,7 +53,6 @@ fun NavGraphBuilder.shareNavGraph(
             back()
         } else {
             val shareVM: ShareVM = koinViewModel { parametersOf(stateID) }
-            val browseRemoteVM: BrowseRemoteVM = koinViewModel()
 
             SelectFolderScreen(
                 stateID = stateID,
@@ -81,7 +81,7 @@ fun NavGraphBuilder.shareNavGraph(
         val jobID = lazyUID(nbsEntry)
         Log.i(logTag, ".... ShareDestination.UploadInProgress for #$jobID @ $stateID")
         val monitorUploadsVM: MonitorUploadsVM =
-            koinViewModel(parameters = { parametersOf(stateID, jobID) })
+            koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID, jobID) })
         UploadProgressList(
             monitorUploadsVM,
             { helper.runInBackground(stateID) },

@@ -3,7 +3,7 @@ package com.pydio.android.cells.db.runtime
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.utils.currentTimestamp
 
 @Entity(tableName = "jobs")
@@ -38,13 +38,15 @@ data class RJob(
 ) {
 
     fun isFail(): Boolean {
-        return status == AppNames.JOB_STATUS_ERROR ||
-                status == AppNames.JOB_STATUS_TIMEOUT ||
-                status == AppNames.JOB_STATUS_PAUSED
+        return status == JobStatus.ERROR.id ||
+                status == JobStatus.TIMEOUT.id ||
+                status == JobStatus.CANCELLED.id ||
+                // TODO pause is also failed status ?
+                status == JobStatus.PAUSED.id
     }
 
     fun isDone(): Boolean {
-        return status == AppNames.JOB_STATUS_DONE
+        return status == JobStatus.DONE.id
     }
 
     companion object {
@@ -53,7 +55,7 @@ data class RJob(
             template: String,
             label: String,
             parentId: Long = 0,
-            status: String? = AppNames.JOB_STATUS_NEW,
+            status: String? = JobStatus.NEW.id,
         ): RJob {
             return RJob(
                 owner = owner,

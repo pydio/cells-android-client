@@ -5,6 +5,7 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.ui.core.ListLayout
 
 const val CELLS_PREFERENCES_NAME = "cells_preferences"
@@ -52,9 +53,9 @@ fun defaultCellsPreferences(): CellsPreferences {
         order = AppNames.DEFAULT_SORT_ENCODED,
         layout = ListLayout.LIST,
         transferOrder = AppNames.TRANSFER_DEFAULT_ENCODED_ORDER,
-        transferFilter = AppNames.JOB_STATUS_NO_FILTER,
+        transferFilter = JobStatus.NO_FILTER.id,
         jobOrder = AppNames.JOB_DEFAULT_ENCODED_ORDER,
-        jobFilter = AppNames.JOB_STATUS_NO_FILTER,
+        jobFilter = JobStatus.NO_FILTER.id,
     )
     // Metered network limitations
     val meteredPref = MeteredNetworkPreferences(

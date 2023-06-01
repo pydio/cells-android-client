@@ -3,6 +3,7 @@ package com.pydio.android.cells.services
 import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.ROfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -455,7 +456,7 @@ class OfflineService(
                 if (isTimedOut) {
                     runningJob.doneTimestamp = currentTimestamp()
                     runningJob.message = msg
-                    runningJob.status = AppNames.JOB_STATUS_TIMEOUT
+                    runningJob.status = JobStatus.TIMEOUT.id
                     jobService.update(runningJob)
                     jobService.w(logTag, msg, "${runningJob.jobId}")
                 }

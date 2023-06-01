@@ -1,7 +1,7 @@
 package com.pydio.android.cells.ui.core.composables
 
 import androidx.compose.runtime.Composable
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.asSinceString
 import com.pydio.android.cells.utils.currentTimestamp
@@ -21,8 +21,8 @@ fun getJobStatus(item: RJob): String {
     val doneTs = timestampToString(item.doneTimestamp, "dd-MM HH:mm:ss")
 
     when {
-        item.status == AppNames.JOB_STATUS_ERROR ||
-                item.status == AppNames.JOB_STATUS_TIMEOUT -> {
+        item.status == JobStatus.ERROR.id ||
+                item.status == JobStatus.TIMEOUT.id -> {
             desc += "at $doneTs: ${item.message}"
             // TODO re-enable coloring
             //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -30,7 +30,7 @@ fun getJobStatus(item: RJob): String {
             //                }
         }
 
-        item.status == AppNames.JOB_STATUS_PAUSED -> {
+        item.status == JobStatus.PAUSED.id -> {
             desc += "at $doneTs: ${item.message}"
             // See above
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -61,6 +61,7 @@ fun UploadProgressList(
         done = done,
         cancel = cancel,
         pauseOne = uploadsVM::pauseOne,
+        cancelOne = uploadsVM::cancelOne,
         resumeOne = uploadsVM::resumeOne,
         removeOne = uploadsVM::removeOne,
 //        cancelOne = uploadsVM::cancelOne,
@@ -81,7 +82,7 @@ fun UploadProgressList(
     pauseOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
-//    cancelOne: (Long) -> Unit,
+    cancelOne: (Long) -> Unit,
 //    cancelAll: () -> Unit,
 ) {
 
@@ -139,12 +140,14 @@ fun UploadProgressList(
         state
     ) {
         WithScaffold(
+            isRemoteServerLegacy = uploadsVM.isRemoteLegacy,
             jobStatus = jobStatus.value,
             uploads = uploads,
             runInBackground = runInBackground,
             done = done,
             cancel = cancel,
             pauseOne = pauseOne,
+            cancelOne = cancelOne,
             resumeOne = resumeOne,
             removeOne = removeOne,
             openMenu = openMenu,
@@ -155,14 +158,15 @@ fun UploadProgressList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithScaffold(
+    isRemoteServerLegacy: Boolean,
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
     done: () -> Unit,
     cancel: () -> Unit,
-
     openMenu: (Long) -> Unit,
     pauseOne: (Long) -> Unit,
+    cancelOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit
 ) {
@@ -177,12 +181,13 @@ private fun WithScaffold(
         },
     ) { innerPadding ->
         UploadList(
+            isRemoteServerLegacy,
             jobStatus,
             uploads = uploads,
             runInBackground = runInBackground,
             done = done,
-            cancel = cancel,
             pauseOne = pauseOne,
+            cancelOne = cancelOne,
             resumeOne = resumeOne,
             removeOne = removeOne,
             openMenu = openMenu,
@@ -193,13 +198,14 @@ private fun WithScaffold(
 
 @Composable
 fun UploadList(
+    isRemoteServerLegacy: Boolean,
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
     done: () -> Unit,
-    cancel: () -> Unit,
     openMenu: (Long) -> Unit,
     pauseOne: (Long) -> Unit,
+    cancelOne: (Long) -> Unit,
     resumeOne: (Long) -> Unit,
     removeOne: (Long) -> Unit,
     paddingValues: PaddingValues
@@ -212,8 +218,10 @@ fun UploadList(
         ) {
             items(uploads) { upload ->
                 TransferListItem(
+                    isRemoteServerLegacy,
                     upload,
                     pause = { pauseOne(upload.transferId) },
+                    cancel = { cancelOne(upload.transferId) },
                     resume = { resumeOne(upload.transferId) },
                     remove = { removeOne(upload.transferId) },
                     more = { openMenu(upload.transferId) },

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.Decorated
@@ -42,8 +43,10 @@ import com.pydio.cells.utils.Str
 
 @Composable
 fun TransferListItem(
+    isRemoteLegacy: Boolean,
     item: RTransfer,
     pause: () -> Unit,
+    cancel: () -> Unit,
     resume: () -> Unit,
     remove: () -> Unit,
     more: (Long) -> Unit,
@@ -59,17 +62,19 @@ fun TransferListItem(
     val fName = item.getStateID()?.fileName ?: run { "Processing..." }
 
     TransferListItem(
-        item.type,
-        item.status ?: AppNames.JOB_STATUS_NEW,
-        fName,
-        buildStatusString(item),
-        progress,
+        isRemoteLegacy = isRemoteLegacy,
+        type = item.type,
+        status = item.status ?: JobStatus.NEW.id,
+        title = fName,
+        desc = buildStatusString(item),
+        progress = progress,
         isActionProcessing = false, // TODO
-        pause,
-        resume,
-        remove,
+        pause = pause,
+        cancel = cancel,
+        resume = resume,
+        remove = remove,
         more = { more(item.transferId) },
-        modifier,
+        modifier = modifier,
     )
 }
 
@@ -79,8 +84,8 @@ fun isFailed(item: RTransfer): Boolean {
 
 fun isPaused(item: RTransfer): Boolean {
     return when (item.status) {
-        AppNames.JOB_STATUS_PAUSED,
-        AppNames.JOB_STATUS_PAUSING,
+        JobStatus.PAUSED.id,
+        JobStatus.PAUSING.id,
         AppNames.UPLOAD_STATUS_LOCALLY_CACHED,
         -> true
 
@@ -94,6 +99,7 @@ fun isDone(item: RTransfer): Boolean {
 
 @Composable
 private fun TransferListItem(
+    isRemoteLegacy: Boolean,
     type: String,
     status: String,
     title: String,
@@ -101,6 +107,7 @@ private fun TransferListItem(
     progress: Float,
     isActionProcessing: Boolean,
     pause: () -> Unit,
+    cancel: () -> Unit,
     resume: () -> Unit,
     remove: () -> Unit,
     more: () -> Unit,
@@ -164,26 +171,39 @@ private fun TransferListItem(
         val btnModifier: Modifier
 
         when (status) {
-            AppNames.JOB_STATUS_PROCESSING -> {
-                btnVectorImg = CellsIcons.Pause
-                btnModifier = Modifier.clickable { pause() }
+            JobStatus.PROCESSING.id -> {
+                if (isRemoteLegacy) {
+                    btnVectorImg = CellsIcons.Cancel
+                    btnModifier = Modifier.clickable { cancel() }
+                } else {
+                    btnVectorImg = CellsIcons.Pause
+                    btnModifier = Modifier.clickable { pause() }
+                }
             }
 
-            AppNames.JOB_STATUS_PAUSED,
-            AppNames.JOB_STATUS_ERROR,
-            -> {
+            JobStatus.PAUSED.id -> {
                 btnVectorImg = CellsIcons.Resume
                 btnModifier = Modifier.clickable { resume() }
             }
 
-            AppNames.JOB_STATUS_DONE -> {
+            JobStatus.ERROR.id -> {
+                btnVectorImg = CellsIcons.Relaunch
+                btnModifier = Modifier.clickable { resume() }
+            }
+
+            JobStatus.DONE.id -> {
                 btnVectorImg = CellsIcons.Delete
                 btnModifier = Modifier.clickable { remove() }
             }
 
             else -> {
-                btnVectorImg = CellsIcons.Pause
-                btnModifier = Modifier.alpha(0.6f)
+                if (isRemoteLegacy) {
+                    btnVectorImg = CellsIcons.Cancel
+                    btnModifier = Modifier.clickable { cancel() }
+                } else {
+                    btnVectorImg = CellsIcons.Pause
+                    btnModifier = Modifier.clickable { pause() }
+                }
             }
         }
 
@@ -195,7 +215,7 @@ private fun TransferListItem(
         )
 
         val moreModifier = when {
-            isActionProcessing -> Modifier.alpha(0.6f)
+            isActionProcessing -> Modifier.alpha(0.8f)
             else -> Modifier.clickable { more() }
         }
 
@@ -276,11 +296,11 @@ private fun TransferListItemPreview() {
         byteSize = 13551193L,
         mime = "image/jpeg",
         parentJobId = 0L,
-        status = AppNames.JOB_STATUS_PAUSED,
+        status = JobStatus.PAUSED.id,
     )
 
     UseCellsTheme {
-        TransferListItem(dummyTransfer, { }, { }, { }, { }, Modifier)
+        TransferListItem(false, dummyTransfer, { }, { }, { }, { }, { }, Modifier)
     }
 }
 
@@ -300,17 +320,19 @@ private fun TransferListItemNightPreview() {
         byteSize = 13551193L,
         mime = "image/jpeg",
         parentJobId = 0L,
-        status = AppNames.JOB_STATUS_PROCESSING,
+        status = JobStatus.PROCESSING.id,
     )
 
     UseCellsTheme {
         TransferListItem(
+            isRemoteLegacy = false,
             type = AppNames.TRANSFER_TYPE_UPLOAD,
-            status = AppNames.JOB_STATUS_PROCESSING,
+            status = JobStatus.PROCESSING.id,
             title = "Title",
             desc = buildStatusString(dummyTransfer),
             progress = .4f,
             isActionProcessing = false,
+            { },
             { },
             { },
             { },

@@ -12,7 +12,7 @@
 
         <!-- The logo -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon</item>
-
+        
         <!-- unused for the time being -->
         <!-- the background for the splash icon, must be used with parent="Theme.SplashScreen.IconBackground"  -->
         <!--        <item name="windowSplashScreenIconBackgroundColor">@color/cells_primary</item>-->

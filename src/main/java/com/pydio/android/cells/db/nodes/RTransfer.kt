@@ -3,7 +3,7 @@ package com.pydio.android.cells.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.transport.StateID
 
@@ -59,7 +59,7 @@ data class RTransfer(
             byteSize: Long,
             mime: String,
             parentJobId: Long = 0L,
-            status: String? = AppNames.JOB_STATUS_NEW,
+            status: String? = JobStatus.NEW.id,
         ): RTransfer {
             return RTransfer(
                 encodedState = encodedState,
@@ -78,7 +78,7 @@ data class RTransfer(
             byteSize: Long,
             mime: String,
             parentJobId: Long = 0L,
-            status: String? = AppNames.JOB_STATUS_NEW,
+            status: String? = JobStatus.NEW.id,
         ): RTransfer {
             return RTransfer(
                 jobId = parentJobId,

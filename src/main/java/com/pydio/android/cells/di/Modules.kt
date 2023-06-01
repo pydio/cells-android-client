@@ -233,7 +233,18 @@ val serviceModule = module {
     // Business services
     single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
     single { OfflineService(get(), get(), get(), get(), get()) }
-    single { TransferService(get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        TransferService(
+            androidContext().applicationContext,
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
 
 
     worker { (workerParams: WorkerParameters) ->

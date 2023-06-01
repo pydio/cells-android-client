@@ -22,6 +22,7 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.LoginVM
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
@@ -46,6 +47,7 @@ fun CellsNavGraph(
     launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     loginVM: LoginVM = koinViewModel(),
+    browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
 
     val loginNavActions = remember(navController) {
@@ -130,6 +132,7 @@ fun CellsNavGraph(
 
         browseNavGraph(
             navController = navController,
+            browseRemoteVM = browseRemoteVM,
             back = { navController.popBackStack() },
             openDrawer,
         )
@@ -147,6 +150,7 @@ fun CellsNavGraph(
         )
 
         shareNavGraph(
+            browseRemoteVM = browseRemoteVM,
             helper = ShareHelper(
                 navController,
                 launchTaskFor,

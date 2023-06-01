@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 
 /** Hold a list of file uploads for the given accountID and JobID */
 class MonitorUploadsVM(
+    val isRemoteLegacy: Boolean,
     val accountID: StateID,
     val jobID: Long,
     val jobService: JobService,
@@ -39,7 +40,7 @@ class MonitorUploadsVM(
             } else {
                 var hasRunning = false
                 for (rTransfer in rTransfers) {
-                    if (rTransfer.status != AppNames.JOB_STATUS_DONE) {
+                    if (JobStatus.DONE.id != rTransfer.status) {
                         hasRunning = true
                         break
                     }
@@ -93,7 +94,7 @@ class MonitorUploadsVM(
 
     fun removeOne(transferId: Long) {
         viewModelScope.launch {
-            transferService.deleteRecord(accountID, transferId)
+            transferService.forgetTransfer(accountID, transferId)
         }
     }
 

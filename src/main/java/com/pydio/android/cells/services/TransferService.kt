@@ -10,18 +10,14 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.db.nodes.RTransferCancellation
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.transfer.CellsS3Client
-import com.pydio.android.cells.transfer.CellsTransferListener
-import com.pydio.android.cells.transfer.getTransferUtility
 import com.pydio.android.cells.utils.childFile
-import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.ErrorCodes
@@ -47,7 +43,8 @@ import java.io.OutputStream
 import java.util.*
 
 class TransferService(
-    private val coroutineService: CoroutineService,
+    androidApplicationContext: Context,
+    coroutineService: CoroutineService,
     private val prefs: PreferencesService,
     private val networkService: NetworkService,
     private val accountService: AccountService,
@@ -58,9 +55,19 @@ class TransferService(
 
     private val logTag = "TransferService"
 
-    //    private val transferServiceJob = SupervisorJob()
     private val serviceScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
+
+    // TODO: rather use dependency injection
+    private val s3TransferService =
+        S3TransferService(
+            androidApplicationContext,
+            coroutineService,
+            accountService,
+            treeNodeRepository
+        )
+    private val p8TransferService =
+        P8TransferService(coroutineService, accountService, treeNodeRepository, fileService)
 
     companion object {
         // Hard-coded constants to ease implementation in a first pass. TODO: improve
@@ -72,17 +79,8 @@ class TransferService(
         const val previewSize: Long = 200 * 1024
     }
 
-    private fun getTransferDao(accountId: StateID): TransferDao {
-        return nodeDB(accountId).transferDao()
-    }
-
-    fun getChildTransfersRecords(
-        accountID: StateID,
-        jobID: Long
-    ): Flow<List<RTransfer>> {
-        // tweak to insure we return no jobs when no job ID has been explicitly set
-        val id = if (jobID < 1) -1 else jobID
-        return nodeDB(accountID).transferDao().getByJobId(id)
+    fun liveTransfer(accountID: StateID, transferID: Long): Flow<RTransfer?> {
+        return nodeDB(accountID).transferDao().getLiveById(transferID)
     }
 
     fun queryTransfersExplicitFilter(
@@ -91,7 +89,7 @@ class TransferService(
         encodedOrder: String,
     ): Flow<List<RTransfer>> {
         val (sortByCol, sortByOrder) = parseOrder(encodedOrder, ListType.TRANSFER)
-        val lsQuery = if (filterByStatus == AppNames.JOB_STATUS_NO_FILTER) {
+        val lsQuery = if (filterByStatus == JobStatus.NO_FILTER.id) {
             SimpleSQLiteQuery("SELECT * FROM transfers ORDER BY $sortByCol $sortByOrder")
         } else {
             SimpleSQLiteQuery(
@@ -103,9 +101,18 @@ class TransferService(
         return nodeDB(stateID).transferDao().transferQuery(lsQuery)
     }
 
-    fun liveTransfer(accountID: StateID, transferID: Long): Flow<RTransfer?> {
-        return nodeDB(accountID).transferDao().getLiveById(transferID)
+    /** Dynamic list of all transfers for a given JobID, mainly used in Shared activity */
+    fun getChildTransfersRecords(accountID: StateID, jobID: Long): Flow<List<RTransfer>> {
+        // tweak to insure we return no jobs when no job ID has been explicitly set
+        val id = if (jobID < 1) -1 else jobID
+        return nodeDB(accountID).transferDao().getByJobId(id)
     }
+
+
+    suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
+        withContext(ioDispatcher) {
+            return@withContext getTransferDao(accountID).getById(transferID)
+        }
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
         val cr = CellsApp.instance.contentResolver
@@ -125,11 +132,6 @@ class TransferService(
         }
     }
 
-    suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
-        withContext(ioDispatcher) {
-            return@withContext getTransferDao(accountID).getById(transferID)
-        }
-
     suspend fun clearTerminated(stateID: StateID) = withContext(ioDispatcher) {
         val dao = nodeDB(stateID).transferDao()
         // val before = dao.getTransferCount()
@@ -141,15 +143,55 @@ class TransferService(
         // Log.e(logTag, "After transfer clean: $after (B4: $before)")
     }
 
-    suspend fun deleteRecord(stateID: StateID, transferID: Long) = withContext(ioDispatcher) {
-        nodeDB(stateID).transferDao().deleteTransfer(transferID)
+    suspend fun forgetTransfer(
+        stateID: StateID,
+        transferID: Long,
+        isRemoteLegacy: Boolean = false
+    ) {
+        if (isRemoteLegacy) {
+            p8TransferService.forgetTransfer(stateID, transferID)
+        } else {
+            s3TransferService.forgetTransfer(stateID, transferID)
+        }
     }
 
-    suspend fun cancelTransfer(stateId: StateID, transferID: Long, owner: String) =
-        withContext(ioDispatcher) {
-            val dao = nodeDB(stateId).transferDao()
-            dao.insert(RTransferCancellation.cancel(transferID, stateId.id, owner))
+    suspend fun cancelTransfer(
+        stateId: StateID,
+        transferID: Long,
+        owner: String,
+        isRemoteLegacy: Boolean = false
+    ) {
+        if (isRemoteLegacy) {
+            p8TransferService.cancelTransfer(stateId, transferID, owner)
+        } else {
+            s3TransferService.cancelTransfer(stateId, transferID, owner)
         }
+    }
+
+    suspend fun pauseTransfer(
+        stateId: StateID,
+        transferID: Long,
+        owner: String,
+        isRemoteLegacy: Boolean = false
+    ) {
+        if (isRemoteLegacy) {
+            p8TransferService.pauseTransfer(stateId, transferID, owner)
+        } else {
+            s3TransferService.pauseTransfer(stateId, transferID, owner)
+        }
+    }
+
+    suspend fun resumeTransfer(
+        stateId: StateID,
+        transferID: Long,
+        isRemoteLegacy: Boolean = false
+    ) {
+        if (isRemoteLegacy) {
+            p8TransferService.resumeTransfer(stateId, transferID)
+        } else {
+            s3TransferService.resumeTransfer(stateId, transferID)
+        }
+    }
 
     /** DOWNLOADS **/
     suspend fun getImageForDisplay(
@@ -387,8 +429,7 @@ class TransferService(
         val targetFile = File(localPath)
         targetFile.parentFile?.mkdirs()
         if (!accountService.getClient(state).isLegacy) {
-            doS3Download(
-                context = CellsApp.instance.applicationContext,
+            s3TransferService.doDownload(
                 stateID = state,
                 targetFile = targetFile,
                 dao = dao,
@@ -396,7 +437,7 @@ class TransferService(
                 parentJobProgress = parentJobProgress,
             )
         } else {
-            doP8Download(
+            p8TransferService.doDownload(
                 stateID = state,
                 targetFile = targetFile,
                 parentJobProgress = parentJobProgress,
@@ -404,158 +445,6 @@ class TransferService(
                 rTreeNode = rNode,
                 rTransfer = rTransfer,
             )
-        }
-    }
-
-    @Throws(SDKException::class)
-    private suspend fun doS3Download(
-        context: Context,
-        stateID: StateID,
-        targetFile: File,
-        dao: TransferDao,
-        transferRecord: RTransfer,
-        parentJobProgress: Channel<Long>?
-    ) = withContext(ioDispatcher) {
-        Log.d(logTag, "TU download for ${targetFile.absolutePath}")
-        val key = CellsS3Client.getCleanPath(stateID)
-        // Log.e(logTag, "... About to get\n- key: [$key] \n- file: ${targetFile.absolutePath}")
-        val transferUtility = getTransferUtility(context, accountService, stateID.account())
-            ?: throw SDKException("Could not get a transferUtility to download from $stateID")
-        val observer = transferUtility.download(key, targetFile)
-
-        transferRecord.externalID = observer.id
-        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-        transferRecord.startTimestamp = currentTimestamp()
-        dao.update(transferRecord)
-
-        observer.setTransferListener(
-            CellsTransferListener(
-                observer.id,
-                dao,
-                parentJobProgress,
-            )
-        )
-    }
-
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @Throws(SDKException::class)
-    private suspend fun doP8Download(
-        stateID: StateID,
-        targetFile: File,
-        parentJobProgress: Channel<Long>?,
-        dao: TransferDao,
-        rTreeNode: RTreeNode,
-        rTransfer: RTransfer
-    ) = withContext(ioDispatcher) {
-
-        val lfType = AppNames.LOCAL_FILE_TYPE_FILE
-
-        var out: FileOutputStream? = null
-        var exception: SDKException? = null
-        try {
-            out = FileOutputStream(targetFile)
-
-
-            // Mark the download as started
-            rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            rTransfer.status = AppNames.JOB_STATUS_PROCESSING
-            dao.update(rTransfer)
-
-            // Real transfer
-            var lastUpdateTS = 0L
-            var byteWritten = 0L
-            accountService.getClient(stateID)
-                .download(stateID.slug, stateID.file, out) { progressL ->
-                    // TODO also manage parent job cancellation
-                    val cancellationMsg = dao.hasBeenCancelled(rTransfer.transferId)?.let {
-                        val msg = "Download paused by ${it.owner}"
-                        rTransfer.status = AppNames.JOB_STATUS_PAUSED
-                        rTransfer.doneTimestamp = currentTimestamp()
-                        rTransfer.error = msg
-                        // TODO register a cancellation exception ?
-//                        errorMessage = msg
-                        msg
-                    } ?: ""
-
-                    byteWritten += progressL
-                    val newTs = currentTimestamp()
-
-                    // We only update the records every seconds)
-                    if (newTs - lastUpdateTS >= 1) {
-                        rTransfer.progress += byteWritten
-                        rTransfer.updateTimestamp = newTs
-                        dao.update(rTransfer)
-                        val increment = byteWritten
-                        serviceScope.launch {
-                            parentJobProgress?.send(increment)
-                        }
-                        byteWritten = 0
-                        lastUpdateTS = rTransfer.updateTimestamp
-                    }
-                    cancellationMsg
-                }
-
-            if (rTransfer.status == AppNames.JOB_STATUS_PROCESSING) {
-                // Mark the download as done
-                if (byteWritten > 0) {
-                    serviceScope.launch {
-                        parentJobProgress?.send(byteWritten)
-                    }
-                }
-                rTransfer.progress += byteWritten
-                rTransfer.updateTimestamp = currentTimestamp()
-                dao.update(rTransfer)
-
-                // Double check downloaded file is OK, skip for P8
-                if (rTreeNode.etag != null) {
-                    val computedMd5 = computeFileMd5(targetFile)
-                    if (rTreeNode.etag != computedMd5) {
-                        rTransfer.error =
-                            "MD5 signatures do not match after the download has terminated"
-                        rTransfer.status = AppNames.JOB_STATUS_WARNING
-                    } else {
-                        rTransfer.status = AppNames.JOB_STATUS_DONE
-                        rTransfer.error = null
-                    }
-                } else { // No check for P8
-                    rTransfer.status = AppNames.JOB_STATUS_DONE
-                    rTransfer.error = null
-                }
-                fileService.registerLocalFile(stateID, rTreeNode, lfType, targetFile)
-                rTransfer.doneTimestamp = currentTimestamp()
-                rTransfer.updateTimestamp = currentTimestamp()
-                dao.update(rTransfer)
-                // TODO handle the case where the download duration is long enough to enable
-                //   end-user to modify (or delete) the corresponding node before it has been correctly downloaded
-            }
-        } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
-            val errMsg = "could not download file for $stateID"
-            exception = SDKException(se.code, errMsg, se)
-        } catch (ioe: IOException) {
-            val errMsg = "could not write file for $stateID to local app folder"
-            exception = SDKException(ErrorCodes.local_io_error, errMsg, ioe)
-        } finally {
-            IoHelpers.closeQuietly(out)
-        }
-        exception?.let {
-
-            rTransfer.doneTimestamp = currentTimestamp()
-            rTransfer.status = AppNames.JOB_STATUS_ERROR
-            rTransfer.error = "${exception.message}, cause: ${exception.cause?.message ?: "-"}"
-            dao.update(rTransfer)
-
-            // At this point, if we had an error or a cancel, the target file is most probably corrupted.
-            // (We began to stream in...) -> so we remove both the file and the reference in the LocalFile table
-            // Try to remove partly downloaded file
-            if (targetFile.exists()) {
-                targetFile.delete()
-            }
-            // And unregister local file record
-            fileService.unregisterLocalFile(stateID, lfType)
-
-            // And finally rethrow the exception
-            throw exception
-            // Log.e(logTag, "Could not download file at $stateID : $errorMessage")
         }
     }
 
@@ -634,164 +523,6 @@ class TransferService(
         val uploadRecord = dao.getById(transferId)
             ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
         doUpload(dao, uploadRecord)
-    }
-
-    private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) =
-        withContext(ioDispatcher) {
-            val stateID = transferRecord.getStateID()
-                ?: throw IllegalStateException("Cannot start upload with no defined StateID")
-            try {
-                // Mark the upload as started
-                transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-                // Also reset in case of restart, to be refined
-                transferRecord.error = null
-                transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-                dao.update(transferRecord)
-
-                val srcPath =
-                    fileService.getLocalPathFromState(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
-                val srcFile = File(srcPath)
-
-                if (!accountService.getClient(stateID).isLegacy) {
-                    doS3Upload(
-                        context = CellsApp.instance.applicationContext,
-                        stateID = stateID,
-                        file = srcFile,
-                        dao = dao,
-                        transferRecord = transferRecord
-                    )
-                } else {
-                    doP8Upload(
-                        stateID = stateID,
-                        srcFile = srcFile,
-                        dao = dao,
-                        transferRecord = transferRecord
-                    )
-                }
-            } catch (e: Exception) {
-                if (e is SDKException && e.code == ErrorCodes.cancelled) {
-                    Log.e(logTag, "... Got cancelled, acknowledging message...")
-                    // FIXME there is still some kind of routine leak here...
-                    //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
-                    this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
-                } else {
-                    Log.e(logTag, "... Got an error but it is not a cancel: $e")
-                    e.printStackTrace()
-                    transferRecord.error = e.message
-                    transferRecord.status = AppNames.JOB_STATUS_ERROR
-                    transferRecord.doneTimestamp = currentTimestamp()
-                }
-            } finally {
-                dao.update(transferRecord)
-            }
-        }
-
-    private suspend fun doS3Upload(
-        context: Context,
-        stateID: StateID,
-        file: File,
-        dao: TransferDao,
-        transferRecord: RTransfer
-    ) = withContext(ioDispatcher) {
-        Log.d(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
-        val key = CellsS3Client.getCleanPath(stateID)
-        Log.e(
-            logTag, "... About to put\n" +
-                    "- key: [$key] \n" +
-                    "- file: ${file.absolutePath}"
-        )
-
-        val transferUtility = getTransferUtility(context, accountService, stateID.account())
-            ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
-        val observer = transferUtility.upload(key, file)
-        transferRecord.externalID = observer.id
-        transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-        transferRecord.startTimestamp = currentTimestamp()
-        dao.update(transferRecord)
-
-        // TODO improve: we loose the listener if the app is restarted during the upload
-        observer.setTransferListener(CellsTransferListener(observer.id, dao))
-
-        // Gets id of the transfer.
-        // val id = observer.id
-        // Pauses the transfer.
-//            transferUtility.pause(id);
-//            // Pause all the transfers.
-//            transferUtility.pauseAllWithType(TransferType.ANY);
-//            // Resumes the transfer.
-//            transferUtility.resume(id);
-//            // Resume all the transfers.
-//            transferUtility.resumeAllWithType(TransferType.ANY);
-
-//            // For canceling and deleting tasks:
-//            // Cancels the transfer.
-//            transferUtility.cancel(id);
-//            // Cancel all the transfers.
-//            transferUtility.cancelAllWithType(TransferType.ANY);
-//            // Deletes the transfer.
-//            transferUtility.cancel(id);
-//            transferUtility.deleteTransferRecord(id);
-    }
-
-    private suspend fun doP8Upload(
-        stateID: StateID,
-        srcFile: File,
-        dao: TransferDao,
-        transferRecord: RTransfer
-    ) = withContext(coroutineService.ioDispatcher) {
-        dao.ackCancellation(transferRecord.transferId)
-        var inputStream: InputStream? = null
-        var cancellationMsg: String
-        var lastUpdateTS = 0L
-        var byteWritten = 0L
-
-        val parentID = stateID.parent()
-
-        try {
-            inputStream = FileInputStream(srcFile)
-            dao.update(transferRecord)
-
-            accountService.getClient(stateID).upload(
-                inputStream, transferRecord.byteSize,
-                transferRecord.mime, parentID.slug, parentID.file, stateID.fileName,
-                true
-            ) { progressL ->
-
-                byteWritten += progressL
-
-                cancellationMsg = dao.hasBeenCancelled(transferRecord.transferId)?.let {
-                    val msg = "Upload cancelled by ${it.owner}"
-                    transferRecord.status = AppNames.JOB_STATUS_PAUSED
-                    transferRecord.error = msg
-                    Log.w(logTag, "### Cancel requested: $msg")
-                    // We also reset the number of bytes sent, relaunching always triggers a full upload.
-                    transferRecord.progress = 0
-                    msg
-                } ?: ""
-
-                // We only update the records every half second and when the upload is not cancelled)
-                val newTs = System.currentTimeMillis()
-                if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
-                    Log.d(logTag, "- Transfer $byteWritten / ${transferRecord.byteSize}")
-                    transferRecord.progress += byteWritten
-                    transferRecord.updateTimestamp = newTs
-                    transferRecord.status = AppNames.JOB_STATUS_PROCESSING
-                    dao.update(transferRecord)
-                    byteWritten = 0
-                    lastUpdateTS = newTs
-                }
-                cancellationMsg
-            }
-            Log.i(logTag, "### Done and not cancelled")
-            transferRecord.error = null
-            transferRecord.doneTimestamp = currentTimestamp()
-            transferRecord.status = AppNames.JOB_STATUS_DONE
-            // Also send remaining bits to the progress bar
-            transferRecord.progress += byteWritten
-            Log.e(logTag, "... ${transferRecord.progress} / ${transferRecord.byteSize}")
-        } finally {
-            IoHelpers.closeQuietly(inputStream)
-        }
     }
 
     /**
@@ -892,10 +623,57 @@ class TransferService(
         return@withContext targetStateID
     }
 
-    /* Constants and helpers */
-    private fun nodeDB(stateID: StateID): TreeNodeDB {
-        return treeNodeRepository.nodeDB(stateID)
-    }
+    private suspend fun doUpload(dao: TransferDao, transferRecord: RTransfer) =
+        withContext(ioDispatcher) {
+            val stateID = transferRecord.getStateID()
+                ?: throw IllegalStateException("Cannot start upload with no defined StateID")
+            try {
+                // Mark the upload as started
+                transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+                // Also reset in case of restart, to be refined
+                transferRecord.error = null
+                transferRecord.status = JobStatus.PROCESSING.id
+                dao.update(transferRecord)
+
+                val srcPath =
+                    fileService.getLocalPathFromState(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
+                val srcFile = File(srcPath)
+
+                if (!accountService.getClient(stateID).isLegacy) {
+                    s3TransferService.doUpload(
+                        stateID = stateID,
+                        file = srcFile,
+                        dao = dao,
+                        transferRecord = transferRecord
+                    )
+                } else {
+                    p8TransferService.doUpload(
+                        stateID = stateID,
+                        srcFile = srcFile,
+                        dao = dao,
+                        transferRecord = transferRecord
+                    )
+                }
+            } catch (e: Exception) {
+                if (e is SDKException && e.code == ErrorCodes.cancelled) {
+                    Log.e(logTag, "... Got cancelled, acknowledging message...")
+                    // FIXME there is still some kind of routine leak here...
+                    //   the cancel kind of hang out and prevents the new (2nd) upload to gracefully finish.
+                    this.cancel(message = e.message ?: "Explicitly cancelled", cause = e)
+                } else {
+                    Log.e(logTag, "... Got an error but it is not a cancel: $e")
+                    e.printStackTrace()
+                    transferRecord.error = e.message
+                    transferRecord.status = JobStatus.ERROR.id
+                    transferRecord.doneTimestamp = currentTimestamp()
+                }
+            } finally {
+                dao.update(transferRecord)
+            }
+        }
+
+
+    /* HELPERS */
 
     private fun createLocalState(parentID: StateID, name: String): StateID {
         val parentPath =
@@ -943,6 +721,14 @@ class TransferService(
         }
     }
 
+    private fun nodeDB(stateID: StateID): TreeNodeDB {
+        return treeNodeRepository.nodeDB(stateID)
+    }
+
+    private fun getTransferDao(accountId: StateID): TransferDao {
+        return nodeDB(accountId).transferDao()
+    }
+
     /**
      * Debug method to easily debug transfers live Data issues
      */
@@ -969,7 +755,7 @@ class TransferService(
 
                 // start dummy transfer
                 rec.startTimestamp = currentTimestamp()
-                rec.status = AppNames.JOB_STATUS_PROCESSING
+                rec.status = JobStatus.PROCESSING.id
                 dao.update(rec)
 
                 // Dummy transfer with progress
@@ -983,7 +769,7 @@ class TransferService(
                 // Terminate
                 rec.updateTimestamp = currentTimestamp()
                 rec.error = null
-                rec.status = AppNames.JOB_STATUS_DONE
+                rec.status = JobStatus.DONE.id
                 rec.doneTimestamp = rec.updateTimestamp
                 dao.update(rec)
             }

@@ -40,8 +40,10 @@ public interface AppNames {
 
     String ACTION_MORE = KEY_PREFIX_ + "more";
     String ACTION_OPEN = KEY_PREFIX_ + "open";
+    String ACTION_PAUSE = KEY_PREFIX_ + "pause";
     String ACTION_CANCEL = KEY_PREFIX_ + "cancel";
     String ACTION_DONE = KEY_PREFIX_ + "done";
+    String ACTION_RESUME = KEY_PREFIX_ + "resume";
     String ACTION_RESTART = KEY_PREFIX_ + "restart";
     String ACTION_CHOOSE_TARGET = KEY_PREFIX_ + "choosetarget";
     String ACTION_COPY = KEY_PREFIX_ + "copy";
@@ -87,19 +89,19 @@ public interface AppNames {
 //    String FILTER_BY_STATUS = "filter_by_status";
 //
 
-    // TODO rather use the JobStatus ENUM
-    String JOB_STATUS_NEW = "new";
-    String JOB_STATUS_PROCESSING = "processing";
-    String JOB_STATUS_CANCELLING = "cancelling";
-    String JOB_STATUS_PAUSING = "pausing";
-
-    String JOB_STATUS_DONE = "done";
-    String JOB_STATUS_PAUSED = "paused";
-    String JOB_STATUS_WARNING = "warning";
-    String JOB_STATUS_ERROR = "error";
-    String JOB_STATUS_TIMEOUT = "timeout";
-    // Short cut used in filtering
-    String JOB_STATUS_NO_FILTER = "no_filter";
+//    // we rather use the JobStatus ENUM
+//    String JOB_STATUS_NEW = "new";
+//    String JOB_STATUS_PROCESSING = "processing";
+//    String JOB_STATUS_CANCELLING = "cancelling";
+//    String JOB_STATUS_PAUSING = "pausing";
+//
+//    String JOB_STATUS_DONE = "done";
+//    String JOB_STATUS_PAUSED = "paused";
+//    String JOB_STATUS_WARNING = "warning";
+//    String JOB_STATUS_ERROR = "error";
+//    String JOB_STATUS_TIMEOUT = "timeout";
+//    // Short cut used in filtering
+//    String JOB_STATUS_NO_FILTER = "no_filter";
 
     // Specific additional status to manage uploads when remote server is not currently available
     String UPLOAD_STATUS_PRE_PROCESSING = "pre_processing";
@@ -109,12 +111,6 @@ public interface AppNames {
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
 
-
-    // Workaround to store additional destinations as state
-//    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
-//    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
-//    String CUSTOM_PATH_OFFLINE = "/__offline__";
-//    String CUSTOM_PATH_SHARES = "/__shares__";
 
     // Account Authentication States
     // TODO finalize auth state management

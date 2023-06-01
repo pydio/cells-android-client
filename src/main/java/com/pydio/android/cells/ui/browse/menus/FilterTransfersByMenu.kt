@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.FilterTransferByMenuVM
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
@@ -29,8 +29,7 @@ fun FilterTransfersByMenu(
     val keys = stringArrayResource(R.array.filter_transfer_by_status_values)
     val labels = stringArrayResource(R.array.filter_transfer_by_status_labels)
 
-    val selectedFilter =
-        filterByMenuVM.transferFilter.collectAsState(initial = AppNames.JOB_STATUS_NO_FILTER)
+    val selectedFilter = filterByMenuVM.transferFilter.collectAsState(JobStatus.NO_FILTER.id)
 
     val scrollState = rememberScrollState()
     Column(

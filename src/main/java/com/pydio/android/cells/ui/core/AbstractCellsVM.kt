@@ -128,6 +128,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
 
     protected fun done(e: Exception) {
         _loadingState.value = LoadingState.IDLE
+        Log.e(logTag, "Error for user received: ${e.message}")
         errorService.appendError(e)
     }
 

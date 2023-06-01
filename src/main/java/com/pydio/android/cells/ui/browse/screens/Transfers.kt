@@ -77,6 +77,7 @@ fun Transfers(
         forceRefresh = transfersVM::forceRefresh,
         accountID = accountID,
         currFilter = currFilter.value,
+        isRemoteLegacy = transfersVM.isRemoteServerLegacy,
         transfers = currTransfers.value,
         transfersVM = transfersVM,
         openDrawer = openDrawer,
@@ -94,6 +95,7 @@ private fun WithState(
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
     currFilter: String,
+    isRemoteLegacy: Boolean,
     accountID: StateID,
     transfers: List<RTransfer>,
     transfersVM: TransfersVM,
@@ -134,8 +136,12 @@ private fun WithState(
                 openMoreMenu(TransferMoreMenuType.MORE, transferID)
             }
 
-            AppNames.ACTION_CANCEL -> {
+            AppNames.ACTION_PAUSE -> {
                 pauseOne(transferID)
+            }
+
+            AppNames.ACTION_CANCEL -> {
+                cancelOne(transferID)
             }
 
             AppNames.ACTION_RESTART -> {
@@ -168,6 +174,7 @@ private fun WithState(
         forceRefresh = forceRefresh,
         currFilter = currFilter,
         accountID = accountID,
+        isRemoteLegacy = isRemoteLegacy,
         transfers = transfers,
         moreMenuState = TransferMoreMenuState(
             transferMoreMenuData.value.first,
@@ -189,6 +196,7 @@ private fun WithBottomSheet(
     forceRefresh: () -> Unit,
     currFilter: String,
     accountID: StateID,
+    isRemoteLegacy: Boolean,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
     doAction: (String, Long) -> Unit,
@@ -212,6 +220,7 @@ private fun WithBottomSheet(
 
                 TransferMoreMenuType.MORE -> {
                     TransferMoreMenu(
+                        isRemoteServerLegacy = isRemoteLegacy,
                         accountID = accountID,
                         transferID = moreMenuState.transferID,
                         onClick = { action, transferID ->
@@ -234,6 +243,7 @@ private fun WithBottomSheet(
             loadingState = loadingState,
             forceRefresh = forceRefresh,
             currFilter = currFilter,
+            isRemoteLegacy = isRemoteLegacy,
             transfers = transfers,
             doAction = doAction,
             openDrawer = openDrawer,
@@ -249,6 +259,7 @@ private fun WithScaffold(
     loadingState: LoadingState,
     forceRefresh: () -> Unit, doAction: (String, Long) -> Unit,
     currFilter: String,
+    isRemoteLegacy: Boolean,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
     openDrawer: () -> Unit,
@@ -319,6 +330,7 @@ private fun WithScaffold(
         modifier = modifier
     ) { innerPadding ->
         TransferList(
+            isRemoteLegacy,
             loadingState,
             forceRefresh,
             currFilter,
@@ -332,6 +344,7 @@ private fun WithScaffold(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun TransferList(
+    isRemoteLegacy: Boolean,
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
     currFilter: String,
@@ -366,8 +379,10 @@ private fun TransferList(
             ) {
                 items(transfers, key = { it.transferId }) { transfer ->
                     TransferListItem(
+                        isRemoteLegacy,
                         transfer,
-                        pause = { doAction(AppNames.ACTION_CANCEL, transfer.transferId) },
+                        pause = { doAction(AppNames.ACTION_PAUSE, transfer.transferId) },
+                        cancel = { doAction(AppNames.ACTION_CANCEL, transfer.transferId) },
                         resume = { doAction(AppNames.ACTION_RESTART, transfer.transferId) },
                         remove = { doAction(AppNames.ACTION_DELETE_RECORD, transfer.transferId) },
                         more = { doAction(AppNames.ACTION_MORE, transfer.transferId) },

@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetContent
@@ -33,7 +34,7 @@ fun TransferBottomSheet(
 
     val simpleMenuItems: MutableList<SimpleMenuItem> = mutableListOf()
 
-    if (AppNames.JOB_STATUS_PROCESSING == item.status) {
+    if (JobStatus.PROCESSING.id == item.status) {
         simpleMenuItems.add(
             SimpleMenuItem(
                 CellsIcons.Pause,
@@ -42,8 +43,8 @@ fun TransferBottomSheet(
             ),
         )
     }
-    if (AppNames.JOB_STATUS_PAUSED == item.status
-        || AppNames.JOB_STATUS_ERROR == item.status
+    if (JobStatus.PAUSED.id == item.status
+        || JobStatus.ERROR.id== item.status
     ) {
         simpleMenuItems.add(
             SimpleMenuItem(
@@ -53,9 +54,9 @@ fun TransferBottomSheet(
             )
         )
     }
-    if (AppNames.JOB_STATUS_DONE == item.status
-        || AppNames.JOB_STATUS_PAUSED == item.status
-        || AppNames.JOB_STATUS_ERROR == item.status
+    if (JobStatus.DONE.id == item.status
+        || JobStatus.PAUSED.id == item.status
+        || JobStatus.ERROR.id == item.status
     ) {
         simpleMenuItems.add(
             SimpleMenuItem(
@@ -84,7 +85,6 @@ fun TransferBottomSheet(
         )
     }, simpleMenuItems)
 }
-
 
 @Preview(showBackground = true)
 @Composable

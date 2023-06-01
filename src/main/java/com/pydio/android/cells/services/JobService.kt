@@ -2,6 +2,7 @@ package com.pydio.android.cells.services
 
 import android.util.Log
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.db.runtime.RuntimeDB
@@ -46,7 +47,7 @@ class JobService(
     ): RJob? = withContext(ioDispatcher) {
         val newJob = RJob.create(owner, template, label, parentId)
         newJob.total = maxSteps
-        newJob.status = AppNames.JOB_STATUS_PROCESSING
+        newJob.status = JobStatus.PROCESSING.id
         newJob.startTimestamp = currentTimestamp()
         val jobId = jobDao.insert(newJob)
         return@withContext jobDao.getById(jobId)
@@ -66,7 +67,7 @@ class JobService(
 
     suspend fun launched(jobId: Long): String? = withContext(ioDispatcher) {
         val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
-        job.status = AppNames.JOB_STATUS_PROCESSING
+        job.status = JobStatus.PROCESSING.id
         job.startTimestamp = currentTimestamp()
         job.updateTimestamp = currentTimestamp()
         jobDao.update(job)
@@ -75,7 +76,7 @@ class JobService(
 
     suspend fun failed(jobId: Long, errMessage: String): String? = withContext(ioDispatcher) {
         val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
-        job.status = AppNames.JOB_STATUS_ERROR
+        job.status = JobStatus.ERROR.id
         job.doneTimestamp = currentTimestamp()
         job.status = errMessage
         jobDao.update(job)
@@ -84,7 +85,7 @@ class JobService(
 
     suspend fun done(job: RJob, message: String?, lastProgressMsg: String?) =
         withContext(ioDispatcher) {
-            job.status = AppNames.JOB_STATUS_DONE
+            job.status = JobStatus.DONE.id
             job.doneTimestamp = currentTimestamp()
             job.updateTimestamp = currentTimestamp()
             job.progress = job.total
@@ -130,23 +131,23 @@ class JobService(
 
     // Shortcut for logging
     fun d(tag: String?, message: String, callerId: String?) {
-        Log.d(tag, message + " " + (callerId ?: ""))
+        Log.d("$tag/JobS.", message + " " + (callerId ?: ""))
         log(AppNames.DEBUG, tag, message, callerId)
     }
 
     fun i(tag: String?, message: String, callerId: String?) {
-        Log.i(tag, "### $message - Caller Job ID: ${callerId ?: "-"}")
+        Log.i("$tag/JobS.", "$message - Caller Job ID: ${callerId ?: "-"}")
         log(AppNames.INFO, tag, message, callerId)
     }
 
     fun w(tag: String?, message: String, callerId: String?) {
-        Log.w(tag, message + " " + (callerId ?: ""))
+        Log.w("$tag/JobS.", message + " " + (callerId ?: ""))
         log(AppNames.WARNING, tag, message, callerId)
     }
 
     fun e(tag: String?, message: String, callerId: String? = null, e: Exception? = null) {
         log(AppNames.ERROR, tag, message, callerId)
-        Log.e(tag, message + " " + (callerId ?: ""))
+        Log.e("$tag/JobS.", message + " " + (callerId ?: ""))
         e?.printStackTrace()
     }
 
