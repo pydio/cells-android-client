@@ -64,7 +64,7 @@ fun TransferMoreMenu(
                 )
             )
         }
-        if (JobStatus.DONE.id != item.status) {
+        if (JobStatus.DONE.id != item.status && JobStatus.CANCELLED.id != item.status) {
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Cancel,
@@ -82,7 +82,7 @@ fun TransferMoreMenu(
                 )
             )
         }
-        if (JobStatus.ERROR.id == item.status) {
+        if (JobStatus.ERROR.id == item.status || JobStatus.CANCELLED.id == item.status) {
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Relaunch,

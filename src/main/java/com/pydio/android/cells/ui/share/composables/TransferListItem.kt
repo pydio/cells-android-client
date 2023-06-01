@@ -155,8 +155,8 @@ private fun TransferListItem(
             )
             Text(
                 text = desc,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (progress > 0 && progress < 1) {
@@ -186,7 +186,8 @@ private fun TransferListItem(
                 btnModifier = Modifier.clickable { resume() }
             }
 
-            JobStatus.ERROR.id -> {
+            JobStatus.ERROR.id,
+            JobStatus.CANCELLED.id -> {
                 btnVectorImg = CellsIcons.Relaunch
                 btnModifier = Modifier.clickable { resume() }
             }
@@ -275,6 +276,9 @@ fun buildStatusString(item: RTransfer): AnnotatedString {
                 )
                 append(" waiting since $mTimeValue")
             }
+        }
+        if (!(item.status == JobStatus.PROCESSING.id || item.status == JobStatus.ERROR.id || item.status == JobStatus.DONE.id)) {
+            append(" [${item.status}]")
         }
     }
     return text

@@ -64,7 +64,6 @@ fun UploadProgressList(
         cancelOne = uploadsVM::cancelOne,
         resumeOne = uploadsVM::resumeOne,
         removeOne = uploadsVM::removeOne,
-//        cancelOne = uploadsVM::cancelOne,
 //        cancelAll = uploadsVM::cancelAll,
     )
 }
@@ -126,6 +125,7 @@ fun UploadProgressList(
                 }
 
                 AppNames.ACTION_OPEN_PARENT_IN_WORKSPACES -> {
+                    // TODO we still have am issue: the scrim is not removed when we come back from the target parent location
                     openParentLocation()
                 }
             }
