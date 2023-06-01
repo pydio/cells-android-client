@@ -107,6 +107,7 @@
     <string name="captive_portal">Captive portal: sign in required</string>
     <string name="metered_connection">Na připojení s účtovanými daty</string>
     <string name="roaming_connection">Použití roamingového připojení</string>
+    <string name="no_account">No account, please configure at least a connection</string>
     <string name="server_unreachable">Cannot reach server</string>
     <string name="empty_cache">Nedaří se vypsat obsah složky</string>
     <string name="cannot_download_file">Soubor se nedaří stáhnout</string>
@@ -141,7 +142,7 @@
     <string name="sync_tree_walking">Procházení stromu a zjišťování změn…</string>
     <string name="sync_already_running">Synchronizace už právě probíhá. Vyčkejte jejího dokončení než budete spouštět další</string>
     <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to loosing the downloaded data. Are you sure you want to proceed</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Úlohy na pozadí</string>
     <string name="job_list_empty_message">There is no job to show</string>
@@ -199,6 +200,7 @@
     <string name="delete">Smazat</string>
     <string name="pause">Pause</string>
     <string name="relaunch">Relaunch</string>
+    <string name="resume">Resume</string>
     <string name="empty_recycle">Vyprázdnit koš</string>
     <string name="restore_content">Obnovit</string>
     <string name="permanently_remove">Trvale odstranit</string>
@@ -266,7 +268,7 @@
     <string name="pref_offline_constraint_charging_title">Při nabíjení</string>
     <string name="pref_offline_constraint_charging_desc">Synchronizovat pouze při nabíjení zařízení</string>
     <string name="pref_offline_constraint_idle_title">Při nečinnosti</string>
-    <string name="pref_offline_constraint_idle_desc">Když zařízení není používáno (funguje pro Android 6+)</string>
+    <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
     <string name="pref_offline_constraint_batt_not_low_title">Při nevybitém akumulátoru</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Když akumulátor není vybitý</string>
     <string name="pref_category_title_feedback">Zpětná vazba a nápověda</string>

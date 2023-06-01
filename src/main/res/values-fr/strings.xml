@@ -107,6 +107,7 @@
     <string name="captive_portal">Portail captif: connexion requise</string>
     <string name="metered_connection">Connecté à un réseau limité</string>
     <string name="roaming_connection">Connecté en itinérance</string>
+    <string name="no_account">Aucun compte, veuillez en configurer au moins un !</string>
     <string name="server_unreachable">Impossible de se connecter au serveur</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
@@ -197,6 +198,7 @@
     <string name="delete">Effacer</string>
     <string name="pause">Suspendre</string>
     <string name="relaunch">Relancer</string>
+    <string name="resume">Reprendre</string>
     <string name="empty_recycle">Vider la corbeille</string>
     <string name="restore_content">Restaurer</string>
     <string name="permanently_remove">Supprimer définitivement</string>
@@ -262,7 +264,7 @@
     <string name="pref_offline_constraint_charging_title">Lorsque l\'appareil est en charge</string>
     <string name="pref_offline_constraint_charging_desc">Lancer la synchronisation uniquement lorsque l\'appareil est en charge</string>
     <string name="pref_offline_constraint_idle_title">Inactif</string>
-    <string name="pref_offline_constraint_idle_desc">Lorsque l\'appareil est inactif (nécessite Android 6+)</string>
+    <string name="pref_offline_constraint_idle_desc">Quand l\'appareil est inactif</string>
     <string name="pref_offline_constraint_batt_not_low_title">Lorsque la batterie n\'est pas faible</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Lorsque la batterie n\'est pas faible</string>
     <string name="pref_category_title_feedback">Commentaires et aide</string>
