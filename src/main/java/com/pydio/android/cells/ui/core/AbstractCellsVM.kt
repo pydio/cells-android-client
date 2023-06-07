@@ -48,7 +48,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val loadingState: StateFlow<LoadingState> =
         _loadingState.combine(connectionService.sessionStatusFlow) { currLoadingState, sessionStatus ->
-            Log.e(logTag, "Computing loading sate with:")
+            Log.e(logTag, "Computing loading state with:")
             Log.e(logTag, "State: $currLoadingState, status: $sessionStatus")
             if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
                 LoadingState.SERVER_UNREACHABLE
@@ -84,6 +84,9 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     }
 
     // Generic access to the underlying objects
+    fun isServerReachable(): Boolean {
+        return connectionService.loadingState.value != LoadingState.SERVER_UNREACHABLE
+    }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID) ?: run {
@@ -104,8 +107,11 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     }
 
     private suspend fun viewFile(context: Context, node: RTreeNode) {
-        val checkUpToDate = LoadingState.SERVER_UNREACHABLE != loadingState.value
-        Log.e(logTag, "Launch view file, check: $checkUpToDate, loading: ${loadingState.value}")
+        val checkUpToDate = LoadingState.SERVER_UNREACHABLE != connectionService.loadingState.value
+        Log.e(
+            logTag,
+            "Launch view file, check: $checkUpToDate, loading: ${connectionService.loadingState.value}"
+        )
         nodeService.getLocalFile(node, checkUpToDate)?.let { file ->
             externallyView(context, file, node)
         } ?: run {

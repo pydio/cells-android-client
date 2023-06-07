@@ -27,7 +27,7 @@ class ErrorService(
     val errorMessage: Flow<ErrorMessage?> = _allMessages
 
     // TODO make this variable
-    private val errorDebounceDelay = 2000L
+    private val errorDebounceDelay = 800L
 
     // We debounce the error messages to avoid saturating the snackbar
     @OptIn(FlowPreview::class)

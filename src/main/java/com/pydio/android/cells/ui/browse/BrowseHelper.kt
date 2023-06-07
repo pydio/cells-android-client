@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ui.core.AbstractCellsVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.ErrorMessage
@@ -13,7 +12,6 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.delay
 
 class BrowseHelper(
     private val navController: NavHostController,
@@ -70,12 +68,10 @@ class BrowseHelper(
                         browseVM.viewFile(context, stateID)
                     } catch (e: SDKException) {
                         if (e.code == ErrorCodes.no_local_file) {
-                            // FIXME small delay to let loading state being initialised
-                            delay(200)
-                            if (browseVM.loadingState.value == LoadingState.SERVER_UNREACHABLE) {
+                            if (!browseVM.isServerReachable()) {
                                 browseVM.showError(
                                     ErrorMessage(
-                                        "Cannot get un-cached file, server is unreachable",
+                                        "Cannot get un-cached file ${stateID.fileName}, server is unreachable",
                                         -1,
                                         listOf()
                                     )

@@ -92,12 +92,13 @@ fun NavGraphBuilder.browseNavGraph(
 
         DisposableEffect(key1 = stateID) {
             if (stateID == StateID.NONE) {
-                browseRemoteVM.pause()
+                browseRemoteVM.pause(StateID.NONE)
             } else {
                 browseRemoteVM.watch(stateID, false)
             }
             onDispose {
-                browseRemoteVM.pause()
+                Log.e(logTag, "onDispose for browse/open/$stateID, pause browseRemoteVM")
+                browseRemoteVM.pause(stateID)
             }
         }
     }

@@ -44,6 +44,8 @@ import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForNewName
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.theme.CellsIcons
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
 
@@ -90,7 +92,20 @@ fun Download(
     LaunchedEffect(key1 = rTransfer.value?.status) {
         val status = rTransfer.value?.status
         if (JobStatus.DONE.id == status) {
-            downloadVM.viewFile(context)
+            try {
+                downloadVM.viewFile(context)
+            } catch (se: SDKException) {
+                if (se.code == ErrorCodes.no_local_file) {
+                    // FIXME give more time to register new file
+                    delay(2000L)
+                    try {
+                        downloadVM.viewFile(context)
+                    } catch (e: Exception) {
+                        Log.e(logTag, "File has been downloaded but is not found")
+                        e.printStackTrace()
+                    }
+                }
+            }
             dismiss(true)
         }
     }
