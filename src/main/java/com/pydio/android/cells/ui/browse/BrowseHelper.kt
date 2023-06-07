@@ -13,6 +13,7 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.delay
 
 class BrowseHelper(
     private val navController: NavHostController,
@@ -26,6 +27,7 @@ class BrowseHelper(
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
         Log.d(logTag, "... Calling open for $stateID")
+        Log.d(logTag, "    Loading state: ${browseVM.loadingState.value}")
 
         // Kind of tweak: we check if the target node is the penultimate
         // element of the backStack, in such case we consider it is a back:
@@ -68,6 +70,8 @@ class BrowseHelper(
                         browseVM.viewFile(context, stateID)
                     } catch (e: SDKException) {
                         if (e.code == ErrorCodes.no_local_file) {
+                            // FIXME small delay to let loading state being initialised
+                            delay(200)
                             if (browseVM.loadingState.value == LoadingState.SERVER_UNREACHABLE) {
                                 browseVM.showError(
                                     ErrorMessage(

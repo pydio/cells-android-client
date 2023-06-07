@@ -58,7 +58,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LoadingState.SERVER_UNREACHABLE
+            initialValue = LoadingState.STARTING
         )
 
     // Preferences
