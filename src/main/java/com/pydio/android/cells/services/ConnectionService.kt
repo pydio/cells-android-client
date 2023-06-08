@@ -6,8 +6,8 @@ import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.ui.core.LoadingState
-import com.pydio.android.cells.ui.models.CellsCancellation
 import com.pydio.android.cells.utils.BackOffTicker
+import com.pydio.android.cells.utils.CellsCancellation
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.timestampToString
 import com.pydio.cells.api.ErrorCodes
@@ -124,7 +124,7 @@ class ConnectionService(
                     newStatus = SessionStatus.SERVER_UNREACHABLE
                 }
 
-                Log.i(logTag, "Got a Session view: ${it.getStateID()}, status: $newStatus")
+//                Log.i(logTag, "Got a Session view: ${it.getStateID()}, status: $newStatus")
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET
@@ -158,14 +158,13 @@ class ConnectionService(
                 state
             }
             Log.d(logTag, "## Loading flag: $state, session status: $status")
-            Log.e(logTag, "\t=> Computed loading state: $currState")
+            Log.d(logTag, "\t=> Computed loading state: $currState")
             currState
         }.stateIn(
             scope = serviceScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingState.STARTING
         )
-
 
     fun relaunchMonitoring() {
         relaunchCredJob()
@@ -181,9 +180,9 @@ class ConnectionService(
         serviceScope.launch {
             currPollJob?.cancelAndJoin()
             currPollJob = serviceScope.launch {
-                Log.e(logTag, "### Launching Poll Job $this")
+                Log.i(logTag, "### Launching Poll Job $this")
                 while (true) {
-                    Log.i(logTag, "## New watch iteration for $this")
+//                    Log.i(logTag, "## New watch iteration for $this")
                     watchFolder()
                 }
             }
@@ -213,7 +212,6 @@ class ConnectionService(
             currMonitoringCredentialsJob?.cancelAndJoin()
         }
     }
-
 
     // TODO this must be improved
     private suspend fun monitorCredentials() = withContext(coroutineService.ioDispatcher) {
@@ -250,11 +248,6 @@ class ConnectionService(
             return@withContext
         } catch (se: SDKException) {
             Log.e(logTag, "Unexpected error while monitoring refresh token process for $currID")
-//            if (se.code == ErrorCodes.refresh_token_expired) {
-//                // We cannot refresh anymore, aborting
-//                return@withContext
-//            }
-//            return@withContext
         }
     }
 
@@ -262,7 +255,6 @@ class ConnectionService(
 
     private var currStateID = StateID.NONE
     private var _isActive = false
-    private var currWatcher: Job? = null
     private var delayJob: Job? = null
     private val backOffTicker = BackOffTicker()
 
@@ -273,6 +265,7 @@ class ConnectionService(
     fun setCurrentStateID(newStateID: StateID) {
         if (newStateID != currStateID) {
             currStateID = newStateID
+            loadingFlag.value = LoadingState.STARTING
             setActive(true)
             backOffTicker.resetIndex()
             delayJob?.cancel(CellsCancellation())
@@ -302,7 +295,6 @@ class ConnectionService(
             } catch (e: Exception) {
                 Log.e(logTag, "Unexpected error: $e")
                 e.printStackTrace()
-                Log.e(logTag, "####################")
             }
         }
         val nd = backOffTicker.getNextDelay()
@@ -310,7 +302,7 @@ class ConnectionService(
         // Handle cancellable delay
         val tmpDelayJob = serviceScope.launch {
             try {
-                Log.d(logTag, "\tPull done, about to sleep for $nd seconds\n\tserviceScope $this")
+//                Log.d(logTag, "\tPull done, about to sleep for $nd seconds\n\tserviceScope $this")
                 delay(TimeUnit.SECONDS.toMillis(nd))
                 val msg = "Watching folders at $currStateID - $this"
                 if (_isActive) {
@@ -320,7 +312,7 @@ class ConnectionService(
                 }
                 //Log.e(logTag, "### After delay")
             } catch (e: CancellationException) {
-                Log.w(logTag, "Delay has been cancelled: ${e.message}")
+                Log.d(logTag, "Delay has been cancelled: ${e.message}")
             } catch (e: Exception) {
                 Log.e(logTag, "## Unexpected error for $this:\n\t$e")
                 // e.printStackTrace()
