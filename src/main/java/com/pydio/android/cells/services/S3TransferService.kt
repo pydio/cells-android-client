@@ -192,10 +192,7 @@ class S3TransferService(
 
     private fun getTransferUtility(stateID: StateID): TransferUtility {
         val accountID = stateID.account()
-//        if (Str.notEmpty(accountID.path)) {
-//            Log.e(logTag, "You must use an **account** ID to get the transfer utility")
-//            return null
-//        }
+
         transferUtilities[accountID.id]?.let { return it }
 
         Log.i(logTag, "Instantiating a new transfer utility for $accountID")
@@ -212,18 +209,15 @@ class S3TransferService(
         config.transferThreadPoolSize = 3
         config.minimumUploadPartSizeInMB = 10
 
+        val ct = accountService.getTransport(accountID, true)
+        if (ct !is CellsTransport)
+            throw SDKException("Could not get Cells transport for $accountID")
         val newTU = TransferUtility.builder()
             .context(androidApplicationContext)
             .defaultBucket(DEFAULT_BUCKET_NAME)
-            .s3Client(
-                getS3Client(
-                    accountService.getTransport(accountID, true) as CellsTransport,
-                    accountID
-                )
-            )
+            .s3Client(getS3Client(ct, accountID))
             .transferUtilityOptions(config)
             .build()
-        //                 ?: throw SDKException("Could not get a transferUtility to upload to $stateID")
         transferUtilities[accountID.id] = newTU
         return newTU
     }

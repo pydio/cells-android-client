@@ -47,7 +47,7 @@ class TreeNodeRepository(
     fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
         val rSession = sessions[stateID.accountId]
-            ?: throw IllegalStateException("No dir name found for $stateID")
+            ?: throw IllegalStateException("No session found for $stateID, cannot retrieve dbName")
         return TreeNodeDB.getDatabase(
             CellsApp.instance.applicationContext,
             stateID.accountId,

@@ -105,11 +105,16 @@ class CellsTransferListener(
         }
 
         ioScope.launch(context = ioDispatcher) {
-            val transferRecord = getTransferRecord()
-            transferRecord.status = JobStatus.ERROR.id
-            transferRecord.doneTimestamp = currentTimestamp()
-            transferRecord.error = msg
-            transferDao.update(transferRecord)
+            try {
+                val transferRecord = getTransferRecord()
+                transferRecord.status = JobStatus.ERROR.id
+                transferRecord.doneTimestamp = currentTimestamp()
+                transferRecord.error = msg
+                transferDao.update(transferRecord)
+            } catch (se: SDKException) {
+                Log.e(logTag, "Could not put transfer in error: ${se.code} -${se.message}  ")
+                se.printStackTrace()
+            }
         }
     }
 

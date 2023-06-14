@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class DownloadVM(
@@ -31,7 +32,12 @@ class DownloadVM(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val transfer: Flow<RTransfer?> = _transferID.flatMapLatest { currID ->
-        transferService.liveTransfer(stateID.account(), currID)
+        try {
+            transferService.liveTransfer(stateID.account(), currID)
+        } catch (ie: IllegalArgumentException) {
+            Log.e(logTag, "Cannot get transfer ID: " + ie.message)
+            flow { null }
+        }
     }
 
     fun cancelDownload() {
