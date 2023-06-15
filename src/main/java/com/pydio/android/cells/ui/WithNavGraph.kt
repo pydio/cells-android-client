@@ -122,7 +122,12 @@ fun CellsNavGraph(
 
         dialog(CellsDestinations.Download.route) { entry ->
             val downloadVM: DownloadVM =
-                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
+                koinViewModel(parameters = {
+                    parametersOf(
+                        browseRemoteVM.isLegacy,
+                        lazyStateID(entry)
+                    )
+                })
             Download(
                 stateID = lazyStateID(entry),
                 downloadVM = downloadVM,

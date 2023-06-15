@@ -37,8 +37,7 @@ class S3TransferService(
     coroutineService: CoroutineService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
-
-    ) {
+) {
 
     private val logTag = "S3TransferService"
 
@@ -78,27 +77,25 @@ class S3TransferService(
         file: File,
         dao: TransferDao,
         transferRecord: RTransfer
-    ) {
+    ) = withContext(ioDispatcher) {
+
+        Log.d(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
         // TODO double check if a transfer for the same state ID already exists.
+        val key = CellsS3Client.getCleanPath(stateID)
+        Log.i(
+            logTag, "... About to put\n" +
+                    "- key: [$key] \n" +
+                    "- file: ${file.absolutePath}"
+        )
 
-        ioScope.launch {
-            Log.d(logTag, "TU upload for ${file.absolutePath} (size: ${file.length()}")
-            val key = CellsS3Client.getCleanPath(stateID)
-            Log.e(
-                logTag, "... About to put\n" +
-                        "- key: [$key] \n" +
-                        "- file: ${file.absolutePath}"
-            )
+        val observer = getTransferUtility(stateID).upload(key, file)
+        transferRecord.externalID = observer.id
+        transferRecord.status = JobStatus.PROCESSING.id
+        transferRecord.startTimestamp = currentTimestamp()
+        dao.update(transferRecord)
 
-            val observer = getTransferUtility(stateID).upload(key, file)
-            transferRecord.externalID = observer.id
-            transferRecord.status = JobStatus.PROCESSING.id
-            transferRecord.startTimestamp = currentTimestamp()
-            dao.update(transferRecord)
-
-            // TODO improve: we loose the listener if the app is restarted during the upload
-            observer.setTransferListener(CellsTransferListener(observer.id, dao))
-        }
+        // TODO improve: we loose the listener if the app is restarted during the upload
+        observer.setTransferListener(CellsTransferListener(observer.id, dao))
     }
 
     suspend fun cancelTransfer(stateID: StateID, transferID: Long, owner: String) =
@@ -140,6 +137,7 @@ class S3TransferService(
             }
             val tu = getTransferUtility(stateID)
             ioScope.launch {
+
                 val observer = tu.resume(rTransfer.externalID)
                 rTransfer.externalID = observer.id
                 rTransfer.status = JobStatus.PROCESSING.id
@@ -147,6 +145,7 @@ class S3TransferService(
                 rTransfer.startTimestamp = currentTimestamp()
                 dao.update(rTransfer)
                 observer.setTransferListener(CellsTransferListener(observer.id, dao))
+
             }
         }
 

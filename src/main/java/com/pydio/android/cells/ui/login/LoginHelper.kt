@@ -78,6 +78,11 @@ class LoginHelper(
         skipVerify: Boolean = false,
         nextAction: String = AuthService.NEXT_ACTION_BROWSE
     ) {
+
+        // TODO add here a check to insure we call the "launch OAuth" action only once
+        //     to avoid strange behaviour where the browser is called in loop
+        //     (typically when there is no internet)
+
         val intent = loginVM.getSessionView(stateID)?.let { sessionView ->
             // Re-authenticating an existing account
             val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())

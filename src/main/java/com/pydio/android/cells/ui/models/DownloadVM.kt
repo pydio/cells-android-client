@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class DownloadVM(
+    val isRemoteLegacy: Boolean,
     private val stateID: StateID,
     private val transferService: TransferService
 ) : AbstractCellsVM() {
@@ -36,20 +37,12 @@ class DownloadVM(
             transferService.liveTransfer(stateID.account(), currID)
         } catch (ie: IllegalArgumentException) {
             Log.e(logTag, "Cannot get transfer ID: " + ie.message)
-            flow { null }
+            flow { }
         }
     }
 
-    fun cancelDownload() {
-        viewModelScope.launch {
-            if (_transferID.value >= 0) {
-                transferService.cancelTransfer(
-                    stateID,
-                    _transferID.value,
-                    AppNames.JOB_OWNER_USER
-                )
-            }
-        }
+    suspend fun viewFile(context: Context) {
+        viewFile(context, stateID)
     }
 
     suspend fun launchDownload() {
@@ -64,16 +57,21 @@ class DownloadVM(
         }
     }
 
-    suspend fun viewFile(context: Context) {
-        viewFile(context, stateID)
-//        _rTreeNode.value?.let { node ->
-//            nodeService.getLocalFile(node, true)?.let { file ->
-//                externallyView(context, file, node)
-//                return
-//            } ?: run {
-//                Log.e(logTag, "Could not open file for ${node.getStateID()}")
-//            }
-//        }
+    fun cancelDownload() {
+        viewModelScope.launch {
+            if (_transferID.value >= 0) {
+                try {
+                    transferService.cancelTransfer(
+                        stateID,
+                        _transferID.value,
+                        AppNames.JOB_OWNER_USER,
+                        isRemoteLegacy
+                    )
+                } catch (e: Exception) {
+                    done(e)
+                }
+            }
+        }
     }
 
     init {
