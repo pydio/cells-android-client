@@ -103,8 +103,7 @@ class FileService(
             stateID, type, localFile,
             treeNode.etag, treeNode.remoteModificationTS
         )
-        Log.e(logTag, "Transfer #$tid About to register local file:")
-        Log.e(logTag, "$rLocalFile")
+        Log.i(logTag, "... #$tid - After transfer, registering local file: $rLocalFile")
         ndb.localFileDao().insert(rLocalFile)
     }
 

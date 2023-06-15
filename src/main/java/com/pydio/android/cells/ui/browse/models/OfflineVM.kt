@@ -81,13 +81,17 @@ class OfflineVM(
 
     fun forceFullSync() {
         viewModelScope.launch {
-            if (!checkBeforeLaunch(accountID)) {
-                return@launch
+            try {
+                if (!checkBeforeLaunch(accountID)) {
+                    return@launch
+                }
+                doForceAccountSync(accountID) // we insure the current account value is valid in the sanity check
+                delay(1500)
+                Log.i(logTag, "Setting loading state to IDLE")
+                done()
+            } catch (e: Exception) {
+                done(e)
             }
-            doForceAccountSync(accountID) // we insure the current account value is valid in the sanity check
-            delay(1500)
-            Log.e(logTag, "Setting loading state to IDLE")
-            done()
         }
     }
 
