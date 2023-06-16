@@ -10,11 +10,10 @@ import com.pydio.cells.transport.StateID
 
 /**  Simply provides access to the DB to retrieve basic single objects */
 class TreeNodeVM(
-//    stateID: StateID,
     private val nodeService: NodeService,
 ) : ViewModel() {
 
-    private val logTag = "NodeActionsVM"
+    private val logTag = "TreeNodeVM"
 
     suspend fun getTreeNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
@@ -53,11 +52,11 @@ class TreeNodeVM(
     }
 
     init {
-        Log.i(logTag, "Created TreeNodeVM")
+        Log.i(logTag, "Created")
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.i(logTag, "Cleared TreeNodeVM")
+        Log.i(logTag, "Cleared")
     }
 }

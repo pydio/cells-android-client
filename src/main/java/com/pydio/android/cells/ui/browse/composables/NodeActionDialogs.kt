@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -83,7 +84,7 @@ fun CreateFolder(
 fun Download(
     downloadVM: DownloadVM,
     stateID: StateID,
-    dismiss: (Boolean) -> Unit,
+    dismiss: () -> Unit,
 ) {
     val context = LocalContext.current
     val rTransfer = downloadVM.transfer.collectAsState(null)
@@ -106,13 +107,8 @@ fun Download(
                     }
                 }
             }
-            dismiss(true)
+            dismiss()
         }
-    }
-
-    val cancel: (Boolean) -> Unit = {
-        downloadVM.cancelDownload()
-        dismiss(it)
     }
 
     val progress = rTransfer.value?.let {
@@ -134,14 +130,18 @@ fun Download(
                 )
             }
         },
+        dismissButton = {
+            OutlinedButton(onClick = dismiss) { Text(stringResource(R.string.button_run_in_background)) }
+        },
         confirmButton = {
             Button(
                 onClick = {
-                    cancel(false)
+                    downloadVM.cancelDownload()
+                    dismiss()
                 }
             ) { Text(stringResource(R.string.button_cancel)) }
         },
-        onDismissRequest = { cancel(false) },
+        onDismissRequest = dismiss,
         properties = DialogProperties(
             dismissOnBackPress = true,
             dismissOnClickOutside = true,

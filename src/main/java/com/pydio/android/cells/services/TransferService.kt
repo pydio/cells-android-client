@@ -114,6 +114,16 @@ class TransferService(
             return@withContext getTransferDao(accountID).getById(transferID)
         }
 
+
+    /** Returns the current download for this stateID or null if none is already defined **/
+    suspend fun currentDownload(stateID: StateID): RTransfer? =
+        withContext(ioDispatcher) {
+            return@withContext getTransferDao(stateID.account()).getByStateAndType(
+                stateID.id,
+                AppNames.TRANSFER_TYPE_DOWNLOAD
+            )
+        }
+
     fun enqueueUpload(parentID: StateID, uri: Uri) {
         val cr = CellsApp.instance.contentResolver
         serviceScope.launch {

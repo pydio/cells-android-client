@@ -36,7 +36,10 @@ class DownloadVM(
         try {
             transferService.liveTransfer(stateID.account(), currID)
         } catch (ie: IllegalArgumentException) {
-            Log.e(logTag, "Cannot get transfer ID: " + ie.message)
+            Log.e(logTag, "Cannot get live transfer with TID  $currID: ${ie.message}")
+            flow { }
+        } catch (e: Exception) {
+            Log.e(logTag, "Unexpected error for TID: $currID: ${e.message}")
             flow { }
         }
     }
@@ -47,6 +50,10 @@ class DownloadVM(
 
     suspend fun launchDownload() {
         try {
+            transferService.currentDownload(stateID)?.let {
+                showError(ErrorMessage("No need to relaunch", -1, listOf()))
+                return
+            }
             val transferID = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
             _transferID.value = transferID
             transferService.runDownloadTransfer(stateID.account(), transferID, null)

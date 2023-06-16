@@ -18,14 +18,25 @@ import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.UUID
 
 class CellsTransferListener(
     private val externalID: Int,
     private val transferDao: TransferDao,
-    private val parentJobProgress: Channel<Long>? = null
+    private val done: () -> Unit,
+    private val parentJobProgress: Channel<Long>? = null,
 ) : TransferListener, KoinComponent {
 
-    private val logTag = "CellsTransferListener"
+    private val id: String = UUID.randomUUID().toString()
+    private val logTag = "CellsTrList-${id.substring(30)}"
+
+    // init {
+    //     Log.e(logTag, "## Created")
+    //     Thread.dumpStack()
+    //     Log.e(logTag, "###### ")
+    // }
+
+//     private val logTag = "CellsTransferListener"
 
     private val coroutineService: CoroutineService by inject()
     private val ioScope = coroutineService.cellsIoScope
@@ -45,6 +56,7 @@ class CellsTransferListener(
                     transferRecord.status = JobStatus.DONE.id
                     transferRecord.doneTimestamp = currentTimestamp()
                     transferDao.update(transferRecord)
+                    done()
                 }
 
                 else -> {
@@ -104,7 +116,7 @@ class CellsTransferListener(
             e.message
         }
 
-        ioScope.launch(context = ioDispatcher) {
+        ioScope.launch {
             try {
                 val transferRecord = getTransferRecord()
                 transferRecord.status = JobStatus.ERROR.id
@@ -120,7 +132,7 @@ class CellsTransferListener(
 
     private fun getTransferRecord(): RTransfer = transferDao.getByExternalID(externalID) ?: run {
         throw SDKException(
-            ErrorCodes.internal_error,
+            ErrorCodes.illegal_argument,
             "Could not retrieve transfer with external ID $externalID, aborting"
         )
     }

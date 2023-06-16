@@ -27,6 +27,9 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE encoded_state = :stateId LIMIT 1")
     fun getByState(stateId: String): RTransfer?
 
+    @Query("SELECT * FROM transfers WHERE encoded_state = :stateId AND type = :type LIMIT 1")
+    fun getByStateAndType(stateId: String, type: String): RTransfer?
+
     @Query("SELECT * FROM transfers WHERE transfer_id = :transferID LIMIT 1")
     fun getById(transferID: Long): RTransfer?
 

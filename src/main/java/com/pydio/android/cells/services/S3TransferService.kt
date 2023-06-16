@@ -28,7 +28,6 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -41,10 +40,11 @@ class S3TransferService(
 
     private val logTag = "S3TransferService"
 
-    private val ioScope = coroutineService.cellsIoScope
+    // private val ioScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
 
     private val transferUtilities: MutableMap<String, TransferUtility> = mutableMapOf()
+    private val transferListener: MutableMap<Int, CellsTransferListener> = mutableMapOf()
 
     @Throws(SDKException::class)
     suspend fun doDownload(
@@ -64,7 +64,7 @@ class S3TransferService(
         dao.update(transferRecord)
 
         observer.setTransferListener(
-            CellsTransferListener(
+            getTransferListener(
                 observer.id,
                 dao,
                 parentJobProgress,
@@ -93,9 +93,7 @@ class S3TransferService(
         transferRecord.status = JobStatus.PROCESSING.id
         transferRecord.startTimestamp = currentTimestamp()
         dao.update(transferRecord)
-
-        // TODO improve: we loose the listener if the app is restarted during the upload
-        observer.setTransferListener(CellsTransferListener(observer.id, dao))
+        observer.setTransferListener(getTransferListener(observer.id, dao))
     }
 
     suspend fun cancelTransfer(stateID: StateID, transferID: Long, owner: String) =
@@ -105,8 +103,21 @@ class S3TransferService(
                 throw IllegalStateException("Cannot cancel an unknown transfer")
             }
 
-            if (!getTransferUtility(stateID).cancel(rTransfer.externalID)) {
-                throw SDKException("Could not cancel transfer for $stateID")
+            val tu = getTransferUtility(stateID)
+            Log.e(logTag, "### About to cancel #${rTransfer.externalID} for $stateID")
+            // In some case, we might end up with a corrupted transfer record that has no correct id
+            if (rTransfer.externalID >= 0) {
+                tu.getTransferById(rTransfer.externalID)?.let {
+                    it.cleanTransferListener()
+                    try {
+                        if (!tu.cancel(rTransfer.externalID)) {
+                            throw SDKException("Could not cancel transfer for $stateID")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(logTag, "### Could not cancel: ${e.message}")
+                        throw e
+                    }
+                }
             }
             rTransfer.status = JobStatus.CANCELLED.id
             rTransfer.doneTimestamp = currentTimestamp()
@@ -120,9 +131,11 @@ class S3TransferService(
             val rTransfer = dao.getById(transferID) ?: run {
                 throw IllegalStateException("Cannot pause an unknown transfer")
             }
-            if (!getTransferUtility(stateID).pause(rTransfer.externalID)) {
+            val tu = getTransferUtility(stateID)
+            if (!tu.pause(rTransfer.externalID)) {
                 throw SDKException("Could not pause transfer for $stateID")
             }
+            // tu.getTransferById(rTransfer.externalID)?.cleanTransferListener()
             rTransfer.status = JobStatus.PAUSED.id
             rTransfer.startTimestamp = -1
             rTransfer.error = "Paused by $owner since ${currentTimestampAsString()}"
@@ -136,27 +149,56 @@ class S3TransferService(
                 throw IllegalStateException("Cannot resume an unknown transfer")
             }
             val tu = getTransferUtility(stateID)
-            ioScope.launch {
 
-                val observer = tu.resume(rTransfer.externalID)
-                rTransfer.externalID = observer.id
-                rTransfer.status = JobStatus.PROCESSING.id
-                rTransfer.error = null
-                rTransfer.startTimestamp = currentTimestamp()
-                dao.update(rTransfer)
-                observer.setTransferListener(CellsTransferListener(observer.id, dao))
-
-            }
+            val observer = tu.resume(rTransfer.externalID)
+            rTransfer.externalID = observer.id
+            rTransfer.status = JobStatus.PROCESSING.id
+            rTransfer.error = null
+            rTransfer.startTimestamp = currentTimestamp()
+            dao.update(rTransfer)
+            observer.setTransferListener(getTransferListener(observer.id, dao))
         }
+
+    private fun getTransferListener(
+        externalID: Int,
+        transferDao: TransferDao,
+        parentJobProgress: Channel<Long>? = null
+    ): CellsTransferListener {
+        transferListener[externalID]?.let {
+            return it
+        }
+        val listener = CellsTransferListener(
+            externalID,
+            transferDao,
+            { afterCompleted(externalID) },
+            parentJobProgress
+        )
+        transferListener[externalID] = listener
+        return listener
+    }
+
+    private fun afterCompleted(externalID: Int) {
+        transferListener.remove(externalID)
+    }
 
     suspend fun forgetTransfer(stateID: StateID, transferID: Long) =
         withContext(ioDispatcher) {
+
             val dao = nodeDB(stateID).transferDao()
+
             val rTransfer = dao.getById(transferID) ?: run {
                 Log.w(logTag, "No transfer found to delete for $stateID, ignoring")
                 return@withContext
             }
-            getTransferUtility(stateID).deleteTransferRecord(rTransfer.externalID)
+
+            val tu = getTransferUtility(stateID)
+            if (rTransfer.externalID >= 0) {
+                tu.getTransferById(rTransfer.externalID)?.let {
+                    tu.deleteTransferRecord(rTransfer.externalID)
+                    it.cleanTransferListener()
+                    afterCompleted(rTransfer.externalID)
+                }
+            }
             dao.deleteTransfer(transferID)
         }
 
