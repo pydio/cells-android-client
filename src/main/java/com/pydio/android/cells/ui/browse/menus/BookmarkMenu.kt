@@ -28,7 +28,7 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun BookmarkMenu(
-    moreMenuVM: TreeNodeVM,
+    treeNodeVM: TreeNodeVM,
     stateID: StateID,
     rTreeNode: RTreeNode,
     launch: (NodeAction, StateID) -> Unit,
@@ -85,7 +85,7 @@ fun BookmarkMenu(
             }
         }
         LaunchedEffect(key1 = stateID) {
-            appearsIn.value = moreMenuVM.appearsIn(stateID)
+            appearsIn.value = treeNodeVM.appearsIn(stateID)
         }
     }
 }

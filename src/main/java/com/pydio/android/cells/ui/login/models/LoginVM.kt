@@ -312,11 +312,11 @@ class LoginVM(
     }
 
     override fun onCleared() {
-        Log.i(logTag, "################## onCleared")
+        Log.i(logTag, "Cleared")
         super.onCleared()
     }
 
     init {
-        Log.i(logTag, "################## Created")
+        Log.i(logTag, "Created")
     }
 }

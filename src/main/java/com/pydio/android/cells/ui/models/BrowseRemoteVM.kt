@@ -29,12 +29,11 @@ class BrowseRemoteVM(
     }
 
     init {
-        Log.e(logTag, "#################################################")
-        Log.e(logTag, "... Main browse view model has been initialised")
+        Log.i(logTag, "... Main browse view model has been initialised")
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.i(logTag, "cleared")
+        Log.i(logTag, "Cleared")
     }
 }

@@ -97,7 +97,7 @@ fun NavGraphBuilder.browseNavGraph(
                 browseRemoteVM.watch(stateID, false)
             }
             onDispose {
-                Log.e(logTag, "onDispose for browse/open/$stateID, pause browseRemoteVM")
+                Log.d(logTag, "onDispose for browse/open/$stateID, pause browseRemoteVM")
                 browseRemoteVM.pause(stateID)
             }
         }

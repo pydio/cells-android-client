@@ -37,19 +37,18 @@ fun NodeMoreMenuData(
     toOpenStateID: StateID,
     launch: (NodeAction, StateID) -> Unit,
 ) {
-//    val moreMenuVM: TreeNodeVM = koinViewModel(parameters = { parametersOf(toOpenStateID) })
-    val moreMenuVM: TreeNodeVM = koinViewModel()
+    val treeNodeVM: TreeNodeVM = koinViewModel()
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 
     LaunchedEffect(key1 = toOpenStateID) {
         if (toOpenStateID != StateID.NONE) {
-            moreMenuVM.getTreeNode(toOpenStateID)?.let { currNode ->
+            treeNodeVM.getTreeNode(toOpenStateID)?.let { currNode ->
                 item.value = currNode
             } ?: { Log.e(logTag, "No node found for $toOpenStateID, aborting") }
 
             if (toOpenStateID.isWorkspaceRoot) {
-                moreMenuVM.getWS(toOpenStateID)?.let { currNode ->
+                treeNodeVM.getWS(toOpenStateID)?.let { currNode ->
                     workspace.value = currNode
                 }
             }
@@ -85,7 +84,7 @@ fun NodeMoreMenuData(
                 )
 
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
-                    moreMenuVM = moreMenuVM,
+                    treeNodeVM = treeNodeVM,
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = launch,
