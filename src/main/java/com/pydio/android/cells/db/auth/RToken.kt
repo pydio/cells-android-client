@@ -3,13 +3,14 @@ package com.pydio.android.cells.db.auth
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.Token
 
 @Entity(tableName = "tokens")
 data class RToken(
 
     @PrimaryKey
-    @ColumnInfo(name = "account_id") val accountID: String,
+    @ColumnInfo(name = "account_id") val accountId: String,
 
     // value is the real useful token => access_token in OAuth2
     @ColumnInfo(name = "value") val value: String,
@@ -41,7 +42,7 @@ data class RToken(
         val currToken = Token()
         currToken.tokenType = tokenType
         currToken.value = value
-        currToken.subject = subject
+        currToken.subject = subject ?: accountId
         currToken.expiresIn = expiresIn
         currToken.expirationTime = expirationTime
         currToken.idToken = idToken
@@ -50,10 +51,12 @@ data class RToken(
         return currToken
     }
 
+    fun getAccountID(): StateID = StateID.fromId(accountId)
+
     companion object {
         fun fromToken(accountId: String, token: Token): RToken {
             return RToken(
-                accountID = accountId,
+                accountId = accountId,
                 idToken = token.idToken,
                 subject = token.subject,
                 value = token.value,
