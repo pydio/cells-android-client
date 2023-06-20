@@ -36,9 +36,9 @@ class FileService(
         File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
     }
 
-    fun dataParentPath(accountId: StateID, type: String): String {
-        val dirName = treeNodeRepository.sessions[accountId.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $accountId")
+    fun dataParentPath(accountID: StateID, type: String): String {
+        val dirName = treeNodeRepository.sessions[accountID.accountId]?.dirName
+            ?: throw IllegalStateException("No record found for [$accountID]")
         return staticDataParentPath(dirName, type)
     }
 
@@ -160,17 +160,17 @@ class FileService(
         val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
 
         val rFile = dao.getFile(stateID.id, type) ?: let {
-            Log.e(logTag, "no record for [$type]: $stateID")
+            Log.d(logTag, "No record for $type file: [ $stateID ]")
             return null
         }
         val parPath = dataParentPath(stateID.account(), type)
         val file = File(parPath + File.separator + rFile.file)
         if (!file.exists()) {
-            Log.e(logTag, "could not find file at ${file.absolutePath}")
+            Log.d(logTag, "Could not find file at ${file.absolutePath}")
             return null
         }
         if (!isFileInLineWithIndex(rTreeNode, rFile)) {
-            Log.e(logTag, "remote file has changed")
+            Log.d(logTag, "Remote file has changed for [$stateID]")
             return null
         }
         return file

@@ -1,9 +1,9 @@
 package com.pydio.android.cells.services
 
-import com.pydio.cells.api.Store
-import com.pydio.cells.transport.auth.Token
 import com.pydio.android.cells.db.auth.RToken
 import com.pydio.android.cells.db.auth.TokenDao
+import com.pydio.cells.api.Store
+import com.pydio.cells.transport.auth.Token
 
 class TokenStore(private val dao: TokenDao) : Store<Token> {
 
@@ -35,7 +35,7 @@ class TokenStore(private val dao: TokenDao) : Store<Token> {
     override fun getAll(): MutableMap<String, Token> {
         val allCredentials: MutableMap<String, Token> = HashMap()
         for (rToken in dao.getAll()) {
-            allCredentials[rToken.accountID] = rToken.toToken()
+            allCredentials[rToken.accountId] = rToken.toToken()
         }
         return allCredentials
     }

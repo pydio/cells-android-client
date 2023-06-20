@@ -44,7 +44,7 @@ fun lazyStateID(
 ): StateID {
     return navBackStackEntry?.arguments?.getString(key)
         ?.let {
-            Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
+            // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
             tweakedFromId(it)
         }
         ?: run {
@@ -79,23 +79,23 @@ private fun tweakedFromId(stateId: String?): StateID? {
                 host = URLDecoder.decode(parts[1], "UTF-8")
                 path = URLDecoder.decode(parts[2], "UTF-8")
                 if (path.startsWith("http://") || path.startsWith("https://")) {
-                    Log.e(logTag, "Had to tweak $stateId")
+                    Log.e(logTag, "We found a path that begins with https for: $stateId")
+                    Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
                     username = "$username@$host"
                     host = path
                     path = null
+                    Log.e(logTag, "   New values: uname: $username, host: $host")
                 }
             }
 
             4 -> {
-                Log.e(logTag, "Had to tweak $stateId")
+                Log.e(logTag, "Parsed stateId [$stateId] has 4 parts")
+                Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
                 username = URLDecoder.decode(parts[0], "UTF-8")
-                host = URLDecoder.decode(parts[1], "UTF-8")
-                path = URLDecoder.decode(parts[2], "UTF-8")
-
-                if (path.startsWith("http://") || path.startsWith("https://"))
-                    username = "$username@$host"
-                host = path
+                username += "@" + URLDecoder.decode(parts[1], "UTF-8")
+                host = URLDecoder.decode(parts[2], "UTF-8")
                 path = URLDecoder.decode(parts[3], "UTF-8")
+                Log.e(logTag, "   New values: uname: $username, host: $host, path: $path")
             }
 
             else -> {
@@ -104,7 +104,6 @@ private fun tweakedFromId(stateId: String?): StateID? {
             }
         }
         StateID(username, host, path)
-
     } catch (iae: IllegalArgumentException) {
         Log.e(logTag, "Could not decode [$stateId] - cause:$iae")
         iae.printStackTrace();
@@ -122,7 +121,6 @@ fun lazyQueryContext(
             "none"
         }
 }
-
 
 fun lazySkipVerify(
     navBackStackEntry: NavBackStackEntry?,

@@ -48,7 +48,7 @@ class ConnectionService(
 ) {
 
     private val id: String = UUID.randomUUID().toString()
-    private val logTag = "ConnectionService[${id.substring(24)}]"
+    private val logTag = "ConnectionServ_${id.substring(30)}"
 
     private val serviceScope = coroutineService.cellsIoScope
 
@@ -115,16 +115,15 @@ class ConnectionService(
                 if (newStatus == SessionStatus.CAPTIVE) {
                     // We do not change the status yet
                 } else if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
-
-                    // Request a refresh of the reachable status for current stateID
-                    serviceScope.launch {
-                        appCredentialService.insureServerIsReachable(it.getStateID())
-                    }
                     // We have internet access but cannot ping the server
                     newStatus = SessionStatus.SERVER_UNREACHABLE
+                    // Request a refresh of the reachable status for current stateID
+                    serviceScope.launch {
+                        delay(1000L) // Wait 1 sec before doing the request
+                        appCredentialService.insureServerIsReachable(it.getStateID())
+                    }
                 }
 
-//                Log.i(logTag, "Got a Session view: ${it.getStateID()}, status: $newStatus")
                 if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
                     pauseMonitoring()
                     newStatus = if (newStatus != SessionStatus.NO_INTERNET
@@ -157,12 +156,11 @@ class ConnectionService(
             } else {
                 state
             }
-            Log.d(logTag, "## Loading flag: $state, session status: $status")
-            Log.d(logTag, "\t=> Computed loading state: $currState")
+            Log.d(logTag, "## Last loading state: $currState (flag: $state, session: $status)")
             currState
         }.stateIn(
             scope = serviceScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000L),
             initialValue = LoadingState.STARTING
         )
 
@@ -185,9 +183,8 @@ class ConnectionService(
             currPollJob = serviceScope.launch {
                 Log.i(logTag, "### Launching Poll Job $this")
                 while (true) {
-//                    Log.i(logTag, "## New watch iteration for $this")
                     watchFolder()
-                    delay(2000)
+                    delay(2000L)
                 }
             }
         }
@@ -307,15 +304,15 @@ class ConnectionService(
         // Handle cancellable delay
         val tmpDelayJob = serviceScope.launch {
             try {
-//                Log.d(logTag, "\tPull done, about to sleep for $nd seconds\n\tserviceScope $this")
                 delay(TimeUnit.SECONDS.toMillis(nd))
-                val msg = "Watching folders at $currStateID - $this"
-                if (_isActive) {
-                    Log.d(logTag, "\t$msg \n\tStill running after ${nd}s delay")
+                var msg = "\tafter ${nd}s sleep,"
+                msg += if (_isActive) {
+                    " still"
                 } else {
-                    Log.d(logTag, "\t$msg \n\tStopped after ${nd}s delay")
+                    " STOPPED"
                 }
-                //Log.e(logTag, "### After delay")
+                msg += " watching at $currStateID - $this"
+                Log.d(logTag, msg)
             } catch (e: CancellationException) {
                 Log.d(logTag, "Delay has been cancelled: ${e.message}")
             } catch (e: Exception) {
@@ -325,7 +322,7 @@ class ConnectionService(
         }
         delayJob = tmpDelayJob
         tmpDelayJob.join()
-        Log.d(logTag, "\tAfter join for ${delayJob.toString()}")
+//        Log.d(logTag, "\tAfter join for ${delayJob.toString()}")
     }
 
     @Throws(SDKException::class)

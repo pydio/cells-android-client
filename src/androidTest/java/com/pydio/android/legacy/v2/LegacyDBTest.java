@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class LegacyDBTest {
 
-    private final String logTag = "LegacyDBTest"
+    private final String logTag = "LegacyDBTest";
 
     //     private TestClientFactory factory;
     private TestConfiguration config;
