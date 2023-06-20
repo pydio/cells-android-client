@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
+import java.util.UUID
 
 /**
  * This app specific credential service provides a refresh method that insures that only
@@ -39,7 +40,10 @@ class AppCredentialService(
     private val sessionViewDao: SessionViewDao,
 ) : CredentialService(tokenStore, passwordStore), KoinComponent {
 
-    private val logTag = "AppCredentialService"
+    //    private val logTag = "AppCredentialService"
+    private val id: String = UUID.randomUUID().toString()
+    private val logTag = "AppCredService[${id.substring(30)}]"
+
 
     // Insure we only process one refresh request at a time
     private val requestRefreshChannel = Channel<StateID>()
@@ -60,8 +64,9 @@ class AppCredentialService(
                 while (failNb < maxFail) {
                     try {
                         val currID = requestRefreshChannel.receive()
-//                        Log.e(logTag, "Received refresh token request for $currID")
+//                         private val id: String = UUID.randomUUID().toString()   Log.e(logTag, "Received refresh token request for $currID")
                         safelyRefreshToken(currID)
+                        delay(2000)
                         failNb = 0
                     } catch (e: Exception) {
                         Log.e(
@@ -198,6 +203,7 @@ class AppCredentialService(
     }
 
 
+    // First ping the server: we can use the refresh token only once. If we fail we sleep 2 sec.
     suspend fun insureServerIsReachable(stateID: StateID): Boolean = withContext(ioDispatcher) {
         val sessionView = sessionViewDao.getSession(stateID.accountId) ?: run {
             Log.e(logTag, "Cannot refresh, unknown session: $stateID")
@@ -225,12 +231,13 @@ class AppCredentialService(
             // Update reachable flag in the Session DB
             session.isReachable = false
             sessionDao.update(session)
+            delay(2000)
             return@withContext false
         }
-    }    // First ping the server: we can use the refresh token only once.
+    }
 
 
-    private fun doRefresh(
+    private suspend fun doRefresh(
         stateID: StateID,
         token: Token,
         transport: CellsTransport
