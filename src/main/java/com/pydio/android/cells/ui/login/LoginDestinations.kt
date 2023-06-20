@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.login
 
 import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.cells.transport.StateID
 
 sealed class LoginDestinations(val route: String) {
@@ -11,16 +12,14 @@ sealed class LoginDestinations(val route: String) {
     }
 
     object Starting : LoginDestinations("${PREFIX}/starting/{${AppKeys.STATE_ID}}") {
-        fun createRoute(stateID: StateID) = "${PREFIX}/starting/${stateID.id}"
+        fun createRoute(stateID: StateID) = "${PREFIX}/starting/${encodeStateForRoute(stateID)}"
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/starting/") ?: false
     }
 
     object Done : LoginDestinations("${PREFIX}/done/{${AppKeys.STATE_ID}}") {
-        fun createRoute(stateID: StateID) = "${PREFIX}/done/${stateID.id}"
-        fun isCurrent(route: String?): Boolean =
-//        override fun isCurrent(route: String?): Boolean =
-            route?.startsWith("${PREFIX}/done/") ?: false
+        fun createRoute(stateID: StateID) = "${PREFIX}/done/${encodeStateForRoute(stateID)}"
+        fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/done/") ?: false
     }
 
     object AskUrl : LoginDestinations("${PREFIX}/ask-url") {
@@ -33,7 +32,7 @@ sealed class LoginDestinations(val route: String) {
 
     object SkipVerify : LoginDestinations("${PREFIX}/skip-verify/{${AppKeys.STATE_ID}}") {
 
-        fun createRoute(stateID: StateID) = "${PREFIX}/skip-verify/${stateID.id}"
+        fun createRoute(stateID: StateID) = "${PREFIX}/skip-verify/${encodeStateForRoute(stateID)}"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/skip-verify/") ?: false
@@ -43,7 +42,7 @@ sealed class LoginDestinations(val route: String) {
         LoginDestinations("${PREFIX}/p8-credentials/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
 
         fun createRoute(stateID: StateID, skipVerify: Boolean) =
-            "${PREFIX}/p8-credentials/${stateID.id}/$skipVerify"
+            "${PREFIX}/p8-credentials/${encodeStateForRoute(stateID)}/$skipVerify"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/p8-credentials/") ?: false
@@ -54,7 +53,7 @@ sealed class LoginDestinations(val route: String) {
         LoginDestinations("${PREFIX}/launch-auth-processing/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
 
         fun createRoute(stateID: StateID, skipVerify: Boolean) =
-            "${PREFIX}/launch-auth-processing/${stateID.id}/$skipVerify"
+            "${PREFIX}/launch-auth-processing/${encodeStateForRoute(stateID)}/$skipVerify"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/launch-auth-processing/") ?: false
@@ -64,7 +63,7 @@ sealed class LoginDestinations(val route: String) {
         LoginDestinations("${PREFIX}/process-auth-callback/{${AppKeys.STATE_ID}}") {
 
         fun createRoute(stateID: StateID) =
-            "${PREFIX}/process-auth-callback/${stateID.id}"
+            "${PREFIX}/process-auth-callback/${encodeStateForRoute(stateID)}"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/process-auth-callback/") ?: false

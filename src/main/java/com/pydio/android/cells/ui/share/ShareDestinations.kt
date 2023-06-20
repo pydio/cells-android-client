@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.share
 
 import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.cells.transport.StateID
 
 sealed class ShareDestination(val route: String) {
@@ -15,7 +16,7 @@ sealed class ShareDestination(val route: String) {
     }
 
     object OpenFolder : ShareDestination("${PREFIX}/open/{${AppKeys.STATE_ID}}") {
-        fun createRoute(stateID: StateID) = "${PREFIX}/open/${stateID.id}"
+        fun createRoute(stateID: StateID) = "${PREFIX}/open/${encodeStateForRoute(stateID)}"
         fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/open/") ?: false
     }
 
