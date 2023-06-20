@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.FolderVM
@@ -37,13 +38,10 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 private const val logTag = "NodeWithActions.kt"
-
 private const val FOLDER_MAIN_CONTENT = "folder-main-content"
-private const val STATE_ID_KEY = "state-id"
-private const val STATE_ID_SUFFIX = "/{state-id}"
 
 private fun route(action: NodeAction): String {
-    return "${action.id}$STATE_ID_SUFFIX"
+    return "${action.id}/{${AppKeys.STATE_ID}}"
 }
 
 sealed class NodeAction(val id: String) {
@@ -316,14 +314,14 @@ private fun FolderWithDialogs(
         }
 
         dialog(route(NodeAction.Rename)) { entry ->
-            val stateId = entry.arguments?.getString(STATE_ID_KEY)
-                ?: run {
-                    Log.e(logTag, "... trying to open dialog with no state ID ")
-                    return@dialog
-                }
+            val stateID = lazyStateID(entry)
+            if (stateID == StateID.NONE) {
+                Log.e(logTag, "... cannot navigate with no state ID")
+                return@dialog
+            }
             TreeNodeRename(
                 nodeActionsVM,
-                stateID = StateID.fromId(stateId),
+                stateID = stateID,
                 dismiss = { closeDialog(it) }
             )
         }
@@ -418,4 +416,3 @@ private fun FolderWithDialogs(
         }
     }
 }
-
