@@ -89,6 +89,9 @@ class ConnectionService(
     private val networkStatusFlow = networkService.networkStatusFlow
     private val loadingFlag = MutableStateFlow(LoadingState.IDLE)
 
+    private var lastTimeChecked = -1L
+    private val lock = Any()
+
     val sessionStatusFlow: Flow<SessionStatus> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
 
@@ -120,7 +123,19 @@ class ConnectionService(
                     // Request a refresh of the reachable status for current stateID
                     serviceScope.launch {
                         delay(1000L) // Wait 1 sec before doing the request
-                        appCredentialService.insureServerIsReachable(it.getStateID())
+                        val doIt: Boolean
+                        synchronized(lock) {
+                            if (currentTimestamp() - lastTimeChecked > 3) {
+                                lastTimeChecked = currentTimestamp()
+                                doIt = true
+                            } else {
+                                doIt = false
+                            }
+                        }
+                        if (doIt) {
+                            // This also update cached reachable status of the server
+                            appCredentialService.insureServerIsReachable(it.getStateID())
+                        }
                     }
                 }
 

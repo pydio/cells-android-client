@@ -65,8 +65,8 @@ class SessionFactory(
     override fun getCellsClient(transport: CellsTransport): CellsClient {
 
         // We also check if we need a token refresh at this point
-        // TODO double check if it is the correct point to do so
-        transport.requestTokenRefresh()
+        // TODO double check if we still need this, normally this should be done by the connection service
+        // transport.requestTokenRefresh()
 
         return CellsClient(
             transport,

@@ -49,16 +49,13 @@ class OfflineSyncWorker(
             if (pref.onBatteryNotLow) {
                 constraintBuilder.setRequiresBatteryNotLow(true)
             }
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && pref.onIdle) {
-//                constraintBuilder.setRequiresDeviceIdle(true)
-//            }
             if (pref.onIdle) {
                 constraintBuilder.setRequiresDeviceIdle(true)
             }
 
             val repeatInterval = fromFreqToMinuteInterval(pref.frequency)
-            Log.e(logTag, "... Built offline request with a frequency of $repeatInterval min.")
-            Log.e(logTag, "... Constraint on network: ${netType.name}")
+            Log.d(logTag, "... Built offline request with a frequency of $repeatInterval min.")
+            // Log.e(logTag, "... Constraint on network: ${netType.name}")
 
             return PeriodicWorkRequestBuilder<OfflineSyncWorker>(
                 repeatInterval, TimeUnit.MINUTES

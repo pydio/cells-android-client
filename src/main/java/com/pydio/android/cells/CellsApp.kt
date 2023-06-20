@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.pydio.android.cells.di.allModules
 import com.pydio.android.cells.services.JobService
+import com.pydio.android.cells.services.WorkerService
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
@@ -54,17 +55,8 @@ class CellsApp : Application(), KoinComponent {
             workManagerFactory()
             modules(allModules)
         }
+        configureWorkers()
         recordLaunch()
-    }
-
-    private fun recordLaunch() {
-        try {
-            val jobService: JobService by inject()
-            val creationMsg = "### Started ${ClientData.getInstance().userAgent()}"
-            jobService.i(logTag, creationMsg, "Cells App")
-        } catch (e: Exception) {
-            Log.e(logTag, "could not log start: $e")
-        }
     }
 
     @Throws(SDKException::class)
@@ -85,6 +77,25 @@ class CellsApp : Application(), KoinComponent {
         ClientData.updateInstance(instance)
 
         return instance.userAgent()
+    }
+
+    private fun configureWorkers() {
+        try {
+            val workerService: WorkerService by inject()
+            Log.i(logTag, "Initialised workers: $workerService")
+        } catch (e: Exception) {
+            Log.e(logTag, "Could not configure workerService start: $e")
+        }
+    }
+
+    private fun recordLaunch() {
+        try {
+            val jobService: JobService by inject()
+            val creationMsg = "### Started ${ClientData.getInstance().userAgent()}"
+            jobService.i(logTag, creationMsg, "Cells App")
+        } catch (e: Exception) {
+            Log.e(logTag, "could not log start: $e")
+        }
     }
 
     @Suppress("DEPRECATION")

@@ -26,9 +26,11 @@ class WorkerService(
 
     private lateinit var oldSyncPrefs: SyncPreferences
 
-    init {
-        Log.i(logTag, "... Starting offline service")
+    private val syncPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+        cellsPreferences.sync
+    }
 
+    init {
         coroutineService.cellsIoScope.launch {
             oldSyncPrefs = prefs.fetchPreferences().sync
             withContext(coroutineService.cpuDispatcher) {
@@ -36,16 +38,13 @@ class WorkerService(
                 configureOfflinePrefObserver()
             }
         }
+        Log.i(logTag, "## WorkerService initialised")
     }
 
     // TODO implement background cleaning, typically:
     //  - states
     //  - upload & downloads
 
-
-    private val syncPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
-        cellsPreferences.sync
-    }
 
     // Insure that the worker is correctly started at launch time
     private fun initOfflineWorkers() {
@@ -59,6 +58,7 @@ class WorkerService(
     private fun configureOfflinePrefObserver() {
         workerScope.launch {
             syncPrefs.collect { currPrefs ->
+                Log.e(logTag, "New sync preference value: $currPrefs")
                 if (hasPrefChanged(currPrefs)) {
                     resetOfflineWorker(currPrefs)
                 }
@@ -71,11 +71,6 @@ class WorkerService(
         val prefix = "### Cancel and restart offline worker with [$syncPref] "
         try {
             jobService.i(logTag, prefix, "SyncPref Observer")
-            Log.e(logTag, "###############################")
-            Log.e(logTag, "###############################")
-            Log.i(logTag, prefix)
-            Log.e(logTag, "###############################")
-            Log.e(logTag, "###############################")
         } catch (e: Exception) {
             Log.e(logTag, "$prefix: could not log with job service: ${e.message}")
         }

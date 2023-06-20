@@ -12,7 +12,6 @@ import com.pydio.android.cells.ui.system.screens.ConfirmClearCache
 import com.pydio.android.cells.ui.system.screens.JobScreen
 import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.android.cells.ui.system.screens.SettingsScreen
-import com.pydio.cells.utils.Log
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -28,14 +27,9 @@ fun NavGraphBuilder.systemNavGraph(
 ) {
 
     composable(SystemDestinations.About.route) {
-        Log.d(logTag, "... Navigating to \"About\" page, expanded screen: $isExpandedScreen")
         AboutScreen(
             openDrawer = openDrawer,
             launchIntent = launchIntent,
-//            contentPadding = rememberContentPaddingForScreen(
-//                additionalTop = extraTopPadding(isExpandedScreen),
-//                excludeTop = !isExpandedScreen
-//            ),
         )
     }
 
@@ -44,7 +38,7 @@ fun NavGraphBuilder.systemNavGraph(
     }
 
     composable(SystemDestinations.Logs.route) {
-        Log.d(logTag, "... About to open Logs")
+        // Log.d(logTag, "... About to open Logs")
         LogScreen(openDrawer = openDrawer)
     }
 

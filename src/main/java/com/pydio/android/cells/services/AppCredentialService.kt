@@ -33,7 +33,7 @@ class AppCredentialService(
     private val tokenStore: Store<Token>,
     passwordStore: Store<String>,
     private val transportStore: Store<Transport>,
-    private val coroutineService: CoroutineService,
+    coroutineService: CoroutineService,
     private val networkService: NetworkService,
     private val accountDao: AccountDao,
     private val sessionDao: SessionDao,
@@ -42,8 +42,7 @@ class AppCredentialService(
 
     //    private val logTag = "AppCredentialService"
     private val id: String = UUID.randomUUID().toString()
-    private val logTag = "AppCredService[${id.substring(30)}]"
-
+    private val logTag = "AppCredService_${id.substring(30)}"
 
     // Insure we only process one refresh request at a time
     private val requestRefreshChannel = Channel<StateID>()
@@ -64,6 +63,7 @@ class AppCredentialService(
                 while (failNb < maxFail) {
                     try {
                         val currID = requestRefreshChannel.receive()
+                        // Log.e(logTag, "#### Received refresh request")
 //                         private val id: String = UUID.randomUUID().toString()   Log.e(logTag, "Received refresh token request for $currID")
                         safelyRefreshToken(currID)
                         delay(2000)
@@ -104,8 +104,9 @@ class AppCredentialService(
      * - no refresh is already running
      */
     override fun requestRefreshToken(stateID: StateID) {
+        // Log.e(logTag, "Sending refresh token request for $stateID")
+        // Thread.dumpStack()
         serviceScope.launch {
-            // Log.d(logTag, "Sending refresh token request for $stateID")
             requestRefreshChannel.send(stateID)
         }
     }
@@ -122,6 +123,7 @@ class AppCredentialService(
         }
         if (!insureServerIsReachable(stateID)) {
             Log.e(logTag, "Cannot refresh token $stateID, server is not reachable")
+            return@withContext
         }
 
         synchronized(lock) {
@@ -151,37 +153,6 @@ class AppCredentialService(
                 return@withContext
             }
 
-
-//            val sessionView = sessionViewDao.getSession(stateID.accountId) ?: run {
-//                Log.e(logTag, "Cannot refresh, unknown session: $stateID")
-//                return@withContext
-//            }
-//            val session = sessionDao.getSession(stateID.accountId) ?: run {
-//                Log.e(logTag, "Session view with no session for $stateID: something went wrong")
-//                Thread.dumpStack()
-//                return@withContext
-//            }
-//
-//            val serverURL = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
-//            try {
-//                serverURL.ping()
-//                if (!session.isReachable) { // Update reachable flag ASAP
-//                    session.isReachable = true
-//                    sessionDao.update(session)
-//                }
-//            } catch (e: Exception) {
-//                Log.e(
-//                    logTag,
-//                    "Could not ping remote at $serverURL, aborting refresh process. ${e.message}"
-//                )
-//                // Update reachable flag in the Session DB
-//                session.isReachable = false
-//                sessionDao.update(session)
-//                return@withContext
-//            }
-
-            // First ping the server: we can use the refresh token only once.
-
             // Insure we have a transport already defined in the store
             val transport = transportStore.get(stateID.accountId)
             if (transport == null) {
@@ -201,7 +172,6 @@ class AppCredentialService(
             }
         }
     }
-
 
     // First ping the server: we can use the refresh token only once. If we fail we sleep 2 sec.
     suspend fun insureServerIsReachable(stateID: StateID): Boolean = withContext(ioDispatcher) {
@@ -224,26 +194,25 @@ class AppCredentialService(
             }
             return@withContext true
         } catch (e: Exception) {
-            Log.e(
-                logTag,
-                "Could not ping remote at $serverURL, aborting refresh process. ${e.message}"
-            )
+            Log.e(logTag, "Aborting refresh process: ${e.message} - $this")
             // Update reachable flag in the Session DB
             session.isReachable = false
             sessionDao.update(session)
+//            Log.d(logTag, "Before delay - $this")
             delay(2000)
+//            Log.d(logTag, "After delay - $this")
+//            Thread.dumpStack()
             return@withContext false
         }
     }
 
-
-    private suspend fun doRefresh(
+    private fun doRefresh(
         stateID: StateID,
         token: Token,
         transport: CellsTransport
     ) {
         try {
-            Log.i(logTag, "Launching effective refresh token process for $stateID")
+            Log.i(logTag, "... Launching effective refresh token process for $stateID")
 
             if (Str.empty(token.refreshToken)) {
                 Log.e(logTag, "No refresh token available for $stateID, cannot refresh")
@@ -253,7 +222,7 @@ class AppCredentialService(
                 )
             }
 
-            Log.d(logTag, "### About to wait for refreshed token")
+            Log.d(logTag, "... About to wait for refreshed token")
             val newToken = transport.getRefreshedOAuthToken(token.refreshToken)
                 ?: throw SDKException(
                     ErrorCodes.cannot_refresh_token,
@@ -268,7 +237,7 @@ class AppCredentialService(
                 it.authStatus = AppNames.AUTH_STATUS_CONNECTED
                 accountDao.update(it)
             }
-            Log.i(logTag, "Refresh token process done for $stateID")
+            Log.d(logTag, "... Refresh token process done for $stateID")
         } catch (re: RemoteIOException) {
             Log.e(logTag, "Could not refresh for $stateID. Still keeping old credentials")
             Log.e(logTag, "  Cause: remoteIOException: ${re.message}")

@@ -83,7 +83,7 @@ class CellsTransferListener(
                         } catch (ce: ClosedSendChannelException) {
                             Log.e(
                                 logTag,
-                                "... Could not update progress was: $bytesCurrent / $bytesTotal, cause: ${ce.message ?: "-"}"
+                                "... Could not update progress for #$id was: $bytesCurrent / $bytesTotal, cause: ${ce.message ?: "-"}"
                             )
 
                         }

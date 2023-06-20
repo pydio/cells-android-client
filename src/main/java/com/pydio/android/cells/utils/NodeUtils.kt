@@ -10,7 +10,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 
-private const val NODE_UTILS = "NodeUtils"
+private const val logTag = "NodeUtils"
 
 // Utility to make the stateID savable
 val stateIDSaver = Saver<StateID, String>(
@@ -19,7 +19,7 @@ val stateIDSaver = Saver<StateID, String>(
 )
 
 fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): Boolean {
-    // TODO rather use this when debugging is over.
+    // TODO rather use this when debugging is over. Also adapt areWsNodeContentEquals(), see below
 //        return remote.eTag != null
 //                && remote.eTag == local.etag
 //                && local.remoteModificationTS == remote.lastModified()
@@ -30,19 +30,19 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
 
     isEqual = local.remoteModificationTS == remote.lastModified
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: modification times are not equals")
+        //Log.d(NODE_UTILS, "Differ: modification times are not equals")
         return false
     }
 
     if (!legacy) { // We can rely on the ETag if remote is a Cells leaf node.
         isEqual = remote.eTag != null
         if (!isEqual) {
-            Log.d(NODE_UTILS, "Differ: no remote eTag")
+            Log.d(logTag, "Differ: no remote eTag")
             return false
         }
         isEqual = remote.eTag == local.etag
         if (!isEqual) {
-            Log.d(NODE_UTILS, "Differ: eTag are different")
+            Log.d(logTag, "Differ: eTag are different")
             return false
         }
     }
@@ -50,52 +50,37 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
     // Also compare meta hash: timestamp is not updated when a meta changes
     isEqual = remote.metaHashCode == local.metaHash
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: meta hash are not equals")
-        Log.d(NODE_UTILS, "local meta: ${local.properties}")
-        Log.d(NODE_UTILS, "remote meta: ${remote.properties}")
+        Log.d(logTag, "Differ: meta hash are not equals")
+        Log.d(logTag, "local meta: ${local.properties}")
+        Log.d(logTag, "remote meta: ${remote.properties}")
         return false
     }
     return true
 }
 
 fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
-    // TODO rather use this when debugging is over.
-//        return remote.eTag != null
-//                && remote.eTag == local.etag
-//                && local.remoteModificationTS == remote.lastModified()
-//                // Also compare meta hash: timestamp is not updated when a meta changes
-//                && remote.metaHashCode == local.metaHash
 
     var isEqual = remote.slug == local.slug
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: slug have changed")
+        Log.d(logTag, "Differ: slug have changed")
         return false
     }
     isEqual = remote.label == local.label
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: labels are different")
+        Log.d(logTag, "Differ: labels are different")
         return false
     }
     isEqual = remote.description == local.description
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: descriptions are different")
+        Log.d(logTag, "Differ: descriptions are different")
         return false
     }
 
-    isEqual = local.remoteModificationTS == remote.getLastModified()
+    isEqual = local.remoteModificationTS == remote.lastModified
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
+        Log.d(logTag, "Differ: Modification time are not equals")
         return false
     }
-//    // Also compare meta hash: timestamp is not updated when a meta changes
-//    isEqual = remote.metaHashCode == local.metaHash
-//    if (!isEqual) {
-//        Log.d(NODE_UTILS, "Differ: meta hash are not equals")
-//        Log.d(NODE_UTILS, "local meta: ${local.meta}")
-//        Log.d(NODE_UTILS, "remote meta: ${remote.properties}")
-//        return false
-//    }
-
     return true
 }
 

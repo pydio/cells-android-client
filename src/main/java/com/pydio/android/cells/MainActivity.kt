@@ -208,8 +208,7 @@ class MainActivity : ComponentActivity() {
     private suspend fun handleIntent(
         landingVM: LandingVM
     ): StartingState {
-        Log.d(logTag, "#############################")
-        Log.d(logTag, "  Processing intent: $intent")
+        Log.d(logTag, "   => Processing intent: $intent")
         if (intent == null) {
 
             Log.e(logTag, "#############################")
