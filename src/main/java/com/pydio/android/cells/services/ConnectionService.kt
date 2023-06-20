@@ -167,8 +167,11 @@ class ConnectionService(
         )
 
     fun relaunchMonitoring() {
-        relaunchCredJob()
-        relaunchPollJob()
+        // Only relaunch if no job is referenced
+        currPollJob ?: run {
+            relaunchCredJob()
+            relaunchPollJob()
+        }
     }
 
     fun pauseMonitoring() {
@@ -184,6 +187,7 @@ class ConnectionService(
                 while (true) {
 //                    Log.i(logTag, "## New watch iteration for $this")
                     watchFolder()
+                    delay(2000)
                 }
             }
         }
@@ -192,6 +196,7 @@ class ConnectionService(
     private fun pausePollJob() {
         serviceScope.launch {
             currPollJob?.cancelAndJoin()
+            currPollJob = null
         }
     }
 
