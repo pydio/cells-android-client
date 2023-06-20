@@ -71,7 +71,7 @@ class CellsTransferListener(
         ioScope.launch {
             val transferRecord = getTransferRecord()
             if (bytesCurrent != transferRecord.progress) {
-                Log.d(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
+                // Log.d(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
                 transferRecord.progress = bytesCurrent
                 transferDao.update(transferRecord)
 

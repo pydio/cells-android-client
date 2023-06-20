@@ -48,13 +48,17 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val loadingState: StateFlow<LoadingState> =
         _loadingState.combine(connectionService.sessionStatusFlow) { currLoadingState, sessionStatus ->
-            Log.e(logTag, "Computing loading state with:")
-            Log.e(logTag, "State: $currLoadingState, status: $sessionStatus")
-            if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
-                LoadingState.SERVER_UNREACHABLE
-            } else {
-                currLoadingState
-            }
+            val newState =
+                if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
+                    LoadingState.SERVER_UNREACHABLE
+                } else {
+                    currLoadingState
+                }
+            Log.e(
+                logTag,
+                "## New VM loading state: $newState (State: $currLoadingState, status: $sessionStatus)"
+            )
+            newState
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -62,7 +66,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         )
 
     // Preferences
-    protected val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
+    private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list
     }
     protected val defaultOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->

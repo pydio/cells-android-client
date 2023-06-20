@@ -119,10 +119,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    Log.i(logTag, "#######################################")
-                    Log.i(logTag, "onCreate with starting state:")
-                    Log.i(logTag, "  StateID: ${startingState.value?.stateID}")
-                    Log.i(logTag, "  Route: ${startingState.value?.route}")
+                    Log.i(logTag, "############################")
+                    Log.d(logTag, "  onCreate with starting state:")
+                    Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
+                    Log.d(logTag, "   Route: ${startingState.value?.route}")
 
                     // Rework this: we have the default for the time being.
                     // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
@@ -130,12 +130,10 @@ class MainActivity : ComponentActivity() {
                     WindowCompat.setDecorFitsSystemWindows(window, true)
                     ready.value = true
                     appIsReady = true
-                    landingVM.recordLaunch()
                 }
 
-//                LoadingAnimation()
                 if (ready.value) {
-                    Log.e(logTag, "#### Recomposing for ${startingState.value?.route}")
+                    Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
                     MainApp(
                         startingState = startingState.value,
                         startingStateHasBeenProcessed = startingStateHasBeenProcessed,
@@ -210,8 +208,8 @@ class MainActivity : ComponentActivity() {
     private suspend fun handleIntent(
         landingVM: LandingVM
     ): StartingState {
-        Log.e(logTag, "#############################")
-        Log.e(logTag, "Handle Intent: $intent")
+        Log.d(logTag, "#############################")
+        Log.d(logTag, "  Processing intent: $intent")
         if (intent == null) {
 
             Log.e(logTag, "#############################")

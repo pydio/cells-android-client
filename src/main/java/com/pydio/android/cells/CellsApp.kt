@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import com.pydio.android.cells.di.allModules
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
@@ -15,6 +16,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -51,6 +53,17 @@ class CellsApp : Application(), KoinComponent {
             androidContext(this@CellsApp)
             workManagerFactory()
             modules(allModules)
+        }
+        recordLaunch()
+    }
+
+    private fun recordLaunch() {
+        try {
+            val jobService: JobService by inject()
+            val creationMsg = "### Started ${ClientData.getInstance().userAgent()}"
+            jobService.i(logTag, creationMsg, "Cells App")
+        } catch (e: Exception) {
+            Log.e(logTag, "could not log start: $e")
         }
     }
 

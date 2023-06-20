@@ -200,7 +200,7 @@ class TreeDiff(
     }
 
     private suspend fun putAddChange(remote: FileNode) {
-        Log.d(logTag, "add for ${remote.name}")
+        // Log.d(logTag, "add for ${remote.name}")
         changeNumber++
         val childStateID = baseFolderStateId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
@@ -209,7 +209,7 @@ class TreeDiff(
     }
 
     private suspend fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(logTag, "Updating ${remote.name} - ${remote.path}")
+        // Log.d(logTag, "Updating ${remote.name} - ${remote.path}")
 
         changeNumber++
 
