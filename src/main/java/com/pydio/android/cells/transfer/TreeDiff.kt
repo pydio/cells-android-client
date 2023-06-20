@@ -81,6 +81,10 @@ class TreeDiff(
                     "Cannot compare with no connection to the server"
                 )
             }
+
+            // We have an unexpected error. Yet we do not want to swallow it.
+            Log.e(logTag, "Unexpected error: $msg \n   Yet throwing forward")
+            throw e
         }
 
         if (remote == null) {
