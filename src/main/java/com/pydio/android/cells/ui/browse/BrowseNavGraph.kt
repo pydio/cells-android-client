@@ -37,57 +37,52 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-        val helper = BrowseHelper(navController, folderVM)
 
         Log.i(logTag, "## BrowseDestinations.open - $stateID")
-        when {
-            stateID == StateID.NONE ->
-                NoAccount(openDrawer = openDrawer, addAccount = {})
 
-            Str.notEmpty(stateID.slug) -> {
-                Folder(
-                    stateID,
-                    openDrawer = openDrawer,
-                    openSearch = {
-                        navController.navigate(
-                            CellsDestinations.Search.createRoute(
-                                "Folder",
-                                stateID
-                            )
-                        )
-                    },
-                    browseRemoteVM = browseRemoteVM,
-                    folderVM = folderVM,
-                    browseHelper = helper,
-                )
+        if (stateID == StateID.NONE) {
+            NoAccount(openDrawer = openDrawer, addAccount = {})
+        } else if (Str.notEmpty(stateID.slug)) {
+            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, folderVM)
+
+            Folder(
+                stateID,
+                openDrawer = openDrawer,
+                openSearch = {
+                    navController.navigate(
+                        CellsDestinations.Search.createRoute("Folder", stateID)
+                    )
+                },
+                browseRemoteVM = browseRemoteVM,
+                folderVM = folderVM,
+                browseHelper = helper,
+            )
+        } else {
+            var i = 0
+            navController.backQueue.forEach {
+                val currID = lazyStateID(it)
+                Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
             }
 
-            else -> {
-                var i = 0
-                navController.backQueue.forEach {
-                    val currID = lazyStateID(it)
-                    Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
-                }
+            val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, accountHomeVM)
 
-                val accountHomeVM: AccountHomeVM =
-                    koinViewModel(parameters = { parametersOf(stateID) })
-                AccountHome(
-                    stateID,
-                    openDrawer = openDrawer,
-                    openSearch = {
-                        navController.navigate(
-                            CellsDestinations.Search.createRoute(
-                                "AccountHome",
-                                stateID
-                            )
+            AccountHome(
+                stateID,
+                openDrawer = openDrawer,
+                openSearch = {
+                    navController.navigate(
+                        CellsDestinations.Search.createRoute(
+                            "AccountHome",
+                            stateID
                         )
-                    },
-                    browseRemoteVM = browseRemoteVM,
-                    accountHomeVM = accountHomeVM,
-                    browseHelper = helper,
-                )
-            }
+                    )
+                },
+                browseRemoteVM = browseRemoteVM,
+                accountHomeVM = accountHomeVM,
+                browseHelper = helper,
+            )
         }
 
         DisposableEffect(key1 = stateID) {
