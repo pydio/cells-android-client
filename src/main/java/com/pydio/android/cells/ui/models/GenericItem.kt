@@ -50,7 +50,7 @@ suspend fun deduplicateNodes(
     nodeService: NodeService,
     nodes: List<RTreeNode>
 ): MutableList<MultipleItem> {
-    var bis: MutableList<MultipleItem> = mutableListOf()
+    val bis: MutableList<MultipleItem> = mutableListOf()
     // Also manage a short cache for the referenced workspace
     val wss: MutableMap<String, String> = mutableMapOf()
     for (node in nodes) {

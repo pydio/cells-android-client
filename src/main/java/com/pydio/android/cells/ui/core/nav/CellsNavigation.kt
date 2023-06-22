@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.core.nav
 
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.AppKeys
 import com.pydio.cells.transport.StateID
@@ -39,20 +38,20 @@ class CellsNavigationActions(private val navController: NavHostController) {
 
     // private val logTag = "CellsNavigationActions"
 
-    val navigateToHome: () -> Unit = {
-        navController.navigate(CellsDestinations.Home.route) {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            // Avoid multiple copies of the same destination when selecting the same item again
-            launchSingleTop = true
-            // Restore state when selecting again a previously selected item
-            restoreState = true
-        }
-    }
+//    val navigateToHome: () -> Unit = {
+//        navController.navigate(CellsDestinations.Home.route) {
+//            // Pop up to the start destination of the graph to
+//            // avoid building up a large stack of destinations
+//            // on the back stack as users select items
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                saveState = true
+//            }
+//            // Avoid multiple copies of the same destination when selecting the same item again
+//            launchSingleTop = true
+//            // Restore state when selecting again a previously selected item
+//            restoreState = true
+//        }
+//    }
 
     val navigateToAccounts: () -> Unit = {
         navController.navigate(CellsDestinations.Accounts.route) {
@@ -65,22 +64,21 @@ class CellsNavigationActions(private val navController: NavHostController) {
         }
     }
 
-    /**
-     * @param queryContext from where we want to search
-     * @param stateID current stateID
-     */
-    fun navigateToSearch(queryContext: String, stateID: StateID) {
-        val route = CellsDestinations.Search.createRoute(queryContext, stateID)
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
-    }
-
-    fun navigateToDownload(stateID: StateID) {
-        val route = CellsDestinations.Download.createRoute(stateID)
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
-    }
-
+//    /**
+//     * @param queryContext from where we want to search
+//     * @param stateID current stateID
+//     */
+//    fun navigateToSearch(queryContext: String, stateID: StateID) {
+//        val route = CellsDestinations.Search.createRoute(queryContext, stateID)
+//        navController.navigate(route) {
+//            launchSingleTop = true
+//        }
+//    }
+//
+//    fun navigateToDownload(stateID: StateID) {
+//        val route = CellsDestinations.Download.createRoute(stateID)
+//        navController.navigate(route) {
+//            launchSingleTop = true
+//        }
+//    }
 }

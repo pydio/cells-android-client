@@ -88,7 +88,7 @@ class SearchVM(
     }
 
     fun setQuery(query: String) {
-        Log.e(logTag, "Setting query to: $query")
+        Log.d(logTag, "Setting query to: $query")
         _userInput.value = query
     }
 
@@ -101,7 +101,11 @@ class SearchVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            transferService.saveToSharedStorage(stateID, uri)
+            try {
+                transferService.saveToSharedStorage(stateID, uri)
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 }

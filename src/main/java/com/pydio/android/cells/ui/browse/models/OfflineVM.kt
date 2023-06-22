@@ -69,13 +69,21 @@ class OfflineVM(
 
     fun download(stateID: StateID, uri: Uri) {
         viewModelScope.launch {
-            transferService.saveToSharedStorage(stateID, uri)
+            try {
+                transferService.saveToSharedStorage(stateID, uri)
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 
     fun removeFromOffline(stateID: StateID) {
         viewModelScope.launch {
-            offlineService.toggleOffline(stateID, false)
+            try {
+                offlineService.toggleOffline(stateID, false)
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 
@@ -100,9 +108,12 @@ class OfflineVM(
             if (!checkBeforeLaunch(stateID)) {
                 return@launch
             }
-            doForceSingleRootSync(stateID)
-            Log.e(logTag, "Setting loading state to IDLE")
-            done()
+            try {
+                offlineService.syncOfflineRoot(stateID)
+                done()
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 
@@ -158,12 +169,6 @@ class OfflineVM(
             is NetworkStatus.Unavailable, is NetworkStatus.Captive, is NetworkStatus.Unknown -> {
                 Pair(false, "Cannot launch re-sync with no internet connection")
             }
-        }
-    }
-
-    private fun doForceSingleRootSync(stateID: StateID) {
-        viewModelScope.launch {
-            offlineService.syncOfflineRoot(stateID)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.browse.models
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
@@ -13,6 +14,8 @@ class SortByMenuVM(
     private val prefs: PreferencesService,
 ) : ViewModel() {
 
+    private val logTag = "SortByMenuVM"
+
     val encodedOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         when (type) {
             ListType.TRANSFER -> cellsPreferences.list.transferOrder
@@ -23,7 +26,12 @@ class SortByMenuVM(
 
     fun setSortBy(newSortBy: String) {
         viewModelScope.launch {
-            prefs.setOrder(type, newSortBy)
+            try {
+                prefs.setOrder(type, newSortBy)
+            } catch (e: Exception) {
+                Log.e(logTag, "Could not update filter by status pref: ${e.message}")
+                // TODO forward to the end user.
+            }
         }
     }
 }

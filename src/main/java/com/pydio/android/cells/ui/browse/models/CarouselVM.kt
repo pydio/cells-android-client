@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-/** Expose methods to simplify navigation while browsing*/
+/** Hold the state for the carousel component */
 class CarouselVM(
     initialStateID: StateID,
     private val accountService: AccountService,

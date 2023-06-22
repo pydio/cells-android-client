@@ -113,15 +113,18 @@ class TransfersVM(
     fun clearTerminated() {
         Log.i(logTag, "About to empty transfer table for $accountID")
         viewModelScope.launch {
-            // TODO better management of terminated transfers
-            transferService.clearTerminated(accountID)
+            try {
+                // TODO better management of terminated transfers
+                transferService.clearTerminated(accountID)
+            } catch (e: Exception) {
+                done(e)
+            }
         }
     }
 
     fun forceRefresh() {
         // DO nothing
     }
-
 
     init {
         // We are always "idle" in this view

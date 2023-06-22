@@ -22,17 +22,6 @@ class BookmarksVM(
 
     private val logTag = "BookmarksVM"
 
-//    @OptIn(ExperimentalCoroutinesApi::class)
-//    val bookmarks: StateFlow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
-//        nodeService.listBookmarkFlow(accountID, currPair.first, currPair.second).map { nodes ->
-//            deduplicateNodes(nodeService, nodes)
-//        }
-//    }.stateIn(
-//        scope = viewModelScope,
-//        started = WhileSubscribed(5000),
-//        initialValue = listOf()
-//    )
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarks: Flow<List<MultipleItem>> = defaultOrderPair.flatMapLatest { currPair ->
         nodeService.listBookmarkFlow(accountID, currPair.first, currPair.second).map { nodes ->
