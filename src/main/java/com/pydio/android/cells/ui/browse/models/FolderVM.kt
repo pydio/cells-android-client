@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -35,16 +36,22 @@ class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
     // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
     val tnChildren: Flow<List<RTreeNode>> = defaultOrderPair.flatMapLatest { currPair ->
-        if (Str.empty(stateID.slug)) {
-            nodeService.listWorkspaces(stateID)
-        } else {
-            nodeService.sortedListFlow(stateID, currPair.first, currPair.second)
+        try {
+            if (Str.empty(stateID.slug)) {
+                nodeService.listWorkspaces(stateID)
+            } else {
+                nodeService.sortedListFlow(stateID, currPair.first, currPair.second)
+            }
+        } catch (e: Exception) {
+            // This should never happen but it has been seen in prod
+            // Adding a failsafe to avoid crash
+            Log.e(logTag, "Could not list children for $stateID: ${e.message}")
+            flow { listOf<RTreeNode>() }
         }
     }
     val children: Flow<List<TreeNodeItem>> = tnChildren.map { nodes ->
         toTreeNodeItems(nodeService, nodes)
     }
-
 
     init {
         viewModelScope.launch {
