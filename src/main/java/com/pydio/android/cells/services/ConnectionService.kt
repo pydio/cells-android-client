@@ -306,13 +306,11 @@ class ConnectionService(
     }
 
     private suspend fun watchFolder() {
-        if (_isActive) {
-            try {
-                doPull(currStateID)
-            } catch (e: Exception) {
-                Log.e(logTag, "Unexpected error: $e")
-                e.printStackTrace()
-            }
+        try {
+            doPull(currStateID, _isActive)
+        } catch (e: Exception) {
+            Log.e(logTag, "Unexpected error: $e")
+            e.printStackTrace()
         }
         val nd = backOffTicker.getNextDelay()
 
@@ -337,19 +335,27 @@ class ConnectionService(
         }
         delayJob = tmpDelayJob
         tmpDelayJob.join()
-//        Log.d(logTag, "\tAfter join for ${delayJob.toString()}")
     }
 
     @Throws(SDKException::class)
-    private suspend fun doPull(stateID: StateID) {
+    private suspend fun doPull(stateID: StateID, isActive: Boolean) {
 
         var result: Pair<Int, String?> = Pair(0, "")
 
         if (loadingState.value == LoadingState.SERVER_UNREACHABLE) {
+            serviceScope.launch {
+                // We trigger a ping to the server to check if it is back on-line
+                if (appCredentialService.insureServerIsReachable(stateID)) {
+                    // In such case we reset the ticker
+                    backOffTicker.resetIndex()
+                }
+            }
             // we do not try to pull but don't stop the main job
             return
         } else if (StateID.NONE == stateID) {
             // no state ID, we do not try to pull but don't stop the main job
+            return
+        } else if (!isActive) {
             return
         } else {
 
