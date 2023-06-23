@@ -9,7 +9,6 @@ import com.pydio.android.cells.db.nodes.ROfflineRoot
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.db.nodes.TreeNodeDao
-import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.transfer.FileDownloader
 import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
@@ -107,13 +106,16 @@ class OfflineService(
 
     /* Offline synchronisation */
     @OptIn(ExperimentalTime::class)
-    suspend fun runFullSync(caller: String): RJob? = withContext(ioDispatcher) {
+    suspend fun runFullSync(caller: String): Long = withContext(ioDispatcher) {
 
         val label = "Full sync requested by $caller"
         val template = AppNames.JOB_TEMPLATE_FULL_RESYNC
 
         if (hasExistingJob(label, template, 120)) {
-            return@withContext null
+            throw SDKException(
+                ErrorCodes.illegal_argument,
+                "Cannot launch, sync is already running"
+            )
         }
 
         val sessions = accountService.listSessionViews(false).filter {
@@ -121,41 +123,40 @@ class OfflineService(
             nodeDB(it.getStateID()).offlineRootDao().getAllActive().isNotEmpty()
         }
 
-        val job =
+        val jobID =
             jobService.createAndLaunch(caller, template, label, maxSteps = sessions.size.toLong())
-                ?: return@withContext null
 
         val startTS = timestampForLogMessage()
         val firstMsg = "Full sync started at $startTS by $caller"
-        jobService.i(logTag, firstMsg, "${job.jobId}")
-        jobService.incrementProgress(job, 0, firstMsg)
+        jobService.i(logTag, firstMsg, "Job #$jobID")
+        jobService.incrementProgress(jobID, 0, firstMsg)
         var changeNb = 0
         val timeToSync = measureTimedValue {
             for (session in sessions) {
                 val msg = if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
                     && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
                 ) {
-                    changeNb += launchAccountSync(session.getStateID(), caller, job.jobId)
+                    changeNb += launchAccountSync(session.getStateID(), caller, jobID)
                     "${session.getStateID()} OK"
                 } else {
                     "Skip ${session.getStateID()} - session: ${session.lifecycleState}, account: ${session.authStatus} "
                 }
-                jobService.incrementProgress(job, 1, msg)
+                jobService.incrementProgress(jobID, 1, msg)
             }
         }
         val msg = "Full sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
         val progressMsg = "Full sync terminated at ${timestampForLogMessage()}"
-        jobService.done(job, msg, progressMsg)
-        jobService.i(logTag, msg, "${job.jobId}")
+        jobService.done(jobID, msg, progressMsg)
+        jobService.i(logTag, msg, "Job #$jobID")
 
-        return@withContext job
+        return@withContext jobID
     }
 
     @Throws(SDKException::class)
     suspend fun prepareAccountSync(
         stateID: StateID,
         caller: String,
-        parentJobId: Long = 0L
+        parentJobId: Long = -1L
     ): Long = withContext(ioDispatcher) {
 
         val label = "Account sync for $stateID\nLaunched by $caller"
@@ -174,6 +175,8 @@ class OfflineService(
             )
         }
 
+        Log.e(logTag, "Creating job with ${roots.size} steps - Parent: $parentJobId")
+
         return@withContext jobService.create(
             caller,
             currJobTemplate,
@@ -183,10 +186,10 @@ class OfflineService(
         )
     }
 
-    suspend fun performAccountSync(accountID: StateID, jobId: Long, context: Context) =
+    suspend fun performAccountSync(accountID: StateID, jobID: Long, context: Context) =
         withContext(ioDispatcher) {
-            val job = jobService.get(jobId) ?: let {
-                val msg = "No job found for id $jobId, aborting launch..."
+            val job = jobService.get(jobID) ?: let {
+                val msg = "No job found for id $jobID, aborting launch..."
                 Log.e(logTag, msg)
                 throw SDKException(ErrorCodes.init_failed, msg)
             }
@@ -194,34 +197,34 @@ class OfflineService(
             if (roots.isEmpty()) {
                 return@withContext // Should never happen, check has just been done before creating the Job Record
             }
-            jobService.i(logTag, "Starting ${job.label}", "$jobId")
+            jobService.i(logTag, "Starting ${job.label}", "$jobID")
 
             val realJob = coroutineService.cellsIoScope.launch {
-                jobService.incrementProgress(
-                    job,
-                    0,
-                    context.resources.getString(R.string.sync_tree_walking)
-                )
+
+                val prefix = context.resources.getString(R.string.sync_tree_walking)
+                // Put total to -1 to have an undefined progress
+                jobService.updateTotal(jobID, -1, JobStatus.PROCESSING.id, prefix)
 
                 var changeNb = 0
                 for (offlineRoot in roots) {
-                    changeNb += syncOfflineRoot(offlineRoot, job)
+                    jobService.incrementProgress(
+                        jobID,
+                        0,
+                        "$prefix - ${offlineRoot.getStateID().fileName}"
+                    )
+                    changeNb += syncOfflineRoot(offlineRoot, jobID)
                 }
 
-//            // TODO improve: in fact we only reach this point when the sync has already terminated
-//            if (changeNb > 0) {
-//                jobService.incrementProgress(job, 0, "Downloading changed files")
-//            }
                 val msg = "Sync done with $changeNb changes."
-                jobService.done(job, msg, "Successfully done")
-                jobService.i(logTag, "Terminated ${job.label}", "$jobId")
+                jobService.done(jobID, msg, "Successfully done")
+                jobService.i(logTag, "Terminated ${job.label}", "$jobID")
             }
             Log.i(logTag, "## Sync Worker has been launched: $realJob")
 
         }
 
     @OptIn(ExperimentalTime::class)
-    suspend fun launchAccountSync(stateID: StateID, caller: String, parentJobId: Long = 0L): Int =
+    suspend fun launchAccountSync(stateID: StateID, caller: String, parentJobID: Long = 0L): Int =
         withContext(ioDispatcher) {
 
             val label = "Account sync for $stateID launched by $caller"
@@ -237,23 +240,20 @@ class OfflineService(
             if (roots.isEmpty()) {
                 return@withContext 0
             }
-            jobService.d(logTag, "Syncing: $stateID", "$parentJobId")
+            jobService.d(logTag, "Syncing: $stateID", "$parentJobID")
 
-            val job = jobService.createAndLaunch(
+            val jobID = jobService.createAndLaunch(
                 caller,
                 currJobTemplate,
                 label,
-                parentId = parentJobId,
+                parentId = parentJobID,
                 maxSteps = roots.size.toLong()
-            ) ?: let {
-                jobService.e(logTag, "could not create account sync job for $stateID ")
-                return@withContext 0
-            }
+            )
 
             // Insure we have a connection to this account and correct credentials
             val transport = accountService.getTransport(stateID, true) ?: run {
                 // TODO improve error management
-                jobService.failed(job.jobId, "No transport for $stateID, cannot launch sync")
+                jobService.failed(jobID, "No transport for $stateID, cannot launch sync")
                 return@withContext 1
             }
             if (transport is CellsTransport) {
@@ -266,22 +266,22 @@ class OfflineService(
                         Log.e(logTag, "### No Token Available error, about to logout $stateID")
                         accountService.logoutAccount(stateID.account())
                         val msg = "No Token for $stateID aborting: login out account and abort "
-                        jobService.e(logTag, msg, "${job.jobId}")
-                        jobService.failed(job.jobId, msg)
+                        jobService.e(logTag, msg, "Job #${jobID}")
+                        jobService.failed(jobID, msg)
                         return@withContext 0
                     }
                     val msg = "### error while trying to refresh $stateID: ${e.message}"
                     Log.e(logTag, msg)
-                    jobService.failed(job.jobId, msg)
+                    jobService.failed(jobID, msg)
                     return@withContext 0
                 }
             }
 
             val timeToSync = measureTimedValue {
                 for (offlineRoot in roots) {
-                    changeNb += syncOfflineRoot(offlineRoot, job)
+                    changeNb += syncOfflineRoot(offlineRoot, jobID)
                     jobService.incrementProgress(
-                        job,
+                        jobID,
                         1,
                         "Sync done for ${offlineRoot.getStateID()}"
                     )
@@ -294,8 +294,8 @@ class OfflineService(
             }
             val msg =
                 "Sync done with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s for $stateID"
-            jobService.i(logTag, msg, "${job.jobId}")
-            jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
+            jobService.i(logTag, msg, "Job #$jobID")
+            jobService.done(jobID, msg, "Sync done at ${timestampForLogMessage()}")
             return@withContext changeNb
         }
 
@@ -325,28 +325,25 @@ class OfflineService(
             return 0
         }
 
-        val job = jobService.createAndLaunch(
+        val jobID = jobService.createAndLaunch(
             caller,
             currJobTemplate,
             label,
-        ) ?: let {
-            jobService.e(logTag, "could not create sync job for $stateID ")
-            return 0
-        }
+        )
 
         val changeNb: Int
         val timeToSync = measureTimedValue {
-            changeNb = syncOfflineRoot(offlineRoot, job)
+            changeNb = syncOfflineRoot(offlineRoot, jobID)
         }
         val msg = "Synced $stateID with $changeNb changes in ${timeToSync.duration.inWholeSeconds}s"
-        jobService.i(logTag, msg, "${job.jobId}")
-        jobService.done(job, msg, "Sync done at ${timestampForLogMessage()}")
+        jobService.i(logTag, msg, "Job #$jobID")
+        jobService.done(jobID, msg, "Sync done at ${timestampForLogMessage()}")
 
         return changeNb
     }
 
     @OptIn(ExperimentalTime::class)
-    private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot, job: RJob): Int =
+    private suspend fun syncOfflineRoot(offlineRoot: ROfflineRoot, jobID: Long): Int =
         withContext(ioDispatcher) {
             val stateID = offlineRoot.getStateID()
             try {
@@ -367,13 +364,13 @@ class OfflineService(
                         RTreeNode.fromFileNode(stateID, nodeInfo)
                     }
 
-                val fileDL = FileDownloader(job)
+                val fileDL = FileDownloader(jobID)
                 var changeNb = 0
                 val timeToSync = measureTimedValue {
                     changeNb += syncNodeAt(treeNode, client, treeNodeDao, fileDL)
                 }
                 val msg = "walked  $stateID in ${timeToSync.duration.inWholeSeconds}s"
-                jobService.d(logTag, msg, job.jobId.toString())
+                jobService.d(logTag, msg, "Job #$jobID")
                 fileDL.walkingDone()
                 fileDL.manualJoin()
 
@@ -447,10 +444,12 @@ class OfflineService(
                     (dur > timeoutSinceStarted) to "Timeout: job started with no update since $dur seconds"
                 }
                 if (isTimedOut) {
-                    runningJob.doneTimestamp = currentTimestamp()
-                    runningJob.message = msg
-                    runningJob.status = JobStatus.TIMEOUT.id
-                    jobService.update(runningJob)
+                    jobService.updateById(runningJob.jobId) { currJob ->
+                        currJob.doneTimestamp = currentTimestamp()
+                        currJob.message = msg
+                        currJob.status = JobStatus.TIMEOUT.id
+                        currJob
+                    }
                     jobService.w(logTag, msg, "${runningJob.jobId}")
                 }
             }

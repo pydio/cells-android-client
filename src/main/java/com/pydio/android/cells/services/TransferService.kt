@@ -16,7 +16,6 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.db.nodes.TreeNodeDB
-import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.utils.childFile
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.parseOrder
@@ -207,7 +206,7 @@ class TransferService(
     suspend fun getImageForDisplay(
         stateID: StateID,
         type: String,
-        parentJob: RJob?
+        parentJobID: Long
     ): File = withContext(ioDispatcher) {
         val accountID = stateID.account()
         val nodeDB = treeNodeRepository.nodeDB(accountID)
@@ -226,11 +225,11 @@ class TransferService(
         val currSettings = prefs.fetchPreferences()
         when (networkService.fetchNetworkStatus()) {
             is NetworkStatus.Unmetered
-            -> return@withContext downloadFile(stateID, rNode, type, parentJob, null)
+            -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
 
             is NetworkStatus.Metered -> {
                 if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
-                    return@withContext downloadFile(stateID, rNode, type, parentJob, null)
+                    return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
                 } else {
                     throw SDKException(
                         ErrorCodes.con_failed,
@@ -250,7 +249,7 @@ class TransferService(
     suspend fun getFileForDiff(
         stateID: StateID,
         type: String,
-        parentJob: RJob?,
+        parentJob: Long,
         progressChannel: Channel<Long>?
     ): File = withContext(ioDispatcher) {
         val account = stateID.account()
@@ -314,7 +313,7 @@ class TransferService(
         stateID: StateID,
         rNode: RTreeNode,
         type: String,
-        parentJob: RJob?,
+        parentJob: Long,
         parentJobProgress: Channel<Long>?
     ): File {
         val parentFolder = fileService.dataParentPath(stateID.account(), type)
@@ -348,7 +347,7 @@ class TransferService(
     suspend fun prepareDownload(
         stateID: StateID,
         type: String,
-        parentJob: RJob? = null
+        parentJobID: Long = -1
     ): Long = withContext(ioDispatcher) {
 
         val rNode = nodeService.getNode(stateID)
@@ -364,7 +363,7 @@ class TransferService(
             localPath,
             rNode.size,
             rNode.mime,
-            parentJobId = parentJob?.jobId ?: 0L
+            parentJobId = parentJobID
         )
         val transferID = getTransferDao(stateID).insert(rec)
 

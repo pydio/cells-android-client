@@ -171,12 +171,14 @@ class OfflineVM(
         }
     }
 
-    private suspend fun doForceAccountSync(accID: StateID) {
-        val jobID = offlineService.prepareAccountSync(accID, AppNames.JOB_OWNER_USER)
+    private suspend fun doForceAccountSync(accountID: StateID) {
+        val jobID = offlineService.prepareAccountSync(accountID, AppNames.JOB_OWNER_USER)
+        Log.e(logTag, "Account sync prepared, with job #$jobID")
+
         _syncJobID.value = jobID
         jobService.launched(jobID)
         offlineService.performAccountSync(
-            accID,
+            accountID,
             jobID,
             CellsApp.instance.applicationContext
         )

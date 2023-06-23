@@ -60,13 +60,12 @@ class TreeDiff(
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
         if (alsoCheckFiles) {
-            Log.i(logTag, "Launching diff for $baseFolderStateId with check file")
+            Log.i(logTag, "Launching diff for with check file $baseFolderStateId")
         }
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(baseFolderStateId.id)
-        var remote: FileNode? = null
-        try {
-            remote = client.nodeInfo(baseFolderStateId.slug, baseFolderStateId.file)
+        val remote: FileNode? = try {
+            client.nodeInfo(baseFolderStateId.slug, baseFolderStateId.file)
         } catch (e: SDKException) {
             val msg = "Stat failed at $baseFolderStateId with error ${e.code}: ${e.message}"
             Log.e(logTag, msg)

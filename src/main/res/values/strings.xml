@@ -165,7 +165,7 @@
     <!--Offline -->
     <string name="sync_in_progress">Synchronising…</string>
     <string name="sync_downloading">Downloading files…</string>
-    <string name="sync_tree_walking">Walking the tree to look for changes…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes</string>
     <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
     <string name="confirm_remove_offline_title">Confirm your choice</string>
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>

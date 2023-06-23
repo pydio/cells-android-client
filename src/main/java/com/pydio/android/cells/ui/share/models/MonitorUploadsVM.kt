@@ -56,7 +56,7 @@ class MonitorUploadsVM(
     private fun markJobAsDone(job: RJob) {
         viewModelScope.launch {
             if (!job.isDone()) {
-                jobService.done(job, "All files have been uploaded", null)
+                jobService.done(job.jobId, "All files have been uploaded", null)
             }
         }
     }

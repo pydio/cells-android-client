@@ -2,7 +2,6 @@ package com.pydio.android.cells.transfer
 
 import android.util.Log
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.cells.api.SDKException
@@ -19,7 +18,7 @@ import org.koin.core.component.inject
  * Manage the various jobs and queues to request downloads and then perform then in background
  * while updating the calling job to be able to follow progress.
  */
-class FileDownloader(private val parentJob: RJob) : KoinComponent {
+class FileDownloader(private val parentJobID: Long) : KoinComponent {
 
     private val logTag = "FileDownloader"
 
@@ -35,12 +34,12 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
     private val queue = Channel<String>()
     private val doneChannel = Channel<Boolean>()
 
-    var totalInBytes = 0L
-    var progressInBytes = 0L
+    private var totalInBytes = 0L
+    private var progressInBytes = 0L
 
     // Local variables to debounce persistence of progress in the Room DB
-    var lastIncrementalProgress = 0L
-    var lastIncrementalTotal = 0L
+    private var lastIncrementalProgress = 0L
+    private var lastIncrementalTotal = 0L
     private val totalChannel = Channel<Long>()
     private val progressChannel = Channel<Long>()
 
@@ -104,14 +103,14 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
     private suspend fun download(encoded: String) {
         val (stateId, type) = decodeModel(encoded)
         try {
-            jobService.incrementProgress(parentJob, 0, stateId.fileName)
-            transferService.getFileForDiff(stateId, type, parentJob, progressChannel)
+            jobService.incrementProgress(parentJobID, 0, stateId.fileName)
+            transferService.getFileForDiff(stateId, type, parentJobID, progressChannel)
         } catch (e: SDKException) {
             val errMsg = "could not download $type for $stateId, error #${e.code}: ${e.message}"
             Log.w(logTag, errMsg)
             isFailed = true
-            jobService.failed(parentJob.jobId, errMsg)
-            jobService.e(logTag, errMsg, "${parentJob.jobId}")
+            jobService.failed(parentJobID, errMsg)
+            jobService.e(logTag, errMsg, "Job #$parentJobID")
             // accountService.notifyError(state, e.code)
         }
     }
@@ -156,13 +155,17 @@ class FileDownloader(private val parentJob: RJob) : KoinComponent {
     }
 
     private suspend fun persistTotal(total: Long) {
-        parentJob.total = total
-        jobService.update(parentJob)
+        jobService.updateById(parentJobID) { currJob ->
+            currJob.total = total
+            currJob
+        }
     }
 
     private suspend fun persistProgress(progress: Long) {
-        parentJob.progress = progress
-        jobService.update(parentJob)
+        jobService.updateById(parentJobID) { currJob ->
+            currJob.progress = progress
+            currJob
+        }
     }
 
     private suspend fun waitForDone() {

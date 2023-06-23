@@ -7,12 +7,14 @@ import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.db.runtime.RuntimeDB
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.SDKException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Manage long running background jobs with progress */
 class JobService(
-//    private val
     coroutineService: CoroutineService,
     runtimeDB: RuntimeDB
 ) {
@@ -44,54 +46,72 @@ class JobService(
         label: String,
         parentId: Long = -1,
         maxSteps: Long = -1
-    ): RJob? = withContext(ioDispatcher) {
+    ): Long = withContext(ioDispatcher) {
         val newJob = RJob.create(owner, template, label, parentId)
         newJob.total = maxSteps
         newJob.status = JobStatus.PROCESSING.id
         newJob.startTimestamp = currentTimestamp()
-        val jobId = jobDao.insert(newJob)
-        return@withContext jobDao.getById(jobId)
+        return@withContext jobDao.insert(newJob)
     }
 
-    suspend fun incrementProgress(job: RJob, increment: Long, message: String?) =
+    private val lock = Any()
+    suspend fun updateById(jobID: Long, handler: (RJob) -> RJob) = withContext(ioDispatcher) {
+        synchronized(lock) {
+            val job = jobDao.getById(jobID)
+                ?: throw SDKException(
+                    ErrorCodes.illegal_argument,
+                    "Could not find job with ID $jobID"
+                )
+            val updatedJob = handler(job)
+            updatedJob.updateTimestamp = currentTimestamp()
+            jobDao.update(updatedJob)
+        }
+    }
+
+    suspend fun updateTotal(jobID: Long, newTotal: Long, newStatus: String?, message: String?) =
         withContext(ioDispatcher) {
-            job.progress = job.progress + increment
-            message?.let { job.progressMessage = message }
-            job.updateTimestamp = currentTimestamp()
-            jobDao.update(job)
+            updateById(jobID) { currJob ->
+                currJob.total = newTotal
+                message?.let { currJob.progressMessage = message }
+                currJob
+            }
         }
 
-    suspend fun update(job: RJob) = withContext(ioDispatcher) {
-        jobDao.update(job)
-    }
-
-    suspend fun launched(jobId: Long): String? = withContext(ioDispatcher) {
-        val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
-        job.status = JobStatus.PROCESSING.id
-        job.startTimestamp = currentTimestamp()
-        job.updateTimestamp = currentTimestamp()
-        jobDao.update(job)
-        return@withContext null
-    }
-
-    suspend fun failed(jobId: Long, errMessage: String): String? = withContext(ioDispatcher) {
-        val job = jobDao.getById(jobId) ?: return@withContext "Could not find job with ID $jobId"
-        job.status = JobStatus.ERROR.id
-        job.doneTimestamp = currentTimestamp()
-        job.status = errMessage
-        jobDao.update(job)
-        return@withContext null
-    }
-
-    suspend fun done(job: RJob, message: String?, lastProgressMsg: String?) =
+    suspend fun incrementProgress(jobID: Long, increment: Long, message: String?) =
         withContext(ioDispatcher) {
-            job.status = JobStatus.DONE.id
-            job.doneTimestamp = currentTimestamp()
-            job.updateTimestamp = currentTimestamp()
-            job.progress = job.total
-            job.message = message
-            job.progressMessage = lastProgressMsg
-            jobDao.update(job)
+            updateById(jobID) { currJob ->
+                currJob.progress = currJob.progress + increment
+                message?.let { currJob.progressMessage = message }
+                currJob
+            }
+        }
+
+
+    suspend fun launched(jobId: Long) = withContext(ioDispatcher) {
+        updateById(jobId) { currJob ->
+            currJob.status = JobStatus.PROCESSING.id
+            currJob.startTimestamp = currentTimestamp()
+            currJob
+        }
+    }
+
+    suspend fun failed(jobId: Long, errMessage: String) = withContext(ioDispatcher) {
+        updateById(jobId) { currJob ->
+            currJob.status = JobStatus.ERROR.id
+            currJob.doneTimestamp = currentTimestamp()
+            currJob.status = errMessage
+            currJob
+        }
+    }
+
+    suspend fun done(jobID: Long, message: String?, lastProgressMsg: String?) =
+        updateById(jobID) { currJob ->
+            currJob.status = JobStatus.DONE.id
+            currJob.doneTimestamp = currentTimestamp()
+            currJob.progress = currJob.total
+            currJob.message = message
+            currJob.progressMessage = lastProgressMsg
+            currJob
         }
 
     suspend fun getRunningJobs(template: String): List<RJob> = withContext(ioDispatcher) {

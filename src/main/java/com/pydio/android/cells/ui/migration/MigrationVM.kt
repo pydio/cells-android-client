@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
-import com.pydio.android.cells.db.runtime.JobDao
 import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.OfflineService
@@ -17,9 +16,11 @@ import com.pydio.android.legacy.v2.MigrationServiceV2
 import com.pydio.cells.transport.ClientData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,14 +33,13 @@ enum class Step {
 class MigrationVM(
     private val prefs: PreferencesService,
     private val jobService: JobService,
-    private val jobDao: JobDao,
     private val offlineService: OfflineService
 ) : ViewModel() {
 
-    private val logTag = "MigrationVM"
-    private val _noJobID = -1L
-
     private val id: String = UUID.randomUUID().toString()
+    private val logTag = "MigrationVM_${id.substring(30)}"
+
+    private val _jobID: MutableStateFlow<Long> = MutableStateFlow(-1L)
 
     val versionCode = prefs.cellsPreferencesFlow.map { it.versionCode }
 
@@ -53,18 +53,18 @@ class MigrationVM(
     val rootNb: Int
         get() = _rootNb
 
-    private var _migrationJob: Flow<RJob?> = jobDao.getJobById(_noJobID)
-    val migrationJob: Flow<RJob?>
-        get() = _migrationJob
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val migrationJob: Flow<RJob?> = _jobID.flatMapLatest { currID ->
+        jobService.getLiveJobByID(currID)
+    }
 
     init {
-        Log.d(logTag, "After Init for #$id")
+        Log.d(logTag, "Initialised")
     }
 
     override fun onCleared() {
-        // useless: this does nothing
-        // super.onCleared()
-        Log.d(logTag, "Cleared for #$id")
+        super.onCleared()
+        Log.d(logTag, "After Clear")
     }
 
     suspend fun migrate(context: Context) {
@@ -82,14 +82,15 @@ class MigrationVM(
         Log.e(logTag, "Migration to v3 (from $oldVersion to $newVersion)")
 
         val migrationJob: RJob? = withContext(Dispatchers.IO) {
-            val job = jobService.createAndLaunch(
+            val label = "Migration to v3 (from $oldVersion to $newVersion)"
+            val jobID = jobService.createAndLaunch(
                 AppNames.JOB_OWNER_WORKER,
                 AppNames.JOB_TEMPLATE_MIGRATION_V2,
-                "Migration to v3 (from $oldVersion to $newVersion)",
+                label,
                 maxSteps = 100
-            ) ?: return@withContext null
-            jobService.i(logTag, "Created ${job.label}", "${job.jobId}")
-            job
+            )
+            jobService.i(logTag, "Created $label", "Job #$jobID")
+            jobService.get(jobID)
         }
 
         if (migrationJob == null) {
@@ -99,11 +100,11 @@ class MigrationVM(
         }
 
         // We notify the first
-        _migrationJob = jobDao.getJobById(migrationJob.jobId)
+        _jobID.value = migrationJob.jobId
         setStep(Step.MIGRATING_FROM_V2)
 
         viewModelScope.launch {
-            _rootNb = doMigrate(context, viewModelScope, migrationJob, oldVersion, newVersion)
+            _rootNb = doMigrate(context, viewModelScope, migrationJob.jobId, oldVersion, newVersion)
             val newValue = ClientData.getInstance().versionCode.toInt()
             prefs.setInstalledVersion(newValue)
             setStep(Step.AFTER_LEGACY_MIGRATION)
@@ -133,15 +134,17 @@ class MigrationVM(
     private suspend fun doMigrate(
         context: Context,
         scope: CoroutineScope,
-        migrationJob: RJob,
+        migrationJobID: Long,
         oldValue: Int,
         newValue: Int
     ): Int = withContext(Dispatchers.IO) {
-        val nb = migrationService.migrate(context, scope, migrationJob, oldValue, newValue)
-        jobService.i(
-            logTag, "${migrationJob.label} terminated",
-            "${migrationJob.jobId}"
-        )
+        val nb = migrationService.migrate(context, scope, migrationJobID, oldValue, newValue)
+        // TODO retrieve label
+//        jobService.i(
+//            logTag, "${migrationJob.label} terminated",
+//            "${migrationJob.jobId}"
+//        )
+        jobService.i(logTag, "Job $migrationJobID terminated", "$migrationJobID")
         // afterMigration(offlineRootsNb)
         nb
     }

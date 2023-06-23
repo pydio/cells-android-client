@@ -406,11 +406,15 @@ private fun OfflineRootsList(
                     ) {
                         if (syncJob != null) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
-                                val percentage =
+                                val progress = if (syncJob.total <= 0) {
+                                    -1F
+                                } else {
                                     (syncJob.progress).toFloat().div(syncJob.total)
+                                }
                                 SyncStatus(
                                     desc = getJobStatus(item = syncJob),
-                                    progress = percentage,
+                                    progress = progress,
+                                    syncJob.doneTimestamp,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -460,11 +464,15 @@ private fun OfflineRootsList(
                     ) {
                         if (syncJob != null) {
                             item {
-                                val percentage =
+                                val progress = if (syncJob.total <= 0) {
+                                    -1F
+                                } else {
                                     (syncJob.progress).toFloat().div(syncJob.total)
+                                }
                                 SyncStatus(
                                     desc = getJobStatus(item = syncJob),
-                                    progress = percentage,
+                                    progress = progress,
+                                    syncJob.doneTimestamp,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -507,6 +515,7 @@ private fun OfflineRootsList(
 private fun SyncStatus(
     desc: String,
     progress: Float,
+    doneTS: Long,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -522,21 +531,23 @@ private fun SyncStatus(
                 text = desc,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            if (progress == -1f) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(id = R.dimen.margin_small))
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
-            } else if (progress in 0.0..1.0) {
-                SmoothLinearProgressIndicator(
-                    indicatorProgress = progress,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(id = R.dimen.margin_small))
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
+            if (doneTS <= 0) {
+                if (progress == -1f) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensionResource(id = R.dimen.margin_small))
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                } else if (progress in 0.0..1.0) {
+                    SmoothLinearProgressIndicator(
+                        indicatorProgress = progress,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensionResource(id = R.dimen.margin_small))
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
     }
@@ -567,6 +578,7 @@ private fun SyncStatusPreview() {
         SyncStatus(
             "Pydio Cells server",
             -1f,
+            0,
             Modifier
         )
     }

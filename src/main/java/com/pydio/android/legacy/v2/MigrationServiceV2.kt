@@ -5,7 +5,6 @@ import android.util.Log
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.LogDao
-import com.pydio.android.cells.db.runtime.RJob
 import com.pydio.android.cells.db.runtime.RLog
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.JobService
@@ -74,7 +73,7 @@ class MigrationServiceV2 : KoinComponent {
     suspend fun migrate(
         context: Context,
         scope: CoroutineScope,
-        migrationJob: RJob,
+        migrationJobID: Long,
         oldValue: Int, newValue: Int
     ): Int {
 
@@ -84,33 +83,37 @@ class MigrationServiceV2 : KoinComponent {
         val timeToSync = measureTimedValue {
 
             var beginTS = currentTimestamp()
-            jobService.incrementProgress(migrationJob, 0, "Preparing migration...")
+            jobService.incrementProgress(migrationJobID, 0, "Preparing migration...")
             prepare(context)
             var dur = currentTimestamp() - beginTS
             if (dur < 1000) {
                 delay(1200 - dur)
             }
-            jobService.incrementProgress(migrationJob, 20, "Migrating accounts and credentials...")
+            jobService.incrementProgress(
+                migrationJobID,
+                20,
+                "Migrating accounts and credentials..."
+            )
 
             result = try {
                 if (oldValue < 50) {
-                    migrateAccountsFromV23x(context, migrationJob, oldValue, newValue, 50) {
+                    migrateAccountsFromV23x(context, migrationJobID, oldValue, newValue, 50) {
                         scope.launch {
-                            jobService.incrementProgress(migrationJob, it, null)
+                            jobService.incrementProgress(migrationJobID, it, null)
                         }
                         ""
                     }
                 } else {
-                    migrateAccountsFromV24x(migrationJob, oldValue, newValue, 50) {
+                    migrateAccountsFromV24x(migrationJobID, oldValue, newValue, 50) {
                         scope.launch {
-                            jobService.incrementProgress(migrationJob, it, null)
+                            jobService.incrementProgress(migrationJobID, it, null)
                         }
                         ""
                     }
                 }
             } catch (e: Exception) {
                 jobService.failed(
-                    migrationJob.jobId,
+                    migrationJobID,
                     "could not perform migration from code version $oldValue to $newValue, cause: ${e.message} "
                 )
                 return 0
@@ -118,7 +121,7 @@ class MigrationServiceV2 : KoinComponent {
 
             beginTS = currentTimestamp()
             if (result.first) {
-                jobService.incrementProgress(migrationJob, 0, "Cleaning legacy files...")
+                jobService.incrementProgress(migrationJobID, 0, "Cleaning legacy files...")
                 cleanLegacyFiles(context)
             }
             dur = currentTimestamp() - beginTS
@@ -131,10 +134,10 @@ class MigrationServiceV2 : KoinComponent {
             val msg =
                 "Migration done with ${result.second} offline roots in ${timeToSync.duration.inWholeSeconds}s"
             val progressMsg = "Migration terminated on ${timestampForLogMessage()}"
-            jobService.done(migrationJob, msg, progressMsg)
+            jobService.done(migrationJobID, msg, progressMsg)
         } else {
             jobService.failed(
-                migrationJob.jobId,
+                migrationJobID,
                 "Unexpected error while trying to migrate from $oldValue to $newValue"
             )
         }
@@ -156,7 +159,7 @@ class MigrationServiceV2 : KoinComponent {
     // List existing accounts and migrate them one by one
     private suspend fun migrateAccountsFromV23x(
         context: Context,
-        job: RJob,
+        jobID: Long,
         oldValue: Int,
         newValue: Int,
         maxProgress: Int,
@@ -170,7 +173,7 @@ class MigrationServiceV2 : KoinComponent {
 
         if (recs.isEmpty()) {
             val msg = "No account found. Nothing to migrate..."
-            jobService.w(logTag, msg, "${job.jobId}")
+            jobService.w(logTag, msg, "$jobID")
             return Pair(true, 0)
         }
 
@@ -193,7 +196,7 @@ class MigrationServiceV2 : KoinComponent {
                     migrateP8From23x(rec, accDB, url)
                 }
 
-                offlineRootsNb += refreshMigratedAccount(job, accountID, rec.ID, syncDB)
+                offlineRootsNb += refreshMigratedAccount(jobID, accountID, rec.ID, syncDB)
 
                 // We will loose the info of the old ID and thus the path after this point,
                 // So for old legacy instance, we must clean folders here
@@ -206,10 +209,10 @@ class MigrationServiceV2 : KoinComponent {
 
                 progressListener.onProgress(oneStep.toLong())
                 val msg = "$accountID has been migrated"
-                jobService.i(logTag, msg, "${job.jobId}")
+                jobService.i(logTag, msg, "$jobID")
             } catch (e: Exception) { // We have a NPE from production here. Try to gather more info
                 val msg = "could not migrate ${rec.user}@${rec.server.url}: ${e.message}"
-                jobService.e(logTag, msg, "${job.jobId}", e)
+                jobService.e(logTag, msg, "$jobID", e)
                 return Pair(false, 0)
             }
             val dur = currentTimestamp() - beginTS
@@ -222,7 +225,7 @@ class MigrationServiceV2 : KoinComponent {
 
     // List existing accounts and migrate them one by one
     private suspend fun migrateAccountsFromV24x(
-        job: RJob,
+        jobID: Long,
         oldValue: Int,
         newValue: Int,
         maxProgress: Int,
@@ -237,7 +240,7 @@ class MigrationServiceV2 : KoinComponent {
             val msg = "No account found. Nothing to migrate..."
             Log.w(logTag, "    $msg")
             logDao.insert(RLog.info(logTag, msg, null))
-            jobService.w(logTag, msg, "${job.jobId}")
+            jobService.w(logTag, msg, "$jobID")
             return Pair(true, 0)
         }
 
@@ -260,14 +263,14 @@ class MigrationServiceV2 : KoinComponent {
                     }
                 }
 
-                offlineRootsNb += refreshMigratedAccount(job, accountID, rec.id(), syncDB)
+                offlineRootsNb += refreshMigratedAccount(jobID, accountID, rec.id(), syncDB)
 
                 progressListener.onProgress(oneStep.toLong())
                 val msg = "${rec.username}@${rec.url()} has been migrated"
-                jobService.i(logTag, msg, "${job.jobId}")
+                jobService.i(logTag, msg, "$jobID")
             } catch (e: Exception) {
                 val msg = "could not migrate ${rec.username}@${rec.url()}: ${e.message}"
-                jobService.e(logTag, msg, "${job.jobId}", e)
+                jobService.e(logTag, msg, "$jobID", e)
                 return Pair(false, 0)
             }
             val dur = currentTimestamp() - beginTS
@@ -280,7 +283,7 @@ class MigrationServiceV2 : KoinComponent {
 
     /** @return the number of migrated offline roots */
     private suspend fun refreshMigratedAccount(
-        job: RJob,
+        jobID: Long,
         accountID: StateID,
         oldId: String, // record.id()
         syncDB: V2SyncDB
@@ -290,7 +293,7 @@ class MigrationServiceV2 : KoinComponent {
             sessionFactory.getUnlockedClient(accountID)
         } catch (e: Exception) {
             val msg = "could not retrieve client for $accountID: ${e.message}"
-            jobService.e(logTag, msg, "${job.jobId}")
+            jobService.e(logTag, msg, "$jobID}")
             Log.e(logTag, msg)
             e.printStackTrace()
             return 0
@@ -300,7 +303,7 @@ class MigrationServiceV2 : KoinComponent {
         errMsg?.let {
             val msg = "could not list workspaces for $accountID: $errMsg"
             Log.w(logTag, msg)
-            jobService.w(logTag, msg, "${job.jobId}")
+            jobService.w(logTag, msg, "$jobID")
             return 0
         }
 
