@@ -41,30 +41,26 @@ class OfflineService(
         return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
     }
 
+    // CRUD For the Offline Roots
+
+    @Throws(SDKException::class)
     suspend fun toggleOffline(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
-        try {
-            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
-            if (node.isOfflineRoot()) {
-                if (!newState) {
-                    removeOfflineRoot(stateID)
-                }
-            } else {
-                if (newState) {
-                    updateOfflineRoot(node)
-                }
+        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+        if (node.isOfflineRoot()) {
+            if (!newState) {
+                removeOfflineRoot(stateID)
             }
-        } catch (e: Exception) {
-            Log.e(logTag, "could not update offline sync status for ${stateID}: ${e.message}")
-            e.printStackTrace()
-            return@withContext
+        } else {
+            if (newState) {
+                updateOfflineRoot(node)
+            }
         }
     }
 
-    suspend fun updateOfflineRoot(rTreeNode: RTreeNode) {
-        updateOfflineRoot(rTreeNode, AppNames.OFFLINE_STATUS_NEW)
-    }
-
-    suspend fun updateOfflineRoot(rTreeNode: RTreeNode, status: String) =
+    suspend fun updateOfflineRoot(
+        rTreeNode: RTreeNode,
+        status: String = AppNames.OFFLINE_STATUS_NEW
+    ) =
         withContext(ioDispatcher) {
             val stateID = rTreeNode.getStateID()
             val db = nodeDB(stateID)
@@ -73,9 +69,7 @@ class OfflineService(
             val newRoot = ROfflineRoot.fromTreeNode(rTreeNode)
             newRoot.status = status
 
-            // TODO should we check if this node is already a descendant of
-            //  an existing offline root ?
-
+            // TODO should we check if this node is already a descendant of an existing offline root ?
             offlineDao.insert(newRoot) // We rely on node UUID and insert REPLACE strategy
             rTreeNode.setOfflineRoot(true)
             treeNodeRepo.persistUpdated(rTreeNode)
@@ -157,54 +151,52 @@ class OfflineService(
         return@withContext job
     }
 
+    @Throws(SDKException::class)
     suspend fun prepareAccountSync(
         stateID: StateID,
         caller: String,
         parentJobId: Long = 0L
-    ): Pair<Long, String?> =
-        withContext(ioDispatcher) {
+    ): Long = withContext(ioDispatcher) {
 
-            val label = "Account sync for $stateID\nLaunched by $caller"
-            val currJobTemplate = getSyncTemplateId(stateID)
+        val label = "Account sync for $stateID\nLaunched by $caller"
+        val currJobTemplate = getSyncTemplateId(stateID)
 
-            // We first check if a sync is not already running for this account
-            if (hasExistingJob(label, currJobTemplate, 120)) {
-                return@withContext 0L to "A running job already exists"
-            }
-
-            val roots = nodeDB(stateID).offlineRootDao().getAllActive()
-            if (roots.isEmpty()) {
-                return@withContext 0L to "No offline root is defined for current account"
-            }
-
-            val jobId = jobService.create(
-                caller,
-                currJobTemplate,
-                label,
-                parentId = parentJobId,
-                maxSteps = roots.size.toLong()
-            )
-
-            return@withContext jobId to null
+        // We first check if a sync is not already running for this account
+        if (hasExistingJob(label, currJobTemplate, 120)) {
+            throw SDKException(ErrorCodes.init_failed, "A running job already exists")
         }
+
+        val roots = nodeDB(stateID).offlineRootDao().getAllActive()
+        if (roots.isEmpty()) {
+            throw SDKException(
+                ErrorCodes.init_failed,
+                "No offline root is defined for current account"
+            )
+        }
+
+        return@withContext jobService.create(
+            caller,
+            currJobTemplate,
+            label,
+            parentId = parentJobId,
+            maxSteps = roots.size.toLong()
+        )
+    }
 
     suspend fun performAccountSync(accountID: StateID, jobId: Long, context: Context) =
         withContext(ioDispatcher) {
             val job = jobService.get(jobId) ?: let {
-                Log.e(logTag, "No job found for id $jobId, aborting launch...")
-                return@withContext
+                val msg = "No job found for id $jobId, aborting launch..."
+                Log.e(logTag, msg)
+                throw SDKException(ErrorCodes.init_failed, msg)
             }
-            Log.i(logTag, "####### Sync Worker ########")
-            // Log.i(logTag, "### Starting ${job.label} with ID: $jobId")
-            jobService.i(logTag, "Starting ${job.label}", "$jobId")
-
             val roots = nodeDB(accountID).offlineRootDao().getAllActive()
             if (roots.isEmpty()) {
                 return@withContext // Should never happen, check has just been done before creating the Job Record
             }
+            jobService.i(logTag, "Starting ${job.label}", "$jobId")
 
-
-            coroutineService.cellsIoScope.launch {
+            val realJob = coroutineService.cellsIoScope.launch {
                 jobService.incrementProgress(
                     job,
                     0,
@@ -224,6 +216,7 @@ class OfflineService(
                 jobService.done(job, msg, "Successfully done")
                 jobService.i(logTag, "Terminated ${job.label}", "$jobId")
             }
+            Log.i(logTag, "## Sync Worker has been launched: $realJob")
 
         }
 

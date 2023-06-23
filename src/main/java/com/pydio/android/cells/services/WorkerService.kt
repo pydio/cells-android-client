@@ -58,8 +58,8 @@ class WorkerService(
     private fun configureOfflinePrefObserver() {
         workerScope.launch {
             syncPrefs.collect { currPrefs ->
-                Log.e(logTag, "New sync preference value: $currPrefs")
                 if (hasPrefChanged(currPrefs)) {
+//                    Log.e(logTag, "New preference: $currPrefs")
                     resetOfflineWorker(currPrefs)
                 }
             }

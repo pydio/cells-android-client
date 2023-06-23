@@ -15,7 +15,6 @@ import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -173,14 +172,7 @@ class OfflineVM(
     }
 
     private suspend fun doForceAccountSync(accID: StateID) {
-
-        val (jobID, error) = offlineService.prepareAccountSync(accID, AppNames.JOB_OWNER_USER)
-
-        if (Str.notEmpty(error)) {
-            error(error!!)
-            return
-        }
-
+        val jobID = offlineService.prepareAccountSync(accID, AppNames.JOB_OWNER_USER)
         _syncJobID.value = jobID
         jobService.launched(jobID)
         offlineService.performAccountSync(

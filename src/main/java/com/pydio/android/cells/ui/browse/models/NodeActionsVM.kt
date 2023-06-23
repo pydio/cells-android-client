@@ -38,7 +38,7 @@ class NodeActionsVM(
             done()
         }
     }
-    
+
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
         viewModelScope.launch {
@@ -166,7 +166,13 @@ class NodeActionsVM(
 
     fun toggleOffline(stateID: StateID, newState: Boolean) {
         viewModelScope.launch {
-            offlineService.toggleOffline(stateID, newState)
+            try {
+                offlineService.toggleOffline(stateID, newState)
+            } catch (e: java.lang.Exception) {
+                val msg = "Cannot set offline flag to $newState for $stateID"
+                localDone("$msg, cause: ${e.message}", msg)
+                e.printStackTrace()
+            }
         }
     }
 
