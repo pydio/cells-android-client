@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -29,6 +30,7 @@ import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
@@ -111,6 +113,7 @@ private fun FolderWithDialogs(
     sheetState: ModalBottomSheetState,
     snackBarHostState: SnackbarHostState,
     nodeActionsVM: NodeActionsVM = koinViewModel(),
+    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
 
@@ -311,6 +314,17 @@ private fun FolderWithDialogs(
                 doAction = copyMoveAction,
                 folderVM = folderVM,
             )
+
+            DisposableEffect(key1 = stateID) {
+                if (stateID == StateID.NONE) {
+                    browseRemoteVM.pause(StateID.NONE)
+                } else {
+                    browseRemoteVM.watch(stateID, false)
+                }
+                onDispose {
+                    browseRemoteVM.pause(stateID)
+                }
+            }
         }
 
         dialog(route(NodeAction.Rename)) { entry ->
