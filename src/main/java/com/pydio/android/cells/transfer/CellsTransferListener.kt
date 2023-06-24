@@ -30,66 +30,65 @@ class CellsTransferListener(
     private val id: String = UUID.randomUUID().toString()
     private val logTag = "CellsTrList-${id.substring(30)}"
 
-    // init {
-    //     Log.e(logTag, "## Created")
-    //     Thread.dumpStack()
-    //     Log.e(logTag, "###### ")
-    // }
-
-//     private val logTag = "CellsTransferListener"
-
     private val coroutineService: CoroutineService by inject()
     private val ioScope = coroutineService.cellsIoScope
     private val ioDispatcher = coroutineService.ioDispatcher
-
     private val fileService: FileService by inject()
 
     private var alreadyTransferred = 0L
 
     override fun onStateChanged(id: Int, state: TransferState?) {
         ioScope.launch(context = ioDispatcher) {
-            val transferRecord = getTransferRecord()
-            when (state) {
-                TransferState.COMPLETED -> {
-                    Log.i(logTag, "... #$id - ${transferRecord.transferId}: Transfer complete")
-                    fileService.registerLocalFile(transferRecord)
-                    transferRecord.status = JobStatus.DONE.id
-                    transferRecord.doneTimestamp = currentTimestamp()
-                    transferDao.update(transferRecord)
-                    done()
-                }
+            try {
+                val transferRecord = getTransferRecord()
+                when (state) {
+                    TransferState.COMPLETED -> {
+                        Log.i(logTag, "... #$id - ${transferRecord.transferId}: Transfer complete")
+                        fileService.registerLocalFile(transferRecord)
+                        transferRecord.status = JobStatus.DONE.id
+                        transferRecord.doneTimestamp = currentTimestamp()
+                        transferDao.update(transferRecord)
+                        done()
+                    }
 
-                else -> {
-                    // TODO handle pause and resume
-                    // Log.e(logTag, "... #$id - State changed: $state")
+                    else -> {
+                        // TODO handle pause and resume
+                        // Log.e(logTag, "... #$id - State changed: $state")
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(logTag, "Could not update state for #$id, cause: ${e.message}  ")
+                e.printStackTrace()
             }
         }
     }
 
     override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
         ioScope.launch {
-            val transferRecord = getTransferRecord()
-            if (bytesCurrent != transferRecord.progress) {
-                // Log.d(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
-                transferRecord.progress = bytesCurrent
-                transferDao.update(transferRecord)
+            try {
+                val transferRecord = getTransferRecord()
+                if (bytesCurrent != transferRecord.progress) {
+                    // Log.d(logTag, "... #$id - Progress: $bytesCurrent / $bytesTotal")
+                    transferRecord.progress = bytesCurrent
+                    transferDao.update(transferRecord)
 
-                parentJobProgress?.let {
-                    val diff = bytesCurrent - alreadyTransferred
-                    if (diff > 0) {
-                        try {
-                            it.send(diff)
-                        } catch (ce: ClosedSendChannelException) {
-                            Log.e(
-                                logTag,
-                                "... Could not update progress for #$id was: $bytesCurrent / $bytesTotal, cause: ${ce.message ?: "-"}"
-                            )
-
+                    parentJobProgress?.let {
+                        val diff = bytesCurrent - alreadyTransferred
+                        if (diff > 0) {
+                            try {
+                                it.send(diff)
+                            } catch (ce: ClosedSendChannelException) {
+                                var msg = "#$id: Cannot update progress to "
+                                msg += "$bytesCurrent / $bytesTotal, cause: ${ce.message ?: "-"}"
+                                Log.e(logTag, msg)
+                            }
                         }
+                        alreadyTransferred = bytesCurrent
                     }
-                    alreadyTransferred = bytesCurrent
                 }
+            } catch (e: Exception) {
+                Log.e(logTag, "Could not update progress for #$id, cause: ${e.message}  ")
+                e.printStackTrace()
             }
         }
     }
