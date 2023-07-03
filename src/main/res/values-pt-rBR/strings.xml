@@ -17,11 +17,11 @@
     <string name="button_clear_list">Limpar lista</string>
     <string name="button_resync_all">Re-sincronizar</string>
     <string name="button_skip">Pular</string>
-    <string name="button_launch_sync">Launch Sync</string>
+    <string name="button_launch_sync">Iniciar Sincronização</string>
     <!-- Navigation labels -->
     <string name="action_home">Início</string>
     <!--    <string name="action_open_app">Open App</string>-->
-    <string name="action_open_after_migration">Start using the app!</string>
+    <string name="action_open_after_migration">Comece a usar o aplicativo!</string>
     <string name="action_choose_account">Selecione uma conta</string>
     <string name="action_browse">Navegar</string>
     <string name="action_open_workspaces">Espaços de trabalho</string>
@@ -37,7 +37,7 @@
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir gaveta do menu</string>
     <!-- Section titles -->
-    <string name="my_workspaces">Meu Espaço de Trabalho</string>
+    <string name="my_workspaces">Meus Espaços de Trabalho</string>
     <string name="quick_access">Acesso Rápido</string>
     <string name="my_account">Minha Conta</string>
     <string name="nav_open">Abrir</string>
@@ -101,14 +101,14 @@
     <string name="category_workspaces">Espaços de trabalho</string>
     <string name="last_check">Última verificação</string>
     <string name="last_check_never">nunca</string>
-    <string name="appears_in_prefix">Inside %s</string>
+    <string name="appears_in_prefix">Dentro de %s</string>
     <string name="loading_message">Aguarde enquanto carrega o conteúdo…</string>
     <string name="no_internet">Sem conexão à internet</string>
-    <string name="captive_portal">Captive portal: sign in required</string>
+    <string name="captive_portal">Portal cativo: é necessário fazer login</string>
     <string name="metered_connection">Conexão limitada</string>
     <string name="roaming_connection">Usando uma conexão de roaming</string>
-    <string name="no_account">No account, please configure at least a connection</string>
-    <string name="server_unreachable">Cannot reach server</string>
+    <string name="no_account">Nenhuma conta, por favor configure pelo menos uma conexão</string>
+    <string name="server_unreachable">Não é possível acessar o servidor</string>
     <string name="empty_cache">Impossível listar o conteúdo da pasta</string>
     <string name="cannot_download_file">Não é possível baixar o arquivo</string>
     <string name="no_download_on_metered">Descargas em redes limitadas são restritas. Você pode alterar isso nas preferências do aplicativo</string>
@@ -118,10 +118,10 @@
     <string name="empty_content_message">Nenhum conteúdo aqui ainda</string>
     <string name="no_bookmark_for_account">Nenhum marcador foi definido para esta conta…</string>
     <string name="no_transfer_for_account">Não há transferência recente para mostrar</string>
-    <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
+    <string name="no_transfer_with_filter">Nenhuma transferência com o status \"%s\"</string>
     <string name="no_offline_root_for_account">Nenhuma pasta foi marcada para ser mantida offline para esta conta…</string>
-    <string name="account_home_no_ws_title">No workspace to list</string>
-    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
+    <string name="account_home_no_ws_title">Sem espaço de trabalho para listar</string>
+    <string name="account_home_no_ws_desc">Ou o servidor está inacessível, ou você pode ter perdido suas permissões. Neste último caso, por favor, contate o administrador do site.</string>
     <plurals name="selected_count">
         <item quantity="one">%d item selecionado</item>
         <item quantity="other">%d itens selecionados</item>
@@ -132,25 +132,25 @@
     <string name="in_progress_moving">Movendo…</string>
     <string name="in_progress_restoring">Restaurando…</string>
     <!-- Search -->
-    <string name="search_label">Search…</string>
-    <string name="search_hint">Enter a term to search your files!</string>
+    <string name="search_label">Buscar…</string>
+    <string name="search_hint">Digite um termo para procurar seus arquivos!</string>
     <!--Offline -->
     <string name="sync_in_progress">Sincronizando…</string>
     <string name="sync_downloading">Baixando arquivos…</string>
     <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças…</string>
     <string name="sync_already_running">Um processo de sincronização já está em execução, por favor aguarde antes de iniciar um novo</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
+    <string name="confirm_remove_offline_title">Confirme sua escolha</string>
+    <string name="confirm_remove_offline_desc">Remover o status offline deste nó pode levar à perda dos dados baixados. Tem certeza de que deseja prosseguir</string>
     <!-- Job Management -->
     <string name="job_list_title">Tarefas em segundo plano</string>
-    <string name="job_list_empty_message">There is no job to show</string>
+    <string name="job_list_empty_message">Não há nenhuma tarefa para mostrar</string>
     <string name="filter_by_status_title">Filtrar por status</string>
     <string name="job_sort_by_title">Classificar por</string>
     <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
     <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
     <!-- Log Management -->
     <string name="log_list_title">Logs do aplicativo</string>
-    <string name="log_list_empty_message">The journal is empty</string>
+    <string name="log_list_empty_message">O registro está vazio</string>
     <!-- Transfer Management -->
     <string name="upload_screen_pending_title">Enviando…</string>
     <string name="upload_screen_done_title">Upload concluído</string>
@@ -198,7 +198,7 @@
     <string name="delete">Excluir</string>
     <string name="pause">Pausar</string>
     <string name="relaunch">Reabrir</string>
-    <string name="resume">Resume</string>
+    <string name="resume">Retomar</string>
     <string name="empty_recycle">Esvaziar lixeira</string>
     <string name="restore_content">Restaurar</string>
     <string name="permanently_remove">Remover permanentemente</string>
@@ -236,16 +236,16 @@
     <string name="confirm_permanent_deletion_desc">%s será definitivamente excluído</string>
     <string name="confirm_empty_recycle_message">Isso esvazia a lixeira para %s: todo o conteúdo na lixeira será definitivamente excluído.</string>
     <string name="rename_dialog_title">Renomear</string>
-    <string name="rename_dialog_message">Please enter a new name for %s</string>
+    <string name="rename_dialog_message">Por favor, digite um novo nome para %s</string>
     <string name="rename_dialog_confirm_button">Renomear</string>
     <string name="download_wait_message">Baixando, aguarde…</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
     <string name="display_as_qrcode_dialog_desc">Digitalize o código para acessar diretamente %s</string>
-    <string name="running_download_title">Downloading…</string>
+    <string name="running_download_title">Baixando…</string>
     <string name="confirm_download_title">Confirmar para baixar</string>
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
     <!-- TextFields Labels -->
-    <string name="name_label">Name</string>
+    <string name="name_label">Nome</string>
     <!-- Settings -->
     <string name="pref_category_title_recycler">Personalizar listas (quando aplicável)</string>
     <string name="pref_choose_list_layout">Tipo de leiaute</string>
@@ -264,7 +264,7 @@
     <string name="pref_offline_constraint_charging_title">Durante carregamento</string>
     <string name="pref_offline_constraint_charging_desc">Só iniciar a sincronização quando o dispositivo estiver carregando</string>
     <string name="pref_offline_constraint_idle_title">Quando ocioso</string>
-    <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
+    <string name="pref_offline_constraint_idle_desc">Quando o dispositivo estiver ocioso</string>
     <string name="pref_offline_constraint_batt_not_low_title">Quando a bateria estiver cheia</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Quando a bateria estiver cheia</string>
     <string name="pref_category_title_feedback">Comentários e ajuda</string>
