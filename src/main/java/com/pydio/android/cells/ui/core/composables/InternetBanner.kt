@@ -126,7 +126,7 @@ private fun InternetBanner(
                 type = Status.WARNING,
                 onClick = {
                     scope.launch {
-                        Log.e(logTag, "Launching relog")
+                        Log.e(logTag, "Launching re-log")
                         connectionService.sessionView.collectLatest { sv ->
                             sv?.let {
                                 val route = if (it.isLegacy) {

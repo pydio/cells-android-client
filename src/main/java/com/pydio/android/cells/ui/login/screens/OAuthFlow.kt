@@ -35,8 +35,6 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-private const val logTag = "OAuthFlow"
-
 @Composable
 fun LaunchAuthProcessing(
     stateID: StateID,
@@ -44,6 +42,8 @@ fun LaunchAuthProcessing(
     loginVM: LoginVM,
     helper: LoginHelper,
 ) {
+    val logTag = "LaunchAuthProcessing"
+
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
 
@@ -68,6 +68,7 @@ fun ProcessAuth(
     loginVM: LoginVM,
     helper: LoginHelper,
 ) {
+    val logTag = "ProcessAuth"
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
 
@@ -83,7 +84,6 @@ fun ProcessAuth(
         cancel = helper::cancel
     )
 }
-
 
 @Composable
 private fun AuthScreen(

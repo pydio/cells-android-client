@@ -487,13 +487,19 @@ class AccountService(
                                 } catch (e: FileNotFoundException) {
                                     Log.d(logTag, "#$i exception: ${e.message}")
                                     if (i == 4) {
-                                        Log.d(logTag, "In the if, about top logout")
+                                        Log.d(
+                                            logTag,
+                                            "Timeout reached, about to logout from ${stateID.account()}"
+                                        )
                                         // finally logout
                                         logoutAccount(stateID.account())
                                         return@launch
                                     }
                                 } catch (e: Exception) {
-                                    Log.e(logTag, "unexpected error while retrying bootconf")
+                                    Log.e(
+                                        logTag,
+                                        "try $i: unexpected error while getting boot config"
+                                    )
                                     e.printStackTrace()
                                     return@launch
                                 }

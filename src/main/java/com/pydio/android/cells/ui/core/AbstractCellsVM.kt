@@ -34,7 +34,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
 
     private val logTag = "AbstractCellsVM"
 
-    // Avoid boiling plate to have the connection service here.
+    // Avoid boiling plate to have the connection services here.
     private val errorService: ErrorService by inject()
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()

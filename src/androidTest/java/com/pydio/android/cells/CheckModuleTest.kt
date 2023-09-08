@@ -21,7 +21,7 @@ class ModuleCheckTest : AutoCloseKoinTest() {
     fun simplyStartApplicationContext() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         Log.i(logTag, "Got a context: ${context.packageName}")
-        Log.i(logTag, "Network status: ${networkService.networkStatus}")
+//        Log.i(logTag, "Network status: ${networkService.networkStatus}")
     }
 }
 
