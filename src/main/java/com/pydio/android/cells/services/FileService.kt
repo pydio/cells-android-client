@@ -185,24 +185,29 @@ class FileService(
     }
 
     fun cleanFileCacheFor(accountID: StateID) = serviceScope.launch {
+        try {
+            // Defined offline roots that must be left intact
+            val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
+            val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
 
-        // Defined offline roots that must be left intact
-        val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
-        val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
-
-        // Iterate on all files both in cache/<id>/{previews,thumbs} and in files/<id>/local
-        // and delete the ones that are not in offline roots
-        val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
-        for (record in filesDao.getFilesUnder(accountID.id)) {
-            if (!isInOfflineTree(offlinePaths, record.encodedState)) {
-                filesDao.delete(record.encodedState, record.type)
+            // Iterate on all files both in cache/<id>/{previews,thumbs} and in files/<id>/local
+            // and delete the ones that are not in offline roots
+            val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
+            for (record in filesDao.getFilesUnder(accountID.id)) {
+                if (!isInOfflineTree(offlinePaths, record.encodedState)) {
+                    filesDao.delete(record.encodedState, record.type)
+                }
             }
-        }
 
-        // Also violently wipe transfer temporary files
-        val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
-        if (transferDir.exists()) {
-            transferDir.deleteRecursively()
+            // Also violently wipe transfer temporary files
+            val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
+            if (transferDir.exists()) {
+                transferDir.deleteRecursively()
+            }
+        } catch (e: Exception) {
+            // TODO better error handling
+            Log.e(logTag, "Could not clean cache for $accountID: ${e.message}")
+            e.printStackTrace()
         }
     }
 
