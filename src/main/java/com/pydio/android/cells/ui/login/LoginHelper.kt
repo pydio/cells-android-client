@@ -3,12 +3,10 @@ package com.pydio.android.cells.ui.login
 import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
-import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
@@ -20,7 +18,7 @@ class LoginHelper(
     private val loginVM: LoginVM,
     val navigateTo: (String) -> Unit,
     val startingState: StartingState?,
-    val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
+    val ackStartStateProcessing: (String?, StateID) -> Unit,
 ) {
     private val logTag = "LoginHelper"
 
@@ -30,27 +28,32 @@ class LoginHelper(
     }
 
     suspend fun back() {
-        val bq = navController.backQueue
-        var i = 0
-        navController.backQueue.forEach {
-            val stateID = lazyStateID(it)
-            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
-        }
-        var isFirstLoginPage = true
-        if (bq.size > 1) {
-            val penEntry = bq[bq.size - 2]
-            val penRoute = penEntry.destination.route
-            if (LoginDestinations.isCurrent(penRoute)) {
-                // penultimate route is still in the login subgraph
-                isFirstLoginPage = false
-            }
-        }
-        if (isFirstLoginPage) { // back is then a cancellation of the current login process
-            cancel()
-        } else {
-            loginVM.resetMessages()
-            navController.popBackStack()
-        }
+
+        // TODO double check that login navigation is still OK - See below
+        loginVM.resetMessages()
+        navController.popBackStack()
+
+//        val bq = navController.backQueue
+//        var i = 0
+//        navController.backQueue.forEach {
+//            val stateID = lazyStateID(it)
+//            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
+//        }
+//        var isFirstLoginPage = true
+//        if (bq.size > 1) {
+//            val penEntry = bq[bq.size - 2]
+//            val penRoute = penEntry.destination.route
+//            if (LoginDestinations.isCurrent(penRoute)) {
+//                // penultimate route is still in the login subgraph
+//                isFirstLoginPage = false
+//            }
+//        }
+//        if (isFirstLoginPage) { // back is then a cancellation of the current login process
+//            cancel()
+//        } else {
+//            loginVM.resetMessages()
+//            navController.popBackStack()
+//        }
     }
 
     fun afterPing(res: String) {
@@ -121,7 +124,7 @@ class LoginHelper(
             afterAuth(it.first, it.second)
         } ?: run {
             // TODO better error handling
-            startingStateHasBeenProcessed(
+            ackStartStateProcessing(
                 null,
                 StateID.NONE
             )
@@ -166,35 +169,42 @@ class LoginHelper(
 
     private fun afterAuth(stateID: StateID, nextAction: String?) {
         Log.d(logTag, "#########################")
-        Log.i(logTag, "## After OAuth: $stateID")
+        Log.d(logTag, "#########################")
+        Log.d(logTag, "#########################")
+        Log.i(logTag, "## After OAuth: $stateID, $nextAction")
 
         val route = BrowseDestinations.Open.createRoute(stateID)
 
-        startingStateHasBeenProcessed(null, stateID)
+        ackStartStateProcessing(null, stateID)
 
-        // TODO there must be a better way to get rid of login pages
-        var targetEntry: NavBackStackEntry? = null
-        var i = 1
-        navController.backQueue.asReversed().forEach {
-            val currID = lazyStateID(it)
-            Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
+        // FIXME broken by compose 1.5
 
-            if (!LoginDestinations.isCurrent(it.destination.route)) {
-                targetEntry = it
-                return@forEach
-            }
-        }
-        targetEntry?.destination?.route?.let {
-            Log.i(logTag, "##### About to nav back to $route ")
-            navController.navigate(route) {
-                popUpTo(it) {
-                    inclusive = false
-                }
-            }
-        } ?: run {
-            Log.e(logTag, "##### About to forward nav to $route ")
-            navigateTo(route)
-        }
+        navigateTo(route)
+
         loginVM.flush()
+//        // TODO there must be a better way to get rid of login pages
+//        var targetEntry: NavBackStackEntry? = null
+//        var i = 1
+//        navController.backQueue.asReversed().forEach {
+//            val currID = lazyStateID(it)
+//            Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
+//
+//            if (!LoginDestinations.isCurrent(it.destination.route)) {
+//                targetEntry = it
+//                return@forEach
+//            }
+//        }
+//        targetEntry?.destination?.route?.let {
+//            Log.i(logTag, "##### About to nav back to $route ")
+//            navController.navigate(route) {
+//                popUpTo(it) {
+//                    inclusive = false
+//                }
+//            }
+//        } ?: run {
+//            Log.e(logTag, "##### About to forward nav to $route ")
+//            navigateTo(route)
+//        }
+//        loginVM.flush()
     }
 }

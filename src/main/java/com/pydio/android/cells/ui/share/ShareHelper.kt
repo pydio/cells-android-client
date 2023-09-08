@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.StartingState
-import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -20,24 +19,32 @@ class ShareHelper(
 
     /* Define callbacks */
     fun open(stateID: StateID) {
+
         Log.d(logTag, "... Calling open for $stateID")
-        // Tweak to keep the back stack lean
-        val bq = navController.backQueue
-        var isEffectiveBack = false
-        if (bq.size > 1) {
-            val penultimateID = lazyStateID(bq[bq.size - 2])
-            isEffectiveBack = penultimateID == stateID && StateID.NONE != stateID
-        }
-        if (isEffectiveBack) {
-            Log.d(logTag, "isEffectiveBack: $stateID")
-            navigation.back()
+        if (stateID == StateID.NONE) {
+            navigation.toAccounts()
         } else {
-            if (stateID == StateID.NONE) {
-                navigation.toAccounts()
-            } else {
-                navigation.toFolder(stateID)
-            }
+            navigation.toFolder(stateID)
         }
+
+
+//        // TODO re-enable Tweak to keep the back stack lean
+//        val bq = navController.backQueue
+//        var isEffectiveBack = false
+//        if (bq.size > 1) {
+//            val penultimateID = lazyStateID(bq[bq.size - 2])
+//            isEffectiveBack = penultimateID == stateID && StateID.NONE != stateID
+//        }
+//        if (isEffectiveBack) {
+//            Log.d(logTag, "isEffectiveBack: $stateID")
+//            navigation.back()
+//        } else {
+//            if (stateID == StateID.NONE) {
+//                navigation.toAccounts()
+//            } else {
+//                navigation.toFolder(stateID)
+//            }
+//        }
     }
 
     fun cancel(stateID: StateID) {

@@ -76,67 +76,65 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            Box {
+            val ready = remember { mutableStateOf(false) }
+            val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
+            val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
+            val startingState = remember { mutableStateOf<StartingState?>(null) }
 
-                val ready = remember { mutableStateOf(false) }
-                val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
-                val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
+            // var startingState: StartingState? = null
+            val ackStartStateProcessing: (String?, StateID) -> Unit = { _, _ ->
+                intentHasBeenProcessed.value = true
+                startingState.value = null
+            }
 
-                val startingState = remember { mutableStateOf<StartingState?>(null) }
+            LaunchedEffect(key1 = intent.toString()) {
+                Log.i(logTag, "## Launching main effect for $intent")
+                Log.d(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
 
-                // var startingState: StartingState? = null
-                val startingStateHasBeenProcessed: (String?, StateID) -> Unit = { _, _ ->
-                    intentHasBeenProcessed.value = true
-                    startingState.value = null
+                // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
+                val noMigrationNeeded = landingVM.noMigrationNeeded()
+                if (!noMigrationNeeded) { // forward to migration page
+                    val intent = Intent(mainActivity, MigrateActivity::class.java)
+                    startActivity(intent)
+                    mainActivity.finish()
+                    return@LaunchedEffect
                 }
 
-                LaunchedEffect(key1 = intent.toString()) {
-                    Log.i(logTag, "## Launching main effect for $intent")
-                    Log.d(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
-
-                    // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
-                    val noMigrationNeeded = landingVM.noMigrationNeeded()
-                    if (!noMigrationNeeded) { // forward to migration page
-                        val intent = Intent(mainActivity, MigrateActivity::class.java)
-                        startActivity(intent)
-                        mainActivity.finish()
+                try { // We only handle intent when we have no bundle state
+                    savedInstanceState ?: run {
+                        startingState.value = handleIntent(landingVM)
+                    }
+                } catch (e: SDKException) {
+                    Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
+                    if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
+                        Log.e(logTag, "Launch activity with un-valid state, ignoring...")
+                        mainActivity.finishAndRemoveTask()
                         return@LaunchedEffect
+                    } else {
+                        Log.e(logTag, "Could not handle intent, aborting....")
+                        throw e
                     }
-
-                    try { // We only handle intent when we have no bundle state
-                        savedInstanceState ?: run {
-                            startingState.value = handleIntent(landingVM)
-                        }
-                    } catch (e: SDKException) {
-                        Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-                        if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
-                            Log.e(logTag, "Launch activity with un-valid state, ignoring...")
-                            mainActivity.finishAndRemoveTask()
-                            return@LaunchedEffect
-                        } else {
-                            Log.e(logTag, "Could not handle intent, aborting....")
-                            throw e
-                        }
-                    }
-
-                    Log.i(logTag, "############################")
-                    Log.d(logTag, "  onCreate with starting state:")
-                    Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
-                    Log.d(logTag, "   Route: ${startingState.value?.route}")
-
-                    // Rework this: we have the default for the time being.
-                    // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
-                    // WindowCompat.setDecorFitsSystemWindows(window, false)
-                    WindowCompat.setDecorFitsSystemWindows(window, true)
-                    ready.value = true
-                    appIsReady = true
                 }
 
+                Log.i(logTag, "############################")
+                Log.d(logTag, "  onCreate with starting state:")
+                Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
+                Log.d(logTag, "   Route: ${startingState.value?.route}")
+
+                // Rework this: we have the default for the time being.
+                // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
+                // WindowCompat.setDecorFitsSystemWindows(window, false)
+                // WindowCompat.setDecorFitsSystemWindows(window, true)
+                ready.value = true
+                appIsReady = true
+            }
+
+            Box {
                 if (ready.value) {
                     Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
                     MainApp(
                         startingState = startingState.value,
-                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        ackStartStateProcessing = ackStartStateProcessing,
                         launchIntent = mainActivity::launchIntent,
                         launchTaskFor = launchTaskFor,
                         widthSizeClass = widthSizeClass,
@@ -190,7 +188,6 @@ class MainActivity : ComponentActivity() {
                         .of(MATCH_DEFAULT_ONLY.toLong())
                     packageManager.resolveActivity(intent, flag)
                 } else {
-                    @Suppress("DEPRECATION")
                     packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
                 }
             // TODO better error handling

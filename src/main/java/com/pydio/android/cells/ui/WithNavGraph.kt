@@ -39,7 +39,7 @@ private const val logTag = "CellsNavGraph"
 @Composable
 fun CellsNavGraph(
     startingState: StartingState?,
-    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
+    ackStartStateProcessing: (String?, StateID) -> Unit,
     isExpandedScreen: Boolean,
     navController: NavHostController,
     navigateTo: (String) -> Unit,
@@ -150,7 +150,7 @@ fun CellsNavGraph(
                 loginVM,
                 navigateTo,
                 startingState,
-                startingStateHasBeenProcessed
+                ackStartStateProcessing
             ),
         )
 
@@ -160,7 +160,7 @@ fun CellsNavGraph(
                 navController,
                 launchTaskFor,
                 startingState,
-                startingStateHasBeenProcessed
+                ackStartStateProcessing
             ),
             back = { navController.popBackStack() },
         )

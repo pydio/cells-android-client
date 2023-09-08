@@ -18,8 +18,10 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,42 +39,53 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-private const val logTag = "NavHostWithDrawer"
+private const val LOG_TAG = "WithDrawer"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState?,
-    startingStateHasBeenProcessed: (String?, StateID) -> Unit,
+    ackStartStateProcessing: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
     connectionService: ConnectionService = koinInject(),
 ) {
-    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-    val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
-
     val coroutineScope = rememberCoroutineScope()
 
-    val navHostController = rememberNavController()
-    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+    val mainNavController = rememberNavController()
+    val cellsNavActions = remember(mainNavController) {
+        CellsNavigationActions(mainNavController)
+    }
+    val browseNavActions = remember(mainNavController) {
+        BrowseNavigationActions(mainNavController)
+    }
+    val systemNavActions = remember(mainNavController) {
+        SystemNavigationActions(mainNavController)
+    }
+    val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
 
-    val cellsNavActions = remember(navHostController) {
-        CellsNavigationActions(navHostController)
-    }
-    val browseNavActions = remember(navHostController) {
-        BrowseNavigationActions(navHostController)
-    }
-    val systemNavActions = remember(navHostController) {
-        SystemNavigationActions(navHostController)
-    }
-
+    // Debug: understand login loop issue
+    val lastRoute = rememberSaveable { mutableStateOf("") }
     val navigateTo: (String) -> Unit = { route ->
-        Log.e(logTag, "Got a navigateTo() call: $route")
-        navHostController.navigate(route)
+        Log.e(LOG_TAG, "Got a navigateTo() call: $route")
+        Log.e(LOG_TAG, "Calling stack:")
+        Thread.dumpStack()
+
+        if (route == lastRoute.value) {
+            Log.e(LOG_TAG, "Same route called twice !! $route")
+            Log.e(LOG_TAG, "Skipping call!")
+        } else {
+            val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
+            Log.e(LOG_TAG, "Prev. Backstack Entry route: $oldRoute")
+            lastRoute.value = route
+            mainNavController.navigate(route)
+        }
     }
 
     val customColor = connectionService.customColor.collectAsState(null)
+    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
+    val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
     UseCellsTheme(
         customColor = customColor.value
@@ -114,9 +127,9 @@ fun NavHostWithDrawer(
                 ) {
                     CellsNavGraph(
                         startingState = startingState,
-                        startingStateHasBeenProcessed = startingStateHasBeenProcessed,
+                        ackStartStateProcessing = ackStartStateProcessing,
                         isExpandedScreen = isExpandedScreen,
-                        navController = navHostController,
+                        navController = mainNavController,
                         navigateTo = navigateTo,
                         launchTaskFor = launchTaskFor,
                         openDrawer = {

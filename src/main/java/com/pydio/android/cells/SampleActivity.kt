@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.pydio.android.cells.ui.browse.screens.rotateBy
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 
@@ -80,9 +80,11 @@ fun PagerExamplePage(
         Icons.Outlined.Refresh,
     )
 
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) { items.size }
     HorizontalPager(
-        pageCount = items.size,
         state = pagerState,
         modifier = modifier
             .fillMaxSize()
@@ -96,13 +98,13 @@ private fun OneImage(
     items: List<ImageVector>,
     page: Int
 ) {
-    var zoom by remember { mutableStateOf(1f) }
+    var zoom by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    var angle by remember { mutableStateOf(0f) }
+    var angle by remember { mutableFloatStateOf(0f) }
 
-    val modifierNoGesture = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surfaceVariant)
+//    val modifierNoGesture = Modifier
+//        .fillMaxSize()
+//        .background(MaterialTheme.colorScheme.surfaceVariant)
 
     val imageModifier = Modifier
         .fillMaxSize()
@@ -132,8 +134,8 @@ private fun OneImage(
     Icon(
         imageVector = items[page],
         contentDescription = "",
-       modifier = imageModifier
- //         modifier = modifierNoGesture
+        modifier = imageModifier
+        //         modifier = modifierNoGesture
     )
 }
 

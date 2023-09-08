@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ui.core.AbstractCellsVM
-import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.cells.api.ErrorCodes
@@ -38,15 +37,17 @@ class BrowseHelper(
         //     Log.e(logTag, "#${i++} - $stateID - ${it.destination.route}")
 
         // }
+
+        // TODO we do not have access anymore to the backQueue in recent libs.
         var isEffectiveBack = false
-        if (navController.backQueue.size > 1) {
-            val bq = navController.backQueue
-            val targetEntry = bq[bq.size - 2]
-            val penultimateID = lazyStateID(bq[bq.size - 2])
-            isEffectiveBack =
-                BrowseDestinations.Open.isCurrent(targetEntry.destination.route)
-                        && penultimateID == stateID && stateID != StateID.NONE
-        }
+//        if (navController.backQueue.size > 1) {
+//            val bq = navController.backQueue
+//            val targetEntry = bq[bq.size - 2]
+//            val penultimateID = lazyStateID(bq[bq.size - 2])
+//            isEffectiveBack =
+//                BrowseDestinations.Open.isCurrent(targetEntry.destination.route)
+//                        && penultimateID == stateID && stateID != StateID.NONE
+//        }
         if (isEffectiveBack) {
             Log.d(logTag, "Open node at $stateID is Effective Back")
             navController.popBackStack()

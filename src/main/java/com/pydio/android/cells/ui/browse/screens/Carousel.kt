@@ -10,10 +10,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,19 +66,23 @@ fun HorizontalPagerWithOffsetTransition(
     modifier: Modifier = Modifier
 ) {
 
-    val pagerState = rememberPagerState()
     val index = remember(key1 = items.size) {
         derivedStateOf {
             getItemIndex(initialStateID, items)
         }
     }
 
-    LaunchedEffect(key1 = index.value) {
-        pagerState.scrollToPage(index.value)
-    }
+//    LaunchedEffect(key1 = index.value) {
+//        pagerState.scrollToPage(index.value)
+//    }
+
+    val pagerState = rememberPagerState(
+        initialPage = index.value,
+        initialPageOffsetFraction = 0f
+    ) { items.size }
+
 
     HorizontalPager(
-        pageCount = items.size,
         state = pagerState,
         modifier = modifier
             .fillMaxSize()
@@ -96,9 +100,9 @@ private fun OneImage(
 ) {
     // TODO finalize this: basic example conflicts with the view pager scrolling
 
-    var zoom by remember { mutableStateOf(1f) }
+    var zoom by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    var angle by remember { mutableStateOf(0f) }
+    var angle by remember { mutableFloatStateOf(0f) }
 
     val imageModifier = Modifier
         .fillMaxSize()

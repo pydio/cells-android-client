@@ -59,11 +59,11 @@ fun NavGraphBuilder.browseNavGraph(
                 browseHelper = helper,
             )
         } else {
-            var i = 0
-            navController.backQueue.forEach {
-                val currID = lazyStateID(it)
-                Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
-            }
+//            var i = 0
+//            navController.backQueue.forEach {
+//                val currID = lazyStateID(it)
+//                Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
+//            }
 
             val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, accountHomeVM)
