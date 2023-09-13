@@ -61,6 +61,7 @@ fun NavGraphBuilder.loginNavGraph(
     composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
+        Log.e(logTag, "... Starting LaunchAuthProcessing activity for $stateID")
         LaunchAuthProcessing(
             stateID = stateID,
             skipVerify = skipVerify,

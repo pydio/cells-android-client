@@ -11,14 +11,14 @@ import com.pydio.cells.transport.StateID
 @Composable
 fun MainApp(
     startingState: StartingState?,
-    ackStartStateProcessing: (String?, StateID) -> Unit,
+    ackStartStateProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 ) {
     NavHostWithDrawer(
         startingState = startingState,
-        ackStartStateProcessing = ackStartStateProcessing,
+        ackStartStateProcessed = ackStartStateProcessed,
         launchIntent = launchIntent,
         launchTaskFor = launchTaskFor,
         widthSizeClass = widthSizeClass,

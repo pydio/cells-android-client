@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.pydio.android.cells.R
 
-const val unknownError = R.string.generic_error_message
 const val undefined = -1
+val unknownError = R.string.generic_error_message
 
 data class ErrorMessage(
     val defaultMessage: String?,

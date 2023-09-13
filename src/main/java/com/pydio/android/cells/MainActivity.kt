@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
 
         var appIsReady = false
         setContent {
+            Log.e(logTag, "### onCreate.setContent with intent $intent")
             val landingVM by viewModel<LandingVM>()
 
             val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
@@ -82,14 +83,14 @@ class MainActivity : ComponentActivity() {
             val startingState = remember { mutableStateOf<StartingState?>(null) }
 
             // var startingState: StartingState? = null
-            val ackStartStateProcessing: (String?, StateID) -> Unit = { _, _ ->
+            val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
                 intentHasBeenProcessed.value = true
                 startingState.value = null
             }
 
             LaunchedEffect(key1 = intent.toString()) {
-                Log.i(logTag, "## Launching main effect for $intent")
-                Log.d(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
+                Log.e(logTag, "## Launching main effect for $intent")
+                Log.e(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
 
                 // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
                 val noMigrationNeeded = landingVM.noMigrationNeeded()
@@ -134,7 +135,7 @@ class MainActivity : ComponentActivity() {
                     Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
                     MainApp(
                         startingState = startingState.value,
-                        ackStartStateProcessing = ackStartStateProcessing,
+                        ackStartStateProcessed = ackStartStateProcessed,
                         launchIntent = mainActivity::launchIntent,
                         launchTaskFor = launchTaskFor,
                         widthSizeClass = widthSizeClass,

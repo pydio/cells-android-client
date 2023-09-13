@@ -45,7 +45,7 @@ private const val LOG_TAG = "WithDrawer"
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState?,
-    ackStartStateProcessing: (String?, StateID) -> Unit,
+    ackStartStateProcessed: (String?, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     launchTaskFor: (String, StateID) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
@@ -70,10 +70,10 @@ fun NavHostWithDrawer(
     val navigateTo: (String) -> Unit = { route ->
         Log.e(LOG_TAG, "Got a navigateTo() call: $route")
         Log.e(LOG_TAG, "Calling stack:")
-        Thread.dumpStack()
 
         if (route == lastRoute.value) {
             Log.e(LOG_TAG, "Same route called twice !! $route")
+            Thread.dumpStack()
             Log.e(LOG_TAG, "Skipping call!")
         } else {
             val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
@@ -127,7 +127,7 @@ fun NavHostWithDrawer(
                 ) {
                     CellsNavGraph(
                         startingState = startingState,
-                        ackStartStateProcessing = ackStartStateProcessing,
+                        ackStartStateProcessing = ackStartStateProcessed,
                         isExpandedScreen = isExpandedScreen,
                         navController = mainNavController,
                         navigateTo = navigateTo,

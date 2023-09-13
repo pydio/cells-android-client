@@ -2,13 +2,9 @@ package com.pydio.android.cells.ui.core.composables
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
@@ -25,7 +20,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -71,8 +65,9 @@ fun Thumbnail(
                 model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
                 contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
-                failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
-                loading = placeholder { LoadingThumb() },
+                // This is deprecated and has glitches on glide 4.1.16
+//                failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
+//                loading = placeholder { LoadingThumb() },
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
         }

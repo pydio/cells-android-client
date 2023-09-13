@@ -18,7 +18,7 @@ class LoginHelper(
     private val loginVM: LoginVM,
     val navigateTo: (String) -> Unit,
     val startingState: StartingState?,
-    val ackStartStateProcessing: (String?, StateID) -> Unit,
+    val ackStartStateProcessed: (String?, StateID) -> Unit,
 ) {
     private val logTag = "LoginHelper"
 
@@ -124,7 +124,7 @@ class LoginHelper(
             afterAuth(it.first, it.second)
         } ?: run {
             // TODO better error handling
-            ackStartStateProcessing(
+            ackStartStateProcessed(
                 null,
                 StateID.NONE
             )
@@ -175,7 +175,7 @@ class LoginHelper(
 
         val route = BrowseDestinations.Open.createRoute(stateID)
 
-        ackStartStateProcessing(null, stateID)
+        ackStartStateProcessed(null, stateID)
 
         // FIXME broken by compose 1.5
 

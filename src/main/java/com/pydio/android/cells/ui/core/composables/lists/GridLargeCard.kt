@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,11 +32,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
@@ -140,34 +137,34 @@ fun LargeCardImageThumb(
         GlideImage(
             model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
             contentDescription = "$title thumbnail",
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillWidth,
             modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-            loading = placeholder {
-                LoadingAnimation(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = R.dimen.list_thumb_padding))
-                        .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-                )
-            },
-            failure = placeholder {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .size(dimensionResource(id = R.dimen.grid_ws_image_size))
-                ) {
-                    getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
-                        Image(
-                            painter = painterResource(t.first),
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(t.second),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .wrapContentSize(Alignment.Center)
-                                .size(dimensionResource(R.dimen.grid_large_icon_size))
-                        )
-                    }
-                }
-            },
+//            loading = placeholder {
+//                LoadingAnimation(
+//                    modifier = Modifier
+//                        .padding(dimensionResource(id = R.dimen.list_thumb_padding))
+//                        .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
+//                )
+//            },
+//            failure = placeholder {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .size(dimensionResource(id = R.dimen.grid_ws_image_size))
+//                ) {
+//                    getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
+//                        Image(
+//                            painter = painterResource(t.first),
+//                            contentDescription = null,
+//                            colorFilter = ColorFilter.tint(t.second),
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .wrapContentSize(Alignment.Center)
+//                                .size(dimensionResource(R.dimen.grid_large_icon_size))
+//                        )
+//                    }
+//                }
+//            },
         )
         openMoreMenu?.let {
             Box(
