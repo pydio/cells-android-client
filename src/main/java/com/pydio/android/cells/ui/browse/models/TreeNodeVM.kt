@@ -31,6 +31,7 @@ class TreeNodeVM(
                 eTag = node.etag,
                 name = node.name,
                 sortName = node.sortName ?: node.name,
+                metaHash = node.metaHash,
                 size = node.size,
                 remoteModTs = node.remoteModificationTS,
                 hasThumb = node.hasThumb(),

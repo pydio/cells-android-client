@@ -105,7 +105,6 @@ fun UseCellsTheme(
     }
 }
 
-
 /**
  * Root theme for the Cells application based on Material3.
  */
@@ -120,12 +119,15 @@ fun CellsTheme(
     val colorScheme = when {
         customColor != null && darkTheme ->
             customDark(Color(customColor.toColorInt()).toArgb())
+
         customColor != null ->
             customLight(Color(customColor.toColorInt()).toArgb())
+
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> customDark(CellsColor.defaultMainColor.toArgb())
         else -> customLight(CellsColor.defaultMainColor.toArgb())
     }

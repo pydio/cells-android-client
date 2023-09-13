@@ -10,7 +10,7 @@ data class TreeNodeItem(
     override val mime: String,
     override val name: String,
     override val eTag: String?,
-    val metaHash: Int,
+    override val metaHash: Int,
     override val sortName: String?,
     val isWsRoot: Boolean,
     override val isFolder: Boolean,
