@@ -32,7 +32,6 @@ import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -127,7 +126,7 @@ private fun InternetBanner(
                 onClick = {
                     scope.launch {
                         Log.e(logTag, "Launching re-log")
-                        connectionService.sessionView.collectLatest { sv ->
+                        connectionService.sessionView.collect { sv ->
                             sv?.let {
                                 val route = if (it.isLegacy) {
                                     LoginDestinations.P8Credentials.createRoute(
