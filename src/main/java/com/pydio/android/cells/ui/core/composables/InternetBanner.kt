@@ -76,6 +76,7 @@ private fun InternetBanner(
 ) {
     val sessionStatus = connectionService.sessionStatusFlow
         .collectAsState(initial = SessionStatus.OK)
+    val currSession = connectionService.sessionView.collectAsState(initial = null)
 
     val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
@@ -126,25 +127,22 @@ private fun InternetBanner(
                 onClick = {
                     scope.launch {
                         Log.e(logTag, "Launching re-log")
-                        connectionService.sessionView.collect { sv ->
-                            sv?.let {
-                                val route = if (it.isLegacy) {
-                                    LoginDestinations.P8Credentials.createRoute(
-                                        it.getStateID(),
-                                        it.skipVerify()
-                                    )
-                                } else {
-                                    Log.e(logTag, "Creating route for ${it.accountID}")
-                                    LoginDestinations.LaunchAuthProcessing.createRoute(
-                                        it.getStateID(),
-                                        it.skipVerify()
-                                    )
-                                }
-                                navigateTo(route)
-
-                            } ?: run {
-                                Log.e(logTag, "... Cannot launch, empty session view")
+                        currSession.value?.let {
+                            val route = if (it.isLegacy) {
+                                LoginDestinations.P8Credentials.createRoute(
+                                    it.getStateID(),
+                                    it.skipVerify()
+                                )
+                            } else {
+                                Log.e(logTag, "Creating route for ${it.accountID}")
+                                LoginDestinations.LaunchAuthProcessing.createRoute(
+                                    it.getStateID(),
+                                    it.skipVerify()
+                                )
                             }
+                            navigateTo(route)
+                        } ?: run {
+                            Log.e(logTag, "... Cannot launch, empty session view")
                         }
                     }
                 }
