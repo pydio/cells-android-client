@@ -55,21 +55,13 @@ fun CellsNavGraph(
     }
 
     Log.i(logTag, "### Composing nav graph for ${startingState?.route}")
-    Log.i(logTag, "      isRestart: ${startingState?.isRestart ?: "false"}")
 
     startingState?.let {
         LaunchedEffect(key1 = it.route) {
             it.route?.let { dest ->
-                // TODO double check, seems like we do not need this anymore
+                Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+                Log.e(logTag, "      newRoute: $dest")
                 navController.navigate(dest)
-
-//                if (!it.isRestart) {
-//                    Log.e(logTag, "########## Launching navigation to $dest")
-//                    navController.navigate(dest)
-//                } else {
-//                    Thread.dumpStack()
-//                    Log.e(logTag, "### Restart, preventing navigation to $dest")
-//                }
             }
         }
     }

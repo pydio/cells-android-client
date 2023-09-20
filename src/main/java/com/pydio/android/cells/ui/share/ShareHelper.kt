@@ -9,7 +9,8 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
 class ShareHelper(
-    private val navController: NavHostController,
+    // private val
+    navController: NavHostController,
     val launchTaskFor: (String, StateID) -> Unit,
     private val startingState: StartingState?,
     private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
@@ -19,14 +20,12 @@ class ShareHelper(
 
     /* Define callbacks */
     fun open(stateID: StateID) {
-
         Log.d(logTag, "... Calling open for $stateID")
         if (stateID == StateID.NONE) {
             navigation.toAccounts()
         } else {
             navigation.toFolder(stateID)
         }
-
 
 //        // TODO re-enable Tweak to keep the back stack lean
 //        val bq = navController.backQueue

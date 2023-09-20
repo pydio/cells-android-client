@@ -62,7 +62,6 @@ class LandingVM(
     }
 
     suspend fun getStartingState(): StartingState {
-
         val stateID: StateID?
         // TODO get latest known state from preferences and navigate to it
 
@@ -77,22 +76,12 @@ class LandingVM(
             }
         }
 
-        // probably useless, TODO double check
-        // stateID?.let { accountService.openSession(it.account()) }
-
         val state = StartingState(stateID ?: StateID.NONE)
-        val route = when (stateID) {
+        state.route = when (stateID) {
             null -> LoginDestinations.AskUrl.createRoute()
             StateID.NONE -> CellsDestinations.Accounts.route
-            else -> {
-                // We are most probably in a restart, so we prevent explicit browsing
-                // FIXME Do we really still need this ?
-                state.isRestart = true
-
-                BrowseDestinations.Open.createRoute(stateID)
-            }
+            else -> BrowseDestinations.Open.createRoute(stateID)
         }
-        state.route = route
         return state
     }
 }

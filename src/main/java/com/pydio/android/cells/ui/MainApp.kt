@@ -26,11 +26,6 @@ fun MainApp(
 }
 
 class StartingState(var stateID: StateID) {
-
-//    enum class Key {
-//        STATE_ID, ROUTE, CODE, STATE, URIS
-//    }
-
     var route: String? = null
 
     // OAuth credential flow call back
@@ -39,8 +34,6 @@ class StartingState(var stateID: StateID) {
 
     // Share with Pydio
     var uris: MutableList<Uri> = mutableListOf()
-
-    var isRestart = false
 }
 
 //// Converts a StartingState object which we don't know how to save to a Map<String, String> which we can save

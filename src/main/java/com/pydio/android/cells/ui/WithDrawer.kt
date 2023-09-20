@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -41,7 +40,6 @@ import org.koin.compose.koinInject
 
 private const val LOG_TAG = "WithDrawer"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavHostWithDrawer(
     startingState: StartingState?,
@@ -68,16 +66,15 @@ fun NavHostWithDrawer(
     // Debug: understand login loop issue
     val lastRoute = rememberSaveable { mutableStateOf("") }
     val navigateTo: (String) -> Unit = { route ->
-        Log.e(LOG_TAG, "Got a navigateTo() call: $route")
-        Log.e(LOG_TAG, "Calling stack:")
-
+        Log.e(LOG_TAG, "Got a navigate call to $route")
         if (route == lastRoute.value) {
             Log.e(LOG_TAG, "Same route called twice !! $route")
             Thread.dumpStack()
             Log.e(LOG_TAG, "Skipping call!")
         } else {
             val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
-            Log.e(LOG_TAG, "Prev. Backstack Entry route: $oldRoute")
+            Log.e(LOG_TAG, "Previous Backstack Entry route: $oldRoute")
+            Log.e(LOG_TAG, "Recorded last route: ${lastRoute.value}")
             lastRoute.value = route
             mainNavController.navigate(route)
         }
@@ -148,11 +145,9 @@ fun NavHostWithDrawer(
 /**
  * Determine the drawer state to pass to the modal drawer.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun rememberSizeAwareDrawerState(isExpandedScreen: Boolean): DrawerState {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-
     return if (!isExpandedScreen) {
         // If we want to allow showing the drawer, we use a real, remembered drawer
         // state defined above

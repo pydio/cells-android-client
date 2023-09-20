@@ -58,31 +58,30 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
+        val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+            when (action) {
+                AppNames.ACTION_CANCEL -> {
+                    setResult(RESULT_CANCELED)
+                    finishAndRemoveTask()
+                }
+
+                AppNames.ACTION_DONE -> {
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            }
+        }
+
         var appIsReady = false
         setContent {
             Log.e(logTag, "### onCreate.setContent with intent $intent")
             val landingVM by viewModel<LandingVM>()
-
-            val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
-                when (action) {
-                    AppNames.ACTION_CANCEL -> {
-                        setResult(RESULT_CANCELED)
-                        finishAndRemoveTask()
-                    }
-
-                    AppNames.ACTION_DONE -> {
-                        setResult(RESULT_OK)
-                        finish()
-                    }
-                }
-            }
 
             val ready = remember { mutableStateOf(false) }
             val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
             val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
             val startingState = remember { mutableStateOf<StartingState?>(null) }
 
-            // var startingState: StartingState? = null
             val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
                 intentHasBeenProcessed.value = true
                 startingState.value = null
@@ -90,11 +89,12 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(key1 = intent.toString()) {
                 Log.e(logTag, "## Launching main effect for $intent")
-                Log.e(logTag, "   Intent was processed: ${intentHasBeenProcessed.value}")
+                Log.e(logTag, "\t\tIntent already processed: ${intentHasBeenProcessed.value}")
 
                 // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
                 val noMigrationNeeded = landingVM.noMigrationNeeded()
                 if (!noMigrationNeeded) { // forward to migration page
+                    Log.e(logTag, "## Forwarding to migration page and closing curr activity")
                     val intent = Intent(mainActivity, MigrateActivity::class.java)
                     startActivity(intent)
                     mainActivity.finish()
@@ -207,8 +207,9 @@ class MainActivity : ComponentActivity() {
         landingVM: LandingVM
     ): StartingState {
         Log.d(logTag, "   => Processing intent: $intent")
-        if (intent == null) {
 
+        // No intent => issue
+        if (intent == null) {
             Log.e(logTag, "#############################")
             Log.e(logTag, "No Intent and no bundle")
             Thread.dumpStack()
@@ -219,7 +220,7 @@ class MainActivity : ComponentActivity() {
             return state
         }
 
-        // Intent is not null
+        // Intent with a stateID => should not happen anymore
         val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
         val initialStateID = encodedState?.let {
             val stateID = StateID.fromId(it)
@@ -230,12 +231,20 @@ class MainActivity : ComponentActivity() {
         } ?: StateID.NONE
         var startingState = StartingState(initialStateID)
 
+        // Handle various supported events
         when {
+
+            // Normal start
+            Intent.ACTION_MAIN == intent.action
+                    && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {
+                startingState = landingVM.getStartingState()
+            }
+
             Intent.ACTION_VIEW == intent.action -> {
-                // Handle call back for OAuth credential flow
                 val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
                 val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
-                if (code != null && state != null) {
+
+                if (code != null && state != null) { // Callback for OAuth credential flow
                     val (isValid, targetStateID) = landingVM.isAuthStateValid(state)
                     if (!isValid) {
                         Log.e(
@@ -287,11 +296,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-
-            Intent.ACTION_MAIN == intent.action
-                    && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {
-                startingState = landingVM.getStartingState()
             }
 
             else -> {
