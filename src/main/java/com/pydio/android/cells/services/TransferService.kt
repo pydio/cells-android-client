@@ -492,8 +492,9 @@ class TransferService(
             Log.e(logTag, "could not get thumb for $state: ${e.message}")
             // TODO improve At this point, if we had an error, the target file is most probably corrupted or missing
             //   Problem: if we are offline we might reach this point and and remove the record too fast. 
+            // fileService.unregisterLocalFile(state, type)
             // e.printStackTrace()
-            fileService.unregisterLocalFile(state, type)
+
             throw SDKException(ErrorCodes.not_found, "Get thumb for $state failed", e)
         }
     }

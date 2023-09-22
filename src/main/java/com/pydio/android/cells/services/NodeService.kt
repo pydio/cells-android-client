@@ -331,7 +331,7 @@ class NodeService(
     }
 
     @Throws(SDKException::class)
-    suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
+    suspend fun tryToCacheNode(stateID: StateID): RTreeNode = withContext(ioDispatcher) {
         val fileNode = getClient(stateID).nodeInfo(stateID.slug, stateID.file)
         val treeNode = RTreeNode.fromFileNode(stateID, fileNode)
         upsertNode(treeNode)

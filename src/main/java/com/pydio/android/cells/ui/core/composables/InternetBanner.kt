@@ -74,13 +74,12 @@ private fun InternetBanner(
     connectionService: ConnectionService,
     navigateTo: (String) -> Unit,
 ) {
-    val sessionStatus = connectionService.sessionStatusFlow
-        .collectAsState(initial = SessionStatus.OK)
-    val currSession = connectionService.sessionView.collectAsState(initial = null)
-
-    val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     val scope = rememberCoroutineScope()
+    val currSession = connectionService.sessionView.collectAsState(initial = null)
+    val sessionStatus = connectionService.sessionStatusFlow
+        .collectAsState(initial = SessionStatus.OK)
+    val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     if (SessionStatus.OK != sessionStatus.value) {
         when (sessionStatus.value) {

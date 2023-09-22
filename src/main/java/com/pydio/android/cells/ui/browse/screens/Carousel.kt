@@ -38,8 +38,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-private const val logTag = "Carousel"
-
 @Composable
 fun Carousel(
     initialStateID: StateID,
@@ -71,10 +69,6 @@ fun HorizontalPagerWithOffsetTransition(
             getItemIndex(initialStateID, items)
         }
     }
-
-//    LaunchedEffect(key1 = index.value) {
-//        pagerState.scrollToPage(index.value)
-//    }
 
     val pagerState = rememberPagerState(
         initialPage = index.value,
@@ -176,9 +170,7 @@ private fun OneImage(
 }
 
 private fun fl(offset: Offset, zoom: Float): Float {
-    val offsetF = -offset.x * zoom
-//    Log.e(logTag, "offset: $offsetF")
-    return offsetF
+    return -offset.x * zoom
 }
 
 fun Offset.rotateBy(angle: Float): Offset {
