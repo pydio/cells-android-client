@@ -93,9 +93,17 @@ class NodeService(
         return nodeDB(accountID).liveOfflineRootDao().offlineRootQueryF(lsQuery)
     }
 
-    fun listLiveChildren(stateID: StateID, mimeFilter: String): Flow<List<RTreeNode>> {
-        Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
-        return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
+    fun listLiveChildren(
+        stateID: StateID,
+        mime: String,
+        orderBy: String,
+        orderDir: String,
+    ): Flow<List<RTreeNode>> {
+        val queryStr = "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}' || '%' " +
+                " AND parent_path = '${stateID.file}' AND mime like '$mime' || '%' " +
+                " ORDER BY $orderBy $orderDir"
+        Log.d(logTag, "Listing live children with query: [$queryStr]")
+        return nodeDB(stateID).treeNodeDao().searchQueryFlow(SimpleSQLiteQuery(queryStr))
     }
 
     fun liveSearch(

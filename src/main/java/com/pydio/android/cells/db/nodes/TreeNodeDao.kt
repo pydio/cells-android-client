@@ -53,6 +53,8 @@ interface TreeNodeDao {
     fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>
 
     // Reactive queries
+    @RawQuery(observedEntities = [RTreeNode::class])
+    fun searchQueryFlow(query: SupportSQLiteQuery): Flow<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")
     fun lsWithMimeFlow(
@@ -60,9 +62,6 @@ interface TreeNodeDao {
         parentPath: String,
         mime: String
     ): Flow<List<RTreeNode>>
-
-    @RawQuery(observedEntities = [RTreeNode::class])
-    fun searchQueryFlow(query: SupportSQLiteQuery): Flow<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE name like '%' ||  :name || '%' LIMIT 100")
     fun simpleQueryFlow(name: String): Flow<List<RTreeNode>>
@@ -80,7 +79,4 @@ interface TreeNodeDao {
         parentPath: String,
         mime: String
     ): Flow<List<RTreeNode>>
-
-//    @Query("SELECT * FROM tree_nodes WHERE flags & :flag = :flag ORDER BY sort_name")
-//    fun getBookmarked(flag: Int = AppNames.FLAG_BOOKMARK): Flow<List<RTreeNode>>
 }
