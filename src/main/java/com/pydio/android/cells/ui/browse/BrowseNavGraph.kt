@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse
 
 import android.util.Log
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -37,8 +38,9 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-
-        Log.i(logTag, "## BrowseDestinations.open - $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## First Composition for: browse/open/$stateID")
+        }
 
         if (stateID == StateID.NONE) {
             NoAccount(openDrawer = openDrawer, addAccount = {})
@@ -59,11 +61,6 @@ fun NavGraphBuilder.browseNavGraph(
                 browseHelper = helper,
             )
         } else {
-//            var i = 0
-//            navController.backQueue.forEach {
-//                val currID = lazyStateID(it)
-//                Log.d(logTag, "#${i++} - ${it.destination.route} - $currID ")
-//            }
 
             val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, accountHomeVM)
@@ -110,7 +107,9 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        Log.i(logTag, "... In BrowseDestinations.Offline at $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## First Composition for: browse/offline/$stateID")
+        }
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open OfflineRoots with no ID")
             back()
@@ -127,7 +126,9 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Bookmarks.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-        Log.e(logTag, ".... ## In BrowseDestinations.Bookmarks at $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## First Composition for: browse/bookmarks/$stateID")
+        }
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open bookmarks with no ID")
             back()
@@ -145,7 +146,6 @@ fun NavGraphBuilder.browseNavGraph(
 
     composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
-
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()

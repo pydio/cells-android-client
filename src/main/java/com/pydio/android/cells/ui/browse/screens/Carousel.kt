@@ -73,8 +73,9 @@ fun HorizontalPagerWithOffsetTransition(
     val pagerState = rememberPagerState(
         initialPage = index.value,
         initialPageOffsetFraction = 0f
-    ) { items.size }
-
+    ) {
+        items.size
+    }
 
     HorizontalPager(
         state = pagerState,
