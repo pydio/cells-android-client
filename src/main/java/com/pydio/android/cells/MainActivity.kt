@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
-        val launchTaskFor: (String, StateID) -> Unit = { action, stateID ->
+        val launchTaskFor: (String, StateID) -> Unit = { action, _ ->
             when (action) {
                 AppNames.ACTION_CANCEL -> {
                     setResult(RESULT_CANCELED)

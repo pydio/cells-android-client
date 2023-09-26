@@ -34,8 +34,6 @@ import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val logTag = "CellsNavGraph"
-
 @Composable
 fun CellsNavGraph(
     startingState: StartingState?,
@@ -49,6 +47,8 @@ fun CellsNavGraph(
     loginVM: LoginVM = koinViewModel(),
     browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
+
+    val logTag = "CellsNavGraph"
 
     val loginNavActions = remember(navController) {
         LoginNavigation(navController)
@@ -135,7 +135,6 @@ fun CellsNavGraph(
         )
 
         loginNavGraph(
-            navController = navController,
             loginVM = loginVM,
             helper = LoginHelper(
                 navController,
@@ -158,7 +157,6 @@ fun CellsNavGraph(
         )
 
         systemNavGraph(
-            isExpandedScreen,
             openDrawer,
             launchIntent = launchIntent,
             back = { navController.popBackStack() },

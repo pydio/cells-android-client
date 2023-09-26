@@ -18,13 +18,11 @@ fun MultipleGridItem(
                 item.defaultStateID(),
                 item.eTag,
                 item.metaHash,
-                item.mime,
                 item.name,
-                item.sortName,
                 more
             )
         } else {
-            LargeCardIconThumb(item.name, item.mime, item.sortName, more)
+            LargeCardGenericIconThumb(item.name, item.mime, item.sortName, more)
         }
     }
 }

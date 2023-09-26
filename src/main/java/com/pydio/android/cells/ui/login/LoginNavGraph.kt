@@ -1,8 +1,8 @@
 package com.pydio.android.cells.ui.login
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
@@ -14,42 +14,50 @@ import com.pydio.android.cells.ui.login.screens.ProcessAuth
 import com.pydio.android.cells.ui.login.screens.SkipVerify
 import com.pydio.android.cells.ui.login.screens.StartingLoginProcess
 
-private const val logTag = "loginNavGraph"
-
 fun NavGraphBuilder.loginNavGraph(
-    navController: NavHostController,
     helper: LoginHelper,
     loginVM: LoginVM,
 ) {
+    val logTag = "loginNavGraph"
 
     composable(LoginDestinations.Starting.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.e(logTag, "... Starting login activity with $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## 1st compo login/starting/$stateID")
+        }
         StartingLoginProcess()
     }
 
     composable(LoginDestinations.Done.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.e(logTag, "... Starting done activity for $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## 1st compo login/starting/$stateID")
+        }
         StartingLoginProcess()
     }
 
     composable(LoginDestinations.AskUrl.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.e(logTag, "... Starting AskUrl activity for $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## 1st compo login/ask-url/$stateID")
+        }
         AskServerUrl(helper = helper, loginVM = loginVM)
     }
 
     composable(LoginDestinations.SkipVerify.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.e(logTag, "... Starting SkipVerify activity for $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## 1st compo login/skip-verify/$stateID")
+        }
         SkipVerify(stateID, helper = helper, loginVM = loginVM)
     }
 
     composable(LoginDestinations.P8Credentials.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
-        Log.e(logTag, "... Starting P8Credentials activity for $stateID")
+        LaunchedEffect(key1 = stateID, key2 = skipVerify) {
+            Log.i(logTag, "## 1st compo login/p8-creds/$stateID/$skipVerify")
+        }
         P8Credentials(
             stateID = stateID,
             skipVerify = skipVerify,
@@ -61,7 +69,9 @@ fun NavGraphBuilder.loginNavGraph(
     composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
-        Log.e(logTag, "... Starting LaunchAuthProcessing activity for $stateID")
+        LaunchedEffect(key1 = stateID, key2 = skipVerify) {
+            Log.i(logTag, "## 1st compo login/launch-auth/$stateID/$skipVerify")
+        }
         LaunchAuthProcessing(
             stateID = stateID,
             skipVerify = skipVerify,
@@ -72,7 +82,9 @@ fun NavGraphBuilder.loginNavGraph(
 
     composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
-        Log.i(logTag, "... Starting ProcessAuth activity for $stateID")
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## 1st compo login/process-auth/$stateID")
+        }
         ProcessAuth(
             stateID = stateID,
             loginVM = loginVM,

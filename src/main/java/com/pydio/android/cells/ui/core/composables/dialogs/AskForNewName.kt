@@ -1,17 +1,13 @@
 package com.pydio.android.cells.ui.core.composables.dialogs
 
 import android.view.KeyEvent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -63,21 +59,6 @@ fun AskForNewName(
         )
     )
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AskForNewNameContent(oldName: String, value: String, updateValue: (String) -> Unit) {
-    Column {
-        Text(stringResource(R.string.rename_dialog_message, oldName))
-        Divider()
-        // TODO pre-select the part of the text before the extension
-        TextField(
-            value = value,
-            onValueChange = { updateValue(it) },
-        )
-    }
-}
-
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -134,4 +115,3 @@ private fun AskForNameContent(
         focusRequester.requestFocus()
     }
 }
-

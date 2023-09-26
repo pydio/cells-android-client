@@ -33,7 +33,6 @@ fun TreeNodeLargeCard(
                 node.localModStatus
             ),
             openMoreMenu = { openMoreMenu(node.stateID) },
-            sortName = node.sortName,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { open(node.stateID) }

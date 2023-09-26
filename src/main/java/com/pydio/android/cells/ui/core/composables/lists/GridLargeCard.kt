@@ -51,11 +51,10 @@ fun LargeCardWithImage(
     title: String,
     desc: String,
     modifier: Modifier = Modifier,
-    sortName: String? = null,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardImageThumb(stateID, eTag, metaHash, mime, title, sortName, openMoreMenu)
+        LargeCardImageThumb(stateID, eTag, metaHash, mime, openMoreMenu)
     }
 }
 
@@ -69,12 +68,12 @@ fun LargeCardWithIcon(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardIconThumb(title, mime, sortName, openMoreMenu)
+        LargeCardGenericIconThumb(title, mime, sortName, openMoreMenu)
     }
 }
 
 @Composable
-fun LargeCardIconThumb(
+fun LargeCardGenericIconThumb(
     title: String,
     mime: String,
     sortName: String? = null,
@@ -122,9 +121,7 @@ fun LargeCardImageThumb(
     stateID: StateID,
     eTag: String?,
     metaHash: Int,
-    mime: String,
     title: String,
-    sortName: String? = null,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     Surface(
@@ -139,32 +136,6 @@ fun LargeCardImageThumb(
             contentDescription = "$title thumbnail",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-//            loading = placeholder {
-//                LoadingAnimation(
-//                    modifier = Modifier
-//                        .padding(dimensionResource(id = R.dimen.list_thumb_padding))
-//                        .size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-//                )
-//            },
-//            failure = placeholder {
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .size(dimensionResource(id = R.dimen.grid_ws_image_size))
-//                ) {
-//                    getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
-//                        Image(
-//                            painter = painterResource(t.first),
-//                            contentDescription = null,
-//                            colorFilter = ColorFilter.tint(t.second),
-//                            modifier = Modifier
-//                                .fillMaxSize()
-//                                .wrapContentSize(Alignment.Center)
-//                                .size(dimensionResource(R.dimen.grid_large_icon_size))
-//                        )
-//                    }
-//                }
-//            },
         )
         openMoreMenu?.let {
             Box(

@@ -159,11 +159,7 @@ private fun ForegroundAccountListItemPreview() {
             "Cells test server",
             "lea",
             "https://example.com",
-//            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
-//            authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED,
             authStatus = AppNames.AUTH_STATUS_CONNECTED,
-//            authStatus = AppNames.AUTH_STATUS_EXPIRED,
-//            authStatus = AppNames.AUTH_STATUS_CONNECTED,
             isForeground = true,
             {},
             Modifier

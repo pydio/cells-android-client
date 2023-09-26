@@ -118,7 +118,7 @@ fun AppPermanentDrawer(
                 BottomSheetDivider()
 
                 MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-                wss.value?.listIterator()?.forEach {
+                wss.value.listIterator().forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
                     MyNavigationRailItem(
@@ -128,7 +128,7 @@ fun AppPermanentDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID()) },
                     )
                 }
-                cells.value?.listIterator()?.forEach {
+                cells.value.listIterator().forEach {
                     val selected = BrowseDestinations.Open.isCurrent(currRoute)
                             && it.getStateID() == currSelectedID
                     MyNavigationRailItem(

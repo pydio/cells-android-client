@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -30,7 +29,7 @@ fun DummyDialog(
             TextButton(
                 onClick = {
                     Toast.makeText(ctx, "OK button clicked", Toast.LENGTH_LONG).show()
-                    dismiss
+                    dismiss()
                 }
             ) { Text(stringResource(R.string.button_ok)) }
         },
@@ -51,9 +50,8 @@ fun DummyDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DummyDialogContent(desc: String) {
+private fun DummyDialogContent(desc: String = "a description") {
     val txtValue = remember {
         mutableStateOf("")
     }

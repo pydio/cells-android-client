@@ -17,14 +17,13 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * App wide system and rather technical pages
  */
-private const val logTag = "SystemNavGraph"
-
 fun NavGraphBuilder.systemNavGraph(
-    isExpandedScreen: Boolean,
     openDrawer: () -> Unit = {},
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit,
 ) {
+
+    val logTag = "SystemNavGraph"
 
     composable(SystemDestinations.About.route) {
         AboutScreen(

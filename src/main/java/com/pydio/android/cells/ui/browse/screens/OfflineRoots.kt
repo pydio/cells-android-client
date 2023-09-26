@@ -437,7 +437,6 @@ private fun OfflineRootsList(
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }
                                         .animateItemPlacement(),
-                                    sortName = node.sortName,
                                 )
                             } else {
                                 LargeCardWithIcon(

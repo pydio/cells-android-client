@@ -60,9 +60,9 @@ private fun tweakedFromId(stateId: String?): StateID? {
         return null
     }
 
-    var username: String? = null;
-    var host: String? = null;
-    var path: String? = null;
+    var username: String? = null
+    var host: String?
+    var path: String? = null
 
     return try {
         val parts = stateId.split("@".toRegex()).dropLastWhile { it.isEmpty() }
@@ -106,8 +106,8 @@ private fun tweakedFromId(stateId: String?): StateID? {
         StateID(username, host, path)
     } catch (iae: IllegalArgumentException) {
         Log.e(logTag, "Could not decode [$stateId] - cause:$iae")
-        iae.printStackTrace();
-        return null;
+        iae.printStackTrace()
+        return null
     }
 }
 

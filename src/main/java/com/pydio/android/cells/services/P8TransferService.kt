@@ -225,12 +225,18 @@ class P8TransferService(
             dao.insert(RTransferCancellation.cancel(transferID, stateID.id, owner))
         }
 
-    suspend fun pauseTransfer(stateID: StateID, transferID: Long, owner: String) {
-        throw IllegalStateException("Cannot pause transfer when remote is a P8 server")
+    fun pauseTransfer(stateID: StateID, transferID: Long, owner: String) {
+        throw IllegalStateException(
+            "Cannot pause transfer when remote is a P8 server, " +
+                    "params: StateID: $stateID, transferID: $transferID, owner: $owner"
+        )
     }
 
-    suspend fun resumeTransfer(stateID: StateID, transferID: Long) {
-        throw IllegalStateException("Cannot resume transfer when remote is a P8 server")
+    fun resumeTransfer(stateID: StateID, transferID: Long) {
+        throw IllegalStateException(
+            "Cannot resume transfer when remote is a P8 server, " +
+                    "params: StateID: $stateID, transferID: $transferID"
+        )
     }
 
     suspend fun forgetTransfer(stateID: StateID, transferID: Long) =

@@ -11,13 +11,13 @@ public interface AppNames {
 
     // Network management
     String NETWORK_TYPE_UNMETERED = "Unmetered";
-    String NETWORK_TYPE_METERED = "Metered";
-    String NETWORK_TYPE_ROAMING = "Roaming";
-    String NETWORK_TYPE_UNAVAILABLE = "Unavailable";
-    String NETWORK_TYPE_UNKNOWN = "Unknown";
     String NETWORK_TYPE_CONSTRAINT_NONE = "None";
-    String NETWORK_TYPE_CONSTRAINT_UNMETERED = "Unmetered";
     String NETWORK_TYPE_CONSTRAINT_NOT_ROAMING = "Not Roaming";
+//    String NETWORK_TYPE_METERED = "Metered";
+//    String NETWORK_TYPE_ROAMING = "Roaming";
+//    String NETWORK_TYPE_UNAVAILABLE = "Unavailable";
+//    String NETWORK_TYPE_UNKNOWN = "Unknown";
+//    String NETWORK_TYPE_CONSTRAINT_UNMETERED = "Unmetered";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
 
@@ -39,25 +39,25 @@ public interface AppNames {
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 
     String ACTION_MORE = KEY_PREFIX_ + "more";
-    String ACTION_OPEN = KEY_PREFIX_ + "open";
+    // String ACTION_OPEN = KEY_PREFIX_ + "open";
     String ACTION_PAUSE = KEY_PREFIX_ + "pause";
     String ACTION_CANCEL = KEY_PREFIX_ + "cancel";
     String ACTION_DONE = KEY_PREFIX_ + "done";
     String ACTION_RESUME = KEY_PREFIX_ + "resume";
     String ACTION_RESTART = KEY_PREFIX_ + "restart";
-    String ACTION_CHOOSE_TARGET = KEY_PREFIX_ + "choosetarget";
+    // String ACTION_CHOOSE_TARGET = KEY_PREFIX_ + "choosetarget";
     String ACTION_COPY = KEY_PREFIX_ + "copy";
     String ACTION_MOVE = KEY_PREFIX_ + "move";
     String ACTION_UPLOAD = KEY_PREFIX_ + "upload";
-    String ACTION_DOWNLOAD = KEY_PREFIX_ + "download";
+    // String ACTION_DOWNLOAD = KEY_PREFIX_ + "download";
     String ACTION_CREATE_FOLDER = KEY_PREFIX_ + "createfolder";
 
     String ACTION_OPEN_PARENT_IN_WORKSPACES = KEY_PREFIX_ + "openparentinworkspaces";
     String ACTION_DELETE_RECORD = KEY_PREFIX_ + "deleterecord";
 
     String ACTION_LOGIN = "login";
-    String ACTION_LOGOUT = "logout";
-    String ACTION_FORGET = "forget";
+    // String ACTION_LOGOUT = "logout";
+    // String ACTION_FORGET = "forget";
 
     /* Flags */
     int FLAG_BOOKMARK = 1;
@@ -76,16 +76,16 @@ public interface AppNames {
     // Known owners
     String JOB_OWNER_USER = "User";
     String JOB_OWNER_WORKER = "Worker";
-    String JOB_OWNER_SYSTEM = "Android System";
+    // String JOB_OWNER_SYSTEM = "Android System";
     // Known Templates
     String JOB_TEMPLATE_FULL_RESYNC = "full-sync";
     String JOB_TEMPLATE_RESYNC = "sync-%s";
     String JOB_TEMPLATE_MIGRATION_V2 = "migration-v2";
-    String JOB_TEMPLATE_CLEAN = "clean";
+    // String JOB_TEMPLATE_CLEAN = "clean";
     String JOB_TEMPLATE_SHARE = "share";
 
     // Specific additional status to manage uploads when remote server is not currently available
-    String UPLOAD_STATUS_PRE_PROCESSING = "pre_processing";
+    // String UPLOAD_STATUS_PRE_PROCESSING = "pre_processing";
     String UPLOAD_STATUS_LOCALLY_CACHED = "locally_cached";
 
     /* Transfers */
@@ -94,7 +94,7 @@ public interface AppNames {
 
 
     // Account Authentication States
-    // TODO finalize auth state management
+    // TODO Finalize auth state management.
     String AUTH_STATUS_NEW = "new";
     String AUTH_STATUS_NO_CREDS = "no-credentials";
     String AUTH_STATUS_UNAUTHORIZED = "unauthorized";
@@ -111,7 +111,7 @@ public interface AppNames {
     String OFFLINE_STATUS_ACTIVE = "active";
     String OFFLINE_STATUS_MIGRATED = "migrated";
     String OFFLINE_STATUS_LOST = "lost";
-    String OFFLINE_STATUS_DELETED = "deleted";
+    // String OFFLINE_STATUS_DELETED = "deleted";
 
     String OFFLINE_STORAGE_INTERNAL = "internal";
 

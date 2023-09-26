@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  * */
 class ShareVM(
     stateID: StateID,
-    private val prefs: PreferencesService,
+    prefs: PreferencesService,
     private val jobService: JobService,
     private val nodeService: NodeService,
     private val transferService: TransferService
