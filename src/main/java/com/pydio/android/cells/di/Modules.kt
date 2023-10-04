@@ -83,9 +83,9 @@ class DiNames {
 }
 
 // Databases are only referenced locally
-private const val runtimeDBName = "runtimedb"
-private const val authDBName = "authdb"
-private const val accountDBName = "accountdb"
+private const val RUNTIME_DB_NAME = "runtimedb"
+private const val AUTH_DB_NAME = "authdb"
+private const val ACCOUNT_DB_NAME = "accountdb"
 
 val appModule = module {
     single {
@@ -106,7 +106,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             RuntimeDB::class.java,
-            runtimeDBName
+            RUNTIME_DB_NAME
         )
             .addMigrations(RuntimeDB.MIGRATION_1_2)
             .fallbackToDestructiveMigrationOnDowngrade()
@@ -118,7 +118,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             AuthDB::class.java,
-            authDBName
+            AUTH_DB_NAME
         )
             .build()
     }
@@ -128,7 +128,7 @@ val dbModule = module {
         Room.databaseBuilder(
             androidContext().applicationContext,
             AccountDB::class.java,
-            accountDBName
+            ACCOUNT_DB_NAME
         ).build()
     }
 }

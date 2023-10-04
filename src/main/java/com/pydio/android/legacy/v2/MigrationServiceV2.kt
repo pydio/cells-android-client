@@ -31,7 +31,6 @@ import org.koin.core.component.inject
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 /**
@@ -69,7 +68,6 @@ class MigrationServiceV2 : KoinComponent {
      * status
      *
      * @return the number of offline roots node that have been migrated */
-    @OptIn(ExperimentalTime::class)
     suspend fun migrate(
         context: Context,
         scope: CoroutineScope,
@@ -150,7 +148,7 @@ class MigrationServiceV2 : KoinComponent {
         return mainDbFile.exists() && syncDbFile.exists()
     }
 
-    fun prepare(context: Context) {
+    private fun prepare(context: Context) {
         // Insure we have all legacy DBs and init
         V2MainDB.init(context, dbPath(context, V2MainDB.DB_FILE_NAME))
         V2SyncDB.init(context, dbPath(context, V2SyncDB.DB_FILE_NAME))

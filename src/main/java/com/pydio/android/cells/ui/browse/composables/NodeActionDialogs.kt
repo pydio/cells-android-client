@@ -246,7 +246,7 @@ fun TakePicture(
     )
     if (!alreadyLaunched.value) {
         LaunchedEffect(key1 = targetParentID) {
-            Log.e(logTag, "Launching 'TakePicture' with parent $targetParentID")
+            Log.d(logTag, "Launching 'TakePicture' with parent $targetParentID")
             delay(100)
             nodeActionsVM.preparePhoto(context, targetParentID)?.also {
                 photoTaker.launch(it)

@@ -238,9 +238,6 @@ class LoginVM(
                 tmpID = accountService.signUp(currURL, credentials)
                 delay(smoothActionDelay)
                 updateMessage("Connected, updating local state")
-//                withContext(Dispatchers.Main) {
-//                    setCurrentStep(LoginStep.PROCESS_AUTH)
-//                }
                 accountService.refreshWorkspaceList(tmpID)
                 delay(smoothActionDelay)
             } catch (e: SDKException) {

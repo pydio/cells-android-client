@@ -28,20 +28,19 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
- * Provides generic flows to ease cells app page implementation
+ * Provides generic flows to ease Cells App pages implementation.
  */
 open class AbstractCellsVM : ViewModel(), KoinComponent {
 
     private val logTag = "AbstractCellsVM"
 
-    // Avoid boiling plate to have the connection services here.
+    // Avoid boiling plate to have the connection services here
     private val errorService: ErrorService by inject()
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
     protected val nodeService: NodeService by inject()
 
-    //    // Expose a flow of error messages for the end-user.
-//    private val _errorMessage = MutableStateFlow<ErrorMessage?>(null)
+    // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
 
     // Loading data from server state

@@ -17,9 +17,6 @@ fun TreeNodeLargeCard(
     openMoreMenu: (StateID) -> Unit,
     open: (StateID) -> Unit
 ) {
-
-//    Log.e("test", "Meta hash: ${node.metaHash}")
-
     if (node.hasThumb) {
         LargeCardWithImage(
             stateID = node.stateID,

@@ -68,16 +68,17 @@ fun NavHostWithDrawer(
     val navigateTo: (String) -> Unit = { route ->
         Log.e(LOG_TAG, "Got a navigate call to $route")
         if (route == lastRoute.value) {
-            Log.e(LOG_TAG, "Same route called twice !! $route")
-            Thread.dumpStack()
-            Log.e(LOG_TAG, "Skipping call!")
-        } else {
-            val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
+            Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
+//            Thread.dumpStack()
+//            Log.e(LOG_TAG, "Skipping call!")
+//        } else {
+        }
+        val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
             Log.e(LOG_TAG, "Previous Backstack Entry route: $oldRoute")
             Log.e(LOG_TAG, "Recorded last route: ${lastRoute.value}")
             lastRoute.value = route
             mainNavController.navigate(route)
-        }
+        // }
     }
 
     val customColor = connectionService.customColor.collectAsState(null)

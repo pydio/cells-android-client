@@ -26,20 +26,19 @@ fun DefaultLoginPage(
     desc: String?,
     message: String?,
     isErrorMsg: Boolean = false,
-    Content: @Composable () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Surface(modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                // .padding(horizontal = dimensionResource(R.dimen.card_padding))
                 .padding(dimensionResource(R.dimen.form_page_padding))
                 .wrapContentWidth(Alignment.Start)
         ) {
 
             TitleDescColumnBloc(title, desc)
 
-            Content()
+            content()
 
             if (Str.notEmpty(message)) {
                 Text(

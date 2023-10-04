@@ -141,7 +141,6 @@ fun M3NodeItem(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
             )
-
         }
     }
 }
@@ -154,7 +153,6 @@ fun OfflineRootItem(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     M3NodeItem(
         stateID = item.getStateID(),
         sortName = item.sortName,

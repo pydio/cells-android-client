@@ -111,7 +111,6 @@ class FileDownloader(private val parentJobID: Long) : KoinComponent {
             isFailed = true
             jobService.failed(parentJobID, errMsg)
             jobService.e(logTag, errMsg, "Job #$parentJobID")
-            // accountService.notifyError(state, e.code)
         }
     }
 

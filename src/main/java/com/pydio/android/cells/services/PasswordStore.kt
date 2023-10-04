@@ -28,10 +28,10 @@ class PasswordStore(private val dao: LegacyCredentialsDao) : Store<String> {
     }
 
     override fun getAll(): MutableMap<String, String> {
-        val allCreds: MutableMap<String, String> = HashMap()
+        val allCredentials: MutableMap<String, String> = HashMap()
         for (cred in dao.getAll()) {
-            allCreds[cred.accountID] = cred.password
+            allCredentials[cred.accountID] = cred.password
         }
-        return allCreds
+        return allCredentials
     }
 }

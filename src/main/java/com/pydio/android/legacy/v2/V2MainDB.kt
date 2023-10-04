@@ -200,41 +200,41 @@ class V2MainDB private constructor(context: Context, path: String, version: Int)
     }
 
     companion object {
-        const val VERSION = 1
+        private const val VERSION = 1
         const val DB_FILE_NAME = "database.sqlite"
-        const val DB_FILE_PATH = "/files/" + DB_FILE_NAME
+        const val DB_FILE_PATH = "/files/$DB_FILE_NAME"
         private val lock = Any()
         private var instance: V2MainDB? = null
 
         // SQL Boiler plate
         const val sessions = "`sessions`"
-        const val col_sid = "`session_id`"
-        const val col_blob = "`content`"
+        private const val col_sid = "`session_id`"
+        private const val col_blob = "`content`"
         private val createSessions = String.format(
             "CREATE TABLE if not exists %s (%s text not null, %s blob not null);",
             sessions,
             col_sid,
             col_blob
         )
-        const val tokens = "`tokens`"
-        const val col_jwt = "`jwt`"
+        private const val tokens = "`tokens`"
+        private const val col_jwt = "`jwt`"
         private val createTokens = String.format(
             "CREATE TABLE if not exists %s (%s text not null, %s text not null);",
             tokens,
             col_sid,
             col_jwt
         )
-        const val col_user = "`user`"
-        const val col_password = "`password`"
+        private const val col_user = "`user`"
+        private const val col_password = "`password`"
         private val create_cookies = String.format(
             "CREATE TABLE if not exists cookies (%s TEXT PRIMARY KEY NOT NULL, %s TEXT); ",
             col_user,
             col_password
         )
         const val index = "`index_group`"
-        const val col_workspace = "`workspace_id`"
-        const val col_path = "`path`"
-        const val col_change_seq = "`" + SdkNames.CHANGE_SEQ + "`"
+        private const val col_workspace = "`workspace_id`"
+        private const val col_path = "`path`"
+        private const val col_change_seq = "`" + SdkNames.CHANGE_SEQ + "`"
         private const val create_offline_roots = "CREATE TABLE " + index + "(" +
                 col_workspace + " TEXT NOT NULL, " +
                 col_path + " TEXT NOT NULL, " +

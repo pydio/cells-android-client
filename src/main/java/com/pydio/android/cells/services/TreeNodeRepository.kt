@@ -80,10 +80,10 @@ class TreeNodeRepository(
         nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
-    suspend fun abortLocalChanges(stateID: StateID) = withContext(ioDispatcher) {
-        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
-        node.localModificationTS = node.remoteModificationTS
-        node.localModificationStatus = null
-        nodeDB(stateID).treeNodeDao().update(node)
-    }
+//    suspend fun abortLocalChanges(stateID: StateID) = withContext(ioDispatcher) {
+//        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+//        node.localModificationTS = node.remoteModificationTS
+//        node.localModificationStatus = null
+//        nodeDB(stateID).treeNodeDao().update(node)
+//    }
 }

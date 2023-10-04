@@ -72,6 +72,7 @@ class JobService(
         withContext(ioDispatcher) {
             updateById(jobID) { currJob ->
                 currJob.total = newTotal
+                newStatus?.let { currJob.status = newStatus }
                 message?.let { currJob.progressMessage = message }
                 currJob
             }

@@ -6,8 +6,6 @@ import com.pydio.cells.transport.StateID
 /** Simply expose navigation actions for the Login subGraph */
 class LoginNavigation(private val navController: NavHostController) {
 
-    // private val logTag = "LoginNavigation"
-
     fun start(stateID: StateID?) {
         val route = LoginDestinations.Starting.createRoute(stateID ?: StateID.NONE)
         navController.navigate(route) {
@@ -30,22 +28,6 @@ class LoginNavigation(private val navController: NavHostController) {
             LoginDestinations.SkipVerify.createRoute(stateID ?: StateID.NONE)
         navController.navigate(route)
     }
-
-//    fun p8Credentials(stateID: StateID?, skipVerify: Boolean) {
-//        val route = LoginDestinations.P8Credentials.createRoute(
-//            stateID ?: StateID.NONE,
-//            skipVerify
-//        )
-//        navController.navigate(route)
-//    }
-
-//    fun processAuth(stateID: StateID?, skipVerify: Boolean) {
-//        val route = LoginDestinations.ProcessAuth.createRoute(
-//            stateID ?: StateID.NONE,
-//            skipVerify
-//        )
-//        navController.navigate(route)
-//    }
 
     fun back() {
         navController.popBackStack()

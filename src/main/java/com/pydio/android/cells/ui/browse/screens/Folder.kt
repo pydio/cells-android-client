@@ -176,7 +176,7 @@ fun Folder(
                 actionDone(true)
             }
 
-            is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
+            is NodeAction.SortBy -> { // The real "set()" has already been done by the bottom sheet via its preferencesVM
                 actionDone(true)
             }
 
@@ -390,7 +390,6 @@ private fun FolderList(
                             }
                         }
                         items(children, key = { it.stateID.id }) { node ->
-                            // Log.e("test", "Meta hash: ${node.metaHash}")
                             TreeNodeLargeCard(node, openMoreMenu, open)
                         }
                     }
@@ -427,7 +426,6 @@ private fun FolderList(
                                     .padding(0.dp)
                                     .fillMaxWidth()
                                     .clickable { open(node.stateID) }
-                                    // This breaks the layout and makes the trailing buttons disappear
                                     .animateItemPlacement()
                             )
                         }

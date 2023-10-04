@@ -91,7 +91,6 @@ fun AccountRailHeader(
         modifier = modifier,
     ) {
         Row(
-            // modifier = modifier.clickable { openAccounts() },
             verticalAlignment = Alignment.Bottom,
         ) {
 

@@ -43,7 +43,7 @@ class SessionFactory(
         // If not yet defined, try to register it
         val sessionView = sessionViewDao.getSession(stateID.accountId)
         if (sessionView != null) {
-            var currTransport =
+            val currTransport =
                 transportStore.get(stateID.accountId) ?: prepareTransport(sessionView)
             return currTransport.server
         }

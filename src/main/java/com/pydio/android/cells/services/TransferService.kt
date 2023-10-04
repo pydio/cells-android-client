@@ -528,12 +528,12 @@ class TransferService(
         doUpload(dao, uploadRecord)
     }
 
-    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(ioDispatcher) {
-        val dao = getTransferDao(accountId)
-        val uploadRecord = dao.getById(transferId)
-            ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
-        doUpload(dao, uploadRecord)
-    }
+//    suspend fun uploadOne(accountId: StateID, transferId: Long) = withContext(ioDispatcher) {
+//        val dao = getTransferDao(accountId)
+//        val uploadRecord = dao.getById(transferId)
+//            ?: throw IllegalStateException("No transfer record found for $transferId in $accountId, cannot upload")
+//        doUpload(dao, uploadRecord)
+//    }
 
     /**
      * Register a new upload that has to be processed

@@ -138,10 +138,10 @@ class V2SyncDB private constructor(context: Context, filepath: String, version: 
     }
 
     companion object {
-        private val logTag = "V2SyncDB"
+        private const val logTag = "V2SyncDB"
         private const val version = 2
         const val DB_FILE_NAME = "sync.sqlite"
-        const val DB_FILE_PATH = "/files/" + DB_FILE_NAME
+        const val DB_FILE_PATH = "/files/$DB_FILE_NAME"
         private var instance: V2SyncDB? = null
         private val gson = Gson()
 

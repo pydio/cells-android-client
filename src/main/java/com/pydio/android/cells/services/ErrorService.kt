@@ -29,15 +29,9 @@ class ErrorService(
     // TODO make this variable
     private val errorDebounceDelay = 800L
 
-    // We debounce the error messages to avoid saturating the snackbar
+    // We debounce the error messages to avoid saturating the snack-bar
     @OptIn(FlowPreview::class)
     private var _userMessages: Flow<ErrorMessage?> = _allMessages.debounce(errorDebounceDelay)
-
-    //    val userMessages: StateFlow<ErrorMessage?> = _userMessages.stateIn(
-//        scope = serviceScope,
-//        started = SharingStarted.WhileSubscribed(5000),
-//        initialValue = null
-//    )
 
     // We rather use a shared flow to be able to see messages only once
     // otherwise, each view model will show latest error message when starting to listen
