@@ -7,12 +7,12 @@ public class WatchInfo {
     private String accountID;
     private String workspaceLabel = "";
     private FileNode node;
-//    private long addTime;
-//    private long lastSyncTime;
+    private long addTime;
+    private long lastSyncTime;
 //    private SyncStats lastSyncStats;
 //    private SyncError lastSyncErrorDetails;
 
-//    private boolean active = true;
+    private boolean active = true;
 
     public void setAccountID(String accountID) {
         this.accountID = accountID;
@@ -38,29 +38,29 @@ public class WatchInfo {
         this.node = node;
     }
 
-//    public long getAddTime() {
-//        return addTime;
-//    }
+    public long getAddTime() {
+        return addTime;
+    }
 
-//    public void setAddTime(long addTime) {
-//        this.addTime = addTime;
-//    }
-//
-//    public long getLastSyncTime() {
-//        return lastSyncTime;
-//    }
+    public void setAddTime(long addTime) {
+        this.addTime = addTime;
+    }
 
-//    public void setLastSyncTime(long lastSyncTime) {
-//        this.lastSyncTime = lastSyncTime;
-//    }
-//
-//    public boolean isActive() {
-//        return active;
-//    }
+    public long getLastSyncTime() {
+        return lastSyncTime;
+    }
 
-//    public void setActive(boolean active) {
-//        this.active = active;
-//    }
+    public void setLastSyncTime(long lastSyncTime) {
+        this.lastSyncTime = lastSyncTime;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public boolean equals(Object object) {
         if (this == object) {

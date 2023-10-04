@@ -162,7 +162,7 @@ fun ChooseDestination(
     Log.d(logTag, "Composing ChooseDestination for $stateID")
     val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
     val destinationPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument(),
+        contract = ActivityResultContracts.CreateDocument("*/*"),
         onResult = { uri ->
             Log.e(logTag, "Got a destination for $stateID")
             if (stateID != StateID.NONE) {
