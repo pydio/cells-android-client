@@ -29,6 +29,7 @@ import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.toErrorMessage
@@ -47,39 +48,39 @@ private fun route(action: NodeAction): String {
 }
 
 sealed class NodeAction(val id: String) {
-    object DownloadToDevice : NodeAction("download_to_device")
-    object Rename : NodeAction("rename")
-    object CopyTo : NodeAction("copy_to")
-    object MoveTo : NodeAction("move_to")
-    object CreateShare : NodeAction("create_share")
-    object ShareWith : NodeAction("share_with")
-    object CopyToClipboard : NodeAction("copy_to_Clipboard")
-    object ShowQRCode : NodeAction("show_qr_code")
-    object RemoveLink : NodeAction("remove_link")
+    data object DownloadToDevice : NodeAction("download_to_device")
+    data object Rename : NodeAction("rename")
+    data object CopyTo : NodeAction("copy_to")
+    data object MoveTo : NodeAction("move_to")
+    data object CreateShare : NodeAction("create_share")
+    data object ShareWith : NodeAction("share_with")
+    data object CopyToClipboard : NodeAction("copy_to_Clipboard")
+    data object ShowQRCode : NodeAction("show_qr_code")
+    data object RemoveLink : NodeAction("remove_link")
 
-    object TakePicture : NodeAction("take_picture")
-    object ImportFile : NodeAction("import_file")
-    object CreateFolder : NodeAction("create_folder")
+    data object TakePicture : NodeAction("take_picture")
+    data object ImportFile : NodeAction("import_file")
+    data object CreateFolder : NodeAction("create_folder")
 
-    object ManageShare : NodeAction("manage_share")
+    // object ManageShare : NodeAction("manage_share")
     class ToggleOffline(val isChecked: Boolean) : NodeAction("toggle_offline")
     class ToggleBookmark(val isChecked: Boolean) : NodeAction("toggle_bookmark")
-    object Delete : NodeAction("delete")
+    data object Delete : NodeAction("delete")
 
-    object RestoreFromTrash : NodeAction("restore_from_trash")
-    object PermanentlyRemove : NodeAction("permanently_remove")
-    object EmptyRecycle : NodeAction("empty_recycle")
-    object SelectTargetFolder : NodeAction("select_target_folder")
+    data object RestoreFromTrash : NodeAction("restore_from_trash")
+    data object PermanentlyRemove : NodeAction("permanently_remove")
+    data object EmptyRecycle : NodeAction("empty_recycle")
+    data object SelectTargetFolder : NodeAction("select_target_folder")
 
-    object ForceResync : NodeAction("force_re_sync")
-    object OpenInApp : NodeAction("open_in_app")
+    data object ForceResync : NodeAction("force_re_sync")
+    data object OpenInApp : NodeAction("open_in_app")
 
-    object OpenParentLocation : NodeAction("open_parent_location")
+    data object OpenParentLocation : NodeAction("open_parent_location")
 
-    object SortBy : NodeAction("sort_by")
-    object AsList : NodeAction("as_list")
-    object AsGrid : NodeAction("as_grid")
-    object AsSmallerGrid : NodeAction("as_smaller_grid")
+    data object SortBy : NodeAction("sort_by")
+    data object AsList : NodeAction("as_list")
+    data object AsGrid : NodeAction("as_grid")
+//    data object AsSmallerGrid : NodeAction("as_smaller_grid")
 }
 
 /** Add the more menu **/
@@ -184,14 +185,14 @@ private fun FolderWithDialogs(
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
                 val initialRoute =
-                    "${NodeAction.SelectTargetFolder.id}/${passedStateID.parent().id}"
+                    "${NodeAction.SelectTargetFolder.id}/${encodeStateForRoute(passedStateID.parent())}"
                 navController.navigate(initialRoute)
             }
 
             is NodeAction.MoveTo -> {
                 currentAction.value = AppNames.ACTION_MOVE
                 val initialRoute =
-                    "${NodeAction.SelectTargetFolder.id}/${passedStateID.parent().id}"
+                    "${NodeAction.SelectTargetFolder.id}/${encodeStateForRoute(passedStateID.parent())}"
                 navController.navigate(initialRoute)
             }
 
@@ -250,7 +251,7 @@ private fun FolderWithDialogs(
                 actionDone(true)
             }
 
-            else -> navController.navigate("${it.id}/${passedStateID.id}")
+            else -> navController.navigate("${it.id}/${encodeStateForRoute(passedStateID)}")
         }
     }
 
@@ -404,6 +405,10 @@ private fun FolderWithDialogs(
 
         dialog(route(NodeAction.DownloadToDevice)) { entry ->
             val stateID = lazyStateID(entry)
+            if (stateID == StateID.NONE) {
+                Log.w(logTag, "... CreateFolder with no ID")
+                return@dialog
+            }
             ChooseDestination(
                 nodeActionsVM,
                 stateID = stateID,

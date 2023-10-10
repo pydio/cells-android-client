@@ -12,7 +12,6 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import java.net.URLDecoder
 import java.net.URLEncoder
 
 private const val logTag = "core.utils"
@@ -42,74 +41,74 @@ fun lazyStateID(
     navBackStackEntry: NavBackStackEntry?,
     key: String = AppKeys.STATE_ID,
 ): StateID {
-    return navBackStackEntry?.arguments?.getString(key)
-        ?.let {
-            // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
-            tweakedFromId(it)
+    return navBackStackEntry?.arguments?.getString(key)?.let {
+        // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
+        if (it.isEmpty()) {
+            return StateID.NONE
         }
-        ?: run {
-            // Log.w(logTag, " ... No stateID found in backstack entry, for key $key")
-            StateID.NONE
-        }
-}
-
-
-private fun tweakedFromId(stateId: String?): StateID? {
-
-    if (stateId.isNullOrEmpty()) {
-        return null
-    }
-
-    var username: String? = null
-    var host: String?
-    var path: String? = null
-
-    return try {
-        val parts = stateId.split("@".toRegex()).dropLastWhile { it.isEmpty() }
-            .toTypedArray()
-        when (parts.size) {
-            1 -> host = URLDecoder.decode(parts[0], "UTF-8")
-            2 -> {
-                username = URLDecoder.decode(parts[0], "UTF-8")
-                host = URLDecoder.decode(parts[1], "UTF-8")
-            }
-
-            3 -> {
-                username = URLDecoder.decode(parts[0], "UTF-8")
-                host = URLDecoder.decode(parts[1], "UTF-8")
-                path = URLDecoder.decode(parts[2], "UTF-8")
-                if (path.startsWith("http://") || path.startsWith("https://")) {
-                    Log.e(logTag, "We found a path that begins with https for: $stateId")
-                    Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
-                    username = "$username@$host"
-                    host = path
-                    path = null
-                    Log.e(logTag, "   New values: uname: $username, host: $host")
-                }
-            }
-
-            4 -> {
-                Log.e(logTag, "Parsed stateId [$stateId] has 4 parts")
-                Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
-                username = URLDecoder.decode(parts[0], "UTF-8")
-                username += "@" + URLDecoder.decode(parts[1], "UTF-8")
-                host = URLDecoder.decode(parts[2], "UTF-8")
-                path = URLDecoder.decode(parts[3], "UTF-8")
-                Log.e(logTag, "   New values: uname: $username, host: $host, path: $path")
-            }
-
-            else -> {
-                Log.e(logTag, "Could not create State from ID: $stateId")
-                return null
-            }
-        }
-        StateID(username, host, path)
-    } catch (iae: IllegalArgumentException) {
-        Log.e(logTag, "Could not decode [$stateId] - cause:$iae")
-        iae.printStackTrace()
-        return null
+        return StateID.fromId(it)
+    } ?: run {
+        Log.w(logTag, " ... No stateID found in backstack entry with key $key")
+        StateID.NONE
     }
 }
+
+//private fun tweakedFromId(stateId: String?): StateID? {
+//
+//
+//    return StateID.fromId(stateId)
+//
+//    var username: String? = null
+//    var host: String?
+//    var path: String? = null
+//
+//    return try {
+//        val parts = stateId.split("@".toRegex()).dropLastWhile { it.isEmpty() }
+//            .toTypedArray()
+//        when (parts.size) {
+//            1 -> host = URLDecoder.decode(parts[0], "UTF-8")
+//            2 -> {
+//                username = URLDecoder.decode(parts[0], "UTF-8")
+//                host = URLDecoder.decode(parts[1], "UTF-8")
+//            }
+//
+//            3 -> {
+//                username = URLDecoder.decode(parts[0], "UTF-8")
+//                host = URLDecoder.decode(parts[1], "UTF-8")
+//                path = URLDecoder.decode(parts[2], "UTF-8")
+//                if (path.startsWith("http://") || path.startsWith("https://")) {
+//                    Log.e(logTag, "We found a path that begins with https for: $stateId")
+//                    Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
+//                    username = "$username@$host"
+//                    host = path
+//                    path = null
+//                    Log.e(logTag, "   New values: uname: $username, host: $host")
+//                }
+//            }
+//
+//            4 -> {
+//                Log.e(logTag, "Parsed stateId [$stateId] has 4 parts")
+//                Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
+//                username = URLDecoder.decode(parts[0], "UTF-8")
+//                username += "@" + URLDecoder.decode(parts[1], "UTF-8")
+//                host = URLDecoder.decode(parts[2], "UTF-8")
+//                path = URLDecoder.decode(parts[3], "UTF-8")
+//                Log.e(logTag, "   New values: uname: $username, host: $host, path: $path")
+//            }
+//
+//            else -> {
+//                Log.e(logTag, "Could not create State from ID: $stateId")
+//                Thread.dumpStack()
+//                return null
+//            }
+//        }
+//        StateID(username, host, path)
+//    } catch (iae: IllegalArgumentException) {
+//        Log.e(logTag, "Could not decode [$stateId] - cause:$iae")
+//        iae.printStackTrace()
+//        return null
+//    }
+//}
 
 fun lazyQueryContext(
     navBackStackEntry: NavBackStackEntry?,
