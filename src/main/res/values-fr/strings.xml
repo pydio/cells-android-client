@@ -137,7 +137,7 @@
     <!--Offline -->
     <string name="sync_in_progress">En cours de synchronisation…</string>
     <string name="sync_downloading">Téléchargement des fichiers…</string>
-    <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements…</string>
+    <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements</string>
     <string name="sync_already_running">Une synchronisation est déjà en cours. Veuillez patienter avant d\'en lancer une nouvelle</string>
     <string name="confirm_remove_offline_title">Confirmer votre choix</string>
     <string name="confirm_remove_offline_desc">La suppression du statut hors ligne de ce nœud peut conduire à la perte des données téléchargées. Êtes-vous sûr de vouloir continuer</string>

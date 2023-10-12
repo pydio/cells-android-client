@@ -139,7 +139,7 @@
     <!--Offline -->
     <string name="sync_in_progress">Синхронизация…</string>
     <string name="sync_downloading">Загрузка файлов…</string>
-    <string name="sync_tree_walking">Обход дерева в поисках изменений…</string>
+    <string name="sync_tree_walking">Обход дерева в поисках изменений</string>
     <string name="sync_already_running">Процесс синхронизации уже запущен, пожалуйста, подождите перед запуском нового</string>
     <string name="confirm_remove_offline_title">Confirm your choice</string>
     <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>

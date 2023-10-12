@@ -137,7 +137,7 @@
     <!--Offline -->
     <string name="sync_in_progress">Sincronizando…</string>
     <string name="sync_downloading">Baixando arquivos…</string>
-    <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças…</string>
+    <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças</string>
     <string name="sync_already_running">Um processo de sincronização já está em execução, por favor aguarde antes de iniciar um novo</string>
     <string name="confirm_remove_offline_title">Confirme sua escolha</string>
     <string name="confirm_remove_offline_desc">Remover o status offline deste nó pode levar à perda dos dados baixados. Tem certeza de que deseja prosseguir</string>

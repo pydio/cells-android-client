@@ -28,26 +28,26 @@
         <item>Conectado (se ejecutará en cuanto podamos alcanzar el servidor, sin importar el tipo de red)</item>
     </string-array>
     <string-array name="filter_transfer_by_status_labels">
-        <item>Show all (no filter)</item>
-        <item>New</item>
-        <item>Processing</item>
-        <item>Cancelled</item>
-        <item>Done</item>
+        <item>Mostrar todo (sin filtro)</item>
+        <item>Nuevo</item>
+        <item>Procesando</item>
+        <item>Cancelado</item>
+        <item>Hecho</item>
         <item>Error</item>
-        <item>Timeout</item>
+        <item>Tiempo agotado</item>
     </string-array>
     <string-array name="transfer_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
-        <item>Creation order (oldest first)</item>
-        <item>Status (A to Z)</item>
-        <item>Status (Z to A)</item>
-        <item>Type (Download First)</item>
-        <item>Type (Upload First)</item>
+        <item>Canónico (Por orden de creación, el más reciente primero)</item>
+        <item>Orden de creación (más antiguo primero)</item>
+        <item>Estado (A a Z)</item>
+        <item>Estado (Z a A)</item>
+        <item>Tipo (Descargar primero)</item>
+        <item>Tipo (Subida primero)</item>
     </string-array>
     <string-array name="job_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
-        <item>Creation order (oldest first)</item>
-        <item>Status (A to Z)</item>
-        <item>Status (Z to A)</item>
+        <item>Canónico (Por orden de creación, el más reciente primero)</item>
+        <item>Orden de creación (más antiguo primero)</item>
+        <item>Estado (A a Z)</item>
+        <item>Estado (Z a A)</item>
     </string-array>
 </resources>

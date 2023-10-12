@@ -137,7 +137,7 @@
     <!--Offline -->
     <string name="sync_in_progress">Synchronisierung…</string>
     <string name="sync_downloading">Dateien werden heruntergeladen…</string>
-    <string name="sync_tree_walking">Durchsuchen des Baums nach Änderungen…</string>
+    <string name="sync_tree_walking">Durchsuchen des Baums nach Änderungen</string>
     <string name="sync_already_running">Ein Synchronisierungsprozess läuft bereits. Bitte warten Sie, bevor Sie einen neuen starten</string>
     <string name="confirm_remove_offline_title">Auswahl bestätigen</string>
     <string name="confirm_remove_offline_desc">Das Entfernen des Offline-Status dieses Knotens kann dazu führen, dass die heruntergeladenen Daten verloren gehen. Sind Sie sicher, dass Sie fortfahren möchten</string>
