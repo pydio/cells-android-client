@@ -11,8 +11,6 @@ import com.pydio.android.cells.services.WorkerService
 import com.pydio.android.cells.utils.timestampForLogMessage
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -28,10 +26,10 @@ class CellsApp : Application(), KoinComponent {
 
     private val logTag = "CellsApp"
 
-    // Exposed to the whole app for tasks that must survive termination of the calling UI element
-    // Typically for actions launched from the "More" menu (copy, move...)
-    @Deprecated("Rather use injected @CoroutineService::class")
-    val appScope = CoroutineScope(SupervisorJob())
+//    // Exposed to the whole app for tasks that must survive termination of the calling UI element
+//    // Typically for actions launched from the "More" menu (copy, move...)
+//    @Deprecated("Rather use injected @CoroutineService::class")
+//    val appScope = CoroutineScope(SupervisorJob())
 
     companion object {
         lateinit var instance: CellsApp
@@ -98,9 +96,6 @@ class CellsApp : Application(), KoinComponent {
         }
     }
 
-    @Suppress("DEPRECATION")
-    // We must explicitly discard warnings when using the old and new version of a given API
-    // like below that is only available in v33+ with old version that has already been deprecated
     private fun internalGetPackageInfo(): PackageInfo {
         try {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

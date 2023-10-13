@@ -7,8 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PreferencesService
@@ -32,6 +32,7 @@ enum class Step {
 
 class MigrationVM(
     private val prefs: PreferencesService,
+    private val coroutineService: CoroutineService,
     private val jobService: JobService,
     private val offlineService: OfflineService
 ) : ViewModel() {
@@ -116,7 +117,7 @@ class MigrationVM(
     }
 
     suspend fun launchSync() {
-        CellsApp.instance.appScope.launch {
+        coroutineService.cellsIoScope.launch {
             offlineService.runFullSync("${AppNames.JOB_OWNER_USER} (post-migration)")
         }
     }

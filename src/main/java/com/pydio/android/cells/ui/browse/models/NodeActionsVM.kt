@@ -5,7 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.CellsApp
+import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
@@ -23,6 +23,7 @@ import java.io.IOException
 
 /**  Centralize methods to manage a TreeNode */
 class NodeActionsVM(
+    private val coroutineService: CoroutineService,
     private val fileService: FileService,
     private val transferService: TransferService,
     private val offlineService: OfflineService,
@@ -69,26 +70,21 @@ class NodeActionsVM(
     }
 
     fun moveTo(stateID: StateID, targetParentID: StateID) {
-        // TODO better handling of scope and error messages
-        CellsApp.instance.appScope.launch {
-            // TODO what do we store/show?
-            //   - source files
-            //   - target files
-            //   - processing
+        coroutineService.cellsIoScope.launch {
             val errMsg = nodeService.move(listOf(stateID), targetParentID)
-            localDone(errMsg, "Could not move node $stateID to $targetParentID")
+            localDone(errMsg, "Could not move node [$stateID] to [$targetParentID]")
         }
     }
 
     fun emptyRecycle(stateID: StateID) {
-        viewModelScope.launch {
+        coroutineService.cellsIoScope.launch {
             val errMsg = nodeService.delete(stateID)
             localDone(errMsg, "Could not delete node at $stateID")
         }
     }
 
     fun download(stateID: StateID, uri: Uri) {
-        CellsApp.instance.appScope.launch {
+        coroutineService.cellsIoScope.launch {
             try {
                 transferService.saveToSharedStorage(stateID, uri)
                 done()
@@ -99,7 +95,7 @@ class NodeActionsVM(
     }
 
     fun importFiles(stateID: StateID, uris: List<Uri>) {
-        CellsApp.instance.appScope.launch {
+        coroutineService.cellsIoScope.launch {
             try {
                 for (uri in uris) {
                     transferService.enqueueUpload(stateID, uri)

@@ -301,7 +301,7 @@ class ConnectionService(
             setActive(false)
             loadingFlag.value = LoadingState.IDLE
         } else {
-            Log.d(logTag, "Received pause for $oldID but currID is [${currStateID}]")
+            Log.d(logTag, "Received pause for [$oldID] but currID is [${currStateID}]")
         }
     }
 
