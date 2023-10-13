@@ -83,6 +83,7 @@ private const val logTag = "Folder"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Folder(
+    isExpandedScreen: Boolean,
     folderID: StateID,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
@@ -196,6 +197,7 @@ fun Folder(
     ) {
 
         FolderScaffold(
+            isExpandedScreen = isExpandedScreen,
             loadingState = loadingState.value,
             listLayout = listLayout,
             showFAB = showFAB,
@@ -221,6 +223,7 @@ fun Folder(
 
 @Composable
 private fun FolderScaffold(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     listLayout: ListLayout,
     showFAB: Boolean,
@@ -290,6 +293,7 @@ private fun FolderScaffold(
     Scaffold(
         topBar = {
             TopBarWithMoreMenu(
+                isExpandedScreen = isExpandedScreen,
                 title = label,
                 openDrawer = openDrawer,
                 openSearch = openSearch,

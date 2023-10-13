@@ -128,6 +128,7 @@ fun CellsNavGraph(
         }
 
         browseNavGraph(
+            isExpandedScreen = isExpandedScreen,
             navController = navController,
             browseRemoteVM = browseRemoteVM,
             back = { navController.popBackStack() },

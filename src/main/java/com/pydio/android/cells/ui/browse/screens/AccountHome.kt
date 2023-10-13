@@ -54,6 +54,7 @@ private const val logTag = "AccountHome"
 
 @Composable
 fun AccountHome(
+    isExpandedScreen: Boolean,
     accountID: StateID,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
@@ -76,6 +77,7 @@ fun AccountHome(
     }
 
     WithScaffold(
+        isExpandedScreen = isExpandedScreen,
         stateID = accountID,
         title = title,
         workspaces = workspaces.value,
@@ -99,6 +101,7 @@ fun AccountHome(
 
 @Composable
 private fun WithScaffold(
+    isExpandedScreen: Boolean,
     stateID: StateID,
     title: String,
     workspaces: List<RWorkspace>,
@@ -113,6 +116,7 @@ private fun WithScaffold(
     Scaffold(
         topBar = {
             DefaultTopBar(
+                isExpandedScreen = isExpandedScreen,
                 title = title,
                 openDrawer = openDrawer,
                 openSearch = openSearch,

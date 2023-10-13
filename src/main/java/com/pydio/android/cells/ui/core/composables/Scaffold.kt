@@ -59,15 +59,17 @@ fun DefaultTopBar(
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = if (isExpandedScreen) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+//            containerColor = if (isExpandedScreen) {
+//                MaterialTheme.colorScheme.surface
+//            } else {
+//                MaterialTheme.colorScheme.surfaceVariant
+//            }
         ),
         navigationIcon = {
-            if (back != null) {
+            if (isExpandedScreen) {
+                // No icon there for expended screen.
+            } else if (back != null) {
                 IconButton(onClick = { back() }) {
                     Icon(
                         imageVector = CellsIcons.ArrowBack,
@@ -103,6 +105,7 @@ fun DefaultTopBar(
 @Composable
 fun TopBarWithMoreMenu(
     title: String,
+    isExpandedScreen: Boolean = false,
     back: (() -> Unit)? = null,
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
@@ -121,7 +124,9 @@ fun TopBarWithMoreMenu(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         navigationIcon = {
-            if (back != null) {
+            if (isExpandedScreen) {
+                // show nothing
+            } else if (back != null) {
                 IconButton(onClick = { back() }) {
                     Icon(
                         imageVector = CellsIcons.ArrowBack,

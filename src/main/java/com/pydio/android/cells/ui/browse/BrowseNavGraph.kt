@@ -27,19 +27,20 @@ import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val logTag = "BrowseNavGraph"
-
 fun NavGraphBuilder.browseNavGraph(
+    isExpandedScreen: Boolean,
     navController: NavHostController,
     browseRemoteVM: BrowseRemoteVM,
     back: () -> Unit,
     openDrawer: () -> Unit,
 ) {
 
+    val logTag = "BrowseNavGraph"
+
     composable(BrowseDestinations.Open.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
         LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## First Composition for: browse/open/$stateID")
+            Log.i(logTag, "## First Composition for: browse/open/${stateID}")
         }
 
         if (stateID == StateID.NONE) {
@@ -49,7 +50,8 @@ fun NavGraphBuilder.browseNavGraph(
             val helper = BrowseHelper(navController, folderVM)
 
             Folder(
-                stateID,
+                isExpandedScreen = isExpandedScreen,
+                folderID = stateID,
                 openDrawer = openDrawer,
                 openSearch = {
                     navController.navigate(
@@ -66,7 +68,8 @@ fun NavGraphBuilder.browseNavGraph(
             val helper = BrowseHelper(navController, accountHomeVM)
 
             AccountHome(
-                stateID,
+                isExpandedScreen = isExpandedScreen,
+                accountID = stateID,
                 openDrawer = openDrawer,
                 openSearch = {
                     navController.navigate(
