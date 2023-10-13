@@ -30,14 +30,17 @@ class BrowseHelper(
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)
+        val currRoute = navController.currentBackStackEntry?.destination?.route
         val currStateID = lazyStateID(navController.currentBackStackEntry)
 
         // Kind of tweak: we check if the target node is the penultimate
         // element of the backStack, in such case we consider it is a back:
         // the end user has clicked on parent() and was "simply" browsing
         val isEffectiveBack = BrowseDestinations.Open.isCurrent(prevRoute)
-                && stateID.equals(prevStateID)
-                && stateID.equals(currStateID.parent())
+                && stateID == prevStateID
+                && stateID == currStateID.parent()
+        val isSame = BrowseDestinations.Open.isCurrent(currRoute)
+                && stateID == currStateID
 
 //        Log.e(logTag, "    previous: ${navController.previousBackStackEntry?.destination?.route}")
 //        Log.e(logTag, "              $prevStateID")
@@ -47,6 +50,9 @@ class BrowseHelper(
         if (isEffectiveBack) {
             Log.d(logTag, "Open node at $stateID is Effective Back")
             navController.popBackStack()
+        } else if (isSame) {
+            Log.e(logTag, "Open node at $stateID is **SAME** as current route.Doing nothing")
+//            Thread.dumpStack()
         } else {
             val route: String
             if (Str.notEmpty(stateID.slug)) {
