@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 
 private const val logTag = "Theme"
 private val DarkColorScheme = darkColorScheme(
@@ -135,10 +135,12 @@ fun CellsTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor =
-                colorScheme.surfaceVariant.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars =
-                !darkTheme
+            val currActivity = view.context as Activity
+            currActivity.window.statusBarColor = colorScheme.surfaceVariant.toArgb()
+            WindowCompat.getInsetsController(
+                currActivity.window,
+                view
+            ).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

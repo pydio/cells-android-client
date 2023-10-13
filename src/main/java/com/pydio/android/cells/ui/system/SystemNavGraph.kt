@@ -23,7 +23,7 @@ fun NavGraphBuilder.systemNavGraph(
     back: () -> Unit,
 ) {
 
-    val logTag = "SystemNavGraph"
+    // val logTag = "SystemNavGraph"
 
     composable(SystemDestinations.About.route) {
         AboutScreen(

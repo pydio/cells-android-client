@@ -81,7 +81,7 @@ private fun InternetBanner(
         .collectAsState(initial = SessionStatus.OK)
     val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
-    if (SessionStatus.OK != sessionStatus.value) {
+    if (SessionStatus.OK != sessionStatus.value && currSession.value != null) {
         when (sessionStatus.value) {
             SessionStatus.NO_INTERNET
             -> ConnectionStatus(
@@ -122,7 +122,6 @@ private fun InternetBanner(
             -> CredExpiredStatus(
                 icon = CellsIcons.NoValidCredentials,
                 desc = stringResource(R.string.auth_err_expired),
-                type = Status.WARNING,
                 onClick = {
                     scope.launch {
                         Log.e(logTag, "Launching re-log")
@@ -200,21 +199,11 @@ private fun ConnectionStatus(icon: ImageVector, desc: String, type: Status = Sta
 private fun CredExpiredStatus(
     icon: ImageVector,
     desc: String,
-    type: Status = Status.WARNING,
     onClick: () -> Unit
 ) {
 
-    val tint = when (type) {
-        Status.WARNING -> CellsColor.warning
-        Status.DANGER -> CellsColor.danger
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    val bg = when (type) {
-        Status.WARNING -> CellsColor.warning.copy(alpha = .1f)
-        Status.DANGER -> CellsColor.danger.copy(alpha = .1f)
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
+    val tint = CellsColor.warning
+    val bg = CellsColor.warning.copy(alpha = .1f)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
