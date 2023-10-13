@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.transfer.glide.encodeModel
@@ -135,6 +136,8 @@ fun LargeCardImageThumb(
             model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
             contentDescription = "$title thumbnail",
             contentScale = ContentScale.FillWidth,
+            failure = placeholder(R.drawable.image_no_thumb_small),
+            loading = placeholder(R.drawable.loading),
             modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
         )
         openMoreMenu?.let {

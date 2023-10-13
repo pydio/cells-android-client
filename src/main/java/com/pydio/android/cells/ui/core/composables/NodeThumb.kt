@@ -18,11 +18,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
@@ -61,35 +61,18 @@ fun Thumbnail(
                 model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
                 contentDescription = "$name thumbnail",
                 contentScale = ContentScale.Crop,
+                // TODO Since 4.1.16 - these cannot be a composable nor a callback
                 // This is deprecated and has glitches on glide 4.1.16
-//                failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
-//                loading = placeholder { LoadingThumb() },
+                //        failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
+                //        laoding = placeholder { LoadingAnimation() },
+                failure = placeholder(R.drawable.image_no_thumb_small),
+                loading = placeholder(R.drawable.loading),
                 modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
             )
         }
     } else {
         IconThumb(mime, sortName)
     }
-}
-
-@Composable
-fun LoadingThumb() {
-    LoadingAnimation()
-//    Surface(
-//        tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
-//        modifier = Modifier
-//            .size(dimensionResource(R.dimen.list_thumb_size))
-//            .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
-//    ) {
-//        Image(
-//            painter = painterResource(id),
-//            contentDescription = null,
-//            colorFilter = ColorFilter.tint(color),
-//            modifier = Modifier
-//                .wrapContentSize(Alignment.Center)
-//                .size(dimensionResource(R.dimen.list_thumb_icon_size))
-//        )
-//    }
 }
 
 @Composable
