@@ -115,14 +115,13 @@ dependencies {
         println "[DEBUG] Retrieve java sdk from maven repo"
     }
 
-    // dependencies are defined in root build.gradle file
-    implementation libraries
-    kapt librariesKapt
-
     implementation platform('androidx.compose:compose-bom:2023.10.00')
     implementation platform('io.insert-koin:koin-bom:3.5.1')
 
+    // dependencies are defined in root build.gradle file
+    implementation libraries
     implementation composeLibraries
+    kapt librariesKapt
 
     // Tmp addition
     implementation "androidx.palette:palette-ktx:1.0.0"
