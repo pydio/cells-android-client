@@ -70,6 +70,7 @@ class OfflineVM(
         viewModelScope.launch {
             try {
                 transferService.saveToSharedStorage(stateID, uri)
+                done()
             } catch (e: Exception) {
                 done(e)
             }
