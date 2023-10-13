@@ -23,7 +23,7 @@ class CellsModelLoader : ModelLoader<String, ByteBuffer> {
         width: Int,
         height: Int,
         options: Options
-    ): ModelLoader.LoadData<ByteBuffer>? {
+    ): ModelLoader.LoadData<ByteBuffer> {
         return ModelLoader.LoadData(ObjectKey(model), CellsFileFetcher(model))
     }
 

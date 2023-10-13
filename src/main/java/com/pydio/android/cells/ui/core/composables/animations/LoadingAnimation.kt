@@ -10,6 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsIcons
 
@@ -27,7 +29,7 @@ fun LoadingAnimation(
     animationDelay: Int = 2000
 ) {
 
-    var rotation = remember { mutableStateOf(0f) } // starting point
+    val rotation = remember { mutableFloatStateOf(0f) } // starting point
 
     val rotationAnimate = animateFloatAsState(
         targetValue = rotation.value,
@@ -35,7 +37,8 @@ fun LoadingAnimation(
             animation = tween(
                 durationMillis = animationDelay
             )
-        )
+        ),
+        label = "loading_anim_value",
     )
 
     LaunchedEffect(Unit) {    // Initialise target
@@ -44,16 +47,14 @@ fun LoadingAnimation(
 
     Box(
         modifier = modifier
-            .padding(all = dimensionResource(id = R.dimen.list_thumb_padding))
+            .padding(dimensionResource(R.dimen.list_thumb_padding))
             .wrapContentSize(Alignment.Center)
     ) {
         Icon(
             imageVector = CellsIcons.Refresh,
-            contentDescription = "",
+            contentDescription = stringResource(id = R.string.loading_message ) ,
             tint = circleColor,
-            modifier = Modifier
-//                .size(size = 24.dp)
-                .rotate(rotationAnimate.value)
+            modifier = Modifier.rotate(rotationAnimate.value)
         )
     }
 }

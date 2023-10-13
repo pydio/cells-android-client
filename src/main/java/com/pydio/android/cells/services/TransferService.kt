@@ -317,21 +317,23 @@ class TransferService(
         parentJobProgress: Channel<Long>?
     ): File {
         val parentFolder = fileService.dataParentPath(stateID.account(), type)
-        val filename = when (type) {
-            AppNames.LOCAL_FILE_TYPE_THUMB,
+        val filename: String
+        when (type) {
+            AppNames.LOCAL_FILE_TYPE_THUMB -> {
+                filename = dlThumb(stateID, rNode, parentFolder, type)
+                parentJobProgress?.send(thumbSize)
+            }
+
             AppNames.LOCAL_FILE_TYPE_PREVIEW -> {
-                val name = dlThumb(stateID, rNode, parentFolder, type)
-                parentJobProgress?.send(
-                    if (type == AppNames.LOCAL_FILE_TYPE_THUMB) thumbSize else previewSize
-                )
-                name
+                filename = dlThumb(stateID, rNode, parentFolder, type)
+                parentJobProgress?.send(previewSize)
             }
 
             AppNames.LOCAL_FILE_TYPE_FILE -> {
                 val jobId = prepareDownload(stateID, type, parentJob)
                 runDownloadTransfer(stateID, jobId, parentJobProgress)
-                // filename is...  (Note that we remove the leading slash to comply with childFile method signature, see just below)
-                stateID.path.substring(1)
+                // Note:  we remove the leading slash to comply with childFile method signature, see just below)
+                filename = stateID.path.substring(1)
             }
 
             else -> throw SDKException(ErrorCodes.internal_error, "Unknown file type: $type")
