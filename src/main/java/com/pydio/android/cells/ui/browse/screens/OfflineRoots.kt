@@ -148,9 +148,6 @@ fun OfflineRoots(
     }
 
     val destinationPicker = rememberLauncherForActivityResult(
-        // TODO we have the mime of the file to download to device
-        //    but this is no trivial implementation: the contract must then be both
-        //    dynamic AND remembered.
         contract = ActivityResultContracts.CreateDocument("*/*"),
         onResult = { uri ->
             if (nodeMoreMenuData.value.second != StateID.NONE) {

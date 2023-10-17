@@ -37,7 +37,7 @@ class OfflineVM(
 
     private val accountID = stateID.account()
 
-    private val _syncJobID = MutableStateFlow<Long>(-1L)
+    private val _syncJobID = MutableStateFlow(-1L)
 
     // Observe the defined offline roots for current account
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -109,7 +109,7 @@ class OfflineVM(
                 return@launch
             }
             try {
-                offlineService.syncOfflineRoot(stateID)
+                _syncJobID.value = offlineService.launchOfflineRootSync(stateID)
                 done()
             } catch (e: Exception) {
                 done(e)

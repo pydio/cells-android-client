@@ -51,6 +51,7 @@ class JobService(
         newJob.total = maxSteps
         newJob.status = JobStatus.PROCESSING.id
         newJob.startTimestamp = currentTimestamp()
+        newJob.updateTimestamp = currentTimestamp()
         return@withContext jobDao.insert(newJob)
     }
 
