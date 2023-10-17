@@ -134,6 +134,8 @@ dependencies {
     // Enable custom data loader for glide library (display images)
     annotationProcessor processors
 
+    testImplementation platform('io.insert-koin:koin-bom:3.5.1')
+    androidTestImplementation platform('io.insert-koin:koin-bom:3.5.1')
     testImplementation testLibraries
     androidTestImplementation androidTestLibraries
 }

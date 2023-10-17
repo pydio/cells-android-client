@@ -26,11 +26,6 @@ class CellsApp : Application(), KoinComponent {
 
     private val logTag = "CellsApp"
 
-//    // Exposed to the whole app for tasks that must survive termination of the calling UI element
-//    // Typically for actions launched from the "More" menu (copy, move...)
-//    @Deprecated("Rather use injected @CoroutineService::class")
-//    val appScope = CoroutineScope(SupervisorJob())
-
     companion object {
         lateinit var instance: CellsApp
             private set
