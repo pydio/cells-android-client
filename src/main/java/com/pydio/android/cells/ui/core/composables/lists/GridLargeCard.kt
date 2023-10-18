@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,7 +56,7 @@ fun LargeCardWithImage(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardImageThumb(stateID, eTag, metaHash, mime, false, openMoreMenu)
+        LargeCardImageThumb(stateID, eTag, metaHash, mime, openMoreMenu)
     }
 }
 
@@ -69,7 +70,7 @@ fun LargeCardWithIcon(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardGenericIconThumb(title, mime, sortName, false, openMoreMenu)
+        LargeCardGenericIconThumb(title, mime, sortName, openMoreMenu)
     }
 }
 
@@ -78,7 +79,7 @@ fun LargeCardGenericIconThumb(
     title: String,
     mime: String,
     sortName: String? = null,
-    isSelected: Boolean = false,
+//    isSelected: Boolean = false,
     more: (() -> Unit)? = null,
 ) {
     getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
@@ -89,11 +90,12 @@ fun LargeCardGenericIconThumb(
                 .size(dimensionResource(R.dimen.grid_image_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
         ) {
-            if (isSelected) {
-                SelectedContent(t)
-            } else {
-                NotSelectedContent(t, more, title)
-            }
+            NotSelectedContent(t, more, title)
+//
+//            if (isSelected) {
+//                SelectedContent(t)
+//            } else {
+//            }
         }
     }
 }
@@ -171,7 +173,6 @@ fun LargeCardImageThumb(
     eTag: String?,
     metaHash: Int,
     title: String,
-    isSelected: Boolean = false,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     Surface(
@@ -229,6 +230,7 @@ fun LargeCardImageThumb(
 fun LargeCard(
     title: String,
     desc: String,
+    isSelected: Boolean = false,
     modifier: Modifier = Modifier,
     thumbContent: @Composable () -> Unit,
 ) {
@@ -245,33 +247,53 @@ fun LargeCard(
         bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
     )
 
-    Card(
-        shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(0.8f)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp,// dimensionResource(R.dimen.grid_ws_card_elevation)
-        ),
-        border = BorderStroke(1.dp, SolidColor(MaterialTheme.colorScheme.outlineVariant)),
-        modifier = modifier
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.BottomEnd),
+        contentAlignment = Alignment.BottomStart,
     ) {
-
-        thumbContent()
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(titlePadding)
-        )
-        Text(
-            text = desc,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(descPadding)
-        )
+        Card(
+            shape = RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)),
+            colors = CardDefaults.outlinedCardColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(0.8f)
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isSelected) dimensionResource(R.dimen.grid_ws_card_elevation) else 0.dp,
+            ),
+            border = if (isSelected) {
+                BorderStroke(2.dp, SolidColor(MaterialTheme.colorScheme.surfaceTint))
+            } else {
+                BorderStroke(1.dp, SolidColor(MaterialTheme.colorScheme.outlineVariant))
+            },
+            modifier = modifier
+        ) {
+            thumbContent()
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(titlePadding)
+            )
+            Text(
+                text = desc,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(descPadding)
+            )
+        }
+        if (isSelected) {
+            Icon(
+                imageVector = CellsIcons.Check,
+                tint = MaterialTheme.colorScheme.surfaceTint,
+                contentDescription = "",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(all = 8.dp)
+                    .wrapContentSize(Alignment.BottomEnd)
+            )
+        }
     }
 }

@@ -14,23 +14,26 @@ fun MultipleGridItem(
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
-    LargeCard(title = item.name, desc = getAppearsInDesc(item), modifier = modifier) {
+    LargeCard(
+        title = item.name,
+        desc = getAppearsInDesc(item),
+        isSelected = isSelected,
+        modifier = modifier
+    ) {
         if (item.hasThumb) {
             LargeCardImageThumb(
                 stateID = item.defaultStateID(),
                 eTag = item.eTag,
                 metaHash = item.metaHash,
                 title = item.name,
-                isSelected = isSelected,
                 openMoreMenu = if (!isSelectionMode) more else null
             )
         } else {
             LargeCardGenericIconThumb(
-                title= item.name,
-                mime= item.mime,
-                sortName= item.sortName,
-                isSelected = isSelected,
-                more= if (!isSelectionMode) more else null
+                title = item.name,
+                mime = item.mime,
+                sortName = item.sortName,
+                more = if (!isSelectionMode) more else null
             )
         }
     }

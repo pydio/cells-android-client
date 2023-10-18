@@ -109,13 +109,15 @@ fun MultiSelectTopBar(
             Text(
                 text = "${selected.size} selected",
                 maxLines = 1,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 overflow = TextOverflow.Ellipsis
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceTint),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         navigationIcon = {
             IconButton(onClick = { cancel() }) {
                 Icon(
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     imageVector = CellsIcons.Cancel,
                     contentDescription = stringResource(id = R.string.button_cancel)
                 )
@@ -125,7 +127,8 @@ fun MultiSelectTopBar(
         actions = {
             IconButton(onClick = { showMenu(!isMoreMenuShown) }) {
                 Icon(
-                    CellsIcons.MoreVert,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    imageVector = CellsIcons.MoreVert,
                     contentDescription = stringResource(R.string.open_more_menu)
                 )
             }
