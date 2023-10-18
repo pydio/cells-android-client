@@ -66,7 +66,7 @@ class BookmarksVM(
     /* Helpers */
     init {
         forceRefresh(accountID)
-        Log.d(logTag, "... Initialising")
+        Log.d(logTag, "... Initialised")
     }
 
     override fun onCleared() {

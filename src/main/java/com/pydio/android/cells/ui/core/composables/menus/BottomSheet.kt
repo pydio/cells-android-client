@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.core.composables.menus
 
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -46,7 +45,7 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.theme.CellsIcons
 
-private const val logTag = "BottomSheet"
+// private const val logTag = "BottomSheet"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,7 +142,7 @@ fun GenericBottomSheetHeader(
 fun BottomSheetHeader(
     thumb: @Composable () -> Unit,
     title: String,
-    desc: String,
+    desc: String? = null,
 ) {
     WithListTheme {
         Column(
@@ -176,12 +175,14 @@ fun BottomSheetHeader(
                         overflow = TextOverflow.Ellipsis,
                     )
 
-                    Text(
-                        text = desc,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    desc?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
             BottomSheetDivider()

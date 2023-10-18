@@ -154,8 +154,8 @@ fun Search(
         launch = launch,
         cancel = searchHelper::cancel,
         moreMenuState = MoreMenuState(
-            nodeMoreMenuData.value.first,
             sheetState,
+            nodeMoreMenuData.value.first,
             nodeMoreMenuData.value.second,
             openMoreMenu
         )

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,7 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.M3IconThumb
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
@@ -87,5 +89,35 @@ fun BookmarkMenu(
         LaunchedEffect(key1 = stateID) {
             appearsIn.value = treeNodeVM.appearsIn(stateID)
         }
+    }
+}
+
+@Composable
+fun BookmarksMenu(
+    stateIDs: Set<StateID>,
+    launch: (NodeAction, Set<StateID>) -> Unit,
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
+            .verticalScroll(scrollState)
+
+    ) {
+        BottomSheetHeader(
+            thumb = {
+                M3IconThumb(
+                    R.drawable.multiple_action,
+                    MaterialTheme.colorScheme.onSurface
+                )
+            },
+            title = "Choose an action",
+        )
+        BottomSheetListItem(
+            icon = CellsIcons.Bookmark,
+            title = stringResource(R.string.remove_bookmarks),
+            onItemClick = { launch(NodeAction.ToggleBookmark(false), stateIDs) }
+        )
     }
 }

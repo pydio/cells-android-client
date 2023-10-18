@@ -211,8 +211,8 @@ fun Folder(
             open = localOpen,
             launch = launch,
             moreMenuState = MoreMenuState(
-                nodeMoreMenuData.value.first,
                 sheetState,
+                nodeMoreMenuData.value.first,
                 nodeMoreMenuData.value.second,
                 openMoreMenu
             ),

@@ -90,6 +90,8 @@ fun HitsList(
                         MultipleGridItem(
                             item = node,
                             more = { openMoreMenu(node.defaultStateID()) },
+                            isSelectionMode = false,
+                            isSelected = false,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { open(node.defaultStateID()) }

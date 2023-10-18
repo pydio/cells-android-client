@@ -55,7 +55,7 @@ fun LargeCardWithImage(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardImageThumb(stateID, eTag, metaHash, mime, openMoreMenu)
+        LargeCardImageThumb(stateID, eTag, metaHash, mime, false, openMoreMenu)
     }
 }
 
@@ -69,7 +69,7 @@ fun LargeCardWithIcon(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardGenericIconThumb(title, mime, sortName, openMoreMenu)
+        LargeCardGenericIconThumb(title, mime, sortName, false, openMoreMenu)
     }
 }
 
@@ -78,6 +78,7 @@ fun LargeCardGenericIconThumb(
     title: String,
     mime: String,
     sortName: String? = null,
+    isSelected: Boolean = false,
     more: (() -> Unit)? = null,
 ) {
     getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
@@ -85,34 +86,81 @@ fun LargeCardGenericIconThumb(
             tonalElevation = dimensionResource(R.dimen.list_thumb_elevation),
             modifier = Modifier
                 .fillMaxWidth(1f)
-                .size(dimensionResource(R.dimen.grid_ws_image_size))
+                .size(dimensionResource(R.dimen.grid_image_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
         ) {
-            Image(
-                painter = painterResource(t.first),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(t.second),
-                modifier = Modifier
-                    .wrapContentSize(Alignment.Center)
-                    .size(dimensionResource(R.dimen.grid_large_icon_size))
-            )
-            more?.let {
-                Icon(
-                    imageVector = CellsIcons.MoreVert,
-                    contentDescription = "open more menu for $title",
-                    modifier = Modifier
-                        .padding(
-                            top = dimensionResource(R.dimen.grid_large_v_inner_padding),
-                            bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
-                            start = dimensionResource(R.dimen.grid_large_v_inner_padding),
-                            end = dimensionResource(R.dimen.grid_large_v_inner_padding).div(2)
-                        )
-                        .wrapContentSize(Alignment.TopEnd)
-                        .size(dimensionResource(R.dimen.grid_large_more_size))
-                        .clickable { it() }
-                )
+            if (isSelected) {
+                SelectedContent(t)
+            } else {
+                NotSelectedContent(t, more, title)
             }
         }
+    }
+}
+
+@Composable
+private fun SelectedContent(
+    t: Pair<Int, Color>,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .size(dimensionResource(R.dimen.grid_image_selected_size))
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
+    ) {
+        Image(
+            painter = painterResource(t.first),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(t.second),
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center)
+                .size(dimensionResource(R.dimen.grid_large_icon_size))
+        )
+    }
+    Icon(
+        imageVector = CellsIcons.Check,
+        contentDescription = "Selection check",
+        modifier = Modifier
+            .padding(
+                top = dimensionResource(R.dimen.grid_large_v_inner_padding),
+                bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
+                start = dimensionResource(R.dimen.grid_large_v_inner_padding).div(2),
+                end = dimensionResource(R.dimen.grid_large_v_inner_padding)
+            )
+            .wrapContentSize(Alignment.TopStart)
+            .size(dimensionResource(R.dimen.grid_large_more_size))
+    )
+}
+
+@Composable
+private fun NotSelectedContent(
+    t: Pair<Int, Color>,
+    more: (() -> Unit)?,
+    title: String
+) {
+    Image(
+        painter = painterResource(t.first),
+        contentDescription = null,
+        colorFilter = ColorFilter.tint(t.second),
+        modifier = Modifier
+            .wrapContentSize(Alignment.Center)
+            .size(dimensionResource(R.dimen.grid_large_icon_size))
+    )
+    more?.let {
+        Icon(
+            imageVector = CellsIcons.MoreVert,
+            contentDescription = "open more menu for $title",
+            modifier = Modifier
+                .padding(
+                    top = dimensionResource(R.dimen.grid_large_v_inner_padding),
+                    bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
+                    start = dimensionResource(R.dimen.grid_large_v_inner_padding),
+                    end = dimensionResource(R.dimen.grid_large_v_inner_padding).div(2)
+                )
+                .wrapContentSize(Alignment.TopEnd)
+                .size(dimensionResource(R.dimen.grid_large_more_size))
+                .clickable { it() }
+        )
     }
 }
 
@@ -123,6 +171,7 @@ fun LargeCardImageThumb(
     eTag: String?,
     metaHash: Int,
     title: String,
+    isSelected: Boolean = false,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     Surface(

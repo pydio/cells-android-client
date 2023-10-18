@@ -39,6 +39,7 @@ import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
+import com.pydio.cells.transport.StateID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,6 @@ fun DefaultTopBar(
     openDrawer: (() -> Unit)? = null,
     openSearch: (() -> Unit)? = null,
 ) {
-
     TopAppBar(
         title = {
             Text(
@@ -60,11 +60,6 @@ fun DefaultTopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
-//            containerColor = if (isExpandedScreen) {
-//                MaterialTheme.colorScheme.surface
-//            } else {
-//                MaterialTheme.colorScheme.surfaceVariant
-//            }
         ),
         navigationIcon = {
             if (isExpandedScreen) {
@@ -103,6 +98,43 @@ fun DefaultTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun MultiSelectTopBar(
+    selected: Set<StateID>,
+    cancel: () -> Unit,
+    isMoreMenuShown: Boolean,
+    showMenu: (Boolean) -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = "${selected.size} selected",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceTint),
+        navigationIcon = {
+            IconButton(onClick = { cancel() }) {
+                Icon(
+                    imageVector = CellsIcons.Cancel,
+                    contentDescription = stringResource(id = R.string.button_cancel)
+                )
+            }
+
+        },
+        actions = {
+            IconButton(onClick = { showMenu(!isMoreMenuShown) }) {
+                Icon(
+                    CellsIcons.MoreVert,
+                    contentDescription = stringResource(R.string.open_more_menu)
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun TopBarWithMoreMenu(
     title: String,
     isExpandedScreen: Boolean = false,
@@ -113,7 +145,6 @@ fun TopBarWithMoreMenu(
     showMenu: (Boolean) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-
     TopAppBar(
         title = {
             Text(

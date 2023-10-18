@@ -125,6 +125,9 @@
     <integer name="grid_ws_column_number">2</integer>
     <dimen name="grid_ws_image_size">128dp</dimen>
 
+    <dimen name="grid_image_size">128dp</dimen>
+    <dimen name="grid_image_selected_size">104dp</dimen>
+
     <!-- Image gallery -->
     <dimen name="grid_col_min_width">128dp</dimen>
     <dimen name="grid_col_spaced_by">2dp</dimen>

@@ -10,19 +10,28 @@ import com.pydio.android.cells.ui.models.MultipleItem
 fun MultipleGridItem(
     item: MultipleItem,
     more: () -> Unit,
+    isSelectionMode: Boolean,
+    isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
     LargeCard(title = item.name, desc = getAppearsInDesc(item), modifier = modifier) {
         if (item.hasThumb) {
             LargeCardImageThumb(
-                item.defaultStateID(),
-                item.eTag,
-                item.metaHash,
-                item.name,
-                more
+                stateID = item.defaultStateID(),
+                eTag = item.eTag,
+                metaHash = item.metaHash,
+                title = item.name,
+                isSelected = isSelected,
+                openMoreMenu = if (!isSelectionMode) more else null
             )
         } else {
-            LargeCardGenericIconThumb(item.name, item.mime, item.sortName, more)
+            LargeCardGenericIconThumb(
+                title= item.name,
+                mime= item.mime,
+                sortName= item.sortName,
+                isSelected = isSelected,
+                more= if (!isSelectionMode) more else null
+            )
         }
     }
 }

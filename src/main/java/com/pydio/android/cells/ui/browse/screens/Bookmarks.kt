@@ -4,13 +4,15 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,12 +34,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
@@ -46,11 +50,13 @@ import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
-import com.pydio.android.cells.ui.browse.menus.MoreMenuState
+import com.pydio.android.cells.ui.browse.composables.NodesMoreMenuData
+import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
@@ -77,30 +83,43 @@ fun Bookmarks(
 
     val loadingState by bookmarksVM.loadingState.collectAsState(LoadingState.IDLE)
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
-    val bookmarks = bookmarksVM.bookmarks.collectAsState(listOf())
 
+    val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
+        mutableStateOf(setOf())
+    }
+
+    val bookmarks = bookmarksVM.bookmarks.collectAsState(listOf())
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)
     }
 
-    val localOpen: (StateID) -> Unit = { stateID ->
+    val itemTapped: (StateID, Boolean) -> Unit = { stateID, longPress ->
         scope.launch {
-            browseHelper.open(context, stateID, browseHelper.bookmarks)
+            if (multiSelectData.value.isEmpty()) {
+                if (longPress) { // Toggle to multi select mode and add the element
+                    multiSelectData.value = setOf(stateID)
+                } else { // short click
+                    browseHelper.open(context, stateID, browseHelper.bookmarks)
+                }
+            } else { // Already in multiselect node, toggle current node
+                val old = multiSelectData.value
+                if (old.contains(stateID)) {
+                    multiSelectData.value = old.minus(stateID)
+                } else {
+                    multiSelectData.value = old.plus(stateID)
+                }
+            }
         }
     }
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(
-            Pair(
-                NodeMoreMenuType.BOOKMARK,
-                StateID.NONE
-            )
-        )
+    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
+        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK, setOf()))
     }
-    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, stateID ->
+
+    val openMoreMenu: (NodeMoreMenuType, Set<StateID>) -> Unit = { type, stateIDs ->
         scope.launch {
-            nodeMoreMenuData.value = Pair(type, stateID)
+            nodeMoreMenuData.value = type to stateIDs
             sheetState.expand()
         }
     }
@@ -108,37 +127,50 @@ fun Bookmarks(
     val moreMenuDone: () -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = Pair(
-                NodeMoreMenuType.BOOKMARK,
-                StateID.NONE
-            )
+            nodeMoreMenuData.value = NodeMoreMenuType.BOOKMARK to setOf()
+            multiSelectData.value = setOf()
         }
     }
 
     val destinationPicker = rememberLauncherForActivityResult(
-        // TODO we have the mime of the file to download to device
-        //    but this is no trivial implementation: the contract must then be both
-        //    dynamic AND remembered.
         contract = ActivityResultContracts.CreateDocument("*/*"),
         onResult = { uri ->
-            if (nodeMoreMenuData.value.second != StateID.NONE) {
+            val currSet = nodeMoreMenuData.value.second
+            if (currSet.size == 1) {
                 uri?.let {
-                    bookmarksVM.download(nodeMoreMenuData.value.second, uri)
+                    bookmarksVM.download(currSet.first(), uri)
                 }
             }
             moreMenuDone()
         }
     )
 
-    val launch: (NodeAction, StateID) -> Unit = { action, stateID ->
+    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+        when (action) {
+            is NodeAction.ToggleBookmark -> {
+                for (stateID in stateIDs) {
+                    bookmarksVM.removeBookmark(stateID)
+                }
+                moreMenuDone()
+            }
+
+            else -> {
+                Log.e(logTag, "unexpected action: $action")
+            }
+        }
+    }
+
+    val launchMono: (NodeAction, StateID) -> Unit = { action, stateID ->
         when (action) {
             is NodeAction.OpenInApp -> {
                 scope.launch {
                     bookmarksVM.getNode(stateID)?.let {
                         if (it.isFolder()) {
-                            localOpen(stateID)
+                            browseHelper.open(context, stateID, browseHelper.bookmarks)
+                            //localOpen(stateID)
                         } else {
-                            localOpen(stateID.parent())
+                            browseHelper.open(context, stateID, browseHelper.bookmarks)
+                            // localOpen(stateID.parent())
                         }
                     }
                 }
@@ -174,6 +206,14 @@ fun Bookmarks(
         }
     }
 
+    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+        if (stateIDs.size == 1) {
+            launchMono(action, stateIDs.first())
+        } else {
+            launchMulti(action, stateIDs)
+        }
+    }
+
     BookmarkScaffold(
         loadingState = loadingState,
         listLayout = listLayout,
@@ -181,14 +221,16 @@ fun Bookmarks(
         bookmarks = bookmarks.value,
         openDrawer = openDrawer,
         forceRefresh = forceRefresh,
-        open = localOpen,
+        tap = itemTapped,
         launch = launch,
-        moreMenuState = MoreMenuState(
-            nodeMoreMenuData.value.first,
-            sheetState,
-            nodeMoreMenuData.value.second,
-            openMoreMenu
-        )
+        moreMenuState = SetMoreMenuState(
+            sheetState = sheetState,
+            type = nodeMoreMenuData.value.first,
+            stateIDs = nodeMoreMenuData.value.second,
+            openMoreMenu = openMoreMenu,
+            cancelSelection = { multiSelectData.value = setOf() }
+        ),
+        selectedItems = multiSelectData.value
     )
 }
 
@@ -201,9 +243,10 @@ private fun BookmarkScaffold(
     bookmarks: List<MultipleItem>,
     openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
-    open: (StateID) -> Unit,
-    launch: (NodeAction, StateID) -> Unit,
-    moreMenuState: MoreMenuState,
+    tap: (StateID, Boolean) -> Unit,
+    launch: (NodeAction, Set<StateID>) -> Unit,
+    moreMenuState: SetMoreMenuState,
+    selectedItems: Set<StateID>
 ) {
 
     var isShown by remember { mutableStateOf(false) }
@@ -220,10 +263,7 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(
-                        NodeAction.AsList,
-                        StateID.NONE
-                    )
+                    launch(NodeAction.AsList, setOf(StateID.NONE))
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsList, label) },
@@ -233,10 +273,7 @@ private fun BookmarkScaffold(
             DropdownMenuItem(
                 text = { Text(label) },
                 onClick = {
-                    launch(
-                        NodeAction.AsGrid,
-                        StateID.NONE
-                    )
+                    launch(NodeAction.AsGrid, setOf(StateID.NONE))
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsGrid, label) },
@@ -249,7 +286,7 @@ private fun BookmarkScaffold(
             onClick = {
                 moreMenuState.openMoreMenu(
                     NodeMoreMenuType.SORT_BY,
-                    StateID.NONE
+                    setOf(StateID.NONE)
                 )
                 showMenu(false)
             },
@@ -259,13 +296,29 @@ private fun BookmarkScaffold(
 
     Scaffold(
         topBar = {
-            TopBarWithMoreMenu(
-                title = title,
-                openDrawer = openDrawer,
-                isActionMenuShown = isShown,
-                showMenu = showMenu,
-                content = actionMenuContent
-            )
+            if (selectedItems.isNotEmpty()) {
+                MultiSelectTopBar(
+                    selected = selectedItems,
+                    cancel = moreMenuState.cancelSelection,
+                    isMoreMenuShown = moreMenuState.sheetState.isVisible,
+                    showMenu = {
+                        if (it) {
+                            moreMenuState.openMoreMenu(
+                                NodeMoreMenuType.BOOKMARK,
+                                selectedItems
+                            )
+                        }
+                    },
+                )
+            } else {
+                TopBarWithMoreMenu(
+                    title = title,
+                    openDrawer = openDrawer,
+                    isActionMenuShown = isShown,
+                    showMenu = showMenu,
+                    content = actionMenuContent
+                )
+            }
         },
     ) { padding ->
 
@@ -274,14 +327,22 @@ private fun BookmarkScaffold(
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(
                         type = ListType.DEFAULT,
-                        done = { launch(NodeAction.SortBy, StateID.NONE) },
+                        done = { launch(NodeAction.SortBy, setOf(StateID.NONE)) },
                     )
-                } else {
+                } else if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
-                        toOpenStateID = moreMenuState.stateID,
+                        toOpenStateID = moreMenuState.stateIDs.first(),
+                        launch = { a, s -> launch(a, setOf(s)) },
+                    )
+                } else if (moreMenuState.stateIDs.size > 1) {
+                    NodesMoreMenuData(
+                        type = NodeMoreMenuType.BOOKMARK,
+                        stateIDs = moreMenuState.stateIDs,
                         launch = launch,
                     )
+                } else {
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
             },
             sheetState = moreMenuState.sheetState,
@@ -289,10 +350,12 @@ private fun BookmarkScaffold(
             BookmarkList(
                 loadingState = loadingState,
                 listLayout = listLayout,
+                isSelectionMode = selectedItems.isNotEmpty(),
                 bookmarks = bookmarks,
+                selectedItems = selectedItems,
                 forceRefresh = forceRefresh,
-                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, it) },
-                open = open,
+                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, setOf(it)) },
+                open = tap,
                 padding = padding,
             )
         }
@@ -304,10 +367,12 @@ private fun BookmarkScaffold(
 private fun BookmarkList(
     loadingState: LoadingState,
     listLayout: ListLayout,
+    isSelectionMode: Boolean,
     bookmarks: List<MultipleItem>,
+    selectedItems: Set<StateID>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
-    open: (StateID) -> Unit,
+    open: (StateID, Boolean) -> Unit,
     padding: PaddingValues,
 ) {
 
@@ -353,13 +418,19 @@ private fun BookmarkList(
                     ) {
                         items(
                             items = bookmarks,
-                            key = { it.uuid }) { node ->
+                            key = { it.uuid }
+                        ) { node ->
                             MultipleGridItem(
                                 item = node,
                                 more = { openMoreMenu(node.defaultStateID()) },
+                                isSelectionMode = isSelectionMode,
+                                isSelected = selectedItems.contains(node.defaultStateID()),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { open(node.defaultStateID()) }
+                                    .combinedClickable(
+                                        onClick = { open(node.defaultStateID(), false) },
+                                        onLongClick = { open(node.defaultStateID(), true) },
+                                    )
                                     .animateItemPlacement(),
                             )
                         }
@@ -375,10 +446,15 @@ private fun BookmarkList(
                             BookmarkListItem(
                                 item = node,
                                 more = { openMoreMenu(node.defaultStateID()) },
+                                isSelectionMode = isSelectionMode,
+                                isSelected = selectedItems.contains(node.defaultStateID()),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { open(node.defaultStateID()) }
-                                    .animateItemPlacement(),
+                                    .combinedClickable(
+                                        onClick = { open(node.defaultStateID(), false) },
+                                        onLongClick = { open(node.defaultStateID(), true) },
+                                    )
+                                    .animateItemPlacement()
                             )
                         }
                     }

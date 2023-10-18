@@ -25,8 +25,6 @@ import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "NodeMoreMenuData"
-
 enum class NodeMoreMenuType {
     NONE, MORE, SEARCH, OFFLINE, BOOKMARK, CREATE, SORT_BY,
 }
@@ -37,6 +35,8 @@ fun NodeMoreMenuData(
     toOpenStateID: StateID,
     launch: (NodeAction, StateID) -> Unit,
 ) {
+    val logTag = "NodeMoreMenuData"
+
     val treeNodeVM: TreeNodeVM = koinViewModel()
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
