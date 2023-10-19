@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.browse.composables
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,8 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
+import com.pydio.android.cells.ui.core.composables.M3IconThumb
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -33,10 +36,14 @@ fun NodeItem(
     item: TreeNodeItem,
     title: String,
     desc: String,
+    isSelectionMode: Boolean,
+    isSelected: Boolean,
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     M3NodeItem(
+        isSelectionMode = isSelectionMode,
+        isSelected = isSelected,
         stateID = item.stateID,
         title = title,
         desc = desc,
@@ -56,6 +63,8 @@ fun NodeItem(
 
 @Composable
 fun M3NodeItem(
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
     stateID: StateID,
     title: String,
     desc: String,
@@ -71,21 +80,32 @@ fun M3NodeItem(
     more: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var lm = modifier.padding(0.dp, .2.dp)
+    if (isSelected) {
+        lm = lm.background(MaterialTheme.colorScheme.surfaceVariant)
+    }
+    lm = lm.padding(
+        top = dimensionResource(R.dimen.list_item_inner_padding),
+        bottom = dimensionResource(R.dimen.list_item_inner_padding),
+        start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
+        end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
+    )
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(
-                top = dimensionResource(R.dimen.list_item_inner_padding),
-                bottom = dimensionResource(R.dimen.list_item_inner_padding),
-                start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
-                end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
-            )
+        modifier = lm
     ) {
 
-        Thumbnail(stateID, sortName, name, mime, eTag, metaHash, hasThumb)
+        if (isSelected) {
+            M3IconThumb(
+                id = R.drawable.ic_baseline_check_24,
+                color = MaterialTheme.colorScheme.surfaceTint
+            )
+        } else {
 
+            Thumbnail(stateID, sortName, name, mime, eTag, metaHash, hasThumb)
+        }
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -95,8 +115,15 @@ fun M3NodeItem(
                 )
                 .wrapContentWidth(Alignment.Start)
         ) {
+            val textColor = if (isSelected) {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
+
             Text(
                 text = title,
+                color = textColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge,
@@ -109,38 +136,41 @@ fun M3NodeItem(
             )
         }
 
-        if (isBookmarked) {
-            Image(
-                imageVector = CellsIcons.ButtonFavorite,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator)),
-                contentDescription = ""
-            )
-        }
-        if (isShared) {
-            Image(
-                imageVector = CellsIcons.ButtonShare,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
-                contentDescription = "",
-                modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator))
-            )
-        }
-        if (isOfflineRoot) {
-            Image(
-                painter = painterResource(R.drawable.cloud_download_24px),
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
-                contentDescription = "",
-                modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator))
-            )
-        }
+        if (!isSelectionMode) {
 
-        IconButton(onClick = { more() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
-                contentDescription = stringResource(id = R.string.open_more_menu),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
-            )
+            if (isBookmarked) {
+                Image(
+                    imageVector = CellsIcons.ButtonFavorite,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
+                    modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator)),
+                    contentDescription = ""
+                )
+            }
+            if (isShared) {
+                Image(
+                    imageVector = CellsIcons.ButtonShare,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
+                    contentDescription = "",
+                    modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator))
+                )
+            }
+            if (isOfflineRoot) {
+                Image(
+                    painter = painterResource(R.drawable.cloud_download_24px),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
+                    contentDescription = "",
+                    modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_item_flag_decorator))
+                )
+            }
+
+            IconButton(onClick = { more() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
+                    contentDescription = stringResource(id = R.string.open_more_menu),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
+                )
+            }
         }
     }
 }

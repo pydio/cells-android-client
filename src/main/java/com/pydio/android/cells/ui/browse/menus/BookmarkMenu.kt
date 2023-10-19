@@ -26,7 +26,7 @@ import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
-// private const val logTag = "BookmarkMenu"
+// private const val LOG_TAG = "BookmarkMenu.kt"
 
 @Composable
 fun BookmarkMenu(

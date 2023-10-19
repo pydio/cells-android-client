@@ -1,53 +1,47 @@
 package com.pydio.android.cells.ui.browse.composables
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
-import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithImage
+import com.pydio.android.cells.ui.core.composables.lists.LargeCard
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardGenericIconThumb
+import com.pydio.android.cells.ui.core.composables.lists.LargeCardImageThumb
 import com.pydio.android.cells.ui.models.TreeNodeItem
-import com.pydio.cells.transport.StateID
 
 @Composable
 fun TreeNodeLargeCard(
-    node: TreeNodeItem,
-    openMoreMenu: (StateID) -> Unit,
-    open: (StateID) -> Unit
+    item: TreeNodeItem,
+    more: () -> Unit,
+    isSelectionMode: Boolean,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
 ) {
-    if (node.hasThumb) {
-        LargeCardWithImage(
-            stateID = node.stateID,
-            eTag = node.eTag,
-            metaHash = node.metaHash,
-            mime = node.mime,
-            title = getNodeTitle(name = node.name, mime = node.mime),
-            desc = getNodeDesc(
-                node.remoteModTs,
-                node.size,
-                node.localModStatus
-            ),
-            openMoreMenu = { openMoreMenu(node.stateID) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { open(node.stateID) }
-        )
-    } else {
-        LargeCardWithIcon(
-            sortName = node.sortName,
-            mime = node.mime,
-            title = getNodeTitle(name = node.name, mime = node.mime),
-            desc = getNodeDesc(
-                node.remoteModTs,
-                node.size,
-                node.localModStatus
-            ),
-            openMoreMenu = { openMoreMenu(node.stateID) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { open(node.stateID) }
-        )
+    LargeCard(
+        isSelected = isSelected,
+        title = getNodeTitle(name = item.name, mime = item.mime),
+        desc = getNodeDesc(
+            item.remoteModTs,
+            item.size,
+            item.localModStatus
+        ),
+        modifier = modifier
+    ) {
+        if (item.hasThumb) {
+            LargeCardImageThumb(
+                stateID = item.defaultStateID(),
+                eTag = item.eTag,
+                metaHash = item.metaHash,
+                title = getNodeTitle(name = item.name, mime = item.mime),
+                openMoreMenu = if (!isSelectionMode) more else null
+            )
+        } else {
+            LargeCardGenericIconThumb(
+                title = getNodeTitle(name = item.name, mime = item.mime),
+                mime = item.mime,
+                sortName = item.sortName,
+                more = if (!isSelectionMode) more else null
+            )
+        }
     }
 }

@@ -189,7 +189,7 @@ class NodeActionsVM(
     }
 
     fun restoreFromTrash(stateID: StateID) {
-        viewModelScope.launch {
+        coroutineService.cellsIoScope.launch {
             nodeService.restoreNode(stateID)
         }
     }

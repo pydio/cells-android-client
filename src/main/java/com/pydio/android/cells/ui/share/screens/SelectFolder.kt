@@ -223,7 +223,7 @@ private fun FolderList(
                         stateID.parent()
                     }
                     M3BrowseUpListItem(
-                        parentDescription = parentDescription,
+                        parentDesc = parentDescription,
                         modifier = Modifier.clickable { open(targetID) }
                     )
                 }

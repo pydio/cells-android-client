@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +19,7 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
+import com.pydio.android.cells.ui.core.composables.M3IconThumb
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetContent
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
@@ -150,6 +152,72 @@ fun SingleNodeMenu(
                 title = stringResource(R.string.public_link),
                 flagType = AppNames.FLAG_SHARE,
                 onItemClick = { if (it) launch(NodeAction.CreateShare) },
+            )
+        }
+    }
+}
+
+@Composable
+fun MultiNodeMenu(
+    inRecycle: Boolean,
+    containsFolders: Boolean,
+    launch: (NodeAction) -> Unit,
+) {
+    // TODO handle case when offline
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = dimensionResource(R.dimen.bottom_sheet_v_spacing),
+                bottom = dimensionResource(R.dimen.bottom_sheet_v_spacing).times(2)
+            )
+            .verticalScroll(scrollState)
+
+    ) {
+        BottomSheetHeader(
+            thumb = {
+                M3IconThumb(
+                    R.drawable.multiple_action,
+                    MaterialTheme.colorScheme.onSurface
+                )
+            },
+            title = "Choose an action",
+        )
+// FIXME finalize to implement this
+//        if (!containsFolders) {
+//            BottomSheetListItem(
+//                icon = CellsIcons.DownloadToDevice,
+//                title = stringResource(R.string.download_to_device),
+//                onItemClick = { launch(NodeAction.DownloadToDevice) },
+//            )
+//        }
+        if (inRecycle) {
+            BottomSheetListItem(
+                icon = CellsIcons.RestoreFromTrash,
+                title = stringResource(R.string.restore_content),
+                onItemClick = { launch(NodeAction.RestoreFromTrash) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.DeleteForever,
+                title = stringResource(R.string.permanently_remove),
+                onItemClick = { launch(NodeAction.PermanentlyRemove) },
+            )
+        } else {
+            BottomSheetListItem(
+                icon = CellsIcons.CopyTo,
+                title = stringResource(R.string.copy_to),
+                onItemClick = { launch(NodeAction.CopyTo) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.MoveTo,
+                title = stringResource(R.string.move_to),
+                onItemClick = { launch(NodeAction.MoveTo) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.Delete,
+                title = stringResource(R.string.delete),
+                onItemClick = { launch(NodeAction.Delete) },
             )
         }
     }

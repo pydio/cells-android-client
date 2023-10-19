@@ -27,13 +27,13 @@ import com.pydio.android.cells.ui.core.composables.M3IconThumb
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3BrowseUpListItem(
-    parentDescription: String,
+    parentDesc: String,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onSurface
 ) {
 //    Log.d(logTag, "adding the parent row for $parentDescription")
     ListItem(
-        headlineContent = { Text(parentDescription) },
+        headlineContent = { Text(parentDesc) },
         modifier = modifier,
         supportingContent = { Text("..") },
         leadingContent = {

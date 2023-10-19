@@ -10,9 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.browse.menus.BookmarksMenu
+import com.pydio.android.cells.ui.browse.menus.MultiNodeMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
@@ -26,49 +26,52 @@ fun NodesMoreMenuData(
     val logTag = "NodeMoreMenuData"
 
     val treeNodeVM: TreeNodeVM = koinViewModel()
-    val items: MutableState<Set<RTreeNode>> = remember { mutableStateOf(setOf()) }
-    val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 
-    LaunchedEffect(key1 = stateIDs) {
+    val nodes: MutableState<Set<RTreeNode>> = remember { mutableStateOf(setOf()) }
+    val inRecycle: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val containsFolders: MutableState<Boolean> = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = stateIDs.toString()) {
+        Log.e(logTag, "Launched effect for ${stateIDs.toString()}")
+        // Reinitialise values
         val founds = mutableSetOf<RTreeNode>()
+        containsFolders.value = false
+        inRecycle.value = false
         for (stateID in stateIDs) {
             if (stateID != StateID.NONE) {
                 treeNodeVM.getTreeNode(stateID)?.let { currNode ->
                     founds.add(currNode)
+                    if (currNode.isFolder() && !containsFolders.value) {
+                        containsFolders.value = true
+                    }
+                    if (currNode.isInRecycle() && !inRecycle.value) {
+                        inRecycle.value = true
+                    }
                 } ?: { Log.e(logTag, "No node found for $stateID, ignoring") }
             }
         }
         if (founds.isEmpty()) {
             Log.e(logTag, "No node found for the passed selection, aborting")
         } else {
-            items.value = founds
+            nodes.value = founds
         }
     }
 
-    if (items.value.isNotEmpty()) {
-        when {
-            type == NodeMoreMenuType.BOOKMARK -> BookmarksMenu(
+    if (nodes.value.isNotEmpty()) {
+        when (type) {
+            NodeMoreMenuType.BOOKMARK -> BookmarksMenu(
                 stateIDs = stateIDs,
                 launch = launch,
             )
 
-//                type == NodeMoreMenuType.SEARCH -> SearchMenu(
-//                    stateID = toOpenStateID,
-//                    rTreeNode = myItem,
-//                    launch = { launch(it, toOpenStateID) },
-//                )
-
-            // TODO
-//                type == NodeMoreMenuType.MORE ->
-//                    SingleNodeMenu(
-//                        stateID = toOpenStateID,
-//                        rTreeNode = myItem,
-//                        rWorkspace = workspace.value,
-//                        launch = { launch(it, toOpenStateID) },
-//                    )
+            NodeMoreMenuType.MORE ->
+                MultiNodeMenu(
+                    inRecycle = inRecycle.value,
+                    containsFolders = containsFolders.value,
+                    launch = { launch(it, stateIDs) },
+                )
 
             else -> Spacer(modifier = Modifier.height(1.dp))
-
         }
     }
     // Prevent this error: java.lang.IllegalArgumentException: The initial value must have an associated anchor.

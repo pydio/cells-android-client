@@ -79,7 +79,6 @@ fun LargeCardGenericIconThumb(
     title: String,
     mime: String,
     sortName: String? = null,
-//    isSelected: Boolean = false,
     more: (() -> Unit)? = null,
 ) {
     getIconAndColorFromType(getIconTypeFromMime(mime, sortName)).let { t ->
@@ -91,11 +90,6 @@ fun LargeCardGenericIconThumb(
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
         ) {
             NotSelectedContent(t, more, title)
-//
-//            if (isSelected) {
-//                SelectedContent(t)
-//            } else {
-//            }
         }
     }
 }

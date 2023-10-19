@@ -43,7 +43,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
-import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
@@ -52,7 +51,6 @@ import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.NodesMoreMenuData
 import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
-import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
@@ -114,7 +112,7 @@ fun Bookmarks(
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
-        mutableStateOf(Pair(NodeMoreMenuType.BOOKMARK, setOf()))
+        mutableStateOf(NodeMoreMenuType.NONE to setOf())
     }
 
     val openMoreMenu: (NodeMoreMenuType, Set<StateID>) -> Unit = { type, stateIDs ->
@@ -221,7 +219,7 @@ fun Bookmarks(
         bookmarks = bookmarks.value,
         openDrawer = openDrawer,
         forceRefresh = forceRefresh,
-        tap = itemTapped,
+        onTap = itemTapped,
         launch = launch,
         moreMenuState = SetMoreMenuState(
             sheetState = sheetState,
@@ -243,7 +241,7 @@ private fun BookmarkScaffold(
     bookmarks: List<MultipleItem>,
     openDrawer: () -> Unit,
     forceRefresh: () -> Unit,
-    tap: (StateID, Boolean) -> Unit,
+    onTap: (StateID, Boolean) -> Unit,
     launch: (NodeAction, Set<StateID>) -> Unit,
     moreMenuState: SetMoreMenuState,
     selectedItems: Set<StateID>
@@ -324,12 +322,14 @@ private fun BookmarkScaffold(
 
         CellsModalBottomSheetLayout(
             sheetContent = {
-                if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
-                    SortByMenu(
-                        type = ListType.DEFAULT,
-                        done = { launch(NodeAction.SortBy, setOf(StateID.NONE)) },
-                    )
-                } else if (moreMenuState.stateIDs.size == 1) {
+                // TODO remove after verif: this should be useless. We call the SORT_BY type with a setOf(StateID.NONE) a.k.a of size=1
+//                if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
+//                    SortByMenu(
+//                        type = ListType.DEFAULT,
+//                        done = { launch(NodeAction.SortBy, setOf(StateID.NONE)) },
+//                    )
+//                } else
+                if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
                         toOpenStateID = moreMenuState.stateIDs.first(),
@@ -355,7 +355,7 @@ private fun BookmarkScaffold(
                 selectedItems = selectedItems,
                 forceRefresh = forceRefresh,
                 openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, setOf(it)) },
-                open = tap,
+                onTap = onTap,
                 padding = padding,
             )
         }
@@ -372,7 +372,7 @@ private fun BookmarkList(
     selectedItems: Set<StateID>,
     forceRefresh: () -> Unit,
     openMoreMenu: (StateID) -> Unit,
-    open: (StateID, Boolean) -> Unit,
+    onTap: (StateID, Boolean) -> Unit,
     padding: PaddingValues,
 ) {
 
@@ -392,7 +392,6 @@ private fun BookmarkList(
         emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
-
         Box(
             Modifier
                 .fillMaxSize()
@@ -428,8 +427,8 @@ private fun BookmarkList(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .combinedClickable(
-                                        onClick = { open(node.defaultStateID(), false) },
-                                        onLongClick = { open(node.defaultStateID(), true) },
+                                        onClick = { onTap(node.defaultStateID(), false) },
+                                        onLongClick = { onTap(node.defaultStateID(), true) },
                                     )
                                     .animateItemPlacement(),
                             )
@@ -451,8 +450,8 @@ private fun BookmarkList(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .combinedClickable(
-                                        onClick = { open(node.defaultStateID(), false) },
-                                        onLongClick = { open(node.defaultStateID(), true) },
+                                        onClick = { onTap(node.defaultStateID(), false) },
+                                        onLongClick = { onTap(node.defaultStateID(), true) },
                                     )
                                     .animateItemPlacement()
                             )

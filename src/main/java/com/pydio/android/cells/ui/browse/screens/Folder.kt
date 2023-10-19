@@ -1,9 +1,11 @@
 package com.pydio.android.cells.ui.browse.screens
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,14 +44,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.BrowseHelper
@@ -58,10 +61,11 @@ import com.pydio.android.cells.ui.browse.composables.NodeItem
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.composables.TreeNodeLargeCard
 import com.pydio.android.cells.ui.browse.composables.WrapWithActions
-import com.pydio.android.cells.ui.browse.menus.MoreMenuState
+import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
@@ -78,7 +82,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
-private const val logTag = "Folder"
+private const val LOG_TAG = "Folder"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,19 +98,25 @@ fun Folder(
 
     // UI States
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val loadingState = browseRemoteVM.loadingState.collectAsState()
     val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackBarHostState = remember { SnackbarHostState() }
+    val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
+        mutableStateOf(setOf())
+    }
+    // State for the more Menus
+    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
+        mutableStateOf(NodeMoreMenuType.NONE to setOf())
+    }
 
     // Business States
-    val scope = rememberCoroutineScope()
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
     val children = folderVM.children.collectAsState(listOf())
-
     val binLabel = stringResource(R.string.recycle_bin_label)
-    val label by remember(key1 = treeNode, key2 = workspace) {
+    val currNodeLabel by remember(key1 = treeNode, key2 = workspace) {
         derivedStateOf {
             var tmpLabel = folderID.fileName ?: workspace?.label ?: folderID.slug
             if (treeNode?.isRecycle() == true) {
@@ -116,56 +126,70 @@ fun Folder(
         }
     }
 
+    // Define specific functions
+
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(folderID, true)
     }
 
-    val showFAB by remember(key1 = treeNode) {
-        derivedStateOf {
-            val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
-            !inRecycle
+    val itemTapped: (StateID, Boolean) -> Unit = { stateID, longPress ->
+        scope.launch {
+            if (multiSelectData.value.isEmpty()) {
+                if (longPress) { // Toggle to multi select mode and add the element
+                    multiSelectData.value = setOf(stateID)
+                } else { // short click
+                    browseHelper.open(context, stateID, browseHelper.browse)
+                }
+            } else { // Already in multiselect node, toggle current node
+                val old = multiSelectData.value
+                if (old.contains(stateID)) {
+                    multiSelectData.value = old.minus(stateID)
+                } else {
+                    multiSelectData.value = old.plus(stateID)
+                }
+            }
         }
     }
 
-    // State for the more Menus
-    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, StateID>> = remember {
-        mutableStateOf(
-            Pair(
-                NodeMoreMenuType.NONE,
-                StateID.NONE
-            )
-        )
+    val showFAB by remember(key1 = treeNode, key2 = multiSelectData.value.size) {
+        derivedStateOf {
+            val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
+            val multiselectMode = multiSelectData.value.isNotEmpty()
+            !inRecycle && !multiselectMode
+        }
     }
 
-    val openMoreMenu: (NodeMoreMenuType, StateID) -> Unit = { type, currID ->
+    val openMoreMenu: (NodeMoreMenuType, Set<StateID>) -> Unit = { type, stateIDs ->
         scope.launch {
-            Log.d(logTag, "About to open $type more menu for $currID")
-            nodeMoreMenuData.value = Pair(type, currID)
+            nodeMoreMenuData.value = type to stateIDs
             sheetState.expand()
         }
     }
 
-    val localOpen: (StateID) -> Unit = {
+    val moreMenuDone: () -> Unit = {
         scope.launch {
-            browseHelper.open(context, it)
+            sheetState.hide()
+            nodeMoreMenuData.value = NodeMoreMenuType.NONE to setOf()
+            multiSelectData.value = setOf()
         }
     }
+
+//    val localOpen: (StateID) -> Unit = {
+//        scope.launch {
+//            browseHelper.open(context, it)
+//        }
+//    }
 
     val actionDone: (Boolean) -> Unit = {
-        scope.launch {
-            if (it) { // Also reset backoff ticker
-                Log.d(logTag, "Action done for $folderID")
+        moreMenuDone()
+        if (it) { // Also reset backoff ticker
+            scope.launch {
                 browseRemoteVM.watch(folderID, true)
             }
-            sheetState.hide()
-            nodeMoreMenuData.value = Pair(
-                NodeMoreMenuType.NONE,
-                StateID.NONE
-            )
         }
     }
 
-    val launch: (NodeAction, StateID) -> Unit = { action, currID ->
+    val launchMono: (NodeAction, StateID) -> Unit = { action, currID ->
         when (action) {
             is NodeAction.AsGrid -> {
                 folderVM.setListLayout(ListLayout.GRID)
@@ -182,45 +206,57 @@ fun Folder(
             }
 
             else -> {
-                Log.e(logTag, "Unknown action $action for $currID")
+                Log.e(LOG_TAG, "Unknown action $action for $currID")
                 actionDone(false)
             }
+        }
+    }
+
+    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+        if (stateIDs.size == 1) {
+            launchMono(action, stateIDs.first())
+        } else {
+            Log.e(LOG_TAG, "FIXME: implement launch multi here")
+            Thread.dumpStack()
+            Log.e(LOG_TAG, "FIXME: implement launch multi here")
+//            launchMulti(action, stateIDs)
         }
     }
 
     WrapWithActions(
         actionDone = actionDone,
         type = nodeMoreMenuData.value.first,
-        toOpenStateID = nodeMoreMenuData.value.second,
+        targetStateIDs = nodeMoreMenuData.value.second,
         sheetState = sheetState,
         snackBarHostState = snackBarHostState,
     ) {
-
         FolderScaffold(
             isExpandedScreen = isExpandedScreen,
             loadingState = loadingState.value,
             listLayout = listLayout,
             showFAB = showFAB,
-            label = label,
+            label = currNodeLabel,
             stateID = folderID,
             children = children.value,
             forceRefresh = forceRefresh,
             openDrawer = openDrawer,
             openSearch = openSearch,
-            openParent = { localOpen(folderID.parent()) },
-            open = localOpen,
+            onTap = itemTapped,
             launch = launch,
-            moreMenuState = MoreMenuState(
-                sheetState,
-                nodeMoreMenuData.value.first,
-                nodeMoreMenuData.value.second,
-                openMoreMenu
+            moreMenuState = SetMoreMenuState(
+                sheetState = sheetState,
+                type = nodeMoreMenuData.value.first,
+                stateIDs = nodeMoreMenuData.value.second,
+                openMoreMenu = openMoreMenu,
+                cancelSelection = { multiSelectData.value = setOf() }
             ),
+            selectedItems = multiSelectData.value,
             snackBarHostState = snackBarHostState
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderScaffold(
     isExpandedScreen: Boolean,
@@ -233,10 +269,10 @@ private fun FolderScaffold(
     forceRefresh: () -> Unit,
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
-    openParent: (StateID) -> Unit,
-    open: (StateID) -> Unit,
-    launch: (NodeAction, StateID) -> Unit,
-    moreMenuState: MoreMenuState,
+    onTap: (StateID, Boolean) -> Unit,
+    launch: (NodeAction, Set<StateID>) -> Unit,
+    moreMenuState: SetMoreMenuState,
+    selectedItems: Set<StateID>,
     snackBarHostState: SnackbarHostState,
 ) {
 
@@ -253,10 +289,7 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(btnLabel) },
                 onClick = {
-                    launch(
-                        NodeAction.AsList,
-                        StateID.NONE
-                    )
+                    launch(NodeAction.AsList, setOf(StateID.NONE))
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsList, btnLabel) },
@@ -266,10 +299,7 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(btnLabel) },
                 onClick = {
-                    launch(
-                        NodeAction.AsGrid,
-                        StateID.NONE
-                    )
+                    launch(NodeAction.AsGrid, setOf(StateID.NONE))
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsGrid, btnLabel) },
@@ -282,7 +312,7 @@ private fun FolderScaffold(
             onClick = {
                 moreMenuState.openMoreMenu(
                     NodeMoreMenuType.SORT_BY,
-                    stateID
+                    setOf(StateID.NONE)
                 )
                 showMenu(false)
             },
@@ -292,22 +322,35 @@ private fun FolderScaffold(
 
     Scaffold(
         topBar = {
-            TopBarWithMoreMenu(
-                isExpandedScreen = isExpandedScreen,
-                title = label,
-                openDrawer = openDrawer,
-                openSearch = openSearch,
-                isActionMenuShown = isShown,
-                showMenu = showMenu,
-                content = actionMenuContent
-            )
+            if (selectedItems.isNotEmpty()) {
+                MultiSelectTopBar(
+                    selected = selectedItems,
+                    cancel = moreMenuState.cancelSelection,
+                    isMoreMenuShown = moreMenuState.sheetState.isVisible,
+                    showMenu = {
+                        if (it) {
+                            moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, selectedItems)
+                        }
+                    },
+                )
+            } else {
+                TopBarWithMoreMenu(
+                    isExpandedScreen = isExpandedScreen,
+                    title = label,
+                    openDrawer = openDrawer,
+                    openSearch = openSearch,
+                    isActionMenuShown = isShown,
+                    showMenu = showMenu,
+                    content = actionMenuContent
+                )
+            }
         },
         floatingActionButton = {
             if (showFAB) {
                 FloatingActionButton(onClick = {
                     moreMenuState.openMoreMenu(
                         NodeMoreMenuType.CREATE,
-                        stateID
+                        setOf(stateID)
                     )
                 }) {
                     Icon(
@@ -322,11 +365,12 @@ private fun FolderScaffold(
         FolderList(
             loadingState = loadingState,
             listLayout = listLayout,
+            isSelectionMode = selectedItems.isNotEmpty(),
             stateID = stateID,
             children = children,
-            openParent = openParent,
-            open = open,
-            openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, it) },
+            selectedItems = selectedItems,
+            onTap = onTap,
+            openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, setOf(it)) },
             forceRefresh = forceRefresh,
             padding = padding,
         )
@@ -338,10 +382,11 @@ private fun FolderScaffold(
 private fun FolderList(
     loadingState: LoadingState,
     listLayout: ListLayout,
+    isSelectionMode: Boolean,
     stateID: StateID,
     children: List<TreeNodeItem>,
-    openParent: (StateID) -> Unit,
-    open: (StateID) -> Unit,
+    selectedItems: Set<StateID>,
+    onTap: (StateID, Boolean) -> Unit,
     openMoreMenu: (StateID) -> Unit,
     forceRefresh: () -> Unit,
     padding: PaddingValues,
@@ -350,7 +395,7 @@ private fun FolderList(
     //   - experimental
     //   - only implemented in material "1" for the time being.
     val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.d(logTag, "Force refresh launched")
+        Log.d(LOG_TAG, "Force refresh launched")
         forceRefresh()
     })
 
@@ -361,6 +406,20 @@ private fun FolderList(
         canRefresh = LoadingState.SERVER_UNREACHABLE != loadingState,
         modifier = Modifier.padding(padding)
     ) {
+        val parItemModifier = if (isSelectionMode) {
+            Modifier
+                .fillMaxWidth()
+                .alpha(.3f)
+        } else {
+            Modifier
+                .fillMaxWidth()
+                .clickable { onTap(stateID.parent(), false) }
+        }
+        val parDesc = when {
+            Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+            else -> stringResource(R.string.parent_folder)
+        }
+
         Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
@@ -371,30 +430,26 @@ private fun FolderList(
                         start = dimensionResource(id = R.dimen.margin_medium),
                         end = dimensionResource(id = R.dimen.margin_medium),
                     )
-
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         contentPadding = listPadding,
                     ) {
-
                         if (Str.notEmpty(stateID.path)) {
-                            item {
-                                val parentDescription = when {
-                                    Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
-                                    else -> stringResource(R.string.parent_folder)
-                                }
-                                M3BrowseUpLargeGridItem(
-                                    parentDescription,
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clickable { openParent(stateID) }
-                                )
-                            }
+                            item { M3BrowseUpLargeGridItem(parDesc, parItemModifier) }
                         }
-                        items(children, key = { it.stateID.id }) { node ->
-                            TreeNodeLargeCard(node, openMoreMenu, open)
+                        items(
+                            items = children,
+                            key = { it.stateID.id }) { node ->
+                            TreeNodeLargeCard(
+                                item = node,
+                                more = { openMoreMenu(node.defaultStateID()) },
+                                isSelectionMode = isSelectionMode,
+                                isSelected = selectedItems.contains(node.defaultStateID()),
+                                modifier = getClickableModifier(isSelectionMode, node, onTap)
+                                    .animateItemPlacement(),
+                            )
                         }
                     }
                 }
@@ -405,16 +460,7 @@ private fun FolderList(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (Str.notEmpty(stateID.path)) {
-                            item(key = "parent") {
-                                val parentDescription = when {
-                                    Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
-                                    else -> stringResource(R.string.parent_folder)
-                                }
-                                M3BrowseUpListItem(
-                                    parentDescription = parentDescription,
-                                    modifier = Modifier.clickable { openParent(stateID) }
-                                )
-                            }
+                            item(key = "parent") { M3BrowseUpListItem(parDesc, parItemModifier) }
                         }
                         items(children, key = { it.stateID.id }) { node ->
                             NodeItem(
@@ -426,10 +472,9 @@ private fun FolderList(
                                     node.localModStatus
                                 ),
                                 more = { openMoreMenu(node.stateID) },
-                                modifier = Modifier
-                                    .padding(0.dp)
-                                    .fillMaxWidth()
-                                    .clickable { open(node.stateID) }
+                                isSelectionMode = isSelectionMode,
+                                isSelected = selectedItems.contains(node.defaultStateID()),
+                                modifier = getClickableModifier(isSelectionMode, node, onTap)
                                     .animateItemPlacement()
                             )
                         }
@@ -444,6 +489,34 @@ private fun FolderList(
             )
         }
     }
+}
+
+
+// Tweak the clickable behaviour depending on current node and selection mode.
+@SuppressLint("ModifierFactoryExtensionFunction")
+@OptIn(ExperimentalFoundationApi::class)
+fun getClickableModifier(
+    isSelectionMode: Boolean,
+    item: TreeNodeItem,
+    onTap: (StateID, Boolean) -> Unit,
+): Modifier {
+
+    var tmpModifier = Modifier.fillMaxWidth()
+    tmpModifier = if (item.isRecycle) {
+        if (isSelectionMode) {
+            // Do not react to click and make less visible
+            tmpModifier.alpha(.3f)
+        } else { // Recycle bin does not support multi selection
+            tmpModifier.clickable { onTap(item.defaultStateID(), false) }
+        }
+    } else {
+        tmpModifier.combinedClickable(
+            onClick = { onTap(item.defaultStateID(), false) },
+            onLongClick = { onTap(item.defaultStateID(), true) },
+        )
+    }
+    return tmpModifier
+
 }
 
 @Composable
