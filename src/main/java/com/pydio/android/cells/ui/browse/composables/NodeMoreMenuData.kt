@@ -55,7 +55,12 @@ fun NodeMoreMenuData(
         }
     }
 
-    if (toOpenStateID.slug != null) {
+    if (type == NodeMoreMenuType.SORT_BY) {
+        SortByMenu(
+            type = ListType.DEFAULT,
+            done = { launch(NodeAction.SortBy, toOpenStateID) },
+        )
+    } else if (toOpenStateID.slug != null) {
         item.value?.let { myItem ->
             when {
                 myItem.isRecycle() -> RecycleParentMenu(
@@ -94,11 +99,6 @@ fun NodeMoreMenuData(
                     stateID = toOpenStateID,
                     rTreeNode = myItem,
                     launch = { launch(it, toOpenStateID) },
-                )
-
-                type == NodeMoreMenuType.SORT_BY -> SortByMenu(
-                    type = ListType.DEFAULT,
-                    done = { launch(NodeAction.SortBy, toOpenStateID) },
                 )
 
                 type == NodeMoreMenuType.MORE ->

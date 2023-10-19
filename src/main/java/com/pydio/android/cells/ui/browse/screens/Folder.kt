@@ -1,17 +1,14 @@
 package com.pydio.android.cells.ui.browse.screens
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,12 +26,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -52,7 +46,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.BrowseHelper
@@ -78,7 +71,6 @@ import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
-import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -190,8 +182,8 @@ fun Folder(
         }
     }
 
-    val launchMono: (NodeAction, StateID) -> Unit = { action, currID ->
-        when (action) {
+    val launch: (NodeAction) -> Unit = {
+        when (it) {
             is NodeAction.AsGrid -> {
                 folderVM.setListLayout(ListLayout.GRID)
                 actionDone(true)
@@ -202,25 +194,14 @@ fun Folder(
                 actionDone(true)
             }
 
-            is NodeAction.SortBy -> { // The real "set()" has already been done by the bottom sheet via its preferencesVM
-                actionDone(true)
-            }
+//            is NodeAction.SortBy -> { // The real "set()" has already been done by the bottom sheet via its preferencesVM
+//                actionDone(true)
+//            }
 
             else -> {
-                Log.e(LOG_TAG, "Unknown action $action for $currID")
+                Log.e(LOG_TAG, "Unknown action $it")
                 actionDone(false)
             }
-        }
-    }
-
-    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        if (stateIDs.size == 1) {
-            launchMono(action, stateIDs.first())
-        } else {
-            Log.e(LOG_TAG, "FIXME: implement launch multi here")
-            Thread.dumpStack()
-            Log.e(LOG_TAG, "FIXME: implement launch multi here")
-//            launchMulti(action, stateIDs)
         }
     }
 
@@ -271,7 +252,7 @@ private fun FolderScaffold(
     openDrawer: () -> Unit,
     openSearch: () -> Unit,
     onTap: (StateID, Boolean) -> Unit,
-    launch: (NodeAction, Set<StateID>) -> Unit,
+    launch: (NodeAction) -> Unit,
     moreMenuState: SetMoreMenuState,
     selectedItems: Set<StateID>,
     snackBarHostState: SnackbarHostState,
@@ -290,7 +271,7 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(btnLabel) },
                 onClick = {
-                    launch(NodeAction.AsList, setOf(StateID.NONE))
+                    launch(NodeAction.AsList)
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsList, btnLabel) },
@@ -300,7 +281,7 @@ private fun FolderScaffold(
             DropdownMenuItem(
                 text = { Text(btnLabel) },
                 onClick = {
-                    launch(NodeAction.AsGrid, setOf(StateID.NONE))
+                    launch(NodeAction.AsGrid)
                     showMenu(false)
                 },
                 leadingIcon = { Icon(CellsIcons.AsGrid, btnLabel) },
@@ -493,7 +474,6 @@ private fun FolderList(
     }
 }
 
-
 // Tweak the clickable behaviour depending on current node and selection mode.
 @SuppressLint("ModifierFactoryExtensionFunction")
 @OptIn(ExperimentalFoundationApi::class)
@@ -518,87 +498,87 @@ fun getClickableModifier(
         )
     }
     return tmpModifier
-
 }
 
-@Composable
-fun FolderTopBar(
-    title: String,
-    openDrawer: () -> Unit,
-    openSearch: () -> Unit,
-    modifier: Modifier
-) {
-    Surface(
-        modifier = modifier
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.topbar_horizontal_padding),
-                    vertical = dimensionResource(R.dimen.topbar_vertical_padding),
-                )
-        ) {
-            IconButton(
-                onClick = { openDrawer() },
-                enabled = true
-            ) {
-                Icon(
-                    CellsIcons.Menu,
-                    contentDescription = stringResource(id = R.string.open_drawer)
-                )
-            }
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            IconButton(onClick = { openSearch() }) {
-                Icon(
-                    CellsIcons.Search,
-                    contentDescription = stringResource(id = R.string.action_search)
-                )
-            }
-        }
-    }
-}
-
-@Preview(name = "Folder Header Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "FolderTopBar Dark Mode"
-)
-@Composable
-private fun FolderTopBarPreview() {
-    UseCellsTheme {
-        FolderTopBar(
-            "alice",
-            { },
-            { },
-            Modifier.fillMaxWidth()
-        )
-    }
-}
-
-@Preview(name = "Light Mode")
-@Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true,
-    name = "Dark Mode"
-)
-@Composable
-private fun TopBarPreview() {
-    UseCellsTheme {
-        FolderTopBar(
-            "Pydio Cells server",
-            { },
-            { },
-            Modifier.fillMaxWidth()
-        )
-    }
-}
+//@Composable
+//fun FolderTopBar(
+//    title: String,
+//    openDrawer: () -> Unit,
+//    openSearch: () -> Unit,
+//    modifier: Modifier
+//) {
+//    Surface(
+//        modifier = modifier
+//    ) {
+//        Row(
+//            Modifier
+//                .fillMaxWidth()
+//                .padding(
+//                    horizontal = dimensionResource(R.dimen.topbar_horizontal_padding),
+//                    vertical = dimensionResource(R.dimen.topbar_vertical_padding),
+//                )
+//        ) {
+//            IconButton(
+//                onClick = { openDrawer() },
+//                enabled = true
+//            ) {
+//                Icon(
+//                    CellsIcons.Menu,
+//                    contentDescription = stringResource(id = R.string.open_drawer)
+//                )
+//            }
+//
+//            Column(
+//                modifier = Modifier.weight(1f)
+//            ) {
+//                Text(
+//                    text = title,
+//                    style = MaterialTheme.typography.titleMedium,
+//                )
+//            }
+//            IconButton(onClick = { openSearch() }) {
+//                Icon(
+//                    CellsIcons.Search,
+//                    contentDescription = stringResource(id = R.string.action_search)
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Preview(name = "Folder Header Light Mode")
+//@Preview(
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    showBackground = true,
+//    name = "FolderTopBar Dark Mode"
+//)
+//@Composable
+//private fun FolderTopBarPreview() {
+//    UseCellsTheme {
+//        FolderTopBar(
+//            "alice",
+//            { },
+//            { },
+//            Modifier.fillMaxWidth()
+//        )
+//    }
+//}
+//
+//@Preview(name = "Light Mode")
+//@Preview(
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    showBackground = true,
+//    name = "Dark Mode"
+//)
+//@Composable
+//private fun TopBarPreview() {
+//    UseCellsTheme {
+//        FolderTopBar(
+//            "Pydio Cells server",
+//            { },
+//            { },
+//            Modifier.fillMaxWidth()
+//        )
+//    }
+//}

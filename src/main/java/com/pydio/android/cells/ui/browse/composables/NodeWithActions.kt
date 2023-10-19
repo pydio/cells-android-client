@@ -199,7 +199,7 @@ private fun FolderWithDialogs(
     }
 
     val launchMono: (NodeAction, StateID) -> Unit = { action, passedStateID ->
-        Log.i(LOG_TAG, "About to navigate to ${action.id}/${passedStateID}")
+        Log.i(LOG_TAG, "Launching mono action for ${action.id}/${passedStateID}")
         when (action) {
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
@@ -274,13 +274,13 @@ private fun FolderWithDialogs(
         }
     }
 
-    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        if (stateIDs.size == 1) {
-            launchMono(action, stateIDs.first())
-        } else {
-            launchMulti(action, stateIDs)
-        }
-    }
+//    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+//        if (stateIDs.size == 1) {
+//            launchMono(action, stateIDs.first())
+//        } else {
+//            launchMulti(action, stateIDs)
+//        }
+//    }
 
     val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
         Log.i(LOG_TAG, "launch $action action for $targetStateID")
@@ -314,13 +314,13 @@ private fun FolderWithDialogs(
                         NodeMoreMenuData(
                             type = type,
                             toOpenStateID = targetStateIDs.first(),
-                            launch = { a, s -> launch(a, setOf(s)) },
+                            launch = launchMono,
                         )
                     } else if (targetStateIDs.size > 1) {
                         NodesMoreMenuData(
                             type = type,
                             stateIDs = targetStateIDs,
-                            launch = launch,
+                            launch = launchMulti,
                         )
                     } else {
                         Spacer(modifier = Modifier.height(1.dp))
