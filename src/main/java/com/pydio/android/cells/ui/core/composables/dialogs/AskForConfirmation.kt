@@ -18,14 +18,13 @@ import com.pydio.android.cells.R
 
 @Composable
 fun AskForConfirmation(
-    icon: ImageVector?,
+    icon: ImageVector? = null,
     title: String,
     desc: String,
     confirm: () -> Unit,
     dismiss: () -> Unit,
 ) {
     AlertDialog(
-        // TODO add icon
         icon = {
             icon?.let {
                 Icon(

@@ -49,12 +49,13 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "NodeActionDialogs.kt"
+private const val LOG_TAG = "NodeActionDialogs.kt"
 
 @Composable
 fun CreateFolder(
-    nodeActionsVM: NodeActionsVM,
+    nodeActionsVM: NodeActionsVM = koinViewModel(),
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
@@ -102,7 +103,7 @@ fun Download(
                     try {
                         downloadVM.viewFile(context)
                     } catch (e: Exception) {
-                        Log.e(logTag, "File has been downloaded but is not found")
+                        Log.e(LOG_TAG, "File has been downloaded but is not found")
                         e.printStackTrace()
                     }
                 }
@@ -159,12 +160,12 @@ fun ChooseDestination(
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
-    Log.d(logTag, "Composing ChooseDestination for $stateID")
+    Log.d(LOG_TAG, "Composing ChooseDestination for $stateID")
     val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
     val destinationPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("*/*"),
         onResult = { uri ->
-            Log.e(logTag, "Got a destination for $stateID")
+            Log.e(LOG_TAG, "Got a destination for $stateID")
             if (stateID != StateID.NONE) {
                 uri?.let {
                     nodeActionsVM.download(stateID, uri)
@@ -181,7 +182,7 @@ fun ChooseDestination(
     )
     if (!alreadyLaunched.value) {
         LaunchedEffect(key1 = stateID) {
-            Log.e(logTag, "Launching 'pick destination' for $stateID")
+            Log.e(LOG_TAG, "Launching 'pick destination' for $stateID")
             delay(100)
             destinationPicker.launch(stateID.fileName)
             alreadyLaunched.value = true
@@ -211,7 +212,7 @@ fun ImportFile(
     )
     if (!alreadyLaunched.value) {
         LaunchedEffect(key1 = targetParentID) {
-            Log.e(logTag, "Launching 'import file' to $targetParentID")
+            Log.e(LOG_TAG, "Launching 'import file' to $targetParentID")
             delay(100)
             fileImporter.launch("*/*")
             alreadyLaunched.value = true
@@ -246,7 +247,7 @@ fun TakePicture(
     )
     if (!alreadyLaunched.value) {
         LaunchedEffect(key1 = targetParentID) {
-            Log.d(logTag, "Launching 'TakePicture' with parent $targetParentID")
+            Log.d(LOG_TAG, "Launching 'TakePicture' with parent $targetParentID")
             delay(100)
             nodeActionsVM.preparePhoto(context, targetParentID)?.also {
                 photoTaker.launch(it)
@@ -283,7 +284,7 @@ fun ConfirmDeletion(
     dismiss: (Boolean) -> Unit,
 ) {
     AskForConfirmation(
-        icon = CellsIcons.Delete,
+        // icon = CellsIcons.Delete,
         title = stringResource(id = R.string.confirm_move_to_recycle_title),
         desc = stringResource(id = R.string.confirm_move_to_recycle_desc, stateID.fileName),
         confirm = {

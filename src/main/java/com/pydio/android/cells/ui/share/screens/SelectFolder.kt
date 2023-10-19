@@ -2,11 +2,11 @@ package com.pydio.android.cells.ui.share.screens
 
 import android.content.res.Configuration
 import android.util.Log
-import android.util.TypedValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,10 +21,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -63,7 +63,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "SelectFolder"
+private const val LOG_TAG = "SelectFolder.kt"
 
 private const val FOLDER_MAIN_CONTENT = "folder-main-content"
 private const val STATE_ID_SUFFIX = "/{state-id}"
@@ -97,7 +97,7 @@ fun SelectFolderScreen(
     }
 
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
-        Log.e(logTag, "Intercepting $action for $currID")
+        Log.e(LOG_TAG, "Intercepting $action for $currID")
         if (AppNames.ACTION_UPLOAD == action) {
             startUpload(shareVM, currID)
         } else if (AppNames.ACTION_CREATE_FOLDER == action) {
@@ -117,7 +117,7 @@ fun SelectFolderScreen(
     NavHost(navController, FOLDER_MAIN_CONTENT) {
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
-            Log.d(logTag, "... Navigating to main content for $stateID")
+            Log.d(LOG_TAG, "... Navigating to main content for $stateID")
             SelectFolderScaffold(
                 loadingStatus = loadingStatus.value,
                 action = AppNames.ACTION_UPLOAD,
@@ -133,7 +133,7 @@ fun SelectFolderScreen(
         dialog(routeTemplate(NodeAction.CreateFolder)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
-                Log.w(logTag, "Cannot create folder with no ID")
+                Log.w(LOG_TAG, "Cannot create folder with no ID")
                 navController.popBackStack(FOLDER_MAIN_CONTENT, false)
             } else {
                 val nodeActionsVM: NodeActionsVM = koinViewModel()
@@ -147,7 +147,6 @@ fun SelectFolderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectFolderScaffold(
     loadingStatus: LoadingState,
@@ -178,7 +177,7 @@ fun SelectFolderScaffold(
             }
         },
     ) { padding ->
-        FolderList(
+        SelectFolderList(
             action = action,
             stateID = stateID,
             children = children,
@@ -192,7 +191,7 @@ fun SelectFolderScaffold(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun FolderList(
+private fun SelectFolderList(
     action: String,
     stateID: StateID,
     children: List<TreeNodeItem>,
@@ -201,13 +200,17 @@ private fun FolderList(
     open: (StateID) -> Unit,
     modifier: Modifier,
 ) {
+    val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
+    val paddingValues = PaddingValues(
+        top = dimensionResource(R.dimen.list_item_inner_padding),
+        bottom = dimensionResource(R.dimen.list_item_inner_padding),
+        start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
+        end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
+    )
     val state = rememberPullRefreshState(
         loadingStatus == LoadingState.PROCESSING,
         onRefresh = { forceRefresh() },
     )
-
-    val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
-
     Box(modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxWidth()) {
             // For the time being we only support intra workspace copy / move
@@ -231,18 +234,12 @@ private fun FolderList(
                 }
             }
             items(children) { oneChild ->
-                var currModifier = if (oneChild.isFolder) {
+                val currModifier = if (oneChild.isFolder) {
                     Modifier.clickable { open(oneChild.stateID) }
                 } else {
                     Modifier.alpha(alpha)
                 }
-                currModifier = currModifier.padding(
-                    top = dimensionResource(R.dimen.list_item_inner_padding),
-                    bottom = dimensionResource(R.dimen.list_item_inner_padding),
-                    start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
-                    end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
-                )
-                SelectFolderItem(oneChild, currModifier)
+                SelectFolderItem(oneChild, currModifier.padding(paddingValues))
             }
         }
         PullRefreshIndicator(
@@ -258,13 +255,11 @@ private fun SelectFolderItem(
     item: TreeNodeItem,
     modifier: Modifier = Modifier
 ) {
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-
         Thumbnail(
             item.stateID,
             item.sortName,
@@ -274,7 +269,6 @@ private fun SelectFolderItem(
             item.metaHash,
             item.hasThumb,
         )
-
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -315,6 +309,8 @@ private fun TopBar(
     onSelect: (String, StateID) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val bgColor = MaterialTheme.colorScheme.secondaryContainer
+    val textColor = MaterialTheme.colorScheme.onSecondaryContainer
 
     val title = when (action) {
         AppNames.ACTION_UPLOAD -> stringResource(R.string.choose_target_for_share_title)
@@ -325,10 +321,7 @@ private fun TopBar(
     // TODO configure ellipsize from start (or middle?) rather than from the end
     val subTitle = stateID.path ?: "${stateID.username}@${stateID.serverHost}"
 
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier.fillMaxWidth()
-    ) {
+    Surface(color = bgColor, modifier = modifier.fillMaxWidth()) {
         Row(
             Modifier
                 .fillMaxWidth()
@@ -342,20 +335,26 @@ private fun TopBar(
             ) {
                 Text(
                     text = title,
+                    color = textColor,
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
                     text = subTitle,
+                    color = textColor,
                     style = MaterialTheme.typography.titleSmall,
                 )
             }
             IconButton(
+                colors = IconButtonDefaults.iconButtonColors(bgColor, textColor),
                 onClick = { onSelect(action, stateID) },
                 enabled = canPost(stateID)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "Select this target")
             }
-            IconButton(onClick = { onSelect(AppNames.ACTION_CANCEL, stateID) }) {
+            IconButton(
+                colors = IconButtonDefaults.iconButtonColors(bgColor, textColor),
+                onClick = { onSelect(AppNames.ACTION_CANCEL, stateID) }
+            ) {
                 Icon(Icons.Filled.Close, contentDescription = "Cancel activity")
             }
         }

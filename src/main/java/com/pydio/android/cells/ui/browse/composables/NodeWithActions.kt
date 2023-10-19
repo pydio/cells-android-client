@@ -337,12 +337,13 @@ private fun FolderWithDialogs(
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
                 return@composable
             }
-
             val action = currentAction.value ?: run {
                 Log.e(LOG_TAG, "... cannot launch target selection with no action set")
                 return@composable
             }
-            Log.i(LOG_TAG, ".... Open choose *folder* page, with ID: $stateID}")
+            LaunchedEffect(key1 = stateID) {
+                Log.i(LOG_TAG,"## First Composition for: selectTarget/$stateID")
+            }
             val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
 
             SelectFolderPage(

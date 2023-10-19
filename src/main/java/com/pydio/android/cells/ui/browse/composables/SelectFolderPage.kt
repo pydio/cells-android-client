@@ -13,7 +13,7 @@ fun SelectFolderPage(
     action: String,
     stateID: StateID,
     loadingStatus: LoadingState,
-    forceRefresh: (stateId: StateID) -> Unit,
+    forceRefresh: (StateID) -> Unit,
     open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
     doAction: (String, StateID) -> Unit,
