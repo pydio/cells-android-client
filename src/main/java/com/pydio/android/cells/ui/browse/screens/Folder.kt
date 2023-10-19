@@ -74,6 +74,7 @@ import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -406,10 +407,11 @@ private fun FolderList(
         canRefresh = LoadingState.SERVER_UNREACHABLE != loadingState,
         modifier = Modifier.padding(padding)
     ) {
+        val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
         val parItemModifier = if (isSelectionMode) {
             Modifier
                 .fillMaxWidth()
-                .alpha(.3f)
+                .alpha(alpha)
         } else {
             Modifier
                 .fillMaxWidth()
@@ -447,7 +449,7 @@ private fun FolderList(
                                 more = { openMoreMenu(node.defaultStateID()) },
                                 isSelectionMode = isSelectionMode,
                                 isSelected = selectedItems.contains(node.defaultStateID()),
-                                modifier = getClickableModifier(isSelectionMode, node, onTap)
+                                modifier = getClickableModifier(isSelectionMode, node, onTap, alpha)
                                     .animateItemPlacement(),
                             )
                         }
@@ -474,7 +476,7 @@ private fun FolderList(
                                 more = { openMoreMenu(node.stateID) },
                                 isSelectionMode = isSelectionMode,
                                 isSelected = selectedItems.contains(node.defaultStateID()),
-                                modifier = getClickableModifier(isSelectionMode, node, onTap)
+                                modifier = getClickableModifier(isSelectionMode, node, onTap, alpha)
                                     .animateItemPlacement()
                             )
                         }
@@ -499,13 +501,13 @@ fun getClickableModifier(
     isSelectionMode: Boolean,
     item: TreeNodeItem,
     onTap: (StateID, Boolean) -> Unit,
+    alpha: Float,
 ): Modifier {
-
     var tmpModifier = Modifier.fillMaxWidth()
     tmpModifier = if (item.isRecycle) {
         if (isSelectionMode) {
             // Do not react to click and make less visible
-            tmpModifier.alpha(.3f)
+            tmpModifier.alpha(alpha)
         } else { // Recycle bin does not support multi selection
             tmpModifier.clickable { onTap(item.defaultStateID(), false) }
         }

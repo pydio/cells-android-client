@@ -53,6 +53,7 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
+import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
@@ -205,12 +206,13 @@ private fun FolderList(
         onRefresh = { forceRefresh() },
     )
 
+    val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
+
     Box(modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxWidth()) {
             // For the time being we only support intra workspace copy / move
             // We so reduce the "up" row visibility at the WS level when in such situation
             if (Str.notEmpty(stateID.fileName) || action == AppNames.ACTION_UPLOAD) {
-
                 item {
                     val parentDescription = when {
                         Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
@@ -229,16 +231,18 @@ private fun FolderList(
                 }
             }
             items(children) { oneChild ->
-                val currModifier = if (oneChild.isFolder) {
+                var currModifier = if (oneChild.isFolder) {
                     Modifier.clickable { open(oneChild.stateID) }
                 } else {
-                    Modifier
+                    Modifier.alpha(alpha)
                 }
-
-                SelectFolderItem(
-                    oneChild,
-                    modifier = currModifier,
+                currModifier = currModifier.padding(
+                    top = dimensionResource(R.dimen.list_item_inner_padding),
+                    bottom = dimensionResource(R.dimen.list_item_inner_padding),
+                    start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
+                    end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
                 )
+                SelectFolderItem(oneChild, currModifier)
             }
         }
         PullRefreshIndicator(
@@ -255,26 +259,10 @@ private fun SelectFolderItem(
     modifier: Modifier = Modifier
 ) {
 
-    val alpha = if (!item.isFolder) {
-        val outValue = TypedValue()
-        LocalContext.current.resources.getValue(R.dimen.disabled_list_item_alpha, outValue, true)
-        outValue.float
-    } else {
-        1f
-    }
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .alpha(alpha)
-            .padding(
-                top = dimensionResource(R.dimen.list_item_inner_padding),
-                bottom = dimensionResource(R.dimen.list_item_inner_padding),
-                start = dimensionResource(R.dimen.list_item_inner_padding).times(2),
-                end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
-            )
-
     ) {
 
         Thumbnail(

@@ -287,15 +287,14 @@ private fun FolderWithDialogs(
         when (action) {
             AppNames.ACTION_CANCEL -> closeDialog(false)
             else -> {
-                // FIXME adapt also for multi selection
-                if (targetStateIDs.isNotEmpty()) {
+                for (currID in targetStateIDs) {
                     when (currentAction.value) {
                         AppNames.ACTION_MOVE -> {
-                            nodeActionsVM.moveTo(targetStateIDs.first(), targetStateID)
+                            nodeActionsVM.moveTo(currID, targetStateID)
                         }
 
                         AppNames.ACTION_COPY -> {
-                            nodeActionsVM.copyTo(targetStateIDs.first(), targetStateID)
+                            nodeActionsVM.copyTo(currID, targetStateID)
                         }
                     }
                 }
