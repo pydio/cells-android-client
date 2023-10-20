@@ -91,8 +91,9 @@ private const val logTag = "OfflineRoots"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfflineRoots(
-    offlineVM: OfflineVM,
+    isExpandedScreen: Boolean,
     openDrawer: () -> Unit,
+    offlineVM: OfflineVM,
     browseHelper: BrowseHelper,
 ) {
     val context = LocalContext.current
@@ -207,6 +208,7 @@ fun OfflineRoots(
     }
 
     WithScaffold(
+        isExpandedScreen=     isExpandedScreen,
         loadingState = loadingState.value,
         listLayout = listLayout,
         syncJob = syncJob.value,
@@ -229,6 +231,7 @@ fun OfflineRoots(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithScaffold(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     listLayout: ListLayout,
     syncJob: RJob?,
@@ -314,6 +317,7 @@ private fun WithScaffold(
     ) { padding ->
 
         CellsModalBottomSheetLayout(
+            isExpandedScreen = isExpandedScreen,
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(

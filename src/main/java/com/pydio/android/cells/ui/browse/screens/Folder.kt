@@ -200,6 +200,7 @@ fun Folder(
 
     WrapWithActions(
         actionDone = actionDone,
+        isExpandedScreen = isExpandedScreen,
         type = nodeMoreMenuData.value.first,
         subjectIDs = nodeMoreMenuData.value.second,
         sheetState = sheetState,

@@ -34,10 +34,10 @@ fun NodeMoreMenuData(
     type: NodeMoreMenuType,
     subjectID: StateID,
     launch: (NodeAction, StateID) -> Unit,
+    treeNodeVM: TreeNodeVM = koinViewModel(),
 ) {
     val logTag = "NodeMoreMenuData"
 
-    val treeNodeVM: TreeNodeVM = koinViewModel()
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 

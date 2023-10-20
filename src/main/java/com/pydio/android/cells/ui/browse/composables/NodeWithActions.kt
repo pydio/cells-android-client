@@ -57,6 +57,7 @@ private fun route(action: NodeAction): String {
 @Composable
 fun WrapWithActions(
     actionDone: (Boolean) -> Unit,
+    isExpandedScreen: Boolean = false,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
@@ -69,6 +70,7 @@ fun WrapWithActions(
 
     FolderWithDialogs(
         actionDone = actionDone,
+        isExpandedScreen = isExpandedScreen,
         type = type,
         subjectIDs = subjectIDs,
         sheetState = sheetState,
@@ -82,6 +84,7 @@ fun WrapWithActions(
 @Composable
 private fun FolderWithDialogs(
     actionDone: (Boolean) -> Unit,
+    isExpandedScreen: Boolean,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
@@ -130,7 +133,6 @@ private fun FolderWithDialogs(
     val closeDialog: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         if (done) {
-//            Log.e(LOG_TAG, "### Closing dialog, action done")
             actionDone(true)
         }
     }
@@ -284,31 +286,7 @@ private fun FolderWithDialogs(
                         }
                     }
                 }
-//                var prevRoute = navController.previousBackStackEntry?.destination?.route
-//                var prevStateID = lazyStateID(navController.previousBackStackEntry)
-//                var currRoute = navController.currentBackStackEntry?.destination?.route
-//                var currStateID = lazyStateID(navController.currentBackStackEntry)
-//
-//                Log.e(LOG_TAG, "... Action done")
-//                Log.e(LOG_TAG, "     - prevRoute: $prevRoute")
-//                Log.e(LOG_TAG, "     - prevStateID: $prevStateID")
-//                Log.e(LOG_TAG, "     - currRoute: $currRoute")
-//                Log.e(LOG_TAG, "     - currStateID: $currStateID")
-
-                navController.popBackStack(FOLDER_MAIN_CONTENT, false)
-
-//                prevRoute = navController.previousBackStackEntry?.destination?.route
-//                prevStateID = lazyStateID(navController.previousBackStackEntry)
-//                currRoute = navController.currentBackStackEntry?.destination?.route
-//                currStateID = lazyStateID(navController.currentBackStackEntry)
-//
-//                Log.e(LOG_TAG, "... After: ")
-//                Log.e(LOG_TAG, "     - prevRoute: $prevRoute")
-//                Log.e(LOG_TAG, "     - prevStateID: $prevStateID")
-//                Log.e(LOG_TAG, "     - currRoute: $currRoute")
-//                Log.e(LOG_TAG, "     - currStateID: $currStateID")
-
-                actionDone(true)
+                closeDialog(true)
             }
         }
     }
@@ -317,6 +295,8 @@ private fun FolderWithDialogs(
 
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
             CellsModalBottomSheetLayout(
+                isExpandedScreen = isExpandedScreen,
+
                 sheetContent = {
                     if (subjectIDs.size == 1) {
                         NodeMoreMenuData(

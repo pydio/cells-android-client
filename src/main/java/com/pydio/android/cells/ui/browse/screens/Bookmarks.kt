@@ -71,6 +71,7 @@ private const val logTag = "Bookmarks.kt"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Bookmarks(
+    isExpandedScreen: Boolean,
     accountID: StateID,
     openDrawer: () -> Unit,
     bookmarksVM: BookmarksVM,
@@ -213,6 +214,7 @@ fun Bookmarks(
     }
 
     BookmarkScaffold(
+        isExpandedScreen = isExpandedScreen,
         loadingState = loadingState,
         listLayout = listLayout,
         title = stringResource(id = R.string.action_open_bookmarks),
@@ -235,6 +237,7 @@ fun Bookmarks(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookmarkScaffold(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     listLayout: ListLayout,
     title: String,
@@ -321,6 +324,7 @@ private fun BookmarkScaffold(
     ) { padding ->
 
         CellsModalBottomSheetLayout(
+            isExpandedScreen = isExpandedScreen,
             sheetContent = {
                 // TODO remove after verif: this should be useless. We call the SORT_BY type with a setOf(StateID.NONE) a.k.a of size=1
 //                if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {

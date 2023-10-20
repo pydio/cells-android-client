@@ -62,9 +62,10 @@ private const val logTag = "TransferScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Transfers(
+    isExpandedScreen: Boolean,
     accountID: StateID,
-    transfersVM: TransfersVM,
     openDrawer: () -> Unit,
+    transfersVM: TransfersVM,
     browseHelper: BrowseHelper,
 ) {
 
@@ -73,11 +74,12 @@ fun Transfers(
     val currFilter = transfersVM.liveFilter.collectAsState(JobStatus.NO_FILTER.id)
 
     WithState(
+        isExpandedScreen = isExpandedScreen,
         loadingState = loadingState.value,
         forceRefresh = transfersVM::forceRefresh,
+        isRemoteLegacy = transfersVM.isRemoteServerLegacy,
         accountID = accountID,
         currFilter = currFilter.value,
-        isRemoteLegacy = transfersVM.isRemoteServerLegacy,
         transfers = currTransfers.value,
         transfersVM = transfersVM,
         openDrawer = openDrawer,
@@ -92,6 +94,7 @@ fun Transfers(
 @Composable
 @ExperimentalMaterial3Api
 private fun WithState(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
     currFilter: String,
@@ -170,11 +173,12 @@ private fun WithState(
     }
 
     WithBottomSheet(
+        isExpandedScreen = isExpandedScreen,
         loadingState = loadingState,
         forceRefresh = forceRefresh,
         currFilter = currFilter,
-        accountID = accountID,
         isRemoteLegacy = isRemoteLegacy,
+        accountID = accountID,
         transfers = transfers,
         moreMenuState = TransferMoreMenuState(
             transferMoreMenuData.value.first,
@@ -192,11 +196,12 @@ private fun WithState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithBottomSheet(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     forceRefresh: () -> Unit,
     currFilter: String,
-    accountID: StateID,
     isRemoteLegacy: Boolean,
+    accountID: StateID,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
     doAction: (String, Long) -> Unit,
@@ -205,6 +210,7 @@ private fun WithBottomSheet(
 ) {
 
     ModalBottomSheetLayout(
+        isExpandedScreen = isExpandedScreen,
         sheetContent = {
             when (moreMenuState.type) {
                 TransferMoreMenuType.SORT_BY ->

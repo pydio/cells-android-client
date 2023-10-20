@@ -45,6 +45,7 @@ private const val logTag = "Search"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Search(
+    isExpandedScreen: Boolean,
     queryContext: String,
     stateID: StateID,
     searchVM: SearchVM = koinViewModel(),
@@ -140,6 +141,7 @@ fun Search(
     }
 
     WithScaffold(
+        isExpandedScreen = isExpandedScreen,
         loadingState = loadingState,
         query = query,
         errMsg = errMessage,
@@ -165,6 +167,7 @@ fun Search(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithScaffold(
+    isExpandedScreen: Boolean,
     loadingState: LoadingState,
     query: String,
     errMsg: ErrorMessage?,
@@ -243,6 +246,7 @@ private fun WithScaffold(
     ) { padding ->
 
         CellsModalBottomSheetLayout(
+            isExpandedScreen = isExpandedScreen,
             sheetContent = {
                 if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
                     SortByMenu(

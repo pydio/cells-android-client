@@ -72,13 +72,6 @@ fun CellsNavGraph(
         route = CellsDestinations.Root.route
     ) {
 
-        composable(CellsDestinations.Home.route) {
-            NoAccount(
-                openDrawer = { openDrawer() },
-                addAccount = { loginNavActions.askUrl() },
-            )
-        }
-
         composable(CellsDestinations.Accounts.route) {
             val accountListVM: AccountListVM = koinViewModel()
             AccountsScreen(
@@ -98,10 +91,48 @@ fun CellsNavGraph(
             }
         }
 
+        loginNavGraph(
+            loginVM = loginVM,
+            helper = LoginHelper(
+                navController,
+                loginVM,
+                navigateTo,
+                startingState,
+                ackStartStateProcessing
+            ),
+        )
+
+        browseNavGraph(
+            isExpandedScreen = isExpandedScreen,
+            navController = navController,
+            openDrawer = openDrawer,
+            back = { navController.popBackStack() },
+            browseRemoteVM = browseRemoteVM,
+        )
+
+        shareNavGraph(
+            isExpandedScreen = isExpandedScreen,
+            browseRemoteVM = browseRemoteVM,
+            helper = ShareHelper(
+                navController,
+                launchTaskFor,
+                startingState,
+                ackStartStateProcessing
+            ),
+            back = { navController.popBackStack() },
+        )
+
+        systemNavGraph(
+            openDrawer,
+            launchIntent = launchIntent,
+            back = { navController.popBackStack() },
+        )
+
         composable(CellsDestinations.Search.route) { entry ->
             val searchVM: SearchVM =
                 koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
             Search(
+                isExpandedScreen = isExpandedScreen,
                 queryContext = lazyQueryContext(entry),
                 stateID = lazyStateID(entry),
                 searchVM = searchVM,
@@ -127,40 +158,12 @@ fun CellsNavGraph(
             )
         }
 
-        browseNavGraph(
-            isExpandedScreen = isExpandedScreen,
-            navController = navController,
-            browseRemoteVM = browseRemoteVM,
-            back = { navController.popBackStack() },
-            openDrawer,
-        )
+        composable(CellsDestinations.Home.route) {
+            NoAccount(
+                openDrawer = { openDrawer() },
+                addAccount = { loginNavActions.askUrl() },
+            )
+        }
 
-        loginNavGraph(
-            loginVM = loginVM,
-            helper = LoginHelper(
-                navController,
-                loginVM,
-                navigateTo,
-                startingState,
-                ackStartStateProcessing
-            ),
-        )
-
-        shareNavGraph(
-            browseRemoteVM = browseRemoteVM,
-            helper = ShareHelper(
-                navController,
-                launchTaskFor,
-                startingState,
-                ackStartStateProcessing
-            ),
-            back = { navController.popBackStack() },
-        )
-
-        systemNavGraph(
-            openDrawer,
-            launchIntent = launchIntent,
-            back = { navController.popBackStack() },
-        )
     }
 }

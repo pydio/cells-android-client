@@ -50,11 +50,13 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CellsModalBottomSheetLayout(
+    isExpandedScreen: Boolean,
     sheetContent: @Composable ColumnScope.() -> Unit,
     sheetState: ModalBottomSheetState,
     content: @Composable () -> Unit
 ) {
     ModalBottomSheetLayout(
+        isExpandedScreen = isExpandedScreen,
         sheetContent = sheetContent,
         sheetState = sheetState,
         sheetElevation = 3.dp,

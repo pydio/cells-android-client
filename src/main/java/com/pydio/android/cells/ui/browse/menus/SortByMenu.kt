@@ -22,20 +22,22 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val logTag = "SortByMenu"
-
 @Composable
 fun SortByMenu(
     type: ListType,
     done: () -> Unit,
 ) {
+//    val logTag = "SortByMenu"
+
     val sortByMenuVM: SortByMenuVM = koinViewModel(parameters = { parametersOf(type) })
 
     val (keys, labels) = when (type) {
         ListType.TRANSFER ->
             stringArrayResource(R.array.transfer_order_by_values) to stringArrayResource(R.array.transfer_order_by_labels)
+
         ListType.JOB ->
             stringArrayResource(R.array.job_order_by_values) to stringArrayResource(R.array.job_order_by_labels)
+
         ListType.DEFAULT ->
             stringArrayResource(R.array.order_by_values) to stringArrayResource(R.array.order_by_labels)
     }
@@ -49,7 +51,6 @@ fun SortByMenu(
             .fillMaxWidth()
             .padding(vertical = dimensionResource(id = R.dimen.bottom_sheet_v_spacing))
             .verticalScroll(scrollState)
-
     ) {
         GenericBottomSheetHeader(
             icon = CellsIcons.SortBy,

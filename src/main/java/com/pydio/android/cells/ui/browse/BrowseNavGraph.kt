@@ -30,9 +30,9 @@ import org.koin.core.parameter.parametersOf
 fun NavGraphBuilder.browseNavGraph(
     isExpandedScreen: Boolean,
     navController: NavHostController,
-    browseRemoteVM: BrowseRemoteVM,
-    back: () -> Unit,
     openDrawer: () -> Unit,
+    back: () -> Unit,
+    browseRemoteVM: BrowseRemoteVM,
 ) {
 
     val logTag = "BrowseNavGraph"
@@ -118,8 +118,9 @@ fun NavGraphBuilder.browseNavGraph(
             val offlineVM: OfflineVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, offlineVM)
             OfflineRoots(
-                offlineVM = offlineVM,
+                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
+                offlineVM = offlineVM,
                 browseHelper = helper,
             )
         }
@@ -137,6 +138,7 @@ fun NavGraphBuilder.browseNavGraph(
             val bookmarksVM: BookmarksVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, bookmarksVM)
             Bookmarks(
+                isExpandedScreen = isExpandedScreen,
                 stateID,
                 openDrawer = openDrawer,
                 browseHelper = helper,
@@ -155,9 +157,10 @@ fun NavGraphBuilder.browseNavGraph(
                 koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID) })
             val helper = BrowseHelper(navController, transfersVM)
             Transfers(
+                isExpandedScreen = isExpandedScreen,
+                openDrawer = openDrawer,
                 accountID = stateID.account(),
                 transfersVM = transfersVM,
-                openDrawer = openDrawer,
                 browseHelper = helper,
             )
         }

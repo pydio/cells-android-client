@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -240,6 +243,8 @@ fun rememberModalBottomSheetState(
 fun ModalBottomSheetLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
+    // added by BSinou
+    isExpandedScreen: Boolean = false,
     sheetState: ModalBottomSheetState =
         rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     sheetShape: Shape = MaterialTheme.shapes.medium,
@@ -265,9 +270,17 @@ fun ModalBottomSheetLayout(
                 visible = sheetState.targetValue != ModalBottomSheetValue.Hidden
             )
         }
-        Surface(
-            modifier = Modifier
+        // Hacked by bsinou to provide narrower bottom menu on large screens
+        val surfaceModifier = if (isExpandedScreen) {
+            Modifier
                 .fillMaxWidth()
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .width(640.dp)
+        } else {
+            Modifier.fillMaxWidth()
+        }
+        Surface(
+            modifier = surfaceModifier
                 .nestedScroll(sheetState.nestedScrollConnection)
                 .offset {
                     val y = if (sheetState.anchors.isEmpty()) {

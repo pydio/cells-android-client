@@ -42,17 +42,19 @@ private const val logTag = "UploadProgressList"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadProgressList(
+    isExpandedScreen: Boolean,
     uploadsVM: MonitorUploadsVM,
+    openParentLocation: () -> Unit,
     runInBackground: () -> Unit,
     done: () -> Unit,
     cancel: () -> Unit,
-    openParentLocation: () -> Unit,
 ) {
 
     val currJob = uploadsVM.parentJob.collectAsState(null)
     val currTransfers = uploadsVM.currRecords.collectAsState(listOf())
 
     UploadProgressList(
+        isExpandedScreen =isExpandedScreen ,
         uploadsVM = uploadsVM,
         openParentLocation = openParentLocation,
         currJob = currJob.value,
@@ -71,6 +73,7 @@ fun UploadProgressList(
 @Composable
 @ExperimentalMaterial3Api
 fun UploadProgressList(
+    isExpandedScreen: Boolean,
     uploadsVM: MonitorUploadsVM,
     openParentLocation: () -> Unit,
     currJob: RJob?,
@@ -135,9 +138,10 @@ fun UploadProgressList(
     }
 
     ModalBottomSheetLayout(
+        isExpandedScreen =isExpandedScreen ,
         sheetContent = { TransferBottomSheet(transferState.value, doAction) },
         modifier = Modifier,
-        state
+        sheetState = state,
     ) {
         WithScaffold(
             isRemoteServerLegacy = uploadsVM.isRemoteLegacy,
