@@ -323,7 +323,7 @@ private fun WithScaffold(
                 } else {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.OFFLINE,
-                        toOpenStateID = moreMenuState.stateID,
+                        subjectID = moreMenuState.stateID,
                         launch = launch,
                     )
                 }

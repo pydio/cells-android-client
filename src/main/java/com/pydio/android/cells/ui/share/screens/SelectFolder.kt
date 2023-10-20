@@ -31,7 +31,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -82,6 +85,7 @@ private fun route(action: NodeAction, stateID: StateID): String {
 fun SelectFolderScreen(
     targetAction: String,
     stateID: StateID,
+    subjects: Set<StateID> = setOf(),
     browseRemoteVM: BrowseRemoteVM,
     shareVM: ShareVM,
     open: (StateID) -> Unit,
@@ -93,6 +97,55 @@ fun SelectFolderScreen(
 
     val loadingStatus = browseRemoteVM.loadingState.collectAsState()
     val children = shareVM.children.collectAsState()
+
+    val forbiddenIDs: MutableState<Set<StateID>> = remember { mutableStateOf(setOf()) }
+
+    LaunchedEffect(key1 = subjects.toString()) {
+        //Log.d(LOG_TAG, "Launched effect for $subjects")
+        // Reinitialise values
+        try {
+            val founds = mutableSetOf<StateID>()
+
+            for (subject in subjects) {
+                if (subject != StateID.NONE) {
+                    shareVM.getTreeNode(subject)?.let { currNode ->
+                        if (currNode.isFolder()) {
+                            founds.add(currNode.getStateID())
+                        }
+                    }
+                }
+            }
+            forbiddenIDs.value = founds
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Unexpected error while computing forbidden path for $stateID")
+            e.printStackTrace()
+        }
+    }
+
+    val isForbiddenTarget: (TreeNodeItem) -> Boolean = {
+//        Log.e(LOG_TAG, "... isforbidden for ${it.stateID} - len: ${forbiddenIDs.value.size}")
+        if (!it.isFolder || it.isRecycle) {
+            true
+        } else {
+            forbiddenIDs.value.contains(it.stateID)
+            // var found = forbiddenIDs.value.contains(it.stateID)
+            // if (!found) {
+            //     Log.e(
+            //         LOG_TAG,
+            //         "... isforbidden for ${it.stateID} - len: ${forbiddenIDs.value.size}"
+            //     )
+            //     for (curr in forbiddenIDs.value) {
+            //         if (curr == it.stateID) {
+            //             found = true
+            //             break
+            //         }
+            //     }
+            //     Log.e(LOG_TAG, "... After: found = $found")
+
+            // }
+            // found
+        }
+    }
 
     val forceRefresh: () -> Unit = {
         browseRemoteVM.watch(stateID, true)
@@ -128,6 +181,7 @@ fun SelectFolderScreen(
                 forceRefresh = forceRefresh,
                 open = open,
                 canPost = canPost,
+                isForbiddenTarget = isForbiddenTarget,
                 doAction = interceptAction,
             )
         }
@@ -158,6 +212,7 @@ fun SelectFolderScaffold(
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
+    isForbiddenTarget: (TreeNodeItem) -> Boolean,
     doAction: (String, StateID) -> Unit,
 ) {
     Scaffold(
@@ -186,6 +241,7 @@ fun SelectFolderScaffold(
             loadingStatus = loadingStatus,
             forceRefresh = forceRefresh,
             open = open,
+            isForbiddenTarget = isForbiddenTarget,
             modifier = Modifier.padding(padding),
         )
     }
@@ -200,6 +256,7 @@ private fun SelectFolderList(
     loadingStatus: LoadingState,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
+    isForbiddenTarget: (TreeNodeItem) -> Boolean,
     modifier: Modifier,
 ) {
     val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
@@ -236,10 +293,10 @@ private fun SelectFolderList(
                 }
             }
             items(children) { oneChild ->
-                val currModifier = if (oneChild.isFolder) {
-                    Modifier.clickable { open(oneChild.stateID) }
-                } else {
+                val currModifier = if (isForbiddenTarget(oneChild)) {
                     Modifier.alpha(alpha)
+                } else {
+                    Modifier.clickable { open(oneChild.stateID) }
                 }
                 SelectFolderItem(oneChild, currModifier.padding(paddingValues))
             }

@@ -32,7 +32,7 @@ enum class NodeMoreMenuType {
 @Composable
 fun NodeMoreMenuData(
     type: NodeMoreMenuType,
-    toOpenStateID: StateID,
+    subjectID: StateID,
     launch: (NodeAction, StateID) -> Unit,
 ) {
     val logTag = "NodeMoreMenuData"
@@ -41,14 +41,14 @@ fun NodeMoreMenuData(
     val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 
-    LaunchedEffect(key1 = toOpenStateID) {
-        if (toOpenStateID != StateID.NONE) {
-            treeNodeVM.getTreeNode(toOpenStateID)?.let { currNode ->
+    LaunchedEffect(key1 = subjectID) {
+        if (subjectID != StateID.NONE) {
+            treeNodeVM.getTreeNode(subjectID)?.let { currNode ->
                 item.value = currNode
-            } ?: { Log.e(logTag, "No node found for $toOpenStateID, aborting") }
+            } ?: { Log.e(logTag, "No node found for $subjectID, aborting") }
 
-            if (toOpenStateID.isWorkspaceRoot) {
-                treeNodeVM.getWS(toOpenStateID)?.let { currNode ->
+            if (subjectID.isWorkspaceRoot) {
+                treeNodeVM.getWS(subjectID)?.let { currNode ->
                     workspace.value = currNode
                 }
             }
@@ -58,55 +58,55 @@ fun NodeMoreMenuData(
     if (type == NodeMoreMenuType.SORT_BY) {
         SortByMenu(
             type = ListType.DEFAULT,
-            done = { launch(NodeAction.SortBy, toOpenStateID) },
+            done = { launch(NodeAction.SortBy, subjectID) },
         )
-    } else if (toOpenStateID.slug != null) {
+    } else if (subjectID.slug != null) {
         item.value?.let { myItem ->
             when {
                 myItem.isRecycle() -> RecycleParentMenu(
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
-                    launch = { launch(it, toOpenStateID) },
+                    launch = { launch(it, subjectID) },
                 )
 
                 myItem.isInRecycle() -> RecycleMenu(
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
-                    launch = { launch(it, toOpenStateID) },
+                    launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
                     rWorkspace = workspace.value,
-                    launch = { launch(it, toOpenStateID) },
+                    launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
-                    launch = { launch(it, toOpenStateID) },
+                    launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
                     treeNodeVM = treeNodeVM,
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
                     launch = launch,
                 )
 
                 type == NodeMoreMenuType.SEARCH -> SearchMenu(
-                    stateID = toOpenStateID,
+                    stateID = subjectID,
                     rTreeNode = myItem,
-                    launch = { launch(it, toOpenStateID) },
+                    launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
-                        stateID = toOpenStateID,
+                        stateID = subjectID,
                         rTreeNode = myItem,
                         rWorkspace = workspace.value,
-                        launch = { launch(it, toOpenStateID) },
+                        launch = { launch(it, subjectID) },
                     )
 
                 else -> Spacer(modifier = Modifier.height(1.dp))

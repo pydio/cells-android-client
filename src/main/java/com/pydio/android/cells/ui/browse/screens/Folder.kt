@@ -166,18 +166,11 @@ fun Folder(
 
     val moreMenuDone: () -> Unit = {
         scope.launch {
-            Log.e(LOG_TAG, "################  More menu done")
             sheetState.hide()
         }
         setMoreMenuData(NodeMoreMenuType.NONE, setOf())
         multiSelectData.value = setOf()
     }
-
-//    val localOpen: (StateID) -> Unit = {
-//        scope.launch {
-//            browseHelper.open(context, it)
-//        }
-//    }
 
     val actionDone: (Boolean) -> Unit = {
         moreMenuDone()
@@ -208,7 +201,7 @@ fun Folder(
     WrapWithActions(
         actionDone = actionDone,
         type = nodeMoreMenuData.value.first,
-        targetStateIDs = nodeMoreMenuData.value.second,
+        subjectIDs = nodeMoreMenuData.value.second,
         sheetState = sheetState,
         snackBarHostState = snackBarHostState,
     ) {

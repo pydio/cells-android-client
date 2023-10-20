@@ -356,6 +356,7 @@ class ConnectionService(
             // no state ID, we do not try to pull but don't stop the main job
             return
         } else if (!isActive) {
+            // The job has been paused, but we still keep on waiting for a state change with backoff timer
             return
         } else {
 

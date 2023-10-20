@@ -55,13 +55,6 @@ class NodeActionsVM(
         }
     }
 
-    fun delete(stateID: StateID) {
-        coroutineService.cellsIoScope.launch {
-            val errMsg = nodeService.delete(stateID)
-            localDone(errMsg, "Could not delete node at $stateID")
-        }
-    }
-
     fun copyTo(stateID: StateID, targetParentID: StateID) {
         coroutineService.cellsIoScope.launch {
             val errMsg = nodeService.copy(listOf(stateID), targetParentID)
@@ -76,10 +69,68 @@ class NodeActionsVM(
         }
     }
 
+    fun delete(stateIDs: Set<StateID>) {
+        coroutineService.cellsIoScope.launch {
+            for (stateID in stateIDs) {
+                try {
+                    nodeService.delete(stateID)
+                } catch (e: SDKException) {
+                    localDone("#${e.code} - ${e.message}", "Could not delete node at $stateID")
+                    return@launch
+                }
+            }
+            done()
+        }
+    }
+
+    fun delete(stateID: StateID) {
+        coroutineService.cellsIoScope.launch {
+            try {
+                nodeService.delete(stateID)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not delete node at $stateID")
+                return@launch
+            }
+            done()
+        }
+    }
+
+
     fun emptyRecycle(stateID: StateID) {
         coroutineService.cellsIoScope.launch {
-            val errMsg = nodeService.delete(stateID)
-            localDone(errMsg, "Could not delete node at $stateID")
+            try {
+                nodeService.delete(stateID)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not empty recycle at $stateID")
+                return@launch
+            }
+            done()
+        }
+    }
+
+    fun restoreFromTrash(stateID: StateID) {
+        coroutineService.cellsIoScope.launch {
+            try {
+                nodeService.restoreNode(stateID)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not restore node at $stateID")
+                return@launch
+            }
+            done()
+        }
+    }
+
+    fun restoreFromTrash(stateIDs: Set<StateID>) {
+        coroutineService.cellsIoScope.launch {
+            for (stateID in stateIDs) {
+                try {
+                    nodeService.restoreNode(stateID)
+                } catch (e: SDKException) {
+                    localDone("#${e.code} - ${e.message}", "Could not restore node at $stateID")
+                    return@launch
+                }
+            }
+            done()
         }
     }
 
@@ -183,14 +234,8 @@ class NodeActionsVM(
     }
 
     fun removeShare(stateID: StateID) {
-        viewModelScope.launch {
-            nodeService.removeShare(stateID)
-        }
-    }
-
-    fun restoreFromTrash(stateID: StateID) {
         coroutineService.cellsIoScope.launch {
-            nodeService.restoreNode(stateID)
+            nodeService.removeShare(stateID)
         }
     }
 

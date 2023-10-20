@@ -332,13 +332,13 @@ private fun BookmarkScaffold(
                 if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
-                        toOpenStateID = moreMenuState.stateIDs.first(),
+                        subjectID = moreMenuState.stateIDs.first(),
                         launch = { a, s -> launch(a, setOf(s)) },
                     )
                 } else if (moreMenuState.stateIDs.size > 1) {
                     NodesMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
-                        stateIDs = moreMenuState.stateIDs,
+                        subjectIDs = moreMenuState.stateIDs,
                         launch = launch,
                     )
                 } else {

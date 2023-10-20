@@ -20,7 +20,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun NodesMoreMenuData(
     type: NodeMoreMenuType,
-    stateIDs: Set<StateID>,
+    subjectIDs: Set<StateID>,
     launch: (NodeAction, Set<StateID>) -> Unit,
 ) {
     val logTag = "NodeMoreMenuData"
@@ -31,13 +31,13 @@ fun NodesMoreMenuData(
     val inRecycle: MutableState<Boolean> = remember { mutableStateOf(false) }
     val containsFolders: MutableState<Boolean> = remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = stateIDs.toString()) {
-        Log.e(logTag, "Launched effect for ${stateIDs.toString()}")
+    LaunchedEffect(key1 = subjectIDs.toString()) {
+        Log.d(logTag, "Preparing data for ${subjectIDs.toString()}")
         // Reinitialise values
         val founds = mutableSetOf<RTreeNode>()
         containsFolders.value = false
         inRecycle.value = false
-        for (stateID in stateIDs) {
+        for (stateID in subjectIDs) {
             if (stateID != StateID.NONE) {
                 treeNodeVM.getTreeNode(stateID)?.let { currNode ->
                     founds.add(currNode)
@@ -60,7 +60,7 @@ fun NodesMoreMenuData(
     if (nodes.value.isNotEmpty()) {
         when (type) {
             NodeMoreMenuType.BOOKMARK -> BookmarksMenu(
-                stateIDs = stateIDs,
+                stateIDs = subjectIDs,
                 launch = launch,
             )
 
@@ -68,7 +68,7 @@ fun NodesMoreMenuData(
                 MultiNodeMenu(
                     inRecycle = inRecycle.value,
                     containsFolders = containsFolders.value,
-                    launch = { launch(it, stateIDs) },
+                    launch = { launch(it, subjectIDs) },
                 )
 
             else -> Spacer(modifier = Modifier.height(1.dp))

@@ -493,7 +493,8 @@ class NodeService(
             }
         }
 
-    suspend fun restoreNode(stateID: StateID): String? = withContext(ioDispatcher) {
+    @Throws(SDKException::class)
+    suspend fun restoreNode(stateID: StateID) = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"
@@ -501,9 +502,8 @@ class NodeService(
             treeNodeRepository.persistLocallyModified(node, AppNames.LOCAL_MODIF_RESTORE)
         } catch (se: SDKException) {
             se.printStackTrace()
-            return@withContext "Could not restore node: ${se.message}"
+            throw SDKException("Could not restore node: ${se.message}", se)
         }
-        return@withContext null
     }
 
     suspend fun rename(stateID: StateID, newName: String): String? =
@@ -520,17 +520,20 @@ class NodeService(
             return@withContext null
         }
 
-    suspend fun delete(stateID: StateID): String? = withContext(ioDispatcher) {
+    @Throws(SDKException::class)
+    suspend fun delete(stateID: StateID) = withContext(ioDispatcher) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-                ?: return@withContext "No node found at $stateID, could not delete"
+                ?: throw SDKException(
+                    ErrorCodes.illegal_argument,
+                    "No node found at $stateID, could not delete"
+                )
             remoteDelete(stateID)
             treeNodeRepository.persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
         } catch (se: SDKException) {
             se.printStackTrace()
-            return@withContext "Could not delete $stateID: ${se.message}"
+            throw SDKException("Could not delete $stateID", se)
         }
-        return@withContext null
     }
 
     /* Directly communicate with the distant server */

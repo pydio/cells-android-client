@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -57,19 +58,19 @@ private fun route(action: NodeAction): String {
 fun WrapWithActions(
     actionDone: (Boolean) -> Unit,
     type: NodeMoreMenuType,
-    targetStateIDs: Set<StateID>,
+    subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
     snackBarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
 ) {
-    LaunchedEffect(key1 = targetStateIDs.toString()) {
-        Log.d(LOG_TAG, "## Recomposing Wrap with actions for $targetStateIDs")
+    LaunchedEffect(key1 = subjectIDs.toString()) {
+        Log.d(LOG_TAG, "## Recomposing Wrap with actions for $subjectIDs")
     }
 
     FolderWithDialogs(
         actionDone = actionDone,
         type = type,
-        targetStateIDs = targetStateIDs,
+        subjectIDs = subjectIDs,
         sheetState = sheetState,
         snackBarHostState = snackBarHostState,
         content = content
@@ -82,7 +83,7 @@ fun WrapWithActions(
 private fun FolderWithDialogs(
     actionDone: (Boolean) -> Unit,
     type: NodeMoreMenuType,
-    targetStateIDs: Set<StateID>,
+    subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
     snackBarHostState: SnackbarHostState,
     nodeActionsVM: NodeActionsVM = koinViewModel(),
@@ -101,25 +102,20 @@ private fun FolderWithDialogs(
     errMsg.value?.let {
         LaunchedEffect(key1 = it) {
             // TODO finalise this
-            snackBarHostState.showSnackbar(
+            val snackBarResult = snackBarHostState.showSnackbar(
                 message = toErrorMessage(context, it),
                 withDismissAction = false,
                 duration = SnackbarDuration.Short
             )
-//            val snackBarResult = snackBarHostState.showSnackbar(
-//                message = it,
-//                withDismissAction = false,
-//                duration = SnackbarDuration.Short
-//            )
-//            when (snackBarResult) {
-//                SnackbarResult.ActionPerformed -> {
-//                    Log.e("Snackbar", "Action Performed")
-//                }
-//
-//                else -> {
-//                    Log.e("Snackbar", "Snackbar dismissed")
-//                }
-//            }
+            when (snackBarResult) {
+                SnackbarResult.ActionPerformed -> {
+                    Log.e(LOG_TAG, "Action Performed for err: $it")
+                }
+
+                else -> {
+                    Log.e(LOG_TAG, "Snack-bar dismissed for err: $it")
+                }
+            }
         }
     }
 
@@ -150,8 +146,6 @@ private fun FolderWithDialogs(
 
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
-                // FIXME double check and fix.
-                //  was encodeStateForRoute(passedStateID.parent())
                 val suffix = encodeStateForRoute(stateIDs.first().parent())
                 val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
                 navController.navigate(initialRoute)
@@ -164,25 +158,14 @@ private fun FolderWithDialogs(
                 navController.navigate(initialRoute)
             }
 
-            is NodeAction.Delete -> {
-                for (stateID in stateIDs) {
-                    nodeActionsVM.delete(stateID)
-                }
-                actionDone(true)
+            is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
+                nodeActionsVM.delete(stateIDs)
+                delayedDone(true)
             }
 
             is NodeAction.RestoreFromTrash -> {
-                for (stateID in stateIDs) {
-                    nodeActionsVM.restoreFromTrash(stateID)
-                }
-                actionDone(true)
-            }
-
-            is NodeAction.PermanentlyRemove -> {
-                for (stateID in stateIDs) {
-                    nodeActionsVM.delete(stateID)
-                }
-                actionDone(true)
+                nodeActionsVM.restoreFromTrash(stateIDs)
+                delayedDone(true)
             }
 
             else -> {
@@ -193,8 +176,8 @@ private fun FolderWithDialogs(
 
     val copyLinkToClipboard: (String) -> Unit = { link ->
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-        if (clipboard != null && targetStateIDs.size == 1) {
-            val clip = ClipData.newPlainText(targetStateIDs.first().fileName, link)
+        if (clipboard != null && subjectIDs.size == 1) {
+            val clip = ClipData.newPlainText(subjectIDs.first().fileName, link)
             clipboard.setPrimaryClip(clip)
             showMessage(
                 context,
@@ -283,13 +266,13 @@ private fun FolderWithDialogs(
         Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
         when (action) {
             AppNames.ACTION_CANCEL -> {
-                closeDialog(false);
+                closeDialog(false)
                 currentAction.value = null
             }
 
             else -> {
                 scope.launch {
-                    for (currID in targetStateIDs) {
+                    for (currID in subjectIDs) {
                         when (currentAction.value) {
                             AppNames.ACTION_MOVE -> {
                                 nodeActionsVM.moveTo(currID, targetStateID)
@@ -335,16 +318,16 @@ private fun FolderWithDialogs(
         composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
             CellsModalBottomSheetLayout(
                 sheetContent = {
-                    if (targetStateIDs.size == 1) {
+                    if (subjectIDs.size == 1) {
                         NodeMoreMenuData(
                             type = type,
-                            toOpenStateID = targetStateIDs.first(),
+                            subjectID = subjectIDs.first(),
                             launch = launchMono,
                         )
-                    } else if (targetStateIDs.size > 1) {
+                    } else if (subjectIDs.size > 1) {
                         NodesMoreMenuData(
                             type = type,
-                            stateIDs = targetStateIDs,
+                            subjectIDs = subjectIDs,
                             launch = launchMulti,
                         )
                     } else {
@@ -354,12 +337,6 @@ private fun FolderWithDialogs(
                 sheetState = sheetState,
                 content = content
             )
-//            DisposableEffect(key1 = targetStateIDs.toString()) {
-//                onDispose {
-//                    Log.e(LOG_TAG, "... Disposing Bottom Sheet for $targetStateIDs")
-//                    // currentAction.value = null
-//                }
-//            }
         }
 
         composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
@@ -379,6 +356,7 @@ private fun FolderWithDialogs(
             SelectFolderScreen(
                 targetAction = targetAction,
                 stateID = stateID,
+                subjects = subjectIDs,
                 browseRemoteVM = browseRemoteVM,
                 shareVM = shareVM,
                 open = {
@@ -388,7 +366,7 @@ private fun FolderWithDialogs(
                 canPost = { // We rather rely on the non-click-ability of forbidden targets
                     if (targetAction == AppNames.ACTION_MOVE) {
                         // Prevent from moving in the same folder
-                        targetStateIDs.first().parent() != stateID
+                        subjectIDs.first().parent() != stateID
                     } else {
                         true
                     }
@@ -402,18 +380,13 @@ private fun FolderWithDialogs(
                     browseRemoteVM.watch(stateID, false)
                 }
                 onDispose {
-                    if (targetStateIDs.first().parent() == stateID) {
+                    if (subjectIDs.first().parent() == stateID) { // Do nothing
                         // Corner case when we copy move in the same folder: do not stop the polling
-                        // Do nothing
-                        Log.e(
-                            LOG_TAG,
-                            "... Disposing select folder page for $stateID, WITHOUT STOPPING THE POLL"
-                        )
+                        Log.e(LOG_TAG, "... On dispose for $stateID, WITHOUT STOPPING THE POLL")
                     } else {
                         browseRemoteVM.pause(stateID)
                         Log.e(LOG_TAG, "... Disposing select folder page for $stateID")
                     }
-                    // currentAction.value = null
                 }
             }
         }

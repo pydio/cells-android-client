@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.ListType
+import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -62,6 +63,10 @@ class ShareVM(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = listOf()
     )
+
+    suspend fun getTreeNode(stateID: StateID): RTreeNode? {
+        return nodeService.getNode(stateID)
+    }
 
     fun launchPost(stateID: StateID, uris: List<Uri>, postLaunched: (Long) -> Unit) {
         val ids: MutableMap<Long, Pair<String, Uri>> = HashMap()

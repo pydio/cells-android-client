@@ -252,7 +252,7 @@ private fun WithScaffold(
                 } else {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.SEARCH,
-                        toOpenStateID = moreMenuState.stateID,
+                        subjectID = moreMenuState.stateID,
                         launch = launch,
                     )
                 }
