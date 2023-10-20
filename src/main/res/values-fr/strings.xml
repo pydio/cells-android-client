@@ -192,6 +192,7 @@
     <string name="keep_offline">Garder hors ligne</string>
     <string name="remove_from_offline">Supprimer de la liste Hors Ligne</string>
     <string name="remove_bookmark">Supprimer le favori</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Garder cet élément hors ligne</string>
     <string name="bookmark">Favori</string>
     <string name="bookmark_element_content_desc">Ajouter cet élément aux favoris</string>
