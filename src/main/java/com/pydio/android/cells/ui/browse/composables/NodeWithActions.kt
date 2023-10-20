@@ -28,15 +28,15 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.toErrorMessage
+import com.pydio.android.cells.ui.share.models.ShareVM
+import com.pydio.android.cells.ui.share.screens.SelectFolderScreen
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.delay
@@ -62,6 +62,10 @@ fun WrapWithActions(
     snackBarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
 ) {
+    LaunchedEffect(key1 = targetStateIDs.toString()) {
+        Log.d(LOG_TAG, "## Recomposing Wrap with actions for $targetStateIDs")
+    }
+
     FolderWithDialogs(
         actionDone = actionDone,
         type = type,
@@ -130,19 +134,8 @@ private fun FolderWithDialogs(
     val closeDialog: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         if (done) {
+//            Log.e(LOG_TAG, "### Closing dialog, action done")
             actionDone(true)
-        }
-    }
-
-    val copyLinkToClipboard: (String) -> Unit = { link ->
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-        if (clipboard != null && targetStateIDs.size == 1) {
-            val clip = ClipData.newPlainText(targetStateIDs.first().fileName, link)
-            clipboard.setPrimaryClip(clip)
-            showMessage(
-                context,
-                context.resources.getString(R.string.link_copied_to_clip)
-            )
         }
     }
 
@@ -151,6 +144,10 @@ private fun FolderWithDialogs(
             Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
             Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
         } else when (action) {
+            //            is NodeAction.DownloadToDevice -> {
+//                Log.e(LOG_TAG, "Implement me: $action for multi")
+//            }
+
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
                 // FIXME double check and fix.
@@ -174,10 +171,6 @@ private fun FolderWithDialogs(
                 actionDone(true)
             }
 
-//            is NodeAction.DownloadToDevice -> {
-//                Log.e(LOG_TAG, "Implement me: $action for multi")
-//            }
-
             is NodeAction.RestoreFromTrash -> {
                 for (stateID in stateIDs) {
                     nodeActionsVM.restoreFromTrash(stateID)
@@ -195,6 +188,18 @@ private fun FolderWithDialogs(
             else -> {
                 Log.e(LOG_TAG, "unexpected action: $action")
             }
+        }
+    }
+
+    val copyLinkToClipboard: (String) -> Unit = { link ->
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        if (clipboard != null && targetStateIDs.size == 1) {
+            val clip = ClipData.newPlainText(targetStateIDs.first().fileName, link)
+            clipboard.setPrimaryClip(clip)
+            showMessage(
+                context,
+                context.resources.getString(R.string.link_copied_to_clip)
+            )
         }
     }
 
@@ -274,35 +279,55 @@ private fun FolderWithDialogs(
         }
     }
 
-//    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-//        if (stateIDs.size == 1) {
-//            launchMono(action, stateIDs.first())
-//        } else {
-//            launchMulti(action, stateIDs)
-//        }
-//    }
-
     val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
-        Log.i(LOG_TAG, "launch $action action for $targetStateID")
+        Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
         when (action) {
-            AppNames.ACTION_CANCEL -> closeDialog(false)
-            else -> {
-                for (currID in targetStateIDs) {
-                    when (currentAction.value) {
-                        AppNames.ACTION_MOVE -> {
-                            nodeActionsVM.moveTo(currID, targetStateID)
-                        }
+            AppNames.ACTION_CANCEL -> {
+                closeDialog(false);
+                currentAction.value = null
+            }
 
-                        AppNames.ACTION_COPY -> {
-                            nodeActionsVM.copyTo(currID, targetStateID)
+            else -> {
+                scope.launch {
+                    for (currID in targetStateIDs) {
+                        when (currentAction.value) {
+                            AppNames.ACTION_MOVE -> {
+                                nodeActionsVM.moveTo(currID, targetStateID)
+                            }
+
+                            AppNames.ACTION_COPY -> {
+                                nodeActionsVM.copyTo(currID, targetStateID)
+                            }
                         }
                     }
                 }
-                closeDialog(true)
+//                var prevRoute = navController.previousBackStackEntry?.destination?.route
+//                var prevStateID = lazyStateID(navController.previousBackStackEntry)
+//                var currRoute = navController.currentBackStackEntry?.destination?.route
+//                var currStateID = lazyStateID(navController.currentBackStackEntry)
+//
+//                Log.e(LOG_TAG, "... Action done")
+//                Log.e(LOG_TAG, "     - prevRoute: $prevRoute")
+//                Log.e(LOG_TAG, "     - prevStateID: $prevStateID")
+//                Log.e(LOG_TAG, "     - currRoute: $currRoute")
+//                Log.e(LOG_TAG, "     - currStateID: $currStateID")
+
+                navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+
+//                prevRoute = navController.previousBackStackEntry?.destination?.route
+//                prevStateID = lazyStateID(navController.previousBackStackEntry)
+//                currRoute = navController.currentBackStackEntry?.destination?.route
+//                currStateID = lazyStateID(navController.currentBackStackEntry)
+//
+//                Log.e(LOG_TAG, "... After: ")
+//                Log.e(LOG_TAG, "     - prevRoute: $prevRoute")
+//                Log.e(LOG_TAG, "     - prevStateID: $prevStateID")
+//                Log.e(LOG_TAG, "     - currRoute: $currRoute")
+//                Log.e(LOG_TAG, "     - currStateID: $currStateID")
+
+                actionDone(true)
             }
         }
-        // Reset local copyMove Action state
-        currentAction.value = null
     }
 
     NavHost(navController, FOLDER_MAIN_CONTENT) {
@@ -329,6 +354,12 @@ private fun FolderWithDialogs(
                 sheetState = sheetState,
                 content = content
             )
+//            DisposableEffect(key1 = targetStateIDs.toString()) {
+//                onDispose {
+//                    Log.e(LOG_TAG, "... Disposing Bottom Sheet for $targetStateIDs")
+//                    // currentAction.value = null
+//                }
+//            }
         }
 
         composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
@@ -337,30 +368,33 @@ private fun FolderWithDialogs(
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
                 return@composable
             }
-            val action = currentAction.value ?: run {
+            val targetAction = currentAction.value ?: run {
                 Log.e(LOG_TAG, "... cannot launch target selection with no action set")
                 return@composable
             }
             LaunchedEffect(key1 = stateID) {
-                Log.i(LOG_TAG,"## First Composition for: selectTarget/$stateID")
+                Log.i(LOG_TAG, "## First Composition for: selectTarget/$stateID")
             }
-            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-
-            SelectFolderPage(
-                action = action,
+            val shareVM: ShareVM = koinViewModel { parametersOf(stateID) }
+            SelectFolderScreen(
+                targetAction = targetAction,
                 stateID = stateID,
-                loadingStatus = LoadingState.IDLE, // FIXME
-                forceRefresh = {/*TODO */ },
+                browseRemoteVM = browseRemoteVM,
+                shareVM = shareVM,
                 open = {
-                    // TODO rather use route function
-                    val route = "${NodeAction.SelectTargetFolder.id}/${it.id}"
+                    val route = "${NodeAction.SelectTargetFolder.id}/${encodeStateForRoute(it)}"
                     navController.navigate(route)
                 },
-                canPost = { true }, // TODO also
+                canPost = { // We rather rely on the non-click-ability of forbidden targets
+                    if (targetAction == AppNames.ACTION_MOVE) {
+                        // Prevent from moving in the same folder
+                        targetStateIDs.first().parent() != stateID
+                    } else {
+                        true
+                    }
+                },
                 doAction = copyMoveAction,
-                folderVM = folderVM,
             )
-
             DisposableEffect(key1 = stateID) {
                 if (stateID == StateID.NONE) {
                     browseRemoteVM.pause(StateID.NONE)
@@ -368,7 +402,18 @@ private fun FolderWithDialogs(
                     browseRemoteVM.watch(stateID, false)
                 }
                 onDispose {
-                    browseRemoteVM.pause(stateID)
+                    if (targetStateIDs.first().parent() == stateID) {
+                        // Corner case when we copy move in the same folder: do not stop the polling
+                        // Do nothing
+                        Log.e(
+                            LOG_TAG,
+                            "... Disposing select folder page for $stateID, WITHOUT STOPPING THE POLL"
+                        )
+                    } else {
+                        browseRemoteVM.pause(stateID)
+                        Log.e(LOG_TAG, "... Disposing select folder page for $stateID")
+                    }
+                    // currentAction.value = null
                 }
             }
         }

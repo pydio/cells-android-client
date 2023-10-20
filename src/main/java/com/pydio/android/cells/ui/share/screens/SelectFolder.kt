@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.composables.CreateFolder
@@ -53,6 +55,7 @@ import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
+import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -65,25 +68,24 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val LOG_TAG = "SelectFolder.kt"
 
-private const val FOLDER_MAIN_CONTENT = "folder-main-content"
-private const val STATE_ID_SUFFIX = "/{state-id}"
+private const val SELECT_FOLDER_PAGE = "select-folder"
 
 private fun routeTemplate(action: NodeAction): String {
-    return "${action.id}$STATE_ID_SUFFIX"
+    return "${action.id}/{${AppKeys.STATE_ID}}"
 }
 
 private fun route(action: NodeAction, stateID: StateID): String {
-    return "${action.id}/${stateID.id}"
+    return "${action.id}/${encodeStateForRoute(stateID)}"
 }
 
 @Composable
 fun SelectFolderScreen(
+    targetAction: String,
     stateID: StateID,
     browseRemoteVM: BrowseRemoteVM,
     shareVM: ShareVM,
     open: (StateID) -> Unit,
     canPost: (StateID) -> Boolean,
-    startUpload: (ShareVM, StateID) -> Unit,
     doAction: (String, StateID) -> Unit,
 ) {
 
@@ -98,9 +100,7 @@ fun SelectFolderScreen(
 
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
         Log.e(LOG_TAG, "Intercepting $action for $currID")
-        if (AppNames.ACTION_UPLOAD == action) {
-            startUpload(shareVM, currID)
-        } else if (AppNames.ACTION_CREATE_FOLDER == action) {
+        if (AppNames.ACTION_CREATE_FOLDER == action) {
             navController.navigate(route(NodeAction.CreateFolder, currID))
         } else {
             doAction(action, currID)
@@ -108,19 +108,21 @@ fun SelectFolderScreen(
     }
 
     val closeDialog: (Boolean) -> Unit = { done ->
-        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        navController.popBackStack(SELECT_FOLDER_PAGE, false)
         if (done) {
             browseRemoteVM.watch(stateID, true)
         }
     }
 
-    NavHost(navController, FOLDER_MAIN_CONTENT) {
+    NavHost(navController, SELECT_FOLDER_PAGE) {
 
-        composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
-            Log.d(LOG_TAG, "... Navigating to main content for $stateID")
+        composable(SELECT_FOLDER_PAGE) {  // Fills the area provided to the NavHost
+            LaunchedEffect(key1 = stateID) {
+                Log.i(LOG_TAG, "## First Composition for: $SELECT_FOLDER_PAGE/$stateID")
+            }
             SelectFolderScaffold(
                 loadingStatus = loadingStatus.value,
-                action = AppNames.ACTION_UPLOAD,
+                action = targetAction,
                 stateID = stateID,
                 children = children.value,
                 forceRefresh = forceRefresh,
@@ -134,7 +136,7 @@ fun SelectFolderScreen(
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "Cannot create folder with no ID")
-                navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+                navController.popBackStack(SELECT_FOLDER_PAGE, false)
             } else {
                 val nodeActionsVM: NodeActionsVM = koinViewModel()
                 CreateFolder(
@@ -345,7 +347,12 @@ private fun TopBar(
                 )
             }
             IconButton(
-                colors = IconButtonDefaults.iconButtonColors(bgColor, textColor),
+                colors = IconButtonDefaults.iconButtonColors(
+                    bgColor,
+                    textColor,
+                    bgColor,
+                    textColor.copy(alpha = .2f)
+                ),
                 onClick = { onSelect(action, stateID) },
                 enabled = canPost(stateID)
             ) {

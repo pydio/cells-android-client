@@ -47,8 +47,6 @@ fun NavGraphBuilder.browseNavGraph(
             NoAccount(openDrawer = openDrawer, addAccount = {})
         } else if (Str.notEmpty(stateID.slug)) {
             val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-            val helper = BrowseHelper(navController, folderVM)
-
             Folder(
                 isExpandedScreen = isExpandedScreen,
                 folderID = stateID,
@@ -60,7 +58,7 @@ fun NavGraphBuilder.browseNavGraph(
                 },
                 browseRemoteVM = browseRemoteVM,
                 folderVM = folderVM,
-                browseHelper = helper,
+                browseHelper = BrowseHelper(navController, folderVM),
             )
         } else {
 

@@ -56,14 +56,14 @@ class NodeActionsVM(
     }
 
     fun delete(stateID: StateID) {
-        viewModelScope.launch {
+        coroutineService.cellsIoScope.launch {
             val errMsg = nodeService.delete(stateID)
             localDone(errMsg, "Could not delete node at $stateID")
         }
     }
 
     fun copyTo(stateID: StateID, targetParentID: StateID) {
-        viewModelScope.launch {
+        coroutineService.cellsIoScope.launch {
             val errMsg = nodeService.copy(listOf(stateID), targetParentID)
             localDone(errMsg, "Could not copy node $stateID to $targetParentID")
         }

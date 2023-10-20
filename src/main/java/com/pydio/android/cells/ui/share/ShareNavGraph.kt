@@ -53,15 +53,20 @@ fun NavGraphBuilder.shareNavGraph(
             back()
         } else {
             val shareVM: ShareVM = koinViewModel { parametersOf(stateID) }
-
             SelectFolderScreen(
+                targetAction = AppNames.ACTION_UPLOAD,
                 stateID = stateID,
                 browseRemoteVM = browseRemoteVM,
                 shareVM = shareVM,
                 open = helper::open,
                 canPost = helper::canPost,
-                startUpload = helper::startUpload,
-                doAction = { action, currID -> helper.launchTaskFor(action, currID) },
+                doAction = { action, currID ->
+                    if (AppNames.ACTION_UPLOAD == action) {
+                        helper.startUpload(shareVM, currID)
+                    } else {
+                        helper.launchTaskFor(action, currID)
+                    }
+                },
             )
             DisposableEffect(key1 = stateID) {
                 if (stateID == StateID.NONE) {

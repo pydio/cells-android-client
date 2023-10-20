@@ -104,6 +104,11 @@ fun Folder(
         mutableStateOf(NodeMoreMenuType.NONE to setOf())
     }
 
+    val setMoreMenuData: (NodeMoreMenuType, Set<StateID>) -> Unit = { t, ids ->
+        Log.e(LOG_TAG, "set data for $t: $ids")
+        nodeMoreMenuData.value = t to ids
+    }
+
     // Business States
     val treeNode by folderVM.treeNode.collectAsState()
     val workspace by folderVM.workspace.collectAsState()
@@ -154,17 +159,18 @@ fun Folder(
 
     val openMoreMenu: (NodeMoreMenuType, Set<StateID>) -> Unit = { type, stateIDs ->
         scope.launch {
-            nodeMoreMenuData.value = type to stateIDs
+            setMoreMenuData(type, stateIDs)
             sheetState.expand()
         }
     }
 
     val moreMenuDone: () -> Unit = {
         scope.launch {
+            Log.e(LOG_TAG, "################  More menu done")
             sheetState.hide()
-            nodeMoreMenuData.value = NodeMoreMenuType.NONE to setOf()
-            multiSelectData.value = setOf()
         }
+        setMoreMenuData(NodeMoreMenuType.NONE, setOf())
+        multiSelectData.value = setOf()
     }
 
 //    val localOpen: (StateID) -> Unit = {
@@ -176,9 +182,7 @@ fun Folder(
     val actionDone: (Boolean) -> Unit = {
         moreMenuDone()
         if (it) { // Also reset backoff ticker
-            scope.launch {
-                browseRemoteVM.watch(folderID, true)
-            }
+            browseRemoteVM.watch(folderID, true)
         }
     }
 
@@ -194,12 +198,8 @@ fun Folder(
                 actionDone(true)
             }
 
-//            is NodeAction.SortBy -> { // The real "set()" has already been done by the bottom sheet via its preferencesVM
-//                actionDone(true)
-//            }
-
             else -> {
-                Log.e(LOG_TAG, "Unknown action $it")
+                Log.e(LOG_TAG, "########### Unknown action: ${it.id}")
                 actionDone(false)
             }
         }
