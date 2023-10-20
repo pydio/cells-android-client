@@ -192,6 +192,7 @@
     <string name="keep_offline">Manter offline</string>
     <string name="remove_from_offline">Remover cópia offline</string>
     <string name="remove_bookmark">Remover favorito</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Mantenha este elemento offline</string>
     <string name="bookmark">Marcador</string>
     <string name="bookmark_element_content_desc">Marcar este elemento</string>

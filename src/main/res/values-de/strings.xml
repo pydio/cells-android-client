@@ -192,6 +192,7 @@
     <string name="keep_offline">Offline halten</string>
     <string name="remove_from_offline">Aus der Offline-Liste entfernen</string>
     <string name="remove_bookmark">Favorit entfernen</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Dieses Element offline halten</string>
     <string name="bookmark">Lesezeichen</string>
     <string name="bookmark_element_content_desc">Als Lesezeichen speichern</string>

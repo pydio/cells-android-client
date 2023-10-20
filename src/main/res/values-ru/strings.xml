@@ -194,6 +194,7 @@
     <string name="keep_offline">Сохранить оффлайн</string>
     <string name="remove_from_offline">Remove from offline</string>
     <string name="remove_bookmark">Remove bookmark</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Сохранить этот элемент оффлайн</string>
     <string name="bookmark">Закладка</string>
     <string name="bookmark_element_content_desc">Добавить в закладки</string>
