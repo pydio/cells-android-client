@@ -191,6 +191,7 @@
     <string name="keep_offline">Keep offline</string>
     <string name="remove_from_offline">Remove from offline</string>
     <string name="remove_bookmark">Remove bookmark</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Keep this element offline</string>
     <string name="bookmark">Bookmark</string>
     <string name="bookmark_element_content_desc">Bookmark this element</string>

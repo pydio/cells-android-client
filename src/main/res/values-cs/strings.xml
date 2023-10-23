@@ -194,6 +194,7 @@
     <string name="keep_offline">Ponechat offline</string>
     <string name="remove_from_offline">Remove from offline</string>
     <string name="remove_bookmark">Remove bookmark</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="keep_offline_content_desc">Ponechat tento prvek offline</string>
     <string name="bookmark">Záložka</string>
     <string name="bookmark_element_content_desc">Přidat tento prvek do záložek</string>
