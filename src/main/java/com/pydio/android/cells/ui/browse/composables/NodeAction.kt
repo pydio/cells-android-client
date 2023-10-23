@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.browse.composables
 
 sealed class NodeAction(val id: String) {
 
+    data object UnSelectAll : NodeAction("deselect_all")
     data object DownloadToDevice : NodeAction("download_to_device")
     data object ImportFile : NodeAction("import_file")
     data object CreateFolder : NodeAction("create_folder")

@@ -15,7 +15,7 @@ import com.pydio.android.cells.ui.system.screens.MigrateFromV2
 import com.pydio.android.cells.ui.system.screens.PrepareMigration
 import kotlinx.coroutines.launch
 
-private const val logTag = "MigrationHost"
+private const val LOG_TAG = "MigrationHost.kt"
 
 private sealed class Destinations(val route: String) {
     object PrepareMigration : Destinations("prepare-migration")
@@ -38,7 +38,7 @@ fun MigrationHost(
 
 
     LaunchedEffect(currDestination.value) {
-        Log.d(logTag, "In launch effect for ${currDestination.value}")
+        Log.d(LOG_TAG, "In launch effect for ${currDestination.value}")
 
         val newDestination = when (currDestination.value) {
             Step.MIGRATING_FROM_V2 -> Destinations.MigrateFromV2.route
@@ -48,11 +48,11 @@ fun MigrationHost(
         }
 
         newDestination?.let {
-            Log.i(logTag, "Got a newDestination: $it, navigating.")
+            Log.i(LOG_TAG, "Got a newDestination: $it, navigating.")
             navController.navigate(it)
         } ?: run {// handle corner cases
             if (currDestination.value == Step.NOT_NEEDED) {
-                Log.i(logTag, "No migration needed, terminating.")
+                Log.i(LOG_TAG, "No migration needed, terminating.")
                 afterMigration()
             }
         }
@@ -101,15 +101,3 @@ fun MigrationHost(
         }
     }
 }
-
-//@Composable
-//fun MigrationApp(content: @Composable () -> Unit) {
-//   UseCellsTheme {
-//        Surface(
-//            modifier = Modifier.fillMaxSize(),
-//            color = MaterialTheme.colorScheme.background
-//        ) {
-//            content()
-//        }
-//    }
-//}

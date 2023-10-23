@@ -23,7 +23,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 
-private const val logTag = "AccountsScreen"
+private const val LOG_TAG = "AccountsScreen.kt"
 
 @Composable
 fun AccountsScreen(
@@ -42,7 +42,7 @@ fun AccountsScreen(
         openAccount = {
             scope.launch {
                 accountListVM.openSession(it)?.let {
-                    Log.e(logTag, "About to open session for: $it")
+                    Log.i(LOG_TAG, "About to open session for: $it")
                     navigateTo(BrowseDestinations.Open.createRoute(it.getStateID()))
                 }
             }

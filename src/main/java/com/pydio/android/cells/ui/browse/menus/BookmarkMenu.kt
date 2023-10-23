@@ -119,5 +119,10 @@ fun BookmarksMenu(
             title = stringResource(R.string.remove_bookmarks),
             onItemClick = { launch(NodeAction.ToggleBookmark(false), stateIDs) }
         )
+        BottomSheetListItem(
+            icon = CellsIcons.Deselect,
+            title = stringResource(R.string.deselect_all),
+            onItemClick = { launch(NodeAction.UnSelectAll, stateIDs) }
+        )
     }
 }

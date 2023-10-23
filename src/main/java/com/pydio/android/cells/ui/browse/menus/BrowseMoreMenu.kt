@@ -220,6 +220,11 @@ fun MultiNodeMenu(
                 onItemClick = { launch(NodeAction.Delete) },
             )
         }
+        BottomSheetListItem(
+            icon = CellsIcons.Deselect,
+            title = stringResource(R.string.deselect_all),
+            onItemClick = { launch(NodeAction.UnSelectAll) }
+        )
     }
 }
 

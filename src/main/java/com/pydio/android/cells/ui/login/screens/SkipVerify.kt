@@ -31,7 +31,6 @@ fun SkipVerify(
     stateID: StateID,
     helper: LoginHelper,
     loginVM: LoginVM,
-    // navigateTo: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val isProcessing = loginVM.isProcessing.collectAsState()

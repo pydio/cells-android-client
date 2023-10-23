@@ -142,7 +142,8 @@ private fun FolderWithDialogs(
             Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
             Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
         } else when (action) {
-            //            is NodeAction.DownloadToDevice -> {
+            // TODO
+//            is NodeAction.DownloadToDevice -> {
 //                Log.e(LOG_TAG, "Implement me: $action for multi")
 //            }
 
@@ -167,6 +168,10 @@ private fun FolderWithDialogs(
 
             is NodeAction.RestoreFromTrash -> {
                 nodeActionsVM.restoreFromTrash(stateIDs)
+                delayedDone(true)
+            }
+
+            is NodeAction.UnSelectAll -> {
                 delayedDone(true)
             }
 

@@ -66,7 +66,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val logTag = "Bookmarks.kt"
+private const val LOG_TAG = "Bookmarks.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,8 +153,12 @@ fun Bookmarks(
                 moreMenuDone()
             }
 
+            is NodeAction.UnSelectAll -> {
+                moreMenuDone()
+            }
+
             else -> {
-                Log.e(logTag, "unexpected action: $action")
+                Log.e(LOG_TAG, "unexpected action: $action")
             }
         }
     }
@@ -166,10 +170,8 @@ fun Bookmarks(
                     bookmarksVM.getNode(stateID)?.let {
                         if (it.isFolder()) {
                             browseHelper.open(context, stateID, browseHelper.bookmarks)
-                            //localOpen(stateID)
                         } else {
-                            browseHelper.open(context, stateID, browseHelper.bookmarks)
-                            // localOpen(stateID.parent())
+                            browseHelper.open(context, stateID.parent(), browseHelper.bookmarks)
                         }
                     }
                 }
@@ -199,7 +201,7 @@ fun Bookmarks(
             }
 
             else -> {
-                Log.e(logTag, "Unknown action $action for $stateID")
+                Log.e(LOG_TAG, "Unknown action $action for $stateID")
                 moreMenuDone()
             }
         }
@@ -326,13 +328,6 @@ private fun BookmarkScaffold(
         CellsModalBottomSheetLayout(
             isExpandedScreen = isExpandedScreen,
             sheetContent = {
-                // TODO remove after verif: this should be useless. We call the SORT_BY type with a setOf(StateID.NONE) a.k.a of size=1
-//                if (moreMenuState.type == NodeMoreMenuType.SORT_BY) {
-//                    SortByMenu(
-//                        type = ListType.DEFAULT,
-//                        done = { launch(NodeAction.SortBy, setOf(StateID.NONE)) },
-//                    )
-//                } else
                 if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
                         type = NodeMoreMenuType.BOOKMARK,
@@ -383,7 +378,7 @@ private fun BookmarkList(
     val state = rememberPullRefreshState(
         loadingState == LoadingState.PROCESSING,
         onRefresh = {
-            Log.i(logTag, "Force refresh launched")
+            Log.i(LOG_TAG, "Force refresh launched")
             forceRefresh()
         },
     )

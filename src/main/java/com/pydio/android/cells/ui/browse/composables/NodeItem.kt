@@ -42,8 +42,6 @@ fun NodeItem(
     modifier: Modifier = Modifier
 ) {
     M3NodeItem(
-        isSelectionMode = isSelectionMode,
-        isSelected = isSelected,
         stateID = item.stateID,
         title = title,
         desc = desc,
@@ -58,13 +56,13 @@ fun NodeItem(
         isShared = item.isShared,
         more = more,
         modifier = modifier,
+        isSelectionMode = isSelectionMode,
+        isSelected = isSelected,
     )
 }
 
 @Composable
 fun M3NodeItem(
-    isSelectionMode: Boolean = false,
-    isSelected: Boolean = false,
     stateID: StateID,
     title: String,
     desc: String,
@@ -78,7 +76,9 @@ fun M3NodeItem(
     isOfflineRoot: Boolean,
     isShared: Boolean,
     more: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false
 ) {
     var lm = modifier.padding(0.dp, .2.dp)
     if (isSelected) {
@@ -185,17 +185,17 @@ fun OfflineRootItem(
 ) {
     M3NodeItem(
         stateID = item.getStateID(),
-        sortName = item.sortName,
-        name = item.name,
         title = title,
         desc = desc,
+        name = item.name,
+        sortName = item.sortName,
         mime = item.mime,
         eTag = item.etag,
         metaHash = -1,
         hasThumb = item.hasThumb(),
         isBookmarked = item.isBookmarked(),
-        isShared = item.isShared(),
         isOfflineRoot = true,
+        isShared = item.isShared(),
         more = more,
         modifier = modifier,
     )

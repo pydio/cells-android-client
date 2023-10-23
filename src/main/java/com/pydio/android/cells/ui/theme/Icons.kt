@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.CreateNewFolder
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Deselect
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.DriveFileMove
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
@@ -80,6 +81,7 @@ import com.pydio.cells.api.SdkNames
 /**
  * Cells icons. Material icons are [ImageVector]s, custom icons are drawable resource IDs.
  */
+@Suppress("unused")
 object CellsIcons {
     val About = Icons.Outlined.Info
     val AccountCircle = Icons.Outlined.AccountCircle
@@ -105,6 +107,7 @@ object CellsIcons {
     val CreateFolder = Icons.Outlined.CreateNewFolder
     val Delete = Icons.Outlined.Delete
     val DeleteForever = Icons.Outlined.DeleteForever
+    val Deselect = Icons.Outlined.Deselect
     val DownloadFile = Icons.Outlined.FileDownload
     val DownloadToDevice = Icons.Outlined.CloudDownload
     val Edit = Icons.Default.Edit
@@ -156,11 +159,11 @@ object CellsIcons {
     val WorkspaceThumb = Icons.Outlined.Folder
 }
 
-object CellsDrawableIcons {
-//    const val Bookmark = R.drawable.ic_baseline_star_border_24
-//    val FileDownload = R.drawable.ic_outline_file_download_24
-//    val FileUpload = R.drawable.ic_outline_file_upload_24
-}
+//object CellsDrawableIcons {
+////    const val Bookmark = R.drawable.ic_baseline_star_border_24
+////    val FileDownload = R.drawable.ic_outline_file_download_24
+////    val FileUpload = R.drawable.ic_outline_file_upload_24
+//}
 
 enum class CellsIconType {
     // Workspace Roots
@@ -237,33 +240,6 @@ fun getIconTypeFromMime(originalMime: String, sortName: String?): CellsIconType 
         else -> CellsIconType.FILE
     }
 }
-
-//fun getDrawableFromType(type: CellsIconType): Int {
-//    return when (type) {
-//        // Workspace Roots
-//        CellsIconType.WS_PERSONAL -> R.drawable.aa_200_folder_shared_48px
-//        CellsIconType.WS_CELL -> R.drawable.file_cells_logo
-//        CellsIconType.WS_DEFAULT -> R.drawable.aa_200_folder_48px
-//        // Folders
-//        CellsIconType.FOLDER -> R.drawable.aa_200_folder_48px
-//        CellsIconType.RECYCLE -> R.drawable.file_trash_outline
-//        // Documents
-//        CellsIconType.WORD -> R.drawable.file_word_outline
-//        CellsIconType.CALC -> R.drawable.file_excel_outline
-//        CellsIconType.PRESENTATION -> R.drawable.file_powerpoint_outline
-//        CellsIconType.PDF -> R.drawable.file_pdf_box
-//        CellsIconType.DOCUMENT -> R.drawable.file_document_outline
-//        // Media
-//        CellsIconType.IMAGE -> R.drawable.file_image_outline
-//        CellsIconType.VIDEO -> R.drawable.ic_outline_audio_file_24
-//        CellsIconType.AUDIO -> R.drawable.ic_outline_video_file_24
-//        // Other Files
-//        CellsIconType.CODE -> R.drawable.file_code_outline
-//        CellsIconType.ZIP -> R.drawable.file_zip_outline
-//        CellsIconType.FILE -> R.drawable.file_outline
-////         else -> R.drawable.file_outline
-//    }
-//}
 
 @Composable
 fun getIconAndColorFromType(type: CellsIconType): Pair<Int, Color> {

@@ -43,7 +43,6 @@ fun P8Credentials(
     val errMsg = loginVM.errorMessage.collectAsState()
 
     // This might have been initialised when re-logging a P8 account
-
     val username = rememberSaveable {
         mutableStateOf(stateID.username ?: "")
     }

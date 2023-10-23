@@ -24,7 +24,7 @@ class FilterTransferByMenuVM(
             try {
                 prefs.setString(PreferencesKeys.TRANSFER_FILTER_BY_STATUS, newFilterByStatus)
             } catch (e: Exception) {
-                Log.e(logTag, "Could not update filter by status pref: ${e.message}")
+                Log.e(logTag, "Could not update filter by status preference: ${e.message}")
                 // TODO forward to the end user.
             }
         }
