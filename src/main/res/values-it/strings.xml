@@ -177,6 +177,7 @@
     <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choose an action to apply to the selected items</string>
+    <string name="deselect_all">Un-select all</string>
     <string name="more_button_description">Show more actions for this element</string>
     <string name="open_in_workspaces">Open location</string>
     <string name="open_parent_in_workspaces">Open parent location</string>

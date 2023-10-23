@@ -177,6 +177,7 @@
     <string name="post_migration_sync_message">Vous avez un ou plusieurs éléments marqués comme hors ligne et cette migration nécessite un retéléchargement complet. Voulez-vous procéder maintenant ? Vous pouvez l\'ignorer et effectuer la synchronisation plus tard.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choisir une action à appliquer aux éléments sélectionnés</string>
+    <string name="deselect_all">Désélectionner tout</string>
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
     <string name="open_in_workspaces">Ouvrir l\'emplacement</string>
     <string name="open_parent_in_workspaces">Ouvrir l\'emplacement parent</string>
@@ -192,7 +193,7 @@
     <string name="keep_offline">Garder hors ligne</string>
     <string name="remove_from_offline">Supprimer de la liste Hors Ligne</string>
     <string name="remove_bookmark">Supprimer le favori</string>
-    <string name="remove_bookmarks">Remove bookmarks</string>
+    <string name="remove_bookmarks">Supprimer les favoris</string>
     <string name="keep_offline_content_desc">Garder cet élément hors ligne</string>
     <string name="bookmark">Favori</string>
     <string name="bookmark_element_content_desc">Ajouter cet élément aux favoris</string>

@@ -177,6 +177,7 @@
     <string name="post_migration_sync_message">Você tem um ou mais itens marcados como off-line. Essa migração requer uma nova descarga completa agora. Você quer prosseguir? Você pode ignorá-lo e sincronizar mais tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Escolha uma ação para aplicar aos itens selecionados</string>
+    <string name="deselect_all">Un-select all</string>
     <string name="more_button_description">Mostrar mais ações para este elemento</string>
     <string name="open_in_workspaces">Abrir localização</string>
     <string name="open_parent_in_workspaces">Abrir localização pai</string>

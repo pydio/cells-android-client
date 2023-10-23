@@ -177,6 +177,7 @@
     <string name="post_migration_sync_message">Sie haben ein oder mehrere Elemente als offline markiert, diese Migration erfordert jetzt einen vollständigen Neu-Download. Möchten Sie fortfahren? Sie können es überspringen und später synchronisieren.</string>
     <!-- More menus -->
     <string name="open_more_menu">Wählen Sie eine Aktion, die auf die ausgewählten Elemente angewendet werden soll</string>
+    <string name="deselect_all">Alle abwählen</string>
     <string name="more_button_description">Weitere Aktionen für dieses Element anzeigen</string>
     <string name="open_in_workspaces">Speicherort öffnen</string>
     <string name="open_parent_in_workspaces">Übergeordneten Speicherort öffnen</string>
@@ -192,7 +193,7 @@
     <string name="keep_offline">Offline halten</string>
     <string name="remove_from_offline">Aus der Offline-Liste entfernen</string>
     <string name="remove_bookmark">Favorit entfernen</string>
-    <string name="remove_bookmarks">Remove bookmarks</string>
+    <string name="remove_bookmarks">Lesezeichen entfernen</string>
     <string name="keep_offline_content_desc">Dieses Element offline halten</string>
     <string name="bookmark">Lesezeichen</string>
     <string name="bookmark_element_content_desc">Als Lesezeichen speichern</string>
