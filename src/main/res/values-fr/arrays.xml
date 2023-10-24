@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonique (de A à Z, dossiers d\'abord)</item>
+        <item>Ordre par défaut (de A à Z, dossiers d\'abord)</item>
         <item>Par nom (de A à Z)</item>
         <item>Par nom (de Z à A)</item>
         <item>Date de modification (les plus anciens d\'abord)</item>
@@ -37,7 +37,7 @@
         <item>Expiré</item>
     </string-array>
     <string-array name="transfer_order_by_labels">
-        <item>Canonique (par ordre de création, le plus récent en premier)</item>
+        <item>Standard (par ordre de création, le plus récent en premier)</item>
         <item>Date de création (le plus ancien en premier)</item>
         <item>Statut (de A à Z)</item>
         <item>Statut (Z à A)</item>
@@ -45,7 +45,7 @@
         <item>Type (Téléversements d\'abord)</item>
     </string-array>
     <string-array name="job_order_by_labels">
-        <item>Canonique (par ordre de création, le plus récent en premier)</item>
+        <item>Standard (par ordre de création, le plus récent en premier)</item>
         <item>Date de création (le plus ancien en premier)</item>
         <item>Statut (de A à Z)</item>
         <item>Statut (de Z à A)</item>

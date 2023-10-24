@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Kanonické (A až Z, složky první)</item>
+        <item>Standard (A to Z, folders first)</item>
         <item>Název souboru (A až Z)</item>
         <item>Název souboru (Z až A)</item>
         <item>Upraveno (od nejstarších)</item>
@@ -37,7 +37,7 @@
         <item>Timeout</item>
     </string-array>
     <string-array name="transfer_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Creation order (oldest first)</item>
         <item>Status (A to Z)</item>
         <item>Status (Z to A)</item>
@@ -45,7 +45,7 @@
         <item>Type (Upload First)</item>
     </string-array>
     <string-array name="job_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Creation order (oldest first)</item>
         <item>Status (A to Z)</item>
         <item>Status (Z to A)</item>
