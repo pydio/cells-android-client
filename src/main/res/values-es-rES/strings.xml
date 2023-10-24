@@ -177,7 +177,7 @@
     <string name="post_migration_sync_message">Tienes uno o más elementos marcados como fuera de línea, esta migración requiere una re-descarga completa ahora. ¿Quieres continuar? Puedes saltarlo y sincronizarlo más tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Elija una acción para aplicar a los elementos seleccionados</string>
-    <string name="deselect_all">Un-select all</string>
+    <string name="deselect_all">Deseleccionar todo</string>
     <string name="more_button_description">Mostrar más acciones para este elemento</string>
     <string name="open_in_workspaces">Abrir ubicación</string>
     <string name="open_parent_in_workspaces">Abrir la carpeta padre</string>
@@ -193,7 +193,7 @@
     <string name="keep_offline">Mantener fuera de línea</string>
     <string name="remove_from_offline">Eliminar de modo offline</string>
     <string name="remove_bookmark">Borrar marcador</string>
-    <string name="remove_bookmarks">Remove bookmarks</string>
+    <string name="remove_bookmarks">Eliminar marcadores</string>
     <string name="keep_offline_content_desc">Mantener este elemento fuera de línea</string>
     <string name="bookmark">Favorito</string>
     <string name="bookmark_element_content_desc">Añadir este elemento a favoritos</string>
