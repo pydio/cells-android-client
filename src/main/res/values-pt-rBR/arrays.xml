@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Canonical (A a Z, pastas primeiro)</item>
+        <item>Standard (A to Z, folders first)</item>
         <item>Nome do arquivo (A a Z)</item>
         <item>Nome do arquivo (Z a A)</item>
         <item>Modificado (mais antigo primeiro)</item>
@@ -37,7 +37,7 @@
         <item>Tempo esgotado</item>
     </string-array>
     <string-array name="transfer_order_by_labels">
-        <item>Canônico (por ordem de criação, mais novo primeiro)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Data de criação (mais antigo primeiro)</item>
         <item>Status (A a Z)</item>
         <item>Status (Z a A)</item>
@@ -45,7 +45,7 @@
         <item>Tipo (Upload primeiro)</item>
     </string-array>
     <string-array name="job_order_by_labels">
-        <item>Canônico (por ordem de criação, mais novo primeiro)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Data de criação (mais antigo primeiro)</item>
         <item>Status (A a Z)</item>
         <item>Status (Z a A)</item>

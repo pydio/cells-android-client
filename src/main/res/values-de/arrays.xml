@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="order_by_labels">
-        <item>Kanonisch (A bis Z, Ordner zuerst)</item>
+        <item>Standard (A bis Z, Ordner zuerst)</item>
         <item>Name (A bis Z)</item>
         <item>Name (Z bis A)</item>
         <item>Geändert (älteste zuerst)</item>
@@ -37,7 +37,7 @@
         <item>Timeout</item>
     </string-array>
     <string-array name="transfer_order_by_labels">
-        <item>Kanonisch (nach Erstellungsbestellung, neueste zuerst)</item>
+        <item>Standard (neueste zuerst)</item>
         <item>Erstellung (älteste zuerst)</item>
         <item>Status (A bis Z)</item>
         <item>Status (Z bis A)</item>
@@ -45,7 +45,7 @@
         <item>Typ (zuerst hochladen)</item>
     </string-array>
     <string-array name="job_order_by_labels">
-        <item>Kanonisch (nach Erstellungsbestellung, neueste zuerst)</item>
+        <item>Standard (neueste zuerst)</item>
         <item>Erstellung (älteste zuerst)</item>
         <item>Status (A bis Z)</item>
         <item>Status (Z bis A)</item>
