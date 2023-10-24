@@ -2,7 +2,7 @@
 <resources>
 
     <string-array name="order_by_labels">
-        <item>Canonical (A to Z, folders first)</item>
+        <item>Standard (A to Z, folders first)</item>
         <item>File name (A to Z)</item>
         <item>File name (Z to A)</item>
         <item>Modified (oldest first)</item>
@@ -82,7 +82,7 @@
     </string-array>
 
     <string-array name="transfer_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Creation order (oldest first)</item>
         <item>Status (A to Z)</item>
         <item>Status (Z to A)</item>
@@ -100,7 +100,7 @@
     </string-array>
 
     <string-array name="job_order_by_labels">
-        <item>Canonical (By creation order, newest first)</item>
+        <item>Standard (By creation order, newest first)</item>
         <item>Creation order (oldest first)</item>
         <item>Status (A to Z)</item>
         <item>Status (Z to A)</item>
