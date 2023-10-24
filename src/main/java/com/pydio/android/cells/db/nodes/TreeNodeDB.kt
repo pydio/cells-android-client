@@ -81,28 +81,10 @@ abstract class TreeNodeDB : RoomDatabase() {
 
         // Migrations
 
-//        private val MIGRATION_2_3 = object : Migration(2, 3) {
-//            override fun migrate(database: SupportSQLiteDatabase) {
-//
-//                // Add a column to the LiveOfflineRoot view
-//                database.execSQL("DROP VIEW `RLiveOfflineRoot`")
-//                val newViewSQL = "CREATE VIEW `RLiveOfflineRoot` " +
-//                        "AS SELECT offline_roots.encoded_state, offline_roots.uuid, " +
-//                        "offline_roots.status, offline_roots.local_mod_ts, " +
-//                        "offline_roots.last_check_ts, offline_roots.message, " +
-//                        "tree_nodes.mime, tree_nodes.name, tree_nodes.size, " +
-//                        "tree_nodes.etag, tree_nodes.remote_mod_ts, tree_nodes.flags, " +
-//                        "offline_roots.sort_name FROM offline_roots " +
-//                        "INNER JOIN tree_nodes ON offline_roots.encoded_state = tree_nodes.encoded_state"
-//                database.execSQL(newViewSQL)
-//            }
-//        }
-
         private val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 // Add a column to the transfers table
-                //                 database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER DEFAULT -1")
-                database.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER")
+                db.execSQL("ALTER TABLE transfers ADD COLUMN external_id INTEGER")
             }
         }
     }
