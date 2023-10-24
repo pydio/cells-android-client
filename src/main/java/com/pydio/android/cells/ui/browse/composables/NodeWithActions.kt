@@ -33,7 +33,9 @@ import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.encodeStateForRoute
+import com.pydio.android.cells.ui.core.encodeStateSetForRoute
 import com.pydio.android.cells.ui.core.lazyStateID
+import com.pydio.android.cells.ui.core.lazyStateIDs
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.share.models.ShareVM
@@ -50,6 +52,10 @@ private const val FOLDER_MAIN_CONTENT = "folder-main-content"
 
 private fun route(action: NodeAction): String {
     return "${action.id}/{${AppKeys.STATE_ID}}"
+}
+
+private fun routeMulti(action: NodeAction): String {
+    return "${action.id}/{${AppKeys.STATE_IDS}}"
 }
 
 /** Add the more menu **/
@@ -142,10 +148,6 @@ private fun FolderWithDialogs(
             Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
             Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
         } else when (action) {
-            // TODO
-//            is NodeAction.DownloadToDevice -> {
-//                Log.e(LOG_TAG, "Implement me: $action for multi")
-//            }
 
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
@@ -158,6 +160,13 @@ private fun FolderWithDialogs(
                 currentAction.value = AppNames.ACTION_MOVE
                 val suffix = encodeStateForRoute(stateIDs.first().parent())
                 val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            // TODO still not working
+            is NodeAction.DownloadMultipleToDevice -> {
+                val suffix = encodeStateSetForRoute(stateIDs)
+                val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
                 navController.navigate(initialRoute)
             }
 
@@ -460,6 +469,19 @@ private fun FolderWithDialogs(
             ChooseDestination(
                 nodeActionsVM,
                 stateID = stateID,
+                dismiss = { closeDialog(it) }
+            )
+        }
+
+        dialog(routeMulti(NodeAction.DownloadMultipleToDevice)) { entry ->
+            val stateIDs = lazyStateIDs(entry)
+            if (stateIDs.isEmpty() || (stateIDs.size == 1 && stateIDs.first() == StateID.NONE)) {
+                Log.w(LOG_TAG, "... CreateFolder with no ID")
+                return@dialog
+            }
+            ChooseFolderDestination(
+                nodeActionsVM,
+                stateIDs = stateIDs,
                 dismiss = { closeDialog(it) }
             )
         }

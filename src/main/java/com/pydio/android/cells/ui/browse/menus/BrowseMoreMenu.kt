@@ -184,12 +184,12 @@ fun MultiNodeMenu(
             },
             title = "Choose an action",
         )
-// FIXME finalize to implement this
+// TODO this is still broken
 //        if (!containsFolders) {
 //            BottomSheetListItem(
 //                icon = CellsIcons.DownloadToDevice,
 //                title = stringResource(R.string.download_to_device),
-//                onItemClick = { launch(NodeAction.DownloadToDevice) },
+//                onItemClick = { launch(NodeAction.DownloadMultipleToDevice) },
 //            )
 //        }
         if (inRecycle) {

@@ -7,6 +7,7 @@ public interface AppKeys {
 
     // Extra parameters for compose routes
     String STATE_ID = "state-id";
+    String STATE_IDS = "state-ids";
     String UID = "uid";
     String QUERY_CONTEXT = "query-context";
     String SKIP_VERIFY = "skip-verify";

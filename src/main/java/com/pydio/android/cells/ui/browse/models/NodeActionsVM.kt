@@ -145,6 +145,30 @@ class NodeActionsVM(
         }
     }
 
+    fun downloadMultiple(stateIDs: Set<StateID>, uri: Uri) {
+        coroutineService.cellsIoScope.launch {
+
+            var ok = true
+            for (stateID in stateIDs) {
+                try {
+                    val currUri = uri.buildUpon().appendPath(stateID.fileName).build()
+                    transferService.saveToSharedStorage(stateID, currUri)
+                } catch (e: SDKException) {
+                    localDone(
+                        "#${e.code} - ${e.message}",
+                        "Could not save $stateID to share storage"
+                    )
+                    ok = false
+                    break
+                }
+            }
+            if (ok) {
+                done()
+            }
+        }
+    }
+
+
     fun importFiles(stateID: StateID, uris: List<Uri>) {
         coroutineService.cellsIoScope.launch {
             try {

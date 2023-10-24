@@ -60,8 +60,8 @@ fun NodesMoreMenuData(
     if (nodes.value.isNotEmpty()) {
         when (type) {
             NodeMoreMenuType.BOOKMARK -> BookmarksMenu(
-                stateIDs = subjectIDs,
-                launch = launch,
+                containsFolders = containsFolders.value,
+                launch = { launch(it, subjectIDs) },
             )
 
             NodeMoreMenuType.MORE ->

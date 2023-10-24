@@ -94,8 +94,10 @@ fun BookmarkMenu(
 
 @Composable
 fun BookmarksMenu(
-    stateIDs: Set<StateID>,
-    launch: (NodeAction, Set<StateID>) -> Unit,
+//     stateIDs: Set<StateID>,
+    containsFolders: Boolean,
+//    launch: (NodeAction, Set<StateID>) -> Unit,
+    launch: (NodeAction) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -114,15 +116,23 @@ fun BookmarksMenu(
             },
             title = "Choose an action",
         )
+// TODO This is still broken
+//        if (!containsFolders) {
+//            BottomSheetListItem(
+//                icon = CellsIcons.DownloadToDevice,
+//                title = stringResource(R.string.download_to_device),
+//                onItemClick = { launch(NodeAction.DownloadMultipleToDevice) },
+//            )
+//        }
         BottomSheetListItem(
             icon = CellsIcons.Bookmark,
             title = stringResource(R.string.remove_bookmarks),
-            onItemClick = { launch(NodeAction.ToggleBookmark(false), stateIDs) }
+            onItemClick = { launch(NodeAction.ToggleBookmark(false)) }
         )
         BottomSheetListItem(
             icon = CellsIcons.Deselect,
             title = stringResource(R.string.deselect_all),
-            onItemClick = { launch(NodeAction.UnSelectAll, stateIDs) }
+            onItemClick = { launch(NodeAction.UnSelectAll) }
         )
     }
 }

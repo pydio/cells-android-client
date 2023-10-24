@@ -12,6 +12,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import java.net.URLDecoder
 import java.net.URLEncoder
 
 private const val logTag = "core.utils"
@@ -53,62 +54,47 @@ fun lazyStateID(
     }
 }
 
-//private fun tweakedFromId(stateId: String?): StateID? {
-//
-//
-//    return StateID.fromId(stateId)
-//
-//    var username: String? = null
-//    var host: String?
-//    var path: String? = null
-//
-//    return try {
-//        val parts = stateId.split("@".toRegex()).dropLastWhile { it.isEmpty() }
-//            .toTypedArray()
-//        when (parts.size) {
-//            1 -> host = URLDecoder.decode(parts[0], "UTF-8")
-//            2 -> {
-//                username = URLDecoder.decode(parts[0], "UTF-8")
-//                host = URLDecoder.decode(parts[1], "UTF-8")
-//            }
-//
-//            3 -> {
-//                username = URLDecoder.decode(parts[0], "UTF-8")
-//                host = URLDecoder.decode(parts[1], "UTF-8")
-//                path = URLDecoder.decode(parts[2], "UTF-8")
-//                if (path.startsWith("http://") || path.startsWith("https://")) {
-//                    Log.e(logTag, "We found a path that begins with https for: $stateId")
-//                    Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
-//                    username = "$username@$host"
-//                    host = path
-//                    path = null
-//                    Log.e(logTag, "   New values: uname: $username, host: $host")
-//                }
-//            }
-//
-//            4 -> {
-//                Log.e(logTag, "Parsed stateId [$stateId] has 4 parts")
-//                Log.e(logTag, "   Tweaking to avoid crash (but this should never happen)")
-//                username = URLDecoder.decode(parts[0], "UTF-8")
-//                username += "@" + URLDecoder.decode(parts[1], "UTF-8")
-//                host = URLDecoder.decode(parts[2], "UTF-8")
-//                path = URLDecoder.decode(parts[3], "UTF-8")
-//                Log.e(logTag, "   New values: uname: $username, host: $host, path: $path")
-//            }
-//
-//            else -> {
-//                Log.e(logTag, "Could not create State from ID: $stateId")
-//                Thread.dumpStack()
-//                return null
-//            }
-//        }
-//        StateID(username, host, path)
-//    } catch (iae: IllegalArgumentException) {
-//        Log.e(logTag, "Could not decode [$stateId] - cause:$iae")
-//        iae.printStackTrace()
-//        return null
-//    }
-//}
+fun encodeStateSetForRoute(stateIDs: Set<StateID>): String {
+    val reduced = stateIDs.map {  URLEncoder.encode(it.id, "UTF-8")}.reduce { acc, curr ->
+        if (acc.isEmpty()) {
+            curr
+        } else {
+            "${acc}&$curr"
+        }
+    }
+    return URLEncoder.encode(reduced, "UTF-8")
+}
+
+
+fun lazyStateIDs(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = AppKeys.STATE_IDS,
+): Set<StateID> {
+    return navBackStackEntry?.arguments?.getString(key)?.let {
+        // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
+        if (it.isEmpty()) {
+            setOf(StateID.NONE)
+        } else {
+            val reduced = URLDecoder.decode(it, "UTF-8")
+            val ids = mutableSetOf<StateID>()
+            reduced.split("&").forEach { currEncoded ->
+                if (currEncoded.isNotEmpty()){
+                    val currID =StateID.fromId(URLDecoder.decode(currEncoded, "UTF-8"))
+                    if (currID != StateID.NONE){
+                        ids.add(currID)
+                    }
+                }
+            }
+            if (ids.isEmpty()){ // TODO double check if it is really necessary
+                ids.add(StateID.NONE)
+            }
+            ids
+        }
+    } ?: run {
+        Log.w(logTag, " ... No stateID found in backstack entry with key $key")
+        setOf(StateID.NONE)
+    }
+}
 
 fun lazyQueryContext(
     navBackStackEntry: NavBackStackEntry?,

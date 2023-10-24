@@ -191,6 +191,40 @@ fun ChooseDestination(
 }
 
 @Composable
+fun ChooseFolderDestination(
+    nodeActionsVM: NodeActionsVM,
+    stateIDs: Set<StateID>,
+    dismiss: (Boolean) -> Unit,
+) {
+    Log.d(LOG_TAG, "Composing ChooseFolderDestination for $stateIDs")
+    val alreadyLaunched = rememberSaveable { mutableStateOf(false) }
+    val destinationPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+        onResult = { uri ->
+            Log.e(LOG_TAG, "Got a folder: ${uri.toString()}")
+            uri?.let {
+                nodeActionsVM.downloadMultiple(stateIDs, uri)
+            }
+            dismiss(true)
+        }
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.02f),
+        content = {}
+    )
+    if (!alreadyLaunched.value) {
+        LaunchedEffect(key1 = stateIDs.toString()) {
+            Log.e(LOG_TAG, "Launching 'pick folder destination' for $stateIDs")
+            delay(100)
+            destinationPicker.launch(null)
+            alreadyLaunched.value = true
+        }
+    }
+}
+
+@Composable
 fun ImportFile(
     nodeActionsVM: NodeActionsVM,
     targetParentID: StateID,

@@ -4,6 +4,7 @@ sealed class NodeAction(val id: String) {
 
     data object UnSelectAll : NodeAction("deselect_all")
     data object DownloadToDevice : NodeAction("download_to_device")
+    data object DownloadMultipleToDevice : NodeAction("download_multiple_to_device")
     data object ImportFile : NodeAction("import_file")
     data object CreateFolder : NodeAction("create_folder")
     data object Rename : NodeAction("rename")
