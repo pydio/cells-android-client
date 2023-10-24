@@ -10,6 +10,7 @@
 
         <!-- The logo -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon_night</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
 
     </style>
 
