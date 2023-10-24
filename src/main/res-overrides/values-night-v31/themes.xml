@@ -5,7 +5,9 @@
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon_night_v31
         </item>
         <item name="postSplashScreenTheme">@style/CellsTheme</item>
-        <item name="android:windowSplashScreenBrandingImage">@drawable/branding_image</item>
+        <item name="android:windowSplashScreenBrandingImage">
+            @drawable/splashscreen_branding_image_night
+        </item>
         <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
     </style>
 
