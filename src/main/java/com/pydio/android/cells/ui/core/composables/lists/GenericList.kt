@@ -155,6 +155,9 @@ private fun getVectorFromListContext(context: ListContext): ImageVector {
         ListContext.TRANSFERS ->
             CellsIcons.Processing
 
+        ListContext.SEARCH ->
+            CellsIcons.Search
+
         ListContext.SYSTEM ->
             CellsIcons.Jobs
     }

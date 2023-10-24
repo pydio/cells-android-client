@@ -13,7 +13,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
-class BrowseHelper(
+open class BrowseHelper(
     private val navController: NavHostController,
     private val browseVM: AbstractCellsVM,
 ) {
@@ -27,6 +27,7 @@ class BrowseHelper(
 
         Log.d(logTag, "... Calling open for $stateID")
         Log.d(logTag, "    Loading state: ${browseVM.loadingState.value}")
+        Log.d(logTag, "    Context: $callingContext")
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)

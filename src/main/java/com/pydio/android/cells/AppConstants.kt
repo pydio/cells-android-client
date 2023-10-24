@@ -23,6 +23,7 @@ enum class ListContext(val id: String) {
     BROWSE("browse"),
     BOOKMARKS("bookmarks"),
     OFFLINE("offline"),
+    SEARCH("search"),
     TRANSFERS("transfers"),
     SYSTEM("system"),
 }
