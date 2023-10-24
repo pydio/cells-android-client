@@ -164,17 +164,19 @@ fun Folder(
         }
     }
 
-    val moreMenuDone: () -> Unit = {
+    val moreMenuDone: (Boolean) -> Unit = { isOk ->
         scope.launch {
             sheetState.hide()
         }
-        setMoreMenuData(NodeMoreMenuType.NONE, setOf())
-        multiSelectData.value = setOf()
+        if (isOk) {
+            setMoreMenuData(NodeMoreMenuType.NONE, setOf())
+            multiSelectData.value = setOf()
+        }
     }
 
-    val actionDone: (Boolean) -> Unit = {
-        moreMenuDone()
-        if (it) { // Also reset backoff ticker
+    val actionDone: (Boolean, Boolean) -> Unit = { isOk, doRefresh ->
+        moreMenuDone(isOk)
+        if (doRefresh) { // Also reset backoff ticker
             browseRemoteVM.watch(folderID, true)
         }
     }
@@ -183,17 +185,17 @@ fun Folder(
         when (it) {
             is NodeAction.AsGrid -> {
                 folderVM.setListLayout(ListLayout.GRID)
-                actionDone(true)
+                actionDone(true, false)
             }
 
             is NodeAction.AsList -> {
                 folderVM.setListLayout(ListLayout.LIST)
-                actionDone(true)
+                actionDone(true, false)
             }
 
             else -> {
                 Log.e(LOG_TAG, "########### Unknown action: ${it.id}")
-                actionDone(false)
+                actionDone(false, false)
             }
         }
     }

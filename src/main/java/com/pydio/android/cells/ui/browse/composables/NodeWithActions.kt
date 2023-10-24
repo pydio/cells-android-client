@@ -62,7 +62,7 @@ private fun routeMulti(action: NodeAction): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WrapWithActions(
-    actionDone: (Boolean) -> Unit,
+    actionDone: (Boolean, Boolean) -> Unit,
     isExpandedScreen: Boolean = false,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
@@ -89,7 +89,7 @@ fun WrapWithActions(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderWithDialogs(
-    actionDone: (Boolean) -> Unit,
+    actionDone: (Boolean, Boolean) -> Unit,
     isExpandedScreen: Boolean,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
@@ -132,14 +132,14 @@ private fun FolderWithDialogs(
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         scope.launch {
             delay(200)
-            actionDone(done)
+            actionDone(done, true)
         }
     }
 
-    val closeDialog: (Boolean) -> Unit = { done ->
+    val closeDialog: (Boolean, Boolean) -> Unit = { done, doRefresh ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         if (done) {
-            actionDone(true)
+            actionDone(true, doRefresh)
         }
     }
 
@@ -221,12 +221,13 @@ private fun FolderWithDialogs(
 
             is NodeAction.ToggleOffline -> {
                 nodeActionsVM.toggleOffline(passedStateID, action.isChecked)
-                delayedDone(true)
+                actionDone(true, true)
             }
 
             is NodeAction.ToggleBookmark -> {
                 nodeActionsVM.toggleBookmark(passedStateID, action.isChecked)
-                delayedDone(true)
+                // delayedDone(true)
+                actionDone(true, true)
             }
 
             is NodeAction.CreateShare -> {
@@ -234,7 +235,7 @@ private fun FolderWithDialogs(
                     nodeActionsVM.createShare(passedStateID)?.let {
                         copyLinkToClipboard(it)
                     }
-                    actionDone(true)
+                    actionDone(true, true)
                 }
             }
 
@@ -247,7 +248,7 @@ private fun FolderWithDialogs(
                                 .putExtra(Intent.EXTRA_TEXT, it)
                         )
                     }
-                    actionDone(true)
+                    actionDone(true, false)
                 }
             }
 
@@ -256,22 +257,22 @@ private fun FolderWithDialogs(
                     nodeActionsVM.getShareLink(passedStateID)?.let {
                         copyLinkToClipboard(it)
                     }
-                    actionDone(true)
+                    actionDone(true, false)
                 }
             }
 
             is NodeAction.RemoveLink -> {
                 nodeActionsVM.removeShare(passedStateID)
-                actionDone(true)
+                actionDone(true, true)
             }
 
             is NodeAction.RestoreFromTrash -> {
                 nodeActionsVM.restoreFromTrash(passedStateID)
-                actionDone(true)
+                actionDone(true, true)
             }
 
             is NodeAction.SortBy -> {
-                actionDone(true)
+                actionDone(true, false)
             }
 
             else -> navController.navigate("${action.id}/${encodeStateForRoute(passedStateID)}")
@@ -282,7 +283,7 @@ private fun FolderWithDialogs(
         Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
         when (action) {
             AppNames.ACTION_CANCEL -> {
-                closeDialog(false)
+                closeDialog(false, false)
                 currentAction.value = null
             }
 
@@ -300,7 +301,7 @@ private fun FolderWithDialogs(
                         }
                     }
                 }
-                closeDialog(true)
+                closeDialog(true, true)
             }
         }
     }
@@ -394,7 +395,7 @@ private fun FolderWithDialogs(
             TreeNodeRename(
                 nodeActionsVM,
                 stateID = stateID,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
 
@@ -407,7 +408,7 @@ private fun FolderWithDialogs(
             ShowQRCode(
                 nodeActionsVM,
                 stateID = currID,
-                dismiss = { closeDialog(true) }
+                dismiss = { closeDialog(true, false) }
             )
         }
 
@@ -420,7 +421,7 @@ private fun FolderWithDialogs(
             ConfirmDeletion(
                 nodeActionsVM,
                 currID
-            ) { closeDialog(it) }
+            ) { closeDialog(it, it) }
         }
 
         dialog(route(NodeAction.PermanentlyRemove)) { entry ->
@@ -432,7 +433,7 @@ private fun FolderWithDialogs(
             ConfirmPermanentDeletion(
                 nodeActionsVM,
                 currID
-            ) { closeDialog(it) }
+            ) { closeDialog(it, it) }
         }
 
         dialog(route(NodeAction.EmptyRecycle)) { entry ->
@@ -444,7 +445,7 @@ private fun FolderWithDialogs(
             ConfirmEmptyRecycle(
                 nodeActionsVM,
                 currID
-            ) { closeDialog(it) }
+            ) { closeDialog(it, it) }
         }
 
         dialog(route(NodeAction.CreateFolder)) { entry ->
@@ -456,7 +457,7 @@ private fun FolderWithDialogs(
             CreateFolder(
                 nodeActionsVM,
                 stateID = currID,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
 
@@ -469,7 +470,7 @@ private fun FolderWithDialogs(
             ChooseDestination(
                 nodeActionsVM,
                 stateID = stateID,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
 
@@ -482,7 +483,7 @@ private fun FolderWithDialogs(
             ChooseFolderDestination(
                 nodeActionsVM,
                 stateIDs = stateIDs,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
 
@@ -491,7 +492,7 @@ private fun FolderWithDialogs(
             ImportFile(
                 nodeActionsVM,
                 targetParentID = stateID,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
 
@@ -500,7 +501,7 @@ private fun FolderWithDialogs(
             TakePicture(
                 nodeActionsVM,
                 targetParentID = stateID,
-                dismiss = { closeDialog(it) }
+                dismiss = { closeDialog(it, it) }
             )
         }
     }
