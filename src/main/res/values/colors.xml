@@ -4,7 +4,9 @@
 
     <!-- We still have a few hard coded colors for Mime Type Icons-->
     <!-- Main Cells colors -->
-    <color name="cells_blue">#00668B</color>
+    <!--    <color name="cells_blue">#00668B</color>-->
+    <!--    Standard Cells Blue -->
+    <color name="cells_blue">#444C66</color>
     <color name="cells_orange">#EE776C</color>
     <!-- Document icon colors -->
     <color name="material_yellow">#FFE500</color>
@@ -15,5 +17,9 @@
     <color name="material_blue">#2196F3</color>
     <color name="material_indigo">#3F51B5</color>
     <color name="material_neutral">#5C5F61</color>
+    <!-- Black and white -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
 
 </resources>

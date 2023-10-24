@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- See  https://developer.android.com/develop/ui/views/launch/splash-screen
+     and   https://developer.android.com/develop/ui/views/launch/splash-screen/migrate -->
+    <style name="CellsTheme.SplashScreen" parent="Theme.SplashScreen">
+
+        <!-- Theme that must be applied once the app has started -->
+        <item name="postSplashScreenTheme">@style/CellsTheme</item>
+
+        <!-- The logo -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon_night</item>
+
+    </style>
+
+
+</resources>
