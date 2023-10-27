@@ -103,22 +103,33 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         }
     }
 
-    suspend fun viewFile(context: Context, stateID: StateID) {
+    @Throws(SDKException::class)
+    suspend fun viewFile(context: Context, stateID: StateID, skipUpToDateCheck: Boolean = false) {
         getNode(stateID)?.let { node ->
-            viewFile(context, node)
+            viewFile(context, node, skipUpToDateCheck)
         }
     }
 
-    private suspend fun viewFile(context: Context, node: RTreeNode) {
-        val checkUpToDate = LoadingState.SERVER_UNREACHABLE != connectionService.loadingState.value
+    @Throws(SDKException::class)
+    private suspend fun viewFile(
+        context: Context,
+        node: RTreeNode,
+        skipUpToDateCheck: Boolean = false
+    ) {
+        val currSkip =
+            skipUpToDateCheck || LoadingState.SERVER_UNREACHABLE == connectionService.loadingState.value
         Log.e(
-            logTag,
-            "Launch view file, check: $checkUpToDate, loading: ${connectionService.loadingState.value}"
+            logTag, "Launch view file, skip check: $currSkip," +
+                    " loading: ${connectionService.loadingState.value}"
         )
-        nodeService.getLocalFile(node, checkUpToDate)?.let { file ->
-            externallyView(context, file, node)
-        } ?: run {
+        val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
+
+        if (lf == null) {
             throw SDKException(ErrorCodes.no_local_file)
+        } else if (!isUpToDate) {
+            throw SDKException(ErrorCodes.outdated_local_file)
+        } else {
+            externallyView(context, lf, node)
         }
     }
 

@@ -3,7 +3,9 @@ package com.pydio.android.cells.utils
 import com.pydio.android.cells.AppNames
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 fun asSinceString(timestamp: Long): String {
 
@@ -82,6 +84,11 @@ fun getCurrentDateTime(): Date {
 }
 
 fun getTimestampAsString(timestamp: Long): String {
+    return DateFormat.getDateInstance(DateFormat.MEDIUM).format(timestamp)
+}
+
+// Shorter name
+fun getTsAsString(timestamp: Long): String {
     return DateFormat.getDateInstance(DateFormat.MEDIUM).format(timestamp)
 }
 

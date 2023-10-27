@@ -269,9 +269,9 @@ class TransferService(
         var localFile = nodeService.getLocalFile(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE)
         val resolver = CellsApp.instance.contentResolver
         try {
-            if (!localFile.exists() || (networkService.isConnected() && nodeService.isCachedVersionUpToDate(
-                    rTreeNode
-                ) == false)
+            if (!localFile.exists() ||
+                (networkService.isConnected()
+                        && nodeService.isCachedVersionUpToDate(rTreeNode) == false)
             ) {
                 val jobId = prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
                 runDownloadAndWait(stateID, jobId)

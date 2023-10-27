@@ -1,13 +1,14 @@
 package com.pydio.android.cells.ui.models
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
+import com.pydio.android.cells.utils.getTsAsString
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,15 +45,20 @@ class DownloadVM(
         }
     }
 
-    suspend fun viewFile(context: Context) {
-        viewFile(context, stateID)
-    }
-
     suspend fun launchDownload() {
         try {
             transferService.currentDownload(stateID)?.let {
-                showError(ErrorMessage("No need to relaunch", -1, listOf()))
-                return
+                Log.w(logTag, "... About to launch DL, already have a transfer:")
+                Log.d(logTag, "    - ${it.status}")
+                Log.d(logTag, "    - ${it.creationTimestamp}")
+                Log.d(logTag, "    - ${it.doneTimestamp}")
+                if (it.status == JobStatus.PROCESSING.id || it.status == JobStatus.NEW.id) {
+                    val msg =
+                        "Transfer for $stateID exists since ${getTsAsString(it.creationTimestamp)}"
+                    Log.e(logTag, "... $msg")
+                    showError(ErrorMessage("No need to relaunch: $msg", -1, listOf()))
+                    return
+                }
             }
             val transferID = transferService.prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)
             _transferID.value = transferID

@@ -83,8 +83,8 @@ fun CreateFolder(
 
 @Composable
 fun Download(
-    downloadVM: DownloadVM,
     stateID: StateID,
+    downloadVM: DownloadVM,
     dismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -93,15 +93,18 @@ fun Download(
 
     LaunchedEffect(key1 = rTransfer.value?.status) {
         val status = rTransfer.value?.status
+        Log.d(LOG_TAG, "... New download status for $stateID: $status")
+
         if (JobStatus.DONE.id == status) {
             try {
-                downloadVM.viewFile(context)
+                downloadVM.viewFile(context, stateID, true)
             } catch (se: SDKException) {
                 if (se.code == ErrorCodes.no_local_file) {
+                    Log.w(LOG_TAG, "... DL is over, but no local file has been found")
                     // FIXME give more time to register new file
                     delay(2000L)
                     try {
-                        downloadVM.viewFile(context)
+                        downloadVM.viewFile(context, stateID, true)
                     } catch (e: Exception) {
                         Log.e(LOG_TAG, "File has been downloaded but is not found")
                         e.printStackTrace()
@@ -150,6 +153,7 @@ fun Download(
         )
     )
     LaunchedEffect(key1 = stateID) {
+        Log.i(LOG_TAG, "... and also launching download")
         downloadVM.launchDownload()
     }
 }

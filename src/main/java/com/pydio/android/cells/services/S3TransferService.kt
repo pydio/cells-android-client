@@ -54,13 +54,14 @@ class S3TransferService(
         transferRecord: RTransfer,
         parentJobProgress: Channel<Long>?
     ) = withContext(ioDispatcher) {
-        Log.d(logTag, "TU download for ${targetFile.absolutePath}")
+        Log.d(logTag, "S3 download to ${targetFile.absolutePath}")
         val key = CellsS3Client.getCleanPath(stateID)
 
         val observer = getTransferUtility(stateID).download(key, targetFile)
         transferRecord.externalID = observer.id
         transferRecord.status = JobStatus.PROCESSING.id
         transferRecord.startTimestamp = currentTimestamp()
+        transferRecord.updateTimestamp = currentTimestamp()
         dao.update(transferRecord)
 
         observer.setTransferListener(

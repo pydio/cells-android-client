@@ -13,10 +13,12 @@ import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
+import com.pydio.android.cells.utils.getTsAsString
 import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.ErrorCodes
+import com.pydio.cells.api.HttpStatus
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
@@ -25,6 +27,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -373,6 +376,69 @@ class NodeService(
         }
     }
 
+    suspend fun stillExists(stateID: StateID): Boolean = withContext(ioDispatcher) {
+        if (!accountService.isClientConnected(stateID)) {
+            // Cannot check: we assume node is still there
+            return@withContext true
+        }
+        try {
+            val remote = getClient(stateID).nodeInfo(stateID.slug, stateID.file)
+            if (remote != null) {
+                return@withContext true
+            } else {
+                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
+                removeFromCache(stateID)
+                return@withContext false
+            }
+        } catch (e: SDKException) {
+            if (e.code == HttpStatus.NOT_FOUND.value) {
+                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
+                removeFromCache(stateID)
+                return@withContext false
+            }
+            Log.e(logTag, "... Unexpected error #${e.code} while checking node at $stateID")
+            e.printStackTrace()
+            Log.e(logTag, "... Ignoring for the time being")
+            return@withContext false
+        }
+    }
+
+    @Throws(SDKException::class)
+    suspend fun removeFromCache(stateID: StateID) = withContext(ioDispatcher) {
+        try {
+            getNode(stateID)?.let { nodeDB(stateID).treeNodeDao().delete(stateID.id) }
+            cleanFilesFromLocalCache(stateID)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            throw SDKException("Could not delete $stateID", se)
+        }
+    }
+
+    @Throws(SDKException::class)
+    suspend fun cleanFilesFromLocalCache(stateID: StateID) = withContext(ioDispatcher) {
+        try {
+            val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
+            val rLocalFile = dao.getFile(stateID.id, AppNames.LOCAL_FILE_TYPE_FILE)
+            rLocalFile?.let {
+                // Delete on the FS if necessary
+                val localFile = File(it.file)
+                Log.e(
+                    logTag,
+                    "Trying to delete file at ${localFile.absolutePath} - exist: ${localFile.exists()}"
+                )
+                if (localFile.exists()) {
+                    localFile.delete()
+                }
+                // Delete corresponding record
+                dao.delete(stateID.id)
+            }
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            throw SDKException("Could not delete $stateID", se)
+        }
+    }
+
+
     private suspend fun getNodeInfo(stateID: StateID): FileNode? {
         try {
             return getClient(stateID).nodeInfo(stateID.slug, stateID.file)
@@ -450,46 +516,45 @@ class NodeService(
     }
 
     /**
-     * Returns the local file to be opened if it exists, optionally after checking
+     * Returns the local file to be opened if it exists, also optionally checking
      * if it is still up to date based on:
      * - modification time
      * - e-tag
      * - size
      */
-    suspend fun getLocalFile(rTreeNode: RTreeNode, checkUpToDate: Boolean): File? =
+    suspend fun getLocalFile(
+        localNode: RTreeNode,
+        skipUpToDateCheck: Boolean
+    ): Pair<File?, Boolean> =
         withContext(ioDispatcher) {
-            Log.d(
-                logTag,
-                "Getting LocalFile for [${rTreeNode.getStateID()}], check: $checkUpToDate"
-            )
-            val file = File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_FILE))
+            Log.d(logTag, "Get Local for [${localNode.getStateID()}] - skip: $skipUpToDateCheck")
+            val file = File(fileService.getLocalPath(localNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
                 Log.e(logTag, "File not found at ${file.absolutePath}")
-                return@withContext null
+                return@withContext null to true
             }
 
-            if (!checkUpToDate) {
-                return@withContext file
+            if (skipUpToDateCheck) {
+                return@withContext file to true
             }
             try {
+                Log.d(logTag, "  ... and checking")
                 // Compare with remote if possible
-                val remote = getNodeInfo(rTreeNode.getStateID())
+                val remote = getNodeInfo(localNode.getStateID())
                 // We cannot stat remote, but we have a file let's open this one
                     ?: run {
-                        Log.e(logTag, "No info found")
-                        return@withContext file
+                        Log.w(logTag, "... Cannot reach remote, let's open local file")
+                        return@withContext file to true
                     }
 
-                val isUpToDate = rTreeNode.etag == remote.eTag &&
-                        rTreeNode.size == remote.size &&
-                        rTreeNode.remoteModificationTS >= remote.lastModified
-
-                return@withContext if (isUpToDate) file else null
+                val isUpToDate = isNodeUpToDate(localNode, remote)
+                Log.d(logTag, "  ... After check file @$file exists and is up-to-date: $isUpToDate")
+                return@withContext file to isUpToDate
             } catch (se: SDKException) {
                 // Could not retrieve node info to compare. cf above
-                val msg = "could not stat ${rTreeNode.getStateID()}"
-                handleSdkException(rTreeNode.getStateID(), msg, se)
-                return@withContext null
+                val msg = "could not stat ${localNode.getStateID()}"
+                handleSdkException(localNode.getStateID(), msg, se)
+                return@withContext null to false
             }
         }
 
@@ -504,6 +569,25 @@ class NodeService(
             se.printStackTrace()
             throw SDKException("Could not restore node: ${se.message}", se)
         }
+    }
+
+    private fun isNodeUpToDate(
+        localNode: RTreeNode,
+        remote: FileNode,
+    ): Boolean {
+        // TODO improve this
+        val isUpToDate = localNode.etag == remote.eTag &&
+                localNode.size == remote.size &&
+                localNode.remoteModificationTS >= remote.lastModified
+
+//         if (!isUpToDate) {
+//             Log.e(logTag, " - L: ${localNode.etag} - R: ${remote.eTag}")
+//             Log.e(logTag, " - L: ${localNode.size} - R: ${remote.size}")
+//             Log.e(logTag, " - local TS: ${getTsAsString(localNode.remoteModificationTS)}")
+//             Log.e(logTag, " - remote TS: ${getTsAsString(remote.lastModified)}")
+//         }
+
+        return isUpToDate
     }
 
     suspend fun rename(stateID: StateID, newName: String): String? =
@@ -538,28 +622,31 @@ class NodeService(
 
     /* Directly communicate with the distant server */
     @Throws(SDKException::class)
-    suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
-        withContext(ioDispatcher) {
-            try {
-                val nodes = getClient(stateID).search(stateID.path ?: "/", query, 20)
-                    .map {
-                        RTreeNode.fromFileNode(stateID, it)
+    suspend fun remoteQuery(stateID: StateID, query: String) = withContext(ioDispatcher) {
+        try {
+            val remotes = getClient(stateID).search(stateID.path ?: "/", query, 20)
+            var updateCount = 0
+            // We already insert found nodes in the cache to ease following user action
+            for (remote in remotes) {
+                if (!this.isActive) return@withContext
+                // Log.e(logTag, "handling query result for ${node.getStateID()} ")
+                val tmp = RTreeNode.fromFileNode(stateID, remote)
+                getNode(tmp.getStateID())?.let {
+                    if (!isNodeUpToDate(it, remote)) {
+                        upsertNode(tmp)
+                        updateCount++
                     }
-
-                // We already insert found nodes in the cache to ease following user action
-                for (node in nodes) {
-                    // Log.e(logTag, "handling query result for ${node.getStateID()} ")
-                    getNode(node.getStateID())?.let {
-                        // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
-                    } ?: upsertNode(node)
+                    // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
+                } ?: run {
+                    upsertNode(tmp)
+                    updateCount++
                 }
-
-                return@withContext nodes
-            } catch (se: SDKException) {
-                se.printStackTrace()
-                return@withContext listOf()
             }
+            Log.e(logTag, "After remote query, we have updated $updateCount nodes")
+        } catch (se: SDKException) {
+            se.printStackTrace()
         }
+    }
 
     private suspend fun remoteRestore(stateID: StateID): String? = withContext(ioDispatcher) {
         try {

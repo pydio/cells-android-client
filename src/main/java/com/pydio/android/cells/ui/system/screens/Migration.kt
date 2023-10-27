@@ -60,7 +60,13 @@ fun MigrateFromV2(
             .padding(horizontal = dimensionResource(R.dimen.card_padding))
             .wrapContentWidth(Alignment.Start)
     ) {
-        DefaultTitleText("Migrating from v$oldCodeVersion")
+        DefaultTitleText(
+            text = "Migrating from v$oldCodeVersion",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.card_padding))
+                .padding(top = dimensionResource(R.dimen.margin_medium))
+        )
         Surface(
             tonalElevation = dimensionResource(R.dimen.grid_ws_card_elevation),
             modifier = Modifier

@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
  * */
 class SearchVM(
     stateID: StateID,
+//    private val coroutineService: CoroutineService,
     private val transferService: TransferService,
 ) : AbstractCellsVM() {
 
@@ -55,7 +56,7 @@ class SearchVM(
             val (order, query) = currPair
             nodeService.liveSearch(
                 _localStateID.account(),
-                if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the sting is empty
+                if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the string is empty
                 order
             ).map { nodes ->
                 deduplicateNodes(nodeService, nodes)
@@ -70,6 +71,7 @@ class SearchVM(
         viewModelScope.launch {
             _queryString.collect { query ->
                 if (Str.notEmpty(query)) {
+                    Log.d(logTag, "Setting debounced query to: $query")
                     launchProcessing()
                     if (loadingState.value != LoadingState.SERVER_UNREACHABLE) {
                         // skip remote process when the server is unreachable
@@ -88,7 +90,6 @@ class SearchVM(
     }
 
     fun setQuery(query: String) {
-        Log.d(logTag, "Setting query to: $query")
         _userInput.value = query
     }
 

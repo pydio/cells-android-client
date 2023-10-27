@@ -55,6 +55,11 @@ suspend fun deduplicateNodes(
     // Also manage a short cache for the referenced workspace
     val wss: MutableMap<String, String> = mutableMapOf()
     for (node in nodes) {
+        // Dirty tweak to remove nodes from the local store when they have been deleted remotely
+        if (!nodeService.stillExists(node.getStateID())) {
+            continue
+        }
+
         // We cannot rely on the fact that nodes are ordered: distinct bookmarked nodes
         // with same size or name that have "more than one path" (e.g are also in a cell)
         // might get mixed up.

@@ -17,6 +17,8 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import java.io.File
 
+private const val LOG_TAG = "NavigationUtils.kt"
+
 const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
 const val DEFAULT_FILE_PROVIDER_ID =
     BuildConfig.APPLICATION_ID + DEFAULT_FILE_PROVIDER_SUFFIX
@@ -36,29 +38,33 @@ fun showLongMessage(context: Context, message: String) {
  *    and https://developer.android.com/training/basics/intents/sending
  */
 fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
-    val logTag = "externallyView"
+    Log.i(LOG_TAG, "... Launch external view for ${node.getStateID()}")
+
+    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
+
+    // Managing the mime
     var mime = node.mime
+
+    // This workaround addresses a legacy corner case:
+    //  TODO Insure the bug is really fixed and get rid of this.
     if (Str.notEmpty(mime)) {
-        // This workarounds address a corner case when the mime was not correctly
-        //   handled in ancestors layers SDK Java and that should fixed by now:
-        //   we sometimes retrieved a mime type surrounded by unnecessary double quotes that break the view intent
-        //  TODO Insure the bug is really fixed and get rid of this.
+        //   Mime was not correctly handled in old JavaSDK and we sometimes retrieved a mime type
+        //   surrounded by unnecessary double quotes that break the view intent. Should fixed by now.
         if (mime.startsWith("\"") && mime.endsWith("\"")) {
-            Log.e(logTag, "About to manually remove superfluous double quote from [$mime]")
+            Log.e(LOG_TAG, "About to manually remove superfluous double quote from [$mime]")
 
             mime = mime.substring(1)
             mime = mime.substring(0, mime.length - 1)
-            Log.e(logTag, "Manually removed superfluous double quote")
+            Log.e(LOG_TAG, "Manually removed superfluous double quote")
             Thread.dumpStack()
         }
     }
 
-    // First approach fails when name has spaces or quotes...
-    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
+    // Mime is still not set, try with the contentResolver.
     if (SdkNames.NODE_MIME_DEFAULT == mime) {
-        Log.d(logTag, "... Last chance with the content resolver")
         val cr = CellsApp.instance.applicationContext.contentResolver
         mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
+        Log.d(LOG_TAG, "... Retrieved mime: $mime with contentResolver")
     }
 
     val viewIntent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, mime)
@@ -74,9 +80,9 @@ fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
 //        }
         return true
     } catch (e: ActivityNotFoundException) {
+        Log.e(LOG_TAG, "No app found to open ${file.name}")
         showMessage(context, "No app found to open ${file.name}")
     }
-
     return false
 }
 

@@ -25,7 +25,7 @@ open class BrowseHelper(
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
 
-        Log.d(logTag, "... Calling open for $stateID")
+        Log.i(logTag, "... Calling open for $stateID")
         Log.d(logTag, "    Loading state: ${browseVM.loadingState.value}")
         Log.d(logTag, "    Context: $callingContext")
 
@@ -65,7 +65,7 @@ open class BrowseHelper(
                     try {
                         browseVM.viewFile(context, stateID)
                     } catch (e: SDKException) {
-                        if (e.code == ErrorCodes.no_local_file) {
+                        if (e.code == ErrorCodes.no_local_file || e.code == ErrorCodes.outdated_local_file) {
                             if (!browseVM.isServerReachable()) {
                                 browseVM.showError(
                                     ErrorMessage(
@@ -75,7 +75,13 @@ open class BrowseHelper(
                                     )
                                 )
                             } else {
-                                // Download the file now
+                                val msg = if (e.code == ErrorCodes.outdated_local_file) {
+                                    "Remote file has changed must be re-downloaded"
+                                } else {
+                                    "No local file, about to download"
+                                }
+                                Log.w(logTag, msg)
+                                // Open download popup
                                 navController.navigate(
                                     CellsDestinations.Download.createRoute(stateID)
                                 )
