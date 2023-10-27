@@ -153,9 +153,8 @@ fun CellsNavGraph(
                 })
             Download(
                 stateID = lazyStateID(entry),
-                downloadVM = downloadVM,
-                dismiss = { navController.popBackStack() }
-            )
+                downloadVM = downloadVM
+            ) { navController.popBackStack() }
         }
 
         composable(CellsDestinations.Home.route) {

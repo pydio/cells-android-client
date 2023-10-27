@@ -8,11 +8,12 @@ import com.pydio.android.cells.ui.core.composables.dialogs.AskForConfirmation
 import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ConfirmClearCache(
     accountID: StateID,
-    houseKeepingVM: HouseKeepingVM,
+    houseKeepingVM: HouseKeepingVM = koinViewModel(),
     dismiss: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
@@ -28,13 +29,3 @@ fun ConfirmClearCache(
         dismiss = { dismiss(false) },
     )
 }
-//
-//MaterialAlertDialogBuilder(context)
-//.setTitle(R.string.confirm_cache_deletion_title)
-//.setIcon(R.drawable.ic_baseline_delete_24)
-//.setMessage(context.resources.getString(R.string.confirm_cache_deletion_message))
-//.setPositiveButton(R.string.button_confirm) { _, _ ->
-//    doClearCache(context, encodedState, nodeService)
-//}
-//.setNegativeButton(R.string.button_cancel, null)
-//.show()

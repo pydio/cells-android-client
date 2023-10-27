@@ -61,20 +61,21 @@ fun NavHostWithDrawer(
     val systemNavActions = remember(mainNavController) {
         SystemNavigationActions(mainNavController)
     }
-    val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
 
+    val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     // Debug: understand login loop issue
     val lastRoute = rememberSaveable { mutableStateOf("") }
+
     val navigateTo: (String) -> Unit = { route ->
-        Log.e(LOG_TAG, "Got a navigate call to $route")
         if (route == lastRoute.value) {
             Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
         }
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
-            Log.e(LOG_TAG, "Previous Backstack Entry route: $oldRoute")
-            Log.e(LOG_TAG, "Recorded last route: ${lastRoute.value}")
-            lastRoute.value = route
-            mainNavController.navigate(route)
+        Log.i(LOG_TAG, "... Navigate to $route")
+        Log.d(LOG_TAG, "      - Prev. Backstack Entry route: $oldRoute")
+        Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
+        lastRoute.value = route
+        mainNavController.navigate(route)
     }
 
     val customColor = connectionService.customColor.collectAsState(null)

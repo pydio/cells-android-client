@@ -26,13 +26,14 @@ import com.pydio.android.cells.ui.core.composables.PreferenceSectionTitle
 import com.pydio.android.cells.ui.core.composables.SwitchSetting
 import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.system.models.SettingsVM
+import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "Settings"
+private const val LOG_TAG = "Settings.kt"
 
 @Composable
 fun SettingsScreen(
     openDrawer: () -> Unit,
-    settingsVM: SettingsVM,
+    settingsVM: SettingsVM = koinViewModel(),
 ) {
 //    val topAppBarState = rememberTopAppBarState()
     val modifier = Modifier

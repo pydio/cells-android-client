@@ -41,7 +41,6 @@ class SearchHelper(
                     stateID = stateID,
                     callingContext = ListContext.SEARCH.id
                 )
-//                 searchVM.viewFile(context, stateID)
             }
         }
     }

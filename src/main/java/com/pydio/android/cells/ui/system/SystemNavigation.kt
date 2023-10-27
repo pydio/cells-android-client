@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.system
 
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.AppKeys
+import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.cells.transport.StateID
 
 // private val logTag = "SystemNavigation"
@@ -13,13 +14,13 @@ sealed class SystemDestinations(val route: String) {
         protected const val PREFIX = "share"
     }
 
-    object About : SystemDestinations("about")
-    object Settings : SystemDestinations("settings")
-    object Logs : SystemDestinations("logs")
-    object Jobs : SystemDestinations("jobs")
+    data object About : SystemDestinations("about")
+    data object Settings : SystemDestinations("settings")
+    data object Logs : SystemDestinations("logs")
+    data object Jobs : SystemDestinations("jobs")
 
-    object ClearCache : SystemDestinations("$PREFIX/clear-cache/{${AppKeys.STATE_ID}}") {
-        fun createRoute(stateID: StateID) = "${PREFIX}/clear-cache/${stateID.id}"
+    data object ClearCache : SystemDestinations("$PREFIX/clear-cache/{${AppKeys.STATE_ID}}") {
+        fun createRoute(stateID: StateID) = "${PREFIX}/clear-cache/${encodeStateForRoute(stateID)}"
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/clear-cache/") ?: false
     }
