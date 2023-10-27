@@ -1,6 +1,7 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
+import android.util.Log
 import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
@@ -19,10 +20,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -40,6 +45,8 @@ import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
+
+private const val LOG_TAG = "TopBars.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -257,8 +264,11 @@ fun TopBarWithSearch(
     imeAction: ImeAction = ImeAction.Done
 ) {
 
+    val focusRequester = remember { FocusRequester() }
+
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val onDone: () -> Unit = {
@@ -271,24 +281,27 @@ fun TopBarWithSearch(
         onDone = { onDone() }
     )
 
-    val modifier = Modifier.onPreviewKeyEvent {
-        if (it.key == Key.Tab && it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
-            focusManager.moveFocus(FocusDirection.Down)
-            true
-        } else if (it.key == Key.Enter) {
-            onDone()
-            true
-        } else {
-            false
+    val modifier = Modifier
+        .onPreviewKeyEvent {
+            if (it.key == Key.Tab && it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                focusManager.moveFocus(FocusDirection.Down)
+                true
+            } else if (it.key == Key.Enter) {
+                onDone()
+                true
+            } else {
+                false
+            }
         }
-    }
+        .focusRequester(focusRequester)
+
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         title = {
             TextField(
                 value = queryStr,
-                textStyle = MaterialTheme.typography.bodyMedium,
+                // textStyle = MaterialTheme.typography.bodyMedium,
                 // label = { Icon(CellsIcons.Search, "Search") },
                 placeholder = {
                     Text(
@@ -340,6 +353,11 @@ fun TopBarWithSearch(
             .wrapContentHeight(CenterVertically)
             .padding(vertical = dimensionResource(R.dimen.margin)),
     )
+
+    LaunchedEffect(key1 = Unit) {
+        // Log.e(LOG_TAG, "... Showing search app bar")
+        focusRequester.requestFocus()
+    }
 }
 
 /** Helper method to provide a better design depending on the user's device,
