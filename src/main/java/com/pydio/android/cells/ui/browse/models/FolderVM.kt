@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -55,10 +56,12 @@ class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
 
     init {
         viewModelScope.launch {
-            nodeService.getNode(stateID)?.let {
-                _rTreeNode.value = it
-                if (it.isWorkspaceRoot()) {
-                    _rWorkspace.value = nodeService.getWorkspace(stateID)
+            nodeService.getNode(stateID)?.let { node ->
+                if (this.isActive) {
+                    _rTreeNode.value = node
+                    if (node.isWorkspaceRoot()) {
+                        _rWorkspace.value = nodeService.getWorkspace(stateID)
+                    }
                 }
             }
         }
