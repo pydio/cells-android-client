@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui.core.composables
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,12 +27,17 @@ fun DialogTitle(
     modifier: Modifier = Modifier
 ) {
     Row(
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_item_inner_padding)),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
 
         icon?.let {
-            Icon(imageVector = it, contentDescription = text)
+            Icon(
+                imageVector = it,
+                contentDescription = text,
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
         Text(
             text = text,
@@ -40,6 +46,7 @@ fun DialogTitle(
             modifier = modifier
                 .weight(1f)
                 .wrapContentWidth(Alignment.Start)
+//                .padding(horizontal = dimensionResource(R.dimen.margin_xsmall))
                 .alpha(.8f)
         )
     }
@@ -48,10 +55,7 @@ fun DialogTitle(
 @Composable
 fun DefaultTitleText(
     text: String,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = dimensionResource(R.dimen.card_padding))
-        .padding(top = dimensionResource(R.dimen.margin_medium))
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text.uppercase(),
