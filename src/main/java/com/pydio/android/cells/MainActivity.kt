@@ -1,5 +1,6 @@
 package com.pydio.android.cells
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
@@ -13,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +34,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.KoinContext
 
 /**
  * Main entry point for the Cells Application:
@@ -58,90 +61,15 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
-        val launchTaskFor: (String, StateID) -> Unit = { action, _ ->
-            when (action) {
-                AppNames.ACTION_CANCEL -> {
-                    setResult(RESULT_CANCELED)
-                    finishAndRemoveTask()
-                }
-
-                AppNames.ACTION_DONE -> {
-                    setResult(RESULT_OK)
-                    finish()
-                }
-            }
-        }
-
         var appIsReady = false
         setContent {
-            Log.e(logTag, "### onCreate.setContent with intent $intent")
-            val landingVM by viewModel<LandingVM>()
-
-            val ready = remember { mutableStateOf(false) }
-            val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
-            val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
-            val startingState = remember { mutableStateOf<StartingState?>(null) }
-
-            val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
-                intentHasBeenProcessed.value = true
-                startingState.value = null
-            }
-
-            LaunchedEffect(key1 = intent.toString()) {
-                Log.e(logTag, "## Launching main effect for $intent")
-                Log.e(logTag, "\t\tIntent already processed: ${intentHasBeenProcessed.value}")
-
-                // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
-                val noMigrationNeeded = landingVM.noMigrationNeeded()
-                if (!noMigrationNeeded) { // forward to migration page
-                    Log.e(logTag, "## Forwarding to migration page and closing curr activity")
-                    val intent = Intent(mainActivity, MigrateActivity::class.java)
-                    startActivity(intent)
-                    mainActivity.finish()
-                    return@LaunchedEffect
-                }
-
-                try { // We only handle intent when we have no bundle state
-                    savedInstanceState ?: run {
-                        startingState.value = handleIntent(landingVM)
-                    }
-                } catch (e: SDKException) {
-                    Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-                    if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
-                        Log.e(logTag, "Launch activity with un-valid state, ignoring...")
-                        mainActivity.finishAndRemoveTask()
-                        return@LaunchedEffect
-                    } else {
-                        Log.e(logTag, "Could not handle intent, aborting....")
-                        throw e
-                    }
-                }
-
-                Log.i(logTag, "############################")
-                Log.d(logTag, "  onCreate with starting state:")
-                Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
-                Log.d(logTag, "   Route: ${startingState.value?.route}")
-
-                // Rework this: we have the default for the time being.
-                // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
-                // WindowCompat.setDecorFitsSystemWindows(window, false)
-                // WindowCompat.setDecorFitsSystemWindows(window, true)
-                ready.value = true
-                appIsReady = true
-            }
-
-            Box {
-                if (ready.value) {
-                    Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
-                    MainApp(
-                        startingState = startingState.value,
-                        ackStartStateProcessed = ackStartStateProcessed,
-                        launchIntent = mainActivity::launchIntent,
-                        launchTaskFor = launchTaskFor,
-                        widthSizeClass = widthSizeClass,
-                    )
-                } else {
-                    WhiteScreen()
+            KoinContext {
+                MainActivityContent(
+                    activity = mainActivity,
+                    savedInstanceState = savedInstanceState,
+                    launchIntent = mainActivity::launchIntent
+                ) {
+                    appIsReady = true
                 }
             }
         }
@@ -163,6 +91,100 @@ class MainActivity : ComponentActivity() {
                 }
             }
         )
+    }
+
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+    @Composable
+    fun MainActivityContent(
+        activity: Activity,
+        savedInstanceState: Bundle?,
+        launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+        readyCallback: () -> Unit,
+    ) {
+        Log.e(logTag, "### onCreate.setContent with intent $intent")
+        val landingVM by viewModel<LandingVM>()
+
+        val ready = remember { mutableStateOf(false) }
+        val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
+        val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
+        val startingState = remember { mutableStateOf<StartingState?>(null) }
+
+        val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
+            intentHasBeenProcessed.value = true
+            startingState.value = null
+        }
+
+        val launchTaskFor: (String, StateID) -> Unit = { action, _ ->
+            when (action) {
+                AppNames.ACTION_CANCEL -> {
+                    setResult(RESULT_CANCELED)
+                    finishAndRemoveTask()
+                }
+
+                AppNames.ACTION_DONE -> {
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            }
+        }
+
+        LaunchedEffect(key1 = intent.toString()) {
+            Log.e(logTag, "## Launching main effect for $intent")
+            Log.e(logTag, "\t\tIntent already processed: ${intentHasBeenProcessed.value}")
+
+            // First quick check to detect necessary migration. Returns "true" in case of doubt to trigger further checks.
+            val noMigrationNeeded = landingVM.noMigrationNeeded()
+            if (!noMigrationNeeded) { // forward to migration page
+                Log.e(logTag, "## Forwarding to migration page and closing curr activity")
+                val intent = Intent(activity, MigrateActivity::class.java)
+                startActivity(intent)
+                activity.finish()
+                return@LaunchedEffect
+            }
+
+            try { // We only handle intent when we have no bundle state
+                savedInstanceState ?: run {
+                    startingState.value = handleIntent(landingVM)
+                }
+            } catch (e: SDKException) {
+                Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
+                if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
+                    Log.e(logTag, "Launch activity with un-valid state, ignoring...")
+                    activity.finishAndRemoveTask()
+                    return@LaunchedEffect
+                } else {
+                    Log.e(logTag, "Could not handle intent, aborting....")
+                    throw e
+                }
+            }
+
+            Log.i(logTag, "############################")
+            Log.d(logTag, "  onCreate with starting state:")
+            Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
+            Log.d(logTag, "   Route: ${startingState.value?.route}")
+
+            // Rework this: we have the default for the time being.
+            // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
+            // WindowCompat.setDecorFitsSystemWindows(window, false)
+            // WindowCompat.setDecorFitsSystemWindows(window, true)
+            ready.value = true
+            readyCallback()
+        }
+
+        Box {
+            if (ready.value) {
+                Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
+                MainApp(
+                    startingState = startingState.value,
+                    ackStartStateProcessed = ackStartStateProcessed,
+                    launchIntent = launchIntent,
+                    launchTaskFor = launchTaskFor,
+                    widthSizeClass = widthSizeClass,
+                )
+            } else {
+                WhiteScreen()
+            }
+        }
     }
 
     override fun onPause() {
