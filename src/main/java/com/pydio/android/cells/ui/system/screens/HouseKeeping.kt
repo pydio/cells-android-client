@@ -19,7 +19,7 @@ fun ConfirmClearCache(
     val context = LocalContext.current
 
     AskForConfirmation(
-        icon = CellsIcons.EmptyRecycle,
+        // icon = CellsIcons.EmptyRecycle,
         title = stringResource(R.string.confirm_cache_deletion_title),
         desc = stringResource(R.string.confirm_cache_deletion_message),
         confirm = {

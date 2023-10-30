@@ -44,8 +44,8 @@ fun AskForNewName(
     AlertDialog(
         title = {
             DialogTitle(
-                icon = CellsIcons.Edit,
-                text = stringResource(R.string.rename_dialog_title)
+                text = stringResource(R.string.rename_dialog_title),
+                icon = CellsIcons.Edit
             )
         },
         text = { AskForNameContent(srcID.fileName, newName.value, updateValue, doRename) },

@@ -39,6 +39,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
+import com.pydio.android.cells.ui.core.composables.DialogTitle
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForConfirmation
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForFolderName
@@ -124,7 +125,7 @@ fun Download(
     } ?: 0f
 
     AlertDialog(
-        title = { Text(stringResource(R.string.running_download_title)) },
+        title = { DialogTitle(text = stringResource(R.string.running_download_title)) },
         text = {
             Column {
                 Text(text = rTreeNode.value?.name ?: "")
@@ -405,7 +406,7 @@ fun ShowQRCode(
 
     bitmap.value?.let {
         AlertDialog(
-            title = { Text(stringResource(R.string.display_as_qrcode_dialog_title)) },
+            title = { DialogTitle(text = stringResource(R.string.display_as_qrcode_dialog_title)) },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.display_as_qrcode_dialog_desc, stateID.path))

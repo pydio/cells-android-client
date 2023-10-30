@@ -402,7 +402,7 @@ private fun FolderWithDialogs(
         dialog(route(NodeAction.ShowQRCode)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
-                Log.w(LOG_TAG, "... ShowQRCode with no ID ")
+                Log.w(LOG_TAG, "... ShowQRCode with no ID - Abort")
                 return@dialog
             }
             ShowQRCode(
@@ -415,7 +415,7 @@ private fun FolderWithDialogs(
         dialog(route(NodeAction.Delete)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
-                Log.w(LOG_TAG, "... Delete with no ID ")
+                Log.w(LOG_TAG, "... Delete with no ID - Abort")
                 return@dialog
             }
             ConfirmDeletion(

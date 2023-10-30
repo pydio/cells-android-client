@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ui.core.composables.DialogTitle
 import com.pydio.cells.transport.StateID
 
 @Composable
@@ -44,7 +45,9 @@ fun AskForFolderName(
     val doCreate: () -> Unit = { createFolderAt(parStateID, folderName.value) }
 
     AlertDialog(
-        title = { Text(stringResource(R.string.dialog_create_folder_title)) },
+        title = {
+            DialogTitle(stringResource(R.string.dialog_create_folder_title))
+        },
         text = { AskForNameContent(folderName.value, updateValue, doCreate) },
         confirmButton = {
             TextButton(onClick = doCreate) { Text(stringResource(R.string.dialog_create_folder_positive_btn)) }
