@@ -282,14 +282,15 @@ class ConnectionService(
     fun setCurrentStateID(newStateID: StateID) {
         if (newStateID != currStateID) {
             currStateID = newStateID
-            loadingFlag.value = LoadingState.STARTING
             setActive(true)
+            loadingFlag.value = LoadingState.STARTING
             backOffTicker.resetIndex()
             delayJob?.cancel(CellsCancellation())
         }
     }
 
     fun forceRefresh() {
+        setActive(true)
         loadingFlag.value = LoadingState.PROCESSING
         backOffTicker.resetIndex()
         delayJob?.cancel(CellsCancellation())
