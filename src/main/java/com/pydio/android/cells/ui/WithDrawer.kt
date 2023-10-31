@@ -35,6 +35,7 @@ import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -75,7 +76,9 @@ fun NavHostWithDrawer(
         Log.d(LOG_TAG, "      - Prev. Backstack Entry route: $oldRoute")
         Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
         lastRoute.value = route
-        mainNavController.navigate(route)
+        coroutineScope.launch(Main) {
+            mainNavController.navigate(route)
+        }
     }
 
     val customColor = connectionService.customColor.collectAsState(null)
