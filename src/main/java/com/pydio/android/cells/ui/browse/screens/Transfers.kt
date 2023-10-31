@@ -247,6 +247,7 @@ private fun WithBottomSheet(
     ) {
         WithScaffold(
             loadingState = loadingState,
+            isExpandedScreen = isExpandedScreen,
             forceRefresh = forceRefresh,
             currFilter = currFilter,
             isRemoteLegacy = isRemoteLegacy,
@@ -263,7 +264,9 @@ private fun WithBottomSheet(
 @Composable
 private fun WithScaffold(
     loadingState: LoadingState,
-    forceRefresh: () -> Unit, doAction: (String, Long) -> Unit,
+    isExpandedScreen: Boolean,
+    forceRefresh: () -> Unit,
+    doAction: (String, Long) -> Unit,
     currFilter: String,
     isRemoteLegacy: Boolean,
     transfers: List<RTransfer>,
@@ -327,6 +330,7 @@ private fun WithScaffold(
         topBar = {
             TopBarWithMoreMenu(
                 title = stringResource(R.string.transfer_list_title),
+                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
                 isActionMenuShown = isShown,
                 showMenu = showMenu,

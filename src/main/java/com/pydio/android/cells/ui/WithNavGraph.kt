@@ -123,7 +123,8 @@ fun CellsNavGraph(
         )
 
         systemNavGraph(
-            openDrawer,
+            isExpandedScreen = isExpandedScreen,
+            openDrawer = openDrawer,
             launchIntent = launchIntent,
             back = { navController.popBackStack() },
         )

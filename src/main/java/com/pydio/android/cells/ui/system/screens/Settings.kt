@@ -28,14 +28,14 @@ import com.pydio.android.cells.ui.core.nav.DefaultTopAppBar
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import org.koin.androidx.compose.koinViewModel
 
-private const val LOG_TAG = "Settings.kt"
+// private const val LOG_TAG = "Settings.kt"
 
 @Composable
 fun SettingsScreen(
+    isExpandedScreen: Boolean,
     openDrawer: () -> Unit,
     settingsVM: SettingsVM = koinViewModel(),
 ) {
-//    val topAppBarState = rememberTopAppBarState()
     val modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = dimensionResource(id = R.dimen.margin_small))
@@ -48,7 +48,6 @@ fun SettingsScreen(
             DefaultTopAppBar(
                 title = stringResource(R.string.action_settings),
                 openDrawer = openDrawer,
-//                topAppBarState = topAppBarState
             )
         },
     ) { innerPadding ->

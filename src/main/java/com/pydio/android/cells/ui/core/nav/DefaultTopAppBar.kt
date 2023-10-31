@@ -19,6 +19,7 @@ fun DefaultTopAppBar(
     title: String,
     openDrawer: () -> Unit,
     modifier: Modifier = Modifier,
+    isExpandedScreen: Boolean = false,
     showSearch: Boolean = false,
 ) {
     TopAppBar(
@@ -26,12 +27,13 @@ fun DefaultTopAppBar(
             Text(title)
         },
         navigationIcon = {
-            IconButton(onClick = openDrawer) {
-                Icon(
-                    imageVector = CellsIcons.Menu,
-                    contentDescription = stringResource(R.string.open_drawer),
-                    // tint = MaterialTheme.colorScheme.primary
-                )
+            if (!isExpandedScreen){
+                IconButton(onClick = openDrawer) {
+                    Icon(
+                        imageVector = CellsIcons.Menu,
+                        contentDescription = stringResource(R.string.open_drawer),
+                    )
+                }
             }
         },
         actions = {

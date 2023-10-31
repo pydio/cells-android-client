@@ -31,6 +31,7 @@ import com.pydio.cells.transport.ClientData
 
 @Composable
 fun AboutScreen(
+    isExpandedScreen: Boolean,
     openDrawer: () -> Unit,
     launchIntent: (Intent, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -43,6 +44,7 @@ fun AboutScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.about_version_title),
+                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
             )
         },
@@ -191,7 +193,20 @@ private fun TroubleShootingCard(
 @Composable
 private fun AboutScreenPreview() {
     UseCellsTheme {
-        AboutScreen({}, { _, _, _ -> })
+        AboutScreen(false, {}, { _, _, _ -> })
+    }
+}
+
+@Preview(name = "LightModeExpended")
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    name = "DarkModeExpended"
+)
+@Composable
+private fun AboutExtendedScreenPreview() {
+    UseCellsTheme {
+        AboutScreen(true, {}, { _, _, _ -> })
     }
 }
 

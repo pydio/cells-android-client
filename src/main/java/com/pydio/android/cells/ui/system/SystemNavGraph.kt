@@ -5,18 +5,17 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import com.pydio.android.cells.ui.core.lazyStateID
-import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.android.cells.ui.system.screens.AboutScreen
 import com.pydio.android.cells.ui.system.screens.ConfirmClearCache
 import com.pydio.android.cells.ui.system.screens.JobScreen
 import com.pydio.android.cells.ui.system.screens.LogScreen
 import com.pydio.android.cells.ui.system.screens.SettingsScreen
-import org.koin.androidx.compose.koinViewModel
 
 /**
  * App wide system and rather technical pages
  */
 fun NavGraphBuilder.systemNavGraph(
+    isExpandedScreen: Boolean,
     openDrawer: () -> Unit = {},
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit,
@@ -26,6 +25,7 @@ fun NavGraphBuilder.systemNavGraph(
 
     composable(SystemDestinations.About.route) {
         AboutScreen(
+            isExpandedScreen = isExpandedScreen,
             openDrawer = openDrawer,
             launchIntent = launchIntent,
         )
@@ -48,6 +48,9 @@ fun NavGraphBuilder.systemNavGraph(
     }
 
     composable(SystemDestinations.Settings.route) {
-        SettingsScreen(openDrawer = openDrawer)
+        SettingsScreen(
+            isExpandedScreen = isExpandedScreen,
+            openDrawer = openDrawer,
+        )
     }
 }

@@ -316,6 +316,7 @@ private fun BookmarkScaffold(
             } else {
                 TopBarWithMoreMenu(
                     title = title,
+                    isExpandedScreen = isExpandedScreen,
                     openDrawer = openDrawer,
                     isActionMenuShown = isShown,
                     showMenu = showMenu,
@@ -324,7 +325,6 @@ private fun BookmarkScaffold(
             }
         },
     ) { padding ->
-
         CellsModalBottomSheetLayout(
             isExpandedScreen = isExpandedScreen,
             sheetContent = {

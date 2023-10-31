@@ -208,7 +208,7 @@ fun OfflineRoots(
     }
 
     WithScaffold(
-        isExpandedScreen=     isExpandedScreen,
+        isExpandedScreen = isExpandedScreen,
         loadingState = loadingState.value,
         listLayout = listLayout,
         syncJob = syncJob.value,
@@ -307,6 +307,7 @@ private fun WithScaffold(
         topBar = {
             TopBarWithMoreMenu(
                 title = title,
+                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
                 isActionMenuShown = isShown,
                 showMenu = showMenu,
