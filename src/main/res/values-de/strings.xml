@@ -90,6 +90,7 @@
     <string name="account_list_title">Meine Konten</string>
     <string name="account_list_desc">Bereits registrierte Server verwalten</string>
     <string name="account_list_none">Noch kein Konto wurde konfiguriert…</string>
+    <string name="account_confirm_deletion_desc">Sind Sie sicher, dass Sie dieses Konto %s vergessen möchten?</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Wählen Sie einen Workspace zum Durchsuchen</string>
     <string name="browse_list_desc">Durchsuchen Sie Ihre Remote-Server</string>

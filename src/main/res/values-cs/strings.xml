@@ -90,6 +90,7 @@
     <string name="account_list_title">Moje účty</string>
     <string name="account_list_desc">Spravovat už zaregistrované servery</string>
     <string name="account_list_none">Zatím nebyl nastaven žádný účet…</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Vyberte pracovní prostor, který procházet</string>
     <string name="browse_list_desc">Procházet vámi využívané servery</string>

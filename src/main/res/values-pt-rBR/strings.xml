@@ -90,6 +90,7 @@
     <string name="account_list_title">Minhas Contas</string>
     <string name="account_list_desc">Gerenciar servidores remotos já registrados</string>
     <string name="account_list_none">Nenhuma conta foi configurada ainda…</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Escolha um espaço de trabalho para navegar</string>
     <string name="browse_list_desc">Navegar nos seus servidores remotos</string>
