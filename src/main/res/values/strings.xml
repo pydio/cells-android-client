@@ -108,6 +108,7 @@
     <string name="account_list_none">No account has been configured yet…</string>
     <string name="account_details_title" translatable="false">Account detail title</string>
     <string name="account_details_desc" translatable="false">Account details description</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
 
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choose a workspace to browse</string>
