@@ -154,7 +154,7 @@ class ConnectionService(
                     relaunchMonitoring()
                 }
             } ?: run {
-                Log.e(logTag, " **No** Session view...")
+                Log.w(logTag, " **No** active session - new status: SERVER_UNREACHABLE")
                 newStatus = SessionStatus.SERVER_UNREACHABLE
             }
             newStatus
