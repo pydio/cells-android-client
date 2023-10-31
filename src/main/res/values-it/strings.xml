@@ -90,6 +90,7 @@
     <string name="account_list_title">My Accounts</string>
     <string name="account_list_desc">Manage already registered remote servers</string>
     <string name="account_list_none">No account has been configured yet…</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choose a workspace to browse</string>
     <string name="browse_list_desc">Browse your remote servers</string>
