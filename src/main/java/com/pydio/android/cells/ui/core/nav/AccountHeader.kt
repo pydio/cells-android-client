@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,11 +62,12 @@ fun AccountHeader(
             onClick = { openAccounts() },
             modifier = Modifier
                 .size(dimensionResource(R.dimen.default_button_size))
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(15))
+                .clickable { openAccounts() }
                 .background(
                     SolidColor(MaterialTheme.colorScheme.secondaryContainer),
-                    CircleShape,
-                    0.8f
+                    RoundedCornerShape(15),
+                    1f
                 )
         ) {
             Icon(

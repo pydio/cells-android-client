@@ -81,10 +81,7 @@ fun AppDrawer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(defaultPadding)
-                    .padding(
-                        bottom = 12.dp,
-                        top = 20.dp,
-                    )
+                    .padding(vertical = dimensionResource(id = R.dimen.margin_medium))
             )
 
             // Offline, Bookmark, Transfers and Workspace roots accesses:
@@ -185,7 +182,6 @@ fun AppDrawer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyNavigationDrawerItem(
     label: String,
@@ -199,6 +195,6 @@ fun MyNavigationDrawerItem(
         selected = selected,
         onClick = onClick,
         modifier = Modifier.height(dimensionResource(R.dimen.menu_item_height)),
-        shape = ShapeDefaults.Small,
+        shape = ShapeDefaults.Medium,
     )
 }
