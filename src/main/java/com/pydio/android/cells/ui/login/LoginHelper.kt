@@ -33,12 +33,6 @@ class LoginHelper(
         loginVM.resetMessages()
         navController.popBackStack()
 
-//        val bq = navController.backQueue
-//        var i = 0
-//        navController.backQueue.forEach {
-//            val stateID = lazyStateID(it)
-//            Log.e(logTag, "#${i++} - ${it.destination.route} - $stateID ")
-//        }
 //        var isFirstLoginPage = true
 //        if (bq.size > 1) {
 //            val penEntry = bq[bq.size - 2]
@@ -81,11 +75,6 @@ class LoginHelper(
         skipVerify: Boolean = false,
         nextAction: String = AuthService.NEXT_ACTION_BROWSE
     ) {
-
-        // TODO add here a check to insure we call the "launch OAuth" action only once
-        //     to avoid strange behaviour where the browser is called in loop
-        //     (typically when there is no internet)
-
         val intent = loginVM.getSessionView(stateID)?.let { sessionView ->
             // Re-authenticating an existing account
             val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
@@ -168,43 +157,10 @@ class LoginHelper(
     }
 
     private fun afterAuth(stateID: StateID, nextAction: String?) {
-        Log.d(logTag, "#########################")
-        Log.d(logTag, "#########################")
-        Log.d(logTag, "#########################")
-        Log.i(logTag, "## After OAuth: $stateID, $nextAction")
-
+        Log.i(logTag, "... After OAuth: $stateID, next action: $nextAction")
         val route = BrowseDestinations.Open.createRoute(stateID)
-
         ackStartStateProcessed(null, stateID)
-
-        // FIXME broken by compose 1.5
-
         navigateTo(route)
-
         loginVM.flush()
-//        // TODO there must be a better way to get rid of login pages
-//        var targetEntry: NavBackStackEntry? = null
-//        var i = 1
-//        navController.backQueue.asReversed().forEach {
-//            val currID = lazyStateID(it)
-//            Log.e(logTag, "#${i++} - ${it.destination.route} - $currID ")
-//
-//            if (!LoginDestinations.isCurrent(it.destination.route)) {
-//                targetEntry = it
-//                return@forEach
-//            }
-//        }
-//        targetEntry?.destination?.route?.let {
-//            Log.i(logTag, "##### About to nav back to $route ")
-//            navController.navigate(route) {
-//                popUpTo(it) {
-//                    inclusive = false
-//                }
-//            }
-//        } ?: run {
-//            Log.e(logTag, "##### About to forward nav to $route ")
-//            navigateTo(route)
-//        }
-//        loginVM.flush()
     }
 }

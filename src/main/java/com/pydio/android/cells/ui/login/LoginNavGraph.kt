@@ -31,7 +31,7 @@ fun NavGraphBuilder.loginNavGraph(
     composable(LoginDestinations.Done.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## 1st compo login/starting/$stateID")
+            Log.i(logTag, "## 1st compo login/done/$stateID")
         }
         StartingLoginProcess()
     }

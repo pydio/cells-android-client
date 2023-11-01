@@ -57,7 +57,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val logTag = "TransferScreen"
+private const val LOG_TAG = "Transfers.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -364,7 +364,7 @@ private fun TransferList(
 ) {
 
     val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.i(logTag, "Force refresh launched")
+        Log.i(LOG_TAG, "Force refresh launched")
         forceRefresh()
     })
 
