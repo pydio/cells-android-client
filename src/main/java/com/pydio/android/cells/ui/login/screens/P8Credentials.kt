@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 fun P8Credentials(
     stateID: StateID,
     skipVerify: Boolean,
+    loginContext: String,
     helper: LoginHelper,
     loginVM: LoginVM,
 ) {
@@ -67,7 +68,14 @@ fun P8Credentials(
         goBack = { scope.launch { helper.back() } },
         launchP8Auth = {
             scope.launch {
-                helper.launchP8Auth(stateID.serverUrl, skipVerify, username.value, pwd.value, null)
+                helper.launchP8Auth(
+                    stateID.serverUrl,
+                    skipVerify,
+                    loginContext,
+                    username.value,
+                    pwd.value,
+                    null
+                )
             }
         },
     )

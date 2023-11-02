@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
@@ -39,8 +41,8 @@ import com.pydio.cells.transport.StateID
 @Composable
 fun TargetAccountList(
     accounts: List<RSessionView>,
-    openAccount: (stateID: StateID) -> Unit,
-    doLogin: (stateID: StateID) -> Unit,
+    openAccount: (StateID) -> Unit,
+    doLogin: (StateID, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -67,7 +69,7 @@ fun TargetAccountList(
                 url = account.url,
                 authStatus = account.authStatus,
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                doLogin = doLogin,
+                doLogin = { doLogin(account.getStateID(), account.skipVerify(), account.isLegacy) },
                 modifier = currModifier
             )
         }
@@ -81,7 +83,7 @@ private fun TargetAccountListItem(
     url: String,
     authStatus: String,
     isForeground: Boolean,
-    doLogin: (stateID: StateID) -> Unit,
+    doLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -121,31 +123,15 @@ private fun TargetAccountListItem(
                 )
             }
 
-            // TODO this does not work yet when remote is Cells (OAuth flow)
-//            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
-//
-//                Surface(
-//                    modifier = Modifier
-//                        .size(40.dp)
-//                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-//                        .clickable(onClick = {
-//                            doLogin(StateID(login, url))
-//                        })
-//                        .background(MaterialTheme.colorScheme.error)
-//                ) {
-//                    Image(
-//                        painter = painterResource(R.drawable.ic_baseline_login_24),
-//                        contentDescription = null,
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .size(48.dp)
-//                            .size(dimensionResource(R.dimen.list_thumb_size))
-//                            //.clip(CircleShape)
-//                            .wrapContentSize(Alignment.Center)
-//                    )
-//                }
-//            }
-
+            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                IconButton(onClick = doLogin) {
+                    Icon(
+                        imageVector = CellsIcons.Login,
+                        contentDescription = stringResource(R.string.action_re_log),
+                        modifier = Modifier.size(dimensionResource(R.dimen.list_trailing_icon_size))
+                    )
+                }
+            }
         }
     }
 }

@@ -39,6 +39,7 @@ import com.pydio.cells.utils.Str
 fun LaunchAuthProcessing(
     stateID: StateID,
     skipVerify: Boolean,
+    loginContext: String,
     loginVM: LoginVM,
     helper: LoginHelper,
 ) {
@@ -51,7 +52,7 @@ fun LaunchAuthProcessing(
 
     LaunchedEffect(key1 = stateID) {
         Log.i(logTag, "... Launch auth process for $stateID")
-        helper.launchAuth(context, stateID, skipVerify)
+        helper.launchAuth(context, stateID, skipVerify, loginContext)
     }
 
     AuthScreen(

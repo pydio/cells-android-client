@@ -24,7 +24,6 @@
 
     <!-- Navigation labels -->
     <string name="action_home">Home</string>
-    <!--    <string name="action_open_app">Open App</string>-->
     <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Choose an account</string>
     <string name="action_browse">Browse</string>
@@ -38,6 +37,7 @@
     <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
     <string name="action_clear_cache">Clear Cache</string>
+    <string name="action_re_log">Re-log to server</string>
 
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Open menu drawer</string>

@@ -10,6 +10,7 @@ import androidx.navigation.NavBackStackEntry
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.AuthService
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import java.net.URLDecoder
@@ -114,6 +115,15 @@ fun lazySkipVerify(
     val skipStr = navBackStackEntry?.arguments?.getString(key)
     return skipStr?.let { it == "true" } ?: false
 }
+
+fun lazyLoginContext(
+    navBackStackEntry: NavBackStackEntry?,
+    key: String = AppKeys.LOGIN_CONTEXT,
+): String {
+    val skipStr = navBackStackEntry?.arguments?.getString(key)
+    return skipStr ?: AuthService.LOGIN_CONTEXT_CREATE
+}
+
 
 fun lazyUID(
     navBackStackEntry: NavBackStackEntry?,

@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.lazyUID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -31,23 +30,7 @@ fun NavGraphBuilder.shareNavGraph(
         LaunchedEffect(key1 = Unit) {
             Log.i(logTag, "## First composition for: ${ShareDestination.ChooseAccount.route}")
         }
-        val accountListVM: AccountListVM = koinViewModel()
-        SelectTargetAccount(
-            accountListVM = accountListVM,
-            openAccount = helper::open,
-            cancel = {
-                helper.launchTaskFor(
-                    AppNames.ACTION_CANCEL,
-                    StateID.NONE
-                )
-            },
-            login = { helper.launchTaskFor(AppNames.ACTION_LOGIN, it) },
-        )
-
-        DisposableEffect(key1 = true) {
-            accountListVM.watch()
-            onDispose { accountListVM.pause() }
-        }
+        SelectTargetAccount(helper)
     }
 
     composable(ShareDestination.OpenFolder.route) { nbsEntry ->

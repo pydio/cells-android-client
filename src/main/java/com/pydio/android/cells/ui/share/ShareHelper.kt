@@ -3,20 +3,41 @@ package com.pydio.android.cells.ui.share
 import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.StartingState
+import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 
 class ShareHelper(
-    // private val
-    navController: NavHostController,
+    private val navController: NavHostController,
     val launchTaskFor: (String, StateID) -> Unit,
     private val startingState: StartingState?,
     private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
     private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
+
+    fun login(stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) {
+        val route = if (isLegacy) {
+            Log.i(logTag, "... Launching re-log on P8 for $stateID")
+            LoginDestinations.P8Credentials.createRoute(
+                stateID,
+                skipVerify,
+                AuthService.LOGIN_CONTEXT_SHARE,
+            )
+        } else {
+            Log.i(logTag, "... Launching re-log for ${stateID.account()} from $stateID")
+            LoginDestinations.LaunchAuthProcessing.createRoute(
+                stateID.account(),
+                skipVerify,
+                AuthService.LOGIN_CONTEXT_SHARE,
+            )
+        }
+        navController.navigate(route)
+    }
+
 
     /* Define callbacks */
     fun open(stateID: StateID) {

@@ -97,11 +97,7 @@ class LoginVM(
         }
 
         updateMessage("Updating account info...")
-        // Log.d(logTag, "Configuring account ${StateID.fromId(res.first)} before ${res.second}")
-        // FIXME handle "next" page
-        res.second?.let {
-            Log.e(logTag, "Unhandled next action: $it")
-        }
+
         val res2 = withContext(Dispatchers.IO) {
             val tmpResult = accountService.refreshWorkspaceList(res.first)
             delay(smoothActionDelay)
@@ -132,9 +128,9 @@ class LoginVM(
         //   - distant server has a valid TLS configuration
         val pingResult = doPing(url, skipVerify)
         val serverURL = pingResult.first ?: run {
-            if (skipVerify) { // ping fails also with skip verify.
-                // TODO handle the case
-            }
+//            if (skipVerify) { // ping fails also with skip verify.
+//                // TODO handle the case
+//            }
             // We assume we always have the skip verify route here
             return pingResult.second
         }
@@ -153,13 +149,21 @@ class LoginVM(
         // 3) Specific login process depending on the remote server type (Cells or P8).
         switchLoading(false)
         return if (server.isLegacy) {
-            LoginDestinations.P8Credentials.createRoute(serverID, skipVerify)
+            LoginDestinations.P8Credentials.createRoute(
+                serverID,
+                skipVerify,
+                AuthService.LOGIN_CONTEXT_CREATE
+            )
         } else {
 //            viewModelScope.launch {
 //                triggerOAuthProcess(serverURL)
 //            }
             // FIXME this is not satisfying: error won't be processed correctly
-            return LoginDestinations.LaunchAuthProcessing.createRoute(serverID, skipVerify)
+            return LoginDestinations.LaunchAuthProcessing.createRoute(
+                serverID,
+                skipVerify,
+                AuthService.LOGIN_CONTEXT_CREATE
+            )
         }
     }
 
@@ -252,14 +256,14 @@ class LoginVM(
         return accountID
     }
 
-    suspend fun newOAuthIntent(serverURL: ServerURL, nextAction: String): Intent? =
+    suspend fun newOAuthIntent(serverURL: ServerURL, loginContext: String): Intent? =
         withContext(Dispatchers.Main) {
             updateMessage("Launching OAuth credential flow")
             val uri = try {
                 authService.generateOAuthFlowUri(
                     sessionFactory,
                     serverURL,
-                    nextAction,
+                    loginContext,
                 )
 
             } catch (e: SDKException) {

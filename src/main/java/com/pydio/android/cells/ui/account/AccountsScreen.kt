@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.dialogs.AskForConfirmation
@@ -68,9 +69,17 @@ fun AccountsScreen(
                 },
                 login = { stateID, skipVerify, isLegacy ->
                     val route = if (isLegacy) {
-                        LoginDestinations.P8Credentials.createRoute(stateID, skipVerify)
+                        LoginDestinations.P8Credentials.createRoute(
+                            stateID,
+                            skipVerify,
+                            AuthService.LOGIN_CONTEXT_ACCOUNTS
+                        )
                     } else {
-                        LoginDestinations.LaunchAuthProcessing.createRoute(stateID, skipVerify)
+                        LoginDestinations.LaunchAuthProcessing.createRoute(
+                            stateID,
+                            skipVerify,
+                            AuthService.LOGIN_CONTEXT_ACCOUNTS
+                        )
                     }
                     navigateTo(route)
                 },

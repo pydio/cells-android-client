@@ -9,20 +9,47 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.account.AccountListVM
+import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.composables.TargetAccountList
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun SelectTargetAccount(
+    helper: ShareHelper,
+    accountListVM: AccountListVM = koinViewModel()
+) {
+    val scope = rememberCoroutineScope()
+
+    SelectTargetAccount(
+        accountListVM = accountListVM,
+        openAccount = { scope.launch { helper.open(it) } },
+        cancel = { scope.launch { helper.launchTaskFor(AppNames.ACTION_CANCEL, StateID.NONE) } },
+        login = { s, skip, legacy -> scope.launch { helper.login(s, skip, legacy) } },
+    )
+
+    DisposableEffect(key1 = true) {
+        accountListVM.watch()
+        onDispose { accountListVM.pause() }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectTargetAccount(
+private fun SelectTargetAccount(
     accountListVM: AccountListVM,
-    openAccount: (stateID: StateID) -> Unit,
+    openAccount: (StateID) -> Unit,
     cancel: () -> Unit,
-    login: (stateID: StateID) -> Unit,
+    login: (StateID, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 

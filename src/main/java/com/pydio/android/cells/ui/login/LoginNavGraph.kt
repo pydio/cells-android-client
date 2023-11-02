@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.pydio.android.cells.ui.core.lazyLoginContext
 import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.LoginVM
@@ -55,12 +56,14 @@ fun NavGraphBuilder.loginNavGraph(
     composable(LoginDestinations.P8Credentials.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
+        val lContext = lazyLoginContext(nbsEntry)
         LaunchedEffect(key1 = stateID, key2 = skipVerify) {
-            Log.i(logTag, "## 1st compo login/p8-creds/$stateID/$skipVerify")
+            Log.i(logTag, "## 1st compo login/p8-creds/$stateID/$skipVerify/$lContext")
         }
         P8Credentials(
             stateID = stateID,
             skipVerify = skipVerify,
+            loginContext = lContext,
             helper = helper,
             loginVM = loginVM,
         )
@@ -69,12 +72,14 @@ fun NavGraphBuilder.loginNavGraph(
     composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
+        val lContext = lazyLoginContext(nbsEntry)
         LaunchedEffect(key1 = stateID, key2 = skipVerify) {
-            Log.i(logTag, "## 1st compo login/launch-auth/$stateID/$skipVerify")
+            Log.i(logTag, "## 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
         }
         LaunchAuthProcessing(
             stateID = stateID,
             skipVerify = skipVerify,
+            loginContext = lContext,
             loginVM = loginVM,
             helper = helper,
         )

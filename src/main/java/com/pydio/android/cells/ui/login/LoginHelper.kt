@@ -57,15 +57,14 @@ class LoginHelper(
     suspend fun launchP8Auth(
         url: String,
         skipVerify: Boolean,
+        loginContext: String,
         login: String,
         pwd: String,
         captcha: String?
     ) {
         val stateID = loginVM.logToP8(url, skipVerify, login, pwd, captcha)
-        if (stateID != null) {
-            // Login has been successful,
-            // We clean after ourselves and leave the login subgraph
-            afterAuth(stateID, AuthService.NEXT_ACTION_BROWSE)
+        if (stateID != null) { // Login has been successful, we clean after ourselves and leave the login subgraph
+            afterAuth(stateID, loginContext)
         } // else do nothing: error message has already been displayed and we stay on the page
     }
 
@@ -73,16 +72,16 @@ class LoginHelper(
         context: Context,
         stateID: StateID,
         skipVerify: Boolean = false,
-        nextAction: String = AuthService.NEXT_ACTION_BROWSE
+        loginContext: String = AuthService.LOGIN_CONTEXT_CREATE
     ) {
         val intent = loginVM.getSessionView(stateID)?.let { sessionView ->
             // Re-authenticating an existing account
             val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
-            loginVM.newOAuthIntent(url, nextAction)
+            loginVM.newOAuthIntent(url, loginContext)
         } ?: run {
             Log.i(logTag, "Launching OAuth Process for new account $stateID")
             val url = ServerURLImpl.fromAddress(stateID.serverUrl, skipVerify)
-            loginVM.newOAuthIntent(url, nextAction)
+            loginVM.newOAuthIntent(url, loginContext)
         }
         intent?.let {
             withContext(Dispatchers.Main) {
@@ -100,16 +99,16 @@ class LoginHelper(
             return
         }
 
-        Log.i(logTag, "## In processAuth for: $stateID")
-        Log.d(logTag, "##    route: ${startingState.route}")
-        Log.d(logTag, "##    OAuth state: ${startingState.state}")
+        Log.i(logTag, "... In processAuth for: $stateID")
+        Log.d(logTag, "     route: ${startingState.route}")
+        Log.d(logTag, "     OAuth state: ${startingState.state}")
 
         loginVM.handleOAuthResponse(
             // We assume nullity has already been checked
             state = startingState.state!!,
             code = startingState.code!!,
         )?.let {
-            Log.i(logTag, "OAuth OK - ${it.first}")
+            Log.i(logTag, "    -> OAuth OK, login context: ${it.second}")
             afterAuth(it.first, it.second)
         } ?: run {
             // TODO better error handling
@@ -118,49 +117,32 @@ class LoginHelper(
                 StateID.NONE
             )
         }
-
-//        when {
-//            startingState != null && LoginDestinations.ProcessAuth.isCurrent(startingState.route)
-//            -> { // OAuth flow Callback
-//                Log.d(logTag, "Process OAuth response for $stateID and ${startingState.state}")
-//            }
-//
-//            stateID != StateID.NONE
-//            -> { // The user wants to login again in an expired already registered account
-//                // FIXME implement next
-//                val nextAction = AuthService.NEXT_ACTION_BROWSE
-//                loginVM.getSessionView(stateID)?.let { sessionView ->
-//                    val url = ServerURLImpl.fromAddress(sessionView.url, sessionView.skipVerify())
-//                    val intent = loginVM.newOAuthIntent(url, nextAction)
-//                    intent?.let {
-//                        withContext(Dispatchers.Main) {
-//                            ContextCompat.startActivity(context, intent, null)
-//                        }
-//                    }
-//                } ?: run {
-//                    Log.e(logTag, "Launching OAuth Process with no session view for $stateID")
-//                    val url = ServerURLImpl.fromAddress(stateID.serverUrl, skipVerify)
-//                    val intent = loginVM.newOAuthIntent(url, nextAction)
-//                    intent?.let {
-//                        withContext(Dispatchers.Main) {
-//                            ContextCompat.startActivity(context, intent, null)
-//                        }
-//                    }
-//                }
-//            }
-//
-//            else -> {
-//                Log.e(logTag, "Unexpected state: $stateID, route: ${startingState?.route}")
-//                Thread.dumpStack()
-//            }
-//        }
     }
 
-    private fun afterAuth(stateID: StateID, nextAction: String?) {
-        Log.i(logTag, "... After OAuth: $stateID, next action: $nextAction")
-        val route = BrowseDestinations.Open.createRoute(stateID)
+
+    private fun afterAuth(stateID: StateID, loginContext: String?) {
         ackStartStateProcessed(null, stateID)
-        navigateTo(route)
+
+        Log.e(logTag, "... After OAuth: $stateID, context: $loginContext")
+        var stillLogin = true
+        while (stillLogin) {
+            val tmp = navController.currentBackStackEntry
+            Log.e(logTag, " - curr dest: ${tmp?.destination?.route}")
+            tmp?.let {
+                if (LoginDestinations.isCurrent(it.destination.route)) {
+                    navController.popBackStack()
+                } else {
+                    stillLogin = false
+                }
+            } ?: run { stillLogin = false }
+        }
+
+        if (loginContext == AuthService.LOGIN_CONTEXT_CREATE) {
+            // New account -> we open it
+            navigateTo(BrowseDestinations.Open.createRoute(stateID))
+        } else {
+            // We only get rid of login pages.
+        }
         loginVM.flush()
     }
 }

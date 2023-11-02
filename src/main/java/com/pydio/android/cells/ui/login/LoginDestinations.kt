@@ -39,10 +39,13 @@ sealed class LoginDestinations(val route: String) {
     }
 
     data object P8Credentials :
-        LoginDestinations("${PREFIX}/p8-credentials/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
+        LoginDestinations(
+            "${PREFIX}/p8-credentials/" +
+                    "{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}/{${AppKeys.LOGIN_CONTEXT}}"
+        ) {
 
-        fun createRoute(stateID: StateID, skipVerify: Boolean) =
-            "${PREFIX}/p8-credentials/${encodeStateForRoute(stateID)}/$skipVerify"
+        fun createRoute(stateID: StateID, skipVerify: Boolean, loginContext: String) =
+            "${PREFIX}/p8-credentials/${encodeStateForRoute(stateID)}/$skipVerify/$loginContext"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/p8-credentials/") ?: false
@@ -50,10 +53,13 @@ sealed class LoginDestinations(val route: String) {
 
 
     data object LaunchAuthProcessing :
-        LoginDestinations("${PREFIX}/launch-auth-processing/{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}") {
+        LoginDestinations(
+            "${PREFIX}/launch-auth-processing/" +
+                    "{${AppKeys.STATE_ID}}/{${AppKeys.SKIP_VERIFY}}/{${AppKeys.LOGIN_CONTEXT}}"
+        ) {
 
-        fun createRoute(stateID: StateID, skipVerify: Boolean) =
-            "${PREFIX}/launch-auth-processing/${encodeStateForRoute(stateID)}/$skipVerify"
+        fun createRoute(stateID: StateID, skipVerify: Boolean, loginContext: String) =
+            "${PREFIX}/launch-auth-processing/${encodeStateForRoute(stateID)}/$skipVerify/$loginContext"
 
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/launch-auth-processing/") ?: false

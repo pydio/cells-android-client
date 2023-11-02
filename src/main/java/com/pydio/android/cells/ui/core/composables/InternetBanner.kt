@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.SessionStatus
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.ui.login.LoginDestinations
@@ -129,13 +130,15 @@ private fun InternetBanner(
                                 Log.i(LOG_TAG, "... Launching re-log on P8 for ${it.accountID}")
                                 LoginDestinations.P8Credentials.createRoute(
                                     it.getStateID(),
-                                    it.skipVerify()
+                                    it.skipVerify(),
+                                    AuthService.LOGIN_CONTEXT_BROWSE
                                 )
                             } else {
                                 Log.i(LOG_TAG, "... Launching re-log on Cells for ${it.accountID} from ${it.getStateID()}")
                                 LoginDestinations.LaunchAuthProcessing.createRoute(
                                     it.getStateID(),
-                                    it.skipVerify()
+                                    it.skipVerify(),
+                                    AuthService.LOGIN_CONTEXT_BROWSE
                                 )
                             }
                             navigateTo(route)
