@@ -90,6 +90,7 @@
     <string name="account_list_title">Mes comptes</string>
     <string name="account_list_desc">Gérer les serveurs distants déjà enregistrés</string>
     <string name="account_list_none">Aucun compte n\'a encore été configuré…</string>
+    <string name="account_confirm_deletion_desc">Voulez-vous vraiment supprimer ce compte %s ?</string>
     <!-- Browse management -->
     <string name="ws_list_subtitle">Choisir un workspace à parcourir</string>
     <string name="browse_list_desc">Parcourir les serveurs distants</string>
