@@ -21,8 +21,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Main ViewModel when browsing a Cells or P8 server. It holds the current parent folder state ID
- * and a Flow list of its children.
+ * Main ViewModel when browsing a Cells or P8 server.
+ * It holds the StateID of the current **parent** folder and a Flow list of its children.
  */
 class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
 
@@ -34,7 +34,7 @@ class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
     private val _rWorkspace = MutableStateFlow<RWorkspace?>(null)
     val workspace: StateFlow<RWorkspace?> = _rWorkspace.asStateFlow()
 
-    // Observe current folder children
+    // Observe parent folder's children
     @OptIn(ExperimentalCoroutinesApi::class)
     val tnChildren: Flow<List<RTreeNode>> = defaultOrderPair.flatMapLatest { currPair ->
         try {

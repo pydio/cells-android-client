@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import kotlin.time.measureTimedValue
 
 class OfflineService(
+    private val context: Context,
     private val coroutineService: CoroutineService,
     private val credentialService: AppCredentialService,
     private val accountService: AccountService,
@@ -184,7 +185,7 @@ class OfflineService(
         )
     }
 
-    suspend fun performAccountSync(accountID: StateID, jobID: Long, context: Context) =
+    suspend fun performAccountSync(accountID: StateID, jobID: Long) =
         withContext(ioDispatcher) {
             val job = jobService.get(jobID) ?: let {
                 val msg = "No job found for id $jobID, aborting launch..."

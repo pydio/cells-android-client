@@ -2,7 +2,6 @@ package com.pydio.android.cells.services
 
 import android.content.Context
 import android.util.Log
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.accounts.RSession
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -48,7 +47,7 @@ class TreeNodeRepository(
         val rSession = sessions[stateID.accountId]
             ?: throw IllegalStateException("No session found for $stateID, cannot retrieve dbName")
         return TreeNodeDB.getDatabase(
-            CellsApp.instance.applicationContext,
+            applicationContext,
             stateID.accountId,
             rSession.dbName,
         )

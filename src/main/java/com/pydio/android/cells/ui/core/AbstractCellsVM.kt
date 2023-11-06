@@ -39,6 +39,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
     protected val nodeService: NodeService by inject()
+    protected val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
@@ -129,7 +130,9 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         } else if (!isUpToDate) {
             throw SDKException(ErrorCodes.outdated_local_file)
         } else {
-            externallyView(context, lf, node)
+            // FIXME
+            externallyView(applicationContext, lf, node)
+            // externallyView(context, lf, node)
         }
     }
 

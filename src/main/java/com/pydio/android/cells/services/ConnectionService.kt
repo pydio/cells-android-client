@@ -16,6 +16,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -197,8 +199,8 @@ class ConnectionService(
             currPollJob?.cancelAndJoin()
             currPollJob = serviceScope.launch {
                 Log.i(logTag, "### Launching Poll Job $this")
-                while (true) {
-                    watchFolder()
+                while (this.isActive) {
+                    watchFolder(this)
                     delay(2000L)
                 }
             }
@@ -216,7 +218,7 @@ class ConnectionService(
         serviceScope.launch {
             currMonitoringCredentialsJob?.cancelAndJoin()
             currMonitoringCredentialsJob = launch {
-                while (true) {
+                while (this.isActive) {
                     monitorCredentials()
                     delay(10000)
                 }
@@ -306,7 +308,7 @@ class ConnectionService(
         }
     }
 
-    private suspend fun watchFolder() {
+    private suspend fun watchFolder(crScope: CoroutineScope) {
         try {
             doPull(currStateID, _isActive)
         } catch (e: Exception) {
@@ -316,6 +318,9 @@ class ConnectionService(
         val nd = backOffTicker.getNextDelay()
 
         // Handle cancellable delay
+        if (!crScope.isActive) {
+            return
+        }
         val tmpDelayJob = serviceScope.launch {
             try {
                 delay(TimeUnit.SECONDS.toMillis(nd))

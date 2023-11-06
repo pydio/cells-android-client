@@ -29,6 +29,19 @@ open class BrowseHelper(
         Log.d(logTag, "    Loading state: ${browseVM.loadingState.value}")
         Log.d(logTag, "    Context: $callingContext")
 
+        // FIXME remove
+        val bseList = navController.currentBackStack.value
+        Log.e(logTag, "... Looping back stack")
+        var i = 1
+        for (bse in bseList) {
+            Log.e(logTag, " #$i: ${bse.destination.route}")
+            if (BrowseDestinations.Open.isCurrent(bse.destination.route)) {
+                Log.e(logTag, "     For stateID: ${lazyStateID(bse)}")
+            }
+            i++
+        }
+        Log.e(logTag, "... Looping done")
+
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)
         val currRoute = navController.currentBackStackEntry?.destination?.route

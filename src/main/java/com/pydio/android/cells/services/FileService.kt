@@ -1,8 +1,8 @@
 package com.pydio.android.cells.services
 
+import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLocalFile
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
@@ -16,17 +16,30 @@ import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
 class FileService(
+    context: Context,
     coroutineService: CoroutineService,
     private val treeNodeRepository: TreeNodeRepository
 ) {
 
     private val logTag = "FileService"
-
-    private val serviceScope = coroutineService.cellsIoScope
     private val sep: String = File.separator
 
-    private val appCacheDir = CellsApp.instance.cacheDir.absolutePath
-    private val appFilesDir = CellsApp.instance.filesDir.absolutePath
+    private val serviceScope = coroutineService.cellsIoScope
+
+    private var appCacheDir: String
+    private var appFilesDir: String
+
+    init {
+        try {
+            context.cacheDir.absolutePath.also { appCacheDir = it }
+            context.filesDir.absolutePath.also { appFilesDir = it }
+        } catch (e: Exception) {
+            Log.e(logTag, "Cannot initialise application folders")
+            e.printStackTrace()
+            appCacheDir = "/"
+            appFilesDir = "/"
+        }
+    }
 
     fun prepareTree(stateID: StateID) = serviceScope.launch {
         val account = stateID.account()

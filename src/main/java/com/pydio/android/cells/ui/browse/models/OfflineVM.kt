@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.db.runtime.RJob
@@ -180,8 +179,7 @@ class OfflineVM(
         jobService.launched(jobID)
         offlineService.performAccountSync(
             accountID,
-            jobID,
-            CellsApp.instance.applicationContext
+            jobID
         )
     }
 

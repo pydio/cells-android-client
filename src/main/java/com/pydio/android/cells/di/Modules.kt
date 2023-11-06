@@ -206,7 +206,7 @@ val serviceModule = module {
         )
     }
     single { AuthService(get(), get()) }
-    single { FileService(get(), get()) }
+    single { FileService(androidContext().applicationContext, get(), get()) }
 
     // Accounts
     single {
@@ -233,7 +233,16 @@ val serviceModule = module {
     single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
     single { ConnectionService(get(), get(), get(), get(), get()) }
 
-    single { OfflineService(get(), get(), get(), get(), get()) }
+    single {
+        OfflineService(
+            androidContext().applicationContext,
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
     single {
         TransferService(
             androidContext().applicationContext,

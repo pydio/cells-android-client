@@ -72,6 +72,18 @@ fun NavHostWithDrawer(
         if (route == lastRoute.value) {
             Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
         }
+
+        // FIXME remove
+        val bseList = mainNavController.currentBackStack.value
+        Log.e(LOG_TAG, "... Looping back stack")
+        var i = 1
+        for (bse in bseList) {
+            Log.e(LOG_TAG, " #$i: ${bse.destination.route}")
+            i++
+        }
+        Log.e(LOG_TAG, "... Looping done")
+
+
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
             Log.i(LOG_TAG, "... Got an old route")

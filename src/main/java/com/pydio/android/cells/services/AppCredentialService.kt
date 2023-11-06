@@ -256,7 +256,6 @@ class AppCredentialService(
     }
 
     private fun logout(stateID: StateID, cause: String) {
-        Log.e(logTag, "########################################")
         Log.e(logTag, "### Refresh token expired for $stateID")
         Log.e(logTag, "  Cause: $cause")
         Log.e(logTag, "  !! Removing stored credentials !! ")

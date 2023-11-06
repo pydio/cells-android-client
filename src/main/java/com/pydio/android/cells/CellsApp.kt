@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.StrictMode
 import android.util.Log
 import com.pydio.android.cells.di.allModules
 import com.pydio.android.cells.services.JobService
@@ -32,6 +33,15 @@ class CellsApp : Application(), KoinComponent {
     }
 
     override fun onCreate() {
+
+        // Enable resource leak tracking during dev when the "A resource failed to call xxx" message shows up
+        if (BuildConfig.DEBUG)
+            StrictMode.enableDefaults();
+//        StrictMode.setVmPolicy(
+//            StrictMode.VmPolicy.Builder(StrictMode.getVmPolicy())
+//                .detectLeakedClosableObjects()
+//                .build()
+//        )
         Log.i(logTag, "#################################################################")
         Log.i(logTag, "#########  Launching Cells Android Client application  ##########")
         Log.i(logTag, "#################################################################")

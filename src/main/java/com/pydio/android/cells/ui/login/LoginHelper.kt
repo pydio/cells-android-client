@@ -123,7 +123,18 @@ class LoginHelper(
     private fun afterAuth(stateID: StateID, loginContext: String?) {
         ackStartStateProcessed(null, stateID)
 
-        Log.e(logTag, "... After OAuth: $stateID, context: $loginContext")
+        Log.e(logTag, "... After OAuth: $stateID, context: $loginContext, unstacking destinations:")
+
+        // FIXME remove
+        val bseList = navController.currentBackStack.value
+        Log.e(logTag, "... Looping back stack")
+        var i = 1
+        for (bse in bseList) {
+            Log.e(logTag, " #$i: ${bse.destination.route}")
+            i++
+        }
+        Log.e(logTag, "... Looping done")
+
         var stillLogin = true
         while (stillLogin) {
             val tmp = navController.currentBackStackEntry

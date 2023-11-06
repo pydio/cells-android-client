@@ -36,6 +36,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 
+
 /**
  * Main entry point for the Cells Application:
  *
@@ -48,17 +49,14 @@ class MainActivity : ComponentActivity() {
 
     private val connectionService: ConnectionService by inject()
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(logTag, "onCreate: launching main activity")
+        Log.i(logTag, "... onCreate for main activity, bundle: $savedInstanceState")
 
         // We use androidx.core:core-splashscreen library to manage splash screen
         installSplashScreen()
+
         super.onCreate(savedInstanceState)
-
-        // First check if we need a migration
         val mainActivity = this
-
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
         var appIsReady = false
@@ -66,7 +64,7 @@ class MainActivity : ComponentActivity() {
             KoinContext {
                 MainActivityContent(
                     activity = mainActivity,
-                    savedInstanceState = savedInstanceState,
+                    sBundle = savedInstanceState,
                     launchIntent = mainActivity::launchIntent
                 ) {
                     appIsReady = true
@@ -97,17 +95,17 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainActivityContent(
         activity: Activity,
-        savedInstanceState: Bundle?,
+        sBundle: Bundle?,
         launchIntent: (Intent?, Boolean, Boolean) -> Unit,
         readyCallback: () -> Unit,
     ) {
-        Log.e(logTag, "### onCreate.setContent with intent $intent")
+        Log.e(logTag, "... Recomposing MainActivityContent with i: $intent and b: $sBundle ")
         val landingVM by viewModel<LandingVM>()
 
-        val ready = remember { mutableStateOf(false) }
-        val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
         val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
+        val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
         val startingState = remember { mutableStateOf<StartingState?>(null) }
+        val ready = remember { mutableStateOf(false) }
 
         val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
             intentHasBeenProcessed.value = true
@@ -143,7 +141,7 @@ class MainActivity : ComponentActivity() {
             }
 
             try { // We only handle intent when we have no bundle state
-                savedInstanceState ?: run {
+                sBundle ?: run {
                     startingState.value = handleIntent(landingVM)
                 }
             } catch (e: SDKException) {
