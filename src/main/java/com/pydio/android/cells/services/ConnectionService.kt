@@ -168,12 +168,14 @@ class ConnectionService(
         loadingFlag.combine(sessionStatusFlow) { state, status ->
             val currState = if (SessionStatus.NO_INTERNET == status
                 || SessionStatus.SERVER_UNREACHABLE == status
+                || SessionStatus.CAN_RELOG == status
             ) {
                 LoadingState.SERVER_UNREACHABLE
             } else {
                 state
             }
-            Log.d(logTag, "## Last loading state: $currState (flag: $state, session: $status)")
+            Log.e(logTag, "#####################################################################")
+            Log.e(logTag, "### Loading: $currState (State: $state, status: $status)")
             currState
         }.stateIn(
             scope = serviceScope,

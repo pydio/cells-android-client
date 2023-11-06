@@ -51,7 +51,6 @@ fun WithLoadingListBackground(
                     )
 
                 } else {
-
                     EmptyList(
                         listContext = listContext,
                         desc = if (canRefresh) {

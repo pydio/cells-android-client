@@ -13,6 +13,7 @@ interface GenericItem {
     val metaHash: Int
     val size: Long
     val remoteModTs: Long
+    val lastCheckTS: Long
     val isFolder: Boolean
     val hasThumb: Boolean
     fun defaultStateID(): StateID
@@ -27,6 +28,7 @@ data class MultipleItem(
     override val size: Long = -1L,
     override val metaHash: Int = -1,
     override val remoteModTs: Long = -1L,
+    override val lastCheckTS: Long = -1L,
     override val isFolder: Boolean,
     override val hasThumb: Boolean,
 ) : GenericItem {
@@ -72,6 +74,7 @@ suspend fun deduplicateNodes(
             metaHash = node.metaHash,
             size = node.size,
             remoteModTs = node.remoteModificationTS,
+            lastCheckTS = node.lastCheckTS,
             hasThumb = node.hasThumb(),
             isFolder = node.isFolder(),
         )

@@ -426,7 +426,13 @@ private fun FolderList(
                                 more = { openMoreMenu(node.defaultStateID()) },
                                 isSelectionMode = isSelectionMode,
                                 isSelected = selectedItems.contains(node.defaultStateID()),
-                                modifier = getClickableModifier(isSelectionMode, node, onTap, alpha)
+                                modifier = getClickableModifier(
+                                    loadingState,
+                                    isSelectionMode,
+                                    node,
+                                    onTap,
+                                    alpha
+                                )
                                     .animateItemPlacement(),
                             )
                         }
@@ -453,7 +459,13 @@ private fun FolderList(
                                 more = { openMoreMenu(node.stateID) },
                                 isSelectionMode = isSelectionMode,
                                 isSelected = selectedItems.contains(node.defaultStateID()),
-                                modifier = getClickableModifier(isSelectionMode, node, onTap, alpha)
+                                modifier = getClickableModifier(
+                                    loadingState,
+                                    isSelectionMode,
+                                    node,
+                                    onTap,
+                                    alpha
+                                )
                                     .animateItemPlacement()
                             )
                         }
@@ -474,14 +486,19 @@ private fun FolderList(
 @SuppressLint("ModifierFactoryExtensionFunction")
 @OptIn(ExperimentalFoundationApi::class)
 fun getClickableModifier(
+    loadingState: LoadingState,
     isSelectionMode: Boolean,
     item: TreeNodeItem,
     onTap: (StateID, Boolean) -> Unit,
     alpha: Float,
 ): Modifier {
     var tmpModifier = Modifier.fillMaxWidth()
-    tmpModifier = if (item.isRecycle) {
-        if (isSelectionMode) {
+    tmpModifier = if (loadingState == LoadingState.SERVER_UNREACHABLE && item.lastCheckTS < 1) {
+        // Folder has not yet been loaded and we have no connection to the server
+        // Do not react to click and make less visible
+        tmpModifier.alpha(alpha)
+    } else if (item.isRecycle) {
+        if (isSelectionMode) { // Cannot include the recycle in multiple selection
             // Do not react to click and make less visible
             tmpModifier.alpha(alpha)
         } else { // Recycle bin does not support multi selection

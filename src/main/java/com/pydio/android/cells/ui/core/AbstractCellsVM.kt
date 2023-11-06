@@ -39,7 +39,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
     protected val nodeService: NodeService by inject()
-    protected val applicationContext: Context by inject()
+    private val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
@@ -47,17 +47,15 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     // Loading data from server state
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val loadingState: StateFlow<LoadingState> =
-        _loadingState.combine(connectionService.sessionStatusFlow) { currLoadingState, sessionStatus ->
+        _loadingState.combine(connectionService.sessionStatusFlow) { currLoadState, sessionStatus ->
             val newState =
                 if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
                     LoadingState.SERVER_UNREACHABLE
                 } else {
-                    currLoadingState
+                    currLoadState
                 }
-            Log.e(
-                logTag,
-                "## New VM loading state: $newState (State: $currLoadingState, status: $sessionStatus)"
-            )
+            Log.e(logTag, "#####################################################################")
+            Log.e(logTag, "### Loading: $newState (State: $currLoadState, status: $sessionStatus)")
             newState
         }.stateIn(
             scope = viewModelScope,
