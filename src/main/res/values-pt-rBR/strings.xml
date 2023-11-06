@@ -33,7 +33,7 @@
     <string name="action_open_about">Sobre</string>
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configurações</string>
-    <string name="action_clear_cache">Limpar cache</string>
+    <string name="action_house_keeping">Limpar cache</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir gaveta do menu</string>
     <!-- Section titles -->

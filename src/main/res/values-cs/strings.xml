@@ -33,7 +33,7 @@
     <string name="action_open_about">O aplikaci</string>
     <string name="action_search">Hledat</string>
     <string name="action_settings">Nastavení</string>
-    <string name="action_clear_cache">Vyprázdnit mezipaměť</string>
+    <string name="action_house_keeping">Vyprázdnit mezipaměť</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->

@@ -33,7 +33,7 @@
     <string name="action_open_about">Über Pydio</string>
     <string name="action_search">Suchen</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="action_clear_cache">Cache löschen</string>
+    <string name="action_house_keeping">Cache löschen</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Menü-Übersicht öffnen</string>
     <!-- Section titles -->

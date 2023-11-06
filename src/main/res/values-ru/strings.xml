@@ -33,7 +33,7 @@
     <string name="action_open_about">О программе</string>
     <string name="action_search">Поиск</string>
     <string name="action_settings">Настройки</string>
-    <string name="action_clear_cache">Очистить кэш</string>
+    <string name="action_house_keeping">Очистить кэш</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
