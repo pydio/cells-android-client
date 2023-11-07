@@ -18,7 +18,7 @@
     <string name="button_resync_all">Synchroniser</string>
     <string name="button_skip">Passer</string>
     <string name="button_launch_sync">Lancer la synchro</string>
-    <string name="button_empty_cache">Empty Cache</string>
+    <string name="button_empty_cache">Vider le cache</string>
     <!-- Navigation labels -->
     <string name="action_home">Page d\'accueil</string>
     <string name="action_open_after_migration">Ouvrir l\'application</string>
@@ -33,8 +33,8 @@
     <string name="action_open_about">A propos</string>
     <string name="action_search">Recherche</string>
     <string name="action_settings">Paramètres</string>
-    <string name="action_house_keeping">House keeping</string>
-    <string name="action_re_log">Re-log to server</string>
+    <string name="action_house_keeping">Nettoyage</string>
+    <string name="action_re_log">Se reconnecter au serveur</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Ouvrir le menu latéral</string>
     <!-- Section titles -->
@@ -224,8 +224,8 @@
     <string name="confirm_account_logout_title">Se déconnecter de\n%s ?</string>
     <string name="confirm_account_logout_desc">Cela effacera vos identifiants pour ce serveur : vous devrez vous re-identifier pour vous connecter.</string>
     <string name="confirm_cache_deletion_message">Cette action libèrera de l\'espace, mais forcera le re-téléchargement des vignettes, de l\'index et du cache.</string>
-    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
-    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_for_all_accounts_message">Danger : vous êtes sur le point de vider la cache pour tous les comptes.\n\nÊtes-vous sûr de vouloir continuer ?</string>
+    <string name="confirm_reset_all_message">Danger : vous êtes sur le point d\'effacer toutes les données locales, y compris les comptes configurés.\n\nÊtes-vous sûr de vouloir continuer ?</string>
     <string name="confirm_cache_deletion_title">Vider le cache</string>
     <string name="create_account">Créer un compte</string>
     <string name="content_description_media">Aperçu du contenu</string>
@@ -284,16 +284,16 @@
     <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
     <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
     <!-- Cache cleaning-->
-    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
-    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
-    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
-    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
-    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
-    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
-    <string name="pref_clean_cache_clean_all_title">Erase All</string>
-    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
+    <string name="pref_clean_cache_params_title">Paramètres de nettoyage</string>
+    <string name="pref_clean_cache_params_desc">Ajuster les paramètres de nettoyage de l\'application :</string>
+    <string name="pref_clean_cache_include_offline_title">Inclure les dossiers hors ligne</string>
+    <string name="pref_clean_cache_include_offline_desc">Supprimer également les fichiers qui se trouvent dans des parties de l\'arborescence qui ont été marquées comme hors ligne</string>
+    <string name="pref_clean_cache_forget_accounts_title">Oublier les identifiants de connexion</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Effacer également les identifiants stockés : vous devrez vous connecter de nouveau</string>
+    <string name="pref_clean_cache_all_accounts_title">Appliquer à tous les comptes</string>
+    <string name="pref_clean_cache_all_accounts_desc">Appliquer la stratégie de nettoyage à tous les comptes définis</string>
+    <string name="pref_clean_cache_clean_all_title">Tout effacer</string>
+    <string name="pref_clean_cache_clean_all_desc">DANGER : ceci va effacer toutes les données locales de l\'application</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Créer ou importer</string>
     <string name="exit_description">Quitter l\'application</string>
