@@ -18,9 +18,9 @@
     <string name="button_resync_all">Re-sincronizar</string>
     <string name="button_skip">Saltar</string>
     <string name="button_launch_sync">Iniciar Sincronización</string>
+    <string name="button_empty_cache">Empty Cache</string>
     <!-- Navigation labels -->
     <string name="action_home">Inicio</string>
-    <!--    <string name="action_open_app">Open App</string>-->
     <string name="action_open_after_migration">¡Comienza a usar la aplicación!</string>
     <string name="action_choose_account">Elegir una cuenta</string>
     <string name="action_browse">Explorar</string>
@@ -34,6 +34,7 @@
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configuración</string>
     <string name="action_house_keeping">Vaciar la caché</string>
+    <string name="action_re_log">Re-log to server</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir el cajón de menú</string>
     <!-- Section titles -->
@@ -223,6 +224,8 @@
     <string name="confirm_account_logout_title">¿Cerrar sesión en la cuenta\n%s?</string>
     <string name="confirm_account_logout_desc">Se olvidarán tus credenciales para este servidor: debes volver a iniciar sesión para conectarte.</string>
     <string name="confirm_cache_deletion_message">Esta acción liberará espacio pero forzará la redescarga de la vista previa de la imagen y el contenido de la carpeta.</string>
+    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
     <string name="confirm_cache_deletion_title">Borrar caché</string>
     <string name="create_account">Crear una cuenta</string>
     <string name="content_description_media">Vista previa del contenido</string>
@@ -280,6 +283,17 @@
     <string name="pref_troubleshooting_disable_poll_desc">Desactiva la consulta automática al servidor mientras navegas. Esto debe usarse con cuidado: típicamente, tendrás que actualizar una página explícitamente para ver una nueva carpeta después de su creación</string>
     <string name="pref_choose_list_offline_frequency_title">Frecuencia de sincronización</string>
     <string name="pref_choose_list_offline_frequency_desc">Elige una frecuencia para la sincronización en segundo plano</string>
+    <!-- Cache cleaning-->
+    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
+    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
+    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
+    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
+    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
+    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_clean_all_title">Erase All</string>
+    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Crear o importar</string>
     <string name="exit_description">Salir de la aplicación</string>

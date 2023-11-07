@@ -18,9 +18,9 @@
     <string name="button_resync_all">Znovu synchronizovat</string>
     <string name="button_skip">Přeskočit</string>
     <string name="button_launch_sync">Launch Sync</string>
+    <string name="button_empty_cache">Empty Cache</string>
     <!-- Navigation labels -->
     <string name="action_home">Domů</string>
-    <!--    <string name="action_open_app">Open App</string>-->
     <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Vyberte účet</string>
     <string name="action_browse">Procházet</string>
@@ -34,6 +34,7 @@
     <string name="action_search">Hledat</string>
     <string name="action_settings">Nastavení</string>
     <string name="action_house_keeping">Vyprázdnit mezipaměť</string>
+    <string name="action_re_log">Re-log to server</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Open menu drawer</string>
     <!-- Section titles -->
@@ -225,6 +226,8 @@
     <string name="confirm_account_logout_title">Odhlásit se z účtu\n%s?</string>
     <string name="confirm_account_logout_desc">Zapomene vaše přihlašovací údaje pro tento server: pokud se budute chtít znovu připojit, bude se třeba znovu přihlásit.</string>
     <string name="confirm_cache_deletion_message">Tato akce uvolní místo, ale vynutí opětovné stažení náhledu obrázku a obsahu složek.</string>
+    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
     <string name="confirm_cache_deletion_title">Vyprázdnit mezipaměť</string>
     <string name="create_account">Vytvořit účet</string>
     <string name="content_description_media">Náhled obsahu</string>
@@ -284,6 +287,17 @@
     <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
     <string name="pref_choose_list_offline_frequency_title">Četnost synchronizace</string>
     <string name="pref_choose_list_offline_frequency_desc">Vyberte četnost synchronizace na pozadí</string>
+    <!-- Cache cleaning-->
+    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
+    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
+    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
+    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
+    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
+    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_clean_all_title">Erase All</string>
+    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Vytvořit nebo naimportovat</string>
     <string name="exit_description">Ukončit aplikaci</string>
