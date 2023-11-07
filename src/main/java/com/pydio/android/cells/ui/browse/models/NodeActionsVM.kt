@@ -16,6 +16,7 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -168,12 +169,13 @@ class NodeActionsVM(
         }
     }
 
-
     fun importFiles(stateID: StateID, uris: List<Uri>) {
         coroutineService.cellsIoScope.launch {
             try {
                 for (uri in uris) {
-                    transferService.enqueueUpload(stateID, uri)
+                    if (this.isActive) {
+                        transferService.enqueueUpload(stateID, uri)
+                    }
                 }
                 done()
             } catch (e: SDKException) {
@@ -212,7 +214,11 @@ class NodeActionsVM(
     fun uploadPhoto() {
         _targetForPhoto?.let {
             viewModelScope.launch {
-                transferService.enqueueUpload(it.first, it.second)
+                try {
+                    transferService.enqueueUpload(it.first, it.second)
+                } catch (e: SDKException) {
+                    localDone("#${e.code} - ${e.message}", "Could not launch upload to ${it.first}")
+                }
             }
         }
     }
