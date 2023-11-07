@@ -18,7 +18,7 @@
     <string name="button_resync_all">Synchronisieren</string>
     <string name="button_skip">Überspringen</string>
     <string name="button_launch_sync">Sync starten</string>
-    <string name="button_empty_cache">Empty Cache</string>
+    <string name="button_empty_cache">Cache leeren</string>
     <!-- Navigation labels -->
     <string name="action_home">Startseite</string>
     <string name="action_open_after_migration">Los geht\'s!</string>
@@ -33,8 +33,8 @@
     <string name="action_open_about">Über Pydio</string>
     <string name="action_search">Suchen</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="action_house_keeping">House keeping</string>
-    <string name="action_re_log">Re-log to server</string>
+    <string name="action_house_keeping">Cache Verwaltung</string>
+    <string name="action_re_log">Zum Server neu loggen</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Menü-Übersicht öffnen</string>
     <!-- Section titles -->
@@ -224,8 +224,8 @@
     <string name="confirm_account_logout_title">Vom Konto\n%s abmelden?</string>
     <string name="confirm_account_logout_desc">Dadurch werden Ihre Anmeldedaten für diesen Server gelöscht: Sie müssen sich erneut anmelden, um eine Verbindung herzustellen.</string>
     <string name="confirm_cache_deletion_message">Dadurch wird zwar Speicherplatz freigegeben, aber ein erneutes Herunterladen der Miniaturansichten, des Index und des Cache erzwungen.</string>
-    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
-    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_for_all_accounts_message">Warnung: Sie sind dabei, den Cache für alle Konten zu leeren.\n\nSind Sie sicher, dass Sie fortfahren möchten?</string>
+    <string name="confirm_reset_all_message">Warnung: Sie sind dabei, alle lokalen Daten zu löschen, einschließlich der konfigurierten Konten.\n\nSind Sie sicher, dass Sie fortfahren möchten?</string>
     <string name="confirm_cache_deletion_title">Cache löschen</string>
     <string name="create_account">Neues Konto einrichten</string>
     <string name="content_description_media">Vorschau des Inhalts</string>
@@ -284,16 +284,16 @@
     <string name="pref_choose_list_offline_frequency_title">Synchronisationsfrequenz</string>
     <string name="pref_choose_list_offline_frequency_desc">Wählen Sie eine Frequenz für die Hintergrundsynchronisation</string>
     <!-- Cache cleaning-->
-    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
-    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
-    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
-    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
-    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
-    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
+    <string name="pref_clean_cache_params_title">Reinigungsparameter</string>
+    <string name="pref_clean_cache_params_desc">Passen Sie an, was Sie von Ihrem lokalen Gerät löschen:</string>
+    <string name="pref_clean_cache_include_offline_title">Offline Datei einbeziehen</string>
+    <string name="pref_clean_cache_include_offline_desc">Lösche auch Dateien, die in Teilen des Baumes als offline markiert sind</string>
+    <string name="pref_clean_cache_forget_accounts_title">Anmeldedaten vergessen</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Vergessen Sie auch die gespeicherten Zugangsdaten: Sie müssen sich erneut anmelden</string>
+    <string name="pref_clean_cache_all_accounts_title">Alle Konten bereinigen</string>
     <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
-    <string name="pref_clean_cache_clean_all_title">Erase All</string>
-    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
+    <string name="pref_clean_cache_clean_all_title">Alles löschen</string>
+    <string name="pref_clean_cache_clean_all_desc">DANGER: Sie werden alle App Datei vom lokalen Gerät entfernen</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Erstellen oder importieren</string>
     <string name="exit_description">Die Anwendung beenden</string>

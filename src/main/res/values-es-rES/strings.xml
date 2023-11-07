@@ -33,7 +33,7 @@
     <string name="action_open_about">Acerca de</string>
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configuración</string>
-    <string name="action_house_keeping">Vaciar la caché</string>
+    <string name="action_house_keeping">House keeping</string>
     <string name="action_re_log">Re-log to server</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir el cajón de menú</string>
