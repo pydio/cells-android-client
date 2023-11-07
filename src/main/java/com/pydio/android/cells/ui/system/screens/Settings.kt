@@ -47,6 +47,7 @@ fun SettingsScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.action_settings),
+                isExpandedScreen = isExpandedScreen,
                 openDrawer = openDrawer,
             )
         },

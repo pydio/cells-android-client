@@ -1,31 +1,104 @@
 package com.pydio.android.cells.ui.system.models
 
-import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.NodeService
-import com.pydio.android.cells.utils.showLongMessage
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Expose methods used to perform house keeping on the App */
 class HouseKeepingVM(
+    private val stateID: StateID,
     private val coroutineService: CoroutineService,
+    private val accountService: AccountService,
     private val nodeService: NodeService
 ) : ViewModel() {
 
-    // private val logTag = "HouseKeepingVM"
+    private val logTag = "HouseKeepingVM"
 
-    fun clearCache(context: Context, stateID: StateID) {
+    private val _alsoEmptyOffline = MutableStateFlow(false)
+    val alsoEmptyOffline = _alsoEmptyOffline.asStateFlow()
+    private val _alsoLogout = MutableStateFlow(false)
+    val alsoLogout = _alsoLogout.asStateFlow()
+    private val _includeAllAccounts = MutableStateFlow(false)
+    val includeAllAccounts: StateFlow<Boolean> = _includeAllAccounts
+    private val _eraseAll = MutableStateFlow(false)
+    val eraseAll = _eraseAll.asStateFlow()
+
+    fun isEraseAll(): Boolean {
+        return _eraseAll.value
+    }
+
+    fun isAllAccount(): Boolean {
+        return _includeAllAccounts.value
+    }
+
+    fun toggleIncludeAll(checked: Boolean) {
+        _includeAllAccounts.value = checked
+    }
+
+    fun toggleLogout(checked: Boolean) {
+        _alsoLogout.value = checked
+    }
+
+    fun toggleEmptyOffline(checked: Boolean) {
+        _alsoEmptyOffline.value = checked
+    }
+
+    fun toggleEraseAll(checked: Boolean) {
+        _eraseAll.value = checked
+    }
+
+    fun launchCacheClearing() {
         coroutineService.cellsIoScope.launch {
-            nodeService.clearAccountCache(stateID)
-                ?.let {
-                    withContext(Dispatchers.Main) {
-                        showLongMessage(context, it) // TODO fix this
+            val eraseAll = eraseAll.value
+
+            val emptyOffline = alsoEmptyOffline.value || eraseAll
+            val logout = alsoLogout.value || eraseAll
+            val allAccounts = includeAllAccounts.value || eraseAll
+
+            val allIDs: List<StateID> = if (allAccounts) {
+                val sessions = accountService.listSessionViews(true)
+//                Log.e(logTag, "Retrieving all IDs, found ${sessions.size} session(s)")
+                sessions.map {
+//                    Log.e(logTag, " - ${it.getStateID()}")
+                    it.getStateID()
+                }
+            } else {
+                listOf(stateID)
+            }
+
+            for (currStateID in allIDs) {
+                try {
+                    nodeService.clearAccountCache(currStateID, emptyOffline, logout)
+                } catch (se: SDKException) {
+                    val msg = "Could not clear cache for $currStateID, cause: ${se.message}"
+                    Log.e(logTag, msg)
+                }
+            }
+            if (eraseAll) {
+                for (currStateID in allIDs) {
+                    try {
+                        accountService.forgetAccount(currStateID)
+                    } catch (se: SDKException) {
+                        val msg = "Could not delete account $currStateID, cause: ${se.message}"
+                        Log.e(logTag, msg)
                     }
                 }
+            }
+            try {
+                nodeService.emptyGlideCache()
+            } catch (se: SDKException) {
+                val msg = "Could not empty Glide cache, cause: ${se.message}"
+                Log.e(logTag, msg)
+            }
+//             Log.e(logTag, "#### Cache clearing launched, still active: ${this.isActive}")
         }
     }
 }

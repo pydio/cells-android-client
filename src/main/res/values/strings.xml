@@ -261,8 +261,8 @@
     <string name="confirm_account_logout_title">Logout account\n%s ?</string>
     <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
     <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
-    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\nAre you sure you want to proceed?</string>
-    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\nAre you sure you want to proceed?</string>
+    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
     <string name="confirm_cache_deletion_title">Clear cache</string>
     <string name="create_account">Create an account</string>
     <string name="content_description_media">Preview of the content</string>
@@ -330,7 +330,7 @@
     <string name="pref_clean_cache_params_title">Cleaning parameters</string>
     <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
     <string name="pref_clean_cache_include_offline_title">Include Offline</string>
-    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in part of the tree that has been marked as offline</string>
+    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
     <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
     <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
     <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>

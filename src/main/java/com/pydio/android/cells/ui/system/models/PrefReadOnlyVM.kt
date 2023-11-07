@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.PreferencesService
 import kotlinx.coroutines.flow.map
 
-/** Expose current state of the preferences as cold flows for the various views */
+/** Exposes preference state as cold flow for the various views */
 class PrefReadOnlyVM(
     prefs: PreferencesService,
 ) : ViewModel() {

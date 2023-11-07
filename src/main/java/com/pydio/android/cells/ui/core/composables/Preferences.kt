@@ -2,6 +2,7 @@ package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 fun PreferenceSectionTitle(
     title: String,
     modifier: Modifier = Modifier,
+    desc: String? = null,
 ) {
     Text(
         text = title,
@@ -41,6 +43,15 @@ fun PreferenceSectionTitle(
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface
     )
+
+    desc?.let {
+        Text(
+            text = it,
+            modifier = modifier,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }
 
 @Composable
@@ -54,8 +65,7 @@ fun ListSetting(
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-
-    var selectedIndex = keys.indexOfFirst { it == currKey }
+    val selectedIndex = keys.indexOfFirst { it == currKey }
 
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
 
@@ -97,11 +107,14 @@ fun SwitchSetting(
     description: String?,
     isSelected: Boolean,
     onItemClick: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
 ) {
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small)),
     ) {
 
         Column(
@@ -124,6 +137,7 @@ fun SwitchSetting(
         Switch(
             modifier = Modifier.semantics { contentDescription = label },
             checked = isSelected,
+            enabled = isEnabled,
             onCheckedChange = { onItemClick(!isSelected) }
         )
     }

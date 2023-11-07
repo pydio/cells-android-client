@@ -129,6 +129,9 @@ public interface AppNames {
 //    String LOCAL_DIR_TYPE_CACHE = "cache";
 //    String LOCAL_DIR_TYPE_FILE = "files";
 
+    String LOCAL_PARENT_FILE = "file-parent";
+    String LOCAL_PARENT_CACHE = "cache-parent";
+
     String LOCAL_FILE_TYPE_THUMB = "thumb";
     String LOCAL_FILE_TYPE_PREVIEW = "preview";
     String LOCAL_FILE_TYPE_FILE = "file";

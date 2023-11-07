@@ -160,7 +160,7 @@ fun AppPermanentDrawer(
             accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
                 // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
                 MyNavigationRailItem(
-                    label = stringResource(R.string.action_clear_cache),
+                    label = stringResource(R.string.action_house_keeping),
                     icon = CellsIcons.EmptyRecycle,
                     selected = SystemDestinations.ClearCache.isCurrent(currRoute),
                     onClick = { systemNavActions.navigateToClearCache(accID) },

@@ -9,22 +9,24 @@ import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.computeFileMd5
 import com.pydio.android.cells.utils.getCurrentDateTime
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
 class FileService(
     context: Context,
-    coroutineService: CoroutineService,
+    private val coroutineService: CoroutineService,
     private val treeNodeRepository: TreeNodeRepository
 ) {
 
     private val logTag = "FileService"
     private val sep: String = File.separator
 
-    private val serviceScope = coroutineService.cellsIoScope
+    private val ioScope = coroutineService.cellsIoScope
 
     private var appCacheDir: String
     private var appFilesDir: String
@@ -41,7 +43,7 @@ class FileService(
         }
     }
 
-    fun prepareTree(stateID: StateID) = serviceScope.launch {
+    fun prepareTree(stateID: StateID) = ioScope.launch {
         val account = stateID.account()
         File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
         File(dataParentPath(account, AppNames.LOCAL_FILE_TYPE_PREVIEW)).mkdirs()
@@ -197,53 +199,26 @@ class FileService(
         return File("${imgPath}${sep}IMG_${timestamp}.jpg")
     }
 
-    fun cleanFileCacheFor(accountID: StateID) = serviceScope.launch {
-        try {
-            // Defined offline roots that must be left intact
-            val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
-            val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
-
-            // Iterate on all files both in cache/<id>/{previews,thumbs} and in files/<id>/local
-            // and delete the ones that are not in offline roots
-            val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
-            for (record in filesDao.getFilesUnder(accountID.id)) {
-                if (!isInOfflineTree(offlinePaths, record.encodedState)) {
-                    filesDao.delete(record.encodedState, record.type)
-                }
-            }
-
-            // Also violently wipe transfer temporary files
-            val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
-            if (transferDir.exists()) {
-                transferDir.deleteRecursively()
-            }
-        } catch (e: Exception) {
-            // TODO better error handling
-            Log.e(logTag, "Could not clean cache for $accountID: ${e.message}")
-            e.printStackTrace()
-        }
-    }
-
     /* Violently remove all local files and also empty the local_files table */
     fun cleanAllLocalFiles(accountID: StateID) {
 
         // Recursively delete local folders
-        var currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_THUMB))
+        var currDir = File(dataParentPath(accountID, AppNames.LOCAL_PARENT_FILE))
         if (currDir.exists()) {
             currDir.deleteRecursively()
         }
-        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_PREVIEW))
+        currDir = File(dataParentPath(accountID, AppNames.LOCAL_PARENT_CACHE))
         if (currDir.exists()) {
             currDir.deleteRecursively()
         }
-        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_FILE))
-        if (currDir.exists()) {
-            currDir.deleteRecursively()
-        }
-        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
-        if (currDir.exists()) {
-            currDir.deleteRecursively()
-        }
+//        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_FILE))
+//        if (currDir.exists()) {
+//            currDir.deleteRecursively()
+//        }
+//        currDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
+//        if (currDir.exists()) {
+//            currDir.deleteRecursively()
+//        }
 
         // Also empty the local_files table
         val localFileDao = treeNodeRepository.nodeDB(accountID).localFileDao()
@@ -276,6 +251,39 @@ class FileService(
         dao.deleteUnder(folderId.id)
     }
 
+    @Throws(SDKException::class)
+    suspend fun cleanFileCacheFor(accountID: StateID, alsoEmptyOffline: Boolean) =
+        withContext(coroutineService.ioDispatcher) {
+//             try {
+
+            val offlinePaths: List<String> = if (alsoEmptyOffline) {
+                listOf()
+            } else { // By default Defined offline roots that must be left intact
+                val offlineDao = treeNodeRepository.nodeDB(accountID).offlineRootDao()
+                offlineDao.getAllActive().map { it.encodedState }
+            }
+
+            // Iterate on all files both in cache/<id>/{previews,thumbs} and in files/<id>/local
+            // and delete the ones that are not in offline roots
+            val filesDao = treeNodeRepository.nodeDB(accountID).localFileDao()
+            for (record in filesDao.getFilesUnder(accountID.id)) {
+                if (!isInOfflineTree(offlinePaths, record.encodedState)) {
+                    filesDao.delete(record.encodedState, record.type)
+                }
+            }
+
+            // FIXME Also violently wipe transfer temporary files
+            val transferDir = File(dataParentPath(accountID, AppNames.LOCAL_FILE_TYPE_TRANSFER))
+            if (transferDir.exists()) {
+                transferDir.deleteRecursively()
+            }
+//            } catch (e: Exception) {
+//                // TODO better error handling
+//                Log.e(logTag, "Could not clean cache for $accountID: ${e.message}")
+//                e.printStackTrace()
+//            }
+        }
+
     // Local helpers
     private fun isInOfflineTree(rootPaths: List<String>, currentPath: String): Boolean {
         return rootPaths.any { currentPath.startsWith(it) }
@@ -284,6 +292,12 @@ class FileService(
     private fun staticDataParentPath(currDirName: String, type: String): String {
         val middle = sep + currDirName + sep
         return when (type) {
+            AppNames.LOCAL_PARENT_FILE ->
+                appFilesDir + sep + currDirName
+
+            AppNames.LOCAL_PARENT_CACHE ->
+                appCacheDir + sep + currDirName
+
             AppNames.LOCAL_FILE_TYPE_THUMB ->
                 appCacheDir + middle + AppNames.THUMB_PARENT_DIR
 

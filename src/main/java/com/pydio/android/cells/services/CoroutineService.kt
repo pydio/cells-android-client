@@ -13,7 +13,7 @@ class CoroutineService(
 
     private val cellsSupervisorJob = SupervisorJob()
 
-    //    val cellsUiScope = CoroutineScope(uiDispatcher + cellsSupervisorJob)
+    val cellsUiScope = CoroutineScope(uiDispatcher + cellsSupervisorJob)
     val cellsCpuScope = CoroutineScope(cpuDispatcher + cellsSupervisorJob)
     val cellsIoScope = CoroutineScope(ioDispatcher + cellsSupervisorJob)
 

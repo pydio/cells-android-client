@@ -13,8 +13,6 @@ import com.pydio.android.cells.db.nodes.TreeNodeDB
 import com.pydio.android.cells.transfer.TreeDiff
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
-import com.pydio.android.cells.utils.getTsAsString
-import com.pydio.android.cells.utils.logException
 import com.pydio.android.cells.utils.parseOrder
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.ErrorCodes
@@ -24,7 +22,6 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.isActive
@@ -34,7 +31,7 @@ import java.io.IOException
 
 class NodeService(
     private val appContext: Context,
-    coroutineService: CoroutineService,
+    private val coroutineService: CoroutineService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val offlineService: OfflineService,
@@ -448,42 +445,46 @@ class NodeService(
         }
     }
 
-    @Deprecated("Rather use the method with the StateID")
-    suspend fun clearAccountCache(stateId: String): String? = withContext(ioDispatcher) {
-        return@withContext clearAccountCache(StateID.fromId(stateId).account())
-    }
+    @Throws(SDKException::class)
+    suspend fun clearAccountCache(
+        accountID: StateID,
+        alsoEmptyOffline: Boolean,
+        alsoLogout: Boolean
+    ) = withContext(ioDispatcher) {
 
-    suspend fun clearAccountCache(accountID: StateID): String? = withContext(ioDispatcher) {
-        try {
-            // First delete corresponding files
-            fileService.cleanFileCacheFor(accountID)
+        // First delete corresponding files
+        fileService.cleanFileCacheFor(accountID, alsoEmptyOffline)
 
-            // Also clean index
+        // Also clean index
+        val treeNodeDao = nodeDB(accountID).treeNodeDao()
+        if (alsoEmptyOffline) {
+            for (record in treeNodeDao.getUnder(accountID.id)) {
+                treeNodeDao.delete(record.encodedState)
+            }
+        } else {
             val offlineDao = nodeDB(accountID).offlineRootDao()
             val offlinePaths = offlineDao.getAllActive().map { it.encodedState }
-            val treeNodeDao = nodeDB(accountID).treeNodeDao()
             for (record in treeNodeDao.getUnder(accountID.id)) {
                 if (!isInOfflineTree(offlinePaths, record.encodedState)) {
                     treeNodeDao.delete(record.encodedState)
                 }
             }
+        }
+        if (alsoLogout) {
+            accountService.logoutAccount(accountID)
+        }
+    }
 
-            // TODO finalise cache cleaning for glide
-            // Yet, this should violently and completely empty Glide's cache
+    @Throws(SDKException::class)
+    suspend fun emptyGlideCache() {
+        // This method must be called on the main thread.
+        withContext(coroutineService.uiDispatcher) {
+            Glide.get(appContext).clearMemory()
+        }
 
-            // Must be called on the main thread
-            withContext(Dispatchers.Main) {
-                Glide.get(appContext).clearMemory()
-            }
-            // Must be called on a background thread.
+        // This method must be called on a background thread.
+        withContext(ioDispatcher) {
             Glide.get(appContext).clearDiskCache()
-
-            return@withContext null
-
-        } catch (e: Exception) {
-            val msg = "Could not clear cache for $accountID"
-            logException(logTag, msg, e)
-            return@withContext msg
         }
     }
 

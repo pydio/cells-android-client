@@ -124,6 +124,7 @@ fun CellsNavGraph(
 
         systemNavGraph(
             isExpandedScreen = isExpandedScreen,
+            navController = navController,
             openDrawer = openDrawer,
             launchIntent = launchIntent,
             back = { navController.popBackStack() },

@@ -128,9 +128,10 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         } else if (!isUpToDate) {
             throw SDKException(ErrorCodes.outdated_local_file)
         } else {
-            // FIXME
-            externallyView(applicationContext, lf, node)
-            // externallyView(context, lf, node)
+            // TODO investigate. We use the activity context to launch the view activity, otherwise we have this message:
+            //   Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag. Is this really what you want?
+            // externallyView(applicationContext, lf, node)
+            externallyView(context, lf, node)
         }
     }
 
