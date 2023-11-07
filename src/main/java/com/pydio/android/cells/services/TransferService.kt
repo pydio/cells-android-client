@@ -602,7 +602,12 @@ class TransferService(
 
         val dao = getTransferDao(parentID)
         val uploadRecord = dao.getById(transferID)
-            ?: throw IllegalStateException("No transfer record found for $transferID, cannot upload")
+            ?: run {
+                val msg = "No transfer record found for $transferID, cannot upload"
+                Log.e(logTag, msg)
+                Thread.dumpStack()
+                return@withContext null
+            }
 
         //   in Cells app storage
         val fs = fileService
@@ -623,6 +628,10 @@ class TransferService(
         } catch (ioe: IOException) {
             Log.e(logTag, "could not create local copy of $filename: ${ioe.message}")
             ioe.printStackTrace()
+            return@withContext null
+        } catch (e: Exception) {
+            Log.e(logTag, "could not create local copy of $filename: ${e.message}")
+            e.printStackTrace()
             return@withContext null
         } finally {
             IoHelpers.closeQuietly(inputStream)
