@@ -18,9 +18,9 @@
     <string name="button_resync_all">Re-sincronizar</string>
     <string name="button_skip">Pular</string>
     <string name="button_launch_sync">Iniciar Sincronização</string>
+    <string name="button_empty_cache">Empty Cache</string>
     <!-- Navigation labels -->
     <string name="action_home">Início</string>
-    <!--    <string name="action_open_app">Open App</string>-->
     <string name="action_open_after_migration">Comece a usar o aplicativo!</string>
     <string name="action_choose_account">Selecione uma conta</string>
     <string name="action_browse">Navegar</string>
@@ -33,7 +33,8 @@
     <string name="action_open_about">Sobre</string>
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configurações</string>
-    <string name="action_house_keeping">Limpar cache</string>
+    <string name="action_house_keeping">House keeping</string>
+    <string name="action_re_log">Re-log to server</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir gaveta do menu</string>
     <!-- Section titles -->
@@ -223,6 +224,8 @@
     <string name="confirm_account_logout_title">Sair da conta\n%s ?</string>
     <string name="confirm_account_logout_desc">Ele esquecerá suas credenciais para este servidor: você deve fazer login novamente para se conectar.</string>
     <string name="confirm_cache_deletion_message">Esta ação irá liberar espaço mas irá forçar o download novamente da visualização e do conteúdo da pasta.</string>
+    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
     <string name="confirm_cache_deletion_title">Limpar cache</string>
     <string name="create_account">Criar uma conta</string>
     <string name="content_description_media">Pré-visualização do conteúdo</string>
@@ -280,6 +283,17 @@
     <string name="pref_troubleshooting_disable_poll_desc">Desativa a consulta automática do servidor enquanto navega. Isso deve ser usado com cuidado: você terá que atualizar explicitamente uma página para ver uma nova pasta após a criação</string>
     <string name="pref_choose_list_offline_frequency_title">Frequência de sincronização</string>
     <string name="pref_choose_list_offline_frequency_desc">Escolha uma frequência para sincronização em segundo plano</string>
+    <!-- Cache cleaning-->
+    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
+    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
+    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
+    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
+    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
+    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_clean_all_title">Erase All</string>
+    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Criar ou importar</string>
     <string name="exit_description">Sair do aplicativo</string>
