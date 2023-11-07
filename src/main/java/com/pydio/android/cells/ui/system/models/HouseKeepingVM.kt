@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.CoroutineService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
@@ -17,7 +18,8 @@ class HouseKeepingVM(
     private val stateID: StateID,
     private val coroutineService: CoroutineService,
     private val accountService: AccountService,
-    private val nodeService: NodeService
+    private val nodeService: NodeService,
+    private val errorService: ErrorService,
 ) : ViewModel() {
 
     private val logTag = "HouseKeepingVM"
@@ -57,6 +59,7 @@ class HouseKeepingVM(
 
     fun launchCacheClearing() {
         coroutineService.cellsIoScope.launch {
+            var hasFailed = false
             val eraseAll = eraseAll.value
 
             val emptyOffline = alsoEmptyOffline.value || eraseAll
@@ -80,6 +83,8 @@ class HouseKeepingVM(
                 } catch (se: SDKException) {
                     val msg = "Could not clear cache for $currStateID, cause: ${se.message}"
                     Log.e(logTag, msg)
+                    errorService.appendError(msg)
+                    hasFailed = true
                 }
             }
             if (eraseAll) {
@@ -89,6 +94,8 @@ class HouseKeepingVM(
                     } catch (se: SDKException) {
                         val msg = "Could not delete account $currStateID, cause: ${se.message}"
                         Log.e(logTag, msg)
+                        errorService.appendError(msg)
+                        hasFailed = true
                     }
                 }
             }
@@ -97,8 +104,15 @@ class HouseKeepingVM(
             } catch (se: SDKException) {
                 val msg = "Could not empty Glide cache, cause: ${se.message}"
                 Log.e(logTag, msg)
+                errorService.appendError(msg)
+                hasFailed = true
             }
 //             Log.e(logTag, "#### Cache clearing launched, still active: ${this.isActive}")
+            if (!hasFailed) {
+                val msg = "Cache has been emptied"
+                Log.e(logTag, msg)
+                errorService.appendError(msg)
+            }
         }
     }
 }
