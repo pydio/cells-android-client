@@ -19,7 +19,6 @@ class ErrorService(
     coroutineService: CoroutineService,
 ) {
     private val logTag = "ErrorService"
-
     private val serviceScope = coroutineService.cellsIoScope
 
     // Expose a flow of error messages for the end-user.

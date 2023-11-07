@@ -75,14 +75,13 @@ fun NavHostWithDrawer(
 
         // FIXME remove
         val bseList = mainNavController.currentBackStack.value
-        Log.e(LOG_TAG, "... Looping back stack")
+        Log.e(LOG_TAG, "... Backstack b4 navigation from DRAWER")
         var i = 1
         for (bse in bseList) {
             Log.e(LOG_TAG, " #$i: ${bse.destination.route}")
             i++
         }
-        Log.e(LOG_TAG, "... Looping done")
-
+        Log.e(LOG_TAG, "... Next destination $route")
 
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
@@ -94,8 +93,18 @@ fun NavHostWithDrawer(
                 null
             }
         }
+        val currRoute = mainNavController.currentBackStackEntry?.destination?.route
+        val currState: StateID? = currRoute?.let {
+            if (it.endsWith("{${AppKeys.STATE_ID}}")) {
+                lazyStateID(mainNavController.currentBackStackEntry)
+            } else {
+                null
+            }
+        }
+
         Log.i(LOG_TAG, "... Navigate to $route")
-        Log.d(LOG_TAG, "      - Prev. Backstack Entry route: $oldRoute, stateID: $oldState")
+        Log.d(LOG_TAG, "      - Penultimate Entry route: $oldRoute, stateID: $oldState")
+        Log.d(LOG_TAG, "      - Current Entry route: $currRoute, stateID: $currState")
         Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
         lastRoute.value = route
         coroutineScope.launch(Main) {

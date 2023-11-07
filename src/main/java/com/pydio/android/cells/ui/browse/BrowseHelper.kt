@@ -31,16 +31,13 @@ open class BrowseHelper(
 
         // FIXME remove
         val bseList = navController.currentBackStack.value
-        Log.e(logTag, "... Looping back stack")
+        Log.e(logTag, "... Backstack b4 navigation from BROWSE HELPER")
         var i = 1
         for (bse in bseList) {
             Log.e(logTag, " #$i: ${bse.destination.route}")
-            if (BrowseDestinations.Open.isCurrent(bse.destination.route)) {
-                Log.e(logTag, "     For stateID: ${lazyStateID(bse)}")
-            }
             i++
         }
-        Log.e(logTag, "... Looping done")
+        Log.e(logTag, "... Next destination $callingContext - $stateID")
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)
@@ -60,7 +57,7 @@ open class BrowseHelper(
             Log.d(logTag, "Open node at $stateID is Effective Back")
             navController.popBackStack()
         } else if (isSame) {
-            Log.w(logTag, "Open node at $stateID is **SAME** as current route.Doing nothing")
+            Log.w(logTag, "Target node $stateID is the *SAME* as the current route. Doing nothing")
         } else {
             val route: String
             if (Str.notEmpty(stateID.slug)) {
