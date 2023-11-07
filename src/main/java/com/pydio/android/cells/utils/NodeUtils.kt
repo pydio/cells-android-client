@@ -25,6 +25,8 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
 //                && local.remoteModificationTS == remote.lastModified()
 //                // Also compare meta hash: timestamp is not updated when a meta changes
 //                && remote.metaHashCode == local.metaHash
+// // Does not work
+// // && remote.flags == local.flags
 
     var isEqual: Boolean
 
@@ -55,6 +57,10 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
         Log.d(logTag, "remote meta: ${remote.properties}")
         return false
     }
+
+    // TODO when miss modifications when the offline flag is set.
+    // isEqual = remote.flags == local.flags
+
     return true
 }
 
