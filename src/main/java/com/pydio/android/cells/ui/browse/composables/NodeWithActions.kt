@@ -128,10 +128,11 @@ private fun FolderWithDialogs(
         }
     }
 
+    // This introduce a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
     val delayedDone: (Boolean) -> Unit = { done ->
         navController.popBackStack(FOLDER_MAIN_CONTENT, false)
         scope.launch {
-            delay(200)
+            delay(400)
             actionDone(done, true)
         }
     }
@@ -221,13 +222,13 @@ private fun FolderWithDialogs(
 
             is NodeAction.ToggleOffline -> {
                 nodeActionsVM.toggleOffline(passedStateID, action.isChecked)
-                actionDone(true, true)
+                // We use delay done so that we see the toggle animation before closing the bottom menu
+                delayedDone(true)
             }
 
             is NodeAction.ToggleBookmark -> {
                 nodeActionsVM.toggleBookmark(passedStateID, action.isChecked)
-                // delayedDone(true)
-                actionDone(true, true)
+                delayedDone(true)
             }
 
             is NodeAction.CreateShare -> {
