@@ -330,7 +330,7 @@ private fun BookmarkScaffold(
             sheetContent = {
                 if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
-                        type = NodeMoreMenuType.BOOKMARK,
+                        type = moreMenuState.type,
                         subjectID = moreMenuState.stateIDs.first(),
                         launch = { a, s -> launch(a, setOf(s)) },
                     )
