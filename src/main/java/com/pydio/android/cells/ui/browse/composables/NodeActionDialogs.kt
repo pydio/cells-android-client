@@ -98,6 +98,7 @@ fun Download(
 
         if (JobStatus.DONE.id == status) {
             try {
+                delay(1200L)
                 downloadVM.viewFile(context, stateID, true)
             } catch (se: SDKException) {
                 if (se.code == ErrorCodes.no_local_file) {
