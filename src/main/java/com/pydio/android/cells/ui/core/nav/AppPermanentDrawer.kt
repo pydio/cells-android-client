@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PermanentDrawerSheet
@@ -31,6 +30,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
+import com.pydio.android.cells.ui.core.composables.ConnectionStatus
 import com.pydio.android.cells.ui.core.composables.MenuTitleText
 import com.pydio.android.cells.ui.core.composables.getWsThumbVector
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
@@ -42,7 +42,6 @@ import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
 /** AppNavRail provides the main lateral "rail" menu on large screens. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppPermanentDrawer(
     currRoute: String?,
@@ -84,7 +83,8 @@ fun AppPermanentDrawer(
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
-//            DrawerHeader(
+            ConnectionStatus()
+
             AccountRailHeader(
                 username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
                 address = accountID.value?.serverUrl ?: "",
@@ -190,7 +190,6 @@ fun AppPermanentDrawer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyNavigationRailItem(
     label: String,
