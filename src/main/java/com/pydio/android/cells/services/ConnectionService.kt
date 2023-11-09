@@ -84,22 +84,25 @@ class ConnectionService(
             ServerConnection.OK
         }
 
-
-    val customColor: Flow<String?> =
-        sessionView.combine(networkStatus) { currSession, networkStatus ->
-//            Log.e(logTag, "### Checking color for session ${currSession?.authStatus}")
-//            Log.e(logTag, "###   ${currSession?.isReachable}")
-//            Log.e(logTag, "###   ${currSession?.lifecycleState}")
-            if (currSession == null) null else {
-                when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
-                    ServerConnection.UNREACHABLE -> CellsColor.OfflineColor
-
-                    ServerConnection.LIMITED -> CellsColor.MeteredColor
-
-                    ServerConnection.OK -> currSession.customColor()
-                }
+    val customColor: Flow<String?> = sessionView.map { currSession ->
+        currSession?.let {
+            if (it.isReachable && !it.isLoggedIn()) {
+                CellsColor.OfflineColor
+            } else {
+                it.customColor()
             }
         }
+    }
+
+    // val customColor: Flow<String?> = sessionView.combine(networkStatus) { currSession, networkStatus ->
+    //         if (currSession == null) null else {
+    //             when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
+    //                 ServerConnection.UNREACHABLE -> CellsColor.OfflineColor
+    //                 ServerConnection.LIMITED -> CellsColor.MeteredColor
+    //                 ServerConnection.OK -> currSession.customColor()
+    //             }
+    //         }
+    //     }
 
 
     // Expose a flag to the various screens to know if current remote is Cells or P8

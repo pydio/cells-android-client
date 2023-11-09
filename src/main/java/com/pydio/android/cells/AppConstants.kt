@@ -4,6 +4,10 @@ enum class RemoteType {
     P8, CELLS
 }
 
+enum class Status {
+    OK, WARNING, DANGER
+}
+
 enum class ServerConnection {
     OK, LIMITED, UNREACHABLE;
 
