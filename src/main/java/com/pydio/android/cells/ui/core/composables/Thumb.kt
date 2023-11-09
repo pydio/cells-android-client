@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,8 +16,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.JobStatus
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -107,21 +106,20 @@ private fun JobDecorator(status: String, modifier: Modifier) {
 private fun AuthDecorator(authStatus: String, modifier: Modifier) {
 
     val imageId = when (authStatus) {
-        //AUTH_STATUS_NEW -> R.drawable.icon_folder
-        AppNames.AUTH_STATUS_NO_CREDS -> R.drawable.ic_outline_running_with_errors_24
-        AppNames.AUTH_STATUS_EXPIRED -> R.drawable.ic_outline_running_with_errors_24
-        AppNames.AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_outline_running_with_errors_24
-        AppNames.AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_wifi_protected_setup_24
-        AppNames.AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_check_24
+        LoginStatus.NoCreds.id -> R.drawable.ic_outline_running_with_errors_24
+        LoginStatus.Expired.id -> R.drawable.ic_outline_running_with_errors_24
+        LoginStatus.Unauthorized.id -> R.drawable.ic_outline_running_with_errors_24
+        LoginStatus.Refreshing.id -> R.drawable.ic_baseline_wifi_protected_setup_24
+        LoginStatus.Connected.id -> R.drawable.ic_baseline_check_24
         else -> R.drawable.empty
     }
 
     val colorFilter = when (authStatus) {
-        AppNames.AUTH_STATUS_NO_CREDS -> CellsColor.danger
-        AppNames.AUTH_STATUS_EXPIRED -> CellsColor.danger
-        AppNames.AUTH_STATUS_UNAUTHORIZED -> CellsColor.danger
-        AppNames.AUTH_STATUS_REFRESHING -> CellsColor.warning
-        AppNames.AUTH_STATUS_CONNECTED -> CellsColor.ok
+        LoginStatus.NoCreds.id -> CellsColor.danger
+        LoginStatus.Expired.id -> CellsColor.danger
+        LoginStatus.Unauthorized.id -> CellsColor.danger
+        LoginStatus.Refreshing.id -> CellsColor.warning
+        LoginStatus.Connected.id -> CellsColor.ok
         else -> CellsColor.danger
     }
 

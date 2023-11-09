@@ -12,6 +12,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.ListType
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.nodes.TransferDao
@@ -45,7 +46,7 @@ class TransferService(
     androidApplicationContext: Context,
     coroutineService: CoroutineService,
     private val prefs: PreferencesService,
-    private val networkService: NetworkService,
+    private val connectionService: ConnectionService,
     private val accountService: AccountService,
     private val treeNodeRepository: TreeNodeRepository,
     private val nodeService: NodeService,
@@ -221,13 +222,37 @@ class TransferService(
             return@withContext it
         }
 
+//        // Otherwise, try to download if current network type and user preferences allow it
+//        val currSettings = prefs.fetchPreferences()
+//        when (networkService.fetchNetworkStatus()) {
+//            NetworkStatus.OK
+//            -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
+//
+//            is NetworkStatus.MET -> {
+//                if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
+//                    return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
+//                } else {
+//                    throw SDKException(
+//                        ErrorCodes.con_failed,
+//                        "Cannot download preview images on metered network"
+//                    )
+//                }
+//            }
+//
+//            else -> throw SDKException(
+//                ErrorCodes.con_failed,
+//                "No network connection: cannot download preview image"
+//            )
+//        }
         // Otherwise, try to download if current network type and user preferences allow it
+        val currNetwork = connectionService.connectionState.value
         val currSettings = prefs.fetchPreferences()
-        when (networkService.fetchNetworkStatus()) {
-            is NetworkStatus.Unmetered
+        when (currNetwork.serverConnection) {
+            ServerConnection.OK
             -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
 
-            is NetworkStatus.Metered -> {
+            ServerConnection.LIMITED -> {
+                // TODO further check if we can download
                 if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
                     return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
                 } else {
@@ -238,11 +263,12 @@ class TransferService(
                 }
             }
 
-            else -> throw SDKException(
+            ServerConnection.UNREACHABLE -> throw SDKException(
                 ErrorCodes.con_failed,
                 "No network connection: cannot download preview image"
             )
         }
+
     }
 
     @Throws(SDKException::class)
@@ -270,7 +296,7 @@ class TransferService(
         val resolver = CellsApp.instance.contentResolver
         try {
             if (!localFile.exists() ||
-                (networkService.isConnected()
+                (connectionService.isConnected()
                         && nodeService.isCachedVersionUpToDate(rTreeNode) == false)
             ) {
                 val jobId = prepareDownload(stateID, AppNames.LOCAL_FILE_TYPE_FILE)

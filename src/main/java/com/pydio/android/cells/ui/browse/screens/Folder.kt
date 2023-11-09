@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,7 +48,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.ListContext
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeItem
@@ -57,7 +60,6 @@ import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.models.FolderVM
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
@@ -92,7 +94,7 @@ fun Folder(
     // UI States
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val loadingState = browseRemoteVM.loadingState.collectAsState()
+    val connectionState = browseRemoteVM.connectionState.collectAsState()
     val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackBarHostState = remember { SnackbarHostState() }
@@ -210,7 +212,7 @@ fun Folder(
     ) {
         FolderScaffold(
             isExpandedScreen = isExpandedScreen,
-            loadingState = loadingState.value,
+            loadingState = connectionState.value,
             listLayout = listLayout,
             showFAB = showFAB,
             label = currNodeLabel,
@@ -238,7 +240,7 @@ fun Folder(
 @Composable
 private fun FolderScaffold(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    loadingState: ConnectionState,
     listLayout: ListLayout,
     showFAB: Boolean,
     label: String,
@@ -358,7 +360,7 @@ private fun FolderScaffold(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun FolderList(
-    loadingState: LoadingState,
+    loadingState: ConnectionState,
     listLayout: ListLayout,
     isSelectionMode: Boolean,
     stateID: StateID,
@@ -369,19 +371,18 @@ private fun FolderList(
     forceRefresh: () -> Unit,
     padding: PaddingValues,
 ) {
-    // WARNING: pullRefresh API is:
-    //   - experimental
-    //   - only implemented in material "1" for the time being.
-    val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.d(LOG_TAG, "Force refresh launched")
-        forceRefresh()
-    })
+    val state = rememberPullRefreshState(
+        refreshing = loadingState.loading == LoadingState.PROCESSING,
+        onRefresh = {
+            Log.d(LOG_TAG, "Force refresh launched")
+            forceRefresh()
+        }
+    )
 
     WithLoadingListBackground(
-        loadingState = loadingState,
+        connectionState = loadingState,
         isEmpty = children.isEmpty(),
         listContext = ListContext.BROWSE,
-        canRefresh = LoadingState.SERVER_UNREACHABLE != loadingState,
         modifier = Modifier.padding(padding)
     ) {
         val alpha = getFloatResource(LocalContext.current, R.dimen.disabled_list_item_alpha)
@@ -399,7 +400,11 @@ private fun FolderList(
             else -> stringResource(R.string.parent_folder)
         }
 
-        Box(Modifier.pullRefresh(state)) {
+        Box(
+            Modifier
+//                 .fillMaxHeight(.8f)
+                .pullRefresh(state)
+        ) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
@@ -474,8 +479,9 @@ private fun FolderList(
             }
 
             PullRefreshIndicator(
-                loadingState == LoadingState.PROCESSING,
+                loadingState.loading == LoadingState.PROCESSING,
                 state,
+//                Modifier.align(Alignment.BottomCenter)
                 Modifier.align(Alignment.TopCenter)
             )
         }
@@ -486,14 +492,14 @@ private fun FolderList(
 @SuppressLint("ModifierFactoryExtensionFunction")
 @OptIn(ExperimentalFoundationApi::class)
 fun getClickableModifier(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     isSelectionMode: Boolean,
     item: TreeNodeItem,
     onTap: (StateID, Boolean) -> Unit,
     alpha: Float,
 ): Modifier {
     var tmpModifier = Modifier.fillMaxWidth()
-    tmpModifier = if (loadingState == LoadingState.SERVER_UNREACHABLE && item.lastCheckTS < 1) {
+    tmpModifier = if (!connectionState.serverConnection.isConnected() && item.lastCheckTS < 1) {
         // Folder has not yet been loaded and we have no connection to the server
         // Do not react to click and make less visible
         tmpModifier.alpha(alpha)

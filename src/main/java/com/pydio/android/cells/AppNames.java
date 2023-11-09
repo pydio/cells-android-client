@@ -92,15 +92,6 @@ public interface AppNames {
     String TRANSFER_TYPE_DOWNLOAD = "download";
     String TRANSFER_TYPE_UPLOAD = "upload";
 
-
-    // Account Authentication States
-    // TODO Finalize auth state management.
-    String AUTH_STATUS_NEW = "new";
-    String AUTH_STATUS_NO_CREDS = "no-credentials";
-    String AUTH_STATUS_UNAUTHORIZED = "unauthorized";
-    String AUTH_STATUS_EXPIRED = "expired";
-    String AUTH_STATUS_REFRESHING = "refreshing";
-    String AUTH_STATUS_CONNECTED = "connected";
     // Session Lifecycle States
     String SESSION_STATE_NEW = "new";
     String LIFECYCLE_STATE_FOREGROUND = "foreground";

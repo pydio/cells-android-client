@@ -1,7 +1,6 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.transfer.CellsS3Client
@@ -88,7 +87,7 @@ class SessionFactory(
                 throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountID")
             }
 
-        if (sessionView.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+        if (sessionView.isLoggedIn()) {
             var currTransport = transportStore.get(accountID.id)
             if (currTransport == null) {
                 currTransport = prepareTransport(sessionView)

@@ -56,9 +56,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
@@ -68,7 +70,6 @@ import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.OfflineVM
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.core.composables.getJobStatus
@@ -86,7 +87,7 @@ import com.pydio.android.cells.utils.asAgoString
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val logTag = "OfflineRoots"
+private const val LOG_TAG = "OfflineRoots.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,9 +100,9 @@ fun OfflineRoots(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
-
     val listLayout by offlineVM.layout.collectAsState(ListLayout.LIST)
-    val loadingState = offlineVM.loadingState.collectAsState(LoadingState.STARTING)
+    val loadingState = offlineVM.connectionState.collectAsState()
+
     val errMsg = offlineVM.errorMessage.collectAsState(null)
     val syncJob = offlineVM.syncJob.collectAsState()
     val roots = offlineVM.offlineRoots.collectAsState()
@@ -201,7 +202,7 @@ fun OfflineRoots(
             }
 
             else -> {
-                Log.e(logTag, "Unknown action $action for $stateID")
+                Log.e(LOG_TAG, "Unknown action $action for $stateID")
                 moreMenuDone()
             }
         }
@@ -209,7 +210,7 @@ fun OfflineRoots(
 
     WithScaffold(
         isExpandedScreen = isExpandedScreen,
-        loadingState = loadingState.value,
+        connectionState = loadingState.value,
         listLayout = listLayout,
         syncJob = syncJob.value,
         title = stringResource(id = R.string.action_open_offline_roots),
@@ -232,7 +233,7 @@ fun OfflineRoots(
 @Composable
 private fun WithScaffold(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     listLayout: ListLayout,
     syncJob: RJob?,
     title: String,
@@ -336,7 +337,7 @@ private fun WithScaffold(
             sheetState = moreMenuState.sheetState,
         ) {
             OfflineRootsList(
-                loadingState = loadingState,
+                connectionState = connectionState,
                 listLayout = listLayout,
                 syncJob = syncJob,
                 roots = roots,
@@ -361,7 +362,7 @@ private fun WithScaffold(
 )
 @Composable
 private fun OfflineRootsList(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     listLayout: ListLayout,
     syncJob: RJob?,
     roots: List<RLiveOfflineRoot>,
@@ -372,18 +373,17 @@ private fun OfflineRootsList(
 ) {
 
     val state = rememberPullRefreshState(
-        refreshing = loadingState == LoadingState.PROCESSING,
+        refreshing = connectionState.loading == LoadingState.PROCESSING,
         onRefresh = {
-            Log.e(logTag, "Force refresh launched")
+            Log.e(LOG_TAG, "Force refresh launched")
             forceRefresh()
         },
     )
 
     WithLoadingListBackground(
-        loadingState = loadingState,
+        connectionState = connectionState,
         isEmpty = roots.isEmpty(),
         listContext = ListContext.OFFLINE,
-        canRefresh = true,
         emptyRefreshableDesc = stringResource(id = R.string.no_offline_root_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
@@ -504,7 +504,7 @@ private fun OfflineRootsList(
             }
 
             PullRefreshIndicator(
-                refreshing = loadingState == LoadingState.PROCESSING,
+                refreshing = connectionState.loading == LoadingState.PROCESSING,
                 state = state,
                 modifier = Modifier.align(Alignment.TopCenter)
             )

@@ -34,11 +34,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.models.AccountHomeVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.DefaultTopBar
 import com.pydio.android.cells.ui.core.composables.MainTitleText
 import com.pydio.android.cells.ui.core.composables.lists.LargeCardWithIcon
@@ -50,7 +51,7 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val logTag = "AccountHome"
+private const val LOG_TAG = "AccountHome.kt"
 
 @Composable
 fun AccountHome(
@@ -65,7 +66,7 @@ fun AccountHome(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val loadingState = browseRemoteVM.loadingState.collectAsState()
+    val connectionState = browseRemoteVM.connectionState.collectAsState()
     val sessionView = accountHomeVM.currSession.collectAsState(null)
     val workspaces = accountHomeVM.wss.collectAsState(listOf())
     val cells = accountHomeVM.cells.collectAsState(listOf())
@@ -82,7 +83,7 @@ fun AccountHome(
         title = title,
         workspaces = workspaces.value,
         cells = cells.value,
-        loadingState = loadingState.value,
+        connectionState = connectionState.value,
         openDrawer = openDrawer,
         openAccounts = {
             scope.launch {
@@ -106,7 +107,7 @@ private fun WithScaffold(
     title: String,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     openDrawer: () -> Unit,
     openAccounts: () -> Unit,
     openWorkspace: (StateID) -> Unit,
@@ -132,7 +133,7 @@ private fun WithScaffold(
         )
 
         HomeListContent(
-            loadingState = loadingState,
+            connectionState = connectionState,
             stateID = stateID,
             workspaces = workspaces,
             cells = cells,
@@ -148,7 +149,7 @@ private fun WithScaffold(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun HomeListContent(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     stateID: StateID,
     workspaces: List<RWorkspace>,
     cells: List<RWorkspace>,
@@ -159,10 +160,12 @@ private fun HomeListContent(
     modifier: Modifier,
 ) {
 
-    val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.i(logTag, "Force refresh launched")
-        forceRefresh()
-    })
+    val state =
+        rememberPullRefreshState(
+            refreshing = connectionState.loading == LoadingState.PROCESSING,
+            onRefresh = {
+                forceRefresh()
+            })
 
     Box(modifier.pullRefresh(state)) {
         WithListTheme {
@@ -238,7 +241,7 @@ private fun HomeListContent(
                 if (workspaces.isEmpty() && cells.isEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(modifier = Modifier.fillMaxSize(1f)) {
-                            if (loadingState == LoadingState.IDLE) {
+                            if (connectionState.loading == LoadingState.IDLE) {
                                 Column {
                                     Text(
                                         text = stringResource(R.string.account_home_no_ws_title),
@@ -263,7 +266,7 @@ private fun HomeListContent(
             }
         }
         PullRefreshIndicator(
-            loadingState == LoadingState.PROCESSING || loadingState == LoadingState.STARTING,
+            connectionState.loading == LoadingState.PROCESSING,
             state,
             Modifier.align(Alignment.TopCenter)
         )

@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID
@@ -73,7 +72,8 @@ class SearchVM(
                 if (Str.notEmpty(query)) {
                     Log.d(logTag, "Setting debounced query to: $query")
                     launchProcessing()
-                    if (loadingState.value != LoadingState.SERVER_UNREACHABLE) {
+                    // TODO make this configurable depending on the connection type
+                    if (connectionState.value.serverConnection.isConnected()) {
                         // skip remote process when the server is unreachable
                         nodeService.remoteQuery(_localStateID.account(), query)
                     }

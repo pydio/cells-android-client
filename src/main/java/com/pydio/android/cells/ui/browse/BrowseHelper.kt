@@ -26,7 +26,7 @@ open class BrowseHelper(
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
 
         Log.i(logTag, "... Calling open for $stateID")
-        Log.d(logTag, "    Loading state: ${browseVM.loadingState.value}")
+        Log.d(logTag, "    Loading state: ${browseVM.connectionState.value}")
         Log.d(logTag, "    Context: $callingContext")
 
         // FIXME remove

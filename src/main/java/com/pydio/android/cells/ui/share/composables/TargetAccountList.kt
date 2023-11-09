@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
@@ -55,7 +56,7 @@ fun TargetAccountList(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_vertical_padding)),
     ) {
         items(accounts) { account ->
-            val currModifier = if (account.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+            val currModifier = if (account.isLoggedIn()) {
                 modifier.clickable {
                     openAccount(StateID(account.username, account.url))
                 }
@@ -123,7 +124,7 @@ private fun TargetAccountListItem(
                 )
             }
 
-            if (authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+            if (authStatus != LoginStatus.Connected.id) {
                 IconButton(onClick = doLogin) {
                     Icon(
                         imageVector = CellsIcons.Login,
@@ -145,7 +146,7 @@ private fun ForegroundAccountListItemPreview() {
             "Cells test server",
             "lea",
             "https://example.com",
-            authStatus = AppNames.AUTH_STATUS_CONNECTED,
+            authStatus = LoginStatus.Connected.id,
             isForeground = true,
             {},
             Modifier
@@ -165,7 +166,7 @@ private fun AccountListItemPreview() {
             "Cells test server",
             "lea",
             "https://example.com",
-            authStatus = AppNames.AUTH_STATUS_NO_CREDS,
+            authStatus = LoginStatus.NoCreds.id,
             isForeground = false,
             {},
             Modifier

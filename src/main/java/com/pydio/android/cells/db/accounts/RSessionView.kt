@@ -3,6 +3,7 @@ package com.pydio.android.cells.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.transport.StateID
 import java.util.*
@@ -55,5 +56,9 @@ data class RSessionView(
 
     fun getStateID(): StateID {
         return StateID.fromId(accountID)
+    }
+
+    fun isLoggedIn(): Boolean {
+        return authStatus == LoginStatus.Connected.id
     }
 }

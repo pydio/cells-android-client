@@ -23,12 +23,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.pydio.android.cells.LoginStatus
+import com.pydio.android.cells.NetworkStatus
 import com.pydio.android.cells.R
-import com.pydio.android.cells.SessionStatus
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.ErrorService
+import com.pydio.android.cells.services.SessionState
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -36,9 +39,9 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-private enum class Status {
-    OK, WARNING, DANGER
-}
+//private enum class Status {
+//    OK, WARNING, DANGER
+//}
 
 private const val LOG_TAG = "InternetBanner.kt"
 
@@ -53,7 +56,7 @@ fun WithInternetBanner(
 ) {
 
     val localNavigateTo: (String) -> Unit =
-        {    // clean error stack before launching the relog process
+        {    // clean error stack before launching the re-log process
             errorService.clearStack()
             navigateTo(it)
         }
@@ -78,26 +81,31 @@ private fun InternetBanner(
 
     val scope = rememberCoroutineScope()
     val currSession = connectionService.sessionView.collectAsState(initial = null)
-    val sessionStatus = connectionService.sessionStatusFlow
-        .collectAsState(initial = SessionStatus.OK)
+    val sessionStatus = connectionService.sessionStateFlow.collectAsState(
+        SessionState(NetworkStatus.OK, true, LoginStatus.Connected)
+    )
     val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
-    if (SessionStatus.OK != sessionStatus.value && currSession.value != null) {
-        when (sessionStatus.value) {
-            SessionStatus.NO_INTERNET
+    currSession.value?.let {
+        val currState = sessionStatus.value
+
+
+//    if (currSession.value != null) {
+        //  SessionStatus.OK != sessionStatus.value && )
+        when {
+            currState.networkStatus == NetworkStatus.UNAVAILABLE
             -> ConnectionStatus(
                 icon = CellsIcons.NoInternet,
                 desc = stringResource(R.string.no_internet)
             )
 
-            SessionStatus.CAPTIVE
+            currState.networkStatus == NetworkStatus.CAPTIVE
             -> ConnectionStatus(
                 icon = CellsIcons.CaptivePortal,
                 desc = stringResource(R.string.captive_portal)
             )
 
-            SessionStatus.SERVER_UNREACHABLE
-            -> {
+            !currState.isServerReachable -> {
                 if (knownSessions.value.isEmpty()) {
                     ConnectionStatus(
                         icon = CellsIcons.ServerUnreachable,
@@ -111,15 +119,7 @@ private fun InternetBanner(
                 }
             }
 
-            SessionStatus.METERED,
-            SessionStatus.ROAMING
-            -> ConnectionStatus(
-                icon = CellsIcons.Metered,
-                desc = stringResource(R.string.metered_connection),
-                type = Status.WARNING
-            )
-
-            SessionStatus.CAN_RELOG
+            currState.isServerReachable && !currState.loginStatus.isConnected()
             -> CredExpiredStatus(
                 icon = CellsIcons.NoValidCredentials,
                 desc = stringResource(R.string.auth_err_expired),
@@ -134,7 +134,10 @@ private fun InternetBanner(
                                     AuthService.LOGIN_CONTEXT_BROWSE
                                 )
                             } else {
-                                Log.i(LOG_TAG, "... Launching re-log on Cells for ${it.accountID} from ${it.getStateID()}")
+                                Log.i(
+                                    LOG_TAG,
+                                    "... Launching re-log on Cells for ${it.accountID} from ${it.getStateID()}"
+                                )
                                 LoginDestinations.LaunchAuthProcessing.createRoute(
                                     it.getStateID(),
                                     it.skipVerify(),
@@ -148,28 +151,41 @@ private fun InternetBanner(
                     }
                 }
             )
-            //ConnectionVM.SessionStatus.NOT_LOGGED_IN,
+
+            // TODO also handle preferences on limited networks
+            currState.networkStatus == NetworkStatus.METERED
+                    || currState.networkStatus == NetworkStatus.ROAMING
+            -> ConnectionStatus(
+                icon = CellsIcons.Metered,
+                desc = stringResource(R.string.metered_connection),
+                type = ServerConnection.LIMITED
+            )
+
             else -> ConnectionStatus(
                 icon = CellsIcons.NoValidCredentials,
                 desc = stringResource(id = R.string.auth_err_no_token),
-                type = Status.DANGER
+                type = ServerConnection.UNREACHABLE
             )
         }
     }
 }
 
 @Composable
-private fun ConnectionStatus(icon: ImageVector, desc: String, type: Status = Status.OK) {
+private fun ConnectionStatus(
+    icon: ImageVector,
+    desc: String,
+    type: ServerConnection = ServerConnection.OK
+) {
 
     val tint = when (type) {
-        Status.WARNING -> CellsColor.warning
-        Status.DANGER -> CellsColor.danger
+        ServerConnection.LIMITED -> CellsColor.warning
+        ServerConnection.UNREACHABLE -> CellsColor.danger
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     val bg = when (type) {
-        Status.WARNING -> CellsColor.warning.copy(alpha = .1f)
-        Status.DANGER -> CellsColor.danger.copy(alpha = .1f)
+        ServerConnection.LIMITED -> CellsColor.warning.copy(alpha = .1f)
+        ServerConnection.UNREACHABLE -> CellsColor.danger.copy(alpha = .1f)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
@@ -248,7 +264,7 @@ private fun ConnectionStatusPreview() {
         ConnectionStatus(
             icon = CellsIcons.Metered,
             desc = stringResource(id = R.string.metered_connection),
-            Status.WARNING
+            ServerConnection.LIMITED
         )
     }
 }

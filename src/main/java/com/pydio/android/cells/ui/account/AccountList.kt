@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ListContext
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.ui.core.composables.Decorated
@@ -151,7 +152,8 @@ private fun AccountListItem(
                 )
             }
 
-            val connected = authStatus == AppNames.AUTH_STATUS_CONNECTED
+            // TODO rework this
+            val connected = authStatus == LoginStatus.Connected.id
             IconButton(onClick = if (connected) logout else login) {
                 Icon(
                     imageVector = if (connected) CellsIcons.Logout else CellsIcons.Login,
@@ -181,7 +183,7 @@ private fun ForegroundAccountListItemPreview() {
                 "Cells test server",
                 "lea",
                 "https://example.com",
-                authStatus = AppNames.AUTH_STATUS_CONNECTED,
+                authStatus = LoginStatus.Connected.id,
                 isForeground = true,
                 {}, {}, {}, Modifier
             )
@@ -202,7 +204,7 @@ private fun AccountListItemPreview() {
                 "Cells test server",
                 "lea",
                 "https://example.com",
-                authStatus = AppNames.AUTH_STATUS_EXPIRED,
+                authStatus = LoginStatus.Expired.id,
                 isForeground = false,
                 {},
                 {},

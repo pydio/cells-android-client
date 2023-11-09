@@ -30,8 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
@@ -44,7 +44,7 @@ import com.pydio.cells.utils.Str
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HitsList(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     query: String,
     listLayout: ListLayout,
     hits: List<MultipleItem>,
@@ -54,7 +54,7 @@ fun HitsList(
 ) {
 
     WithLoadingListBackground(
-        loadingState = loadingState,
+        connectionState = connectionState,
         isEmpty = hits.isEmpty(),
         showProgressAtStartup = false,
         startingDesc = stringResource(R.string.search_hint),
@@ -63,7 +63,6 @@ fun HitsList(
         } else {
             stringResource(R.string.no_result_for_search, query)
         },
-        canRefresh = loadingState != LoadingState.SERVER_UNREACHABLE,
         modifier = Modifier.fillMaxSize()
     ) {
 

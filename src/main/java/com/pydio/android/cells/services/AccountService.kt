@@ -2,6 +2,7 @@ package com.pydio.android.cells.services
 
 import android.util.Log
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.RAccount
@@ -131,7 +132,7 @@ class AccountService(
         val server = sessionFactory.getServer(serverURL.id)
             ?: throw SDKException("could not sign up: unknown server with id ${serverURL.id}")
         // At this point we assume we have been connected or an error has already been thrown
-        return registerAccount(credentials.username, server, AppNames.AUTH_STATUS_CONNECTED)
+        return registerAccount(credentials.username, server, LoginStatus.Connected.id)
     }
 
     suspend fun registerAccount(
@@ -178,7 +179,7 @@ class AccountService(
             var changes = 0
             val accounts = accountDao.getAccounts()
             accountLoop@ for (rAccount in accounts) {
-                if (rAccount.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                if (rAccount.authStatus != LoginStatus.Connected.id) {
                     continue@accountLoop
                 }
                 if (networkService.isConnected()) {
@@ -279,7 +280,7 @@ class AccountService(
     }
 
     private suspend fun doUpdateAccount(account: RAccount) = withContext(ioDispatcher) {
-        if (account.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+        if (account.authStatus != LoginStatus.Connected.id) {
             Log.e(logTag, "## About to update account with status ${account.authStatus}")
             Thread.dumpStack()
         }
@@ -335,7 +336,7 @@ class AccountService(
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
                 authService.forgetCredentials(accountID, it.isLegacy)
-                it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                it.authStatus = LoginStatus.NoCreds.id
                 doUpdateAccount(it)
                 return@withContext null
             }
@@ -379,7 +380,7 @@ class AccountService(
             val isConnected = networkService.isConnected()
             val accountID = stateID.account()
             accountDao.getAccount(accountID.id)?.let {
-                return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
+                return@withContext isConnected && it.authStatus == LoginStatus.Connected.id
             }
             return@withContext false
         }

@@ -22,13 +22,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
 import com.pydio.android.cells.ui.browse.menus.MoreMenuState
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
@@ -56,7 +56,7 @@ fun Search(
 
     searchVM.newContext(queryContext, stateID)
 
-    val loadingState by searchVM.loadingState.collectAsState(LoadingState.STARTING)
+    val connectionState by searchVM.connectionState.collectAsState()
     val errMessage by searchVM.errorMessage.collectAsState(null)
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
 
@@ -142,7 +142,7 @@ fun Search(
 
     WithScaffold(
         isExpandedScreen = isExpandedScreen,
-        loadingState = loadingState,
+        connectionState = connectionState,
         query = query,
         errMsg = errMessage,
         updateQuery = searchVM::setQuery,
@@ -168,7 +168,7 @@ fun Search(
 @Composable
 private fun WithScaffold(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     query: String,
     errMsg: ErrorMessage?,
     updateQuery: (String) -> Unit,
@@ -264,7 +264,7 @@ private fun WithScaffold(
             sheetState = moreMenuState.sheetState,
         ) {
             HitsList(
-                loadingState = loadingState,
+                connectionState = connectionState,
                 listLayout = listLayout,
                 query = query,
                 hits = hits,

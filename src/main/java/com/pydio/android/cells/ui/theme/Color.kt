@@ -7,9 +7,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import com.google.android.material.color.utilities.Scheme
 
-// v3.1 Colors
+// v3 Colors
 
 object CellsColor {
+
+    // Custom main colors for the Theme
+    const val MeteredColor = "#FF9800"
+    const val OfflineColor = "#BA1B1B"
 
     val defaultMainColor = Color(0xFF134E6C)
 

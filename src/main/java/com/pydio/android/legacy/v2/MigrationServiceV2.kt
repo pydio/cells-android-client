@@ -3,6 +3,7 @@ package com.pydio.android.legacy.v2
 import android.content.Context
 import android.util.Log
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.db.runtime.LogDao
 import com.pydio.android.cells.db.runtime.RLog
@@ -346,7 +347,7 @@ class MigrationServiceV2 : KoinComponent {
         val token = v2MainDB.getToken(subject)
         if (token == null) {
             val server = sessionFactory.registerServer(serverURL)
-            accountService.registerAccount(userName, server, AppNames.AUTH_STATUS_NO_CREDS)
+            accountService.registerAccount(userName, server, LoginStatus.NoCreds.id)
         } else {
             val jwtCredentials = JWTCredentials(userName, token)
             accountService.signUp(serverURL, jwtCredentials)
@@ -362,7 +363,7 @@ class MigrationServiceV2 : KoinComponent {
         val pwd = v2MainDB.getPassword(subject)
         if (pwd == null) {
             val server = sessionFactory.registerServer(serverURL)
-            accountService.registerAccount(record.user, server, AppNames.AUTH_STATUS_NO_CREDS)
+            accountService.registerAccount(record.user, server, LoginStatus.NoCreds.id)
         } else {
             val jwtCredentials = P8Credentials(record.user, pwd)
             accountService.signUp(serverURL, jwtCredentials)
@@ -382,7 +383,7 @@ class MigrationServiceV2 : KoinComponent {
             accountService.registerAccount(
                 record.username,
                 server,
-                AppNames.AUTH_STATUS_NO_CREDS
+                LoginStatus.NoCreds.id
             )
         } else {
             val jwtCredentials = JWTCredentials(record.username, token)
@@ -403,7 +404,7 @@ class MigrationServiceV2 : KoinComponent {
             accountService.registerAccount(
                 record.username,
                 server,
-                AppNames.AUTH_STATUS_NO_CREDS
+                LoginStatus.NoCreds.id
             )
         } else {
             val jwtCredentials = P8Credentials(record.username, pwd)

@@ -8,6 +8,7 @@ import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
+import com.pydio.android.cells.NetworkStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import java.util.Locale
 
-private const val logTag = "NetworkService"
+private const val LOG_TAG = "NetworkService.kt"
 
 class NetworkService(
     context: Context,
@@ -31,22 +32,22 @@ class NetworkService(
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
-    private val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
+    val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
-            Log.e(logTag, "Updating current network status to $it")
+            Log.e(LOG_TAG, "Updating current network status to $it")
             trySendBlocking(it)
                 .onFailure { throwable ->
-                    Log.e(logTag, "Could not emit in flow: ${throwable?.message}")
+                    Log.e(LOG_TAG, "Could not emit in flow: ${throwable?.message}")
                 }
         }
         connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback)
 
         awaitClose {
             try {
-                Log.w(logTag, "In await close, about to unregister Network Callback")
+                Log.w(LOG_TAG, "In awaitClose, about to unregister Network Callback")
                 connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
             } catch (e: IllegalArgumentException) { // Sometimes the callback has not been registered fast enough
-                Log.e(logTag, "Could not unregister: ${e.message}")
+                Log.e(LOG_TAG, "Could not unregister: ${e.message}")
             }
         }
     }
@@ -57,35 +58,35 @@ class NetworkService(
     val networkStatusFlow: StateFlow<NetworkStatus> = networkStatusFlowCold.stateIn(
         scope = coroutineService.cellsIoScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = NetworkStatus.Unavailable
+        initialValue = NetworkStatus.UNAVAILABLE
     )
 
     suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
 
     suspend fun isConnected(): Boolean {
-        return isConnected(fetchNetworkStatus())
+        return fetchNetworkStatus().isConnected()
     }
 
-    private fun isConnected(networkStatus: NetworkStatus): Boolean {
-        return when (networkStatus) {
-            is NetworkStatus.Unknown -> {
-                Log.w(logTag, "Unknown network status, doing as if connected")
-                true
-            }
-
-            is NetworkStatus.Unavailable -> { // There is no network connection
-                false
-            }
-
-            is NetworkStatus.Captive -> {
-                false
-            }
-
-            is NetworkStatus.Unmetered,
-            is NetworkStatus.Metered,
-            is NetworkStatus.Roaming -> true
-        }
-    }
+//    fun isConnected(networkStatus: NetworkStatus): Boolean {
+//        return when (networkStatus) {
+//            is NetworkStatus.Unknown -> {
+//                Log.w(LOG_TAG, "Unknown network status, doing as if connected")
+//                true
+//            }
+//
+//            is NetworkStatus.Unavailable -> { // There is no network connection
+//                false
+//            }
+//
+//            is NetworkStatus.Captive -> {
+//                false
+//            }
+//
+//            is NetworkStatus.Ok,
+//            is NetworkStatus.Metered,
+//            is NetworkStatus.Roaming -> true
+//        }
+//    }
 
     // TODO retrieve and expose App network usage to the end user
     private fun networkUsage(context: Context) {
@@ -98,7 +99,7 @@ class NetworkService(
             val received = TrafficStats.getUidRxBytes(runningApp.uid)
             val sent = TrafficStats.getUidTxBytes(runningApp.uid)
             Log.d(
-                logTag, String.format(
+                LOG_TAG, String.format(
                     Locale.getDefault(),
                     "uid: %1d - name: %s: Sent = %1d, Received = %1d",
                     runningApp.uid,
@@ -122,7 +123,7 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
     override fun onLost(network: Network) {
         Log.i(logTag, "## After loosing network #$network")
-        postValue(NetworkStatus.Unavailable)
+        postValue(NetworkStatus.UNAVAILABLE)
     }
 
     override fun onCapabilitiesChanged(
@@ -131,45 +132,36 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
     ) {
         Log.d(logTag, "## Capability changed for #$network")
         val status = fromCapabilities(networkCapabilities)
-        if (NetworkStatus.Unknown == status) {
+        if (NetworkStatus.UNKNOWN == status) {
             Log.w(logTag, "Unexpected status for network #$network")
         }
         postValue(status)
     }
-}
 
-fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
-    return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-        Log.d(logTag, ".. capabilities: $networkCapabilities.")
-        when {
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
-            -> NetworkStatus.Captive
+    private fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
+        return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+            Log.d(LOG_TAG, ".. capabilities: $networkCapabilities.")
+            when {
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+                -> NetworkStatus.CAPTIVE
 
-            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-            -> NetworkStatus.Roaming
+                !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                -> NetworkStatus.ROAMING
 
-            !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-            -> NetworkStatus.Metered
+                !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                -> NetworkStatus.METERED
 
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                    && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-                    || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
-            -> NetworkStatus.Unmetered
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+                        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                        || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+                -> NetworkStatus.OK
 
-            else -> {
-                NetworkStatus.Unknown
+                else -> {
+                    NetworkStatus.UNKNOWN
+                }
             }
+        } else {
+            NetworkStatus.UNAVAILABLE
         }
-    } else {
-        NetworkStatus.Unavailable
     }
-}
-
-sealed class NetworkStatus {
-    object Unmetered : NetworkStatus()
-    object Metered : NetworkStatus()
-    object Roaming : NetworkStatus()
-    object Captive : NetworkStatus()
-    object Unavailable : NetworkStatus()
-    object Unknown : NetworkStatus()
 }

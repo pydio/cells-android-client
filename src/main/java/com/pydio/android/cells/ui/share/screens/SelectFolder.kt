@@ -50,10 +50,10 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.CreateFolder
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
@@ -95,7 +95,7 @@ fun SelectFolderScreen(
 
     val navController = rememberNavController()
 
-    val loadingStatus = browseRemoteVM.loadingState.collectAsState()
+    val connectionState = browseRemoteVM.connectionState.collectAsState()
     val children = shareVM.children.collectAsState()
 
     val forbiddenIDs: MutableState<Set<StateID>> = remember { mutableStateOf(setOf()) }
@@ -123,27 +123,10 @@ fun SelectFolderScreen(
     }
 
     val isForbiddenTarget: (TreeNodeItem) -> Boolean = {
-//        Log.e(LOG_TAG, "... isforbidden for ${it.stateID} - len: ${forbiddenIDs.value.size}")
         if (!it.isFolder || it.isRecycle) {
             true
         } else {
             forbiddenIDs.value.contains(it.stateID)
-            // var found = forbiddenIDs.value.contains(it.stateID)
-            // if (!found) {
-            //     Log.e(
-            //         LOG_TAG,
-            //         "... isforbidden for ${it.stateID} - len: ${forbiddenIDs.value.size}"
-            //     )
-            //     for (curr in forbiddenIDs.value) {
-            //         if (curr == it.stateID) {
-            //             found = true
-            //             break
-            //         }
-            //     }
-            //     Log.e(LOG_TAG, "... After: found = $found")
-
-            // }
-            // found
         }
     }
 
@@ -174,7 +157,7 @@ fun SelectFolderScreen(
                 Log.i(LOG_TAG, "## First Composition for: $SELECT_FOLDER_PAGE/$stateID")
             }
             SelectFolderScaffold(
-                loadingStatus = loadingStatus.value,
+                connectionState = connectionState.value,
                 action = targetAction,
                 stateID = stateID,
                 children = children.value,
@@ -205,7 +188,7 @@ fun SelectFolderScreen(
 
 @Composable
 fun SelectFolderScaffold(
-    loadingStatus: LoadingState,
+    connectionState: ConnectionState,
     action: String,
     stateID: StateID,
     children: List<TreeNodeItem>,
@@ -238,7 +221,7 @@ fun SelectFolderScaffold(
             action = action,
             stateID = stateID,
             children = children,
-            loadingStatus = loadingStatus,
+            connectionState = connectionState,
             forceRefresh = forceRefresh,
             open = open,
             isForbiddenTarget = isForbiddenTarget,
@@ -253,7 +236,7 @@ private fun SelectFolderList(
     action: String,
     stateID: StateID,
     children: List<TreeNodeItem>,
-    loadingStatus: LoadingState,
+    connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     open: (StateID) -> Unit,
     isForbiddenTarget: (TreeNodeItem) -> Boolean,
@@ -267,7 +250,7 @@ private fun SelectFolderList(
         end = dimensionResource(R.dimen.list_item_inner_padding).div(2),
     )
     val state = rememberPullRefreshState(
-        loadingStatus == LoadingState.PROCESSING,
+        connectionState.loading.isRunning(),
         onRefresh = { forceRefresh() },
     )
     Box(modifier.pullRefresh(state)) {
@@ -302,7 +285,7 @@ private fun SelectFolderList(
             }
         }
         PullRefreshIndicator(
-            loadingStatus == LoadingState.PROCESSING,
+            connectionState.loading.isRunning(),
             state,
             Modifier.align(Alignment.TopCenter)
         )

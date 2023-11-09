@@ -43,7 +43,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ServerConnection
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
@@ -53,7 +56,6 @@ import com.pydio.android.cells.ui.browse.composables.NodesMoreMenuData
 import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
@@ -80,7 +82,12 @@ fun Bookmarks(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val loadingState by bookmarksVM.loadingState.collectAsState(LoadingState.IDLE)
+    val connectionState by bookmarksVM.connectionState.collectAsState(
+        ConnectionState(
+            LoadingState.IDLE,
+            ServerConnection.OK
+        )
+    )
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
 
     val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
@@ -217,7 +224,7 @@ fun Bookmarks(
 
     BookmarkScaffold(
         isExpandedScreen = isExpandedScreen,
-        loadingState = loadingState,
+        loadingState = connectionState,
         listLayout = listLayout,
         title = stringResource(id = R.string.action_open_bookmarks),
         bookmarks = bookmarks.value,
@@ -240,7 +247,7 @@ fun Bookmarks(
 @Composable
 private fun BookmarkScaffold(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    loadingState: ConnectionState,
     listLayout: ListLayout,
     title: String,
     bookmarks: List<MultipleItem>,
@@ -364,7 +371,7 @@ private fun BookmarkScaffold(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BookmarkList(
-    loadingState: LoadingState,
+    loadingState: ConnectionState,
     listLayout: ListLayout,
     isSelectionMode: Boolean,
     bookmarks: List<MultipleItem>,
@@ -376,18 +383,16 @@ private fun BookmarkList(
 ) {
 
     val state = rememberPullRefreshState(
-        loadingState == LoadingState.PROCESSING,
+        loadingState.loading == LoadingState.PROCESSING,
         onRefresh = {
             Log.i(LOG_TAG, "Force refresh launched")
             forceRefresh()
         },
     )
     WithLoadingListBackground(
-        loadingState = loadingState,
+        connectionState = loadingState,
         isEmpty = bookmarks.isEmpty(),
         listContext = ListContext.BOOKMARKS,
-        // TODO also handle if server is unreachable
-        canRefresh = true,
         emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
         modifier = Modifier.fillMaxSize()
     ) {
@@ -460,7 +465,7 @@ private fun BookmarkList(
             }
 
             PullRefreshIndicator(
-                loadingState == LoadingState.PROCESSING,
+                loadingState.loading == LoadingState.PROCESSING,
                 state,
                 Modifier.align(Alignment.TopCenter)
             )

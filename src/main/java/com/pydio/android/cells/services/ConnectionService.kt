@@ -1,11 +1,13 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import com.pydio.android.cells.AppNames
-import com.pydio.android.cells.SessionStatus
+import com.pydio.android.cells.LoadingState
+import com.pydio.android.cells.LoginStatus
+import com.pydio.android.cells.NetworkStatus
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.android.cells.utils.CellsCancellation
 import com.pydio.android.cells.utils.currentTimestamp
@@ -59,12 +61,50 @@ class ConnectionService(
 
     // Cold flows
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
+    private val networkStatus: Flow<NetworkStatus> = networkService.networkStatusFlowCold
 
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
-    val customColor: Flow<String?> = sessionView.map { currSessionView ->
-        currSessionView?.customColor()
-    }
+
+    //    val customColor: Flow<String?> = sessionView.map { currSessionView ->
+//        currSessionView?.customColor()
+//    }
+    val customColor: Flow<String?> =
+        sessionView.combine(networkStatus) { currSession, networkStatus ->
+
+            Log.e(logTag, "### Checking color for session ${currSession?.authStatus}")
+            Log.e(logTag, "###   ${currSession?.isReachable}")
+            Log.e(logTag, "###   ${currSession?.lifecycleState}")
+
+            when {
+                currSession == null -> null
+
+                // TODO also include preference checks for Offline and Roaming
+                !networkStatus.isConnected() || !currSession.isReachable
+                        || currSession.authStatus != LoginStatus.Connected.id
+                -> {
+//                    Log.e(logTag, "### Offline Color")
+                    CellsColor.OfflineColor
+                }
+
+                networkStatus == NetworkStatus.ROAMING
+                -> {
+                    CellsColor.MeteredColor
+                }
+
+                networkStatus == NetworkStatus.METERED
+                -> {
+                    CellsColor.MeteredColor
+                }
+
+                else -> {
+//                    Log.e(logTag, "### Standard Color")
+                    currSession.customColor()
+                }
+
+            }
+        }
+
 
     // Expose a flag to the various screens to know if current remote is Cells or P8
     private var _isRemoteLegacy = false
@@ -94,35 +134,87 @@ class ConnectionService(
     private var lastTimeChecked = -1L
     private val lock = Any()
 
-    val sessionStatusFlow: Flow<SessionStatus> = sessionView
+//    val sessionStatusFlow: Flow<SessionStatus> = sessionView
+//        .combine(networkStatusFlow) { activeSession, networkStatus ->
+//
+//            var newStatus = when (networkStatus) {
+//                NetworkStatus.Unknown -> {
+//                    // TODO enhance this:
+//                    Log.e(logTag, "unexpected network type: $networkStatus")
+//                    SessionStatus.OK
+//                }
+//
+//                NetworkStatus.Ok -> SessionStatus.OK
+//                NetworkStatus.Metered -> SessionStatus.METERED
+//                NetworkStatus.Roaming -> SessionStatus.ROAMING
+//                NetworkStatus.Unavailable -> SessionStatus.NO_INTERNET
+//                NetworkStatus.Captive -> SessionStatus.CAPTIVE
+//            }
+//
+//            // We then refine based on the current foreground session
+//            activeSession?.let {
+//
+//                // Update the helper flag
+//                _isRemoteLegacy = it.isLegacy
+//
+//                if (newStatus == SessionStatus.CAPTIVE) {
+//                    // We do not change the status yet
+//                } else if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
+//                    // We have internet access but cannot ping the server
+//                    newStatus = SessionStatus.SERVER_UNREACHABLE
+//                    // Request a refresh of the reachable status for current stateID
+//                    serviceScope.launch {
+//                        delay(1000L) // Wait 1 sec before doing the request
+//                        val doIt: Boolean
+//                        synchronized(lock) {
+//                            if (currentTimestamp() - lastTimeChecked > 3) {
+//                                lastTimeChecked = currentTimestamp()
+//                                doIt = true
+//                            } else {
+//                                doIt = false
+//                            }
+//                        }
+//                        if (doIt) {
+//                            // This also update cached reachable status of the server
+//                            appCredentialService.insureServerIsReachable(it.getStateID())
+//                        }
+//                    }
+//                }
+//
+//                if (it.authStatus != LoginStatus.Connected.id) {
+//                    pauseMonitoring()
+//                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
+//                        && newStatus != SessionStatus.CAPTIVE
+//                        && newStatus != SessionStatus.SERVER_UNREACHABLE
+//                    ) {
+//                        SessionStatus.CAN_RELOG
+//                    } else {
+//                        // SessionStatus.NOT_LOGGED_IN
+//                        newStatus // We want to keep internet status rather than "not logged in"
+//                    }
+//                } else {
+//                    relaunchMonitoring()
+//                }
+//            } ?: run {
+//                Log.w(logTag, " **No** active session - new status: SERVER_UNREACHABLE")
+//                newStatus = SessionStatus.SERVER_UNREACHABLE
+//            }
+//            newStatus
+//        }
+//        .flowOn(coroutineService.ioDispatcher)
+//        .conflate()
+
+    val sessionStateFlow: Flow<SessionState> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
 
-            var newStatus = when (networkStatus) {
-                NetworkStatus.Unknown -> {
-                    // TODO enhance this:
-                    Log.e(logTag, "unexpected network type: $networkStatus")
-                    SessionStatus.OK
-                }
+            if (activeSession == null) {
+                SessionState(networkStatus, false, LoginStatus.Undefined)
+            } else {
+                _isRemoteLegacy = activeSession.isLegacy
 
-                NetworkStatus.Unmetered -> SessionStatus.OK
-                NetworkStatus.Metered -> SessionStatus.METERED
-                NetworkStatus.Roaming -> SessionStatus.ROAMING
-                NetworkStatus.Unavailable -> SessionStatus.NO_INTERNET
-                NetworkStatus.Captive -> SessionStatus.CAPTIVE
-            }
-
-            // We then refine based on the current foreground session
-            activeSession?.let {
-
-                // Update the helper flag
-                _isRemoteLegacy = it.isLegacy
-
-                if (newStatus == SessionStatus.CAPTIVE) {
-                    // We do not change the status yet
-                } else if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
-                    // We have internet access but cannot ping the server
-                    newStatus = SessionStatus.SERVER_UNREACHABLE
-                    // Request a refresh of the reachable status for current stateID
+                if (networkStatus.isConnected() && !activeSession.isReachable) {
+                    // We have internet access but current server is marked as un-reachable
+                    // We try again to connect
                     serviceScope.launch {
                         delay(1000L) // Wait 1 sec before doing the request
                         val doIt: Boolean
@@ -136,52 +228,75 @@ class ConnectionService(
                         }
                         if (doIt) {
                             // This also update cached reachable status of the server
-                            appCredentialService.insureServerIsReachable(it.getStateID())
+                            appCredentialService.insureServerIsReachable(activeSession.getStateID())
                         }
                     }
                 }
 
-                if (it.authStatus != AppNames.AUTH_STATUS_CONNECTED) {
+                if (activeSession.authStatus != LoginStatus.Connected.id) {
                     pauseMonitoring()
-                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
-                        && newStatus != SessionStatus.CAPTIVE
-                        && newStatus != SessionStatus.SERVER_UNREACHABLE
-                    ) {
-                        SessionStatus.CAN_RELOG
-                    } else {
-                        // SessionStatus.NOT_LOGGED_IN
-                        newStatus // We want to keep internet status rather than "not logged in"
-                    }
+//                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
+//                        && newStatus != SessionStatus.CAPTIVE
+//                        && newStatus != SessionStatus.SERVER_UNREACHABLE
+//                    ) {
+//                        SessionStatus.CAN_RELOG
+//                    } else {
+//                        // SessionStatus.NOT_LOGGED_IN
+//                        newStatus // We want to keep internet status rather than "not logged in"
+//                    }
                 } else {
                     relaunchMonitoring()
                 }
-            } ?: run {
-                Log.w(logTag, " **No** active session - new status: SERVER_UNREACHABLE")
-                newStatus = SessionStatus.SERVER_UNREACHABLE
+                SessionState(
+                    networkStatus,
+                    activeSession.isReachable,
+                    LoginStatus.fromId(activeSession.authStatus)
+                )
             }
-            newStatus
         }
         .flowOn(coroutineService.ioDispatcher)
         .conflate()
 
-    val loadingState: StateFlow<LoadingState> =
-        loadingFlag.combine(sessionStatusFlow) { state, status ->
-            val currState = if (SessionStatus.NO_INTERNET == status
-                || SessionStatus.SERVER_UNREACHABLE == status
-                || SessionStatus.CAN_RELOG == status
-            ) {
-                LoadingState.SERVER_UNREACHABLE
-            } else {
-                state
-            }
-            Log.e(logTag, "#####################################################################")
-            Log.e(logTag, "### Loading: $currState (State: $state, status: $status)")
-            currState
+    val connectionState: StateFlow<ConnectionState> =
+        loadingFlag.combine(sessionStateFlow) { loading, connection ->
+            appliedConnectionState(loading, connection)
         }.stateIn(
             scope = serviceScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = LoadingState.STARTING
+            initialValue = ConnectionState(LoadingState.STARTING, ServerConnection.OK)
         )
+
+    fun appliedConnectionState(
+        loading: LoadingState,
+        connection: SessionState
+    ): ConnectionState {
+        val tmpLoading =
+            if (!connection.networkStatus.isConnected() || !connection.isServerReachable) {
+                LoadingState.IDLE
+            } else {
+                loading
+            }
+
+        val tmpConn =
+            if (!connection.networkStatus.isConnected() || !connection.isServerReachable || !connection.loginStatus.isConnected()) {
+                ServerConnection.UNREACHABLE
+            } else if (connection.networkStatus == NetworkStatus.ROAMING
+                || connection.networkStatus == NetworkStatus.METERED
+            ) {
+                // Todo also include preferences
+                // TODO also include preference checks for Offline and Roaming
+                ServerConnection.LIMITED
+
+            } else {
+                ServerConnection.OK
+            }
+
+        return ConnectionState(tmpLoading, tmpConn)
+    }
+
+    fun isConnected(): Boolean {
+        return connectionState.value.serverConnection != ServerConnection.UNREACHABLE
+    }
 
     fun relaunchMonitoring() {
         // Only relaunch if no job is referenced
@@ -350,7 +465,7 @@ class ConnectionService(
 
         var result: Pair<Int, String?> = Pair(0, "")
 
-        if (loadingState.value == LoadingState.SERVER_UNREACHABLE) {
+        if (connectionState.value.serverConnection == ServerConnection.UNREACHABLE) {
             serviceScope.launch {
                 // We trigger a ping to the server to check if it is back on-line
                 if (appCredentialService.insureServerIsReachable(stateID)) {
@@ -405,3 +520,11 @@ class ConnectionService(
         Log.i(logTag, "### ConnectionService initialised")
     }
 }
+
+class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)
+
+class SessionState(
+    val networkStatus: NetworkStatus,
+    val isServerReachable: Boolean,
+    val loginStatus: LoginStatus
+)

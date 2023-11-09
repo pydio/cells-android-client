@@ -18,8 +18,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.ListContext
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.core.LoadingState
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsListTypography
 
@@ -27,11 +28,10 @@ import com.pydio.android.cells.ui.theme.CellsListTypography
 
 @Composable
 fun WithLoadingListBackground(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     isEmpty: Boolean,
     modifier: Modifier = Modifier,
     listContext: ListContext = ListContext.BROWSE,
-    canRefresh: Boolean = true,
     showProgressAtStartup: Boolean = true,
     startingDesc: String = stringResource(R.string.loading_message),
     emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
@@ -41,7 +41,7 @@ fun WithLoadingListBackground(
     Box(modifier = modifier) {
         if (isEmpty) {
             Box(modifier = Modifier.fillMaxSize()) {
-                if (loadingState == LoadingState.STARTING) {
+                if (connectionState.loading == LoadingState.STARTING) {
                     StartingBackground(
                         desc = startingDesc,
                         showProgressAtStartup = showProgressAtStartup,
@@ -53,7 +53,7 @@ fun WithLoadingListBackground(
                 } else {
                     EmptyList(
                         listContext = listContext,
-                        desc = if (canRefresh) {
+                        desc = if (connectionState.serverConnection.isConnected()) {
                             emptyRefreshableDesc
                         } else {
                             emptyNoConnDesc

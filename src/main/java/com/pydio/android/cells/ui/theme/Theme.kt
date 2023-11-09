@@ -24,72 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 
-private const val logTag = "Theme"
-private val DarkColorScheme = darkColorScheme(
-
-    primary = DarkCellsScheme.primary,
-    onPrimary = DarkCellsScheme.onPrimary,
-    primaryContainer = DarkCellsScheme.primaryContainer,
-    onPrimaryContainer = DarkCellsScheme.onPrimaryContainer,
-    inversePrimary = DarkCellsScheme.inversePrimary,
-    secondary = DarkCellsScheme.secondary,
-    onSecondary = DarkCellsScheme.onSecondary,
-    secondaryContainer = DarkCellsScheme.secondaryContainer,
-    onSecondaryContainer = DarkCellsScheme.onSecondaryContainer,
-    tertiary = DarkCellsScheme.tertiary,
-    onTertiary = DarkCellsScheme.onTertiary,
-    tertiaryContainer = DarkCellsScheme.tertiaryContainer,
-    onTertiaryContainer = DarkCellsScheme.onTertiaryContainer,
-    background = DarkCellsScheme.background,
-    onBackground = DarkCellsScheme.onBackground,
-    surface = DarkCellsScheme.surface,
-    onSurface = DarkCellsScheme.onSurface,
-    surfaceVariant = DarkCellsScheme.surfaceVariant,
-    onSurfaceVariant = DarkCellsScheme.onSurfaceVariant,
-    surfaceTint = DarkCellsScheme.surfaceTint,
-    inverseSurface = DarkCellsScheme.inverseSurface,
-    inverseOnSurface = DarkCellsScheme.inverseOnSurface,
-    error = DarkCellsScheme.error,
-    onError = DarkCellsScheme.onError,
-    errorContainer = DarkCellsScheme.errorContainer,
-    onErrorContainer = DarkCellsScheme.onErrorContainer,
-    outline = DarkCellsScheme.outline,
-    outlineVariant = DarkCellsScheme.outlineVariant,
-    scrim = DarkCellsScheme.scrim,
-)
-
-private val LightColorScheme = lightColorScheme(
-
-    primary = LightCellsScheme.primary,
-    onPrimary = LightCellsScheme.onPrimary,
-    primaryContainer = LightCellsScheme.primaryContainer,
-    onPrimaryContainer = LightCellsScheme.onPrimaryContainer,
-    inversePrimary = LightCellsScheme.inversePrimary,
-    secondary = LightCellsScheme.secondary,
-    onSecondary = LightCellsScheme.onSecondary,
-    secondaryContainer = LightCellsScheme.secondaryContainer,
-    onSecondaryContainer = LightCellsScheme.onSecondaryContainer,
-    tertiary = LightCellsScheme.tertiary,
-    onTertiary = LightCellsScheme.onTertiary,
-    tertiaryContainer = LightCellsScheme.tertiaryContainer,
-    onTertiaryContainer = LightCellsScheme.onTertiaryContainer,
-    background = LightCellsScheme.background,
-    onBackground = LightCellsScheme.onBackground,
-    surface = LightCellsScheme.surface,
-    onSurface = LightCellsScheme.onSurface,
-    surfaceVariant = LightCellsScheme.surfaceVariant,
-    onSurfaceVariant = LightCellsScheme.onSurfaceVariant,
-    surfaceTint = LightCellsScheme.surfaceTint,
-    inverseSurface = LightCellsScheme.inverseSurface,
-    inverseOnSurface = LightCellsScheme.inverseOnSurface,
-    error = LightCellsScheme.error,
-    onError = LightCellsScheme.onError,
-    errorContainer = LightCellsScheme.errorContainer,
-    onErrorContainer = LightCellsScheme.onErrorContainer,
-    outline = LightCellsScheme.outline,
-    outlineVariant = LightCellsScheme.outlineVariant,
-    scrim = LightCellsScheme.scrim,
-)
+//private const val LOG_TAG = "Theme.kt"
 
 @Composable
 fun UseCellsTheme(
@@ -110,12 +45,11 @@ fun UseCellsTheme(
  */
 @Composable
 fun CellsTheme(
-    customColor: String?,
+    customColor: String? = null,
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-
     val colorScheme = when {
         customColor != null && darkTheme ->
             customDark(Color(customColor.toColorInt()).toArgb())
@@ -151,31 +85,99 @@ fun CellsTheme(
     )
 }
 
-/**
- * A sample theme overlay to be used with dark dialogs.
- * Based on the Rally Navigation Codelab (com.example.compose.rally.ui.theme)
- */
-@Composable
-fun CellsDarkDialogThemeOverlay(content: @Composable () -> Unit) {
+///**
+// * A sample theme overlay to be used with dark dialogs.
+// * Based on the Rally Navigation Codelab (com.example.compose.rally.ui.theme)
+// */
+//@Composable
+//fun CellsDarkDialogThemeOverlay(content: @Composable () -> Unit) {
+//
+//    val dialogColors = darkColorScheme(
+//        primary = Color.White,
+//        surface = Color.White.copy(alpha = 0.12f).compositeOver(Color.Black),
+//        onSurface = Color.White,
+//    )
+//
+//    val currentTypography = MaterialTheme.typography
+//    val dialogTypography = currentTypography.copy(
+//        bodyMedium = currentTypography.bodyMedium.copy(
+//            fontWeight = FontWeight.Normal,
+//            fontSize = 20.sp,
+//            lineHeight = 28.sp,
+//            letterSpacing = 1.sp
+//        ),
+//        labelLarge = currentTypography.labelLarge.copy(
+//            fontWeight = FontWeight.Bold,
+//            letterSpacing = 0.2.em
+//        )
+//    )
+//    MaterialTheme(colorScheme = dialogColors, typography = dialogTypography, content = content)
+//}
 
-    val dialogColors = darkColorScheme(
-        primary = Color.White,
-        surface = Color.White.copy(alpha = 0.12f).compositeOver(Color.Black),
-        onSurface = Color.White,
-    )
+// Kind of Exhaustive themes for reference
 
-    val currentTypography = MaterialTheme.typography
-    val dialogTypography = currentTypography.copy(
-        bodyMedium = currentTypography.bodyMedium.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 20.sp,
-            lineHeight = 28.sp,
-            letterSpacing = 1.sp
-        ),
-        labelLarge = currentTypography.labelLarge.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.2.em
-        )
-    )
-    MaterialTheme(colorScheme = dialogColors, typography = dialogTypography, content = content)
-}
+//private val DarkColorScheme = darkColorScheme(
+//
+//    primary = DarkCellsScheme.primary,
+//    onPrimary = DarkCellsScheme.onPrimary,
+//    primaryContainer = DarkCellsScheme.primaryContainer,
+//    onPrimaryContainer = DarkCellsScheme.onPrimaryContainer,
+//    inversePrimary = DarkCellsScheme.inversePrimary,
+//    secondary = DarkCellsScheme.secondary,
+//    onSecondary = DarkCellsScheme.onSecondary,
+//    secondaryContainer = DarkCellsScheme.secondaryContainer,
+//    onSecondaryContainer = DarkCellsScheme.onSecondaryContainer,
+//    tertiary = DarkCellsScheme.tertiary,
+//    onTertiary = DarkCellsScheme.onTertiary,
+//    tertiaryContainer = DarkCellsScheme.tertiaryContainer,
+//    onTertiaryContainer = DarkCellsScheme.onTertiaryContainer,
+//    background = DarkCellsScheme.background,
+//    onBackground = DarkCellsScheme.onBackground,
+//    surface = DarkCellsScheme.surface,
+//    onSurface = DarkCellsScheme.onSurface,
+//    surfaceVariant = DarkCellsScheme.surfaceVariant,
+//    onSurfaceVariant = DarkCellsScheme.onSurfaceVariant,
+//    surfaceTint = DarkCellsScheme.surfaceTint,
+//    inverseSurface = DarkCellsScheme.inverseSurface,
+//    inverseOnSurface = DarkCellsScheme.inverseOnSurface,
+//    error = DarkCellsScheme.error,
+//    onError = DarkCellsScheme.onError,
+//    errorContainer = DarkCellsScheme.errorContainer,
+//    onErrorContainer = DarkCellsScheme.onErrorContainer,
+//    outline = DarkCellsScheme.outline,
+//    outlineVariant = DarkCellsScheme.outlineVariant,
+//    scrim = DarkCellsScheme.scrim,
+//)
+//
+//private val LightColorScheme = lightColorScheme(
+//
+//    primary = LightCellsScheme.primary,
+//    onPrimary = LightCellsScheme.onPrimary,
+//    primaryContainer = LightCellsScheme.primaryContainer,
+//    onPrimaryContainer = LightCellsScheme.onPrimaryContainer,
+//    inversePrimary = LightCellsScheme.inversePrimary,
+//    secondary = LightCellsScheme.secondary,
+//    onSecondary = LightCellsScheme.onSecondary,
+//    secondaryContainer = LightCellsScheme.secondaryContainer,
+//    onSecondaryContainer = LightCellsScheme.onSecondaryContainer,
+//    tertiary = LightCellsScheme.tertiary,
+//    onTertiary = LightCellsScheme.onTertiary,
+//    tertiaryContainer = LightCellsScheme.tertiaryContainer,
+//    onTertiaryContainer = LightCellsScheme.onTertiaryContainer,
+//    background = LightCellsScheme.background,
+//    onBackground = LightCellsScheme.onBackground,
+//    surface = LightCellsScheme.surface,
+//    onSurface = LightCellsScheme.onSurface,
+//    surfaceVariant = LightCellsScheme.surfaceVariant,
+//    onSurfaceVariant = LightCellsScheme.onSurfaceVariant,
+//    surfaceTint = LightCellsScheme.surfaceTint,
+//    inverseSurface = LightCellsScheme.inverseSurface,
+//    inverseOnSurface = LightCellsScheme.inverseOnSurface,
+//    error = LightCellsScheme.error,
+//    onError = LightCellsScheme.onError,
+//    errorContainer = LightCellsScheme.errorContainer,
+//    onErrorContainer = LightCellsScheme.onErrorContainer,
+//    outline = LightCellsScheme.outline,
+//    outlineVariant = LightCellsScheme.outlineVariant,
+//    scrim = LightCellsScheme.scrim,
+//)

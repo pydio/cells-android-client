@@ -1,7 +1,7 @@
 package com.pydio.android.cells.services
 
 import android.util.Log
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.SessionDao
 import com.pydio.android.cells.db.accounts.SessionViewDao
@@ -234,7 +234,7 @@ class AppCredentialService(
                 put(stateID.id, newToken)
             }
             accountDao.getAccount(stateID.accountId)?.let {
-                it.authStatus = AppNames.AUTH_STATUS_CONNECTED
+                it.authStatus = LoginStatus.Connected.id
                 accountDao.update(it)
             }
             Log.d(logTag, "... Refresh token process done for $stateID")
@@ -263,7 +263,7 @@ class AppCredentialService(
             remove(stateID.id)
         }
         accountDao.getAccount(stateID.accountId)?.let {
-            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+            it.authStatus = LoginStatus.NoCreds.id
             accountDao.update(it)
         }
     }

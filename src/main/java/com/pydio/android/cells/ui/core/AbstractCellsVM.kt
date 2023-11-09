@@ -5,9 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.ListType
-import com.pydio.android.cells.SessionStatus
+import com.pydio.android.cells.LoadingState
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.ConnectionService
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
@@ -39,29 +41,32 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
     protected val nodeService: NodeService by inject()
-    private val applicationContext: Context by inject()
+    // private val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
 
     // Loading data from server state
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
-    val loadingState: StateFlow<LoadingState> =
-        _loadingState.combine(connectionService.sessionStatusFlow) { currLoadState, sessionStatus ->
-            val newState =
-                if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
-                    LoadingState.SERVER_UNREACHABLE
-                } else {
-                    currLoadState
-                }
-            Log.e(logTag, "#####################################################################")
-            Log.e(logTag, "### Loading: $newState (State: $currLoadState, status: $sessionStatus)")
-            newState
+    val connectionState: StateFlow<ConnectionState> =
+        _loadingState.combine(connectionService.sessionStateFlow) { currLoadState, connStatus ->
+            connectionService.appliedConnectionState(currLoadState, connStatus)
+
+//            val newState =
+//                if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
+//                    LoadingState.SERVER_UNREACHABLE
+//                } else {
+//                    currLoadState
+//                }
+//            Log.e(logTag, "#####################################################################")
+//            Log.e(logTag, "### Loading: $newState (State: $currLoadState, status: $sessionStatus)")
+//            newState
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LoadingState.STARTING
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = ConnectionState(LoadingState.STARTING, ServerConnection.OK)
         )
+
 
     // Preferences
     private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -87,7 +92,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
 
     // Generic access to the underlying objects
     fun isServerReachable(): Boolean {
-        return connectionService.loadingState.value != LoadingState.SERVER_UNREACHABLE
+        return connectionState.value.serverConnection != ServerConnection.UNREACHABLE
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
@@ -115,11 +120,10 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         node: RTreeNode,
         skipUpToDateCheck: Boolean = false
     ) {
-        val currSkip =
-            skipUpToDateCheck || LoadingState.SERVER_UNREACHABLE == connectionService.loadingState.value
+        val currSkip = skipUpToDateCheck || !isServerReachable()
         Log.e(
             logTag, "Launch view file, skip check: $currSkip," +
-                    " loading: ${connectionService.loadingState.value}"
+                    " loading: ${connectionService.connectionState.value.loading}"
         )
         val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
 

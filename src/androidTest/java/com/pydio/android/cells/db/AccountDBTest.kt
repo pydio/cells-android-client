@@ -3,7 +3,7 @@ package com.pydio.android.cells.db
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.accounts.AccountDB
 import com.pydio.android.cells.db.accounts.AccountDao
 import com.pydio.android.cells.db.accounts.RAccount
@@ -76,7 +76,7 @@ class AccountDBTest {
             url = url,
             tlsMode = if (skipVerify) 1 else 0,
             isLegacy = false,
-            authStatus = AppNames.AUTH_STATUS_NEW,
+            authStatus = LoginStatus.New.id,
             properties = props,
         )
     }

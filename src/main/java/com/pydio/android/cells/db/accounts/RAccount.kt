@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.api.Server
 import com.pydio.cells.transport.StateID
@@ -59,7 +59,7 @@ data class RAccount(
                 url = server.url(),
                 tlsMode = if (server.serverURL.skipVerify()) 1 else 0,
                 isLegacy = server.isLegacy,
-                authStatus = AppNames.AUTH_STATUS_NEW,
+                authStatus = LoginStatus.New.id,
                 properties = props,
             )
         }
@@ -68,6 +68,10 @@ data class RAccount(
     fun accountID(): StateID = StateID.fromId(accountId)
 
     fun skipVerify() = tlsMode != 0
+
+    fun isLoggedIn(): Boolean {
+        return authStatus == LoginStatus.Connected.id
+    }
 
     fun serverLabel(): String? {
         if (properties.containsKey(KEY_SERVER_LABEL)) {

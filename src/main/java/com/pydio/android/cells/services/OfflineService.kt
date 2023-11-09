@@ -132,14 +132,13 @@ class OfflineService(
         var changeNb = 0
         val timeToSync = measureTimedValue {
             for (session in sessions) {
-                val msg = if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED
-                    && session.authStatus == AppNames.AUTH_STATUS_CONNECTED
-                ) {
-                    changeNb += launchAccountSync(session.getStateID(), caller, jobID)
-                    "${session.getStateID()} OK"
-                } else {
-                    "Skip ${session.getStateID()} - session: ${session.lifecycleState}, account: ${session.authStatus} "
-                }
+                val msg =
+                    if (session.isLoggedIn() && session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED) {
+                        changeNb += launchAccountSync(session.getStateID(), caller, jobID)
+                        "${session.getStateID()} OK"
+                    } else {
+                        "Skip ${session.getStateID()} - session: ${session.lifecycleState}, account: ${session.authStatus} "
+                    }
                 jobService.incrementProgress(jobID, 1, msg)
             }
         }

@@ -37,8 +37,10 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ListType
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.menus.FilterTransfersByMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
@@ -46,7 +48,6 @@ import com.pydio.android.cells.ui.browse.menus.TransferMoreMenu
 import com.pydio.android.cells.ui.browse.menus.TransferMoreMenuState
 import com.pydio.android.cells.ui.browse.menus.TransferMoreMenuType
 import com.pydio.android.cells.ui.browse.models.TransfersVM
-import com.pydio.android.cells.ui.core.LoadingState
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
@@ -69,13 +70,13 @@ fun Transfers(
     browseHelper: BrowseHelper,
 ) {
 
-    val loadingState = transfersVM.loadingState.collectAsState(LoadingState.STARTING)
+    val connectionState = transfersVM.connectionState.collectAsState()
     val currTransfers = transfersVM.transfers.collectAsState(listOf())
     val currFilter = transfersVM.liveFilter.collectAsState(JobStatus.NO_FILTER.id)
 
     WithState(
         isExpandedScreen = isExpandedScreen,
-        loadingState = loadingState.value,
+        connectionState = connectionState.value,
         forceRefresh = transfersVM::forceRefresh,
         isRemoteLegacy = transfersVM.isRemoteServerLegacy,
         accountID = accountID,
@@ -95,7 +96,7 @@ fun Transfers(
 @ExperimentalMaterial3Api
 private fun WithState(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
     isRemoteLegacy: Boolean,
@@ -174,7 +175,7 @@ private fun WithState(
 
     WithBottomSheet(
         isExpandedScreen = isExpandedScreen,
-        loadingState = loadingState,
+        connectionState = connectionState,
         forceRefresh = forceRefresh,
         currFilter = currFilter,
         isRemoteLegacy = isRemoteLegacy,
@@ -197,7 +198,7 @@ private fun WithState(
 @Composable
 private fun WithBottomSheet(
     isExpandedScreen: Boolean,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
     isRemoteLegacy: Boolean,
@@ -246,7 +247,7 @@ private fun WithBottomSheet(
         sheetState = moreMenuState.sheetState,
     ) {
         WithScaffold(
-            loadingState = loadingState,
+            connectionState = connectionState,
             isExpandedScreen = isExpandedScreen,
             forceRefresh = forceRefresh,
             currFilter = currFilter,
@@ -263,7 +264,7 @@ private fun WithBottomSheet(
 
 @Composable
 private fun WithScaffold(
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     isExpandedScreen: Boolean,
     forceRefresh: () -> Unit,
     doAction: (String, Long) -> Unit,
@@ -341,7 +342,7 @@ private fun WithScaffold(
     ) { innerPadding ->
         TransferList(
             isRemoteLegacy,
-            loadingState,
+            connectionState,
             forceRefresh,
             currFilter,
             transfers,
@@ -355,7 +356,7 @@ private fun WithScaffold(
 @Composable
 private fun TransferList(
     isRemoteLegacy: Boolean,
-    loadingState: LoadingState,
+    connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
     transfers: List<RTransfer>,
@@ -363,10 +364,12 @@ private fun TransferList(
     innerPadding: PaddingValues
 ) {
 
-    val state = rememberPullRefreshState(loadingState == LoadingState.PROCESSING, onRefresh = {
-        Log.i(LOG_TAG, "Force refresh launched")
-        forceRefresh()
-    })
+    val state = rememberPullRefreshState(
+        refreshing = connectionState.loading == LoadingState.PROCESSING,
+        onRefresh = {
+            Log.i(LOG_TAG, "Force refresh launched")
+            forceRefresh()
+        })
 
     val emptyMsg =
         if (!(currFilter == JobStatus.NO_FILTER.id || currFilter == "show_all")) { // dirty fix to address legacy filter value
@@ -377,7 +380,7 @@ private fun TransferList(
 
     WithLoadingListBackground(
         listContext = ListContext.TRANSFERS,
-        loadingState = loadingState,
+        connectionState = connectionState,
         isEmpty = transfers.isEmpty(),
         emptyRefreshableDesc = emptyMsg,
         modifier = Modifier.fillMaxSize()
@@ -404,7 +407,7 @@ private fun TransferList(
             }
 
             PullRefreshIndicator(
-                loadingState == LoadingState.PROCESSING,
+                connectionState.loading == LoadingState.PROCESSING,
                 state,
                 Modifier.align(Alignment.TopCenter)
             )

@@ -4,12 +4,12 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.pydio.android.cells.AppNames
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.db.runtime.RJob
+import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.services.NetworkService
-import com.pydio.android.cells.services.NetworkStatus
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.core.AbstractCellsVM
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 /** Expose methods used by Offline pages */
 class OfflineVM(
     stateID: StateID,
-    private val networkService: NetworkService,
+    private val connectionService: ConnectionService,
     private val jobService: JobService,
     private val transferService: TransferService,
     private val offlineService: OfflineService,
@@ -135,8 +135,8 @@ class OfflineVM(
             defaultCellsPreferences()
         }
 
-        return when (networkService.fetchNetworkStatus()) {
-            is NetworkStatus.Unmetered -> {
+        return when (connectionService.connectionState.value.serverConnection) {
+            ServerConnection.OK -> {
                 return stateID?.let {
                     if (it != StateID.NONE) {
                         Pair(true, null)
@@ -146,7 +146,8 @@ class OfflineVM(
                 } ?: Pair(false, "Cannot launch re-sync without choosing a target")
             }
 
-            is NetworkStatus.Metered -> {
+            ServerConnection.LIMITED -> {
+                // TODO make better checks
                 return if (offlinePrefs.meteredNetwork.applyLimits) {
                     Pair(false, "Preventing re-sync on metered network")
                 } else {
@@ -160,13 +161,14 @@ class OfflineVM(
                 }
             }
 
-            is NetworkStatus.Roaming -> {
-                // TODO implement settings to force accept this user story
-                Pair(false, "Preventing re-sync when on roaming network")
-            }
+//            is NetworkStatus.Roaming -> {
+//                // TODO implement settings to force accept this user story
+//                Pair(false, "Preventing re-sync when on roaming network")
+//            }
 
-            is NetworkStatus.Unavailable, is NetworkStatus.Captive, is NetworkStatus.Unknown -> {
-                Pair(false, "Cannot launch re-sync with no internet connection")
+            ServerConnection.UNREACHABLE -> {
+                // is NetworkStatus.Unavailable, is NetworkStatus.Captive, is NetworkStatus.Unknown -> {
+                Pair(false, "Cannot launch re-sync when server is un-reachable")
             }
         }
     }
