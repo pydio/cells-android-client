@@ -129,6 +129,7 @@
         <item quantity="other">%d elementos seleccionados</item>
     </plurals>
     <!-- Local modification status -->
+    <string name="in_progress_updating">Updating…</string>
     <string name="in_progress_deleting">Borrando…</string>
     <string name="in_progress_renaming">Renombrando…</string>
     <string name="in_progress_moving">Moviendo…</string>

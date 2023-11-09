@@ -129,6 +129,7 @@
         <item quantity="other">%d Elemente ausgewählt</item>
     </plurals>
     <!-- Local modification status -->
+    <string name="in_progress_updating">Aktualisierung…</string>
     <string name="in_progress_deleting">Lösche…</string>
     <string name="in_progress_renaming">Umbenennen…</string>
     <string name="in_progress_moving">Verschiebung…</string>
@@ -291,7 +292,7 @@
     <string name="pref_clean_cache_forget_accounts_title">Anmeldedaten vergessen</string>
     <string name="pref_clean_cache_forget_accounts_desc">Vergessen Sie auch die gespeicherten Zugangsdaten: Sie müssen sich erneut anmelden</string>
     <string name="pref_clean_cache_all_accounts_title">Alle Konten bereinigen</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Bereinigungsstrategie auf alle definierten Konten anwenden</string>
     <string name="pref_clean_cache_clean_all_title">Alles löschen</string>
     <string name="pref_clean_cache_clean_all_desc">DANGER: Sie werden alle App Datei vom lokalen Gerät entfernen</string>
     <!-- Accessibility various content -->

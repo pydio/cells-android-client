@@ -131,6 +131,7 @@
         <item quantity="other">%d элементов выбрано</item>
     </plurals>
     <!-- Local modification status -->
+    <string name="in_progress_updating">Updating…</string>
     <string name="in_progress_deleting">Удаление…</string>
     <string name="in_progress_renaming">Переименование…</string>
     <string name="in_progress_moving">Перемещение…</string>

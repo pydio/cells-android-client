@@ -131,6 +131,7 @@
         <item quantity="other">vybrány %d položky</item>
     </plurals>
     <!-- Local modification status -->
+    <string name="in_progress_updating">Updating…</string>
     <string name="in_progress_deleting">Mazání…</string>
     <string name="in_progress_renaming">Přejmenování…</string>
     <string name="in_progress_moving">Přesouvání…</string>
