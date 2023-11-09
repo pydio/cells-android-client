@@ -66,42 +66,38 @@ class ConnectionService(
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
 
-    //    val customColor: Flow<String?> = sessionView.map { currSessionView ->
-//        currSessionView?.customColor()
-//    }
+    private fun serverConnectionState(connection: SessionState) =
+        if (
+            !connection.networkStatus.isConnected()
+            || !connection.isServerReachable
+            || !connection.loginStatus.isConnected()
+        ) {
+            ServerConnection.UNREACHABLE
+        } else if (
+            connection.networkStatus == NetworkStatus.ROAMING
+            || connection.networkStatus == NetworkStatus.METERED
+        ) {
+            // TODO also include preference checks for Offline and Roaming
+            ServerConnection.LIMITED
+
+        } else {
+            ServerConnection.OK
+        }
+
+
     val customColor: Flow<String?> =
         sessionView.combine(networkStatus) { currSession, networkStatus ->
+//            Log.e(logTag, "### Checking color for session ${currSession?.authStatus}")
+//            Log.e(logTag, "###   ${currSession?.isReachable}")
+//            Log.e(logTag, "###   ${currSession?.lifecycleState}")
+            if (currSession == null) null else {
+                when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
+                    ServerConnection.UNREACHABLE -> CellsColor.OfflineColor
 
-            Log.e(logTag, "### Checking color for session ${currSession?.authStatus}")
-            Log.e(logTag, "###   ${currSession?.isReachable}")
-            Log.e(logTag, "###   ${currSession?.lifecycleState}")
+                    ServerConnection.LIMITED -> CellsColor.MeteredColor
 
-            when {
-                currSession == null -> null
-
-                // TODO also include preference checks for Offline and Roaming
-                !networkStatus.isConnected() || !currSession.isReachable
-                        || currSession.authStatus != LoginStatus.Connected.id
-                -> {
-//                    Log.e(logTag, "### Offline Color")
-                    CellsColor.OfflineColor
+                    ServerConnection.OK -> currSession.customColor()
                 }
-
-                networkStatus == NetworkStatus.ROAMING
-                -> {
-                    CellsColor.MeteredColor
-                }
-
-                networkStatus == NetworkStatus.METERED
-                -> {
-                    CellsColor.MeteredColor
-                }
-
-                else -> {
-//                    Log.e(logTag, "### Standard Color")
-                    currSession.customColor()
-                }
-
             }
         }
 
@@ -277,22 +273,9 @@ class ConnectionService(
                 loading
             }
 
-        val tmpConn =
-            if (!connection.networkStatus.isConnected() || !connection.isServerReachable || !connection.loginStatus.isConnected()) {
-                ServerConnection.UNREACHABLE
-            } else if (connection.networkStatus == NetworkStatus.ROAMING
-                || connection.networkStatus == NetworkStatus.METERED
-            ) {
-                // Todo also include preferences
-                // TODO also include preference checks for Offline and Roaming
-                ServerConnection.LIMITED
-
-            } else {
-                ServerConnection.OK
-            }
-
-        return ConnectionState(tmpLoading, tmpConn)
+        return ConnectionState(tmpLoading, serverConnectionState(connection))
     }
+
 
     fun isConnected(): Boolean {
         return connectionState.value.serverConnection != ServerConnection.UNREACHABLE
@@ -523,8 +506,23 @@ class ConnectionService(
 
 class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)
 
-class SessionState(
+data class SessionState(
     val networkStatus: NetworkStatus,
     val isServerReachable: Boolean,
     val loginStatus: LoginStatus
-)
+) {
+    companion object {
+        fun from(view: RSessionView, status: NetworkStatus): SessionState {
+            return SessionState(
+                networkStatus = status,
+                isServerReachable = view.isReachable,
+                loginStatus = LoginStatus.fromId(view.authStatus)
+            )
+        }
+    }
+}
+
+fun SessionState.isOK(): Boolean {
+    // TODO rather also rely on server connection to also take prefs limit in account
+    return isServerReachable && networkStatus == NetworkStatus.OK && loginStatus.isConnected()
+}

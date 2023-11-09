@@ -32,6 +32,7 @@ import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.SessionState
+import com.pydio.android.cells.services.isOK
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -93,6 +94,10 @@ private fun InternetBanner(
 //    if (currSession.value != null) {
         //  SessionStatus.OK != sessionStatus.value && )
         when {
+            currState.isOK() -> {
+                // No header
+            }
+
             currState.networkStatus == NetworkStatus.UNAVAILABLE
             -> ConnectionStatus(
                 icon = CellsIcons.NoInternet,
@@ -120,37 +125,40 @@ private fun InternetBanner(
             }
 
             currState.isServerReachable && !currState.loginStatus.isConnected()
-            -> CredExpiredStatus(
-                icon = CellsIcons.NoValidCredentials,
-                desc = stringResource(R.string.auth_err_expired),
-                onClick = {
-                    scope.launch {
-                        currSession.value?.let {
-                            val route = if (it.isLegacy) {
-                                Log.i(LOG_TAG, "... Launching re-log on P8 for ${it.accountID}")
-                                LoginDestinations.P8Credentials.createRoute(
-                                    it.getStateID(),
-                                    it.skipVerify(),
-                                    AuthService.LOGIN_CONTEXT_BROWSE
-                                )
-                            } else {
-                                Log.i(
-                                    LOG_TAG,
-                                    "... Launching re-log on Cells for ${it.accountID} from ${it.getStateID()}"
-                                )
-                                LoginDestinations.LaunchAuthProcessing.createRoute(
-                                    it.getStateID(),
-                                    it.skipVerify(),
-                                    AuthService.LOGIN_CONTEXT_BROWSE
-                                )
+            -> {
+                Log.e(LOG_TAG, "Credentials Expired ")
+                CredExpiredStatus(
+                    icon = CellsIcons.NoValidCredentials,
+                    desc = stringResource(R.string.auth_err_expired),
+                    onClick = {
+                        scope.launch {
+                            currSession.value?.let {
+                                val route = if (it.isLegacy) {
+                                    Log.i(LOG_TAG, "... Launching re-log on P8 for ${it.accountID}")
+                                    LoginDestinations.P8Credentials.createRoute(
+                                        it.getStateID(),
+                                        it.skipVerify(),
+                                        AuthService.LOGIN_CONTEXT_BROWSE
+                                    )
+                                } else {
+                                    Log.i(
+                                        LOG_TAG,
+                                        "... Launching re-log on Cells for ${it.accountID} from ${it.getStateID()}"
+                                    )
+                                    LoginDestinations.LaunchAuthProcessing.createRoute(
+                                        it.getStateID(),
+                                        it.skipVerify(),
+                                        AuthService.LOGIN_CONTEXT_BROWSE
+                                    )
+                                }
+                                navigateTo(route)
+                            } ?: run {
+                                Log.e(LOG_TAG, "... Cannot launch, empty session view")
                             }
-                            navigateTo(route)
-                        } ?: run {
-                            Log.e(LOG_TAG, "... Cannot launch, empty session view")
                         }
                     }
-                }
-            )
+                )
+            }
 
             // TODO also handle preferences on limited networks
             currState.networkStatus == NetworkStatus.METERED
@@ -161,11 +169,15 @@ private fun InternetBanner(
                 type = ServerConnection.LIMITED
             )
 
-            else -> ConnectionStatus(
-                icon = CellsIcons.NoValidCredentials,
-                desc = stringResource(id = R.string.auth_err_no_token),
-                type = ServerConnection.UNREACHABLE
-            )
+            else -> {
+                Log.e(LOG_TAG, "Unexpected status: $currState")
+
+                ConnectionStatus(
+                    icon = CellsIcons.NoValidCredentials,
+                    desc = stringResource(id = R.string.auth_err_no_token),
+                    type = ServerConnection.UNREACHABLE
+                )
+            }
         }
     }
 }
