@@ -125,37 +125,6 @@ data class RTreeNode(
         return fn
     }
 
-//    fun isContentEquals(
-//        newItem: RTreeNode
-//    ): Boolean {
-//        var same = remoteModificationTS == newItem.remoteModificationTS
-//                && localModificationTS == newItem.localModificationTS
-//                && flags == newItem.flags
-//
-//
-//        // With Room: we should get equality based on equality of each fields (column) for free
-//        // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
-//        // remote modification timestamp and thumb filename.
-//
-//        // More logs to investigate
-//        if (!same) {
-//            Log.d(logTag, "Found new content for $encodedState")
-//            Log.d(
-//                logTag, "Old TS: ${remoteModificationTS}, " +
-//                        "new TS: ${newItem.remoteModificationTS}"
-//            )
-//            Log.d(
-//                logTag, "Local Old TS: ${localModificationTS}, " +
-//                        "new TS: ${newItem.localModificationTS}"
-//            )
-//            Log.d(
-//                logTag, "Old flags: ${flags.showFlags()}, " +
-//                        "new flags: ${newItem.flags.showFlags()}"
-//            )
-//        }
-//        return same
-//    }
-
     companion object {
         private const val logTag = "RTreeNode"
 

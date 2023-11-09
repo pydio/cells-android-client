@@ -67,6 +67,7 @@ public interface AppNames {
     int FLAG_PRE_VIEWABLE = 16;
 
     /* Modification status */
+    String LOCAL_MODIF_UPDATE = "updating";
     String LOCAL_MODIF_DELETE = "deleting";
     String LOCAL_MODIF_RENAME = "renaming";
     String LOCAL_MODIF_MOVE = "moving";

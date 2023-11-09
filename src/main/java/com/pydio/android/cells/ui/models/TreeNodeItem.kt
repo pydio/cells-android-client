@@ -22,6 +22,7 @@ data class TreeNodeItem(
     override val size: Long = -1L,
     override val remoteModTs: Long = -1L,
     override val lastCheckTS: Long = -1L,
+    val localModeTS: Long,
     val localModStatus: String?,
     var desc: String? = null,
 ) : GenericItem {
@@ -33,6 +34,7 @@ data class TreeNodeItem(
         return (this.uuid == other.uuid)
                 && (stateID == other.stateID)
                 && remoteModTs == other.remoteModTs
+                && localModeTS == other.localModeTS
                 && metaHash == other.metaHash
                 && ((eTag ?: "") == (other.eTag ?: ""))
                 && ((localModStatus ?: "") == (other.localModStatus ?: ""))
@@ -65,6 +67,7 @@ suspend fun toTreeNodeItems(
             size = node.size,
             remoteModTs = node.remoteModificationTS,
             lastCheckTS = node.lastCheckTS,
+            localModeTS = node.localModificationTS,
             localModStatus = node.localModificationStatus,
             hasThumb = node.hasThumb(),
             isFolder = node.isFolder(),

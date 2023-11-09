@@ -65,8 +65,9 @@ class TreeNodeRepository(
         )
     }
 
-    fun persistUpdated(rTreeNode: RTreeNode) {
-        rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
+    fun persistUpdated(rTreeNode: RTreeNode, modificationTS: Long = -1) {
+        rTreeNode.localModificationTS =
+            if (modificationTS > 0) modificationTS else rTreeNode.remoteModificationTS
         val dao = nodeDB(rTreeNode.getStateID()).treeNodeDao()
         dao.getNode(rTreeNode.getStateID().id)
             ?.let { dao.update(rTreeNode) }

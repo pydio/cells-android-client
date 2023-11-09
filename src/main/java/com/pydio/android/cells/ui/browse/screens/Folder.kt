@@ -452,22 +452,22 @@ private fun FolderList(
                         if (Str.notEmpty(stateID.path)) {
                             item(key = "parent") { M3BrowseUpListItem(parDesc, parItemModifier) }
                         }
-                        items(children, key = { it.stateID.id }) { node ->
+                        items(children, key = { it.stateID.id }) { nodeItem ->
                             NodeItem(
-                                item = node,
-                                title = getNodeTitle(name = node.name, mime = node.mime),
+                                item = nodeItem,
+                                title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
                                 desc = getNodeDesc(
-                                    node.remoteModTs,
-                                    node.size,
-                                    node.localModStatus
+                                    nodeItem.remoteModTs,
+                                    nodeItem.size,
+                                    nodeItem.localModStatus
                                 ),
-                                more = { openMoreMenu(node.stateID) },
+                                more = { openMoreMenu(nodeItem.stateID) },
                                 isSelectionMode = isSelectionMode,
-                                isSelected = selectedItems.contains(node.defaultStateID()),
+                                isSelected = selectedItems.contains(nodeItem.defaultStateID()),
                                 modifier = getClickableModifier(
                                     loadingState,
                                     isSelectionMode,
-                                    node,
+                                    nodeItem,
                                     onTap,
                                     alpha
                                 )

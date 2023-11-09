@@ -212,10 +212,10 @@ class NodeService(
             getNodesByUuid(stateID, node1.uuid).forEach { curr ->
                 getClient(stateID).bookmark(stateID.slug, stateID.file, newState)
                 curr.setBookmarked(newState)
-                curr.localModificationTS = currentTimestamp()
-                nodeDB(stateID).treeNodeDao().update(curr)
+                treeNodeRepository.persistLocallyModified(curr, AppNames.LOCAL_MODIF_UPDATE)
+//                curr.localModificationTS = currentTimestamp()
+//                nodeDB(stateID).treeNodeDao().update(curr)
             }
-
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
@@ -576,19 +576,9 @@ class NodeService(
         localNode: RTreeNode,
         remote: FileNode,
     ): Boolean {
-        // TODO improve this
-        val isUpToDate = localNode.etag == remote.eTag &&
+        return localNode.etag == remote.eTag &&
                 localNode.size == remote.size &&
                 localNode.remoteModificationTS >= remote.lastModified
-
-//         if (!isUpToDate) {
-//             Log.e(logTag, " - L: ${localNode.etag} - R: ${remote.eTag}")
-//             Log.e(logTag, " - L: ${localNode.size} - R: ${remote.size}")
-//             Log.e(logTag, " - local TS: ${getTsAsString(localNode.remoteModificationTS)}")
-//             Log.e(logTag, " - remote TS: ${getTsAsString(remote.lastModified)}")
-//         }
-
-        return isUpToDate
     }
 
     suspend fun rename(stateID: StateID, newName: String): String? =

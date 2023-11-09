@@ -21,6 +21,7 @@ private const val logTag = "core.utils"
 @Composable
 fun getMessageFromLocalModifStatus(status: String): String? {
     return when (status) {
+        AppNames.LOCAL_MODIF_UPDATE -> stringResource(R.string.in_progress_updating)
         AppNames.LOCAL_MODIF_DELETE -> stringResource(R.string.in_progress_deleting)
         AppNames.LOCAL_MODIF_RENAME -> stringResource(R.string.in_progress_renaming)
         AppNames.LOCAL_MODIF_MOVE -> stringResource(R.string.in_progress_moving)

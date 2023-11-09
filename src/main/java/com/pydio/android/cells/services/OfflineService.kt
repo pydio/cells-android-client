@@ -71,7 +71,7 @@ class OfflineService(
             // TODO should we check if this node is already a descendant of an existing offline root ?
             offlineDao.insert(newRoot) // We rely on node UUID and insert REPLACE strategy
             rTreeNode.setOfflineRoot(true)
-            treeNodeRepo.persistUpdated(rTreeNode)
+            treeNodeRepo.persistUpdated(rTreeNode, currentTimestamp())
         }
 
     suspend fun removeOfflineRoot(stateID: StateID) = withContext(ioDispatcher) {
@@ -85,7 +85,8 @@ class OfflineService(
         offlineDao.delete(stateID.id)
         db.treeNodeDao().getNode(stateID.id)?.let {
             it.setOfflineRoot(false)
-            treeNodeRepo.persistUpdated(it)
+            // TODO insure it has no side effects when we are offline and the node also get updated on the server side (by SO else)
+            treeNodeRepo.persistUpdated(it, currentTimestamp())
         }
 
         // TODO also clean file system ?
