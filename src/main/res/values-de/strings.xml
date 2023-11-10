@@ -180,6 +180,7 @@
     <string name="post_migration_sync_message">Sie haben ein oder mehrere Elemente als offline markiert, diese Migration erfordert jetzt einen vollständigen Neu-Download. Möchten Sie fortfahren? Sie können es überspringen und später synchronisieren.</string>
     <!-- More menus -->
     <string name="open_more_menu">Wählen Sie eine Aktion, die auf die ausgewählten Elemente angewendet werden soll</string>
+    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
     <string name="deselect_all">Alle abwählen</string>
     <string name="more_button_description">Weitere Aktionen für dieses Element anzeigen</string>
     <string name="open_in_workspaces">Speicherort öffnen</string>
