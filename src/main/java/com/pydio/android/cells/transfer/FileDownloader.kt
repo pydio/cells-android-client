@@ -181,12 +181,14 @@ class FileDownloader(
             val waiter = dlScope.launch {
                 var running = true
                 while (this.isActive && running) {
-                    Log.i(logTag, "About to sleep 10 seconds to wait")
                     delay(10000L)
                     val rTransfers =
                         transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
                     running = rTransfers.isNotEmpty()
-                    Log.e(logTag, "... AfterSleep ID: ${parentJobID}, running: ${rTransfers.size}")
+                    Log.d(
+                        logTag,
+                        "... Still waiting for the DL for JobID #${parentJobID}, we still have ${rTransfers.size} running transfers"
+                    )
                 }
                 Log.i(logTag, "Finished processing the queue, exiting...")
                 finalizeJob()

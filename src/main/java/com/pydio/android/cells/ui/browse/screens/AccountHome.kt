@@ -1,7 +1,6 @@
 package com.pydio.android.cells.ui.browse.screens
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,7 +50,7 @@ import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val LOG_TAG = "AccountHome.kt"
+// private const val LOG_TAG = "AccountHome.kt"
 
 @Composable
 fun AccountHome(
