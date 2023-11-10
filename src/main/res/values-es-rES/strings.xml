@@ -180,6 +180,7 @@
     <string name="post_migration_sync_message">Tienes uno o más elementos marcados como fuera de línea, esta migración requiere una re-descarga completa ahora. ¿Quieres continuar? Puedes saltarlo y sincronizarlo más tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Elija una acción para aplicar a los elementos seleccionados</string>
+    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
     <string name="deselect_all">Deseleccionar todo</string>
     <string name="more_button_description">Mostrar más acciones para este elemento</string>
     <string name="open_in_workspaces">Abrir ubicación</string>

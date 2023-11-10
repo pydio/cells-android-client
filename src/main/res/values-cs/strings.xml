@@ -182,6 +182,7 @@
     <string name="post_migration_sync_message">Máte jednu nebo více položek označených jako offline, tato migrace nyní vyžaduje úplné opětovné stažení. Chcete pokračovat? Můžete jej přeskočit a synchronizovat později.</string>
     <!-- More menus -->
     <string name="open_more_menu">Vyberte akci, kterou provést na vybraných položkách</string>
+    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
     <string name="deselect_all">Un-select all</string>
     <string name="more_button_description">Zobrazit další akce pro tento prvek</string>
     <string name="open_in_workspaces">Otevřít umístění</string>
