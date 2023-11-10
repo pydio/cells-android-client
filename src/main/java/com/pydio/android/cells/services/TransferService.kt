@@ -222,30 +222,8 @@ class TransferService(
             return@withContext it
         }
 
-//        // Otherwise, try to download if current network type and user preferences allow it
-//        val currSettings = prefs.fetchPreferences()
-//        when (networkService.fetchNetworkStatus()) {
-//            NetworkStatus.OK
-//            -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
-//
-//            is NetworkStatus.MET -> {
-//                if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
-//                    return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
-//                } else {
-//                    throw SDKException(
-//                        ErrorCodes.con_failed,
-//                        "Cannot download preview images on metered network"
-//                    )
-//                }
-//            }
-//
-//            else -> throw SDKException(
-//                ErrorCodes.con_failed,
-//                "No network connection: cannot download preview image"
-//            )
-//        }
         // Otherwise, try to download if current network type and user preferences allow it
-        val currNetwork = connectionService.connectionState.value
+        val currNetwork = connectionService.liveConnectionState.value
         val currSettings = prefs.fetchPreferences()
         when (currNetwork.serverConnection) {
             ServerConnection.OK
@@ -268,7 +246,6 @@ class TransferService(
                 "No network connection: cannot download preview image"
             )
         }
-
     }
 
     @Throws(SDKException::class)

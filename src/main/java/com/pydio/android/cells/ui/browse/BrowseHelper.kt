@@ -25,19 +25,19 @@ open class BrowseHelper(
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
 
-        Log.i(logTag, "... Calling open for $stateID")
+        Log.e(logTag, "... Calling open for $stateID")
         Log.d(logTag, "    Loading state: ${browseVM.connectionState.value}")
         Log.d(logTag, "    Context: $callingContext")
 
         // FIXME remove
         val bseList = navController.currentBackStack.value
-        Log.e(logTag, "... Backstack b4 navigation from BROWSE HELPER")
+        Log.d(logTag, "... Backstack b4 navigation from BROWSE HELPER")
         var i = 1
         for (bse in bseList) {
-            Log.e(logTag, " #$i: ${bse.destination.route}")
+            Log.d(logTag, " #$i: ${bse.destination.route}")
             i++
         }
-        Log.e(logTag, "... Next destination $callingContext - $stateID")
+        Log.e(logTag, "... Next  [$callingContext] destination: $stateID")
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)
@@ -72,11 +72,14 @@ open class BrowseHelper(
                     // TODO (since v2) Open carousel for bookmark, offline and search result nodes
                     BrowseDestinations.OpenCarousel.createRoute(stateID)
                 } else {
+                    Log.e(logTag, "About to call viewFile for $stateID, reachable: ")
+                    val isReachable = browseVM.isServerReachable()
+                    Log.e(logTag, "About to call viewFile for $stateID, reachable: $isReachable")
                     try {
-                        browseVM.viewFile(context, stateID)
+                        browseVM.viewFile(context, stateID, !isReachable)
                     } catch (e: SDKException) {
                         if (e.code == ErrorCodes.no_local_file || e.code == ErrorCodes.outdated_local_file) {
-                            if (!browseVM.isServerReachable()) {
+                            if (!isReachable) {
                                 browseVM.showError(
                                     ErrorMessage(
                                         "Cannot get un-cached file ${stateID.fileName}, server is unreachable",

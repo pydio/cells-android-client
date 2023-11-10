@@ -50,23 +50,15 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val connectionState: StateFlow<ConnectionState> =
         _loadingState.combine(connectionService.sessionStateFlow) { currLoadState, connStatus ->
-            connectionService.appliedConnectionState(currLoadState, connStatus)
-
-//            val newState =
-//                if (SessionStatus.NO_INTERNET == sessionStatus || SessionStatus.SERVER_UNREACHABLE == sessionStatus) {
-//                    LoadingState.SERVER_UNREACHABLE
-//                } else {
-//                    currLoadState
-//                }
-//            Log.e(logTag, "#####################################################################")
-//            Log.e(logTag, "### Loading: $newState (State: $currLoadState, status: $sessionStatus)")
-//            newState
+            val cs = connectionService.appliedConnectionState(currLoadState, connStatus)
+            Log.e(logTag, "#####################################################################")
+            Log.e(logTag, "### Loading: $cs (State: $currLoadState, status: $connStatus)")
+            cs
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = ConnectionState(LoadingState.STARTING, ServerConnection.OK)
         )
-
 
     // Preferences
     private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
@@ -91,8 +83,9 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     }
 
     // Generic access to the underlying objects
+    // suspend
     fun isServerReachable(): Boolean {
-        return connectionState.value.serverConnection != ServerConnection.UNREACHABLE
+        return connectionService.isConnected()
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
@@ -120,11 +113,12 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         node: RTreeNode,
         skipUpToDateCheck: Boolean = false
     ) {
-        val currSkip = skipUpToDateCheck || !isServerReachable()
+        val reachable = isServerReachable()
+        val currSkip = skipUpToDateCheck || !reachable
         Log.e(
             logTag, "Launch view file, skip check: $currSkip," +
-                    " loading: ${connectionService.connectionState.value.loading}" +
-                    " server reachable: ${isServerReachable()}"
+                    " loading: ${connectionService.liveConnectionState.value.loading}" +
+                    " server reachable: $reachable}"
         )
         val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
 

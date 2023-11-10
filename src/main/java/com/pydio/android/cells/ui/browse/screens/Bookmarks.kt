@@ -356,7 +356,7 @@ private fun BookmarkScaffold(
             sheetState = moreMenuState.sheetState,
         ) {
             BookmarkList(
-                loadingState = connectionState,
+                connectionState = connectionState,
                 listLayout = listLayout,
                 isSelectionMode = selectedItems.isNotEmpty(),
                 bookmarks = bookmarks,
@@ -373,7 +373,7 @@ private fun BookmarkScaffold(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BookmarkList(
-    loadingState: ConnectionState,
+    connectionState: ConnectionState,
     listLayout: ListLayout,
     isSelectionMode: Boolean,
     bookmarks: List<MultipleItem>,
@@ -385,14 +385,14 @@ private fun BookmarkList(
 ) {
 
     val state = rememberPullRefreshState(
-        loadingState.loading == LoadingState.PROCESSING,
+        connectionState.loading == LoadingState.PROCESSING,
         onRefresh = {
             Log.i(LOG_TAG, "Force refresh launched")
             forceRefresh()
         },
     )
     WithLoadingListBackground(
-        connectionState = loadingState,
+        connectionState = connectionState,
         isEmpty = bookmarks.isEmpty(),
         listContext = ListContext.BOOKMARKS,
         emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
@@ -467,7 +467,7 @@ private fun BookmarkList(
             }
 
             PullRefreshIndicator(
-                loadingState.loading == LoadingState.PROCESSING,
+                connectionState.loading == LoadingState.PROCESSING,
                 state,
                 Modifier.align(Alignment.TopCenter)
             )

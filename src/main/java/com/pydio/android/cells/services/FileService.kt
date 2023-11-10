@@ -8,6 +8,7 @@ import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.utils.asFormattedString
 import com.pydio.android.cells.utils.computeFileMd5
+import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.getCurrentDateTime
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
@@ -86,6 +87,12 @@ class FileService(
         val rLocalFile =
             RLocalFile.fromFile(stateID, type, file, rTreeNode.etag, rTreeNode.remoteModificationTS)
         dao.insert(rLocalFile)
+
+        //  TODO insure it is correct
+        // Also update modification timestamp on the "parent" RTreeNode
+        treeNodeRepository.nodeDB(stateID).treeNodeDao().getNode(stateID.id)?.let {
+            treeNodeRepository.persistUpdated(it, currentTimestamp())
+        }
     }
 
     fun registerLocalFile(rTransfer: RTransfer) {

@@ -135,7 +135,7 @@ class OfflineVM(
             defaultCellsPreferences()
         }
 
-        return when (connectionService.connectionState.value.serverConnection) {
+        return when (connectionService.isConnected()) {
             ServerConnection.OK -> {
                 return stateID?.let {
                     if (it != StateID.NONE) {
@@ -160,11 +160,6 @@ class OfflineVM(
                     } ?: Pair(false, "Cannot launch re-sync without choosing a target")
                 }
             }
-
-//            is NetworkStatus.Roaming -> {
-//                // TODO implement settings to force accept this user story
-//                Pair(false, "Preventing re-sync when on roaming network")
-//            }
 
             ServerConnection.UNREACHABLE -> {
                 // is NetworkStatus.Unavailable, is NetworkStatus.Captive, is NetworkStatus.Unknown -> {

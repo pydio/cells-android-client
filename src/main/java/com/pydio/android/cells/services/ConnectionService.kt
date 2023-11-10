@@ -63,11 +63,18 @@ class ConnectionService(
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
     private val networkStatus: Flow<NetworkStatus> = networkService.networkStatusFlowCold
 
+    val currentConnection: Flow<ServerConnection> =
+        sessionView.combine(networkStatus) { session, network ->
+            session?.let {
+                serverConnectionState(SessionState.from(it, network))
+            } ?: ServerConnection.UNREACHABLE
+        }
+
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
 
-    private fun serverConnectionState(connection: SessionState) =
-        if (
+    private fun serverConnectionState(connection: SessionState): ServerConnection {
+        return if (
             !connection.networkStatus.isConnected()
             || !connection.isServerReachable
             || !connection.loginStatus.isConnected()
@@ -78,15 +85,14 @@ class ConnectionService(
             || connection.networkStatus == NetworkStatus.METERED
         ) {
             Log.e(logTag, "Checking connection state: $connection")
-
             // TODO also include preference checks for Offline and Roaming
             ServerConnection.LIMITED
 
         } else {
-
             Log.e(logTag, "Checking connection state: $connection")
             ServerConnection.OK
         }
+    }
 
     val customColor: Flow<String?> = sessionView.map { currSession ->
         currSession?.let {
@@ -179,7 +185,7 @@ class ConnectionService(
         .flowOn(coroutineService.ioDispatcher)
         .conflate()
 
-    val connectionState: StateFlow<ConnectionState> =
+    val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->
             appliedConnectionState(loading, connection)
         }.stateIn(
@@ -204,7 +210,7 @@ class ConnectionService(
 
 
     fun isConnected(): Boolean {
-        return connectionState.value.serverConnection != ServerConnection.UNREACHABLE
+        return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
     }
 
     fun relaunchMonitoring() {
@@ -379,7 +385,7 @@ class ConnectionService(
 
         var result: Pair<Int, String?> = Pair(0, "")
 
-        if (connectionState.value.serverConnection == ServerConnection.UNREACHABLE) {
+        if (liveConnectionState.value.serverConnection == ServerConnection.UNREACHABLE) {
             serviceScope.launch {
                 // We trigger a ping to the server to check if it is back on-line
                 if (appCredentialService.insureServerIsReachable(stateID)) {
@@ -438,7 +444,7 @@ class ConnectionService(
     }
 }
 
-class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)
+data class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)
 
 data class SessionState(
     val networkStatus: NetworkStatus,
