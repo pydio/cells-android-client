@@ -105,7 +105,7 @@ data class RTreeNode(
         return flags
     }
 
-    fun isFlag(flag: Int): Boolean {
+    private fun isFlag(flag: Int): Boolean {
         return flags and flag == flag
     }
 

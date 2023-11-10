@@ -23,6 +23,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
@@ -38,6 +39,19 @@ fun Thumbnail(item: RTreeNode) {
         item.etag,
         item.metaHash,
         item.hasThumb()
+    )
+}
+
+@Composable
+fun Thumbnail(item: TreeNodeItem) {
+    Thumbnail(
+        item.stateID,
+        item.sortName,
+        item.name,
+        item.mime,
+        item.eTag,
+        item.metaHash,
+        item.hasThumb,
     )
 }
 

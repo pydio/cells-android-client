@@ -255,6 +255,7 @@ private fun WithScaffold(
                     )
                 } else {
                     NodeMoreMenuData(
+                        connectionState = connectionState,
                         type = NodeMoreMenuType.SEARCH,
                         subjectID = moreMenuState.stateID,
                         launch = launch,

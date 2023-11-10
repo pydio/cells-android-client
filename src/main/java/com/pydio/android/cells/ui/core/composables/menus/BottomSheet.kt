@@ -33,16 +33,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 
 // private const val logTag = "BottomSheet"
@@ -193,6 +194,22 @@ fun BottomSheetHeader(
 }
 
 @Composable
+fun BottomSheetNoAction() {
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(R.dimen.bottom_sheet_start_padding),
+                vertical = dimensionResource(R.dimen.bottom_sheet_v_padding),
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = stringResource(R.string.more_menu_no_action))
+    }
+}
+
+@Composable
 fun BottomSheetListItem(
     title: String,
     onItemClick: () -> Unit,
@@ -245,15 +262,15 @@ fun BottomSheetListItem(
 
 @Composable
 fun BottomSheetFlagItem(
-    rTreeNode: RTreeNode?,
+    nodeItem: TreeNodeItem?,
     icon: ImageVector? = null,
     @DrawableRes iconId: Int? = null,
     title: String,
     flagType: Int,
     onItemClick: (Boolean) -> Unit
 ) {
-    var localSelected by remember(key1 = rTreeNode, key2 = flagType) {
-        val selected = rTreeNode?.isFlag(flagType) ?: false
+    var localSelected by remember(key1 = nodeItem, key2 = flagType) {
+        val selected = nodeItem?.isFlag(flagType) ?: false
         mutableStateOf(selected)
     }
 
@@ -347,4 +364,10 @@ fun BottomSheetListItemPreview() {
         title = "Share",
         onItemClick = { },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomSheetNoActionPreview() {
+    BottomSheetNoAction()
 }

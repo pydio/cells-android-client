@@ -17,11 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
@@ -29,8 +30,9 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun OfflineMenu(
+    connectionState: ConnectionState,
     stateID: StateID,
-    rTreeNode: RTreeNode,
+    nodeItem: TreeNodeItem,
     launch: (NodeAction) -> Unit,
 ) {
 
@@ -72,37 +74,43 @@ fun OfflineMenu(
 
     ) {
         BottomSheetHeader(
-            thumb = { Thumbnail(rTreeNode) },
+            thumb = { Thumbnail(nodeItem) },
             title = stateID.fileName ?: "",
             desc = stateID.parentPath,
         )
+        if (connectionState.serverConnection.isConnected()) {
+
+            BottomSheetListItem(
+                icon = CellsIcons.Refresh,
+                title = stringResource(R.string.force_resync),
+                onItemClick = { launch(NodeAction.ForceResync) },
+            )
+        }
+
         BottomSheetListItem(
-            icon = CellsIcons.Refresh,
-            title = stringResource(R.string.force_resync),
-            onItemClick = { launch(NodeAction.ForceResync) },
+            icon = CellsIcons.OpenLocation,
+            title = if (nodeItem.isFolder) {
+                stringResource(R.string.open_in_workspaces)
+            } else {
+                stringResource(R.string.open_parent_in_workspaces)
+            },
+            onItemClick = { launch(NodeAction.OpenInApp) },
+        )
+
+        if (!nodeItem.isFolder && (connectionState.serverConnection.isConnected() || nodeItem.isCached)) {
+            BottomSheetListItem(
+                icon = CellsIcons.DownloadToDevice,
+                title = stringResource(R.string.download_to_device),
+                onItemClick = { launch(NodeAction.DownloadToDevice) },
+            )
+        }
+
+        BottomSheetListItem(
+            icon = CellsIcons.KeepOffline,
+            title = stringResource(R.string.remove_from_offline),
+            onItemClick = {
+                dialogOpen = true
+            },
         )
     }
-    BottomSheetListItem(
-        icon = CellsIcons.OpenLocation,
-        title = if (rTreeNode.isFile()) {
-            stringResource(R.string.open_parent_in_workspaces)
-        } else {
-            stringResource(R.string.open_in_workspaces)
-        },
-        onItemClick = { launch(NodeAction.OpenInApp) },
-    )
-    if (rTreeNode.isFile()) {
-        BottomSheetListItem(
-            icon = CellsIcons.DownloadToDevice,
-            title = stringResource(R.string.download_to_device),
-            onItemClick = { launch(NodeAction.DownloadToDevice) },
-        )
-    }
-    BottomSheetListItem(
-        icon = CellsIcons.KeepOffline,
-        title = stringResource(R.string.remove_from_offline),
-        onItemClick = {
-            dialogOpen = true
-        },
-    )
 }

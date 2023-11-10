@@ -123,7 +123,8 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         val currSkip = skipUpToDateCheck || !isServerReachable()
         Log.e(
             logTag, "Launch view file, skip check: $currSkip," +
-                    " loading: ${connectionService.connectionState.value.loading}"
+                    " loading: ${connectionService.connectionState.value.loading}" +
+                    " server reachable: ${isServerReachable()}"
         )
         val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
 

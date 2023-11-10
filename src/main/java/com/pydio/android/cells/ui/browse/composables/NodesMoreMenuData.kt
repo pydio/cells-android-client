@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.menus.BookmarksMenu
 import com.pydio.android.cells.ui.browse.menus.MultiNodeMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
@@ -19,6 +20,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun NodesMoreMenuData(
+    connectionState: ConnectionState,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
     launch: (NodeAction, Set<StateID>) -> Unit,
@@ -60,12 +62,14 @@ fun NodesMoreMenuData(
     if (nodes.value.isNotEmpty()) {
         when (type) {
             NodeMoreMenuType.BOOKMARK -> BookmarksMenu(
+                connectionState = connectionState,
                 containsFolders = containsFolders.value,
                 launch = { launch(it, subjectIDs) },
             )
 
             NodeMoreMenuType.MORE ->
                 MultiNodeMenu(
+                    connectionState = connectionState,
                     inRecycle = inRecycle.value,
                     containsFolders = containsFolders.value,
                     launch = { launch(it, subjectIDs) },

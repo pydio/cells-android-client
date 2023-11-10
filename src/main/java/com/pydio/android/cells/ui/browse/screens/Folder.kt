@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -155,7 +154,8 @@ fun Folder(
         derivedStateOf {
             val inRecycle = treeNode?.isRecycle() == true || treeNode?.isRecycle() == true
             val multiselectMode = multiSelectData.value.isNotEmpty()
-            !inRecycle && !multiselectMode
+            val isOnline = connectionState.value.serverConnection.isConnected()
+            !inRecycle && !multiselectMode && isOnline
         }
     }
 
@@ -205,6 +205,7 @@ fun Folder(
     WrapWithActions(
         actionDone = actionDone,
         isExpandedScreen = isExpandedScreen,
+        connectionState = connectionState.value,
         type = nodeMoreMenuData.value.first,
         subjectIDs = nodeMoreMenuData.value.second,
         sheetState = sheetState,
@@ -212,7 +213,7 @@ fun Folder(
     ) {
         FolderScaffold(
             isExpandedScreen = isExpandedScreen,
-            loadingState = connectionState.value,
+            connectionState = connectionState.value,
             listLayout = listLayout,
             showFAB = showFAB,
             label = currNodeLabel,
@@ -240,7 +241,7 @@ fun Folder(
 @Composable
 private fun FolderScaffold(
     isExpandedScreen: Boolean,
-    loadingState: ConnectionState,
+    connectionState: ConnectionState,
     listLayout: ListLayout,
     showFAB: Boolean,
     label: String,
@@ -343,7 +344,7 @@ private fun FolderScaffold(
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding -> // Compulsory padding parameter. Must be applied to the topmost container/view in content:
         FolderList(
-            loadingState = loadingState,
+            loadingState = connectionState,
             listLayout = listLayout,
             isSelectionMode = selectedItems.isNotEmpty(),
             stateID = stateID,
@@ -425,16 +426,20 @@ private fun FolderList(
                         }
                         items(
                             items = children,
-                            key = { it.stateID.id }) { node ->
+                            key = { it.stateID.id }
+                        ) { nodeItem ->
+                            val showMore: (() -> Unit)? =
+                                if (nodeItem.showMoreMenu(loadingState, isSelectionMode)) {
+                                    { openMoreMenu(nodeItem.defaultStateID()) }
+                                } else null
                             TreeNodeLargeCard(
-                                item = node,
-                                more = { openMoreMenu(node.defaultStateID()) },
-                                isSelectionMode = isSelectionMode,
-                                isSelected = selectedItems.contains(node.defaultStateID()),
+                                nodeItem = nodeItem,
+                                more = showMore,
+                                isSelected = selectedItems.contains(nodeItem.defaultStateID()),
                                 modifier = getClickableModifier(
                                     loadingState,
                                     isSelectionMode,
-                                    node,
+                                    nodeItem,
                                     onTap,
                                     alpha
                                 )
@@ -452,7 +457,14 @@ private fun FolderList(
                         if (Str.notEmpty(stateID.path)) {
                             item(key = "parent") { M3BrowseUpListItem(parDesc, parItemModifier) }
                         }
-                        items(children, key = { it.stateID.id }) { nodeItem ->
+                        items(
+                            children,
+                            key = { it.stateID.id }
+                        ) { nodeItem ->
+                            val showMore: (() -> Unit)? =
+                                if (nodeItem.showMoreMenu(loadingState, isSelectionMode)) {
+                                    { openMoreMenu(nodeItem.stateID) }
+                                } else null
                             NodeItem(
                                 item = nodeItem,
                                 title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
@@ -461,7 +473,7 @@ private fun FolderList(
                                     nodeItem.size,
                                     nodeItem.localModStatus
                                 ),
-                                more = { openMoreMenu(nodeItem.stateID) },
+                                more = showMore,
                                 isSelectionMode = isSelectionMode,
                                 isSelected = selectedItems.contains(nodeItem.defaultStateID()),
                                 modifier = getClickableModifier(
@@ -499,7 +511,12 @@ fun getClickableModifier(
     alpha: Float,
 ): Modifier {
     var tmpModifier = Modifier.fillMaxWidth()
-    tmpModifier = if (!connectionState.serverConnection.isConnected() && item.lastCheckTS < 1) {
+//    tmpModifier = if (!connectionState.serverConnection.isConnected() && item.lastCheckTS < 1) {
+//        // Folder has not yet been loaded and we have no connection to the server
+//        // Do not react to click and make less visible
+//        tmpModifier.alpha(alpha)
+//    } else
+    tmpModifier = if (!connectionState.serverConnection.isConnected() && !item.isCached) {
         // Folder has not yet been loaded and we have no connection to the server
         // Do not react to click and make less visible
         tmpModifier.alpha(alpha)

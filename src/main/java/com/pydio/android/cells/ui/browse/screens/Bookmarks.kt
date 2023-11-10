@@ -224,7 +224,7 @@ fun Bookmarks(
 
     BookmarkScaffold(
         isExpandedScreen = isExpandedScreen,
-        loadingState = connectionState,
+        connectionState = connectionState,
         listLayout = listLayout,
         title = stringResource(id = R.string.action_open_bookmarks),
         bookmarks = bookmarks.value,
@@ -247,7 +247,7 @@ fun Bookmarks(
 @Composable
 private fun BookmarkScaffold(
     isExpandedScreen: Boolean,
-    loadingState: ConnectionState,
+    connectionState: ConnectionState,
     listLayout: ListLayout,
     title: String,
     bookmarks: List<MultipleItem>,
@@ -337,12 +337,14 @@ private fun BookmarkScaffold(
             sheetContent = {
                 if (moreMenuState.stateIDs.size == 1) {
                     NodeMoreMenuData(
+                        connectionState = connectionState,
                         type = moreMenuState.type,
                         subjectID = moreMenuState.stateIDs.first(),
                         launch = { a, s -> launch(a, setOf(s)) },
                     )
                 } else if (moreMenuState.stateIDs.size > 1) {
                     NodesMoreMenuData(
+                        connectionState = connectionState,
                         type = NodeMoreMenuType.BOOKMARK,
                         subjectIDs = moreMenuState.stateIDs,
                         launch = launch,
@@ -354,7 +356,7 @@ private fun BookmarkScaffold(
             sheetState = moreMenuState.sheetState,
         ) {
             BookmarkList(
-                loadingState = loadingState,
+                loadingState = connectionState,
                 listLayout = listLayout,
                 isSelectionMode = selectedItems.isNotEmpty(),
                 bookmarks = bookmarks,

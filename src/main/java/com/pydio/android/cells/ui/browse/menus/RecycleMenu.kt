@@ -10,11 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetNoAction
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
@@ -22,8 +24,9 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun RecycleParentMenu(
+    connectionState: ConnectionState,
     stateID: StateID,
-    rTreeNode: RTreeNode,
+    rTreeNode: TreeNodeItem,
     launch: (NodeAction) -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -40,18 +43,23 @@ fun RecycleParentMenu(
             desc = stateID.parentPath ?: "",
         )
 
-        BottomSheetListItem(
-            icon = CellsIcons.EmptyRecycle,
-            title = stringResource(R.string.empty_recycle),
-            onItemClick = { launch(NodeAction.EmptyRecycle) },
-        )
+        if (connectionState.serverConnection.isConnected()) {
+            BottomSheetListItem(
+                icon = CellsIcons.EmptyRecycle,
+                title = stringResource(R.string.empty_recycle),
+                onItemClick = { launch(NodeAction.EmptyRecycle) },
+            )
+        } else {
+            BottomSheetNoAction()
+        }
     }
 }
 
 @Composable
 fun RecycleMenu(
+    connectionState: ConnectionState,
     stateID: StateID,
-    rTreeNode: RTreeNode,
+    rTreeNode: TreeNodeItem,
     launch: (NodeAction) -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -67,16 +75,19 @@ fun RecycleMenu(
             title = stringResource(id = R.string.recycle_bin_label),
             desc = stateID.parentPath,
         )
-        BottomSheetListItem(
-            icon = CellsIcons.RestoreFromTrash,
-            title = stringResource(R.string.restore_content),
-            onItemClick = { launch(NodeAction.RestoreFromTrash) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.DeleteForever,
-            title = stringResource(R.string.permanently_remove),
-            onItemClick = { launch(NodeAction.PermanentlyRemove) },
-        )
-
+        if (connectionState.serverConnection.isConnected()) {
+            BottomSheetListItem(
+                icon = CellsIcons.RestoreFromTrash,
+                title = stringResource(R.string.restore_content),
+                onItemClick = { launch(NodeAction.RestoreFromTrash) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.DeleteForever,
+                title = stringResource(R.string.permanently_remove),
+                onItemClick = { launch(NodeAction.PermanentlyRemove) },
+            )
+        } else {
+            BottomSheetNoAction()
+        }
     }
 }

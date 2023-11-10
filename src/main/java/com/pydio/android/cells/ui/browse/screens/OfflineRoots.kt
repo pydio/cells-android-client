@@ -328,6 +328,7 @@ private fun WithScaffold(
                     )
                 } else {
                     NodeMoreMenuData(
+                        connectionState = connectionState,
                         type = NodeMoreMenuType.OFFLINE,
                         subjectID = moreMenuState.stateID,
                         launch = launch,

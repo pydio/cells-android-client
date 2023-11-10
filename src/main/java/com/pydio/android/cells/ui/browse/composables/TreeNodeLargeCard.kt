@@ -11,36 +11,36 @@ import com.pydio.android.cells.ui.models.TreeNodeItem
 
 @Composable
 fun TreeNodeLargeCard(
-    item: TreeNodeItem,
-    more: () -> Unit,
-    isSelectionMode: Boolean,
+    nodeItem: TreeNodeItem,
+    more: (() -> Unit)?,
+//    isSelectionMode: Boolean,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
 ) {
     LargeCard(
         isSelected = isSelected,
-        title = getNodeTitle(name = item.name, mime = item.mime),
+        title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
         desc = getNodeDesc(
-            item.remoteModTs,
-            item.size,
-            item.localModStatus
+            nodeItem.remoteModTs,
+            nodeItem.size,
+            nodeItem.localModStatus
         ),
         modifier = modifier
     ) {
-        if (item.hasThumb) {
+        if (nodeItem.hasThumb) {
             LargeCardImageThumb(
-                stateID = item.defaultStateID(),
-                eTag = item.eTag,
-                metaHash = item.metaHash,
-                title = getNodeTitle(name = item.name, mime = item.mime),
-                openMoreMenu = if (!isSelectionMode) more else null
+                stateID = nodeItem.defaultStateID(),
+                eTag = nodeItem.eTag,
+                metaHash = nodeItem.metaHash,
+                title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
+                openMoreMenu = more
             )
         } else {
             LargeCardGenericIconThumb(
-                title = getNodeTitle(name = item.name, mime = item.mime),
-                mime = item.mime,
-                sortName = item.sortName,
-                more = if (!isSelectionMode) more else null
+                title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
+                mime = nodeItem.mime,
+                sortName = nodeItem.sortName,
+                more = more
             )
         }
     }

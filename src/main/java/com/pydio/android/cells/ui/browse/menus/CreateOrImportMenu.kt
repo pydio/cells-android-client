@@ -11,11 +11,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetNoAction
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
@@ -23,8 +25,9 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun CreateOrImportMenu(
+    connectionState: ConnectionState,
     stateID: StateID,
-    rTreeNode: RTreeNode,
+    rTreeNode: TreeNodeItem,
     rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
 ) {
@@ -49,20 +52,24 @@ fun CreateOrImportMenu(
             desc = desc,
         )
 
-        BottomSheetListItem(
-            icon = CellsIcons.CreateFolder,
-            title = stringResource(R.string.create_folder),
-            onItemClick = { launch(NodeAction.CreateFolder) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.ImportFile,
-            title = stringResource(R.string.import_files),
-            onItemClick = { launch(NodeAction.ImportFile) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.TakePicture,
-            title = stringResource(R.string.take_picture),
-            onItemClick = { launch(NodeAction.TakePicture) },
-        )
+        if (connectionState.serverConnection.isConnected()) {
+            BottomSheetListItem(
+                icon = CellsIcons.CreateFolder,
+                title = stringResource(R.string.create_folder),
+                onItemClick = { launch(NodeAction.CreateFolder) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.ImportFile,
+                title = stringResource(R.string.import_files),
+                onItemClick = { launch(NodeAction.ImportFile) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.TakePicture,
+                title = stringResource(R.string.take_picture),
+                onItemClick = { launch(NodeAction.TakePicture) },
+            )
+        } else {
+            BottomSheetNoAction()
+        }
     }
 }

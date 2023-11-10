@@ -77,10 +77,14 @@ class ConnectionService(
             connection.networkStatus == NetworkStatus.ROAMING
             || connection.networkStatus == NetworkStatus.METERED
         ) {
+            Log.e(logTag, "Checking connection state: $connection")
+
             // TODO also include preference checks for Offline and Roaming
             ServerConnection.LIMITED
 
         } else {
+
+            Log.e(logTag, "Checking connection state: $connection")
             ServerConnection.OK
         }
 
@@ -93,7 +97,6 @@ class ConnectionService(
             }
         }
     }
-
     // val customColor: Flow<String?> = sessionView.combine(networkStatus) { currSession, networkStatus ->
     //         if (currSession == null) null else {
     //             when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
@@ -103,7 +106,6 @@ class ConnectionService(
     //             }
     //         }
     //     }
-
 
     // Expose a flag to the various screens to know if current remote is Cells or P8
     private var _isRemoteLegacy = false
@@ -132,76 +134,6 @@ class ConnectionService(
 
     private var lastTimeChecked = -1L
     private val lock = Any()
-
-//    val sessionStatusFlow: Flow<SessionStatus> = sessionView
-//        .combine(networkStatusFlow) { activeSession, networkStatus ->
-//
-//            var newStatus = when (networkStatus) {
-//                NetworkStatus.Unknown -> {
-//                    // TODO enhance this:
-//                    Log.e(logTag, "unexpected network type: $networkStatus")
-//                    SessionStatus.OK
-//                }
-//
-//                NetworkStatus.Ok -> SessionStatus.OK
-//                NetworkStatus.Metered -> SessionStatus.METERED
-//                NetworkStatus.Roaming -> SessionStatus.ROAMING
-//                NetworkStatus.Unavailable -> SessionStatus.NO_INTERNET
-//                NetworkStatus.Captive -> SessionStatus.CAPTIVE
-//            }
-//
-//            // We then refine based on the current foreground session
-//            activeSession?.let {
-//
-//                // Update the helper flag
-//                _isRemoteLegacy = it.isLegacy
-//
-//                if (newStatus == SessionStatus.CAPTIVE) {
-//                    // We do not change the status yet
-//                } else if (newStatus != SessionStatus.NO_INTERNET && !it.isReachable) {
-//                    // We have internet access but cannot ping the server
-//                    newStatus = SessionStatus.SERVER_UNREACHABLE
-//                    // Request a refresh of the reachable status for current stateID
-//                    serviceScope.launch {
-//                        delay(1000L) // Wait 1 sec before doing the request
-//                        val doIt: Boolean
-//                        synchronized(lock) {
-//                            if (currentTimestamp() - lastTimeChecked > 3) {
-//                                lastTimeChecked = currentTimestamp()
-//                                doIt = true
-//                            } else {
-//                                doIt = false
-//                            }
-//                        }
-//                        if (doIt) {
-//                            // This also update cached reachable status of the server
-//                            appCredentialService.insureServerIsReachable(it.getStateID())
-//                        }
-//                    }
-//                }
-//
-//                if (it.authStatus != LoginStatus.Connected.id) {
-//                    pauseMonitoring()
-//                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
-//                        && newStatus != SessionStatus.CAPTIVE
-//                        && newStatus != SessionStatus.SERVER_UNREACHABLE
-//                    ) {
-//                        SessionStatus.CAN_RELOG
-//                    } else {
-//                        // SessionStatus.NOT_LOGGED_IN
-//                        newStatus // We want to keep internet status rather than "not logged in"
-//                    }
-//                } else {
-//                    relaunchMonitoring()
-//                }
-//            } ?: run {
-//                Log.w(logTag, " **No** active session - new status: SERVER_UNREACHABLE")
-//                newStatus = SessionStatus.SERVER_UNREACHABLE
-//            }
-//            newStatus
-//        }
-//        .flowOn(coroutineService.ioDispatcher)
-//        .conflate()
 
     val sessionStateFlow: Flow<SessionState> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
@@ -234,15 +166,6 @@ class ConnectionService(
 
                 if (activeSession.authStatus != LoginStatus.Connected.id) {
                     pauseMonitoring()
-//                    newStatus = if (newStatus != SessionStatus.NO_INTERNET
-//                        && newStatus != SessionStatus.CAPTIVE
-//                        && newStatus != SessionStatus.SERVER_UNREACHABLE
-//                    ) {
-//                        SessionStatus.CAN_RELOG
-//                    } else {
-//                        // SessionStatus.NOT_LOGGED_IN
-//                        newStatus // We want to keep internet status rather than "not logged in"
-//                    }
                 } else {
                     relaunchMonitoring()
                 }
@@ -295,6 +218,7 @@ class ConnectionService(
     fun pauseMonitoring() {
         pauseCredJob()
         pausePollJob()
+        // loadingFlag.value = LoadingState.IDLE
     }
 
     private fun relaunchPollJob() {
@@ -306,6 +230,7 @@ class ConnectionService(
                     watchFolder(this)
                     delay(2000L)
                 }
+                // loadingFlag.value = LoadingState.IDLE
             }
         }
     }
@@ -396,7 +321,10 @@ class ConnectionService(
 
     fun forceRefresh() {
         setActive(true)
-        loadingFlag.value = LoadingState.PROCESSING
+        // TODO rather set processing here and idle again when we see we are offline.
+        if (isConnected()) {
+            loadingFlag.value = LoadingState.PROCESSING
+        }
         backOffTicker.resetIndex()
         delayJob?.cancel(CellsCancellation())
     }
@@ -457,6 +385,8 @@ class ConnectionService(
                 if (appCredentialService.insureServerIsReachable(stateID)) {
                     // In such case we reset the ticker
                     backOffTicker.resetIndex()
+                } else {
+                    // loadingFlag.value = LoadingState.IDLE
                 }
             }
             // we do not try to pull but don't stop the main job
@@ -466,6 +396,7 @@ class ConnectionService(
             return
         } else if (!isActive) {
             // The job has been paused, but we still keep on waiting for a state change with backoff timer
+            // loadingFlag.value = LoadingState.IDLE
             return
         } else {
 

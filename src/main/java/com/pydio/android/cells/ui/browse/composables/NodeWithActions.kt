@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
@@ -64,6 +65,7 @@ private fun routeMulti(action: NodeAction): String {
 fun WrapWithActions(
     actionDone: (Boolean, Boolean) -> Unit,
     isExpandedScreen: Boolean = false,
+    connectionState: ConnectionState,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
@@ -77,6 +79,7 @@ fun WrapWithActions(
     FolderWithDialogs(
         actionDone = actionDone,
         isExpandedScreen = isExpandedScreen,
+        connectionState = connectionState,
         type = type,
         subjectIDs = subjectIDs,
         sheetState = sheetState,
@@ -91,6 +94,7 @@ fun WrapWithActions(
 private fun FolderWithDialogs(
     actionDone: (Boolean, Boolean) -> Unit,
     isExpandedScreen: Boolean,
+    connectionState: ConnectionState,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
@@ -316,12 +320,14 @@ private fun FolderWithDialogs(
                 sheetContent = {
                     if (subjectIDs.size == 1) {
                         NodeMoreMenuData(
+                            connectionState = connectionState,
                             type = type,
                             subjectID = subjectIDs.first(),
                             launch = launchMono,
                         )
                     } else if (subjectIDs.size > 1) {
                         NodesMoreMenuData(
+                            connectionState = connectionState,
                             type = type,
                             subjectIDs = subjectIDs,
                             launch = launchMulti,

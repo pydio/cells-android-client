@@ -38,7 +38,7 @@ fun NodeItem(
     desc: String,
     isSelectionMode: Boolean,
     isSelected: Boolean,
-    more: () -> Unit,
+    more: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     M3NodeItem(
@@ -75,7 +75,7 @@ fun M3NodeItem(
     isBookmarked: Boolean,
     isOfflineRoot: Boolean,
     isShared: Boolean,
-    more: () -> Unit,
+    more: (() -> Unit)?,
     modifier: Modifier = Modifier,
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false
@@ -163,13 +163,16 @@ fun M3NodeItem(
                 )
             }
 
-            IconButton(onClick = { more() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
-                    contentDescription = stringResource(id = R.string.open_more_menu),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
-                )
+            more?.let {
+                IconButton(onClick = { it() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.aa_300_more_vert_40px),
+                        contentDescription = stringResource(id = R.string.open_more_menu),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.requiredSize(dimensionResource(R.dimen.list_trailing_icon_size))
+                    )
+                }
+
             }
         }
     }

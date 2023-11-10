@@ -215,6 +215,7 @@
 
     <!-- More menus -->
     <string name="open_more_menu">Choose an action to apply to the selected items</string>
+    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
     <string name="deselect_all">Un-select all</string>
     <string name="more_button_description">Show more actions for this element</string>
     <string name="open_in_workspaces">Open location</string>

@@ -47,13 +47,13 @@ class NodeService(
     fun sortedListFlow(
         stateID: StateID,
         sortByCol: String,
-        sortByOrder: String
+        sortByDirection: String
     ): Flow<List<RTreeNode>> {
         val parPath = stateID.file
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
                     "AND parent_path = ? " +
-                    "ORDER BY $sortByCol $sortByOrder ", arrayOf(parPath)
+                    "ORDER BY $sortByCol $sortByDirection ", arrayOf(parPath)
         )
         return nodeDB(stateID).treeNodeDao().searchQueryFlow(lsQuery)
     }
@@ -528,10 +528,10 @@ class NodeService(
         skipUpToDateCheck: Boolean
     ): Pair<File?, Boolean> =
         withContext(ioDispatcher) {
-            Log.d(logTag, "Get Local for [${localNode.getStateID()}] - skip: $skipUpToDateCheck")
+            // Log.d(logTag, "Get Local for [${localNode.getStateID()}] - skip: $skipUpToDateCheck")
             val file = File(fileService.getLocalPath(localNode, AppNames.LOCAL_FILE_TYPE_FILE))
             if (!file.exists()) {
-                Log.e(logTag, "File not found at ${file.absolutePath}")
+                // Log.e(logTag, "File not found at ${file.absolutePath}")
                 return@withContext null to true
             }
 

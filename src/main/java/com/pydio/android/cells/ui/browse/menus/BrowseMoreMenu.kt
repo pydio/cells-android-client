@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.M3IconThumb
@@ -26,7 +26,9 @@ import com.pydio.android.cells.ui.core.composables.menus.BottomSheetDivider
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetFlagItem
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
+import com.pydio.android.cells.ui.core.composables.menus.BottomSheetNoAction
 import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 
@@ -34,12 +36,12 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun SingleNodeMenu(
+    connectionState: ConnectionState,
     stateID: StateID,
-    rTreeNode: RTreeNode,
+    nodeItem: TreeNodeItem,
     rWorkspace: RWorkspace?,
     launch: (NodeAction) -> Unit,
 ) {
-    // TODO handle case when offline
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -59,57 +61,60 @@ fun SingleNodeMenu(
             "${stateID.username}@${stateID.serverUrl}"
         }
         BottomSheetHeader(
-            thumb = { Thumbnail(rTreeNode) },
+            thumb = { Thumbnail(nodeItem) },
             title = title ?: "",
             desc = desc,
         )
 
-        if (rTreeNode.isFile()) {
+        if (!nodeItem.isFolder && (connectionState.serverConnection.isConnected() || nodeItem.isCached)) {
             BottomSheetListItem(
                 icon = CellsIcons.DownloadToDevice,
                 title = stringResource(R.string.download_to_device),
                 onItemClick = { launch(NodeAction.DownloadToDevice) },
             )
         }
-        BottomSheetListItem(
-            icon = CellsIcons.Rename,
-            title = stringResource(R.string.rename),
-            onItemClick = { launch(NodeAction.Rename) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.CopyTo,
-            title = stringResource(R.string.copy_to),
-            onItemClick = { launch(NodeAction.CopyTo) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.MoveTo,
-            title = stringResource(R.string.move_to),
-            onItemClick = { launch(NodeAction.MoveTo) },
-        )
-        BottomSheetListItem(
-            icon = CellsIcons.Delete,
-            title = stringResource(R.string.delete),
-            onItemClick = { launch(NodeAction.Delete) },
-        )
-        BottomSheetDivider()
 
-        BottomSheetFlagItem(
-            rTreeNode = rTreeNode,
-            icon = CellsIcons.Bookmark,
-            title = stringResource(R.string.bookmark),
-            flagType = AppNames.FLAG_BOOKMARK,
-            onItemClick = { launch(NodeAction.ToggleBookmark(it)) },
-        )
+        if (connectionState.serverConnection.isConnected()) {
+            BottomSheetListItem(
+                icon = CellsIcons.Rename,
+                title = stringResource(R.string.rename),
+                onItemClick = { launch(NodeAction.Rename) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.CopyTo,
+                title = stringResource(R.string.copy_to),
+                onItemClick = { launch(NodeAction.CopyTo) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.MoveTo,
+                title = stringResource(R.string.move_to),
+                onItemClick = { launch(NodeAction.MoveTo) },
+            )
+            BottomSheetListItem(
+                icon = CellsIcons.Delete,
+                title = stringResource(R.string.delete),
+                onItemClick = { launch(NodeAction.Delete) },
+            )
+            BottomSheetDivider()
+            BottomSheetFlagItem(
+                nodeItem = nodeItem,
+                icon = CellsIcons.Bookmark,
+                title = stringResource(R.string.bookmark),
+                flagType = AppNames.FLAG_BOOKMARK,
+                onItemClick = { launch(NodeAction.ToggleBookmark(it)) },
+            )
+        }
 
+        // This is local and does not require connection to the server
         BottomSheetFlagItem(
-            rTreeNode = rTreeNode,
+            nodeItem = nodeItem,
             iconId = R.drawable.cloud_download_24px,
             title = stringResource(R.string.keep_offline),
             flagType = AppNames.FLAG_OFFLINE,
             onItemClick = { launch(NodeAction.ToggleOffline(it)) },
         )
 
-        if (rTreeNode.isShared()) {
+        if (nodeItem.isShared) {
             BottomSheetDivider()
 
             DefaultTitleText(
@@ -139,15 +144,16 @@ fun SingleNodeMenu(
                 title = stringResource(R.string.display_as_qrcode),
                 onItemClick = { launch(NodeAction.ShowQRCode) },
             )
-            BottomSheetListItem(
-                icon = CellsIcons.Delete,
-                title = stringResource(R.string.remove_link),
-                onItemClick = { launch(NodeAction.RemoveLink) },
-            )
-            // }
-        } else {
+            if (connectionState.serverConnection.isConnected()) {
+                BottomSheetListItem(
+                    icon = CellsIcons.Delete,
+                    title = stringResource(R.string.remove_link),
+                    onItemClick = { launch(NodeAction.RemoveLink) },
+                )
+            }
+        } else if (connectionState.serverConnection.isConnected()) {
             BottomSheetFlagItem(
-                rTreeNode = rTreeNode,
+                nodeItem = nodeItem,
                 icon = CellsIcons.ButtonShare,
                 title = stringResource(R.string.public_link),
                 flagType = AppNames.FLAG_SHARE,
@@ -159,6 +165,7 @@ fun SingleNodeMenu(
 
 @Composable
 fun MultiNodeMenu(
+    connectionState: ConnectionState,
     inRecycle: Boolean,
     containsFolders: Boolean,
     launch: (NodeAction) -> Unit,
@@ -192,39 +199,46 @@ fun MultiNodeMenu(
 //                onItemClick = { launch(NodeAction.DownloadMultipleToDevice) },
 //            )
 //        }
-        if (inRecycle) {
-            BottomSheetListItem(
-                icon = CellsIcons.RestoreFromTrash,
-                title = stringResource(R.string.restore_content),
-                onItemClick = { launch(NodeAction.RestoreFromTrash) },
-            )
-            BottomSheetListItem(
-                icon = CellsIcons.DeleteForever,
-                title = stringResource(R.string.permanently_remove),
-                onItemClick = { launch(NodeAction.PermanentlyRemove) },
-            )
-        } else {
-            BottomSheetListItem(
-                icon = CellsIcons.CopyTo,
-                title = stringResource(R.string.copy_to),
-                onItemClick = { launch(NodeAction.CopyTo) },
-            )
-            BottomSheetListItem(
-                icon = CellsIcons.MoveTo,
-                title = stringResource(R.string.move_to),
-                onItemClick = { launch(NodeAction.MoveTo) },
-            )
-            BottomSheetListItem(
-                icon = CellsIcons.Delete,
-                title = stringResource(R.string.delete),
-                onItemClick = { launch(NodeAction.Delete) },
-            )
+        if (connectionState.serverConnection.isConnected()) {
+
+
+            if (inRecycle) {
+                BottomSheetListItem(
+                    icon = CellsIcons.RestoreFromTrash,
+                    title = stringResource(R.string.restore_content),
+                    onItemClick = { launch(NodeAction.RestoreFromTrash) },
+                )
+                BottomSheetListItem(
+                    icon = CellsIcons.DeleteForever,
+                    title = stringResource(R.string.permanently_remove),
+                    onItemClick = { launch(NodeAction.PermanentlyRemove) },
+                )
+            } else {
+                BottomSheetListItem(
+                    icon = CellsIcons.CopyTo,
+                    title = stringResource(R.string.copy_to),
+                    onItemClick = { launch(NodeAction.CopyTo) },
+                )
+                BottomSheetListItem(
+                    icon = CellsIcons.MoveTo,
+                    title = stringResource(R.string.move_to),
+                    onItemClick = { launch(NodeAction.MoveTo) },
+                )
+                BottomSheetListItem(
+                    icon = CellsIcons.Delete,
+                    title = stringResource(R.string.delete),
+                    onItemClick = { launch(NodeAction.Delete) },
+                )
+            }
         }
         BottomSheetListItem(
             icon = CellsIcons.Deselect,
             title = stringResource(R.string.deselect_all),
             onItemClick = { launch(NodeAction.UnSelectAll) }
         )
+        if (!connectionState.serverConnection.isConnected()) {
+            BottomSheetNoAction()
+        }
     }
 }
 

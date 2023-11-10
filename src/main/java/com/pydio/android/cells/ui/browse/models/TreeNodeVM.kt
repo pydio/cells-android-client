@@ -6,6 +6,8 @@ import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.ui.models.MultipleItem
+import com.pydio.android.cells.ui.models.TreeNodeItem
+import com.pydio.android.cells.ui.models.toTreeNodeItem
 import com.pydio.cells.transport.StateID
 
 /**  Simply provides access to the DB to retrieve basic single objects */
@@ -17,6 +19,12 @@ class TreeNodeVM(
 
     suspend fun getTreeNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID)
+    }
+
+    suspend fun getTreeNodeItem(stateID: StateID): TreeNodeItem? {
+        return nodeService.getNode(stateID)?.let {
+            toTreeNodeItem(it, nodeService)
+        }
     }
 
     suspend fun getWS(stateID: StateID): RWorkspace? {

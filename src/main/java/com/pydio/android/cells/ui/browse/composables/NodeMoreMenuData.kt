@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.db.nodes.RTreeNode
+import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.ui.browse.menus.BookmarkMenu
 import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
 import com.pydio.android.cells.ui.browse.menus.OfflineMenu
@@ -22,6 +22,7 @@ import com.pydio.android.cells.ui.browse.menus.SearchMenu
 import com.pydio.android.cells.ui.browse.menus.SingleNodeMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
+import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.cells.transport.StateID
 import org.koin.androidx.compose.koinViewModel
 
@@ -31,6 +32,7 @@ enum class NodeMoreMenuType {
 
 @Composable
 fun NodeMoreMenuData(
+    connectionState: ConnectionState,
     type: NodeMoreMenuType,
     subjectID: StateID,
     launch: (NodeAction, StateID) -> Unit,
@@ -38,12 +40,12 @@ fun NodeMoreMenuData(
 ) {
     val logTag = "NodeMoreMenuData"
 
-    val item: MutableState<RTreeNode?> = remember { mutableStateOf(null) }
+    val item: MutableState<TreeNodeItem?> = remember { mutableStateOf(null) }
     val workspace: MutableState<RWorkspace?> = remember { mutableStateOf(null) }
 
     LaunchedEffect(key1 = subjectID) {
         if (subjectID != StateID.NONE) {
-            treeNodeVM.getTreeNode(subjectID)?.let { currNode ->
+            treeNodeVM.getTreeNodeItem(subjectID)?.let { currNode ->
                 item.value = currNode
             } ?: { Log.e(logTag, "No node found for $subjectID, aborting") }
 
@@ -63,19 +65,22 @@ fun NodeMoreMenuData(
     } else if (subjectID.slug != null) {
         item.value?.let { myItem ->
             when {
-                myItem.isRecycle() -> RecycleParentMenu(
+                myItem.isRecycle -> RecycleParentMenu(
+                    connectionState = connectionState,
                     stateID = subjectID,
                     rTreeNode = myItem,
                     launch = { launch(it, subjectID) },
                 )
 
-                myItem.isInRecycle() -> RecycleMenu(
+                myItem.isInRecycle -> RecycleMenu(
+                    connectionState = connectionState,
                     stateID = subjectID,
                     rTreeNode = myItem,
                     launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.CREATE -> CreateOrImportMenu(
+                    connectionState = connectionState,
                     stateID = subjectID,
                     rTreeNode = myItem,
                     rWorkspace = workspace.value,
@@ -83,12 +88,14 @@ fun NodeMoreMenuData(
                 )
 
                 type == NodeMoreMenuType.OFFLINE -> OfflineMenu(
+                    connectionState = connectionState,
                     stateID = subjectID,
-                    rTreeNode = myItem,
+                    nodeItem = myItem,
                     launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.BOOKMARK -> BookmarkMenu(
+                    connectionState = connectionState,
                     treeNodeVM = treeNodeVM,
                     stateID = subjectID,
                     rTreeNode = myItem,
@@ -96,15 +103,17 @@ fun NodeMoreMenuData(
                 )
 
                 type == NodeMoreMenuType.SEARCH -> SearchMenu(
+                    connectionState = connectionState,
                     stateID = subjectID,
-                    rTreeNode = myItem,
+                    nodeItem = myItem,
                     launch = { launch(it, subjectID) },
                 )
 
                 type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
+                        connectionState = connectionState,
                         stateID = subjectID,
-                        rTreeNode = myItem,
+                        nodeItem = myItem,
                         rWorkspace = workspace.value,
                         launch = { launch(it, subjectID) },
                     )
