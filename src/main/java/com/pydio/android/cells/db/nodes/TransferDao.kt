@@ -8,6 +8,7 @@ import androidx.room.RawQuery
 import androidx.room.TypeConverters
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.CellsConverters
 import kotlinx.coroutines.flow.Flow
 
@@ -23,6 +24,12 @@ interface TransferDao {
 
     @Update
     fun update(transfer: RTransfer)
+
+    @Query("SELECT * FROM transfers WHERE job_id = :jobID AND status = :status ")
+    fun getRunningTransfersForJob(
+        jobID: Long,
+        status: String = JobStatus.PROCESSING.id
+    ): List<RTransfer>
 
     @Query("SELECT * FROM transfers WHERE encoded_state = :stateId LIMIT 1")
     fun getByState(stateId: String): RTransfer?

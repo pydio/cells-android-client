@@ -9,7 +9,6 @@ import android.net.TrafficStats
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
 import com.pydio.android.cells.NetworkStatus
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
@@ -34,7 +33,7 @@ class NetworkService(
 
     val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
-            Log.e(LOG_TAG, "Updating current network status to $it")
+            Log.d(LOG_TAG, ".. Updating current network status to $it")
             trySendBlocking(it)
                 .onFailure { throwable ->
                     Log.e(LOG_TAG, "Could not emit in flow: ${throwable?.message}")
@@ -54,39 +53,17 @@ class NetworkService(
 
     // We register a hot flow here that can be subscribed to by various callers to avoid
     // systematically register / unregister the above cold flow
-    @OptIn(ExperimentalCoroutinesApi::class)
     val networkStatusFlow: StateFlow<NetworkStatus> = networkStatusFlowCold.stateIn(
         scope = coroutineService.cellsIoScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = NetworkStatus.UNAVAILABLE
     )
 
-    suspend fun fetchNetworkStatus(): NetworkStatus = networkStatusFlow.first()
-
     suspend fun isConnected(): Boolean {
-        return fetchNetworkStatus().isConnected()
+        // TODO insure that the first() methods here returns what we expect, a.k.a the current network status
+        val networkStatus: NetworkStatus = networkStatusFlow.first()
+        return networkStatus.isConnected()
     }
-
-//    fun isConnected(networkStatus: NetworkStatus): Boolean {
-//        return when (networkStatus) {
-//            is NetworkStatus.Unknown -> {
-//                Log.w(LOG_TAG, "Unknown network status, doing as if connected")
-//                true
-//            }
-//
-//            is NetworkStatus.Unavailable -> { // There is no network connection
-//                false
-//            }
-//
-//            is NetworkStatus.Captive -> {
-//                false
-//            }
-//
-//            is NetworkStatus.Ok,
-//            is NetworkStatus.Metered,
-//            is NetworkStatus.Roaming -> true
-//        }
-//    }
 
     // TODO retrieve and expose App network usage to the end user
     private fun networkUsage(context: Context) {

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
+import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.CellsConverters
 import kotlinx.coroutines.flow.Flow
 
@@ -46,12 +47,15 @@ interface JobDao {
     @Query("SELECT * FROM jobs WHERE job_id = :jobId LIMIT 1")
     fun getJobById(jobId: Long): Flow<RJob?>
 
+    @Query("SELECT * FROM jobs WHERE parent_id = :jobId AND status = :status ")
+    fun getRunningChildren(jobId: Long, status: String = JobStatus.PROCESSING.id): List<RJob>
+
     @Query("SELECT * FROM jobs ORDER BY job_id DESC")
     fun getLiveJobs(): Flow<List<RJob>>
 
     @Query("SELECT * FROM jobs WHERE parent_id < 1 ORDER BY creation_ts DESC")
     fun getRootJobs(): Flow<List<RJob>>
-    
+
     // JOB CANCELLATION
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(cancellation: RJobCancellation)

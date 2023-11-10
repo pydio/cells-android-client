@@ -64,17 +64,16 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val listPrefs = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list
     }
+    val layout = listPrefs.map { it.layout }
     protected val defaultOrder = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         cellsPreferences.list.order
     }
-
     protected val defaultOrderPair = prefs.cellsPreferencesFlow.map { cellsPreferences ->
         prefs.getOrderByPair(
             cellsPreferences,
             ListType.DEFAULT
         )
     }
-    val layout = listPrefs.map { it.layout }
 
     fun setListLayout(listLayout: ListLayout) {
         viewModelScope.launch {
@@ -82,8 +81,8 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         }
     }
 
-    // Generic access to the underlying objects
-    // suspend
+    /* Generic access to the underlying objects */
+
     fun isServerReachable(): Boolean {
         return connectionService.isConnected()
     }
@@ -91,7 +90,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     suspend fun getNode(stateID: StateID): RTreeNode? {
         return nodeService.getNode(stateID) ?: run {
             try {
-                // also try to remove from the remote
+                // Also try to retrieve node from the remote server
                 nodeService.tryToCacheNode(stateID)
             } catch (se: SDKException) {
                 done(se)
@@ -106,6 +105,36 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
             viewFile(context, node, skipUpToDateCheck)
         }
     }
+
+    fun showError(errorMsg: ErrorMessage) {
+        errorService.appendError(errorMsg)
+    }
+
+    /* Entry points for children models to update current UI state */
+
+    protected fun launchProcessing() {
+        _loadingState.value = LoadingState.PROCESSING
+        errorService.appendError(errorMsg = null)
+    }
+
+    /* Pass a non-null errorMsg parameter when the process has terminated with an error*/
+    protected fun done(errorMsg: ErrorMessage? = null) {
+        _loadingState.value = LoadingState.IDLE
+        errorService.appendError(errorMsg)
+    }
+
+    protected fun done(e: Exception) {
+        _loadingState.value = LoadingState.IDLE
+        Log.e(logTag, "Error for user received: ${e.message}")
+        errorService.appendError(e)
+    }
+
+    protected fun error(msg: String) {
+        _loadingState.value = LoadingState.IDLE
+        errorService.appendError(msg)
+    }
+
+    /* Local helpers */
 
     @Throws(SDKException::class)
     private suspend fun viewFile(
@@ -132,33 +161,5 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
             // externallyView(applicationContext, lf, node)
             externallyView(context, lf, node)
         }
-    }
-
-    // Entry points for children models to update current UI state
-
-    protected fun launchProcessing() {
-        _loadingState.value = LoadingState.PROCESSING
-        errorService.appendError(errorMsg = null)
-    }
-
-    /* Pass a non-null errorMsg parameter when the process has terminated with an error*/
-    protected fun done(errorMsg: ErrorMessage? = null) {
-        _loadingState.value = LoadingState.IDLE
-        errorService.appendError(errorMsg)
-    }
-
-    protected fun done(e: Exception) {
-        _loadingState.value = LoadingState.IDLE
-        Log.e(logTag, "Error for user received: ${e.message}")
-        errorService.appendError(e)
-    }
-
-    protected fun error(msg: String) {
-        _loadingState.value = LoadingState.IDLE
-        errorService.appendError(msg)
-    }
-
-    fun showError(errorMsg: ErrorMessage) {
-        errorService.appendError(errorMsg)
     }
 }

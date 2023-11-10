@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -18,7 +20,10 @@ import org.koin.core.component.inject
  * Manage the various jobs and queues to request downloads and then perform then in background
  * while updating the calling job to be able to follow progress.
  */
-class FileDownloader(private val parentJobID: Long) : KoinComponent {
+class FileDownloader(
+    private val stateID: StateID,
+    private val parentJobID: Long,
+) : KoinComponent {
 
     private val logTag = "FileDownloader"
 
@@ -84,8 +89,11 @@ class FileDownloader(private val parentJobID: Long) : KoinComponent {
         for (msg in queue) { // iterate over incoming messages
             when (msg) {
                 "done" -> {
+                    Log.e(logTag, "######################################################")
+                    Log.e(logTag, "####  DONE message received #######")
+
                     Log.i(logTag, "Received done msg, finalizing and forwarding to done channel")
-                    finalizeJob()
+//                    finalizeJob()
                     doneChannel.send(true)
                     return
                 }
@@ -169,9 +177,23 @@ class FileDownloader(private val parentJobID: Long) : KoinComponent {
 
     private suspend fun waitForDone() {
         for (msg in doneChannel) {
-            Log.i(logTag, "Finished processing the queue, exiting...")
-            queue.close()
-            doneChannel.close()
+            Log.i(logTag, "Finished Walking the queue, waiting for the download to happen...")
+            val waiter = dlScope.launch {
+                var running = true
+                while (this.isActive && running) {
+                    Log.i(logTag, "About to sleep 10 seconds to wait")
+                    delay(10000L)
+                    val rTransfers =
+                        transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
+                    running = rTransfers.isNotEmpty()
+                    Log.e(logTag, "... AfterSleep ID: ${parentJobID}, running: ${rTransfers.size}")
+                }
+                Log.i(logTag, "Finished processing the queue, exiting...")
+                finalizeJob()
+                queue.close()
+                doneChannel.close()
+            }
+            waiter.join()
             break
         }
     }

@@ -361,7 +361,7 @@ class OfflineService(
                         RTreeNode.fromFileNode(stateID, nodeInfo)
                     }
 
-                val fileDL = FileDownloader(jobID)
+                val fileDL = FileDownloader(stateID, jobID)
                 var changeNb = 0
                 val timeToSync = measureTimedValue {
                     changeNb += syncNodeAt(treeNode, client, treeNodeDao, fileDL)

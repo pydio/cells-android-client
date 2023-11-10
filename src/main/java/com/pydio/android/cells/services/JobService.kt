@@ -120,6 +120,10 @@ class JobService(
         return@withContext jobDao.getRunningForTemplate(template)
     }
 
+    suspend fun getRunningChildren(parentID: Long): List<RJob> = withContext(ioDispatcher) {
+        return@withContext jobDao.getRunningChildren(parentID)
+    }
+
     suspend fun clearTerminated() = withContext(ioDispatcher) {
         jobDao.clearTerminatedJobs()
     }
@@ -135,6 +139,7 @@ class JobService(
 
     // Flows and Live Data
     fun getLiveJobByID(jobID: Long): Flow<RJob?> = jobDao.getJobById(jobID)
+
 
     fun listLiveJobs(showChildren: Boolean): Flow<List<RJob>> {
         return if (showChildren) {

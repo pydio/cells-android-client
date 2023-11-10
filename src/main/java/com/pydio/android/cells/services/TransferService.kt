@@ -108,6 +108,11 @@ class TransferService(
         return nodeDB(accountID).transferDao().getByJobId(id)
     }
 
+    fun getRunningTransfersForJob(accountID: StateID, jobID: Long): List<RTransfer> {
+        return if (jobID <= 0) {
+            listOf()
+        } else nodeDB(accountID).transferDao().getRunningTransfersForJob(jobID)
+    }
 
     suspend fun getRecord(accountID: StateID, transferID: Long): RTransfer? =
         withContext(ioDispatcher) {

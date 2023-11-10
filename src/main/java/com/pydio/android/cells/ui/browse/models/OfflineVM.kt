@@ -135,7 +135,7 @@ class OfflineVM(
             defaultCellsPreferences()
         }
 
-        return when (connectionService.isConnected()) {
+        return when (connectionService.liveConnectionState.value.serverConnection) {
             ServerConnection.OK -> {
                 return stateID?.let {
                     if (it != StateID.NONE) {

@@ -29,9 +29,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -56,8 +56,10 @@ class ConnectionService(
 
     private val serviceScope = coroutineService.cellsIoScope
 
-    private var currMonitoringCredentialsJob: Job? = null
-    private var currPollJob: Job? = null
+    // TODO rather manage an array of currently "active" sessions: typically when running the sync in a background session
+    private var credentialsJob: Job? = null
+
+    private var pollJob: Job? = null
 
     // Cold flows
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
@@ -73,8 +75,10 @@ class ConnectionService(
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
 
+    // Debug only
+    private var lastKnownConnection: ServerConnection? = null
     private fun serverConnectionState(connection: SessionState): ServerConnection {
-        return if (
+        val newConn = if (
             !connection.networkStatus.isConnected()
             || !connection.isServerReachable
             || !connection.loginStatus.isConnected()
@@ -84,14 +88,17 @@ class ConnectionService(
             connection.networkStatus == NetworkStatus.ROAMING
             || connection.networkStatus == NetworkStatus.METERED
         ) {
-            Log.e(logTag, "Checking connection state: $connection")
             // TODO also include preference checks for Offline and Roaming
             ServerConnection.LIMITED
-
         } else {
-            Log.e(logTag, "Checking connection state: $connection")
             ServerConnection.OK
         }
+        // TODO remove dirty debug only
+        if (newConn != lastKnownConnection) {
+            Log.e(logTag, "New connection state: $newConn from connection: $connection")
+            lastKnownConnection = newConn
+        }
+        return newConn
     }
 
     val customColor: Flow<String?> = sessionView.map { currSession ->
@@ -208,14 +215,13 @@ class ConnectionService(
         return ConnectionState(tmpLoading, serverConnectionState(connection))
     }
 
-
     fun isConnected(): Boolean {
         return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
     }
 
     fun relaunchMonitoring() {
         // Only relaunch if no job is referenced
-        currPollJob ?: run {
+        pollJob ?: run {
             relaunchCredJob()
             relaunchPollJob()
         }
@@ -229,46 +235,52 @@ class ConnectionService(
 
     private fun relaunchPollJob() {
         serviceScope.launch {
-            currPollJob?.cancelAndJoin()
-            currPollJob = serviceScope.launch {
-                Log.i(logTag, "### Launching Poll Job $this")
+            pollJob?.cancelAndJoin()
+            pollJob = serviceScope.launch {
                 while (this.isActive) {
                     watchFolder(this)
                     delay(2000L)
                 }
                 // loadingFlag.value = LoadingState.IDLE
             }
+            Log.i(logTag, "### Relaunched PollJob, new ID: $pollJob")
         }
     }
 
     private fun pausePollJob() {
         serviceScope.launch {
-            currPollJob?.cancelAndJoin()
-            currPollJob = null
+            pollJob?.cancelAndJoin()
+            Log.i(logTag, "### PollJob paused, ID was: $pollJob")
+            pollJob = null
         }
     }
 
     private fun relaunchCredJob() {
         serviceScope.launch {
-            currMonitoringCredentialsJob?.cancelAndJoin()
-            currMonitoringCredentialsJob = launch {
+            credentialsJob?.cancelAndJoin()
+            credentialsJob = serviceScope.launch {
                 while (this.isActive) {
                     monitorCredentials()
+                    // Log.e(logTag, "### About to sleep: ${this.isActive}")
                     delay(10000)
+                    // Log.e(logTag, "### After sleep, is active: ${this.isActive}")
                 }
             }
+            Log.i(logTag, "### Relaunched Credentials Job, new ID: $credentialsJob")
         }
     }
 
     private fun pauseCredJob() {
         serviceScope.launch {
-            currMonitoringCredentialsJob?.cancelAndJoin()
+            credentialsJob?.cancelAndJoin()
+            Log.i(logTag, "### Credentials Job paused, ID was: $credentialsJob")
+            credentialsJob = null
         }
     }
 
     // TODO this must be improved
     private suspend fun monitorCredentials() = withContext(coroutineService.ioDispatcher) {
-        val currSession = sessionView.last() ?: return@withContext
+        val currSession = sessionView.first() ?: return@withContext
         val currID = currSession.getStateID()
         if (currSession.isLegacy) {
             // this is for Cells only
@@ -279,7 +291,9 @@ class ConnectionService(
             pauseMonitoring()
             return@withContext
         }
-        if (token.expirationTime > (currentTimestamp() + 120)) {
+        val validDur = token.expirationTime - currentTimestamp()
+        Log.i(logTag, "Monitoring Credentials for $currID, expires in $validDur secs.")
+        if (validDur > 120) {
             return@withContext
         }
 
@@ -312,6 +326,9 @@ class ConnectionService(
     private val backOffTicker = BackOffTicker()
 
     private fun setActive(active: Boolean) {
+        if (!active) {
+            Log.e(logTag, "#### Setting _isActive to false !!")
+        }
         _isActive = active
     }
 
@@ -370,6 +387,7 @@ class ConnectionService(
                 msg += " watching at $currStateID - $this"
                 Log.d(logTag, msg)
             } catch (e: CancellationException) {
+                // Expected when we browse as the thread is waiting for next tick.
                 Log.d(logTag, "Delay has been cancelled: ${e.message}")
             } catch (e: Exception) {
                 Log.e(logTag, "## Unexpected error for $this:\n\t$e")
