@@ -9,10 +9,10 @@ import androidx.room.Update
 interface TokenDao {
 
     @Insert
-    fun insert(RToken: RToken)
+    fun insert(token: RToken)
 
     @Update
-    fun update(RToken: RToken)
+    fun update(token: RToken)
 
     @Query("SELECT * FROM tokens WHERE account_id = :accountID LIMIT 1")
     fun getToken(accountID: String): RToken?

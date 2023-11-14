@@ -262,7 +262,7 @@ class ConnectionService(
                 while (this.isActive) {
                     monitorCredentials()
                     // Log.e(logTag, "### About to sleep: ${this.isActive}")
-                    delay(10000)
+                    delay(20000)
                     // Log.e(logTag, "### After sleep, is active: ${this.isActive}")
                 }
             }
@@ -292,7 +292,7 @@ class ConnectionService(
             return@withContext
         }
         val validDur = token.expirationTime - currentTimestamp()
-        Log.i(logTag, "Monitoring Credentials for $currID, expires in $validDur secs.")
+        Log.d(logTag, "Monitoring Credentials for $currID, expires in $validDur secs.")
         if (validDur > 120) {
             return@withContext
         }
