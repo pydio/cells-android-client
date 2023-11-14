@@ -33,6 +33,8 @@ class CellsApp : Application(), KoinComponent {
 
     override fun onCreate() {
 
+        setLogger()
+
         // FIXME it seems we have some leaks and some not correctly tagged sockets
         // Enable resource leak tracking during dev when the "A resource failed to call xxx" message shows up
 //        if (BuildConfig.DEBUG)
@@ -129,5 +131,32 @@ class CellsApp : Application(), KoinComponent {
         val release = Build.VERSION.RELEASE
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
+    }
+
+    private fun setLogger() {
+        com.pydio.cells.utils.Log.setLogger(object : com.pydio.cells.utils.Log.Logger {
+
+            override fun v(tag: String, text: String) {
+                Log.v(tag, text)
+            }
+
+            override fun d(tag: String, text: String) {
+                Log.d(tag, text)
+            }
+
+            override fun w(tag: String, text: String) {
+                Log.w(tag, text)
+            }
+
+            override fun i(tag: String, text: String) {
+                Log.i(tag, text)
+            }
+
+            override fun e(tag: String, text: String) {
+                Log.e(tag, text)
+            }
+
+
+        })
     }
 }
