@@ -68,7 +68,7 @@ class AuthService(
             val rOAuthState = ROAuthState(
                 state = oAuthState,
                 serverURL = url,
-                next = loginContext,
+                loginContext = loginContext,
                 startTimestamp = currentTimestamp()
             )
             Log.d(logTag, "About to store OAuth state: $rOAuthState")
@@ -116,22 +116,22 @@ class AuthService(
                 .getAnonymousTransport(rState.serverURL.id) as CellsTransport
             val token = transport.getTokenFromCode(code, encoder)
             accountID = manageRetrievedToken(accountService, transport, token)
-            Log.e(logTag, "... Token managed. Next action: ${rState.next}")
+            Log.e(logTag, "... Token managed. Login context: ${rState.loginContext}")
 
             // Leave OAuth state cacheDB clean
             authStateDao.delete(oauthState)
             // When creating a new account, we want to put its session on the foreground
-            if (rState.next == LOGIN_CONTEXT_CREATE) {
+            if (rState.loginContext == LOGIN_CONTEXT_CREATE) {
                 accountService.openSession(accountID)
             }
         } catch (e: Exception) {
-            Log.e(logTag, "Could not finalize credential auth flow")
+            Log.e(logTag, "Could not finalize credential OAuth flow")
             e.printStackTrace()
         }
         if (accountID == null) {
             return@withContext null
         } else {
-            return@withContext Pair(accountID, rState.next)
+            return@withContext Pair(accountID, rState.loginContext)
         }
     }
 
