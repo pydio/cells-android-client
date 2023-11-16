@@ -21,10 +21,10 @@ fun NavGraphBuilder.loginNavGraph(
 ) {
     val logTag = "loginNavGraph"
 
-    composable(LoginDestinations.Starting.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry)
-        LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## 1st compo login/starting/$stateID")
+    composable(LoginDestinations.Starting.route) {
+        // val stateID = lazyStateID(nbsEntry)
+        LaunchedEffect(key1 = Unit) {
+            Log.i(logTag, "## 1st compo login/starting")
         }
         StartingLoginProcess()
     }
@@ -37,10 +37,9 @@ fun NavGraphBuilder.loginNavGraph(
         StartingLoginProcess()
     }
 
-    composable(LoginDestinations.AskUrl.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry)
-        LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## 1st compo login/ask-url/$stateID")
+    composable(LoginDestinations.AskUrl.route) {
+        LaunchedEffect(key1 = Unit) {
+            Log.i(logTag, "## 1st compo login/ask-url")
         }
         AskServerUrl(helper = helper, loginVM = loginVM)
     }
