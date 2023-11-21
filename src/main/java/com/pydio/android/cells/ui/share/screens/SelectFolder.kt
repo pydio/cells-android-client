@@ -66,7 +66,6 @@ import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 
 private const val LOG_TAG = "SelectFolder.kt"
@@ -208,7 +207,7 @@ fun SelectFolderScaffold(
             )
         },
         floatingActionButton = {
-            if (Str.notEmpty(stateID.slug)) {
+            if (!stateID.slug.isNullOrEmpty()) {
                 FloatingActionButton(
                     onClick = {
                         doAction(AppNames.ACTION_CREATE_FOLDER, stateID)
@@ -257,14 +256,14 @@ private fun SelectFolderList(
         LazyColumn(Modifier.fillMaxWidth()) {
             // For the time being we only support intra workspace copy / move
             // We so reduce the "up" row visibility at the WS level when in such situation
-            if (Str.notEmpty(stateID.fileName) || action == AppNames.ACTION_UPLOAD) {
+            if (!stateID.fileName.isNullOrEmpty() || action == AppNames.ACTION_UPLOAD) {
                 item {
                     val parentDescription = when {
-                        Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
-                        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+                        stateID.path.isNullOrEmpty() -> stringResource(id = R.string.switch_account)
+                        stateID.fileName.isNullOrEmpty() -> stringResource(id = R.string.switch_workspace)
                         else -> stringResource(R.string.parent_folder)
                     }
-                    val targetID = if (Str.empty(stateID.slug)) {
+                    val targetID = if (stateID.slug.isNullOrEmpty()) {
                         StateID.NONE
                     } else {
                         stateID.parent()

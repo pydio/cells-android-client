@@ -17,7 +17,6 @@ import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -214,7 +213,7 @@ class AppCredentialService(
         try {
             Log.i(logTag, "... Launching effective refresh token process for $stateID")
 
-            if (Str.empty(token.refreshToken)) {
+            if (token.refreshToken.isNullOrEmpty()) {
                 Log.e(logTag, "No refresh token available for $stateID, cannot refresh")
                 throw SDKException(
                     ErrorCodes.refresh_token_expired,

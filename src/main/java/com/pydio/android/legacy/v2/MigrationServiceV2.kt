@@ -21,7 +21,6 @@ import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.utils.IoHelpers
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -320,7 +319,7 @@ class MigrationServiceV2 : KoinComponent {
         for (currRoot in offlineRoots) {
             val storedFileNode = currRoot.node
             val state = accountID.withPath("/" + storedFileNode.workspace + storedFileNode.path)
-            val newNode = if (Str.empty(storedFileNode.mimeType)) {
+            val newNode = if (storedFileNode.mimeType.isNullOrEmpty()) {
                 storedFileNode.setProperty(
                     SdkNames.NODE_PROPERTY_MIME,
                     SdkNames.NODE_MIME_DEFAULT

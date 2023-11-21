@@ -4,7 +4,6 @@ import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.signature.ObjectKey
 import com.pydio.cells.utils.Log
-import com.pydio.cells.utils.Str
 import java.nio.ByteBuffer
 
 /**
@@ -31,7 +30,7 @@ class CellsModelLoader : ModelLoader<String, ByteBuffer> {
         // TODO better validation?
         return try {
             val res = decodeModel(model)
-            Str.notEmpty(res.second)
+            res.second.isNotEmpty()
         } catch (e: Exception) {
             Log.e(logTag, "Unexpected exception while handling $model: ${e.message}.")
             false

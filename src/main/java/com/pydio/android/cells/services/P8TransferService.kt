@@ -14,7 +14,6 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -196,7 +195,7 @@ class P8TransferService(
 
                 // We only update the records every half second and when the upload is not cancelled)
                 val newTs = System.currentTimeMillis()
-                if (Str.empty(cancellationMsg) && newTs - lastUpdateTS >= 500) {
+                if (cancellationMsg.isEmpty() && newTs - lastUpdateTS >= 500) {
                     Log.d(logTag, "- Transfer $byteWritten / ${transferRecord.byteSize}")
                     transferRecord.progress += byteWritten
                     transferRecord.updateTimestamp = newTs

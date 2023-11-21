@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.UseCellsTheme
-import com.pydio.cells.utils.Str
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -51,8 +50,8 @@ fun FormInput(
         value = value,
         label = { Text(text = description) },
         supportingText = {
-            if (Str.notEmpty(errorMessage)) {
-                Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+            if (!errorMessage.isNullOrEmpty()) {
+                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             }
         },
         enabled = !isProcessing,

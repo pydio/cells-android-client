@@ -27,7 +27,6 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.IoHelpers
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -484,7 +483,7 @@ class TransferService(
                 else -> previewDim // AppNames.LOCAL_FILE_TYPE_PREVIEW
             }
             val filename = client.getThumbnail(state, node, File(parPath), dim)
-            if (Str.empty(filename)) {
+            if (filename.isNullOrEmpty()) {
                 throw SDKException(
                     ErrorCodes.not_found,
                     "Could not get thumb for $state, it is probably missing in the server"
@@ -564,8 +563,8 @@ class TransferService(
             name = cursor.getString(nameIndex)
             size = cursor.getLong(sizeIndex)
         }
-        name = name ?: uri.lastPathSegment!!
-        if (Str.empty(name)) {
+        name = name ?: uri.lastPathSegment
+        if (name.isNullOrEmpty()) {
             return@withContext Pair(-1, "")
         }
 

@@ -11,7 +11,6 @@ import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 
 open class BrowseHelper(
     private val navController: NavHostController,
@@ -60,7 +59,7 @@ open class BrowseHelper(
             Log.w(logTag, "Target node $stateID is the *SAME* as the current route. Doing nothing")
         } else {
             val route: String
-            if (Str.notEmpty(stateID.slug)) {
+            if (!stateID.slug.isNullOrEmpty()) {
                 val item = browseVM.getNode(stateID) ?: run {
                     // We cannot navigate to an unknown node item
                     Log.e(logTag, "No TreeNode found for $stateID in local repo, aborting")

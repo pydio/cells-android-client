@@ -37,7 +37,6 @@ import com.pydio.android.cells.ui.core.composables.Type
 import com.pydio.android.cells.ui.core.composables.animations.SmoothLinearProgressIndicator
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
-import com.pydio.cells.utils.Str
 
 // private const val logTag = "TransferListItem"
 
@@ -79,7 +78,7 @@ fun TransferListItem(
 }
 
 fun isFailed(item: RTransfer): Boolean {
-    return Str.notEmpty(item.error)
+    return !item.error.isNullOrEmpty()
 }
 
 fun isPaused(item: RTransfer): Boolean {
@@ -249,7 +248,7 @@ fun buildStatusString(item: RTransfer): AnnotatedString {
         val sizeValue = Formatter.formatShortFileSize(ctx, item.byteSize)
         append("$sizeValue,")
         when {
-            Str.notEmpty(item.error) -> {
+            !item.error.isNullOrEmpty() -> {
                 append(" ${item.error}")
             }
 

@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.R
-import com.pydio.cells.utils.Str
 
 @Composable
 fun DialogTitle(
@@ -113,9 +112,9 @@ fun TitleDescColumnBloc(
             .padding(top = dimensionResource(R.dimen.margin_header))
     )
 
-    if (Str.notEmpty(desc)) {
+    if (!desc.isNullOrEmpty()) {
         Text(
-            text = desc!!,
+            text = desc,
             style = MaterialTheme.typography.bodyMedium,
             modifier = modifier
                 .alpha(.9f)

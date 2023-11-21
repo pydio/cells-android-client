@@ -8,7 +8,6 @@ import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +54,9 @@ class SearchVM(
             val (order, query) = currPair
             nodeService.liveSearch(
                 _localStateID.account(),
-                if (Str.notEmpty(query)) query else "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4", // TODO improve this to avoid querying the full repo when the string is empty
+                // Small hack to avoid querying the full repo when the string is empty
+                // TODO improve
+                query.ifEmpty { "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4" },
                 order
             ).map { nodes ->
                 deduplicateNodes(nodeService, nodes)
@@ -69,7 +70,7 @@ class SearchVM(
     init {
         viewModelScope.launch {
             _queryString.collect { query ->
-                if (Str.notEmpty(query)) {
+                if (query.isNotEmpty()) {
                     Log.d(logTag, "Setting debounced query to: $query")
                     launchProcessing()
                     // TODO make this configurable depending on the connection type
@@ -97,7 +98,7 @@ class SearchVM(
         val (changeNb, errMsg) = nodeService.pull(stateID)
         // TODO improve error handling
         Log.e(logTag, "Retrieved folder at $stateID with $changeNb changes - Error: $errMsg")
-        return Str.empty(errMsg)
+        return errMsg.isNullOrEmpty()
     }
 
     fun download(stateID: StateID, uri: Uri) {

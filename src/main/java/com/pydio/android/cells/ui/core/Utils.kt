@@ -12,7 +12,6 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.AuthService
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -57,7 +56,7 @@ fun lazyStateID(
 }
 
 fun encodeStateSetForRoute(stateIDs: Set<StateID>): String {
-    val reduced = stateIDs.map {  URLEncoder.encode(it.id, "UTF-8")}.reduce { acc, curr ->
+    val reduced = stateIDs.map { URLEncoder.encode(it.id, "UTF-8") }.reduce { acc, curr ->
         if (acc.isEmpty()) {
             curr
         } else {
@@ -80,14 +79,14 @@ fun lazyStateIDs(
             val reduced = URLDecoder.decode(it, "UTF-8")
             val ids = mutableSetOf<StateID>()
             reduced.split("&").forEach { currEncoded ->
-                if (currEncoded.isNotEmpty()){
-                    val currID =StateID.fromId(URLDecoder.decode(currEncoded, "UTF-8"))
-                    if (currID != StateID.NONE){
+                if (currEncoded.isNotEmpty()) {
+                    val currID = StateID.fromId(URLDecoder.decode(currEncoded, "UTF-8"))
+                    if (currID != StateID.NONE) {
                         ids.add(currID)
                     }
                 }
             }
-            if (ids.isEmpty()){ // TODO double check if it is really necessary
+            if (ids.isEmpty()) { // TODO double check if it is really necessary
                 ids.add(StateID.NONE)
             }
             ids
@@ -131,9 +130,9 @@ fun lazyUID(
     key: String = AppKeys.UID,
 ): Long {
     val stringValue = navBackStackEntry?.arguments?.getString(key)
-    if (Str.notEmpty(stringValue)) {
+    if (!stringValue.isNullOrEmpty()) {
         try {
-            return stringValue!!.toLong()
+            return stringValue.toLong()
         } catch (nfe: NumberFormatException) {
             Log.e(logTag, "Un-valid jobID format: [$stringValue]")
         }

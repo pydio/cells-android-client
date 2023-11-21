@@ -26,7 +26,6 @@ import com.pydio.cells.api.Transport
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -250,19 +249,19 @@ class AccountService(
                         }
                     }
 
-                    if (Str.notEmpty(server.label) && server.label != rAccount.serverLabel()) {
+                    if (!server.label.isNullOrEmpty() && server.label != rAccount.serverLabel()) {
                         rAccount.setLabel(server.label)
                         hasChanged = true
                     }
-                    if (Str.notEmpty(server.welcomeMessage) && server.welcomeMessage != rAccount.welcomeMessage()) {
+                    if (!server.welcomeMessage.isNullOrEmpty() && server.welcomeMessage != rAccount.welcomeMessage()) {
                         rAccount.setWelcomeMessage(server.welcomeMessage)
                         hasChanged = true
                     }
-                    if (Str.notEmpty(server.customPrimaryColor) && server.customPrimaryColor != rAccount.getCustomColor()) {
+                    if (!server.customPrimaryColor.isNullOrEmpty() && server.customPrimaryColor != rAccount.getCustomColor()) {
                         rAccount.setCustomColor(server.customPrimaryColor)
                         hasChanged = true
                     }
-//                    if (Str.notEmpty(server.iconURL)) {
+//                    if (!server.iconURL.isNullOrEmpty()) {
 //                        Log.w(logTag, "Got an Icon URL: ${server.iconURL} that we **IGNORE**")
 //                    }
                 }

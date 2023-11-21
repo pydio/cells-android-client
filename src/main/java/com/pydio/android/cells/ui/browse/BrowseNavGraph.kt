@@ -23,7 +23,6 @@ import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -45,7 +44,7 @@ fun NavGraphBuilder.browseNavGraph(
 
         if (stateID == StateID.NONE) {
             NoAccount(openDrawer = openDrawer, addAccount = {})
-        } else if (Str.notEmpty(stateID.slug)) {
+        } else if (!stateID.slug.isNullOrEmpty()) {
             val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
             Folder(
                 isExpandedScreen = isExpandedScreen,

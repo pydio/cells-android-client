@@ -8,7 +8,6 @@ import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +38,7 @@ class FolderVM(private val stateID: StateID) : AbstractCellsVM() {
     private val tnChildren: Flow<List<RTreeNode>> =
         defaultOrderPair.flatMapLatest { (order, direction) ->
             try {
-                if (Str.empty(stateID.slug)) {
+                if (stateID.slug.isNullOrEmpty()) {
                     nodeService.listWorkspaces(stateID)
                 } else {
                     nodeService.sortedListFlow(stateID, order, direction)

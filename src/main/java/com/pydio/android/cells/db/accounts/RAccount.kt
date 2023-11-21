@@ -8,7 +8,6 @@ import com.pydio.android.cells.LoginStatus
 import com.pydio.android.cells.db.CellsConverters
 import com.pydio.cells.api.Server
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import java.util.*
 
 @Entity(tableName = "accounts")
@@ -43,13 +42,13 @@ data class RAccount(
         fun toRAccount(username: String, server: Server): RAccount {
 
             val props = Properties()
-            if (Str.notEmpty(server.label)) {
+            if (!server.label.isNullOrEmpty()) {
                 props.setProperty(KEY_SERVER_LABEL, server.label)
             }
-            if (Str.notEmpty(server.welcomeMessage)) {
+            if (!server.welcomeMessage.isNullOrEmpty()) {
                 props.setProperty(KEY_WELCOME_MESSAGE, server.welcomeMessage)
             }
-            if (Str.notEmpty(server.customPrimaryColor)) {
+            if (!server.customPrimaryColor.isNullOrEmpty()) {
                 props.setProperty(KEY_CUSTOM_COLOR, server.customPrimaryColor)
             }
 

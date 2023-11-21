@@ -10,7 +10,6 @@ import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.client.security.LegacyPasswordManager
 import com.pydio.cells.transport.auth.Token
-import com.pydio.cells.utils.Str
 import java.nio.charset.Charset
 import java.security.GeneralSecurityException
 
@@ -87,7 +86,7 @@ class V2MainDB private constructor(context: Context, path: String, version: Int)
                 try {
                     val gson = Gson()
                     val record = gson.fromJson(json, AccountRecord::class.java)
-                    if (Str.notEmpty(record.accountID)) {
+                    if (!record.accountID.isNullOrEmpty()) {
                         accountRecords.add(record)
                     } else {
                         println(" No account ID for current row, skipping")

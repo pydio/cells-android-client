@@ -14,7 +14,6 @@ import com.pydio.android.cells.ui.models.fromMessage
 import com.pydio.android.cells.utils.DEFAULT_FILE_PROVIDER_ID
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -33,7 +32,7 @@ class NodeActionsVM(
     private val logTag = "NodeActionsVM"
 
     private fun localDone(err: String? = null, userMsg: String? = null) {
-        if (Str.notEmpty(err)) {
+        if (!err.isNullOrEmpty()) {
             Log.e(logTag, "${err ?: userMsg}")
             done(fromMessage(userMsg!!))
         } else {

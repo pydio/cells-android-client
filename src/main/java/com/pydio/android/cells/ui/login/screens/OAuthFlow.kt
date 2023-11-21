@@ -33,7 +33,6 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 
 @Composable
 fun LaunchAuthProcessing(
@@ -56,7 +55,7 @@ fun LaunchAuthProcessing(
     }
 
     AuthScreen(
-        isProcessing = Str.empty(errMsg.value),
+        isProcessing = errMsg.value.isNullOrEmpty(),
         message = message.value,
         errMsg = errMsg.value,
         cancel = helper::cancel
@@ -79,7 +78,7 @@ fun ProcessAuth(
     }
 
     AuthScreen(
-        isProcessing = Str.empty(errMsg.value),
+        isProcessing = errMsg.value.isNullOrEmpty(),
         message = message.value,
         errMsg = errMsg.value,
         cancel = helper::cancel
@@ -135,18 +134,18 @@ private fun AuthScreen(
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            if (Str.notEmpty(errMsg)) {
+            if (!errMsg.isNullOrEmpty()) {
                 Text(
-                    text = errMsg!!,
+                    text = errMsg,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.margin_medium))
                         .wrapContentWidth(Alignment.CenterHorizontally),
                     color = MaterialTheme.colorScheme.error
                 )
-            } else if (Str.notEmpty(message)) {
+            } else if (!message.isNullOrEmpty()) {
                 Text(
-                    text = message!!,
+                    text = message,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.margin_medium))

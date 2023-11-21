@@ -39,7 +39,6 @@ import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackgrou
 import com.pydio.android.cells.ui.core.composables.lists.getAppearsInDesc
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -58,7 +57,7 @@ fun HitsList(
         isEmpty = hits.isEmpty(),
         showProgressAtStartup = false,
         startingDesc = stringResource(R.string.search_hint),
-        emptyRefreshableDesc = if (Str.empty(query)) {
+        emptyRefreshableDesc = if (query.isEmpty()) {
             stringResource(R.string.search_hint, query)
         } else {
             stringResource(R.string.no_result_for_search, query)

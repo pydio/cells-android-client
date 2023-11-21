@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.core.composables.TitleDescColumnBloc
-import com.pydio.cells.utils.Str
 
 // private const val logTag = "DefaultLoginPage"
 
@@ -40,9 +39,9 @@ fun DefaultLoginPage(
 
             content()
 
-            if (Str.notEmpty(message)) {
+            if (!message.isNullOrEmpty()) {
                 Text(
-                    text = message!!,
+                    text = message,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.margin_medium))

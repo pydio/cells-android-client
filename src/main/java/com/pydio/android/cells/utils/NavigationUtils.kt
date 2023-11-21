@@ -14,7 +14,6 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import java.io.File
 
 private const val LOG_TAG = "NavigationUtils.kt"
@@ -47,7 +46,7 @@ fun externallyView(context: Context, file: File, node: RTreeNode): Boolean {
 
     // This workaround addresses a legacy corner case:
     //  TODO Insure the bug is really fixed and get rid of this.
-    if (Str.notEmpty(mime)) {
+    if (mime.isNotEmpty()) {
         //   Mime was not correctly handled in old JavaSDK and we sometimes retrieved a mime type
         //   surrounded by unnecessary double quotes that break the view intent. Should fixed by now.
         if (mime.startsWith("\"") && mime.endsWith("\"")) {

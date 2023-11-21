@@ -73,7 +73,6 @@ import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
 private const val LOG_TAG = "Folder"
@@ -397,7 +396,7 @@ private fun FolderList(
                 .clickable { onTap(stateID.parent(), false) }
         }
         val parDesc = when {
-            Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+            stateID.fileName.isNullOrEmpty() -> stringResource(id = R.string.switch_workspace)
             else -> stringResource(R.string.parent_folder)
         }
 
@@ -421,7 +420,7 @@ private fun FolderList(
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.grid_large_padding)),
                         contentPadding = listPadding,
                     ) {
-                        if (Str.notEmpty(stateID.path)) {
+                        if (!stateID.path.isNullOrEmpty()) {
                             item { M3BrowseUpLargeGridItem(parDesc, parItemModifier) }
                         }
                         items(
@@ -454,7 +453,7 @@ private fun FolderList(
                         contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (Str.notEmpty(stateID.path)) {
+                        if (!stateID.path.isNullOrEmpty()) {
                             item(key = "parent") { M3BrowseUpListItem(parDesc, parItemModifier) }
                         }
                         items(

@@ -15,7 +15,6 @@ import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 
 /**
  * The android specific session factory wraps the Java SDK Server and Client Factories,
@@ -47,7 +46,7 @@ class SessionFactory(
             return currTransport.server
         }
 
-        if (Str.empty(stateID.username)) {
+        if (stateID.username.isNullOrEmpty()) {
             // We check if an account with same URL is registered and get the server
             val accounts = accountDao.getAccountByUrl(stateID.serverUrl)
             if (accounts.isNotEmpty()) {

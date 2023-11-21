@@ -8,7 +8,6 @@ import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 
 class ShareHelper(
     private val navController: NavHostController,
@@ -103,7 +102,7 @@ class ShareHelper(
 
     fun canPost(stateID: StateID): Boolean {
         // TODO also check permissions on remote server
-        return Str.notEmpty(stateID.slug)
+        return !stateID.slug.isNullOrEmpty()
         // true
 //        if (action == AppNames.ACTION_UPLOAD) {
 //            true

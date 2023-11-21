@@ -15,7 +15,6 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +57,7 @@ class LoginVM(
 
     suspend fun pingAddress(url: String, skipVerify: Boolean): String? {
         val res = processAddress(url, skipVerify)
-        if (Str.notEmpty(res)) {
+        if (!res.isNullOrEmpty()) {
             _message.value = ""
         }
         return res
@@ -117,7 +116,7 @@ class LoginVM(
     /** Returns the route for the next destination if we have to move to next page */
     private suspend fun processAddress(url: String, skipVerify: Boolean): String? {
 
-        if (Str.empty(url)) {
+        if (url.isEmpty()) {
             updateErrorMsg("Server address is empty, could not proceed")
             return null
         }

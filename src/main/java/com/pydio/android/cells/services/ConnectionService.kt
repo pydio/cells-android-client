@@ -16,7 +16,6 @@ import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -434,7 +433,7 @@ class ConnectionService(
             while (retryNb == 0 || (retry && retryNb < 4)) {
                 retryNb++
                 try {
-                    result = if (Str.empty(stateID.file)) {
+                    result = if (stateID.file.isNullOrEmpty()) {
                         accountService.refreshWorkspaceList(stateID.account())
                     } else {
                         nodeService.pull(stateID)
@@ -450,7 +449,7 @@ class ConnectionService(
             }
         }
 
-        if (Str.notEmpty(result.second)) {
+        if (!result.second.isNullOrEmpty()) {
             Log.e(logTag, "Cannot refresh, msg: ${result.second!!}")
             // errorService.appendError(result.second!!)
             pause(stateID)

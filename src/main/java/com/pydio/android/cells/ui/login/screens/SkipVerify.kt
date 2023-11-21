@@ -21,7 +21,6 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 
 // private const val logTag = "SkipVerify"
@@ -69,7 +68,7 @@ fun SkipVerify(
     accept: () -> Unit,
 ) {
 
-    val (msg, isError) = if (Str.notEmpty(errMsg)) {
+    val (msg, isError) = if (!errMsg.isNullOrEmpty()) {
         Pair(errMsg, true)
     } else {
         Pair(message, false)

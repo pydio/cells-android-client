@@ -12,7 +12,6 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import java.util.*
 
 @Entity(tableName = "tree_nodes")
@@ -191,7 +190,7 @@ data class RTreeNode(
                     else -> "1_5_${node.name}"
                 }
 
-                val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
+                val nodeUuid = if (node.id.isNullOrEmpty()) node.slug else node.id
 
                 val storedID = // Retrieve the account from the passed state
                     StateID.fromId(stateID.accountId).withPath("/${node.slug}")
