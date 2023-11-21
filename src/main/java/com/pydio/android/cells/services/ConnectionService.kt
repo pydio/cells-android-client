@@ -249,9 +249,11 @@ class ConnectionService(
 
     private fun pausePollJob() {
         serviceScope.launch {
-            pollJob?.cancelAndJoin()
-            Log.i(logTag, "### PollJob paused, ID was: $pollJob")
-            pollJob = null
+            pollJob?.let {
+                it.cancelAndJoin()
+                Log.i(logTag, "### PollJob paused, ID was: $it")
+                pollJob = null
+            }
         }
     }
 
@@ -272,9 +274,11 @@ class ConnectionService(
 
     private fun pauseCredJob() {
         serviceScope.launch {
-            credentialsJob?.cancelAndJoin()
-            Log.i(logTag, "### Credentials Job paused, ID was: $credentialsJob")
-            credentialsJob = null
+            credentialsJob?.let {
+                it.cancelAndJoin()
+                Log.i(logTag, "### Credentials Job paused, ID was: $it")
+                credentialsJob = null
+            }
         }
     }
 
