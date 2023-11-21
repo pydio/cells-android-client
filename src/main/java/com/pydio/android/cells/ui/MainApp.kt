@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui
 
-import android.net.Uri
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import com.pydio.cells.transport.StateID
@@ -38,16 +37,16 @@ fun MainApp(
     )
 }
 
-class StartingState(var stateID: StateID) {
-    var route: String? = null
-
-    // OAuth credential flow call back
-    var code: String? = null
-    var state: String? = null
-
-    // Share with Pydio
-    var uris: MutableList<Uri> = mutableListOf()
-}
+//class StartingState(var stateID: StateID) {
+//    var route: String? = null
+//
+//    // OAuth credential flow call back
+//    var code: String? = null
+//    var state: String? = null
+//
+//    // Share with Pydio
+//    var uris: MutableList<Uri> = mutableListOf()
+//}
 
 //// Converts a StartingState object which we don't know how to save to a Map<String, String> which we can save
 //val StartingStateSaver = Saver<StartingState, Map<String, String>>(

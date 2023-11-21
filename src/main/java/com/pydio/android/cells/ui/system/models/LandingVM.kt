@@ -3,24 +3,16 @@ package com.pydio.android.cells.ui.system.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pydio.android.cells.services.AccountService
-import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.PreferencesService
-import com.pydio.android.cells.ui.StartingState
-import com.pydio.android.cells.ui.browse.BrowseDestinations
-import com.pydio.android.cells.ui.core.nav.CellsDestinations
-import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.cells.transport.ClientData
-import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class LandingVM(
     private val prefs: PreferencesService,
-    private val jobService: JobService,
-    private val authService: AuthService,
-    private val accountService: AccountService,
+//    private val jobService: JobService,
+//    private val authService: AuthService,
+//    private val accountService: AccountService,
 ) : ViewModel() {
 
     private val logTag = "LandingVM"
@@ -36,7 +28,7 @@ class LandingVM(
     override fun onCleared() {
         // useless: this does nothing
         // super.onCleared()
-        Log.d(logTag, "About to clear")
+        Log.d(logTag, "... Cleared")
     }
 
     /**
@@ -57,31 +49,8 @@ class LandingVM(
         return newVersion > 100 && newVersion == currInstalled
     }
 
-    suspend fun isAuthStateValid(state: String): Pair<Boolean, StateID> {
-        return authService.isAuthStateValid(state)
-    }
+//    suspend fun isAuthStateValid(state: String): Pair<Boolean, StateID> {
+//        return authService.isAuthStateValid(state)
+//    }
 
-    suspend fun getStartingState(): StartingState {
-        val stateID: StateID?
-        // TODO get latest known state from preferences and navigate to it
-
-        // Fallback on defined accounts:
-        val sessions = accountService.listSessionViews(true)
-        stateID = when (sessions.size) {
-            0 -> null
-            1 -> sessions[0].getStateID()
-            else -> {
-                // If a session is listed as in foreground, we open this one
-                accountService.getActiveSession()?.getStateID() ?: StateID.NONE
-            }
-        }
-
-        val state = StartingState(stateID ?: StateID.NONE)
-        state.route = when (stateID) {
-            null -> LoginDestinations.AskUrl.createRoute()
-            StateID.NONE -> CellsDestinations.Accounts.route
-            else -> BrowseDestinations.Open.createRoute(stateID)
-        }
-        return state
-    }
 }

@@ -74,6 +74,31 @@ class PreLaunchVM(
     private var _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+//    suspend fun getStartingState(): StartingState {
+//        val stateID: StateID?
+//        // TODO get latest known state from preferences and navigate to it
+//
+//        // Fallback on defined accounts:
+//        val sessions = accountService.listSessionViews(true)
+//        stateID = when (sessions.size) {
+//            0 -> null
+//            1 -> sessions[0].getStateID()
+//            else -> {
+//                // If a session is listed as in foreground, we open this one
+//                accountService.getActiveSession()?.getStateID() ?: StateID.NONE
+//            }
+//        }
+//
+//        val state = StartingState(stateID ?: StateID.NONE)
+//        state.route = when (stateID) {
+//            null -> LoginDestinations.AskUrl.createRoute()
+//            StateID.NONE -> CellsDestinations.Accounts.route
+//            else -> BrowseDestinations.Open.createRoute(stateID)
+//        }
+//        return state
+//    }
+
+
     fun skip() {
         _processState.value = PreLaunchState.SKIP
     }
@@ -83,7 +108,7 @@ class PreLaunchVM(
         _appState.value = AppState(
             stateID = StateID.NONE,
             intentID = intentID,
-            // TODO maybe also insure here that we have a first correct destination.
+            // TODO maybe also insure here that we have a first correct destination, see above.
             route = null,
             context = null
         )
