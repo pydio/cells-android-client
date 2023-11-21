@@ -71,6 +71,7 @@ class NodeService(
     }
 
     fun listWorkspaces(stateID: StateID): Flow<List<RTreeNode>> {
+        Log.d(logTag, "Listing WS for $stateID - parPath: ${stateID.file}")
         return nodeDB(stateID).treeNodeDao()
             .lsWithMimeFlow(stateID.id, "", SdkNames.NODE_MIME_WS_ROOT)
     }

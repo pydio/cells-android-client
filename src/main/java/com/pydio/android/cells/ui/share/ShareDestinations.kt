@@ -11,16 +11,16 @@ sealed class ShareDestination(val route: String) {
         fun isCurrent(route: String?): Boolean = route?.startsWith(PREFIX) ?: false
     }
 
-    object ChooseAccount : ShareDestination("${PREFIX}/choose-account") {
+    data object ChooseAccount : ShareDestination("${PREFIX}/choose-account") {
         fun isCurrent(route: String?): Boolean = "${PREFIX}/choose-account" == route
     }
 
-    object OpenFolder : ShareDestination("${PREFIX}/open/{${AppKeys.STATE_ID}}") {
+    data object OpenFolder : ShareDestination("${PREFIX}/open/{${AppKeys.STATE_ID}}") {
         fun createRoute(stateID: StateID) = "${PREFIX}/open/${encodeStateForRoute(stateID)}"
         fun isCurrent(route: String?): Boolean = route?.startsWith("${PREFIX}/open/") ?: false
     }
 
-    object UploadInProgress :
+    data object UploadInProgress :
         ShareDestination("${PREFIX}/in-progress/{${AppKeys.STATE_ID}}/{${AppKeys.UID}}") {
         fun createRoute(stateID: StateID, jobID: Long) =
             "${PREFIX}/in-progress/${stateID.id}/${jobID}"
@@ -28,7 +28,4 @@ sealed class ShareDestination(val route: String) {
         fun isCurrent(route: String?): Boolean =
             route?.startsWith("${PREFIX}/in-progress/") ?: false
     }
-
-    // TODO add safety checks to prevent forbidden copy-move
-    //  --> to finalise we must really pass the node*s* to copy or move rather than its parent
 }

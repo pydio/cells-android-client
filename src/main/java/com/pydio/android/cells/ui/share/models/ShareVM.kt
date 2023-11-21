@@ -15,7 +15,6 @@ import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.models.toTreeNodeItems
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +51,7 @@ class ShareVM(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val children: StateFlow<List<TreeNodeItem>> = orderFlow.flatMapLatest { currPair ->
-        val rtNodes = if (Str.empty(stateID.slug)) {
+        val rtNodes = if (stateID.slug.isNullOrEmpty()) {
             nodeService.listWorkspaces(stateID)
         } else {
             nodeService.listChildren(stateID, "")

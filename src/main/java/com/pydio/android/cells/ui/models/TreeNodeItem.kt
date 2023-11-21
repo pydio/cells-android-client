@@ -33,7 +33,7 @@ data class TreeNodeItem(
 ) : GenericItem {
 
     init {
-        isInRecycle = stateID.parentPath.startsWith("/${SdkNames.RECYCLE_BIN_NAME}")
+        isInRecycle = stateID.parentPath?.startsWith("/${SdkNames.RECYCLE_BIN_NAME}") == true
     }
 
     override fun equals(other: Any?): Boolean {
