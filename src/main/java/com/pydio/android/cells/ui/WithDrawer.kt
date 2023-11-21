@@ -43,10 +43,7 @@ private const val LOG_TAG = "WithDrawer.kt"
 
 @Composable
 fun NavHostWithDrawer(
-//    appState: AppState,
     initialAppState: AppState,
-//    startingState: StartingState?,
-//    ackStartStateProcessed: (String?, StateID) -> Unit,
     processSelectedTarget: (StateID?) -> Unit,
     emitActivityResult: (Int) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
@@ -65,10 +62,6 @@ fun NavHostWithDrawer(
         SystemNavigationActions(mainNavController)
     }
 
-    val currAppState = remember {
-        mutableStateOf(initialAppState)
-    }
-
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
     // Debug: understand login loop issue
     val lastRoute = rememberSaveable { mutableStateOf("") }
@@ -83,7 +76,8 @@ fun NavHostWithDrawer(
         Log.e(LOG_TAG, "... Backstack b4 navigation from DRAWER")
         var i = 1
         for (bse in bseList) {
-            Log.e(LOG_TAG, " #$i: ${bse.destination.route}")
+            var msg = " #$i: ${bse.destination.route} - ${lazyStateID(bse, verbose = false)}"
+            Log.e(LOG_TAG, msg)
             i++
         }
         Log.e(LOG_TAG, "... Next destination $route")

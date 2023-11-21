@@ -132,8 +132,6 @@ fun CellsNavGraph(
                 navController,
                 processSelectedTarget,
                 emitActivityResult,
-//                startingState,
-//                ackStartStateProcessing
             ),
             back = { navController.popBackStack() },
         )

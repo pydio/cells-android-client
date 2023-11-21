@@ -11,8 +11,6 @@ class ShareHelper(
     private val navController: NavHostController,
     private val processSelectedTarget: (StateID?) -> Unit,
     private val emitActivityResult: (Int) -> Unit,
-//    private val startingState: StartingState?,
-//    private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
     private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
@@ -81,7 +79,6 @@ class ShareHelper(
     }
 
     fun startUpload(stateID: StateID) { // shareVM: ShareVM,
-
         processSelectedTarget(stateID)
 
 //        emitActivityResult

@@ -19,7 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -31,6 +31,7 @@ import com.pydio.android.cells.ui.login.models.PreLaunchVM
 import com.pydio.android.cells.ui.login.screens.AuthScreen
 import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -102,6 +103,7 @@ class MainActivity : ComponentActivity() {
 
         val landingVM by viewModel<LandingVM>()
         val preLaunchVM: PreLaunchVM = koinViewModel(parameters = { parametersOf(intentID) })
+        val scope = rememberCoroutineScope()
 
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
 
@@ -109,7 +111,7 @@ class MainActivity : ComponentActivity() {
         val processState by preLaunchVM.processState.collectAsState()
 
 //         val startingState = remember { mutableStateOf<StartingState?>(null) }
-        val ready = remember { mutableStateOf(false) }
+//        val ready = remember { mutableStateOf(false) }
 
 //        val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
 //            intentHasBeenProcessed.value = true
@@ -125,8 +127,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val processSelectedTarget: (StateID?) -> Unit = {
-            Log.e(logTag, "... Process selected $it")
+        val processSelectedTarget: (StateID?) -> Unit = { stateID ->
+            scope.launch {
+                stateID?.let {
+                    Log.e(logTag, "... Process selected $it")
+                    preLaunchVM.shareAt(it)
+                }
+            }
         }
 
         LaunchedEffect(key1 = intentID) {

@@ -82,11 +82,9 @@ fun NavGraphBuilder.shareNavGraph(
         UploadProgressList(
             isExpandedScreen = isExpandedScreen,
             monitorUploadsVM,
-// FIXME
-            {}, {}, {},
-//            { helper.runInBackground(stateID) },
-//            { helper.done(stateID) },
-//            { helper.cancel(stateID) },
+            { helper.runInBackground() },
+            { helper.done() },
+            { helper.cancel() },
             { helper.openParentLocation(stateID) },
         )
     }

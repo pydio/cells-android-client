@@ -195,6 +195,11 @@ class PreLaunchVM(
         _processState.value = PreLaunchState.DONE
     }
 
+    fun shareAt(stateID: StateID) {
+        // TODO also handle network state and preferences
+
+    }
+
     // UI Methods
     private fun switchLoading(newState: Boolean) {
         if (newState) { // also remove old error message when we start a new processing
