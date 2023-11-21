@@ -26,14 +26,14 @@ fun NavGraphBuilder.shareNavGraph(
 ) {
     val logTag = "shareNavGraph"
 
-    composable(ShareDestination.ChooseAccount.route) {
+    composable(ShareDestinations.ChooseAccount.route) {
         LaunchedEffect(key1 = Unit) {
-            Log.i(logTag, "## First composition for: ${ShareDestination.ChooseAccount.route}")
+            Log.i(logTag, "## First composition for: ${ShareDestinations.ChooseAccount.route}")
         }
         SelectTargetAccount(helper)
     }
 
-    composable(ShareDestination.OpenFolder.route) { nbsEntry ->
+    composable(ShareDestinations.OpenFolder.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         if (stateID == StateID.NONE) {
             Log.e(logTag, "Cannot open target selection folder page with no ID")
@@ -69,7 +69,7 @@ fun NavGraphBuilder.shareNavGraph(
         }
     }
 
-    composable(ShareDestination.UploadInProgress.route) { nbsEntry ->
+    composable(ShareDestinations.UploadInProgress.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val jobID = lazyUID(nbsEntry)
         LaunchedEffect(key1 = stateID, key2 = jobID) {

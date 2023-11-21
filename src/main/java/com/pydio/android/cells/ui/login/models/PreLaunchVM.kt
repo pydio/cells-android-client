@@ -11,7 +11,7 @@ import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.ui.AppState
-import com.pydio.android.cells.ui.share.ShareDestination
+import com.pydio.android.cells.ui.share.ShareDestinations
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
@@ -146,7 +146,7 @@ class PreLaunchVM(
         _appState.value = AppState(
             StateID.NONE,
             intentID,
-            ShareDestination.ChooseAccount.route,
+            ShareDestinations.ChooseAccount.route,
             null
         )
         _currIntent = KnownIntent.SHARE
@@ -163,7 +163,7 @@ class PreLaunchVM(
         _appState.value = AppState(
             StateID.NONE,
             intentID,
-            ShareDestination.ChooseAccount.route,
+            ShareDestinations.ChooseAccount.route,
             null
         )
         _currIntent = KnownIntent.SHARE_MULTI

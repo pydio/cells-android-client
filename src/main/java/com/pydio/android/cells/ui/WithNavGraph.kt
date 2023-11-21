@@ -9,8 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.account.AccountsScreen
+import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
 import com.pydio.android.cells.ui.browse.composables.Download
 import com.pydio.android.cells.ui.browse.screens.NoAccount
@@ -26,6 +28,7 @@ import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search
 import com.pydio.android.cells.ui.search.SearchHelper
 import com.pydio.android.cells.ui.search.SearchVM
+import com.pydio.android.cells.ui.share.ShareDestinations
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.shareNavGraph
 import com.pydio.android.cells.ui.system.systemNavGraph
@@ -55,7 +58,21 @@ fun CellsNavGraph(
     LaunchedEffect(key1 = initialAppState.intentID) {
         Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
         initialAppState.context?.let {
-            navController.popBackStack()
+            when (it) {
+                AuthService.LOGIN_CONTEXT_BROWSE -> {
+                    val popped = navController.popBackStack(BrowseDestinations.Open.route, false)
+                    Log.e(logTag, " - About to browse, popped: $popped")
+                }
+
+                AuthService.LOGIN_CONTEXT_CREATE -> {
+                    navController.navigate(BrowseDestinations.Open.createRoute(initialAppState.stateID))
+                }
+
+                AuthService.LOGIN_CONTEXT_SHARE -> {
+                    navController.navigate(ShareDestinations.OpenFolder.createRoute(initialAppState.stateID))
+                }
+            }
+
             return@LaunchedEffect
         }
 
