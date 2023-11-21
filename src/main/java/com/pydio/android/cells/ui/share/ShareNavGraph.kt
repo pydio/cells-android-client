@@ -50,6 +50,8 @@ fun NavGraphBuilder.shareNavGraph(
                 doAction = { action, currID ->
                     if (AppNames.ACTION_UPLOAD == action) {
                         helper.startUpload(currID)
+                    } else if (AppNames.ACTION_CANCEL == action) {
+                        helper.cancel()
                     } else {
                         throw IllegalArgumentException("Unexpected action: $action for $currID")
                         // helper.launchTaskFor(action, currID)
