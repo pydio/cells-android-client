@@ -1,19 +1,18 @@
 package com.pydio.android.cells.ui.share
 
+import android.app.Activity
 import android.util.Log
 import androidx.navigation.NavHostController
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.login.LoginDestinations
-import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.cells.transport.StateID
 
 class ShareHelper(
     private val navController: NavHostController,
-    val launchTaskFor: (String, StateID) -> Unit,
-    private val startingState: StartingState?,
-    private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
+    private val processSelectedTarget: (StateID?) -> Unit,
+    private val emitActivityResult: (Int) -> Unit,
+//    private val startingState: StartingState?,
+//    private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
 ) {
     private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
@@ -36,7 +35,6 @@ class ShareHelper(
         }
         navController.navigate(route)
     }
-
 
     /* Define callbacks */
     fun open(stateID: StateID) {
@@ -66,39 +64,45 @@ class ShareHelper(
 //        }
     }
 
-    fun cancel(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_CANCEL, stateID)
+    fun cancel() {
+        emitActivityResult(Activity.RESULT_CANCELED)
     }
 
-    fun done(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    fun done() {
+        emitActivityResult(Activity.RESULT_OK)
     }
 
-    fun runInBackground(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    fun runInBackground() {
+        emitActivityResult(Activity.RESULT_OK)
     }
 
     fun openParentLocation(stateID: StateID) {
         navigation.toParentLocation(stateID)
     }
 
-    fun startUpload(shareVM: ShareVM, stateID: StateID) {
-        startingState?.let {
-            shareVM.launchPost(
-                stateID,
-                it.uris
-            ) { jobID -> afterLaunchUpload(stateID, jobID) }
-        } ?: run {
-            Log.e(logTag, "... No defined URIs, cannot post at $stateID")
-        }
+    fun startUpload(stateID: StateID) { // shareVM: ShareVM,
+
+        processSelectedTarget(stateID)
+
+//        emitActivityResult
+//
+//        startingState?.let {
+//            shareVM.launchPost(
+//                stateID,
+//                it.uris
+//            ) { jobID -> afterLaunchUpload(stateID, jobID) }
+//        } ?: run {
+//            Log.e(logTag, "... No defined URIs, cannot post at $stateID")
+//        }
     }
 
-    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
-        // Prevent double upload of the same file
-        startingStateHasBeenProcessed(null, stateID)
-        // then display the upload list
-        navigation.toTransfers(stateID, jobID)
-    }
+    // FIXME
+//    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
+//        // Prevent double upload of the same file
+//        startingStateHasBeenProcessed(null, stateID)
+//        // then display the upload list
+//        navigation.toTransfers(stateID, jobID)
+//    }
 
     fun canPost(stateID: StateID): Boolean {
         // TODO also check permissions on remote server

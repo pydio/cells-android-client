@@ -49,9 +49,10 @@ fun NavGraphBuilder.shareNavGraph(
                 canPost = helper::canPost,
                 doAction = { action, currID ->
                     if (AppNames.ACTION_UPLOAD == action) {
-                        helper.startUpload(shareVM, currID)
+                        helper.startUpload(currID)
                     } else {
-                        helper.launchTaskFor(action, currID)
+                        throw IllegalArgumentException("Unexpected action: $action for $currID")
+                        // helper.launchTaskFor(action, currID)
                     }
                 },
             )
@@ -79,9 +80,11 @@ fun NavGraphBuilder.shareNavGraph(
         UploadProgressList(
             isExpandedScreen = isExpandedScreen,
             monitorUploadsVM,
-            { helper.runInBackground(stateID) },
-            { helper.done(stateID) },
-            { helper.cancel(stateID) },
+// FIXME
+            {}, {}, {},
+//            { helper.runInBackground(stateID) },
+//            { helper.done(stateID) },
+//            { helper.cancel(stateID) },
             { helper.openParentLocation(stateID) },
         )
     }

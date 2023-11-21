@@ -41,6 +41,7 @@ import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.models.LoginVM
+import com.pydio.android.cells.ui.login.models.PreLaunchVM
 import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
@@ -272,6 +273,7 @@ val viewModelModule = module {
     viewModelOf(::SettingsVM)
     viewModelOf(::PrefReadOnlyVM)
 
+    viewModelOf(::PreLaunchVM)
     viewModelOf(::LoginVM)
     viewModelOf(::AccountListVM)
 

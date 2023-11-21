@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.ui.StartingState
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.cells.transport.ServerURLImpl
@@ -17,8 +16,8 @@ class LoginHelper(
     private val navController: NavHostController,
     private val loginVM: LoginVM,
     val navigateTo: (String) -> Unit,
-    val startingState: StartingState?,
-    val ackStartStateProcessed: (String?, StateID) -> Unit,
+//    val startingState: StartingState?,
+//    val ackStartStateProcessed: (String?, StateID) -> Unit,
 ) {
     private val logTag = "LoginHelper"
 
@@ -64,7 +63,7 @@ class LoginHelper(
     ) {
         val stateID = loginVM.logToP8(url, skipVerify, login, pwd, captcha)
         if (stateID != null) { // Login has been successful, we clean after ourselves and leave the login subgraph
-            afterAuth(stateID, loginContext)
+            afterP8Auth(stateID, loginContext)
         } // else do nothing: error message has already been displayed and we stay on the page
     }
 
@@ -87,41 +86,42 @@ class LoginHelper(
             withContext(Dispatchers.Main) {
                 ContextCompat.startActivity(context, intent, null)
             }
+            navController.popBackStack()
         }
     }
 
-    suspend fun processAuth(stateID: StateID) {
-
-        if (startingState == null || !LoginDestinations.ProcessAuthCallback.isCurrent(startingState.route)) {
-            Log.e(logTag, "## In processAuth for state: $stateID")
-            Log.e(logTag, "##  invalid starting state or route: ${startingState?.route}")
-            Thread.dumpStack()
-            return
-        }
-
-        Log.i(logTag, "... In processAuth for: $stateID")
-        Log.d(logTag, "     route: ${startingState.route}")
-        Log.d(logTag, "     OAuth state: ${startingState.state}")
-
-        loginVM.handleOAuthResponse(
-            // We assume nullity has already been checked
-            state = startingState.state!!,
-            code = startingState.code!!,
-        )?.let {
-            Log.i(logTag, "    -> OAuth OK, login context: ${it.second}")
-            afterAuth(it.first, it.second)
-        } ?: run {
-            // TODO better error handling
-            ackStartStateProcessed(
-                null,
-                StateID.NONE
-            )
-        }
-    }
-
-
-    private fun afterAuth(stateID: StateID, loginContext: String?) {
-        ackStartStateProcessed(null, stateID)
+    //    suspend fun processAuth(stateID: StateID) {
+//
+//        if (startingState == null || !LoginDestinations.ProcessAuthCallback.isCurrent(startingState.route)) {
+//            Log.e(logTag, "## In processAuth for state: $stateID")
+//            Log.e(logTag, "##  invalid starting state or route: ${startingState?.route}")
+//            Thread.dumpStack()
+//            return
+//        }
+//
+//        Log.i(logTag, "... In processAuth for: $stateID")
+//        Log.d(logTag, "     route: ${startingState.route}")
+//        Log.d(logTag, "     OAuth state: ${startingState.state}")
+//
+//        loginVM.handleOAuthResponse(
+//            // We assume nullity has already been checked
+//            state = startingState.state!!,
+//            code = startingState.code!!,
+//        )?.let {
+//            Log.i(logTag, "    -> OAuth OK, login context: ${it.second}")
+//            afterAuth(it.first, it.second)
+//        } ?: run {
+//            // TODO better error handling
+//            ackStartStateProcessed(
+//                null,
+//                StateID.NONE
+//            )
+//        }
+//    }
+//
+//
+    private fun afterP8Auth(stateID: StateID, loginContext: String?) {
+//         ackStartStateProcessed(null, stateID)
 
         Log.e(logTag, "... After OAuth: $stateID, context: $loginContext, unstacking destinations:")
 

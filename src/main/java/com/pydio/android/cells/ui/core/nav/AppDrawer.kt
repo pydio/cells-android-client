@@ -39,6 +39,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
+//     appState: AppState,
     currRoute: String?,
     currSelectedID: StateID?,
     closeDrawer: () -> Unit,

@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -36,14 +35,13 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun CellsNavGraph(
-    startingState: StartingState?,
-    ackStartStateProcessing: (String?, StateID) -> Unit,
+    initialAppState: AppState,
     isExpandedScreen: Boolean,
     navController: NavHostController,
     navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
-    launchTaskFor: (String, StateID) -> Unit,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
     loginVM: LoginVM = koinViewModel(),
     browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
@@ -54,15 +52,17 @@ fun CellsNavGraph(
         LoginNavigation(navController)
     }
 
-    Log.i(logTag, "### Composing nav graph for ${startingState?.route}")
+    LaunchedEffect(key1 = initialAppState.intentID) {
+        Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
+        initialAppState.context?.let {
+            navController.popBackStack()
+            return@LaunchedEffect
+        }
 
-    startingState?.let {
-        LaunchedEffect(key1 = it.route) {
-            it.route?.let { dest ->
-                Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
-                Log.e(logTag, "      newRoute: $dest")
-                navController.navigate(dest)
-            }
+        initialAppState.route?.let { dest ->
+            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+            Log.e(logTag, "      newRoute: $dest")
+            navController.navigate(dest)
         }
     }
 
@@ -97,8 +97,6 @@ fun CellsNavGraph(
                 navController,
                 loginVM,
                 navigateTo,
-                startingState,
-                ackStartStateProcessing
             ),
         )
 
@@ -115,9 +113,10 @@ fun CellsNavGraph(
             browseRemoteVM = browseRemoteVM,
             helper = ShareHelper(
                 navController,
-                launchTaskFor,
-                startingState,
-                ackStartStateProcessing
+                processSelectedTarget,
+                emitActivityResult,
+//                startingState,
+//                ackStartStateProcessing
             ),
             back = { navController.popBackStack() },
         )
@@ -126,7 +125,6 @@ fun CellsNavGraph(
             isExpandedScreen = isExpandedScreen,
             navController = navController,
             openDrawer = openDrawer,
-            launchIntent = launchIntent,
             back = { navController.popBackStack() },
         )
 

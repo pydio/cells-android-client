@@ -27,10 +27,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -147,7 +145,7 @@ class ConnectionService(
     private var lastTimeChecked = -1L
     private val lock = Any()
 
-    val sessionStateFlow: Flow<SessionState> = sessionView
+    val sessionStateFlow: StateFlow<SessionState> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
 
             if (activeSession == null) {
@@ -187,9 +185,18 @@ class ConnectionService(
                     LoginStatus.fromId(activeSession.authStatus)
                 )
             }
-        }
-        .flowOn(coroutineService.ioDispatcher)
-        .conflate()
+        }.stateIn(
+            scope = serviceScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = SessionState(
+                networkStatus = NetworkStatus.UNKNOWN,
+                isServerReachable = false,
+                loginStatus = LoginStatus.Undefined
+            )
+
+        )
+//        .flowOn(coroutineService.ioDispatcher)
+//        .conflate()
 
     val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->
@@ -236,11 +243,14 @@ class ConnectionService(
         serviceScope.launch {
             pollJob?.cancelAndJoin()
             pollJob = serviceScope.launch {
+                Log.e(logTag, "####################################################")
+                Log.e(logTag, "### New PollJob: ${this.hashCode()}")
                 while (this.isActive) {
                     watchFolder(this)
                     delay(2000L)
                 }
-                // loadingFlag.value = LoadingState.IDLE
+                Log.e(logTag, "####################################################")
+                Log.e(logTag, "### Done Job ${this.hashCode()} (was active: ${this.isActive}")
             }
             Log.i(logTag, "### Relaunched PollJob, new ID: $pollJob")
         }

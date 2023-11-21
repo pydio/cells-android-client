@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -44,10 +43,12 @@ private const val LOG_TAG = "WithDrawer.kt"
 
 @Composable
 fun NavHostWithDrawer(
-    startingState: StartingState?,
-    ackStartStateProcessed: (String?, StateID) -> Unit,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    launchTaskFor: (String, StateID) -> Unit,
+//    appState: AppState,
+    initialAppState: AppState,
+//    startingState: StartingState?,
+//    ackStartStateProcessed: (String?, StateID) -> Unit,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
     connectionService: ConnectionService = koinInject(),
 ) {
@@ -62,6 +63,10 @@ fun NavHostWithDrawer(
     }
     val systemNavActions = remember(mainNavController) {
         SystemNavigationActions(mainNavController)
+    }
+
+    val currAppState = remember {
+        mutableStateOf(initialAppState)
     }
 
     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
@@ -155,18 +160,19 @@ fun NavHostWithDrawer(
                     )
                 ) {
                     CellsNavGraph(
-                        startingState = startingState,
-                        ackStartStateProcessing = ackStartStateProcessed,
+                        initialAppState = initialAppState,
+//                        startingState = startingState,
+//                        ackStartStateProcessing = ackStartStateProcessed,
                         isExpandedScreen = isExpandedScreen,
                         navController = mainNavController,
                         navigateTo = navigateTo,
-                        launchTaskFor = launchTaskFor,
+                        processSelectedTarget = processSelectedTarget,
+                        emitActivityResult = emitActivityResult,
                         openDrawer = {
                             if (!isExpandedScreen) {
                                 coroutineScope.launch { sizeAwareDrawerState.open() }
                             }
-                        },
-                        launchIntent = launchIntent,
+                        }
                     )
                 }
             }

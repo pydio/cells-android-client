@@ -22,13 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import com.pydio.android.cells.LoginStatus
-import com.pydio.android.cells.NetworkStatus
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.ErrorService
-import com.pydio.android.cells.services.SessionState
 import com.pydio.android.cells.ui.login.LoginDestinations
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -72,9 +69,7 @@ private fun InternetBanner(
 
     val scope = rememberCoroutineScope()
     val currSession = connectionService.sessionView.collectAsState(initial = null)
-    val sessionStatus = connectionService.sessionStateFlow.collectAsState(
-        SessionState(NetworkStatus.OK, true, LoginStatus.Connected)
-    )
+    val sessionStatus = connectionService.sessionStateFlow.collectAsState()
     // val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     currSession.value?.let {

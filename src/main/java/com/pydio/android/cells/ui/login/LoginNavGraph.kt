@@ -11,7 +11,6 @@ import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.login.screens.AskServerUrl
 import com.pydio.android.cells.ui.login.screens.LaunchAuthProcessing
 import com.pydio.android.cells.ui.login.screens.P8Credentials
-import com.pydio.android.cells.ui.login.screens.ProcessAuth
 import com.pydio.android.cells.ui.login.screens.SkipVerify
 import com.pydio.android.cells.ui.login.screens.StartingLoginProcess
 
@@ -84,15 +83,15 @@ fun NavGraphBuilder.loginNavGraph(
         )
     }
 
-    composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry)
-        LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## 1st compo login/process-auth/$stateID")
-        }
-        ProcessAuth(
-            stateID = stateID,
-            loginVM = loginVM,
-            helper = helper,
-        )
-    }
+//    composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
+//        val stateID = lazyStateID(nbsEntry)
+//        LaunchedEffect(key1 = stateID) {
+//            Log.i(logTag, "## 1st compo login/process-auth/$stateID")
+//        }
+//        ProcessAuth(
+//            stateID = stateID,
+//            loginVM = loginVM,
+//            helper = helper,
+//        )
+//    }
 }

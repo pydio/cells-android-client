@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui
 
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -8,19 +7,33 @@ import com.pydio.cells.transport.StateID
 
 // private const val logTag = "MainApp"
 
+class AppState(
+    val stateID: StateID,
+    val intentID: String?,
+    val route: String?,
+    val context: String?,
+) {
+    companion object {
+        val NONE = AppState(
+            stateID = StateID.NONE,
+            intentID = null,
+            route = null,
+            context = null
+        )
+    }
+}
+
 @Composable
 fun MainApp(
-    startingState: StartingState?,
-    ackStartStateProcessed: (String?, StateID) -> Unit,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    launchTaskFor: (String, StateID) -> Unit,
+    initialAppState: AppState,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 ) {
     NavHostWithDrawer(
-        startingState = startingState,
-        ackStartStateProcessed = ackStartStateProcessed,
-        launchIntent = launchIntent,
-        launchTaskFor = launchTaskFor,
+        initialAppState = initialAppState,
+        processSelectedTarget = processSelectedTarget,
+        emitActivityResult = emitActivityResult,
         widthSizeClass = widthSizeClass,
     )
 }

@@ -11,6 +11,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -44,6 +45,7 @@ class AccountListVM(
         backOffTicker.resetIndex()
         if (!_isActive) {
             _isActive = true
+            currWatcher?.cancel()
             currWatcher = watchAccounts()
         }
     }
@@ -73,7 +75,7 @@ class AccountListVM(
 
     // Local helpers
     private fun watchAccounts() = viewModelScope.launch {
-        while (_isActive) {
+        while (_isActive && this.isActive) {
             doCheckAccounts()
             val nd = backOffTicker.getNextDelay()
             Log.d(logTag, "... Watching accounts, next delay: ${nd}s")

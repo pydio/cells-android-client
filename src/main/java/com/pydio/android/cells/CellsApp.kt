@@ -39,11 +39,6 @@ class CellsApp : Application(), KoinComponent {
         // Enable resource leak tracking during dev when the "A resource failed to call xxx" message shows up
 //        if (BuildConfig.DEBUG)
 //            StrictMode.enableDefaults()
-//        StrictMode.setVmPolicy(
-//            StrictMode.VmPolicy.Builder(StrictMode.getVmPolicy())
-//                .detectLeakedClosableObjects()
-//                .build()
-//        )
         Log.i(logTag, "#################################################################")
         Log.i(logTag, "#########  Launching Cells Android Client application  ##########")
         Log.i(logTag, "#################################################################")
@@ -137,11 +132,17 @@ class CellsApp : Application(), KoinComponent {
         com.pydio.cells.utils.Log.setLogger(object : com.pydio.cells.utils.Log.Logger {
 
             override fun v(tag: String, text: String) {
-                Log.v(tag, text)
+                if (BuildConfig.DEBUG) {
+                    Log.v(tag, text)
+                }
+                // Otherwise, ignore
             }
 
             override fun d(tag: String, text: String) {
-                Log.d(tag, text)
+                if (BuildConfig.DEBUG) {
+                    Log.d(tag, text)
+                }
+                // Otherwise, ignore
             }
 
             override fun w(tag: String, text: String) {
@@ -155,8 +156,6 @@ class CellsApp : Application(), KoinComponent {
             override fun e(tag: String, text: String) {
                 Log.e(tag, text)
             }
-
-
         })
     }
 }

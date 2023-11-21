@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.composables.TargetAccountList
@@ -31,8 +30,12 @@ fun SelectTargetAccount(
 
     SelectTargetAccount(
         accountListVM = accountListVM,
-        openAccount = { scope.launch { helper.open(it) } },
-        cancel = { scope.launch { helper.launchTaskFor(AppNames.ACTION_CANCEL, StateID.NONE) } },
+        openAccount = {
+            scope.launch {
+                helper.open(it)
+            }
+        },
+        cancel = { scope.launch { helper.cancel() } },
         login = { s, skip, legacy -> scope.launch { helper.login(s, skip, legacy) } },
     )
 

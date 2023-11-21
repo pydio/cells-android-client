@@ -63,30 +63,7 @@ fun LaunchAuthProcessing(
 }
 
 @Composable
-fun ProcessAuth(
-    stateID: StateID,
-    loginVM: LoginVM,
-    helper: LoginHelper,
-) {
-    val logTag = "ProcessAuth"
-    val message = loginVM.message.collectAsState()
-    val errMsg = loginVM.errorMessage.collectAsState()
-
-    LaunchedEffect(key1 = stateID) {
-        Log.d(logTag, "About to Process Auth for ${helper.startingState?.route}")
-        helper.processAuth(stateID)
-    }
-
-    AuthScreen(
-        isProcessing = errMsg.value.isNullOrEmpty(),
-        message = message.value,
-        errMsg = errMsg.value,
-        cancel = helper::cancel
-    )
-}
-
-@Composable
-private fun AuthScreen(
+fun AuthScreen(
     isProcessing: Boolean,
     message: String?,
     errMsg: String?,
