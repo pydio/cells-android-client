@@ -261,7 +261,7 @@ class ConnectionService(
             credentialsJob?.cancelAndJoin()
             credentialsJob = serviceScope.launch {
                 while (this.isActive) {
-                    monitorCredentials()
+                    monitorCredentials(this.hashCode())
                     // Log.e(logTag, "### About to sleep: ${this.isActive}")
                     delay(20000)
                     // Log.e(logTag, "### After sleep, is active: ${this.isActive}")
@@ -282,44 +282,45 @@ class ConnectionService(
     }
 
     // TODO this must be improved
-    private suspend fun monitorCredentials() = withContext(coroutineService.ioDispatcher) {
-        val currSession = sessionView.first() ?: return@withContext
-        val currID = currSession.getStateID()
-        if (currSession.isLegacy) {
-            // this is for Cells only
-            return@withContext
-        }
-        val token = appCredentialService.get(currID.id) ?: run {
-            Log.w(logTag, "Session $currID has no credentials, aborting")
-            pauseMonitoring()
-            return@withContext
-        }
-        val validDur = token.expirationTime - currentTimestamp()
-        Log.d(logTag, "Monitoring Credentials for $currID, expires in $validDur secs.")
-        if (validDur > 120) {
-            return@withContext
-        }
-
-        Log.w(logTag, "Monitoring Credentials for $currID, found a token that needs refresh")
-        val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
-        Log.d(logTag, "   Expiration time is $expTimeStr")
-        val timeout = currentTimestamp() + 30
-        val oldTs = token.expirationTime
-        var newTs = oldTs
-
-        appCredentialService.requestRefreshToken(currID)
-        try {
-            while (oldTs == newTs && currentTimestamp() < timeout) {
-                delay(1000)
-                appCredentialService.getToken(currID)?.let {
-                    newTs = it.expirationTime
-                }
+    private suspend fun monitorCredentials(scopeHash: Int) =
+        withContext(coroutineService.ioDispatcher) {
+            val currSession = sessionView.first() ?: return@withContext
+            val currID = currSession.getStateID()
+            if (currSession.isLegacy) {
+                // this is for Cells only
+                return@withContext
             }
-            return@withContext
-        } catch (se: SDKException) {
-            Log.e(logTag, "Unexpected error while monitoring refresh token process for $currID")
+            val token = appCredentialService.get(currID.id) ?: run {
+                Log.w(logTag, "#$scopeHash: Session $currID has no credentials, aborting")
+                pauseMonitoring()
+                return@withContext
+            }
+            val validDur = token.expirationTime - currentTimestamp()
+            Log.d(logTag, "#$scopeHash: Monitoring Creds for $currID, expires in $validDur secs.")
+            if (validDur > 120) {
+                return@withContext
+            }
+
+            Log.w(logTag, "#$scopeHash: Monitoring Creds for $currID, token needs refresh:")
+            val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
+            Log.d(logTag, "   --> Expiration time is $expTimeStr")
+            val timeout = currentTimestamp() + 30
+            val oldTs = token.expirationTime
+            var newTs = oldTs
+
+            appCredentialService.requestRefreshToken(currID)
+            try {
+                while (oldTs == newTs && currentTimestamp() < timeout) {
+                    delay(1000)
+                    appCredentialService.getToken(currID)?.let {
+                        newTs = it.expirationTime
+                    }
+                }
+                return@withContext
+            } catch (se: SDKException) {
+                Log.e(logTag, "Unexpected error while monitoring refresh token process for $currID")
+            }
         }
-    }
 
     /* MANAGE POLLING */
 
