@@ -1,6 +1,5 @@
 package com.pydio.android.cells.ui.system
 
-import android.content.Intent
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -22,7 +21,6 @@ fun NavGraphBuilder.systemNavGraph(
     isExpandedScreen: Boolean,
     navController: NavHostController,
     openDrawer: () -> Unit = {},
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit,
 ) {
 
@@ -32,7 +30,6 @@ fun NavGraphBuilder.systemNavGraph(
         AboutScreen(
             isExpandedScreen = isExpandedScreen,
             openDrawer = openDrawer,
-            launchIntent = launchIntent,
         )
     }
 
