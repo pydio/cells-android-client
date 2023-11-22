@@ -124,7 +124,7 @@ class PreLaunchVM(
     }
 
     /** Simply checks if the returned state is bound to a known in-progress OAuth flow.*/
-    suspend fun isAuthStateValid(state: String): Pair<Boolean, StateID> {
+    suspend fun isAuthStateValid(state: String): Boolean {
         return authService.isAuthStateValid(state)
     }
 

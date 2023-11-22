@@ -71,13 +71,11 @@ class AuthService(
                 loginContext = loginContext,
                 startTimestamp = currentTimestamp()
             )
-            Log.d(logTag, "About to store OAuth state: $rOAuthState")
             authStateDao.insert(rOAuthState)
             return@withContext uri
         } catch (e: SDKException) {
             Log.e(
-                logTag,
-                "could not create intent for ${url.url.host}," +
+                logTag, "could not create intent for ${url.url.host}," +
                         " cause: ${e.code} - ${e.message}"
             )
             e.printStackTrace()
@@ -89,11 +87,9 @@ class AuthService(
         }
     }
 
-    suspend fun isAuthStateValid(authState: String): Pair<Boolean, StateID> =
+    suspend fun isAuthStateValid(authState: String): Boolean =
         withContext(ioDispatcher) {
-            val rState = authStateDao.get(authState)
-                ?: return@withContext false to StateID.NONE
-            return@withContext true to StateID(rState.serverURL.id)
+            return@withContext authStateDao.get(authState) != null
         }
 
     suspend fun handleOAuthResponse(

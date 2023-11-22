@@ -22,6 +22,7 @@ import java.util.Locale
 
 private const val LOG_TAG = "NetworkService.kt"
 
+/** Add a custom layer on top of the connectivity manager to ease usage in our app */
 class NetworkService(
     context: Context,
     coroutineService: CoroutineService,

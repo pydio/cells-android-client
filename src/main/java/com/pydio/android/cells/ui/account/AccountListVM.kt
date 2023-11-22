@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 /**
- * Central ViewModel when dealing with a user's accounts.
+ * Hold the list of currently defined distant accounts with CRUD methods
  */
 class AccountListVM(
     private val accountService: AccountService,

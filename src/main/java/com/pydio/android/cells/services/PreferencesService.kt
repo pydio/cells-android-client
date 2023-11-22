@@ -201,7 +201,7 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         )
     }
 
-    // Avoid a crash when migrating from an older version
+    // Prevents a crash when migrating from an older version
     private fun safelyGetLongPref(
         fromPreferences: Preferences,
         key: Preferences.Key<Long>,

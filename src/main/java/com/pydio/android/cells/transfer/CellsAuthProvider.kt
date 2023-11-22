@@ -13,11 +13,11 @@ class CellsAuthProvider(
     private val accountID: StateID
 ) : AWSCredentialsProvider {
 
-    private val DEFAULT_GATEWAY_SECRET = "gatewaysecret"
+    private val defaultGatewaySecret = "gatewaysecret"
     private val logTag = "CellsAuthProvider"
 
     override fun getCredentials(): AWSCredentials {
-        return BasicAWSCredentials(transport.accessToken, DEFAULT_GATEWAY_SECRET)
+        return BasicAWSCredentials(transport.accessToken, defaultGatewaySecret)
     }
 
     override fun refresh() {

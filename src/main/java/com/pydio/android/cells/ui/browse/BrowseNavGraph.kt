@@ -60,7 +60,6 @@ fun NavGraphBuilder.browseNavGraph(
                 browseHelper = BrowseHelper(navController, folderVM),
             )
         } else {
-
             val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, accountHomeVM)
 
@@ -98,11 +97,7 @@ fun NavGraphBuilder.browseNavGraph(
     composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
         val stateID = lazyStateID(navBackStackEntry)
         val carouselVM: CarouselVM = koinViewModel(parameters = { parametersOf(stateID) })
-        Carousel(
-            stateID,
-            // back = back,
-            carouselVM,
-        )
+        Carousel(stateID, carouselVM)
     }
 
     composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->

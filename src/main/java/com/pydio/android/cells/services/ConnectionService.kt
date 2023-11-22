@@ -195,8 +195,6 @@ class ConnectionService(
             )
 
         )
-//        .flowOn(coroutineService.ioDispatcher)
-//        .conflate()
 
     val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->

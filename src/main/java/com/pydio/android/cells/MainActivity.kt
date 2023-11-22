@@ -2,8 +2,6 @@ package com.pydio.android.cells
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -110,14 +108,6 @@ class MainActivity : ComponentActivity() {
         val appState by preLaunchVM.appState.collectAsState()
         val processState by preLaunchVM.processState.collectAsState()
 
-//         val startingState = remember { mutableStateOf<StartingState?>(null) }
-//        val ready = remember { mutableStateOf(false) }
-
-//        val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
-//            intentHasBeenProcessed.value = true
-//            startingState.value = null
-//        }
-
         val emitActivityResult: (Int) -> Unit = { res ->
             setResult(res)
             when (res) {
@@ -168,7 +158,6 @@ class MainActivity : ComponentActivity() {
         Box {
 
             when (processState) {
-                // FIXME Handle the case where we have to explicitly navigate to a new page (e.G: new account...)
                 PreLaunchState.DONE,
                 PreLaunchState.SKIP ->
                     MainApp(
@@ -178,7 +167,17 @@ class MainActivity : ComponentActivity() {
                         widthSizeClass = widthSizeClass,
                     )
 
-                PreLaunchState.PROCESSING -> ProcessAuth(preLaunchVM)
+                PreLaunchState.PROCESSING -> {
+                    val message = preLaunchVM.message.collectAsState()
+                    val errMsg = preLaunchVM.errorMessage.collectAsState()
+                    AuthScreen(
+                        isProcessing = errMsg.value.isNullOrEmpty(),
+                        message = message.value,
+                        errMsg = errMsg.value,
+                        cancel = { TODO("Reimplement") }
+                    )
+
+                }
 
                 PreLaunchState.NEW -> {
                     Log.d(logTag, "... At Compose root, not yet ready")
@@ -186,18 +185,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    fun ProcessAuth(loginVM: PreLaunchVM) {
-        val message = loginVM.message.collectAsState()
-        val errMsg = loginVM.errorMessage.collectAsState()
-        AuthScreen(
-            isProcessing = errMsg.value.isNullOrEmpty(),
-            message = message.value,
-            errMsg = errMsg.value,
-            cancel = { TODO("Reimplement") }
-        )
     }
 
     override fun onPause() {
@@ -208,34 +195,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         connectionService.relaunchMonitoring()
         super.onResume()
-    }
-
-    private fun launchIntent(
-        intent: Intent?,
-        checkIfKnown: Boolean,
-        alsoFinishCurrentActivity: Boolean
-    ) {
-        if (intent == null) {
-            finishAndRemoveTask()
-        } else if (checkIfKnown) {
-            val resolvedActivity =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val flag = PackageManager.ResolveInfoFlags
-                        .of(MATCH_DEFAULT_ONLY.toLong())
-                    packageManager.resolveActivity(intent, flag)
-                } else {
-                    packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
-                }
-            // TODO better error handling
-            if (resolvedActivity == null) {
-                Log.e(logTag, "No Matching handler found for $intent")
-            }
-        } else {
-            startActivity(intent)
-            if (alsoFinishCurrentActivity) {
-                finishAndRemoveTask()
-            }
-        }
     }
 
     private suspend fun handleIntent(preLaunchVM: PreLaunchVM, sBundle: Bundle?) {
@@ -262,8 +221,7 @@ class MainActivity : ComponentActivity() {
                         throw IllegalArgumentException("Received an unexpected VIEW intent: $intent")
                     }
 
-                    val (isValid, targetStateID) = preLaunchVM.isAuthStateValid(state)
-                    if (!isValid) {
+                    if (!preLaunchVM.isAuthStateValid(state)) {
                         throw IllegalArgumentException("Passed state is wrong or already consumed: $intent")
                     }
 
@@ -285,10 +243,8 @@ class MainActivity : ComponentActivity() {
                 }
 
                 else -> throw IllegalArgumentException("Unexpected intent: $intent")
-
             }
-            // FIXME Handle errors here.
-        } catch (e: Exception) {
+        } catch (e: Exception) { // FIXME Handle errors here
             Log.e(logTag, "Could not handle intent, doing nothing...")
             e.printStackTrace()
 //                if (e is SDKException) {
@@ -303,111 +259,6 @@ class MainActivity : ComponentActivity() {
 //                throw e
         }
     }
-
-//    private suspend fun handleIntent(
-//        landingVM: LandingVM
-//    ): StartingState {
-//        Log.d(logTag, "   => Processing intent: $intent")
-//
-//        // No intent => issue
-//        if (intent == null) {
-//            Log.e(logTag, "#############################")
-//            Log.e(logTag, "No Intent and no bundle")
-//            Thread.dumpStack()
-//            Log.e(logTag, "#############################")
-//            // TODO find how we can land here and fix.
-//            val state = StartingState(StateID.NONE)
-//            state.route = CellsDestinations.Accounts.route
-//            return state
-//        }
-//
-//        // Intent with a stateID => should not happen anymore
-//        val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
-//        val initialStateID = encodedState?.let {
-//            val stateID = StateID.fromId(it)
-//            // We must probably never pass here anymore
-//            // TODO double check and clean this (and the corresponding AppKeys.EXTRA_STATE)
-//            Log.e(logTag, "#### Received an intent with a state: $stateID")
-//            stateID
-//        } ?: StateID.NONE
-//        var startingState = StartingState(initialStateID)
-//
-//        // Handle various supported events
-//        when {
-//
-//            // Normal start
-//            Intent.ACTION_MAIN == intent.action
-//                    && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {
-//                startingState = landingVM.getStartingState()
-//            }
-//
-//            Intent.ACTION_VIEW == intent.action -> {
-//                val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
-//                val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
-//
-//                if (code != null && state != null) { // Callback for OAuth credential flow
-//                    val (isValid, targetStateID) = landingVM.isAuthStateValid(state)
-//                    if (!isValid) {
-//                        Log.e(
-//                            logTag,
-//                            "Received a OAuth flow callback intent, but it has already been consumed, ignoring "
-//                        )
-//                        throw SDKException(
-//                            ErrorCodes.unexpected_content,
-//                            "Passed state is wrong or already consumed"
-//                        )
-//                    }
-//                    startingState.code = code
-//                    startingState.state = state
-//                    startingState.stateID = targetStateID
-//                    startingState.route =
-//                        LoginDestinations.ProcessAuthCallback.createRoute(targetStateID)
-//
-//                } else {
-//                    Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
-//                    if (intent.extras != null) {
-//                        Log.e(logTag, "Listing extras:")
-//                        intent.extras?.keySet()?.let {
-//                            for (key in it.iterator()) {
-//                                Log.e(logTag, " - $key")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            Intent.ACTION_SEND == intent.action -> {
-//                val clipData = intent.clipData
-//                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-//                clipData?.let {
-//                    startingState.route = ShareDestination.ChooseAccount.route
-//                    clipData.getItemAt(0).uri?.let {
-//                        startingState.uris.add(it)
-//                    }
-//                }
-//            }
-//
-//            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
-//                val tmpClipData = intent.clipData
-//                tmpClipData?.let { clipData ->
-//                    startingState.route = ShareDestination.ChooseAccount.route
-//                    for (i in 0 until clipData.itemCount) {
-//                        clipData.getItemAt(i).uri?.let {
-//                            startingState.uris.add(it)
-//                        }
-//                    }
-//                }
-//            }
-//
-//            else -> {
-//                val action = intent.action
-//                var categories = ""
-//                intent.categories?.forEach { categories += "$it, " }
-//                Log.w(logTag, "... Unexpected intent: $action - $categories")
-//            }
-//        }
-//        return startingState
-//    }
 
     private fun intentIdentifier(): String {
         var id: String? = null
