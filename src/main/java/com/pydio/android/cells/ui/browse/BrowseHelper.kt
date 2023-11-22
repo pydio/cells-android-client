@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.ui.core.AbstractCellsVM
+import com.pydio.android.cells.ui.core.dumpNavigationStack
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.CellsDestinations
 import com.pydio.android.cells.ui.models.ErrorMessage
@@ -29,14 +30,10 @@ open class BrowseHelper(
         Log.d(logTag, "    Context: $callingContext")
 
         // FIXME remove
-        val bseList = navController.currentBackStack.value
-        Log.d(logTag, "... Backstack b4 navigation from BROWSE HELPER")
-        var i = 1
-        for (bse in bseList) {
-            Log.d(logTag, " #$i: ${bse.destination.route}")
-            i++
-        }
-        Log.e(logTag, "... Next  [$callingContext] destination: $stateID")
+        dumpNavigationStack(
+            logTag, "Backstack b4 navigation from BROWSE HELPER",
+            navController.currentBackStack.value, "OPEN $stateID"
+        )
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
         val prevStateID = lazyStateID(navController.previousBackStackEntry)

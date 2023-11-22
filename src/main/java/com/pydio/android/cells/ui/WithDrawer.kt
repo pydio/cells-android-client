@@ -28,6 +28,7 @@ import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
+import com.pydio.android.cells.ui.core.dumpNavigationStack
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.AppDrawer
 import com.pydio.android.cells.ui.core.nav.AppPermanentDrawer
@@ -72,15 +73,12 @@ fun NavHostWithDrawer(
         }
 
         // FIXME remove
-        val bseList = mainNavController.currentBackStack.value
-        Log.e(LOG_TAG, "... Backstack b4 navigation from DRAWER")
-        var i = 1
-        for (bse in bseList) {
-            var msg = " #$i: ${bse.destination.route} - ${lazyStateID(bse, verbose = false)}"
-            Log.e(LOG_TAG, msg)
-            i++
-        }
-        Log.e(LOG_TAG, "... Next destination $route")
+        dumpNavigationStack(
+            LOG_TAG,
+            "Main NavigateTo in WithDrawer",
+            mainNavController.currentBackStack.value,
+            route
+        )
 
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
