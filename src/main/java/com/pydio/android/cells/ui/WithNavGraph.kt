@@ -1,5 +1,6 @@
 package com.pydio.android.cells.ui
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,31 +60,24 @@ fun CellsNavGraph(
         Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
         initialAppState.context?.let {
             when (it) {
-                AuthService.LOGIN_CONTEXT_BROWSE -> {
-                    val popped = navController.popBackStack(BrowseDestinations.Open.route, false)
-                    Log.e(logTag, " - About to browse, popped: $popped")
+                AuthService.LOGIN_CONTEXT_BROWSE, AuthService.LOGIN_CONTEXT_SHARE -> {
+                    // This should terminate the current task and fallback to where we were before re-launching the OAuth process
+                    emitActivityResult(Activity.RESULT_OK)
                 }
 
                 AuthService.LOGIN_CONTEXT_CREATE -> {
                     navController.navigate(BrowseDestinations.Open.createRoute(initialAppState.stateID))
                 }
 
-                AuthService.LOGIN_CONTEXT_SHARE -> {
-                    navController.navigate(ShareDestinations.OpenFolder.createRoute(initialAppState.stateID))
+                AuthService.LOGIN_CONTEXT_ACCOUNTS -> {
+                    // Do Nothing
                 }
             }
-
             return@LaunchedEffect
         }
 
         initialAppState.route?.let { dest ->
-            Log.e(
-                logTag,
-                "... Got a route: $dest - ${ShareDestinations.UploadInProgress.isCurrent(dest)}"
-            )
-
             when {
-
                 ShareDestinations.UploadInProgress.isCurrent(dest) -> navController.navigate(dest) {
                     popUpTo(ShareDestinations.ChooseAccount.route) { inclusive = true }
                 }
