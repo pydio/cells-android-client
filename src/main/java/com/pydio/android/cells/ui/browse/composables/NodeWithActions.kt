@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +42,7 @@ import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.share.screens.SelectFolderScreen
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -508,7 +508,14 @@ private fun FolderWithDialogs(
             TakePicture(
                 nodeActionsVM,
                 targetParentID = stateID,
-                dismiss = { closeDialog(it, it) }
+                dismiss = {
+                    Log.e(LOG_TAG, "After TakePicture done = $it")
+                    if (it) { // We must use a delay here or the event is missed and the scrim is not discarded
+                        delayedDone(true)
+                    } else {
+                        closeDialog(false, false)
+                    }
+                }
             )
         }
     }
