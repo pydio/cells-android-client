@@ -155,8 +155,6 @@ fun NavHostWithDrawer(
                 ) {
                     CellsNavGraph(
                         initialAppState = initialAppState,
-//                        startingState = startingState,
-//                        ackStartStateProcessing = ackStartStateProcessed,
                         isExpandedScreen = isExpandedScreen,
                         navController = mainNavController,
                         navigateTo = navigateTo,

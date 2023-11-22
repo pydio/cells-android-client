@@ -55,7 +55,7 @@ fun CellsNavGraph(
         LoginNavigation(navController)
     }
 
-    LaunchedEffect(key1 = initialAppState.intentID) {
+    LaunchedEffect(key1 = initialAppState.intentID, key2 = initialAppState.route) {
         Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
         initialAppState.context?.let {
             when (it) {
@@ -77,9 +77,23 @@ fun CellsNavGraph(
         }
 
         initialAppState.route?.let { dest ->
-            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
-            Log.e(logTag, "      newRoute: $dest")
-            navController.navigate(dest)
+            Log.e(
+                logTag,
+                "... Got a route: $dest - ${ShareDestinations.UploadInProgress.isCurrent(dest)}"
+            )
+
+            when {
+
+                ShareDestinations.UploadInProgress.isCurrent(dest) -> navController.navigate(dest) {
+                    popUpTo(ShareDestinations.ChooseAccount.route) { inclusive = true }
+                }
+
+                else -> {
+                    Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+                    Log.e(logTag, "      newRoute: $dest")
+                    navController.navigate(dest)
+                }
+            }
         }
     }
 
