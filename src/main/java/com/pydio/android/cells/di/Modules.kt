@@ -14,6 +14,7 @@ import com.pydio.android.cells.services.AppCredentialService
 import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.services.CoroutineService
+import com.pydio.android.cells.services.CredentialWatcher
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.services.JobService
@@ -21,6 +22,7 @@ import com.pydio.android.cells.services.NetworkService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.OfflineService
 import com.pydio.android.cells.services.PasswordStore
+import com.pydio.android.cells.services.PollService
 import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TokenStore
@@ -229,10 +231,12 @@ val serviceModule = module {
         )
     }
     single { AccountService(get(), get(), get(), get(), get(), get(), get()) }
+    single { CredentialWatcher(get(), get(), get(), get()) }
+    single { PollService(get(), get(), get(), get()) }
 
     // Business services
     single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
-    single { ConnectionService(get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get(), get(), get()) }
 
     single {
         OfflineService(
