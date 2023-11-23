@@ -8,15 +8,12 @@ import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.ui.theme.CellsColor
-import com.pydio.android.cells.utils.BackOffTicker
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -32,25 +29,15 @@ import java.util.UUID
 class ConnectionService(
     coroutineService: CoroutineService,
     networkService: NetworkService,
+    private val appCredentialService: AppCredentialService,
     private val accountService: AccountService,
     private val pollService: PollService,
-    private val nodeService: NodeService,
-    private val appCredentialService: AppCredentialService,
 ) {
 
     private val id: String = UUID.randomUUID().toString()
     private val logTag = "ConnectionServ_${id.substring(30)}"
 
     private val serviceScope = coroutineService.cellsIoScope
-
-//    // TODO rather manage an array of currently "active" sessions: typically when running the sync in a background session
-//    private var credentialsJob: Job? = null
-
-    private var pollJob: Job? = null
-
-    // Cold flows
-    // Network
-    private val networkStatus: Flow<NetworkStatus> = networkService.networkStatusFlowCold
 
     // Current foreground session
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
@@ -75,6 +62,10 @@ class ConnectionService(
     //         }
     //     }
 
+    // Expose a flag to the various screens to know if current remote is Cells or P8
+    private var _isRemoteLegacy = false
+    val isRemoteLegacy: Boolean = _isRemoteLegacy
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
         accountService.getWsByTypeFlow(
@@ -91,11 +82,8 @@ class ConnectionService(
         )
     }
 
-    // Hot flows
-
     private val networkStatusFlow = networkService.networkStatusFlow
-    private val loadingFlag = MutableStateFlow(LoadingState.IDLE)
-
+    private val loadingFlag = pollService.loadingFlag
     private var lastTimeChecked = -1L
     private val lock = Any()
 
@@ -150,9 +138,6 @@ class ConnectionService(
             )
         )
 
-    // Expose a flag to the various screens to know if current remote is Cells or P8
-    private var _isRemoteLegacy = false
-    val isRemoteLegacy: Boolean = _isRemoteLegacy
 
     val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->
@@ -189,240 +174,22 @@ class ConnectionService(
         pollService.pauseMonitoring()
     }
 
-//    private fun relaunchPollJob() {
-//        serviceScope.launch {
-//            pollJob?.cancelAndJoin()
-//            pollJob = serviceScope.launch {
-//                Log.e(logTag, "####################################################")
-//                Log.e(logTag, "### New PollJob: ${this.hashCode()}")
-//                while (this.isActive) {
-//                    watchFolder(this)
-//                    delay(2000L)
-//                }
-//                Log.e(logTag, "####################################################")
-//                Log.e(logTag, "### Done Job ${this.hashCode()} (was active: ${this.isActive}")
-//            }
-//            Log.i(logTag, "### Relaunched PollJob, new ID: $pollJob")
-//        }
-//    }
-
-//    private fun pausePollJob() {
-//        serviceScope.launch {
-//            pollJob?.let {
-//                it.cancelAndJoin()
-//                Log.i(logTag, "### PollJob paused, ID was: $it")
-//                pollJob = null
-//            }
-//        }
-//    }
-
-//    private fun relaunchCredJob() {
-//        serviceScope.launch {
-//            credentialsJob?.cancelAndJoin()
-//            credentialsJob = serviceScope.launch {
-//                while (this.isActive) {
-//                    monitorCredentials(this.hashCode())
-//                    // Log.e(logTag, "### About to sleep: ${this.isActive}")
-//                    delay(20000)
-//                    // Log.e(logTag, "### After sleep, is active: ${this.isActive}")
-//                }
-//            }
-//            Log.i(logTag, "### Relaunched Credentials Job, new ID: $credentialsJob")
-//        }
-//    }
-
-//    private fun pauseCredJob() {
-//        serviceScope.launch {
-//            credentialsJob?.let {
-//                it.cancelAndJoin()
-//                Log.i(logTag, "### Credentials Job paused, ID was: $it")
-//                credentialsJob = null
-//            }
-//        }
-//    }
-
-//    // TODO this must be improved
-//    private suspend fun monitorCredentials(scopeHash: Int) =
-//        withContext(coroutineService.ioDispatcher) {
-//            val currSession = sessionView.first() ?: return@withContext
-//            val currID = currSession.getStateID()
-//            if (currSession.isLegacy) {
-//                // this is for Cells only
-//                return@withContext
-//            }
-//            val token = appCredentialService.get(currID.id) ?: run {
-//                Log.w(logTag, "#$scopeHash: Session $currID has no credentials, aborting")
-//                pauseMonitoring()
-//                return@withContext
-//            }
-//            val validDur = token.expirationTime - currentTimestamp()
-//            Log.d(logTag, "#$scopeHash: Monitoring Creds for $currID, expires in $validDur secs.")
-//            if (validDur > 120) {
-//                return@withContext
-//            }
-//
-//            Log.w(logTag, "#$scopeHash: Monitoring Creds for $currID, token needs refresh:")
-//            val expTimeStr = timestampToString(token.expirationTime, "dd/MM HH:mm")
-//            Log.d(logTag, "   --> Expiration time is $expTimeStr")
-//            val timeout = currentTimestamp() + 30
-//            val oldTs = token.expirationTime
-//            var newTs = oldTs
-//
-//            appCredentialService.requestRefreshToken(currID)
-//            try {
-//                while (oldTs == newTs && currentTimestamp() < timeout) {
-//                    delay(1000)
-//                    appCredentialService.getToken(currID)?.let {
-//                        newTs = it.expirationTime
-//                    }
-//                }
-//                return@withContext
-//            } catch (se: SDKException) {
-//                Log.e(logTag, "Unexpected error while monitoring refresh token process for $currID")
-//            }
-//        }
-
     /* MANAGE POLLING */
 
-    private var currStateID = StateID.NONE
     private var _isActive = false
-    private var delayJob: Job? = null
-    private val backOffTicker = BackOffTicker()
 
-    private fun setActive(active: Boolean) {
-        if (!active) {
-            Log.e(logTag, "#### Setting _isActive to false !!")
-        }
-        _isActive = active
-    }
 
     fun setCurrentStateID(newStateID: StateID) {
         pollService.watch(newStateID)
-//        if (newStateID != currStateID) {
-//            currStateID = newStateID
-//            setActive(true)
-//            loadingFlag.value = LoadingState.STARTING
-//            backOffTicker.resetIndex()
-//            delayJob?.cancel(CellsCancellation())
-//        }
     }
 
     fun forceRefresh() {
         pollService.forceRefresh()
-//        setActive(true)
-//        // TODO rather set processing here and idle again when we see we are offline.
-//        if (isConnected()) {
-//            loadingFlag.value = LoadingState.PROCESSING
-//        }
-//        backOffTicker.resetIndex()
-//        delayJob?.cancel(CellsCancellation())
     }
 
     fun pause(oldID: StateID) {
         pollService.pause(oldID)
-//        if (oldID == currStateID) {
-//            Log.i(logTag, "... Pause remote watching for [${currStateID}]")
-//            setActive(false)
-//            loadingFlag.value = LoadingState.IDLE
-//        } else {
-//            Log.d(logTag, "Received pause for [$oldID] but currID is [${currStateID}]")
-//        }
     }
-
-//    private suspend fun watchFolder(crScope: CoroutineScope) {
-//        try {
-//            doPull(currStateID, _isActive)
-//        } catch (e: Exception) {
-//            Log.e(logTag, "Unexpected error: $e")
-//            e.printStackTrace()
-//        }
-//        val nd = backOffTicker.getNextDelay()
-//
-//        // Handle cancellable delay
-//        if (!crScope.isActive) {
-//            return
-//        }
-//        val tmpDelayJob = serviceScope.launch {
-//            try {
-//                delay(TimeUnit.SECONDS.toMillis(nd))
-//                var msg = "\tafter ${nd}s sleep,"
-//                msg += if (_isActive) {
-//                    " still"
-//                } else {
-//                    " STOPPED"
-//                }
-//                msg += " watching at $currStateID - $this"
-//                Log.d(logTag, msg)
-//            } catch (e: CancellationException) {
-//                // Expected when we browse as the thread is waiting for next tick.
-//                Log.d(logTag, "Delay has been cancelled: ${e.message}")
-//            } catch (e: Exception) {
-//                Log.e(logTag, "## Unexpected error for $this:\n\t$e")
-//                // e.printStackTrace()
-//            }
-//        }
-//        delayJob = tmpDelayJob
-//        tmpDelayJob.join()
-//    }
-
-//    @Throws(SDKException::class)
-//    private suspend fun doPull(stateID: StateID, isActive: Boolean) {
-//
-//        var result: Pair<Int, String?> = Pair(0, "")
-//
-//        if (liveConnectionState.value.serverConnection == ServerConnection.UNREACHABLE) {
-//            serviceScope.launch {
-//                // We trigger a ping to the server to check if it is back on-line
-//                if (appCredentialService.insureServerIsReachable(stateID)) {
-//                    // In such case we reset the ticker
-//                    backOffTicker.resetIndex()
-//                } else {
-//                    // loadingFlag.value = LoadingState.IDLE
-//                }
-//            }
-//            // we do not try to pull but don't stop the main job
-//            return
-//        } else if (StateID.NONE == stateID) {
-//            // no state ID, we do not try to pull but don't stop the main job
-//            return
-//        } else if (!isActive) {
-//            // The job has been paused, but we still keep on waiting for a state change with backoff timer
-//            // loadingFlag.value = LoadingState.IDLE
-//            return
-//        } else {
-//
-//            // Manual retry when we come back on an account after a while, to give some time for the token to be refreshed
-//            var retry = false
-//            var retryNb = 0
-//            while (retryNb == 0 || (retry && retryNb < 4)) {
-//                retryNb++
-//                try {
-//                    result = if (stateID.file.isNullOrEmpty()) {
-//                        accountService.refreshWorkspaceList(stateID.account())
-//                    } else {
-//                        nodeService.pull(stateID)
-//                    }
-//                } catch (se: SDKException) {
-//                    if (ErrorCodes.token_expired == se.code) {
-//                        retry = true
-//                        delay(1500)
-//                    } else {
-//                        throw se
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (!result.second.isNullOrEmpty()) {
-//            Log.e(logTag, "Cannot refresh, msg: ${result.second!!}")
-//            // errorService.appendError(result.second!!)
-//            pause(stateID)
-//        }
-//        if (result.first > 0) { // At least one change => reset backoff ticker
-//            backOffTicker.resetIndex()
-//        }
-//        loadingFlag.value = LoadingState.IDLE
-//    }
 
     // Debug only
     private var lastKnownConnection: ServerConnection? = null
@@ -453,7 +220,6 @@ class ConnectionService(
     init {
         Log.i(logTag, "### ConnectionService initialised")
     }
-
 }
 
 data class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)

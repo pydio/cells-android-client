@@ -15,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.isActive
@@ -39,7 +40,8 @@ class PollService(
     private var pollJob: Job? = null
 
     private val _currStateID: MutableStateFlow<StateID> = MutableStateFlow(StateID.NONE)
-    private val loadingFlag = MutableStateFlow(LoadingState.IDLE)
+    private val _loadingFlag = MutableStateFlow(LoadingState.IDLE)
+    val loadingFlag: StateFlow<LoadingState> = _loadingFlag
 
     private var wasActive = false
     private var currStateID = StateID.NONE
@@ -63,7 +65,7 @@ class PollService(
         if (oldID == currStateID) {
             Log.i(logTag, "... Pause remote watching for [${currStateID}]")
             setActive(false)
-            loadingFlag.value = LoadingState.IDLE
+            _loadingFlag.value = LoadingState.IDLE
         } else {
             Log.d(logTag, "Received pause for [$oldID] but currID is [${currStateID}]")
         }
@@ -130,7 +132,7 @@ class PollService(
         if (newStateID != currStateID) {
             currStateID = newStateID
             setActive(true)
-            loadingFlag.value = LoadingState.STARTING
+            _loadingFlag.value = LoadingState.STARTING
             backOffTicker.resetIndex()
             delayJob?.cancel(CellsCancellation())
         }
@@ -259,7 +261,7 @@ class PollService(
         if (result.first > 0) { // At least one change => reset backoff ticker
             backOffTicker.resetIndex()
         }
-        loadingFlag.value = LoadingState.IDLE
+        _loadingFlag.value = LoadingState.IDLE
     }
 
     init {
