@@ -258,19 +258,26 @@
     <string name="confirm_download_desc">Tento soubor je velký (%s) a jste na síti s účtovanými daty. Opravdu chcete pokračovat?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Name</string>
-    <!-- Settings -->
+    <!-- Settings / Preferences -->
+    <!-- Lists -->
     <string name="pref_category_title_recycler">Přizpůsobit si seznamy (pokud je uplatnitelné)</string>
     <string name="pref_choose_list_layout">Typ rozložení</string>
     <string name="pref_use_larger_grid">Použít větší mřížku</string>
     <string name="pref_category_title_metered">Omezení na síti se zpoplatněnými daty</string>
+    <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Použít omezení</string>
     <string name="pref_apply_metered_limits_desc">Varování: vypnutím tohoto budou ignorována veškerá omezení, nastavená pro používání na síti s účtovanými daty. Mohlo by se to prodražit</string>
+    <string name="pref_metered_show_warning_title">Show warning</string>
+    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
     <string name="pref_metered_dl_thumbs_title">Stáhnout náhledy</string>
     <string name="pref_metered_dl_thumbs_desc">Stahovat náhledy i na síti s účtovanými daty</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Před stažením se zeptat</string>
     <string name="on_metered_ask_before_dl_files_greater_than_title">Pokud je soubor větší než (v MB)</string>
     <string name="on_metered_ask_before_dl_files_greater_than_desc">Zeptat se před stažením, pokud je cílový soubor větší než (v MB)</string>
+    <!-- Offline workers -->
     <string name="pref_category_title_offline">Synchronizace pro offline</string>
+    <string name="pref_choose_list_offline_frequency_title">Četnost synchronizace</string>
+    <string name="pref_choose_list_offline_frequency_desc">Vyberte četnost synchronizace na pozadí</string>
     <string name="pref_offline_constraint_wifi_title">Spustit synchronizaci, když je síť</string>
     <string name="pref_offline_constraint_wifi_desc">Vyberte typ sítě, který omezí, kdy je možné spouštět synchronizaci</string>
     <string name="pref_offline_constraint_charging_title">Při nabíjení</string>
@@ -279,16 +286,15 @@
     <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
     <string name="pref_offline_constraint_batt_not_low_title">Při nevybitém akumulátoru</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Když akumulátor není vybitý</string>
-    <string name="pref_category_title_feedback">Zpětná vazba a nápověda</string>
-    <string name="pref_feedback_send_title">Odeslat zpětnou vazbu</string>
-    <string name="pref_feedback_send_desc">Nahlásit technické problémy nebo navrhnout nové funkce</string>
+    <!-- Troubleshooting / internal tools -->
     <string name="pref_category_title_troubleshooting">Řešení problémů</string>
     <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
     <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
     <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
     <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
-    <string name="pref_choose_list_offline_frequency_title">Četnost synchronizace</string>
-    <string name="pref_choose_list_offline_frequency_desc">Vyberte četnost synchronizace na pozadí</string>
+    <string name="pref_category_title_feedback">Zpětná vazba a nápověda</string>
+    <string name="pref_feedback_send_title">Odeslat zpětnou vazbu</string>
+    <string name="pref_feedback_send_desc">Nahlásit technické problémy nebo navrhnout nové funkce</string>
     <!-- Cache cleaning-->
     <string name="pref_clean_cache_params_title">Cleaning parameters</string>
     <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
