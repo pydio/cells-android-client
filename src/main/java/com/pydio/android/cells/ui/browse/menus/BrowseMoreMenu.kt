@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.services.ConnectionState
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.M3IconThumb

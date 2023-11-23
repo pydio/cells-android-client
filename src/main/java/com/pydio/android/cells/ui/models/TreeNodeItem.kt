@@ -2,8 +2,8 @@ package com.pydio.android.cells.ui.models
 
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.services.NodeService
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 

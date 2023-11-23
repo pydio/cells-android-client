@@ -60,7 +60,7 @@ import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RLiveOfflineRoot
 import com.pydio.android.cells.db.runtime.RJob
-import com.pydio.android.cells.services.ConnectionState
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData

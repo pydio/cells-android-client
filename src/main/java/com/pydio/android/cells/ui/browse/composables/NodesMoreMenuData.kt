@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.db.nodes.RTreeNode
-import com.pydio.android.cells.services.ConnectionState
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.menus.BookmarksMenu
 import com.pydio.android.cells.ui.browse.menus.MultiNodeMenu
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM

@@ -23,7 +23,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.Status
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.ConnectionService
-import com.pydio.android.cells.services.isOK
+import com.pydio.android.cells.services.models.isOK
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme

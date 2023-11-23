@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListType
 import com.pydio.android.cells.db.accounts.RWorkspace
-import com.pydio.android.cells.services.ConnectionState
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.menus.BookmarkMenu
 import com.pydio.android.cells.ui.browse.menus.CreateOrImportMenu
 import com.pydio.android.cells.ui.browse.menus.OfflineMenu

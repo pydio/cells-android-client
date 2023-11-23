@@ -9,10 +9,10 @@ import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.services.ConnectionService
-import com.pydio.android.cells.services.ConnectionState
 import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.android.cells.services.PreferencesService
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.ErrorCodes

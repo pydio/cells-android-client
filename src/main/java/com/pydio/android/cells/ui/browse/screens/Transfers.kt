@@ -40,7 +40,7 @@ import com.pydio.android.cells.ListType
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTransfer
-import com.pydio.android.cells.services.ConnectionState
+import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.menus.FilterTransfersByMenu
 import com.pydio.android.cells.ui.browse.menus.SortByMenu

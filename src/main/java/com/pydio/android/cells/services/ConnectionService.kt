@@ -7,6 +7,8 @@ import com.pydio.android.cells.NetworkStatus
 import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.db.accounts.RSessionView
 import com.pydio.android.cells.db.accounts.RWorkspace
+import com.pydio.android.cells.services.models.ConnectionState
+import com.pydio.android.cells.services.models.SessionState
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.SdkNames
@@ -39,10 +41,21 @@ class ConnectionService(
 
     private val serviceScope = coroutineService.cellsIoScope
 
-    // Current foreground session
+    private val lock = Any()
+    private var lastTimeChecked = -1L
+
+    private val networkStatusFlow = networkService.networkStatusFlow
+    private val loadingFlag = pollService.loadingFlag
+
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
+
+    // And direct derivatives
     val currAccountID: Flow<StateID?> =
         sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
+
+    // TODO rather use the above... Expose a flag to the various screens to know if current remote is Cells or P8
+    private var _isRemoteLegacy = false
+    val isRemoteLegacy: Boolean = _isRemoteLegacy
     val customColor: Flow<String?> = sessionView.map { currSession ->
         currSession?.let {
             if (it.isReachable && !it.isLoggedIn()) {
@@ -62,9 +75,6 @@ class ConnectionService(
     //         }
     //     }
 
-    // Expose a flag to the various screens to know if current remote is Cells or P8
-    private var _isRemoteLegacy = false
-    val isRemoteLegacy: Boolean = _isRemoteLegacy
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
@@ -81,11 +91,6 @@ class ConnectionService(
             currSessionView?.accountID ?: StateID.NONE.id
         )
     }
-
-    private val networkStatusFlow = networkService.networkStatusFlow
-    private val loadingFlag = pollService.loadingFlag
-    private var lastTimeChecked = -1L
-    private val lock = Any()
 
     val sessionStateFlow: StateFlow<SessionState> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
@@ -138,7 +143,6 @@ class ConnectionService(
             )
         )
 
-
     val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->
             appliedConnectionState(loading, connection)
@@ -166,6 +170,7 @@ class ConnectionService(
         return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
     }
 
+    // Delegated to pollService
     fun relaunchMonitoring() {
         pollService.relaunchMonitoring()
     }
@@ -173,11 +178,6 @@ class ConnectionService(
     fun pauseMonitoring() {
         pollService.pauseMonitoring()
     }
-
-    /* MANAGE POLLING */
-
-    private var _isActive = false
-
 
     fun setCurrentStateID(newStateID: StateID) {
         pollService.watch(newStateID)
@@ -222,29 +222,3 @@ class ConnectionService(
     }
 }
 
-data class ConnectionState(val loading: LoadingState, val serverConnection: ServerConnection)
-
-data class SessionState(
-    val accountID: StateID,
-    val networkStatus: NetworkStatus,
-    val isServerReachable: Boolean,
-    val loginStatus: LoginStatus,
-    val isServerLegacy: Boolean = false
-) {
-    companion object {
-        fun from(view: RSessionView, status: NetworkStatus): SessionState {
-            return SessionState(
-                accountID = view.getStateID(),
-                networkStatus = status,
-                isServerReachable = view.isReachable,
-                isServerLegacy = view.isLegacy,
-                loginStatus = LoginStatus.fromId(view.authStatus)
-            )
-        }
-    }
-}
-
-fun SessionState.isOK(): Boolean {
-    // TODO rather also rely on server connection to also take prefs limit in account
-    return isServerReachable && networkStatus == NetworkStatus.OK && loginStatus.isConnected()
-}
