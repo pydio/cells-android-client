@@ -11,6 +11,7 @@ class BackOffTicker {
     )
     private var currentBackoffIndex = 0
 
+    /** Returns the next delay duration, in seconds */
     fun getNextDelay(): Long {
         synchronized(this) {
             val nextDelay = backoffDuration[currentBackoffIndex]

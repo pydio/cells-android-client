@@ -34,7 +34,7 @@ class NetworkService(
 
     val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
-            Log.d(LOG_TAG, ".. Updating current network status to $it")
+            Log.d(LOG_TAG, "\t-> Updating current network status to $it")
             trySendBlocking(it)
                 .onFailure { throwable ->
                     Log.e(LOG_TAG, "Could not emit in flow: ${throwable?.message}")
@@ -95,12 +95,12 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
     private val logTag = "CellsNetworkCallback"
     override fun onAvailable(network: Network) {
-        Log.i(logTag, "## Using network #$network")
+        Log.i(logTag, "... Using network with ID #$network")
         // TODO manage sockets.
     }
 
     override fun onLost(network: Network) {
-        Log.i(logTag, "## After loosing network #$network")
+        Log.i(logTag, "\tLost network #$network")
         postValue(NetworkStatus.UNAVAILABLE)
     }
 
@@ -108,7 +108,6 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
         network: Network,
         networkCapabilities: NetworkCapabilities
     ) {
-        Log.d(logTag, "## Capability changed for #$network")
         val status = fromCapabilities(networkCapabilities)
         if (NetworkStatus.UNKNOWN == status) {
             Log.w(logTag, "Unexpected status for network #$network")
@@ -118,7 +117,7 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
 
     private fun fromCapabilities(networkCapabilities: NetworkCapabilities): NetworkStatus {
         return if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-            Log.d(LOG_TAG, ".. capabilities: $networkCapabilities.")
+            Log.d(LOG_TAG, "\tCapabilities: $networkCapabilities.")
             when {
                 networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
                 -> NetworkStatus.CAPTIVE
