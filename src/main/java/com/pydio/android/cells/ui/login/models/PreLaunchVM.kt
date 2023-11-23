@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 enum class PreLaunchState {
-    NEW, PROCESSING, DONE, SKIP
+    NEW, PROCESSING, DONE, SKIP, TERMINATE
 }
 
 enum class KnownIntent {
@@ -157,14 +157,18 @@ class PreLaunchVM(
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
 
-                _appState.value = AppState(
-                    stateID = accID,
-                    intentID = intentID,
-                    // TODO maybe also insure here that we have a first correct destination.
-                    route = null,
-                    context = lc
-                )
-                _processState.value = PreLaunchState.DONE
+                if (lc == AuthService.LOGIN_CONTEXT_BROWSE || lc == AuthService.LOGIN_CONTEXT_SHARE) {
+                    _processState.value = PreLaunchState.TERMINATE
+                } else {
+                    _appState.value = AppState(
+                        stateID = accID,
+                        intentID = intentID,
+                        // TODO maybe also insure here that we have a first correct destination.
+                        route = null,
+                        context = lc
+                    )
+                    _processState.value = PreLaunchState.DONE
+                }
             } catch (se: SDKException) {
                 updateErrorMsg("Could not refresh workspaces for $accID: ${se.message}")
             }

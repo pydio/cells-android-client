@@ -157,6 +157,13 @@ class MainActivity : ComponentActivity() {
         Box {
 
             when (processState) {
+
+                PreLaunchState.TERMINATE -> {
+                    LaunchedEffect(Unit) {
+                        emitActivityResult(Activity.RESULT_OK)
+                    }
+                }
+
                 PreLaunchState.DONE,
                 PreLaunchState.SKIP ->
                     MainApp(
