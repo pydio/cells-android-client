@@ -119,18 +119,29 @@ fun MeteredSection(
         modifier,
     )
     SwitchSetting(
-        stringResource(R.string.pref_metered_dl_thumbs_title),
-        stringResource(R.string.pref_metered_dl_thumbs_desc),
-        netPref.dlThumbs,
-        { settingsVM.setBooleanFlag(PreferencesKeys.METERED_DL_THUMBS, it) },
-        modifier,
+        label = stringResource(R.string.pref_metered_show_warning_title),
+        description = stringResource(R.string.pref_metered_show_warning_desc),
+        isSelected = netPref.applyLimits && netPref.showWarning,
+        onItemClick = { settingsVM.setBooleanFlag(PreferencesKeys.METERED_SHOW_WARNING, it) },
+        modifier = modifier,
+        isEnabled = netPref.applyLimits
     )
     SwitchSetting(
-        stringResource(R.string.pref_on_metered_ask_before_dl_files_title),
-        null,
-        netPref.askBeforeDL,
-        { settingsVM.setBooleanFlag(PreferencesKeys.METERED_ASK_B4_DL_FILES, it) },
-        modifier,
+        label = stringResource(R.string.pref_metered_dl_thumbs_title),
+        description = stringResource(R.string.pref_metered_dl_thumbs_desc),
+        isSelected = netPref.dlThumbs || !netPref.applyLimits,
+        onItemClick = { settingsVM.setBooleanFlag(PreferencesKeys.METERED_DL_THUMBS, it) },
+        modifier = modifier,
+        isEnabled = netPref.applyLimits
+    )
+    SwitchSetting(
+        label = stringResource(R.string.pref_on_metered_ask_before_dl_files_title),
+        description = null,
+        isSelected = netPref.applyLimits && netPref.askBeforeDL,
+        onItemClick = { settingsVM.setBooleanFlag(PreferencesKeys.METERED_ASK_B4_DL_FILES, it) },
+        modifier = modifier,
+        isEnabled = netPref.applyLimits
+
     )
     //  Re-Enable this when the settings is really used in the app
 //    TextSetting(

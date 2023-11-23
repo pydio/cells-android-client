@@ -36,7 +36,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 import org.koin.core.parameter.parametersOf
 
-
 /**
  * Main entry point for the Cells Application:
  *
@@ -176,7 +175,6 @@ class MainActivity : ComponentActivity() {
                         errMsg = errMsg.value,
                         cancel = { TODO("Reimplement") }
                     )
-
                 }
 
                 PreLaunchState.NEW -> {
@@ -244,19 +242,14 @@ class MainActivity : ComponentActivity() {
 
                 else -> throw IllegalArgumentException("Unexpected intent: $intent")
             }
-        } catch (e: Exception) { // FIXME Handle errors here
-            Log.e(logTag, "Could not handle intent, doing nothing...")
+        } catch (e: IllegalArgumentException) {
+            Log.e(logTag, "Misconfigured intent $intent, cannot start the app: ${e.message}")
             e.printStackTrace()
-//                if (e is SDKException) {
-//                    Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-//                    if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
-//                        Log.e(logTag, "Launch activity with un-valid state, ignoring...")
-//                        activity.finishAndRemoveTask()
-//                        return@LaunchedEffect
-//                    }
-//                }
-//                Log.e(logTag, "Could not handle intent, aborting....")
-//                throw e
+            preLaunchVM.skip()
+        } catch (e: Exception) {
+            Log.e(logTag, "Unexpected Error while handling main intent: ${e.message}")
+            e.printStackTrace()
+            preLaunchVM.skip()
         }
     }
 

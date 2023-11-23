@@ -43,6 +43,7 @@ object PreferencesKeys {
 
     // Metered network limitations
     val APPLY_METERED_LIMITATION = booleanPreferencesKey("apply_metered_limitations")
+    val METERED_SHOW_WARNING = booleanPreferencesKey("on_metered_show_warning")
     val METERED_DL_THUMBS = booleanPreferencesKey("on_metered_dl_thumbs")
     val METERED_ASK_B4_DL_FILES = booleanPreferencesKey("on_metered_ask_before_dl_files")
     val METERED_ASK_B4_DL_FILES_SIZE =
@@ -63,7 +64,7 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
 
     val cellsPreferencesFlow: Flow<CellsPreferences> = dataStore.data
         .catch { exception ->
-            // dataStore.data throws an IOException when an error is encountered when reading data
+            // dataStore.data throws an IOException when an error is encountered during data reading
             if (exception is IOException) {
                 Log.e(logTag, "Unexpected error in cells pref flow: ${exception.message}")
                 emit(emptyPreferences())
@@ -170,6 +171,8 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         val meteredPref = MeteredNetworkPreferences(
             applyLimits = fromPreferences[PreferencesKeys.APPLY_METERED_LIMITATION]
                 ?: noPref.meteredNetwork.applyLimits,
+            showWarning = fromPreferences[PreferencesKeys.METERED_SHOW_WARNING]
+                ?: noPref.meteredNetwork.showWarning,
             dlThumbs = fromPreferences[PreferencesKeys.METERED_DL_THUMBS]
                 ?: noPref.meteredNetwork.dlThumbs,
             askBeforeDL = fromPreferences[PreferencesKeys.METERED_ASK_B4_DL_FILES]

@@ -30,6 +30,7 @@ data class ListPreferences(
 
 data class MeteredNetworkPreferences(
     val applyLimits: Boolean,
+    val showWarning: Boolean,
     val dlThumbs: Boolean,
     val askBeforeDL: Boolean,
     val sizeThreshold: Long,
@@ -60,6 +61,7 @@ fun defaultCellsPreferences(): CellsPreferences {
     // Metered network limitations
     val meteredPref = MeteredNetworkPreferences(
         applyLimits = true,
+        showWarning = true,
         dlThumbs = false,
         askBeforeDL = true,
         sizeThreshold = -1,

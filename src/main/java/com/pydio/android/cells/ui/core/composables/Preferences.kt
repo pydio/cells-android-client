@@ -110,13 +110,11 @@ fun SwitchSetting(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
 ) {
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small)),
     ) {
-
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start
@@ -141,7 +139,6 @@ fun SwitchSetting(
             onCheckedChange = { onItemClick(!isSelected) }
         )
     }
-
 }
 
 @Composable
