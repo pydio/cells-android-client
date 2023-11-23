@@ -34,9 +34,12 @@ import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.browse.models.CarouselVM
 import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+
+private const val LOG_TAG = "Carousel.kt"
 
 @Composable
 fun Carousel(
@@ -86,7 +89,13 @@ fun HorizontalPagerWithOffsetTransition(
         modifier = modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.Center),
-        key = { currIndex -> items[currIndex].encodedState }
+        key = { currIndex ->
+            if (currIndex >= 0 && currIndex < items.size) {
+                items[currIndex].encodedState
+            } else {
+                Log.w(LOG_TAG, "OutOfBounds: Index $currIndex for length ${items.size}")
+            }
+        }
     ) { page -> OneImage(carouselVM.isRemoteLegacy, items, page) }
 }
 
