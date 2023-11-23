@@ -254,19 +254,26 @@
     <string name="confirm_download_desc">Este archivo es grande (%s) y está en una red medida. ¿Está seguro que desea continuar?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Nombre</string>
-    <!-- Settings -->
+    <!-- Settings / Preferences -->
+    <!-- Lists -->
     <string name="pref_category_title_recycler">Personalizar listas (cuando sea aplicable)</string>
     <string name="pref_choose_list_layout">Tipo de diseño</string>
     <string name="pref_use_larger_grid">Usar cuadrícula más grande</string>
     <string name="pref_category_title_metered">Limitaciones en la red medida</string>
+    <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Aplicar limitaciones</string>
     <string name="pref_apply_metered_limits_desc">Advertencia: Desactivar esto omitirá todas las limitaciones cuando esté en una red medida. Esto podría llevar a aumentar los costos</string>
+    <string name="pref_metered_show_warning_title">Show warning</string>
+    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
     <string name="pref_metered_dl_thumbs_title">Descargar miniaturas</string>
     <string name="pref_metered_dl_thumbs_desc">Recuperar miniaturas en la red medida</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Preguntar antes de descargar</string>
     <string name="on_metered_ask_before_dl_files_greater_than_title">Cuando el archivo es mayor que (en MB)</string>
     <string name="on_metered_ask_before_dl_files_greater_than_desc">Preguntar antes de descargar cuando el archivo de destino sea mayor que (en MB)</string>
+    <!-- Offline workers -->
     <string name="pref_category_title_offline">Sincronización offline</string>
+    <string name="pref_choose_list_offline_frequency_title">Frecuencia de sincronización</string>
+    <string name="pref_choose_list_offline_frequency_desc">Elige una frecuencia para la sincronización en segundo plano</string>
     <string name="pref_offline_constraint_wifi_title">Ejecutar sincronización cuando la red esté</string>
     <string name="pref_offline_constraint_wifi_desc">Elige un tipo de red que restringe cuando podemos iniciar la sincronización</string>
     <string name="pref_offline_constraint_charging_title">Al cargar</string>
@@ -275,16 +282,15 @@
     <string name="pref_offline_constraint_idle_desc">Cuando el dispositivo está inactivo</string>
     <string name="pref_offline_constraint_batt_not_low_title">Cuando la batería no está baja</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Cuando la batería no está baja</string>
-    <string name="pref_category_title_feedback">Comentarios y ayuda</string>
-    <string name="pref_feedback_send_title">Enviar comentarios</string>
-    <string name="pref_feedback_send_desc">Informar de problemas técnicos o sugerir nuevas funciones</string>
+    <!-- Troubleshooting / internal tools -->
     <string name="pref_category_title_troubleshooting">Resolución de problemas</string>
     <string name="pref_troubleshooting_show_list_title">Mostrar herramientas avanzadas</string>
     <string name="pref_troubleshooting_show_list_desc">Da acceso a más información interna para ayudar a solucionar comportamientos inesperados</string>
     <string name="pref_troubleshooting_disable_poll_title">Desactivar encuesta</string>
     <string name="pref_troubleshooting_disable_poll_desc">Desactiva la consulta automática al servidor mientras navegas. Esto debe usarse con cuidado: típicamente, tendrás que actualizar una página explícitamente para ver una nueva carpeta después de su creación</string>
-    <string name="pref_choose_list_offline_frequency_title">Frecuencia de sincronización</string>
-    <string name="pref_choose_list_offline_frequency_desc">Elige una frecuencia para la sincronización en segundo plano</string>
+    <string name="pref_category_title_feedback">Comentarios y ayuda</string>
+    <string name="pref_feedback_send_title">Enviar comentarios</string>
+    <string name="pref_feedback_send_desc">Informar de problemas técnicos o sugerir nuevas funciones</string>
     <!-- Cache cleaning-->
     <string name="pref_clean_cache_params_title">Cleaning parameters</string>
     <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>

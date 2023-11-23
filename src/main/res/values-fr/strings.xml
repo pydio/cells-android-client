@@ -254,19 +254,26 @@
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Nom</string>
-    <!-- Settings -->
+    <!-- Settings / Preferences -->
+    <!-- Lists -->
     <string name="pref_category_title_recycler">Personnaliser les listes (si applicable)</string>
     <string name="pref_choose_list_layout">Type de mise en page</string>
     <string name="pref_use_larger_grid">Utiliser une grille plus grande</string>
     <string name="pref_category_title_metered">Limitations sur les réseaux tarifés/limités</string>
+    <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Appliquer les limitations</string>
     <string name="pref_apply_metered_limits_desc">Attention : désactiver cette option desactive tous les garde-fous sur les réseaux limités/payants. Cela peut entrainer une explosion de l\'usage \"data\" et selon votre abonnement, générer des coûts supplémentaires</string>
+    <string name="pref_metered_show_warning_title">Show warning</string>
+    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
     <string name="pref_metered_dl_thumbs_title">Télécharger les vignettes</string>
     <string name="pref_metered_dl_thumbs_desc">Récupérer également les vignettes lorsque le réseau est limité</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Demander confirmation avant de télécharger</string>
     <string name="on_metered_ask_before_dl_files_greater_than_title">Lorsque le fichier est supérieur à… (en Mo)</string>
     <string name="on_metered_ask_before_dl_files_greater_than_desc">Demander avant de télécharger lorsque le fichier cible est plus grand que… (en Mo)</string>
+    <!-- Offline workers -->
     <string name="pref_category_title_offline">Synchronisation des fichiers hors-ligne</string>
+    <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
+    <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
     <string name="pref_offline_constraint_wifi_title">Exécuter la synchronisation lorsque le réseau est</string>
     <string name="pref_offline_constraint_wifi_desc">Choisissez le type de réseau nécessaire pour lancer la synchronisation</string>
     <string name="pref_offline_constraint_charging_title">Lorsque l\'appareil est en charge</string>
@@ -275,16 +282,15 @@
     <string name="pref_offline_constraint_idle_desc">Quand l\'appareil est inactif</string>
     <string name="pref_offline_constraint_batt_not_low_title">Lorsque la batterie n\'est pas faible</string>
     <string name="pref_offline_constraint_batt_not_low_desc">Lorsque la batterie n\'est pas faible</string>
-    <string name="pref_category_title_feedback">Commentaires et aide</string>
-    <string name="pref_feedback_send_title">Envoyer des commentaires</string>
-    <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
+    <!-- Troubleshooting / internal tools -->
     <string name="pref_category_title_troubleshooting">Obtenir de l\'aide</string>
     <string name="pref_troubleshooting_show_list_title">Afficher les outils avancés</string>
     <string name="pref_troubleshooting_show_list_desc">Donne accès à plus d\'informations sur le système pour aider à résoudre les problèmes</string>
     <string name="pref_troubleshooting_disable_poll_title">Désactiver la synchronisation explicite</string>
     <string name="pref_troubleshooting_disable_poll_desc">Désactive les taches de synchronisation avec le serveur lors de la navigation. Cela doit être utilisé avec précaution : typiquement, vous devrez rafraîchir explicitement une page pour voir un nouveau dossier après sa création</string>
-    <string name="pref_choose_list_offline_frequency_title">Fréquence de synchronisation</string>
-    <string name="pref_choose_list_offline_frequency_desc">Choisissez une fréquence pour la synchronisation en arrière-plan</string>
+    <string name="pref_category_title_feedback">Commentaires et aide</string>
+    <string name="pref_feedback_send_title">Envoyer des commentaires</string>
+    <string name="pref_feedback_send_desc">Signaler un problème technique ou suggérer de nouvelles fonctionnalités</string>
     <!-- Cache cleaning-->
     <string name="pref_clean_cache_params_title">Paramètres de nettoyage</string>
     <string name="pref_clean_cache_params_desc">Ajuster les paramètres de nettoyage de l\'application :</string>

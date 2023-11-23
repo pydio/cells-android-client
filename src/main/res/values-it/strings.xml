@@ -254,19 +254,26 @@
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Name</string>
-    <!-- Settings -->
+    <!-- Settings / Preferences -->
+    <!-- Lists -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
     <string name="pref_choose_list_layout">Type of layout</string>
     <string name="pref_use_larger_grid">Use larger grid</string>
     <string name="pref_category_title_metered">Limitations on metered network</string>
+    <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Apply limitations</string>
     <string name="pref_apply_metered_limits_desc">Warning: turning this off will skip all limitations when on a metered network. This might lead to raising costs</string>
+    <string name="pref_metered_show_warning_title">Show warning</string>
+    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
     <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
     <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Ask before download</string>
     <string name="on_metered_ask_before_dl_files_greater_than_title">When file is greater than (in MB)</string>
     <string name="on_metered_ask_before_dl_files_greater_than_desc">Ask before download when target file is greater than (in MB)</string>
+    <!-- Offline workers -->
     <string name="pref_category_title_offline">Offline synchronisation</string>
+    <string name="pref_choose_list_offline_frequency_title">Sync frequency</string>
+    <string name="pref_choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
     <string name="pref_offline_constraint_wifi_title">Run sync when network is</string>
     <string name="pref_offline_constraint_wifi_desc">Choose a type of network that constrains when we can launch the synchronisation</string>
     <string name="pref_offline_constraint_charging_title">When charging</string>
@@ -275,16 +282,15 @@
     <string name="pref_offline_constraint_idle_desc">When the device is idle</string>
     <string name="pref_offline_constraint_batt_not_low_title">When battery not low</string>
     <string name="pref_offline_constraint_batt_not_low_desc">When the battery is not low</string>
-    <string name="pref_category_title_feedback">Feedback and help</string>
-    <string name="pref_feedback_send_title">Send feedback</string>
-    <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
+    <!-- Troubleshooting / internal tools -->
     <string name="pref_category_title_troubleshooting">Troubleshooting</string>
     <string name="pref_troubleshooting_show_list_title">Show advanced tools</string>
     <string name="pref_troubleshooting_show_list_desc">Gives access to more insider info to help troubleshooting unexpected behaviours</string>
     <string name="pref_troubleshooting_disable_poll_title">Disable poll</string>
     <string name="pref_troubleshooting_disable_poll_desc">Turns off the automatic poll of the server while browsing. This should be used carefully: typically, you then have to explicitly refresh a page to see a new folder after creation</string>
-    <string name="pref_choose_list_offline_frequency_title">Sync frequency</string>
-    <string name="pref_choose_list_offline_frequency_desc">Choose a frequency for background synchronisation</string>
+    <string name="pref_category_title_feedback">Feedback and help</string>
+    <string name="pref_feedback_send_title">Send feedback</string>
+    <string name="pref_feedback_send_desc">Report technical issues or suggest new features</string>
     <!-- Cache cleaning-->
     <string name="pref_clean_cache_params_title">Cleaning parameters</string>
     <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
