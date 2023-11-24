@@ -13,6 +13,7 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -51,9 +52,9 @@ fun AppDrawer(
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
     val wss = connectionService.wss.collectAsState(listOf())
     val cells = connectionService.cells.collectAsState(listOf())
+    val accountID by connectionService.currAccountID.collectAsState(StateID.NONE)
 
     val defaultPadding = PaddingValues(horizontal = dimensionResource(R.dimen.horizontal_padding))
     val defaultModifier = Modifier.padding(defaultPadding)
@@ -79,8 +80,8 @@ fun AppDrawer(
             ConnectionStatus()
 
             AccountHeader(
-                username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
-                address = accountID.value?.serverUrl ?: "",
+                username = accountID.username ?: stringResource(R.string.ask_url_title),
+                address = accountID.serverUrl ?: "",
                 openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -90,25 +91,25 @@ fun AppDrawer(
 
             // Offline, Bookmark, Transfers and Workspace roots accesses:
             // This section is only relevant when we have a defined account
-            accountID.value?.let { currAccountID ->
+            if (accountID != StateID.NONE) {
 
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_offline_roots),
                     icon = CellsIcons.KeepOffline,
                     selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-                    onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
+                    onClick = { browseNavActions.toOfflineRoots(accountID); closeDrawer() },
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_bookmarks),
                     icon = CellsIcons.Bookmark,
                     selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
-                    onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
+                    onClick = { browseNavActions.toBookmarks(accountID);closeDrawer() },
                 )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_transfers),
                     icon = CellsIcons.Transfers,
                     selected = BrowseDestinations.Transfers.isCurrent(currRoute),
-                    onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
+                    onClick = { browseNavActions.toTransfers(accountID); closeDrawer() },
                 )
 
                 BottomSheetDivider()
@@ -134,7 +135,7 @@ fun AppDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
                     )
                 }
-            } ?: run { // Temporary fallback when no account is defined
+            } else { // Temporary fallback when no account is defined
                 // until all routes are hardened for all corner cases
                 MyNavigationDrawerItem(
                     label = stringResource(id = R.string.choose_account),
@@ -153,13 +154,13 @@ fun AppDrawer(
                 selected = SystemDestinations.Settings.route == currRoute,
                 onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
             )
-            accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
+            if (accountID != StateID.NONE) { // We also temporarily disable this when no account is defined
                 // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_house_keeping),
                     icon = CellsIcons.EmptyRecycle,
                     selected = SystemDestinations.ClearCache.isCurrent(currRoute),
-                    onClick = { systemNavActions.navigateToClearCache(accID); closeDrawer() },
+                    onClick = { systemNavActions.navigateToClearCache(accountID); closeDrawer() },
                 )
             }
             if (showDebugTools.value) {

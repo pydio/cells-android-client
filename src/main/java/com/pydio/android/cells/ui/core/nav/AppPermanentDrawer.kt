@@ -20,6 +20,7 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -54,7 +55,7 @@ fun AppPermanentDrawer(
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
+    val accountID by connectionService.currAccountID.collectAsState(StateID.NONE)
     val wss = connectionService.wss.collectAsState(listOf())
     val cells = connectionService.cells.collectAsState(listOf())
 
@@ -86,33 +87,32 @@ fun AppPermanentDrawer(
             ConnectionStatus()
 
             AccountRailHeader(
-                username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
-                address = accountID.value?.serverUrl ?: "",
+                username = accountID.username ?: stringResource(R.string.ask_url_title),
+                address = accountID.serverUrl ?: "",
                 openAccounts = { cellsNavActions.navigateToAccounts() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(defaultPadding)
                     .padding(vertical = dimensionResource(id = R.dimen.margin))
             )
-            accountID.value?.let { currAccountID ->
-
+            if (accountID != StateID.NONE) {
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_open_offline_roots),
                     icon = CellsIcons.KeepOffline,
                     selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-                    onClick = { browseNavActions.toOfflineRoots(currAccountID) },
+                    onClick = { browseNavActions.toOfflineRoots(accountID) },
                 )
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_open_bookmarks),
                     icon = CellsIcons.Bookmark,
                     selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
-                    onClick = { browseNavActions.toBookmarks(currAccountID) },
+                    onClick = { browseNavActions.toBookmarks(accountID) },
                 )
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_open_transfers),
                     icon = CellsIcons.Transfers,
                     selected = BrowseDestinations.Transfers.isCurrent(currRoute),
-                    onClick = { browseNavActions.toTransfers(currAccountID) },
+                    onClick = { browseNavActions.toTransfers(accountID) },
                 )
 
                 BottomSheetDivider()
@@ -138,7 +138,7 @@ fun AppPermanentDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID()) },
                     )
                 }
-            } ?: run { // Temporary fallback when no account is defined
+            } else { // Temporary fallback when no account is defined
                 // until all routes are hardened for all corner cases
                 MyNavigationRailItem(
                     label = stringResource(id = R.string.choose_account),
@@ -157,13 +157,13 @@ fun AppPermanentDrawer(
                 selected = SystemDestinations.Settings.route == currRoute,
                 onClick = { systemNavActions.navigateToSettings() },
             )
-            accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
+            if (accountID != StateID.NONE) {// We also temporarily disable this when no account is defined
                 // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_house_keeping),
                     icon = CellsIcons.EmptyRecycle,
                     selected = SystemDestinations.ClearCache.isCurrent(currRoute),
-                    onClick = { systemNavActions.navigateToClearCache(accID) },
+                    onClick = { systemNavActions.navigateToClearCache(accountID) },
                 )
             }
             if (showDebugTools.value) {

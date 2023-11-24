@@ -47,15 +47,8 @@ class ConnectionService(
     private val networkStatusFlow = networkService.networkStatusFlow
     private val loadingFlag = pollService.loadingFlag
 
+    // Cold session view flow
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
-
-    // And direct derivatives
-    val currAccountID: Flow<StateID?> =
-        sessionView.map { it?.accountID?.let { accId -> StateID.fromId(accId) } }
-
-    // TODO rather use the above... Expose a flag to the various screens to know if current remote is Cells or P8
-    private var _isRemoteLegacy = false
-    val isRemoteLegacy: Boolean = _isRemoteLegacy
     val customColor: Flow<String?> = sessionView.map { currSession ->
         currSession?.let {
             if (it.isReachable && !it.isLoggedIn()) {
@@ -65,6 +58,7 @@ class ConnectionService(
             }
         }
     }
+
     // val customColor: Flow<String?> = sessionView.combine(networkStatus) { currSession, networkStatus ->
     //         if (currSession == null) null else {
     //             when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
@@ -74,8 +68,6 @@ class ConnectionService(
     //             }
     //         }
     //     }
-
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
         accountService.getWsByTypeFlow(
@@ -94,15 +86,16 @@ class ConnectionService(
 
     val sessionStateFlow: StateFlow<SessionState> = sessionView
         .combine(networkStatusFlow) { activeSession, networkStatus ->
-
-            if (activeSession == null) {
-                SessionState(StateID.NONE, networkStatus, false, LoginStatus.Undefined)
+            val nextState = if (activeSession == null) {
+                SessionState(StateID.NONE, false, networkStatus, LoginStatus.Undefined)
             } else {
-
+                var serverIsReachable = true
                 if (networkStatus.isConnected() && !activeSession.isReachable) {
                     // We have internet access but current server is marked as un-reachable
                     // We try again to connect
                     serviceScope.launch {
+                        // switch to unreachable until proven we can reach it (4 lines below)
+                        serverIsReachable = false
                         delay(1000L) // Wait 1 sec before doing the request
                         val doIt: Boolean
                         synchronized(lock) {
@@ -115,23 +108,27 @@ class ConnectionService(
                         }
                         if (doIt) {
                             // This also update cached reachable status of the server
-                            appCredentialService.insureServerIsReachable(activeSession.getStateID())
+                            serverIsReachable =
+                                appCredentialService.insureServerIsReachable(activeSession.getStateID())
                         }
                     }
                 }
 
                 if (activeSession.authStatus != LoginStatus.Connected.id) {
+                    // TODO we do not pause yet monitoring when we have no connection or server is unreachable ??
                     pauseMonitoring()
                 } else {
                     relaunchMonitoring()
                 }
                 SessionState(
                     activeSession.getStateID(),
-                    networkStatus,
                     activeSession.isReachable,
+                    networkStatus,
                     LoginStatus.fromId(activeSession.authStatus)
                 )
             }
+            Log.e(logTag, ".... Emit new state: $nextState")
+            nextState
         }.stateIn(
             scope = serviceScope,
             started = SharingStarted.WhileSubscribed(5000L),
@@ -142,6 +139,12 @@ class ConnectionService(
                 loginStatus = LoginStatus.Undefined
             )
         )
+
+    // And direct derivatives
+    val currAccountID: Flow<StateID> = sessionStateFlow.map { it.accountID }
+
+    // Shortcut. Remove
+    val isRemoteLegacy: Boolean = sessionStateFlow.value.isServerLegacy
 
     val liveConnectionState: StateFlow<ConnectionState> =
         loadingFlag.combine(sessionStateFlow) { loading, connection ->
@@ -162,10 +165,10 @@ class ConnectionService(
             } else {
                 loading
             }
-
         return ConnectionState(tmpLoading, serverConnectionState(connection))
     }
 
+    // Shortcuts
     fun isConnected(): Boolean {
         return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
     }
@@ -193,6 +196,7 @@ class ConnectionService(
 
     // Debug only
     private var lastKnownConnection: ServerConnection? = null
+
     private fun serverConnectionState(connection: SessionState): ServerConnection {
         val newConn = if (
             !connection.networkStatus.isConnected()
@@ -221,4 +225,3 @@ class ConnectionService(
         Log.i(logTag, "### ConnectionService initialised")
     }
 }
-

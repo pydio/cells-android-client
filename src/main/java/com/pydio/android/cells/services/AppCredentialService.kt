@@ -111,17 +111,15 @@ class AppCredentialService(
     }
 
     private suspend fun safelyRefreshToken(stateID: StateID) = withContext(ioDispatcher) {
-        val isConnected = networkService.isConnected()
-        // Sanity checks
-        if (!isConnected) {
-            Log.e(
-                logTag,
-                "Cannot refresh token $stateID with no access to the remote server"
-            )
+        val prefix = "Cannot refresh token for $stateID:"
+        // We can use the refresh token only once: we first double check that the server is reachable
+        if (!networkService.isConnected()) {
+            Log.e(logTag, "$prefix no internet access")
             return@withContext
         }
         if (!insureServerIsReachable(stateID)) {
-            Log.e(logTag, "Cannot refresh token $stateID, server is not reachable")
+            Log.e(logTag, "$prefix got a network connection but server is not reachable")
+            delay(2000)
             return@withContext
         }
 
@@ -130,7 +128,6 @@ class AppCredentialService(
                 Log.e(logTag, "Cannot refresh, no token for $stateID")
                 return@withContext
             }
-
             if (token.refreshingSinceTs > 0) {
                 if (token.refreshingSinceTs + 300 < currentTimestamp()) {
                     val tsSuffix = timestampToString(token.refreshingSinceTs, "dd/MM HH:mm")
@@ -172,7 +169,9 @@ class AppCredentialService(
         }
     }
 
-    // First ping the server: we can use the refresh token only once. If we fail we sleep 2 sec.
+    /**
+     * Tries to connect to the server and updates corresponding Session record if necessary.
+     */
     suspend fun insureServerIsReachable(stateID: StateID): Boolean = withContext(ioDispatcher) {
         val sessionView = sessionViewDao.getSession(stateID.accountId) ?: run {
             Log.e(logTag, "Cannot refresh, unknown session: $stateID")
@@ -193,14 +192,10 @@ class AppCredentialService(
             }
             return@withContext true
         } catch (e: Exception) {
-            Log.e(logTag, "Aborting refresh process: ${e.message} - $this")
+            Log.e(logTag, "Could not reach server $stateID. Updating session. cause: ${e.message}")
             // Update reachable flag in the Session DB
             session.isReachable = false
             sessionDao.update(session)
-//            Log.d(logTag, "Before delay - $this")
-            delay(2000)
-//            Log.d(logTag, "After delay - $this")
-//            Thread.dumpStack()
             return@withContext false
         }
     }
@@ -267,3 +262,4 @@ class AppCredentialService(
         }
     }
 }
+

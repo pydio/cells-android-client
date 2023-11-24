@@ -7,8 +7,8 @@ import com.pydio.cells.transport.StateID
 
 data class SessionState(
     val accountID: StateID,
-    val networkStatus: NetworkStatus,
     val isServerReachable: Boolean,
+    val networkStatus: NetworkStatus,
     val loginStatus: LoginStatus,
     val isServerLegacy: Boolean = false
 ) {
@@ -16,10 +16,10 @@ data class SessionState(
         fun from(view: RSessionView, status: NetworkStatus): SessionState {
             return SessionState(
                 accountID = view.getStateID(),
-                networkStatus = status,
                 isServerReachable = view.isReachable,
-                isServerLegacy = view.isLegacy,
-                loginStatus = LoginStatus.fromId(view.authStatus)
+                networkStatus = status,
+                loginStatus = LoginStatus.fromId(view.authStatus),
+                isServerLegacy = view.isLegacy
             )
         }
     }
