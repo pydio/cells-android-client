@@ -127,7 +127,7 @@ class ConnectionService(
                     LoginStatus.fromId(activeSession.authStatus)
                 )
             }
-            Log.e(logTag, ".... Emit new state: $nextState")
+            Log.d(logTag, "... Emiting new Session state: $nextState")
             nextState
         }.stateIn(
             scope = serviceScope,

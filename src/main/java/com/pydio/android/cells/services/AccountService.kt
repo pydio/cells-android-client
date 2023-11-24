@@ -128,6 +128,7 @@ class AccountService(
     @Throws(SDKException::class)
     suspend fun signUp(serverURL: ServerURL, credentials: Credentials): StateID {
         sessionFactory.registerAccountCredentials(serverURL, credentials)
+
         val server = sessionFactory.getServer(serverURL.id)
             ?: throw SDKException("could not sign up: unknown server with id ${serverURL.id}")
         // At this point we assume we have been connected or an error has already been thrown
@@ -139,21 +140,16 @@ class AccountService(
         server: Server,
         authStatus: String
     ): StateID {
-
         val account = RAccount.toRAccount(username, server)
         account.authStatus = authStatus
-
-        val state = StateID(username, server.serverURL.id)
-        val existingAccount = accountDao.getAccount(state.accountId)
-
-        if (existingAccount == null) { // creation
+        val stateID = StateID(username, server.serverURL.id)
+        accountDao.getAccount(stateID.accountId)?.let {// overwrite
+            doUpdateAccount(account)
+        } ?: run { // creation
             accountDao.insert(account)
             safelyCreateSession(account)
-        } else { // update
-            doUpdateAccount(account)
         }
-
-        return state
+        return stateID
     }
 
     suspend fun getWorkspace(stateID: StateID): RWorkspace? = withContext(ioDispatcher) {
