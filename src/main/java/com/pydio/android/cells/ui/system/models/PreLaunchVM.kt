@@ -1,4 +1,4 @@
-package com.pydio.android.cells.ui.login.models
+package com.pydio.android.cells.ui.system.models
 
 import android.content.ClipData
 import android.net.Uri
@@ -45,13 +45,17 @@ class PreLaunchVM(
     private val intentID: String
 ) : ViewModel() {
 
-    private val logTag = "OAuthVM"
+    private val logTag = "PreLaunchVM"
     private val smoothActionDelay = 2000L
-    private val ioDispatcher = coroutineService.ioDispatcher
-    private val uiDispatcher = coroutineService.uiDispatcher
+
+    // TODO rather inject this
+    private val cr = CellsApp.instance.contentResolver
+
+    // private val ioDispatcher = coroutineService.ioDispatcher
+    // private val uiDispatcher = coroutineService.uiDispatcher
 
     private var _currIntent: KnownIntent = KnownIntent.LAUNCH
-    val currIntent = _currIntent
+    // val currIntent = _currIntent
 
     private val _processState = MutableStateFlow(PreLaunchState.NEW)
     val processState: StateFlow<PreLaunchState> = _processState.asStateFlow()
@@ -66,8 +70,6 @@ class PreLaunchVM(
     val loginContext: StateFlow<String?> = _loginContext.asStateFlow()
 
     // Share process
-    // TODO rather inject this
-    private val cr = CellsApp.instance.contentResolver
     private val _uris: MutableList<Uri> = mutableListOf()
     private val uris: List<Uri> = _uris
     private var _targetID: StateID = StateID.NONE
@@ -81,31 +83,6 @@ class PreLaunchVM(
 
     private var _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
-//    suspend fun getStartingState(): StartingState {
-//        val stateID: StateID?
-//        // TODO get latest known state from preferences and navigate to it
-//
-//        // Fallback on defined accounts:
-//        val sessions = accountService.listSessionViews(true)
-//        stateID = when (sessions.size) {
-//            0 -> null
-//            1 -> sessions[0].getStateID()
-//            else -> {
-//                // If a session is listed as in foreground, we open this one
-//                accountService.getActiveSession()?.getStateID() ?: StateID.NONE
-//            }
-//        }
-//
-//        val state = StartingState(stateID ?: StateID.NONE)
-//        state.route = when (stateID) {
-//            null -> LoginDestinations.AskUrl.createRoute()
-//            StateID.NONE -> CellsDestinations.Accounts.route
-//            else -> BrowseDestinations.Open.createRoute(stateID)
-//        }
-//        return state
-//    }
-
 
     fun skip() {
         _processState.value = PreLaunchState.SKIP
@@ -265,7 +242,6 @@ class PreLaunchVM(
         }
     }
 
-
     // UI Methods
     private fun switchLoading(newState: Boolean) {
         if (newState) { // also remove old error message when we start a new processing
@@ -304,4 +280,29 @@ class PreLaunchVM(
     init {
         Log.i(logTag, "Created")
     }
+
+    //    suspend fun getStartingState(): StartingState {
+//        val stateID: StateID?
+//        // TODO get latest known state from preferences and navigate to it
+//
+//        // Fallback on defined accounts:
+//        val sessions = accountService.listSessionViews(true)
+//        stateID = when (sessions.size) {
+//            0 -> null
+//            1 -> sessions[0].getStateID()
+//            else -> {
+//                // If a session is listed as in foreground, we open this one
+//                accountService.getActiveSession()?.getStateID() ?: StateID.NONE
+//            }
+//        }
+//
+//        val state = StartingState(stateID ?: StateID.NONE)
+//        state.route = when (stateID) {
+//            null -> LoginDestinations.AskUrl.createRoute()
+//            StateID.NONE -> CellsDestinations.Accounts.route
+//            else -> BrowseDestinations.Open.createRoute(stateID)
+//        }
+//        return state
+//    }
+
 }

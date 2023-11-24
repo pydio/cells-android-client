@@ -24,10 +24,10 @@ import androidx.core.view.WindowCompat
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.MainApp
 import com.pydio.android.cells.ui.core.screens.WhiteScreen
-import com.pydio.android.cells.ui.login.models.PreLaunchState
-import com.pydio.android.cells.ui.login.models.PreLaunchVM
 import com.pydio.android.cells.ui.login.screens.AuthScreen
 import com.pydio.android.cells.ui.system.models.LandingVM
+import com.pydio.android.cells.ui.system.models.PreLaunchState
+import com.pydio.android.cells.ui.system.models.PreLaunchVM
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject

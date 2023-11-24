@@ -43,7 +43,6 @@ import com.pydio.android.cells.ui.browse.models.SortByMenuVM
 import com.pydio.android.cells.ui.browse.models.TransfersVM
 import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.login.models.LoginVM
-import com.pydio.android.cells.ui.login.models.PreLaunchVM
 import com.pydio.android.cells.ui.migration.MigrationVM
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
@@ -54,6 +53,7 @@ import com.pydio.android.cells.ui.system.models.HouseKeepingVM
 import com.pydio.android.cells.ui.system.models.JobListVM
 import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.android.cells.ui.system.models.LogListVM
+import com.pydio.android.cells.ui.system.models.PreLaunchVM
 import com.pydio.android.cells.ui.system.models.PrefReadOnlyVM
 import com.pydio.android.cells.ui.system.models.SettingsVM
 import com.pydio.cells.api.Server
