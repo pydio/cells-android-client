@@ -9,7 +9,7 @@ import com.pydio.android.cells.ui.core.lazySkipVerify
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.login.models.LoginVM
 import com.pydio.android.cells.ui.login.screens.AskServerUrl
-import com.pydio.android.cells.ui.login.screens.LaunchAuthProcessing
+import com.pydio.android.cells.ui.login.screens.LaunchOAuthFlow
 import com.pydio.android.cells.ui.login.screens.P8Credentials
 import com.pydio.android.cells.ui.login.screens.SkipVerify
 import com.pydio.android.cells.ui.login.screens.StartingLoginProcess
@@ -74,7 +74,7 @@ fun NavGraphBuilder.loginNavGraph(
         LaunchedEffect(key1 = stateID, key2 = skipVerify) {
             Log.i(logTag, "## 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
         }
-        LaunchAuthProcessing(
+        LaunchOAuthFlow(
             stateID = stateID,
             skipVerify = skipVerify,
             loginContext = lContext,

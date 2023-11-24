@@ -9,9 +9,7 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.services.AccountService
 import com.pydio.android.cells.services.AuthService
-import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.JobService
-import com.pydio.android.cells.services.PreferencesService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.AppState
@@ -27,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 enum class PreLaunchState {
-    NEW, PROCESSING, DONE, SKIP, TERMINATE
+    NEW, PROCESSING, DONE, SKIP, TERMINATE, ERROR
 }
 
 enum class KnownIntent {
@@ -35,8 +33,8 @@ enum class KnownIntent {
 }
 
 class PreLaunchVM(
-    private val prefs: PreferencesService,
-    coroutineService: CoroutineService,
+//    private val prefs: PreferencesService,
+//    coroutineService: CoroutineService,
     private val jobService: JobService,
     private val authService: AuthService,
     private val sessionFactory: SessionFactory,
@@ -46,7 +44,7 @@ class PreLaunchVM(
 ) : ViewModel() {
 
     private val logTag = "PreLaunchVM"
-    private val smoothActionDelay = 2000L
+    private val smoothActionDelay = 800L
 
     // TODO rather inject this
     private val cr = CellsApp.instance.contentResolver
@@ -74,9 +72,6 @@ class PreLaunchVM(
     private val uris: List<Uri> = _uris
     private var _targetID: StateID = StateID.NONE
     private val targetID: StateID = _targetID
-
-    private val _isProcessing = MutableStateFlow(false)
-    val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message.asStateFlow()
@@ -114,7 +109,6 @@ class PreLaunchVM(
 
         _currIntent = KnownIntent.RE_LOG
         _processState.value = PreLaunchState.PROCESSING
-        switchLoading(true)
         updateMessage("Retrieving authentication token...")
 
         viewModelScope.launch {
@@ -128,9 +122,8 @@ class PreLaunchVM(
                     }
             try {
                 updateMessage("Updating account info...")
-                _accountID.value = accID
-                _loginContext.value = lc
-                Log.e(logTag, "Updating account info: $accID -> $lc")
+//                _accountID.value = accID
+//                _loginContext.value = lc
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
 
@@ -243,17 +236,9 @@ class PreLaunchVM(
     }
 
     // UI Methods
-    private fun switchLoading(newState: Boolean) {
-        if (newState) { // also remove old error message when we start a new processing
-            _errorMessage.value = ""
-        }
-        _isProcessing.value = newState
-    }
-
     private suspend fun updateMessage(msg: String) {
         withContext(Dispatchers.Main) {
             _message.value = msg
-            // or yes ?? TODO switchLoading(true)
         }
     }
 
@@ -261,15 +246,7 @@ class PreLaunchVM(
         withContext(Dispatchers.Main) {
             _errorMessage.value = msg
             _message.value = ""
-            switchLoading(false)
-        }
-    }
-
-    suspend fun resetMessages() {
-        withContext(Dispatchers.Main) {
-            _errorMessage.value = ""
-            _message.value = ""
-            switchLoading(false)
+            _processState.value = PreLaunchState.ERROR
         }
     }
 

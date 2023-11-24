@@ -23,8 +23,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.MainApp
+import com.pydio.android.cells.ui.core.screens.AuthScreen
 import com.pydio.android.cells.ui.core.screens.WhiteScreen
-import com.pydio.android.cells.ui.login.screens.AuthScreen
 import com.pydio.android.cells.ui.system.models.LandingVM
 import com.pydio.android.cells.ui.system.models.PreLaunchState
 import com.pydio.android.cells.ui.system.models.PreLaunchVM
@@ -173,14 +173,15 @@ class MainActivity : ComponentActivity() {
                         widthSizeClass = widthSizeClass,
                     )
 
-                PreLaunchState.PROCESSING -> {
+                PreLaunchState.PROCESSING,
+                PreLaunchState.ERROR -> {
                     val message = preLaunchVM.message.collectAsState()
                     val errMsg = preLaunchVM.errorMessage.collectAsState()
                     AuthScreen(
                         isProcessing = errMsg.value.isNullOrEmpty(),
                         message = message.value,
                         errMsg = errMsg.value,
-                        cancel = { TODO("Reimplement") }
+                        cancel = { emitActivityResult(RESULT_CANCELED) }
                     )
                 }
 
