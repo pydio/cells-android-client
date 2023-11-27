@@ -79,7 +79,7 @@ import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 
-private const val LOG_TAG = "Folder"
+private const val LOG_TAG = "Folder.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,6 +126,7 @@ fun Folder(
                     withDismissAction = false,
                     duration = SnackbarDuration.Short
                 )
+                folderVM.errorReceived()
             }
             oldErr = errMessage
         }

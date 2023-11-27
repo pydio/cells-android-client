@@ -46,6 +46,11 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
 
+    fun errorReceived() {
+        // Remove the message from the queue
+        errorService.appendError()
+    }
+
     // Loading data from server state
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val connectionState: StateFlow<ConnectionState> =
