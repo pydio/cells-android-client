@@ -3,6 +3,7 @@ package com.pydio.android.cells.ui.search
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,13 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,23 +26,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.pydio.android.cells.ListContext
+import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.core.ListLayout
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
+import com.pydio.android.cells.ui.core.composables.lists.EmptyList
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
-import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
+import com.pydio.android.cells.ui.core.composables.lists.WithListTheme
 import com.pydio.android.cells.ui.core.composables.lists.getAppearsInDesc
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.cells.transport.StateID
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HitsList(
     connectionState: ConnectionState,
@@ -52,16 +58,16 @@ fun HitsList(
     padding: PaddingValues,
 ) {
 
-    WithLoadingListBackground(
+    WithSearchLoadingBackground(
         connectionState = connectionState,
         isEmpty = hits.isEmpty(),
-        showProgressAtStartup = false,
-        startingDesc = stringResource(R.string.search_hint),
+        showProgressAtStartup = true,
         emptyRefreshableDesc = if (query.isEmpty()) {
             stringResource(R.string.search_hint, query)
         } else {
             stringResource(R.string.no_result_for_search, query)
         },
+        emptyNoConnDesc = stringResource(R.string.server_unreachable) + ":\n" + stringResource(R.string.search_is_local_only),
         modifier = Modifier.fillMaxSize()
     ) {
 
@@ -119,6 +125,58 @@ fun HitsList(
         }
     }
 }
+
+@Composable
+private fun WithSearchLoadingBackground(
+    connectionState: ConnectionState,
+    isEmpty: Boolean,
+    modifier: Modifier = Modifier,
+    listContext: ListContext = ListContext.BROWSE,
+    showProgressAtStartup: Boolean = false,
+    emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
+    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + ":\n" + stringResource(R.string.server_unreachable),
+    content: @Composable () -> Unit,
+) {
+    Box(modifier = modifier) {
+        if (isEmpty) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if ((connectionState.loading == LoadingState.STARTING && showProgressAtStartup)
+                    || connectionState.loading == LoadingState.PROCESSING
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = modifier.padding(dimensionResource(R.dimen.margin_large))
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(dimensionResource(R.dimen.spinner_size))
+                                .padding(dimensionResource(R.dimen.margin_medium))
+                                .alpha(.8f)
+                        )
+                        Text(stringResource(R.string.loading_message))
+                    }
+                } else {
+                    EmptyList(
+                        listContext = listContext,
+                        desc = if (connectionState.serverConnection.isConnected()) {
+                            emptyRefreshableDesc
+                        } else {
+                            emptyNoConnDesc
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(.5f)
+                    )
+                }
+            }
+        }
+        WithListTheme {
+            content()
+        }
+    }
+}
+
 
 @Composable
 private fun HitListItem(

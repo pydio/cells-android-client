@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
@@ -35,7 +36,7 @@ fun WithLoadingListBackground(
     showProgressAtStartup: Boolean = true,
     startingDesc: String = stringResource(R.string.loading_message),
     emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
-    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + "\n" + stringResource(R.string.server_unreachable),
+    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + ":\n" + stringResource(R.string.server_unreachable),
     content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
@@ -130,7 +131,8 @@ fun EmptyList(
         desc?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
             )
         }
     }

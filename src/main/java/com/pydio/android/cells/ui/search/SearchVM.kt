@@ -8,6 +8,7 @@ import com.pydio.android.cells.ui.core.AbstractCellsVM
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.deduplicateNodes
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +38,7 @@ class SearchVM(
 
     private val _currQueryContext = MutableStateFlow("browse")
     private var _localStateID: StateID = stateID
-    private val _userInput = MutableStateFlow("")
+    private val _userInput = MutableStateFlow(nodeService.lastQuery.value)
 
     // We debounce the user input before launching the potentially costly request to the server
     @OptIn(FlowPreview::class)
@@ -52,6 +53,7 @@ class SearchVM(
         .combine(_queryString) { order, query -> order to query }
         .flatMapLatest { currPair ->
             val (order, query) = currPair
+            doStart()
             nodeService.liveSearch(
                 _localStateID.account(),
                 // Small hack to avoid querying the full repo when the string is empty
@@ -59,7 +61,9 @@ class SearchVM(
                 query.ifEmpty { "3c2babe5-2aa1-4fca-88ad-6b316c7cafe4" },
                 order
             ).map { nodes ->
-                deduplicateNodes(nodeService, nodes)
+                val result = deduplicateNodes(nodeService, nodes)
+                doStop()
+                result
             }
         }.stateIn(
             scope = viewModelScope,
@@ -67,19 +71,26 @@ class SearchVM(
             initialValue = listOf()
         )
 
+
+    private fun doStart() = viewModelScope.launch(Dispatchers.Main) {
+        launchProcessing()
+    }
+
+    private fun doStop() = viewModelScope.launch(Dispatchers.Main) {
+        done()
+    }
+
     init {
         viewModelScope.launch {
             _queryString.collect { query ->
                 if (query.isNotEmpty()) {
                     Log.d(logTag, "Setting debounced query to: $query")
-                    launchProcessing()
                     // TODO make this configurable depending on the connection type
                     if (connectionState.value.serverConnection.isConnected()) {
                         // skip remote process when the server is unreachable
                         nodeService.remoteQuery(_localStateID.account(), query)
                     }
                     Log.i(logTag, "Done with query: $query")
-                    done()
                 }
             }
         }
@@ -110,5 +121,9 @@ class SearchVM(
                 done(e)
             }
         }
+    }
+
+    override fun onCleared() {
+        Log.e(logTag, "... Cleared")
     }
 }

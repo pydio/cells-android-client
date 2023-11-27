@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
@@ -82,14 +81,8 @@ fun Bookmarks(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val connectionState by bookmarksVM.connectionState.collectAsState(
-        ConnectionState(
-            LoadingState.IDLE,
-            ServerConnection.OK
-        )
-    )
     val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
-
+    val connectionState by bookmarksVM.connectionState.collectAsState()
     val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
         mutableStateOf(setOf())
     }

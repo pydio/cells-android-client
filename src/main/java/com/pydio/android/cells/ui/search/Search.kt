@@ -8,8 +8,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,14 +37,14 @@ import com.pydio.android.cells.ui.core.composables.TopBarWithSearch
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
-import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.MultipleItem
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-private const val logTag = "Search"
+private const val LOG_TAG = "Search"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,10 +61,10 @@ fun Search(
     searchVM.newContext(queryContext, stateID)
 
     val connectionState by searchVM.connectionState.collectAsState()
-    val errMessage by searchVM.errorMessage.collectAsState(null)
     val listLayout by searchVM.layout.collectAsState(ListLayout.LIST)
+    val snackBarHostState = remember { SnackbarHostState() }
 
-    val query by searchVM.userInput.collectAsState("")
+    val query by searchVM.userInput.collectAsState()
     val hits = searchVM.newHits.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -81,6 +85,17 @@ fun Search(
         }
     }
 
+    val errMessage by searchVM.errorMessage.collectAsState(null)
+    LaunchedEffect(key1 = errMessage) {
+        errMessage?.let {
+            snackBarHostState.showSnackbar(
+                message = toErrorMessage(context, it),
+                withDismissAction = false,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+
     val destinationPicker = rememberLauncherForActivityResult(
         // TODO we have the mime of the file to download to device
         //    but this is no trivial implementation: the contract must then be both
@@ -98,8 +113,8 @@ fun Search(
 
     val launch: (NodeAction, StateID) -> Unit = { action, currID ->
 
-        // Todo also unify with browse helper
-        Log.e(logTag, "Launching action $action for $currID")
+        // TODO also unify with browse helper
+        Log.i(LOG_TAG, "Launching action $action for $currID")
 
         when (action) {
             is NodeAction.OpenInApp -> {
@@ -134,7 +149,7 @@ fun Search(
             }
 
             else -> {
-                Log.e(logTag, "Unknown action $action for $currID")
+                Log.e(LOG_TAG, "Unknown action $action for $currID")
                 moreMenuDone()
             }
         }
@@ -144,7 +159,6 @@ fun Search(
         isExpandedScreen = isExpandedScreen,
         connectionState = connectionState,
         query = query,
-        errMsg = errMessage,
         updateQuery = searchVM::setQuery,
         listLayout = listLayout,
         hits = hits.value,
@@ -160,7 +174,8 @@ fun Search(
             nodeMoreMenuData.value.first,
             nodeMoreMenuData.value.second,
             openMoreMenu
-        )
+        ),
+        snackBarHostState = snackBarHostState
     )
 }
 
@@ -170,7 +185,7 @@ private fun WithScaffold(
     isExpandedScreen: Boolean,
     connectionState: ConnectionState,
     query: String,
-    errMsg: ErrorMessage?,
+//    errMsg: ErrorMessage?,
     updateQuery: (String) -> Unit,
     listLayout: ListLayout,
     hits: List<MultipleItem>,
@@ -178,6 +193,7 @@ private fun WithScaffold(
     launch: (NodeAction, StateID) -> Unit,
     cancel: () -> Unit,
     moreMenuState: MoreMenuState,
+    snackBarHostState: SnackbarHostState,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -235,7 +251,7 @@ private fun WithScaffold(
         topBar = {
             TopBarWithSearch(
                 queryStr = query,
-                errorMessage = errMsg,
+                errorMessage = null, // WE do not want the error here. // errMsg,
                 updateQuery = updateQuery,
                 cancel = cancel,
                 isActionMenuShown = isShown,
@@ -243,6 +259,7 @@ private fun WithScaffold(
                 content = actionMenuContent
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
 
         CellsModalBottomSheetLayout(

@@ -132,11 +132,12 @@
     <string name="roaming_connection">Using a roaming connection</string>
 
     <string name="no_account">No account, please configure at least a connection</string>
-    <string name="server_unreachable">Cannot reach server</string>
+    <string name="server_unreachable">Server is un-reachable</string>
     <string name="empty_cache">Cannot list folder content</string>
     <string name="cannot_download_file">Cannot download file</string>
     <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
     <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
     <string name="no_result_for_search">No result found for \"%s\"</string>
 
     <string name="empty_folder">This folder is empty</string>
