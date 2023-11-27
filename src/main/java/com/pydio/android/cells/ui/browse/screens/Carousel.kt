@@ -1,15 +1,22 @@
 package com.pydio.android.cells.ui.browse.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -20,12 +27,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
@@ -161,21 +177,60 @@ private fun OneImage(
         if (isLegacy) {
             GlideImage(
                 model = encodeModel(items[page], AppNames.LOCAL_FILE_TYPE_FILE),
-                contentDescription = "${items[page].name} thumbnail",
-                failure = placeholder(R.drawable.file_image_outline),
+                contentDescription = "${items[page].name} preview",
                 loading = placeholder(R.drawable.loading_img),
+                failure = placeholder(R.drawable.file_image_outline),
                 modifier = imageModifier,
             )
         } else {
-            GlideImage(
-                model = encodeModel(items[page], AppNames.LOCAL_FILE_TYPE_PREVIEW),
-                contentDescription = "${items[page].name} thumbnail",
-                loading = placeholder(R.drawable.loading_img),
-                failure = placeholder(R.drawable.file_image_outline),
-                modifier = imageModifier,
-                // TODO we lost this in comparison with XML era
-                //   thumbnail(thumbnailRequest)
-            )
+            val n = items[page]
+            // TODO provide 2 step loading: first preview then full image 
+            GlideSubcomposition(
+                encodeModel(AppNames.LOCAL_FILE_TYPE_PREVIEW, n.getStateID(), n.etag, n.metaHash),
+                Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)), { it },
+            ) {
+                when (state) {
+                    RequestState.Loading -> LoadingAnimation()
+                    RequestState.Failure -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.file_image_outline),
+                                contentDescription = stringResource(R.string.unavailable_preview),
+                                modifier = Modifier
+                                    .size(dimensionResource(R.dimen.grid_ws_image_size))
+                                    .alpha(.5f),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.no_preview_for,
+                                    n.getStateID().fileName
+                                ) + ":\n" + stringResource(R.string.no_download_on_metered),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+
+                    else -> {
+                        Image(
+                            painter = painter,
+                            contentDescription = "${n.getStateID().fileName} preview",
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Fit,
+                            alpha = 1f,
+                            colorFilter = null,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight(Alignment.CenterVertically)
+                        )
+                    }
+                }
+            }
         }
     }
 }

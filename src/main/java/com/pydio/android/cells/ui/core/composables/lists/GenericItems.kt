@@ -17,8 +17,8 @@ fun MultipleGridItem(
     LargeCard(
         title = item.name,
         desc = getAppearsInDesc(item),
-        isSelected = isSelected,
-        modifier = modifier
+        modifier = modifier,
+        isSelected = isSelected
     ) {
         if (item.hasThumb) {
             LargeCardImageThumb(
@@ -26,6 +26,7 @@ fun MultipleGridItem(
                 eTag = item.eTag,
                 metaHash = item.metaHash,
                 title = item.name,
+                mime = item.mime,
                 openMoreMenu = if (!isSelectionMode) more else null
             )
         } else {

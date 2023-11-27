@@ -32,11 +32,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
@@ -56,7 +57,7 @@ fun LargeCardWithImage(
     openMoreMenu: (() -> Unit)? = null,
 ) {
     LargeCard(title = title, desc = desc, modifier = modifier) {
-        LargeCardImageThumb(stateID, eTag, metaHash, mime, openMoreMenu)
+        LargeCardImageThumb(stateID, eTag, metaHash, title, mime, openMoreMenu)
     }
 }
 
@@ -92,40 +93,6 @@ fun LargeCardGenericIconThumb(
             NotSelectedContent(t, more, title)
         }
     }
-}
-
-@Composable
-private fun SelectedContent(
-    t: Pair<Int, Color>,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .size(dimensionResource(R.dimen.grid_image_selected_size))
-            .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
-    ) {
-        Image(
-            painter = painterResource(t.first),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(t.second),
-            modifier = Modifier
-                .wrapContentSize(Alignment.Center)
-                .size(dimensionResource(R.dimen.grid_large_icon_size))
-        )
-    }
-    Icon(
-        imageVector = CellsIcons.Check,
-        contentDescription = "Selection check",
-        modifier = Modifier
-            .padding(
-                top = dimensionResource(R.dimen.grid_large_v_inner_padding),
-                bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
-                start = dimensionResource(R.dimen.grid_large_v_inner_padding).div(2),
-                end = dimensionResource(R.dimen.grid_large_v_inner_padding)
-            )
-            .wrapContentSize(Alignment.TopStart)
-            .size(dimensionResource(R.dimen.grid_large_more_size))
-    )
 }
 
 @Composable
@@ -167,6 +134,7 @@ fun LargeCardImageThumb(
     eTag: String?,
     metaHash: Int,
     title: String,
+    mime: String,
     openMoreMenu: (() -> Unit)? = null,
 ) {
     Surface(
@@ -176,14 +144,40 @@ fun LargeCardImageThumb(
             .size(dimensionResource(R.dimen.grid_ws_image_size))
             .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
     ) {
-        GlideImage(
-            model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
-            contentDescription = "$title thumbnail",
-            contentScale = ContentScale.FillWidth,
-            failure = placeholder(R.drawable.image_no_thumb_small),
-            loading = placeholder(R.drawable.loading),
-            modifier = Modifier.size(dimensionResource(id = R.dimen.grid_ws_image_size)),
-        )
+
+        GlideSubcomposition(
+            encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+            Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)), { it },
+        ) {
+            when (state) {
+                RequestState.Loading -> LoadingAnimation()
+                RequestState.Failure -> LargeCardGenericIconThumb(
+                    title = title,
+                    mime = mime
+                ) // IconThumb(mime = mime, sortName = sortName)
+
+                else -> {
+                    Image(
+                        painter = painter,
+                        contentDescription = "$title thumbnail",
+                        // modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)),
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Crop,
+                        alpha = 1f,
+                        colorFilter = null,
+                    )
+                }
+            }
+        }
+
+//        GlideImage(
+//            model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+//            contentDescription = "$title thumbnail",
+//            contentScale = ContentScale.FillWidth,
+//            failure = placeholder(R.drawable.image_no_thumb_small),
+//            loading = placeholder(R.drawable.loading),
+//            modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)),
+//        )
         openMoreMenu?.let {
             Box(
                 modifier = Modifier
@@ -224,8 +218,8 @@ fun LargeCardImageThumb(
 fun LargeCard(
     title: String,
     desc: String,
-    isSelected: Boolean = false,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     thumbContent: @Composable () -> Unit,
 ) {
     val titlePadding = PaddingValues(
@@ -291,3 +285,39 @@ fun LargeCard(
         }
     }
 }
+
+
+//@Composable
+//private fun SelectedContent(
+//    t: Pair<Int, Color>,
+//) {
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth(1f)
+//            .size(dimensionResource(R.dimen.grid_image_selected_size))
+//            .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
+//    ) {
+//        Image(
+//            painter = painterResource(t.first),
+//            contentDescription = null,
+//            colorFilter = ColorFilter.tint(t.second),
+//            modifier = Modifier
+//                .wrapContentSize(Alignment.Center)
+//                .size(dimensionResource(R.dimen.grid_large_icon_size))
+//        )
+//    }
+//    Icon(
+//        imageVector = CellsIcons.Check,
+//        contentDescription = "Selection check",
+//        modifier = Modifier
+//            .padding(
+//                top = dimensionResource(R.dimen.grid_large_v_inner_padding),
+//                bottom = dimensionResource(R.dimen.grid_large_v_inner_padding),
+//                start = dimensionResource(R.dimen.grid_large_v_inner_padding).div(2),
+//                end = dimensionResource(R.dimen.grid_large_v_inner_padding)
+//            )
+//            .wrapContentSize(Alignment.TopStart)
+//            .size(dimensionResource(R.dimen.grid_large_more_size))
+//    )
+//}
+

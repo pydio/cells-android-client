@@ -17,12 +17,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
+import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
@@ -71,18 +72,26 @@ fun Thumbnail(
             modifier = Modifier
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
-            GlideImage(
-                model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
-                contentDescription = "$name thumbnail",
-                contentScale = ContentScale.Crop,
-                // TODO Since 4.1.16 - these cannot be a composable nor a callback
-                // This is deprecated and has glitches on glide 4.1.16
-                //        failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
-                //        laoding = placeholder { LoadingAnimation() },
-                failure = placeholder(R.drawable.image_no_thumb_small),
-                loading = placeholder(R.drawable.loading),
-                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
-            )
+            GlideSubcomposition(
+                encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+                Modifier.size(dimensionResource(R.dimen.list_thumb_size)), { it },
+            ) {
+                when (state) {
+                    RequestState.Loading -> LoadingAnimation()
+                    RequestState.Failure -> IconThumb(mime = mime, sortName = sortName)
+                    else -> {
+                        Image(
+                            painter,
+                            "$name thumbnail",
+                            Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Crop,
+                            alpha = 1f,
+                            colorFilter = null,
+                        )
+                    }
+                }
+            }
         }
     } else {
         IconThumb(mime, sortName)

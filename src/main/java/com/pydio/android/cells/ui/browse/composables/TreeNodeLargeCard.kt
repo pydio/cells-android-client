@@ -13,19 +13,18 @@ import com.pydio.android.cells.ui.models.TreeNodeItem
 fun TreeNodeLargeCard(
     nodeItem: TreeNodeItem,
     more: (() -> Unit)?,
-//    isSelectionMode: Boolean,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
 ) {
     LargeCard(
-        isSelected = isSelected,
         title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
         desc = getNodeDesc(
             nodeItem.remoteModTs,
             nodeItem.size,
             nodeItem.localModStatus
         ),
-        modifier = modifier
+        modifier = modifier,
+        isSelected = isSelected
     ) {
         if (nodeItem.hasThumb) {
             LargeCardImageThumb(
@@ -33,6 +32,7 @@ fun TreeNodeLargeCard(
                 eTag = nodeItem.eTag,
                 metaHash = nodeItem.metaHash,
                 title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
+                mime = nodeItem.mime,
                 openMoreMenu = more
             )
         } else {

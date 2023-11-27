@@ -436,13 +436,9 @@ private fun FolderList(
                                 more = showMore,
                                 isSelected = selectedItems.contains(nodeItem.defaultStateID()),
                                 modifier = getClickableModifier(
-                                    loadingState,
-                                    isSelectionMode,
-                                    nodeItem,
-                                    onTap,
-                                    alpha
-                                )
-                                    .animateItemPlacement(),
+                                    loadingState, isSelectionMode, nodeItem,
+                                    onTap, alpha
+                                ).animateItemPlacement(),
                             )
                         }
                     }
