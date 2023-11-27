@@ -46,6 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Neočekávaná chyba…</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Nedaří se vypsat obsah složky</string>
+    <string name="cannot_download_file">Soubor se nedaří stáhnout</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Vítejte v Pydio!</string>
@@ -64,6 +68,11 @@
     <string name="about_page_get_help">Pokud nemůžete tuto aplikaci přimět ke správnému fungování, prosím pošlete e-mail s úplným popisem problému, kterému čelíte, abychom vám mohli pomoci.</string>
     <string name="help_button_support">Kontaktovat podporu Pydio</string>
     <string name="open_website_button">Další informace na pydio.com</string>
+    <!-- Network Management -->
+    <string name="no_internet">Není k dispozici připojení k Internetu</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
+    <string name="metered_connection">Na připojení s účtovanými daty</string>
+    <string name="roaming_connection">Použití roamingového připojení</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Zaregistrovat nový účet</string>
     <string name="ask_url_desc">Zadejte adresu vámi využívaného serveru</string>
@@ -92,7 +101,9 @@
     <string name="account_list_desc">Spravovat už zaregistrované servery</string>
     <string name="account_list_none">Zatím nebyl nastaven žádný účet…</string>
     <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">No account, please configure at least a connection</string>
     <!-- Browse management -->
+    <string name="loading_message">Počkejte na načtení obsahu…</string>
     <string name="ws_list_subtitle">Vyberte pracovní prostor, který procházet</string>
     <string name="browse_list_desc">Procházet vámi využívané servery</string>
     <string name="browse_list_none">Prázdné</string>
@@ -104,26 +115,31 @@
     <string name="last_check">Naposledy zkontrolováno</string>
     <string name="last_check_never">nikdy</string>
     <string name="appears_in_prefix">Inside %s</string>
-    <string name="loading_message">Počkejte na načtení obsahu…</string>
-    <string name="no_internet">Není k dispozici připojení k Internetu</string>
-    <string name="captive_portal">Captive portal: sign in required</string>
-    <string name="metered_connection">Na připojení s účtovanými daty</string>
-    <string name="roaming_connection">Použití roamingového připojení</string>
-    <string name="no_account">No account, please configure at least a connection</string>
-    <string name="server_unreachable">Cannot reach server</string>
-    <string name="empty_cache">Nedaří se vypsat obsah složky</string>
-    <string name="cannot_download_file">Soubor se nedaří stáhnout</string>
-    <string name="no_download_on_metered">Stahování na sítích s účtovanými daty jsou omezena. Toto je možné změnit vpředvolbách aplikace</string>
-    <string name="cannot_search_remote">Nedaří se provést hledání</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Search…</string>
+    <string name="search_hint">Enter a term to search your files!</string>
     <string name="no_result_for_search">Pro „%s“ nic nenalezeno</string>
+    <string name="cannot_search_remote">Nedaří se provést hledání</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronizace…</string>
+    <string name="sync_downloading">Stahování souborů…</string>
+    <string name="sync_tree_walking">Procházení stromu a zjišťování změn</string>
+    <string name="sync_already_running">Synchronizace už právě probíhá. Vyčkejte jejího dokončení než budete spouštět další</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
+    <!-- Empty lists -->
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <string name="empty_folder">Tato složka je prázdná</string>
     <string name="empty_content_message">Zatím zde není žádný obsah</string>
     <string name="no_bookmark_for_account">Pro tento účet nebyla definována žádná záložka…</string>
     <string name="no_transfer_for_account">Není k dispozici žádný nedávný přenos, proto není co zobrazit</string>
     <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">Nebyla označena žádná složka, aby byla pro tento účet uchovávána offline…</string>
-    <string name="account_home_no_ws_title">No workspace to list</string>
-    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
+    <!-- Multi select -->
     <plurals name="selected_count">
         <item quantity="one">vybrána %d položka</item>
         <item quantity="few">vybrány %d položky</item>
@@ -136,16 +152,6 @@
     <string name="in_progress_renaming">Přejmenování…</string>
     <string name="in_progress_moving">Přesouvání…</string>
     <string name="in_progress_restoring">Obnovování…</string>
-    <!-- Search -->
-    <string name="search_label">Search…</string>
-    <string name="search_hint">Enter a term to search your files!</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Synchronizace…</string>
-    <string name="sync_downloading">Stahování souborů…</string>
-    <string name="sync_tree_walking">Procházení stromu a zjišťování změn</string>
-    <string name="sync_already_running">Synchronizace už právě probíhá. Vyčkejte jejího dokončení než budete spouštět další</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Úlohy na pozadí</string>
     <string name="job_list_empty_message">There is no job to show</string>

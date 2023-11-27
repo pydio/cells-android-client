@@ -46,6 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">¡Error inesperado!</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">No se puede listar el contenido de la carpeta</string>
+    <string name="cannot_download_file">No se puede descargar el archivo</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">¡Bienvenido a Pydio!</string>
@@ -64,6 +68,11 @@
     <string name="about_page_get_help">Si no puedes conseguir que esta aplicación funcione correctamente, por favor envía un correo electrónico con una descripción completa del problema al que te enfrentas para que podamos ayudarte.</string>
     <string name="help_button_support">Contactar con el servicio de soporte Pydio</string>
     <string name="open_website_button">Más información en pydio.com</string>
+    <!-- Network Management -->
+    <string name="no_internet">No hay conexión a internet</string>
+    <string name="captive_portal">Portal cautivo: se requiere iniciar sesión</string>
+    <string name="metered_connection">En una conexión de uso medido</string>
+    <string name="roaming_connection">Usando una conexión de roaming</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Registrar una nueva cuenta</string>
     <string name="ask_url_desc">Por favor, introduce la dirección de tu servidor</string>
@@ -92,7 +101,9 @@
     <string name="account_list_desc">Gestionar los servidores remotos ya registrados</string>
     <string name="account_list_none">Todavía no se ha configurado ninguna cuenta…</string>
     <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">No hay cuenta. Por favor configure al menos una conexión</string>
     <!-- Browse management -->
+    <string name="loading_message">Por favor, espera mientras se carga el contenido…</string>
     <string name="ws_list_subtitle">Elige un espacio de trabajo para navegar</string>
     <string name="browse_list_desc">Examina tus servidores remotos</string>
     <string name="browse_list_none">Vacío</string>
@@ -104,26 +115,31 @@
     <string name="last_check">Última verificación</string>
     <string name="last_check_never">nunca</string>
     <string name="appears_in_prefix">Dentro %s</string>
-    <string name="loading_message">Por favor, espera mientras se carga el contenido…</string>
-    <string name="no_internet">No hay conexión a internet</string>
-    <string name="captive_portal">Portal cautivo: se requiere iniciar sesión</string>
-    <string name="metered_connection">En una conexión de uso medido</string>
-    <string name="roaming_connection">Usando una conexión de roaming</string>
-    <string name="no_account">No hay cuenta. Por favor configure al menos una conexión</string>
-    <string name="server_unreachable">Servidor inalcanzable</string>
-    <string name="empty_cache">No se puede listar el contenido de la carpeta</string>
-    <string name="cannot_download_file">No se puede descargar el archivo</string>
-    <string name="no_download_on_metered">Las descargas en redes medidas están restringidas, puedes cambiar esto en las preferencias de la aplicación</string>
-    <string name="cannot_search_remote">No se puede realizar la búsqueda</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Buscar…</string>
+    <string name="search_hint">¡Introduce un término para buscar tus archivos!</string>
     <string name="no_result_for_search">\"Ningún resultado encontrado para \"%s\".\"</string>
+    <string name="cannot_search_remote">No se puede realizar la búsqueda</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Sincronizando…</string>
+    <string name="sync_downloading">Descargando archivos…</string>
+    <string name="sync_tree_walking">Caminando por el árbol para buscar cambios</string>
+    <string name="sync_already_running">Ya se está ejecutando un proceso de sincronización, espera antes de iniciar uno nuevo</string>
+    <string name="confirm_remove_offline_title">Confirma tu selección</string>
+    <string name="confirm_remove_offline_desc">Eliminar el estado fuera de línea de este nodo puede resultar en la pérdida de datos descargados. ¿Estás seguro de que quieres proceder?</string>
+    <!-- Empty lists -->
+    <string name="account_home_no_ws_title">No hay Workspace para listar</string>
+    <string name="account_home_no_ws_desc">El servidor no está disponible o puede que hayas perdido tus permisos. En el último caso, por favor contacta a tu administrador del sitio.</string>
     <string name="empty_folder">Esta carpeta está vacía</string>
     <string name="empty_content_message">Todavía no hay contenido aquí</string>
     <string name="no_bookmark_for_account">No se ha definido ningún marcador para esta cuenta…</string>
     <string name="no_transfer_for_account">No hay ninguna transferencia reciente para mostrar</string>
     <string name="no_transfer_with_filter">No hay transferencia con estado \"%s\"</string>
     <string name="no_offline_root_for_account">Ninguna carpeta ha sido etiquetada para ser mantenida fuera de línea para esta cuenta…</string>
-    <string name="account_home_no_ws_title">No hay Workspace para listar</string>
-    <string name="account_home_no_ws_desc">El servidor no está disponible o puede que hayas perdido tus permisos. En el último caso, por favor contacta a tu administrador del sitio.</string>
+    <!-- Multi select -->
     <plurals name="selected_count">
         <item quantity="one">%d elemento seleccionado</item>
         <item quantity="other">%d elementos seleccionados</item>
@@ -134,16 +150,6 @@
     <string name="in_progress_renaming">Renombrando…</string>
     <string name="in_progress_moving">Moviendo…</string>
     <string name="in_progress_restoring">Restaurando…</string>
-    <!-- Search -->
-    <string name="search_label">Buscar…</string>
-    <string name="search_hint">¡Introduce un término para buscar tus archivos!</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Sincronizando…</string>
-    <string name="sync_downloading">Descargando archivos…</string>
-    <string name="sync_tree_walking">Caminando por el árbol para buscar cambios</string>
-    <string name="sync_already_running">Ya se está ejecutando un proceso de sincronización, espera antes de iniciar uno nuevo</string>
-    <string name="confirm_remove_offline_title">Confirma tu selección</string>
-    <string name="confirm_remove_offline_desc">Eliminar el estado fuera de línea de este nodo puede resultar en la pérdida de datos descargados. ¿Estás seguro de que quieres proceder?</string>
     <!-- Job Management -->
     <string name="job_list_title">Trabajos en segundo plano</string>
     <string name="job_list_empty_message">No hay trabajo para mostrar</string>
