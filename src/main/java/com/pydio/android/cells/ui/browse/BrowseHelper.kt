@@ -25,11 +25,12 @@ open class BrowseHelper(
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
 
-        Log.e(logTag, "... Calling open for $stateID")
-        Log.d(logTag, "    Loading state: ${browseVM.connectionState.value}")
-        Log.d(logTag, "    Context: $callingContext")
-
-        // FIXME remove
+        Log.i(
+            logTag, "... Calling open for $stateID\n" +
+                    "    Loading state: ${browseVM.connectionState.value}\n" +
+                    "    Context: $callingContext"
+        )
+        // TODO remove
         dumpNavigationStack(
             logTag, "BrowseHelper.open()",
             navController.currentBackStack.value, "OPEN $stateID"
@@ -68,9 +69,7 @@ open class BrowseHelper(
                     // TODO (since v2) Open carousel for bookmark, offline and search result nodes
                     BrowseDestinations.OpenCarousel.createRoute(stateID)
                 } else {
-                    Log.e(logTag, "About to call viewFile for $stateID, reachable: ")
                     val isReachable = browseVM.isServerReachable()
-                    Log.e(logTag, "About to call viewFile for $stateID, reachable: $isReachable")
                     try {
                         browseVM.viewFile(context, stateID, !isReachable)
                     } catch (e: SDKException) {
@@ -89,7 +88,7 @@ open class BrowseHelper(
                                 } else {
                                     "No local file, about to download"
                                 }
-                                Log.w(logTag, msg)
+                                Log.d(logTag, "... $msg")
                                 // Open download popup
                                 navController.navigate(
                                     CellsDestinations.Download.createRoute(stateID)

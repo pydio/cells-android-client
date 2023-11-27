@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.withContext
 
 /**
  * Holds a shared flow of errors to notify the end user.
@@ -19,7 +20,7 @@ class ErrorService(
     coroutineService: CoroutineService,
 ) {
     private val logTag = "ErrorService"
-    private val serviceScope = coroutineService.cellsIoScope
+    private val uiScope = coroutineService.cellsUiScope
 
     // Expose a flow of error messages for the end-user.
     private val _allMessages = MutableStateFlow<ErrorMessage?>(null)
@@ -34,10 +35,13 @@ class ErrorService(
 
     // We rather use a shared flow to be able to see messages only once
     // otherwise, each view model will show latest error message when starting to listen
-    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.buffer(0).shareIn(
-        scope = serviceScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        replay = 0
+    // TODO always emit null in the errorMessages after a 5secs time out so that same error is displayed anew e.G if the user takes the same steps
+    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.onEach {
+        Log.e(logTag, "... Received error message: ${it.toString()}")
+    }.shareIn(
+        scope = uiScope,
+        started = SharingStarted.WhileSubscribed(30000),
+        replay = 1
     )
 
     fun appendError(errorMsg: ErrorMessage? = null) {
@@ -49,6 +53,12 @@ class ErrorService(
     }
 
     fun appendError(msg: String) {
+        Log.e(logTag, ".... append error $msg")
+        _allMessages.value = ErrorMessage(msg, -1, listOf())
+    }
+
+    suspend fun asyncAppendError(msg: String) = withContext(uiScope.coroutineContext) {
+        Log.e(logTag, ".... Append error $msg")
         _allMessages.value = ErrorMessage(msg, -1, listOf())
     }
 

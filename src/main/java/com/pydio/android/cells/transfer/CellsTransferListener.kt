@@ -9,6 +9,7 @@ import com.pydio.android.cells.JobStatus
 import com.pydio.android.cells.db.nodes.RTransfer
 import com.pydio.android.cells.db.nodes.TransferDao
 import com.pydio.android.cells.services.CoroutineService
+import com.pydio.android.cells.services.ErrorService
 import com.pydio.android.cells.services.FileService
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.ErrorCodes
@@ -32,13 +33,13 @@ class CellsTransferListener(
 
     private val coroutineService: CoroutineService by inject()
     private val ioScope = coroutineService.cellsIoScope
-    private val ioDispatcher = coroutineService.ioDispatcher
     private val fileService: FileService by inject()
+    private val errorService: ErrorService by inject()
 
     private var alreadyTransferred = 0L
 
     override fun onStateChanged(id: Int, state: TransferState?) {
-        ioScope.launch(context = ioDispatcher) {
+        ioScope.launch {
             try {
                 val transferRecord = getTransferRecord()
                 when (state) {
@@ -116,6 +117,11 @@ class CellsTransferListener(
         }
 
         ioScope.launch {
+            msg?.let {
+                Log.e(logTag, "... About to append error: $it")
+                errorService.asyncAppendError(it)
+            }
+
             try {
                 val transferRecord = getTransferRecord()
                 transferRecord.status = JobStatus.ERROR.id

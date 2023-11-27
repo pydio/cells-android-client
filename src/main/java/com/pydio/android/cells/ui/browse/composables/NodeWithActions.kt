@@ -7,14 +7,11 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,7 +34,6 @@ import com.pydio.android.cells.ui.core.encodeStateSetForRoute
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.lazyStateIDs
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
-import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.share.models.ShareVM
 import com.pydio.android.cells.ui.share.screens.SelectFolderScreen
 import com.pydio.android.cells.utils.showMessage
@@ -110,27 +106,29 @@ private fun FolderWithDialogs(
         mutableStateOf(null)
     }
 
-    val errMsg = nodeActionsVM.errorMessage.collectAsState(null)
+    // The error service is rather observed at the Folder level
 
-    errMsg.value?.let {
-        LaunchedEffect(key1 = it) {
-            // TODO finalise this
-            val snackBarResult = snackBarHostState.showSnackbar(
-                message = toErrorMessage(context, it),
-                withDismissAction = false,
-                duration = SnackbarDuration.Short
-            )
-            when (snackBarResult) {
-                SnackbarResult.ActionPerformed -> {
-                    Log.e(LOG_TAG, "Action Performed for err: $it")
-                }
+//    val errMsg = nodeActionsVM.errorMessage.collectAsState(null)
 
-                else -> {
-                    Log.e(LOG_TAG, "Snack-bar dismissed for err: $it")
-                }
-            }
-        }
-    }
+//    errMsg.value?.let {
+//        LaunchedEffect(key1 = it) {
+//            // TODO finalise this
+//            val snackBarResult = snackBarHostState.showSnackbar(
+//                message = toErrorMessage(context, it),
+//                withDismissAction = false,
+//                duration = SnackbarDuration.Short
+//            )
+//            when (snackBarResult) {
+//                SnackbarResult.ActionPerformed -> {
+//                    Log.e(LOG_TAG, "Action Performed after error: $it")
+//                }
+//
+//                SnackbarResult.Dismissed -> {
+//                    Log.e(LOG_TAG, "Bar dismissed after error: $it")
+//                }
+//            }
+//        }
+//    }
 
     // This introduce a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
     val delayedDone: (Boolean) -> Unit = { done ->

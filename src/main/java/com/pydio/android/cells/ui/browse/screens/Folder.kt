@@ -27,10 +27,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -70,7 +72,9 @@ import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
+import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.TreeNodeItem
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -107,6 +111,24 @@ fun Folder(
     val setMoreMenuData: (NodeMoreMenuType, Set<StateID>) -> Unit = { t, ids ->
         Log.e(LOG_TAG, "set data for $t: $ids")
         nodeMoreMenuData.value = t to ids
+    }
+
+    val errMessage by folderVM.errorMessage.collectAsState(null)
+    var oldErr: ErrorMessage? = null
+    LaunchedEffect(key1 = errMessage?.defaultMessage) {
+        if (oldErr == errMessage) {
+            // do nothing
+        } else {
+            Log.e(LOG_TAG, "Received a new message...")
+            errMessage?.let {
+                snackBarHostState.showSnackbar(
+                    message = toErrorMessage(context, it),
+                    withDismissAction = false,
+                    duration = SnackbarDuration.Short
+                )
+            }
+            oldErr = errMessage
+        }
     }
 
     // Business States
@@ -400,11 +422,7 @@ private fun FolderList(
             else -> stringResource(R.string.parent_folder)
         }
 
-        Box(
-            Modifier
-//                 .fillMaxHeight(.8f)
-                .pullRefresh(state)
-        ) {
+        Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(

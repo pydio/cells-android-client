@@ -93,27 +93,39 @@ fun Download(
     val rTreeNode = downloadVM.treeNode.collectAsState()
 
     LaunchedEffect(key1 = rTransfer.value?.status) {
-        val status = rTransfer.value?.status
-        Log.d(LOG_TAG, "... New download status for $stateID: $status")
 
-        if (JobStatus.DONE.id == status) {
-            try {
-                delay(1200L)
-                downloadVM.viewFile(context, stateID, true)
-            } catch (se: SDKException) {
-                if (se.code == ErrorCodes.no_local_file) {
-                    Log.w(LOG_TAG, "... DL is over, but no local file has been found")
-                    // FIXME give more time to register new file
-                    delay(2000L)
-                    try {
-                        downloadVM.viewFile(context, stateID, true)
-                    } catch (e: Exception) {
-                        Log.e(LOG_TAG, "File has been downloaded but is not found")
-                        e.printStackTrace()
+        when (val status = rTransfer.value?.status) {
+            JobStatus.DONE.id -> {
+                try {
+                    // We add a delay > 1sec so that the progress bar get animated to 100%
+                    delay(1200L)
+                    downloadVM.viewFile(context, stateID, true)
+                } catch (se: SDKException) {
+                    if (se.code == ErrorCodes.no_local_file) {
+                        Log.w(LOG_TAG, "... DL is over, but no local file has been found")
+                        // FIXME give more time to register new file
+                        delay(2000L)
+                        try {
+                            downloadVM.viewFile(context, stateID, true)
+                        } catch (e: Exception) {
+                            Log.e(LOG_TAG, "File has been downloaded but is not found")
+                            e.printStackTrace()
+                        }
                     }
                 }
+                dismiss()
             }
-            dismiss()
+
+            JobStatus.ERROR.id -> {
+                delay(500L)
+                Log.w(LOG_TAG, "Job has errored, about to dismiss")
+
+                dismiss()
+            }
+
+            else -> {
+                Log.i(LOG_TAG, "... New DL status for transfer #$stateID: [$status]")
+            }
         }
     }
 

@@ -144,7 +144,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     ) {
         val reachable = isServerReachable()
         val currSkip = skipUpToDateCheck || !reachable
-        Log.e(
+        Log.i(
             logTag, "Launch view file, skip check: $currSkip," +
                     " loading: ${connectionService.liveConnectionState.value.loading}" +
                     " server reachable: $reachable}"
