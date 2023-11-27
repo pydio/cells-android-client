@@ -46,6 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Непредвиденная ошибка…</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Невозможно отобразить содержимое</string>
+    <string name="cannot_download_file">Не удается загрузить файл</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Добро пожаловать в Pydio!</string>
@@ -64,6 +68,11 @@
     <string name="about_page_get_help">Если это приложение работает некорректно, пожалуйста, отправьте нам письмо с полным описанием обнаруженной проблемы, чтобы мы могли вам помочь.</string>
     <string name="help_button_support">Связаться с поддержкой Pydio</string>
     <string name="open_website_button">Больше информации на pydio.com</string>
+    <!-- Network Management -->
+    <string name="no_internet">Нет подключения к интернету</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
+    <string name="metered_connection">On a metered connection</string>
+    <string name="roaming_connection">Using a roaming connection</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Зарегистрировать новый аккаунт</string>
     <string name="ask_url_desc">Пожалуйста, введите адрес сервера</string>
@@ -92,7 +101,9 @@
     <string name="account_list_desc">Управление зарегистрированными серверами</string>
     <string name="account_list_none">Аккаунты еще не настроены…</string>
     <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">No account, please configure at least a connection</string>
     <!-- Browse management -->
+    <string name="loading_message">Пожалуйста, дождитесь загрузки…</string>
     <string name="ws_list_subtitle">Выберите рабочую область для просмотра</string>
     <string name="browse_list_desc">Просмотр ваших серверов</string>
     <string name="browse_list_none">Пусто</string>
@@ -104,26 +115,31 @@
     <string name="last_check">Последняя проверка</string>
     <string name="last_check_never">никогда</string>
     <string name="appears_in_prefix">Inside %s</string>
-    <string name="loading_message">Пожалуйста, дождитесь загрузки…</string>
-    <string name="no_internet">Нет подключения к интернету</string>
-    <string name="captive_portal">Captive portal: sign in required</string>
-    <string name="metered_connection">On a metered connection</string>
-    <string name="roaming_connection">Using a roaming connection</string>
-    <string name="no_account">No account, please configure at least a connection</string>
-    <string name="server_unreachable">Cannot reach server</string>
-    <string name="empty_cache">Невозможно отобразить содержимое</string>
-    <string name="cannot_download_file">Не удается загрузить файл</string>
-    <string name="no_download_on_metered">Загрузки в сетях с учетом трафика ограничены, вы можете изменить это в настройках</string>
-    <string name="cannot_search_remote">Не удается выполнить поиск</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Search…</string>
+    <string name="search_hint">Enter a term to search your files!</string>
     <string name="no_result_for_search">Ничего не найдено для \"%s\"</string>
+    <string name="cannot_search_remote">Не удается выполнить поиск</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Синхронизация…</string>
+    <string name="sync_downloading">Загрузка файлов…</string>
+    <string name="sync_tree_walking">Обход дерева в поисках изменений</string>
+    <string name="sync_already_running">Процесс синхронизации уже запущен, пожалуйста, подождите перед запуском нового</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
+    <!-- Empty lists -->
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <string name="empty_folder">Эта папка пуста</string>
     <string name="empty_content_message">Здесь пока ничего нет</string>
     <string name="no_bookmark_for_account">Для этого аккаунта не задано ни одной закладки…</string>
     <string name="no_transfer_for_account">Нет недавних передач для отображения</string>
     <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">Нет папок помеченных как оффлайн для данного аккаунта…</string>
-    <string name="account_home_no_ws_title">No workspace to list</string>
-    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
+    <!-- Multi select -->
     <plurals name="selected_count">
         <item quantity="one">%d элемент выбран</item>
         <item quantity="few">%d items selected</item>
@@ -136,16 +152,6 @@
     <string name="in_progress_renaming">Переименование…</string>
     <string name="in_progress_moving">Перемещение…</string>
     <string name="in_progress_restoring">Восстановление…</string>
-    <!-- Search -->
-    <string name="search_label">Search…</string>
-    <string name="search_hint">Enter a term to search your files!</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Синхронизация…</string>
-    <string name="sync_downloading">Загрузка файлов…</string>
-    <string name="sync_tree_walking">Обход дерева в поисках изменений</string>
-    <string name="sync_already_running">Процесс синхронизации уже запущен, пожалуйста, подождите перед запуском нового</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Фоновые процессы</string>
     <string name="job_list_empty_message">There is no job to show</string>

@@ -46,6 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Erreur inconnue…</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Impossible de lister le contenu du dossier</string>
+    <string name="cannot_download_file">Impossible de télécharger le fichier</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Bienvenue chez Pydio!</string>
@@ -64,6 +68,11 @@
     <string name="about_page_get_help">Si vous n\'arrivez pas à faire fonctionner cette application correctement, veuillez envoyer un courriel avec une description complète du problème que vous rencontrez afin que nous puissions vous aider.</string>
     <string name="help_button_support">Contacter l’assistance Pydio</string>
     <string name="open_website_button">Plus d\'infos sur pydio.com</string>
+    <!-- Network Management -->
+    <string name="no_internet">Aucune connexion internet</string>
+    <string name="captive_portal">Portail captif: connexion requise</string>
+    <string name="metered_connection">Connecté à un réseau limité</string>
+    <string name="roaming_connection">Connecté en itinérance</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Enregistrer un nouveau compte</string>
     <string name="ask_url_desc">Veuillez saisir l\'adresse du serveur</string>
@@ -92,7 +101,9 @@
     <string name="account_list_desc">Gérer les serveurs distants déjà enregistrés</string>
     <string name="account_list_none">Aucun compte n\'a encore été configuré…</string>
     <string name="account_confirm_deletion_desc">Voulez-vous vraiment supprimer ce compte %s ?</string>
+    <string name="no_account">Aucun compte, veuillez en configurer au moins un !</string>
     <!-- Browse management -->
+    <string name="loading_message">Veuillez patienter pendant le chargement…</string>
     <string name="ws_list_subtitle">Choisir un workspace à parcourir</string>
     <string name="browse_list_desc">Parcourir les serveurs distants</string>
     <string name="browse_list_none">Vide</string>
@@ -104,26 +115,31 @@
     <string name="last_check">Dernière vérif.</string>
     <string name="last_check_never">jamais</string>
     <string name="appears_in_prefix">Dans %s</string>
-    <string name="loading_message">Veuillez patienter pendant le chargement…</string>
-    <string name="no_internet">Aucune connexion internet</string>
-    <string name="captive_portal">Portail captif: connexion requise</string>
-    <string name="metered_connection">Connecté à un réseau limité</string>
-    <string name="roaming_connection">Connecté en itinérance</string>
-    <string name="no_account">Aucun compte, veuillez en configurer au moins un !</string>
-    <string name="server_unreachable">Impossible de se connecter au serveur</string>
-    <string name="empty_cache">Impossible de lister le contenu du dossier</string>
-    <string name="cannot_download_file">Impossible de télécharger le fichier</string>
-    <string name="no_download_on_metered">Les téléchargements sur les réseaux limités sont bridés, vous pouvez modifier cela dans les préférences de l\'application</string>
-    <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Rechercher…</string>
+    <string name="search_hint">Entrez un terme pour lancer la recherche !</string>
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
+    <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">En cours de synchronisation…</string>
+    <string name="sync_downloading">Téléchargement des fichiers…</string>
+    <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements</string>
+    <string name="sync_already_running">Une synchronisation est déjà en cours. Veuillez patienter avant d\'en lancer une nouvelle</string>
+    <string name="confirm_remove_offline_title">Confirmer votre choix</string>
+    <string name="confirm_remove_offline_desc">La suppression du statut hors ligne de ce nœud peut conduire à la perte des données téléchargées. Êtes-vous sûr de vouloir continuer</string>
+    <!-- Empty lists -->
+    <string name="account_home_no_ws_title">Aucun workspace à lister</string>
+    <string name="account_home_no_ws_desc">Soit le serveur est inaccessible, soit vous avez perdu vos autorisations. Dans ce cas, prenez contact avec l\'administrateur du site.</string>
     <string name="empty_folder">Ce dossier est vide</string>
     <string name="empty_content_message">Aucun contenu n\'est disponible actuellement</string>
     <string name="no_bookmark_for_account">Aucun favori n\'a été défini pour ce compte…</string>
     <string name="no_transfer_for_account">Aucun transfert récent à afficher</string>
     <string name="no_transfer_with_filter">Aucun transfert ayant un statut \"%s\"</string>
     <string name="no_offline_root_for_account">Aucun dossier n\'a été tagué pour être maintenu hors ligne pour ce compte…</string>
-    <string name="account_home_no_ws_title">Aucun workspace à lister</string>
-    <string name="account_home_no_ws_desc">Soit le serveur est inaccessible, soit vous avez perdu vos autorisations. Dans ce cas, prenez contact avec l\'administrateur du site.</string>
+    <!-- Multi select -->
     <plurals name="selected_count">
         <item quantity="one">%d élément sélectionné</item>
         <item quantity="other">%d éléments sélectionnés</item>
@@ -134,16 +150,6 @@
     <string name="in_progress_renaming">Renommage en cours…</string>
     <string name="in_progress_moving">Déplacement en cours…</string>
     <string name="in_progress_restoring">Restauration en cours…</string>
-    <!-- Search -->
-    <string name="search_label">Rechercher…</string>
-    <string name="search_hint">Entrez un terme pour lancer la recherche !</string>
-    <!--Offline -->
-    <string name="sync_in_progress">En cours de synchronisation…</string>
-    <string name="sync_downloading">Téléchargement des fichiers…</string>
-    <string name="sync_tree_walking">Parcours de l\'arbre pour trouver des changements</string>
-    <string name="sync_already_running">Une synchronisation est déjà en cours. Veuillez patienter avant d\'en lancer une nouvelle</string>
-    <string name="confirm_remove_offline_title">Confirmer votre choix</string>
-    <string name="confirm_remove_offline_desc">La suppression du statut hors ligne de ce nœud peut conduire à la perte des données téléchargées. Êtes-vous sûr de vouloir continuer</string>
     <!-- Job Management -->
     <string name="job_list_title">Tâches de fond</string>
     <string name="job_list_empty_message">Aucune tâche de fond à afficher</string>

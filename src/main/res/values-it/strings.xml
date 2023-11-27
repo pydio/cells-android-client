@@ -46,6 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Unexpected error…</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Cannot list folder content</string>
+    <string name="cannot_download_file">Cannot download file</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Welcome in Pydio!</string>
@@ -64,6 +68,11 @@
     <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
     <string name="help_button_support">Contact Pydio Support</string>
     <string name="open_website_button">More info on pydio.com</string>
+    <!-- Network Management -->
+    <string name="no_internet">No internet connection</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
+    <string name="metered_connection">On a metered connection</string>
+    <string name="roaming_connection">Using a roaming connection</string>
     <!-- Authentication process  -->
     <string name="ask_url_title">Register a new account</string>
     <string name="ask_url_desc">Please, enter your server address</string>
@@ -92,7 +101,9 @@
     <string name="account_list_desc">Manage already registered remote servers</string>
     <string name="account_list_none">No account has been configured yet…</string>
     <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">No account, please configure at least a connection</string>
     <!-- Browse management -->
+    <string name="loading_message">Please wait while loading content…</string>
     <string name="ws_list_subtitle">Choose a workspace to browse</string>
     <string name="browse_list_desc">Browse your remote servers</string>
     <string name="browse_list_none">Empty</string>
@@ -104,26 +115,31 @@
     <string name="last_check">Last check</string>
     <string name="last_check_never">never</string>
     <string name="appears_in_prefix">Inside %s</string>
-    <string name="loading_message">Please wait while loading content…</string>
-    <string name="no_internet">No internet connection</string>
-    <string name="captive_portal">Captive portal: sign in required</string>
-    <string name="metered_connection">On a metered connection</string>
-    <string name="roaming_connection">Using a roaming connection</string>
-    <string name="no_account">No account, please configure at least a connection</string>
-    <string name="server_unreachable">Cannot reach server</string>
-    <string name="empty_cache">Cannot list folder content</string>
-    <string name="cannot_download_file">Cannot download file</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted, you can change this in app preferences</string>
-    <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Search…</string>
+    <string name="search_hint">Enter a term to search your files!</string>
     <string name="no_result_for_search">No result found for \"%s\"</string>
+    <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_downloading">Downloading files…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes</string>
+    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
+    <!-- Empty lists -->
+    <string name="account_home_no_ws_title">No workspace to list</string>
+    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
     <string name="empty_folder">This folder is empty</string>
     <string name="empty_content_message">No content here yet</string>
     <string name="no_bookmark_for_account">No bookmark has been defined for this account…</string>
     <string name="no_transfer_for_account">There is no recent transfer to show</string>
     <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
-    <string name="account_home_no_ws_title">No workspace to list</string>
-    <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
+    <!-- Multi select -->
     <plurals name="selected_count">
         <item quantity="one">%d item selected</item>
         <item quantity="other">%d items selected</item>
@@ -134,16 +150,6 @@
     <string name="in_progress_renaming">Renaming…</string>
     <string name="in_progress_moving">Moving…</string>
     <string name="in_progress_restoring">Restoring…</string>
-    <!-- Search -->
-    <string name="search_label">Search…</string>
-    <string name="search_hint">Enter a term to search your files!</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Synchronising…</string>
-    <string name="sync_downloading">Downloading files…</string>
-    <string name="sync_tree_walking">Walking the tree to look for changes</string>
-    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Job Management -->
     <string name="job_list_title">Background jobs</string>
     <string name="job_list_empty_message">There is no job to show</string>
