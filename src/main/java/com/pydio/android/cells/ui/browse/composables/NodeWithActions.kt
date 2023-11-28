@@ -119,49 +119,29 @@ fun WrapWithActions(
         }
     }
 
-    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        if (stateIDs.size < 2) {
-            Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
-            Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
-        } else when (action) {
-
-            is NodeAction.CopyTo -> {
-                currentAction.value = AppNames.ACTION_COPY
-                val suffix = encodeStateForRoute(stateIDs.first().parent())
-                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            is NodeAction.MoveTo -> {
-                currentAction.value = AppNames.ACTION_MOVE
-                val suffix = encodeStateForRoute(stateIDs.first().parent())
-                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            // TODO still not working
-            is NodeAction.DownloadMultipleToDevice -> {
-                val suffix = encodeStateSetForRoute(stateIDs)
-                val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
-                nodeActionsVM.delete(stateIDs)
-                delayedDone(true)
-            }
-
-            is NodeAction.RestoreFromTrash -> {
-                nodeActionsVM.restoreFromTrash(stateIDs)
-                delayedDone(true)
-            }
-
-            is NodeAction.UnSelectAll -> {
-                delayedDone(true)
+    val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
+        Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
+        when (action) {
+            AppNames.ACTION_CANCEL -> {
+                closeDialog(false, false)
+                currentAction.value = null
             }
 
             else -> {
-                Log.e(LOG_TAG, "unexpected action: $action")
+                scope.launch {
+                    for (currID in subjectIDs) {
+                        when (currentAction.value) {
+                            AppNames.ACTION_MOVE -> {
+                                nodeActionsVM.moveTo(currID, targetStateID)
+                            }
+
+                            AppNames.ACTION_COPY -> {
+                                nodeActionsVM.copyTo(currID, targetStateID)
+                            }
+                        }
+                    }
+                }
+                closeDialog(true, true)
             }
         }
     }
@@ -261,29 +241,57 @@ fun WrapWithActions(
         }
     }
 
-    val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
-        Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
+    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+//        if (stateIDs.size < 2) {
+//            Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
+//            Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
+//        } else
         when (action) {
-            AppNames.ACTION_CANCEL -> {
-                closeDialog(false, false)
-                currentAction.value = null
+
+            is NodeAction.CopyTo -> {
+                currentAction.value = AppNames.ACTION_COPY
+                val suffix = encodeStateForRoute(stateIDs.first().parent())
+                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            is NodeAction.MoveTo -> {
+                currentAction.value = AppNames.ACTION_MOVE
+                val suffix = encodeStateForRoute(stateIDs.first().parent())
+                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            // TODO still not working
+            is NodeAction.DownloadMultipleToDevice -> {
+                val suffix = encodeStateSetForRoute(stateIDs)
+                val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
+                nodeActionsVM.delete(stateIDs)
+                delayedDone(true)
+            }
+
+            is NodeAction.RestoreFromTrash -> {
+                nodeActionsVM.restoreFromTrash(stateIDs)
+                delayedDone(true)
+            }
+
+            is NodeAction.UnSelectAll -> {
+                delayedDone(true)
+            }
+
+            is NodeAction.ToggleBookmark -> {
+                for (stateID in stateIDs) {
+                    nodeActionsVM.removeBookmark(stateID)
+                }
+                delayedDone(true)
             }
 
             else -> {
-                scope.launch {
-                    for (currID in subjectIDs) {
-                        when (currentAction.value) {
-                            AppNames.ACTION_MOVE -> {
-                                nodeActionsVM.moveTo(currID, targetStateID)
-                            }
-
-                            AppNames.ACTION_COPY -> {
-                                nodeActionsVM.copyTo(currID, targetStateID)
-                            }
-                        }
-                    }
-                }
-                closeDialog(true, true)
+                Log.e(LOG_TAG, "unexpected action: $action")
             }
         }
     }

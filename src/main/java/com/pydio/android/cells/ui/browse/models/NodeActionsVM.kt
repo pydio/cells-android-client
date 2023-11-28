@@ -267,6 +267,18 @@ class NodeActionsVM(
         }
     }
 
+    fun removeBookmark(stateID: StateID) {
+        coroutineService.cellsIoScope.launch {
+            try {
+                nodeService.toggleBookmark(stateID, false)
+            } catch (e: Exception) {
+                Log.e(logTag, "Cannot delete bookmark for $stateID, cause:  ${e.message}")
+                e.printStackTrace()
+                done(e)
+            }
+        }
+    }
+
     suspend fun getShareLink(stateID: StateID): String? {
         return nodeService.getNode(stateID)?.getShareAddress()
     }

@@ -15,7 +15,7 @@ import com.pydio.cells.transport.StateID
 
 open class BrowseHelper(
     private val navController: NavHostController,
-    private val browseVM: AbstractCellsVM,
+    private val cellsVM: AbstractCellsVM,
 ) {
     private val logTag = "BrowseHelper"
 
@@ -24,10 +24,9 @@ open class BrowseHelper(
     val offline = ListContext.OFFLINE.id
 
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
-
         Log.i(
             logTag, "... Calling open for $stateID\n" +
-                    "    Loading state: ${browseVM.connectionState.value}\n" +
+                    "    Loading state: ${cellsVM.connectionState.value}\n" +
                     "    Context: $callingContext"
         )
         // TODO remove
@@ -58,7 +57,7 @@ open class BrowseHelper(
         } else {
             val route: String
             if (!stateID.slug.isNullOrEmpty()) {
-                val item = browseVM.getNode(stateID) ?: run {
+                val item = cellsVM.getNode(stateID) ?: run {
                     // We cannot navigate to an unknown node item
                     Log.e(logTag, "No TreeNode found for $stateID in local repo, aborting")
                     return
@@ -69,13 +68,13 @@ open class BrowseHelper(
                     // TODO (since v2) Open carousel for bookmark, offline and search result nodes
                     BrowseDestinations.OpenCarousel.createRoute(stateID)
                 } else {
-                    val isReachable = browseVM.isServerReachable()
+                    val isReachable = cellsVM.isServerReachable()
                     try {
-                        browseVM.viewFile(context, stateID, !isReachable)
+                        cellsVM.viewFile(context, stateID, !isReachable)
                     } catch (e: SDKException) {
                         if (e.code == ErrorCodes.no_local_file || e.code == ErrorCodes.outdated_local_file) {
                             if (!isReachable) {
-                                browseVM.showError(
+                                cellsVM.showError(
                                     ErrorMessage(
                                         "Cannot get un-cached file ${stateID.fileName}, server is unreachable",
                                         -1,

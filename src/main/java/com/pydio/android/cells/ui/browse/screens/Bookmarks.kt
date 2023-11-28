@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
@@ -53,18 +50,15 @@ import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.BrowseHelper
 import com.pydio.android.cells.ui.browse.composables.BookmarkListItem
 import com.pydio.android.cells.ui.browse.composables.NodeAction
-import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuData
 import com.pydio.android.cells.ui.browse.composables.NodeMoreMenuType
-import com.pydio.android.cells.ui.browse.composables.NodesMoreMenuData
+import com.pydio.android.cells.ui.browse.composables.WrapWithActions
 import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
-import com.pydio.android.cells.ui.core.actionRoute
 import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
 import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackground
-import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
 import com.pydio.android.cells.ui.models.ErrorMessage
@@ -87,14 +81,21 @@ fun Bookmarks(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
     val connectionState by bookmarksVM.connectionState.collectAsState()
+    val listLayout by bookmarksVM.layout.collectAsState(ListLayout.LIST)
+    val snackBarHostState = remember { SnackbarHostState() }
     val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
         mutableStateOf(setOf())
     }
-    val snackBarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
+        mutableStateOf(NodeMoreMenuType.NONE to setOf())
+    }
+    val setMoreMenuData: (NodeMoreMenuType, Set<StateID>) -> Unit = { t, ids ->
+        nodeMoreMenuData.value = t to ids
+    }
 
+    // Business Objects
     val bookmarks = bookmarksVM.bookmarks.collectAsState(listOf())
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)
@@ -138,22 +139,19 @@ fun Bookmarks(
         }
     }
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
-        mutableStateOf(NodeMoreMenuType.NONE to setOf())
-    }
-
     val openMoreMenu: (NodeMoreMenuType, Set<StateID>) -> Unit = { type, stateIDs ->
         scope.launch {
-            nodeMoreMenuData.value = type to stateIDs
+            setMoreMenuData(type, stateIDs)
             sheetState.expand()
         }
     }
 
-    val moreMenuDone: () -> Unit = {
+    val moreMenuDone: (Boolean) -> Unit = {
         scope.launch {
             sheetState.hide()
-            nodeMoreMenuData.value = NodeMoreMenuType.BOOKMARK to setOf()
+        }
+        if (it) {
+            setMoreMenuData(NodeMoreMenuType.NONE, setOf())
             multiSelectData.value = setOf()
         }
     }
@@ -167,105 +165,137 @@ fun Bookmarks(
                     bookmarksVM.download(currSet.first(), uri)
                 }
             }
-            moreMenuDone()
+            moreMenuDone(true)
         }
     )
 
-    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        when (action) {
-            is NodeAction.ToggleBookmark -> {
-                for (stateID in stateIDs) {
-                    bookmarksVM.removeBookmark(stateID)
-                }
-                moreMenuDone()
-            }
+//    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+//        when (action) {
+//            is NodeAction.ToggleBookmark -> {
+//                for (stateID in stateIDs) {
+//                    bookmarksVM.removeBookmark(stateID)
+//                }
+//                moreMenuDone(true)
+//            }
+//
+//            is NodeAction.UnSelectAll -> {
+//                moreMenuDone(true)
+//            }
+//
+//            else -> {
+//                Log.e(LOG_TAG, "unexpected action: $action")
+//            }
+//        }
+//    }
+//
+//    val launchMono: (NodeAction, StateID) -> Unit = { action, stateID ->
+//        when (action) {
+//            is NodeAction.OpenInApp -> {
+//                scope.launch {
+//                    bookmarksVM.getNode(stateID)?.let {
+//                        if (it.isFolder()) {
+//                            browseHelper.open(context, stateID, browseHelper.bookmarks)
+//                        } else {
+//                            browseHelper.open(context, stateID.parent(), browseHelper.bookmarks)
+//                        }
+//                    }
+//                }
+//                moreMenuDone(true)
+//            }
+//
+//            is NodeAction.ConfirmDownloadOnMetered -> {
+//                browseHelper.navigate(actionRoute(NodeAction.ConfirmDownloadOnMetered, stateID))
+//            }
+//
+//            is NodeAction.DownloadToDevice -> {
+//                destinationPicker.launch(stateID.fileName)
+//                // Done is called by the destination picker callback
+//            }
+//
+//            is NodeAction.ToggleBookmark -> {
+//                bookmarksVM.removeBookmark(stateID)
+//                moreMenuDone(true)
+//            }
+//
+//            is NodeAction.AsGrid -> {
+//                bookmarksVM.setListLayout(ListLayout.GRID)
+//            }
+//
+//            is NodeAction.AsList -> {
+//                bookmarksVM.setListLayout(ListLayout.LIST)
+//            }
+//
+//            is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
+//                moreMenuDone(true)
+//            }
+//
+//            else -> {
+//                Log.e(LOG_TAG, "Unknown action $action for $stateID")
+//                moreMenuDone(true)
+//            }
+//        }
+//    }
+//
+//    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+//        if (stateIDs.size == 1) {
+//            launchMono(action, stateIDs.first())
+//        } else {
+//            launchMulti(action, stateIDs)
+//        }
+//    }
 
-            is NodeAction.UnSelectAll -> {
-                moreMenuDone()
-            }
-
-            else -> {
-                Log.e(LOG_TAG, "unexpected action: $action")
-            }
-        }
-    }
-
-    val launchMono: (NodeAction, StateID) -> Unit = { action, stateID ->
-        when (action) {
-            is NodeAction.OpenInApp -> {
-                scope.launch {
-                    bookmarksVM.getNode(stateID)?.let {
-                        if (it.isFolder()) {
-                            browseHelper.open(context, stateID, browseHelper.bookmarks)
-                        } else {
-                            browseHelper.open(context, stateID.parent(), browseHelper.bookmarks)
-                        }
-                    }
-                }
-                moreMenuDone()
-            }
-
-            is NodeAction.ConfirmDownloadOnMetered -> {
-                browseHelper.navigate(actionRoute(NodeAction.ConfirmDownloadOnMetered, stateID))
-            }
-
-            is NodeAction.DownloadToDevice -> {
-                destinationPicker.launch(stateID.fileName)
-                // Done is called by the destination picker callback
-            }
-
-            is NodeAction.ToggleBookmark -> {
-                bookmarksVM.removeBookmark(stateID)
-                moreMenuDone()
-            }
-
+    val launch: (NodeAction) -> Unit = {
+        when (it) {
             is NodeAction.AsGrid -> {
                 bookmarksVM.setListLayout(ListLayout.GRID)
+                moreMenuDone(true)
+
             }
 
             is NodeAction.AsList -> {
                 bookmarksVM.setListLayout(ListLayout.LIST)
-            }
-
-            is NodeAction.SortBy -> { // The real set has already been done by the bottom sheet via its preferencesVM
-                moreMenuDone()
+                moreMenuDone(true)
             }
 
             else -> {
-                Log.e(LOG_TAG, "Unknown action $action for $stateID")
-                moreMenuDone()
+                Log.e(LOG_TAG, "########### Unknown action: ${it.id}")
+                moreMenuDone(true)
             }
         }
     }
 
-    val launch: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        if (stateIDs.size == 1) {
-            launchMono(action, stateIDs.first())
-        } else {
-            launchMulti(action, stateIDs)
-        }
-    }
-
-    BookmarkScaffold(
+    WrapWithActions(
+        actionDone = { done, _ -> moreMenuDone(done) },
         isExpandedScreen = isExpandedScreen,
         connectionState = connectionState,
-        listLayout = listLayout,
-        title = stringResource(id = R.string.action_open_bookmarks),
-        bookmarks = bookmarks.value,
-        openDrawer = openDrawer,
-        forceRefresh = forceRefresh,
-        onTap = itemTapped,
-        launch = launch,
-        moreMenuState = SetMoreMenuState(
-            sheetState = sheetState,
-            type = nodeMoreMenuData.value.first,
-            stateIDs = nodeMoreMenuData.value.second,
-            openMoreMenu = openMoreMenu,
-            cancelSelection = { multiSelectData.value = setOf() }
-        ),
-        selectedItems = multiSelectData.value,
-        snackBarHostState = snackBarHostState
-    )
+        type = if (nodeMoreMenuData.value.first == NodeMoreMenuType.NONE)
+            NodeMoreMenuType.BOOKMARK else nodeMoreMenuData.value.first,
+        subjectIDs = nodeMoreMenuData.value.second,
+        sheetState = sheetState,
+        snackBarHostState = snackBarHostState,
+    ) {
+
+        BookmarkScaffold(
+            isExpandedScreen = isExpandedScreen,
+            connectionState = connectionState,
+            listLayout = listLayout,
+            label = stringResource(id = R.string.action_open_bookmarks),
+            bookmarks = bookmarks.value,
+            forceRefresh = forceRefresh,
+            openDrawer = openDrawer,
+            onTap = itemTapped,
+            launch = launch,
+            moreMenuState = SetMoreMenuState(
+                sheetState = sheetState,
+                type = nodeMoreMenuData.value.first,
+                stateIDs = nodeMoreMenuData.value.second,
+                openMoreMenu = openMoreMenu,
+                cancelSelection = { multiSelectData.value = setOf() }
+            ),
+            selectedItems = multiSelectData.value,
+            snackBarHostState = snackBarHostState
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -274,12 +304,13 @@ private fun BookmarkScaffold(
     isExpandedScreen: Boolean,
     connectionState: ConnectionState,
     listLayout: ListLayout,
-    title: String,
+    label: String,
     bookmarks: List<MultipleItem>,
     openDrawer: () -> Unit,
+    openSearch: (() -> Unit)? = null,
     forceRefresh: () -> Unit,
     onTap: (StateID, Boolean) -> Unit,
-    launch: (NodeAction, Set<StateID>) -> Unit,
+    launch: (NodeAction) -> Unit,
     moreMenuState: SetMoreMenuState,
     selectedItems: Set<StateID>,
     snackBarHostState: SnackbarHostState,
@@ -295,30 +326,30 @@ private fun BookmarkScaffold(
     val actionMenuContent: @Composable ColumnScope.() -> Unit = {
 
         if (listLayout == ListLayout.GRID) {
-            val label = stringResource(R.string.button_switch_to_list_layout)
+            val btnLabel = stringResource(R.string.button_switch_to_list_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(btnLabel) },
                 onClick = {
-                    launch(NodeAction.AsList, setOf(StateID.NONE))
+                    launch(NodeAction.AsList)
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsList, label) },
+                leadingIcon = { Icon(CellsIcons.AsList, btnLabel) },
             )
         } else {
-            val label = stringResource(R.string.button_switch_to_grid_layout)
+            val btnLabel = stringResource(R.string.button_switch_to_grid_layout)
             DropdownMenuItem(
-                text = { Text(label) },
+                text = { Text(btnLabel) },
                 onClick = {
-                    launch(NodeAction.AsGrid, setOf(StateID.NONE))
+                    launch(NodeAction.AsGrid)
                     showMenu(false)
                 },
-                leadingIcon = { Icon(CellsIcons.AsGrid, label) },
+                leadingIcon = { Icon(CellsIcons.AsGrid, btnLabel) },
             )
         }
 
-        val label = stringResource(R.string.button_open_sort_by)
+        val btnLabel = stringResource(R.string.button_open_sort_by)
         DropdownMenuItem(
-            text = { Text(label) },
+            text = { Text(btnLabel) },
             onClick = {
                 moreMenuState.openMoreMenu(
                     NodeMoreMenuType.SORT_BY,
@@ -326,7 +357,7 @@ private fun BookmarkScaffold(
                 )
                 showMenu(false)
             },
-            leadingIcon = { Icon(CellsIcons.SortBy, label) },
+            leadingIcon = { Icon(CellsIcons.SortBy, btnLabel) },
         )
     }
 
@@ -348,9 +379,10 @@ private fun BookmarkScaffold(
                 )
             } else {
                 TopBarWithMoreMenu(
-                    title = title,
                     isExpandedScreen = isExpandedScreen,
+                    title = label,
                     openDrawer = openDrawer,
+                    openSearch = openSearch,
                     isActionMenuShown = isShown,
                     showMenu = showMenu,
                     content = actionMenuContent
@@ -359,41 +391,41 @@ private fun BookmarkScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
-        CellsModalBottomSheetLayout(
-            isExpandedScreen = isExpandedScreen,
-            sheetContent = {
-                if (moreMenuState.stateIDs.size == 1) {
-                    NodeMoreMenuData(
-                        connectionState = connectionState,
-                        type = moreMenuState.type,
-                        subjectID = moreMenuState.stateIDs.first(),
-                        launch = { a, s -> launch(a, setOf(s)) },
-                    )
-                } else if (moreMenuState.stateIDs.size > 1) {
-                    NodesMoreMenuData(
-                        connectionState = connectionState,
-                        type = NodeMoreMenuType.BOOKMARK,
-                        subjectIDs = moreMenuState.stateIDs,
-                        launch = launch,
-                    )
-                } else {
-                    Spacer(modifier = Modifier.height(1.dp))
-                }
-            },
-            sheetState = moreMenuState.sheetState,
-        ) {
-            BookmarkList(
-                connectionState = connectionState,
-                listLayout = listLayout,
-                isSelectionMode = selectedItems.isNotEmpty(),
-                bookmarks = bookmarks,
-                selectedItems = selectedItems,
-                forceRefresh = forceRefresh,
-                openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, setOf(it)) },
-                onTap = onTap,
-                padding = padding,
-            )
-        }
+//        CellsModalBottomSheetLayout(
+//            isExpandedScreen = isExpandedScreen,
+//            sheetContent = {
+//                if (moreMenuState.stateIDs.size == 1) {
+//                    NodeMoreMenuData(
+//                        connectionState = connectionState,
+//                        type = moreMenuState.type,
+//                        subjectID = moreMenuState.stateIDs.first(),
+//                        launch = { a, s -> launch(a, setOf(s)) },
+//                    )
+//                } else if (moreMenuState.stateIDs.size > 1) {
+//                    NodesMoreMenuData(
+//                        connectionState = connectionState,
+//                        type = NodeMoreMenuType.BOOKMARK,
+//                        subjectIDs = moreMenuState.stateIDs,
+//                        launch = launch,
+//                    )
+//                } else {
+//                    Spacer(modifier = Modifier.height(1.dp))
+//                }
+//            },
+//            sheetState = moreMenuState.sheetState,
+//        ) {
+        BookmarkList(
+            connectionState = connectionState,
+            listLayout = listLayout,
+            isSelectionMode = selectedItems.isNotEmpty(),
+            bookmarks = bookmarks,
+            selectedItems = selectedItems,
+            forceRefresh = forceRefresh,
+            openMoreMenu = { moreMenuState.openMoreMenu(NodeMoreMenuType.BOOKMARK, setOf(it)) },
+            onTap = onTap,
+            padding = padding,
+        )
+//        }
     }
 }
 
@@ -423,22 +455,17 @@ private fun BookmarkList(
         isEmpty = bookmarks.isEmpty(),
         listContext = ListContext.BOOKMARKS,
         emptyRefreshableDesc = stringResource(R.string.no_bookmark_for_account),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.padding(padding)
     ) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .pullRefresh(state)
-        ) {
-
+        Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
-                        top = padding.calculateTopPadding().plus(dimensionResource(R.dimen.margin)),
+                        top = dimensionResource(R.dimen.margin_medium),
                         bottom = padding.calculateBottomPadding()
                             .plus(dimensionResource(R.dimen.margin)),
-                        start = dimensionResource(id = R.dimen.margin_medium),
-                        end = dimensionResource(id = R.dimen.margin_medium),
+                        start = dimensionResource(R.dimen.margin_medium),
+                        end = dimensionResource(R.dimen.margin_medium),
                     )
 
                     LazyVerticalGrid(
@@ -471,7 +498,8 @@ private fun BookmarkList(
 
                 else -> {
                     LazyColumn(
-                        contentPadding = padding,
+                        contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.list_bottom_fab_padding)),
+//                        contentPadding = padding,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(bookmarks, key = { it.uuid }) { node ->
