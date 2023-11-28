@@ -33,6 +33,7 @@ import com.pydio.android.cells.ui.core.composables.menus.SimpleMenuItem
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 
 //private const val logTag = "SingleNodeMenu"
 
@@ -71,31 +72,30 @@ fun SingleNodeMenu(
         )
 
         if (!nodeItem.isFolder && (connectionState.serverConnection.isConnected() || nodeItem.isCached)) {
-// TODO apply limit on metered network
-            //            BottomSheetListItem(
-//                icon = CellsIcons.DownloadToDevice,
-//                title = stringResource(R.string.download_to_device),
-//                onItemClick = {
-//                    scope.launch {
-//                        if (nodeItem.isCached) {
-//                            launch(NodeAction.DownloadToDevice)
-//                        } else if (treeNodeVM.mustConfirmDL(
-//                                stateID,
-//                                connectionState.serverConnection
-//                            )
-//                        ) {
-//                            launch(NodeAction.ConfirmDownloadOnMetered)
-//                        } else {
-//                            launch(NodeAction.DownloadToDevice)
-//                        }
-//                    }
-//                },
-//            )
             BottomSheetListItem(
                 icon = CellsIcons.DownloadToDevice,
                 title = stringResource(R.string.download_to_device),
-                onItemClick = { launch(NodeAction.DownloadToDevice) },
+                onItemClick = {
+                    scope.launch {
+                        if (nodeItem.isCached) {
+                            launch(NodeAction.DownloadToDevice)
+                        } else if (treeNodeVM.mustConfirmDL(
+                                stateID,
+                                connectionState.serverConnection
+                            )
+                        ) {
+                            launch(NodeAction.ConfirmDownloadOnMetered)
+                        } else {
+                            launch(NodeAction.DownloadToDevice)
+                        }
+                    }
+                },
             )
+//            BottomSheetListItem(
+//                icon = CellsIcons.DownloadToDevice,
+//                title = stringResource(R.string.download_to_device),
+//                onItemClick = { launch(NodeAction.DownloadToDevice) },
+//            )
         }
 
         if (connectionState.serverConnection.isConnected()) {

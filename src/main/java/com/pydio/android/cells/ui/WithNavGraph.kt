@@ -2,10 +2,15 @@ package com.pydio.android.cells.ui
 
 import android.app.Activity
 import android.util.Log
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +20,7 @@ import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.account.AccountsScreen
 import com.pydio.android.cells.ui.browse.BrowseDestinations
 import com.pydio.android.cells.ui.browse.browseNavGraph
+import com.pydio.android.cells.ui.browse.composables.ConfirmDownloadOnLimitedConnection
 import com.pydio.android.cells.ui.browse.composables.Download
 import com.pydio.android.cells.ui.browse.screens.NoAccount
 import com.pydio.android.cells.ui.core.lazyQueryContext
@@ -167,17 +173,41 @@ fun CellsNavGraph(
         }
 
         dialog(CellsDestinations.Download.route) { entry ->
+            val stateID = lazyStateID(entry)
+            val canDL = remember {
+                mutableStateOf(false)
+            }
+            val mustConfirm = remember {
+                mutableStateOf(false)
+            }
             val downloadVM: DownloadVM =
-                koinViewModel(parameters = {
-                    parametersOf(
-                        browseRemoteVM.isLegacy,
-                        lazyStateID(entry)
-                    )
-                })
-            Download(
-                stateID = lazyStateID(entry),
-                downloadVM = downloadVM
-            ) { navController.popBackStack() }
+                koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID) })
+
+            LaunchedEffect(key1 = stateID) {
+                Log.i(logTag, "## First Composition for: download/${stateID}")
+                if (!downloadVM.mustConfirmDL(stateID)) {
+                    canDL.value = true
+                } else {
+                    mustConfirm.value = true
+                }
+            }
+
+            if (canDL.value) {
+                Download(
+                    stateID = stateID,
+                    downloadVM = downloadVM
+                ) { navController.popBackStack() }
+            } else if (mustConfirm.value) {
+                ConfirmDownloadOnLimitedConnection(stateID = stateID) {
+                    if (it) {
+                        canDL.value = true
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(1.dp))
+            }
         }
 
         composable(CellsDestinations.Home.route) {

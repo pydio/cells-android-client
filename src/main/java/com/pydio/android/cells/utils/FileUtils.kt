@@ -44,5 +44,5 @@ fun computeFileMd5(file: File): String {
 
 fun formatBytesToMB(bytes: Long): String {
     val sizeInMB = bytes / (1024.0 * 1024.0)
-    return String.format("%.1f MB", sizeInMB)
+    return String.format("%.1fMB", sizeInMB)
 }

@@ -335,7 +335,7 @@ fun TreeNodeRename(
 
 @Composable
 fun ConfirmDownloadOnLimitedConnection(
-    nodeActionsVM: NodeActionsVM,
+    nodeActionsVM: NodeActionsVM = koinViewModel(),
     stateID: StateID,
     dismiss: (Boolean) -> Unit,
 ) {
