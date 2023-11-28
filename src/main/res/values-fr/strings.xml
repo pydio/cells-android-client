@@ -46,10 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Erreur inconnue…</string>
-    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="server_unreachable">Le serveur est inaccessible</string>
     <string name="empty_cache">Impossible de lister le contenu du dossier</string>
     <string name="cannot_download_file">Impossible de télécharger le fichier</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
+    <string name="no_download_on_metered">Les téléchargements sur les réseaux mesurés sont limités,\nvous pouvez modifier cela dans les paramètres de l\'application</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Bienvenue chez Pydio!</string>
@@ -115,14 +115,14 @@
     <string name="last_check">Dernière vérif.</string>
     <string name="last_check_never">jamais</string>
     <string name="appears_in_prefix">Dans %s</string>
-    <string name="no_preview_for">Cannot preview %s</string>
-    <string name="unavailable_preview">Unavailable preview</string>
+    <string name="no_preview_for">Impossible de prévisualiser %s</string>
+    <string name="unavailable_preview">Aperçu indisponible</string>
     <!-- Search -->
     <string name="search_label">Rechercher…</string>
     <string name="search_hint">Entrez un terme pour lancer la recherche !</string>
     <string name="no_result_for_search">Aucun résultat trouvé pour \"%s\"</string>
     <string name="cannot_search_remote">Impossible d\'effectuer la recherche</string>
-    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <string name="search_is_local_only">Vous ne pouvez rechercher que parmi les nœuds déjà mis en cache</string>
     <!--Offline -->
     <string name="sync_in_progress">En cours de synchronisation…</string>
     <string name="sync_downloading">Téléchargement des fichiers…</string>
@@ -186,7 +186,7 @@
     <string name="post_migration_sync_message">Vous avez un ou plusieurs éléments marqués comme hors ligne et cette migration nécessite un retéléchargement complet. Voulez-vous procéder maintenant ? Vous pouvez l\'ignorer et effectuer la synchronisation plus tard.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choisir une action à appliquer aux éléments sélectionnés</string>
-    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
+    <string name="more_menu_no_action">Aucune action ne peut être effectuée lorsque le serveur est injoignable</string>
     <string name="deselect_all">Désélectionner tout</string>
     <string name="more_button_description">Afficher plus d\'actions pour cet élément</string>
     <string name="open_in_workspaces">Ouvrir l\'emplacement</string>
@@ -269,8 +269,8 @@
     <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Appliquer les limitations</string>
     <string name="pref_apply_metered_limits_desc">Attention : désactiver cette option desactive tous les garde-fous sur les réseaux limités/payants. Cela peut entrainer une explosion de l\'usage \"data\" et selon votre abonnement, générer des coûts supplémentaires</string>
-    <string name="pref_metered_show_warning_title">Show warning</string>
-    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
+    <string name="pref_metered_show_warning_title">Afficher une alerte</string>
+    <string name="pref_metered_show_warning_desc">Afficher une alerte supplémentaire sur la vue principale lorsque le réseau est mesuré</string>
     <string name="pref_metered_dl_thumbs_title">Télécharger les vignettes</string>
     <string name="pref_metered_dl_thumbs_desc">Récupérer également les vignettes lorsque le réseau est limité</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Demander confirmation avant de télécharger</string>

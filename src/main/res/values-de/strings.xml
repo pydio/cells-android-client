@@ -46,10 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">Unerwarteter Fehler…</string>
-    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="server_unreachable">Server ist nicht erreichbar</string>
     <string name="empty_cache">Ordnerinhalt kann nicht aufgelistet werden</string>
     <string name="cannot_download_file">Datei kann nicht heruntergeladen werden</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
+    <string name="no_download_on_metered">Downloads in gemessenen Netzwerken sind eingeschränkt,\nSie können dies in den App-Einstellungen ändern</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">Willkommen bei Pydio!</string>
@@ -115,14 +115,14 @@
     <string name="last_check">Zuletzt geprüft</string>
     <string name="last_check_never">nie</string>
     <string name="appears_in_prefix">Innerhalb %s</string>
-    <string name="no_preview_for">Cannot preview %s</string>
-    <string name="unavailable_preview">Unavailable preview</string>
+    <string name="no_preview_for">Vorschau für %s nicht möglich</string>
+    <string name="unavailable_preview">Nicht verfügbare Vorschau</string>
     <!-- Search -->
     <string name="search_label">Suchen…</string>
     <string name="search_hint">Geben Sie einen Begriff ein, um Ihre Dateien zu durchsuchen!</string>
     <string name="no_result_for_search">Kein Ergebnis für \"%s\" gefunden</string>
     <string name="cannot_search_remote">Suche nicht möglich</string>
-    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <string name="search_is_local_only">Sie können nur unter bereits zwischengespeicherten Knoten suchen</string>
     <!--Offline -->
     <string name="sync_in_progress">Synchronisierung…</string>
     <string name="sync_downloading">Dateien werden heruntergeladen…</string>
@@ -186,7 +186,7 @@
     <string name="post_migration_sync_message">Sie haben ein oder mehrere Elemente als offline markiert, diese Migration erfordert jetzt einen vollständigen Neu-Download. Möchten Sie fortfahren? Sie können es überspringen und später synchronisieren.</string>
     <!-- More menus -->
     <string name="open_more_menu">Wählen Sie eine Aktion, die auf die ausgewählten Elemente angewendet werden soll</string>
-    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
+    <string name="more_menu_no_action">Keine Aktion kann ausgeführt werden, wenn der Server nicht erreichbar ist</string>
     <string name="deselect_all">Alle abwählen</string>
     <string name="more_button_description">Weitere Aktionen für dieses Element anzeigen</string>
     <string name="open_in_workspaces">Speicherort öffnen</string>
@@ -269,8 +269,8 @@
     <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Beschränkungen anwenden</string>
     <string name="pref_apply_metered_limits_desc">Warnung: Deaktivieren überspringt alle Einschränkungen, wenn in einem gemessenen Netzwerk. Dies kann zu Kostenerhöhungen führen</string>
-    <string name="pref_metered_show_warning_title">Show warning</string>
-    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
+    <string name="pref_metered_show_warning_title">Warnung anzeigen</string>
+    <string name="pref_metered_show_warning_desc">Zeigt eine zusätzliche Warnung in der Hauptansicht an, wenn das Netzwerk bewegt wird</string>
     <string name="pref_metered_dl_thumbs_title">Daumen herunterladen</string>
     <string name="pref_metered_dl_thumbs_desc">Thumbnails auch im gemessenen Netzwerk abrufen</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Vor dem Herunterladen fragen</string>
