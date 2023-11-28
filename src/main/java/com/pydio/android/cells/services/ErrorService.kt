@@ -6,11 +6,10 @@ import com.pydio.android.cells.ui.models.fromException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
 /**
@@ -36,12 +35,18 @@ class ErrorService(
     // We rather use a shared flow to be able to see messages only once
     // otherwise, each view model will show latest error message when starting to listen
     // TODO always emit null in the errorMessages after a 5secs time out so that same error is displayed anew e.G if the user takes the same steps
-    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.onEach {
-        Log.e(logTag, "... Received error message: ${it.toString()}")
-    }.shareIn(
+//    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.onEach {
+//        Log.e(logTag, "... Received error message: ${it.toString()}")
+//    }.shareIn(
+//        scope = uiScope,
+//        started = SharingStarted.WhileSubscribed(30000),
+//        replay = 1
+//    )
+
+    val userMessages: StateFlow<ErrorMessage?> = _allMessages.stateIn(
         scope = uiScope,
-        started = SharingStarted.WhileSubscribed(30000),
-        replay = 1
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
     )
 
     fun appendError(errorMsg: ErrorMessage? = null) {
@@ -53,7 +58,7 @@ class ErrorService(
     }
 
     fun appendError(msg: String) {
-        Log.e(logTag, ".... append error $msg")
+        Log.e(logTag, ".... Append error $msg")
         _allMessages.value = ErrorMessage(msg, -1, listOf())
     }
 

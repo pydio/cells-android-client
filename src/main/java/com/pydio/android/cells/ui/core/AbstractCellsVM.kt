@@ -18,7 +18,6 @@ import com.pydio.android.cells.utils.externallyView
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +43,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     // private val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
-    val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
+    val errorMessage = errorService.userMessages
 
     fun errorReceived() {
         // Remove the message from the queue

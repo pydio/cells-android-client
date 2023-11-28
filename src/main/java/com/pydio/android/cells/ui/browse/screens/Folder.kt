@@ -113,7 +113,7 @@ fun Folder(
         nodeMoreMenuData.value = t to ids
     }
 
-    val errMessage by folderVM.errorMessage.collectAsState(null)
+    val errMessage by folderVM.errorMessage.collectAsState()
     var oldErr: ErrorMessage? = null
     LaunchedEffect(key1 = errMessage?.defaultMessage) {
         if (oldErr == errMessage) {

@@ -26,8 +26,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,7 +66,9 @@ import com.pydio.android.cells.ui.core.composables.lists.WithLoadingListBackgrou
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetValue
 import com.pydio.android.cells.ui.core.composables.modal.rememberModalBottomSheetState
+import com.pydio.android.cells.ui.models.ErrorMessage
 import com.pydio.android.cells.ui.models.MultipleItem
+import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -86,10 +92,30 @@ fun Bookmarks(
     val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
         mutableStateOf(setOf())
     }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val bookmarks = bookmarksVM.bookmarks.collectAsState(listOf())
     val forceRefresh: () -> Unit = {
         bookmarksVM.forceRefresh(accountID)
+    }
+
+    val errMessage by bookmarksVM.errorMessage.collectAsState()
+    var oldErr: ErrorMessage? = null
+    LaunchedEffect(key1 = errMessage?.defaultMessage) {
+        if (oldErr == errMessage) {
+            // do nothing
+        } else {
+            // Log.e(LOG_TAG, "Received a new message...")
+            errMessage?.let {
+                snackBarHostState.showSnackbar(
+                    message = toErrorMessage(context, it),
+                    withDismissAction = false,
+                    duration = SnackbarDuration.Short
+                )
+                bookmarksVM.errorReceived()
+            }
+            oldErr = errMessage
+        }
     }
 
     val itemTapped: (StateID, Boolean) -> Unit = { stateID, longPress ->
@@ -232,7 +258,8 @@ fun Bookmarks(
             openMoreMenu = openMoreMenu,
             cancelSelection = { multiSelectData.value = setOf() }
         ),
-        selectedItems = multiSelectData.value
+        selectedItems = multiSelectData.value,
+        snackBarHostState = snackBarHostState
     )
 }
 
@@ -249,7 +276,8 @@ private fun BookmarkScaffold(
     onTap: (StateID, Boolean) -> Unit,
     launch: (NodeAction, Set<StateID>) -> Unit,
     moreMenuState: SetMoreMenuState,
-    selectedItems: Set<StateID>
+    selectedItems: Set<StateID>,
+    snackBarHostState: SnackbarHostState,
 ) {
 
     var isShown by remember { mutableStateOf(false) }
@@ -324,6 +352,7 @@ private fun BookmarkScaffold(
                 )
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
         CellsModalBottomSheetLayout(
             isExpandedScreen = isExpandedScreen,
