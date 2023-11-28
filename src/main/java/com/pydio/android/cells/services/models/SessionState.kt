@@ -22,6 +22,13 @@ data class SessionState(
                 isServerLegacy = view.isLegacy
             )
         }
+
+        val NONE: SessionState = SessionState(
+            accountID = StateID.NONE,
+            networkStatus = NetworkStatus.UNKNOWN,
+            isServerReachable = false,
+            loginStatus = LoginStatus.Undefined
+        )
     }
 }
 

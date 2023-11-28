@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -89,13 +90,11 @@ class ConnectionService(
             val nextState = if (activeSession == null) {
                 SessionState(StateID.NONE, false, networkStatus, LoginStatus.Undefined)
             } else {
-                var serverIsReachable = true
                 if (networkStatus.isConnected() && !activeSession.isReachable) {
                     // We have internet access but current server is marked as un-reachable
                     // We try again to connect
                     serviceScope.launch {
                         // switch to unreachable until proven we can reach it (4 lines below)
-                        serverIsReachable = false
                         delay(1000L) // Wait 1 sec before doing the request
                         val doIt: Boolean
                         synchronized(lock) {
@@ -108,8 +107,7 @@ class ConnectionService(
                         }
                         if (doIt) {
                             // This also update cached reachable status of the server
-                            serverIsReachable =
-                                appCredentialService.insureServerIsReachable(activeSession.getStateID())
+                            appCredentialService.insureServerIsReachable(activeSession.getStateID())
                         }
                     }
                 }
@@ -127,17 +125,12 @@ class ConnectionService(
                     LoginStatus.fromId(activeSession.authStatus)
                 )
             }
-            Log.d(logTag, "... Emiting new Session state: $nextState")
+            Log.d(logTag, "... Emitting new Session state: $nextState")
             nextState
         }.stateIn(
             scope = serviceScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = SessionState(
-                accountID = StateID.NONE,
-                networkStatus = NetworkStatus.UNKNOWN,
-                isServerReachable = false,
-                loginStatus = LoginStatus.Undefined
-            )
+            initialValue = SessionState.NONE
         )
 
     // And direct derivatives
@@ -146,13 +139,19 @@ class ConnectionService(
     // Shortcut. Remove
     val isRemoteLegacy: Boolean = sessionStateFlow.value.isServerLegacy
 
+    private var wasReachable = true
     val liveConnectionState: StateFlow<ConnectionState> =
-        loadingFlag.combine(sessionStateFlow) { loading, connection ->
+        sessionStateFlow.combine(loadingFlag) { connection, loading ->
             appliedConnectionState(loading, connection)
+        }.onEach {
+            if (it.serverConnection.isConnected() && !wasReachable) {
+                pollService.relaunchMonitoring(true)
+            }
+            wasReachable = it.serverConnection.isConnected()
         }.stateIn(
             scope = serviceScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = ConnectionState(LoadingState.STARTING, ServerConnection.OK)
+            started = SharingStarted.WhileSubscribed(30000L),
+            initialValue = appliedConnectionState(LoadingState.STARTING, SessionState.NONE)
         )
 
     fun appliedConnectionState(
@@ -167,35 +166,6 @@ class ConnectionService(
             }
         return ConnectionState(tmpLoading, serverConnectionState(connection))
     }
-
-    // Shortcuts
-    fun isConnected(): Boolean {
-        return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
-    }
-
-    // Delegated to pollService
-    fun relaunchMonitoring() {
-        pollService.relaunchMonitoring()
-    }
-
-    fun pauseMonitoring() {
-        pollService.pauseMonitoring()
-    }
-
-    fun setCurrentStateID(newStateID: StateID) {
-        pollService.watch(newStateID)
-    }
-
-    fun forceRefresh() {
-        pollService.forceRefresh()
-    }
-
-    fun pause(oldID: StateID) {
-        pollService.pause(oldID)
-    }
-
-    // Debug only
-    private var lastKnownConnection: ServerConnection? = null
 
     private fun serverConnectionState(connection: SessionState): ServerConnection {
         val newConn = if (
@@ -213,12 +183,34 @@ class ConnectionService(
         } else {
             ServerConnection.OK
         }
-        // TODO remove dirty debug only
-        if (newConn != lastKnownConnection) {
-            Log.e(logTag, "New connection state: $newConn from connection: $connection")
-            lastKnownConnection = newConn
-        }
         return newConn
+    }
+
+    // Shortcuts
+    fun isConnected(): Boolean {
+        return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
+    }
+
+    // Delegated to pollService
+    fun relaunchMonitoring() {
+        // Set to false without second thought as it was so before
+        pollService.relaunchMonitoring(false)
+    }
+
+    fun pauseMonitoring() {
+        pollService.pauseMonitoring()
+    }
+
+    fun setCurrentStateID(newStateID: StateID) {
+        pollService.watch(newStateID)
+    }
+
+    fun forceRefresh() {
+        pollService.forceRefresh()
+    }
+
+    fun pause(oldID: StateID) {
+        pollService.pause(oldID)
     }
 
     init {

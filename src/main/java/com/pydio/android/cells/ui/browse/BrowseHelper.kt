@@ -26,7 +26,7 @@ open class BrowseHelper(
     suspend fun open(context: Context, stateID: StateID, callingContext: String = browse) {
         Log.i(
             logTag, "... Calling open for $stateID\n" +
-                    "    Loading state: ${cellsVM.connectionState.value}\n" +
+                    "    Server reachable: ${cellsVM.isServerReachable()}\n" +
                     "    Context: $callingContext"
         )
         // TODO remove

@@ -61,7 +61,6 @@ class PollService(
     }
 
     fun pause(oldID: StateID) {
-
         if (oldID == currStateID) {
             Log.i(logTag, "... Pause remote watching for [${currStateID}]")
             setActive(false)
@@ -90,7 +89,10 @@ class PollService(
         }
     }
 
-    fun relaunchMonitoring() {
+    fun relaunchMonitoring(forceActive: Boolean) {
+        if (forceActive) {
+            setActive(true)
+        }
         // Only relaunch if no job is referenced
         pollJob ?: run {
             relaunchPollJob()
