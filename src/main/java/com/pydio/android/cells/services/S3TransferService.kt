@@ -21,6 +21,7 @@ import com.pydio.android.cells.transfer.CellsS3Client
 import com.pydio.android.cells.transfer.CellsSigner
 import com.pydio.android.cells.transfer.CellsTransferListener
 import com.pydio.android.cells.transfer.DEFAULT_BUCKET_NAME
+import com.pydio.android.cells.transfer.internal.UrlHttpClient
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.android.cells.utils.currentTimestampAsString
 import com.pydio.cells.api.SDKException
@@ -205,19 +206,28 @@ class S3TransferService(
 
     private fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
 
-        val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
+        val cellsProvider = CellsAuthProvider(transport, accountID)
+        val chain = AWSCredentialsProviderChain(cellsProvider)
         // Register the Cells specific signers: we do not yet support the streaming signer on the server side
         SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
         var conf = ClientConfiguration()
             .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)
             .withUserAgentOverride(transport.userAgent) // default adds a prefix with the AWS SDK agent that we do not want to expose
+        val region = Region.getRegion(Regions.fromName(Regions.US_EAST_1.getName()))
 
-        if (transport.server.isSSLUnverified) {
+        val s3Client = if (transport.server.isSSLUnverified) {
+            // Log.e(logTag, "..... Using the skip verify trust manager")
             conf = conf.withTrustManager(ServerURLImpl.SKIP_VERIFY_TRUST_MANAGER[0])
+            AmazonS3Client(
+                chain,
+                region,
+                conf,
+                UrlHttpClient(conf, transport.server.serverURL)
+            )
+        } else {
+            AmazonS3Client(chain, region, conf)
         }
 
-        val region = Region.getRegion(Regions.fromName(Regions.US_EAST_1.getName()))
-        val s3Client = AmazonS3Client(chain, region, conf)
         s3Client.endpoint = transport.server.url()
         s3Client.setS3ClientOptions(
             S3ClientOptions.builder()
