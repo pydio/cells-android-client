@@ -23,7 +23,6 @@ import com.pydio.android.cells.ui.core.composables.M3IconThumb
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetHeader
 import com.pydio.android.cells.ui.core.composables.menus.BottomSheetListItem
-import com.pydio.android.cells.ui.core.composables.menus.BottomSheetNoAction
 import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
@@ -151,6 +150,6 @@ fun BookmarksMenu(
             title = stringResource(R.string.deselect_all),
             onItemClick = { launch(NodeAction.UnSelectAll) }
         )
-        BottomSheetNoAction()
+//        BottomSheetNoAction()
     }
 }
