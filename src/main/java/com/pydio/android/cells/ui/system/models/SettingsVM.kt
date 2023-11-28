@@ -58,4 +58,10 @@ class SettingsVM(
             prefs.setString(key, strValue)
         }
     }
+
+    fun setLongPref(key: Preferences.Key<Long>, value: Long) {
+        viewModelScope.launch {
+            prefs.setLong(key, value)
+        }
+    }
 }

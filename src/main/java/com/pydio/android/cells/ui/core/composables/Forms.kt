@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
@@ -26,21 +24,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun FormInput(
     value: String,
     description: String,
     onValueChanged: (String) -> Unit,
     isProcessing: Boolean,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .padding(
-            start = dimensionResource(R.dimen.form_input_horizontal_padding),
-            end = dimensionResource(R.dimen.form_input_horizontal_padding),
-            top = dimensionResource(R.dimen.form_input_vertical_padding),
-            bottom = dimensionResource(R.dimen.form_input_vertical_padding),
-        ),
+    modifier: Modifier = Modifier,
     isPassword: Boolean = false,
     errorMessage: String?,
     imeAction: ImeAction = ImeAction.Default,
@@ -58,7 +48,14 @@ fun FormInput(
         keyboardOptions = KeyboardOptions(imeAction = imeAction),
         keyboardActions = keyboardActions,
         onValueChange = { newValue -> onValueChanged(newValue) },
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensionResource(R.dimen.form_input_horizontal_padding),
+                end = dimensionResource(R.dimen.form_input_horizontal_padding),
+                top = dimensionResource(R.dimen.form_input_vertical_padding),
+                bottom = dimensionResource(R.dimen.form_input_vertical_padding),
+            ),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
     )
 }
@@ -165,7 +162,7 @@ private fun FormInputErrorPreview() {
     }
 }
 
-@Preview(name = "Btns Light Mode")
+@Preview(name = "Buttons Light Mode")
 @Composable
 private fun FormBottomButtonsPreview() {
     UseCellsTheme {

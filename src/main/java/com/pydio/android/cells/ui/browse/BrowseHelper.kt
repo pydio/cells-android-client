@@ -112,6 +112,10 @@ open class BrowseHelper(
         }
     }
 
+    fun navigate(route: String) {
+        navController.navigate(route)
+    }
+
     fun cancel() {
         navController.popBackStack()
     }

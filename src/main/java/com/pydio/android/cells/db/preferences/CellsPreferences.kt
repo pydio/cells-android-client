@@ -64,7 +64,7 @@ fun defaultCellsPreferences(): CellsPreferences {
         showWarning = true,
         dlThumbs = false,
         askBeforeDL = true,
-        sizeThreshold = -1,
+        sizeThreshold = 10,
     )
     // Offline settings
     val syncPref = SyncPreferences(

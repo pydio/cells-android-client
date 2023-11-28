@@ -234,20 +234,22 @@ class TransferService(
             -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
 
             ServerConnection.LIMITED -> {
-                // TODO further check if we can download
-                if (!currSettings.meteredNetwork.applyLimits || currSettings.meteredNetwork.dlThumbs) {
+                if (!currSettings.meteredNetwork.applyLimits // do not apply limits
+                    || currSettings.meteredNetwork.dlThumbs // Always force Thumb DL
+                    || type != AppNames.LOCAL_FILE_TYPE_THUMB // We always want to DL the previews for the carousel
+                ) {
                     return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
                 } else {
                     throw SDKException(
                         ErrorCodes.con_failed,
-                        "Cannot download preview images on metered network"
+                        "Cannot download image thumbnails on metered network"
                     )
                 }
             }
 
             ServerConnection.UNREACHABLE -> throw SDKException(
                 ErrorCodes.con_failed,
-                "No network connection: cannot download preview image"
+                "No network connection: cannot download preview images"
             )
         }
     }

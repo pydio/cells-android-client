@@ -95,7 +95,6 @@ class NodeActionsVM(
         }
     }
 
-
     fun emptyRecycle(stateID: StateID) {
         coroutineService.cellsIoScope.launch {
             try {

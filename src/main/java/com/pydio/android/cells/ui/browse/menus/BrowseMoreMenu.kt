@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -18,6 +19,7 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.accounts.RWorkspace
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.NodeAction
+import com.pydio.android.cells.ui.browse.models.TreeNodeVM
 import com.pydio.android.cells.ui.core.composables.DefaultTitleText
 import com.pydio.android.cells.ui.core.composables.M3IconThumb
 import com.pydio.android.cells.ui.core.composables.Thumbnail
@@ -36,6 +38,7 @@ import com.pydio.cells.transport.StateID
 
 @Composable
 fun SingleNodeMenu(
+    treeNodeVM: TreeNodeVM,
     connectionState: ConnectionState,
     stateID: StateID,
     nodeItem: TreeNodeItem,
@@ -43,6 +46,7 @@ fun SingleNodeMenu(
     launch: (NodeAction) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,6 +71,26 @@ fun SingleNodeMenu(
         )
 
         if (!nodeItem.isFolder && (connectionState.serverConnection.isConnected() || nodeItem.isCached)) {
+// TODO apply limit on metered network
+            //            BottomSheetListItem(
+//                icon = CellsIcons.DownloadToDevice,
+//                title = stringResource(R.string.download_to_device),
+//                onItemClick = {
+//                    scope.launch {
+//                        if (nodeItem.isCached) {
+//                            launch(NodeAction.DownloadToDevice)
+//                        } else if (treeNodeVM.mustConfirmDL(
+//                                stateID,
+//                                connectionState.serverConnection
+//                            )
+//                        ) {
+//                            launch(NodeAction.ConfirmDownloadOnMetered)
+//                        } else {
+//                            launch(NodeAction.DownloadToDevice)
+//                        }
+//                    }
+//                },
+//            )
             BottomSheetListItem(
                 icon = CellsIcons.DownloadToDevice,
                 title = stringResource(R.string.download_to_device),

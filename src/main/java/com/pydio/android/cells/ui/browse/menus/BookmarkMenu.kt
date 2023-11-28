@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -27,6 +28,7 @@ import com.pydio.android.cells.ui.models.MultipleItem
 import com.pydio.android.cells.ui.models.TreeNodeItem
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 
 // private const val LOG_TAG = "BookmarkMenu.kt"
 
@@ -35,10 +37,11 @@ fun BookmarkMenu(
     connectionState: ConnectionState,
     treeNodeVM: TreeNodeVM,
     stateID: StateID,
-    rTreeNode: TreeNodeItem,
+    nodeItem: TreeNodeItem,
     launch: (NodeAction, StateID) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,7 +50,7 @@ fun BookmarkMenu(
 
     ) {
         BottomSheetHeader(
-            thumb = { Thumbnail(rTreeNode) },
+            thumb = { Thumbnail(nodeItem) },
             title = stateID.fileName ?: "",
             desc = stateID.parentPath,
         )
@@ -58,11 +61,19 @@ fun BookmarkMenu(
                 onItemClick = { launch(NodeAction.ToggleBookmark(false), stateID) }
             )
         }
-        if (!rTreeNode.isFolder) {
+        if (!nodeItem.isFolder) {
             BottomSheetListItem(
                 icon = CellsIcons.DownloadToDevice,
                 title = stringResource(R.string.download_to_device),
-                onItemClick = { launch(NodeAction.DownloadToDevice, stateID) },
+                onItemClick = {
+                    scope.launch {
+                        if (treeNodeVM.mustConfirmDL(stateID, connectionState.serverConnection)) {
+                            launch(NodeAction.ConfirmDownloadOnMetered, stateID)
+                        } else {
+                            launch(NodeAction.DownloadToDevice, stateID)
+                        }
+                    }
+                },
             )
         }
 
@@ -70,7 +81,7 @@ fun BookmarkMenu(
 
         appearsIn.value?.let {
             DefaultTitleText(
-                text = if (rTreeNode.isFolder) {
+                text = if (nodeItem.isFolder) {
                     stringResource(R.string.open_in_workspaces)
                 } else {
                     stringResource(R.string.open_parent_in_workspaces)

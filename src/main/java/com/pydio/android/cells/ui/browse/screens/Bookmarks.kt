@@ -59,6 +59,7 @@ import com.pydio.android.cells.ui.browse.composables.NodesMoreMenuData
 import com.pydio.android.cells.ui.browse.menus.SetMoreMenuState
 import com.pydio.android.cells.ui.browse.models.BookmarksVM
 import com.pydio.android.cells.ui.core.ListLayout
+import com.pydio.android.cells.ui.core.actionRoute
 import com.pydio.android.cells.ui.core.composables.MultiSelectTopBar
 import com.pydio.android.cells.ui.core.composables.TopBarWithMoreMenu
 import com.pydio.android.cells.ui.core.composables.lists.MultipleGridItem
@@ -202,6 +203,10 @@ fun Bookmarks(
                     }
                 }
                 moreMenuDone()
+            }
+
+            is NodeAction.ConfirmDownloadOnMetered -> {
+                browseHelper.navigate(actionRoute(NodeAction.ConfirmDownloadOnMetered, stateID))
             }
 
             is NodeAction.DownloadToDevice -> {

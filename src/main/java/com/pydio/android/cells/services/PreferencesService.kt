@@ -137,6 +137,12 @@ class PreferencesService(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    suspend fun setLong(key: Preferences.Key<Long>, value: Long) {
+        dataStore.edit { preferences ->
+            preferences[key] = value
+        }
+    }
+
     suspend fun setListLayout(layout: ListLayout) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_LIST_LAYOUT] = layout.name

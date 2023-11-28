@@ -186,6 +186,5 @@ fun CellsNavGraph(
                 addAccount = { loginNavActions.askUrl() },
             )
         }
-
     }
 }

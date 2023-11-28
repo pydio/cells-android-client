@@ -47,18 +47,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.composables.CreateFolder
 import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
+import com.pydio.android.cells.ui.core.actionRoute
+import com.pydio.android.cells.ui.core.actionRouteTemplate
 import com.pydio.android.cells.ui.core.composables.Thumbnail
 import com.pydio.android.cells.ui.core.composables.getNodeDesc
 import com.pydio.android.cells.ui.core.composables.getNodeTitle
 import com.pydio.android.cells.ui.core.composables.lists.M3BrowseUpListItem
-import com.pydio.android.cells.ui.core.encodeStateForRoute
 import com.pydio.android.cells.ui.core.getFloatResource
 import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
@@ -71,14 +71,6 @@ import org.koin.androidx.compose.koinViewModel
 private const val LOG_TAG = "SelectFolder.kt"
 
 private const val SELECT_FOLDER_PAGE = "select-folder"
-
-private fun routeTemplate(action: NodeAction): String {
-    return "${action.id}/{${AppKeys.STATE_ID}}"
-}
-
-private fun route(action: NodeAction, stateID: StateID): String {
-    return "${action.id}/${encodeStateForRoute(stateID)}"
-}
 
 @Composable
 fun SelectFolderScreen(
@@ -136,7 +128,7 @@ fun SelectFolderScreen(
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
         Log.e(LOG_TAG, "Intercepting $action for $currID")
         if (AppNames.ACTION_CREATE_FOLDER == action) {
-            navController.navigate(route(NodeAction.CreateFolder, currID))
+            navController.navigate(actionRoute(NodeAction.CreateFolder, currID))
         } else {
             doAction(action, currID)
         }
@@ -168,7 +160,7 @@ fun SelectFolderScreen(
             )
         }
 
-        dialog(routeTemplate(NodeAction.CreateFolder)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.CreateFolder)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "Cannot create folder with no ID")

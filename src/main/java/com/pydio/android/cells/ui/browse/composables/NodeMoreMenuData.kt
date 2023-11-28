@@ -98,11 +98,12 @@ fun NodeMoreMenuData(
                     connectionState = connectionState,
                     treeNodeVM = treeNodeVM,
                     stateID = subjectID,
-                    rTreeNode = myItem,
+                    nodeItem = myItem,
                     launch = launch,
                 )
 
                 type == NodeMoreMenuType.SEARCH -> SearchMenu(
+                    treeNodeVM = treeNodeVM,
                     connectionState = connectionState,
                     stateID = subjectID,
                     nodeItem = myItem,
@@ -111,6 +112,7 @@ fun NodeMoreMenuData(
 
                 type == NodeMoreMenuType.MORE ->
                     SingleNodeMenu(
+                        treeNodeVM = treeNodeVM,
                         connectionState = connectionState,
                         stateID = subjectID,
                         nodeItem = myItem,

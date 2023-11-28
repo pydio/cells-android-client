@@ -20,6 +20,7 @@ import com.pydio.android.cells.db.preferences.MeteredNetworkPreferences
 import com.pydio.android.cells.db.preferences.SyncPreferences
 import com.pydio.android.cells.db.preferences.defaultCellsPreferences
 import com.pydio.android.cells.services.PreferencesKeys
+import com.pydio.android.cells.ui.core.composables.InputMegabytes
 import com.pydio.android.cells.ui.core.composables.ListSetting
 import com.pydio.android.cells.ui.core.composables.PreferenceDivider
 import com.pydio.android.cells.ui.core.composables.PreferenceSectionTitle
@@ -63,9 +64,9 @@ fun SettingsScreen(
         ) {
             ListSection(settingsVM, cellsPreferences.value.list, modifier)
             PreferenceDivider(modifier)
-            MeteredSection(settingsVM, cellsPreferences.value.meteredNetwork, modifier)
-            PreferenceDivider(modifier)
             OfflineSection(settingsVM, cellsPreferences.value.sync, modifier)
+            PreferenceDivider(modifier)
+            MeteredSection(settingsVM, cellsPreferences.value.meteredNetwork, modifier)
             PreferenceDivider(modifier)
             TroubleshootingSection(
                 settingsVM,
@@ -141,14 +142,20 @@ fun MeteredSection(
         onItemClick = { settingsVM.setBooleanFlag(PreferencesKeys.METERED_ASK_B4_DL_FILES, it) },
         modifier = modifier,
         isEnabled = netPref.applyLimits
-
     )
     //  Re-Enable this when the settings is really used in the app
-//    TextSetting(
-//        stringResource(R.string.on_metered_ask_before_dl_files_greater_than_title),
-//        " ${netPref.sizeThreshold}",
-//        modifier,
-//    )
+    InputMegabytes(
+        label = stringResource(R.string.on_metered_ask_before_dl_files_greater_than_title),
+        value = netPref.sizeThreshold.toString(),
+        onValueChange = {
+            settingsVM.setLongPref(
+                PreferencesKeys.METERED_ASK_B4_DL_FILES_SIZE,
+                it.toLongOrNull() ?: 0
+            )
+        },
+        modifier = modifier,
+        isEnabled = netPref.applyLimits && netPref.askBeforeDL
+    )
 }
 
 @Composable

@@ -27,6 +27,8 @@ import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.browse.models.NodeActionsVM
+import com.pydio.android.cells.ui.core.actionRoute
+import com.pydio.android.cells.ui.core.actionRouteTemplate
 import com.pydio.android.cells.ui.core.composables.menus.CellsModalBottomSheetLayout
 import com.pydio.android.cells.ui.core.composables.modal.ModalBottomSheetState
 import com.pydio.android.cells.ui.core.encodeStateForRoute
@@ -45,11 +47,11 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 private const val LOG_TAG = "NodeWithActions.kt"
-private const val FOLDER_MAIN_CONTENT = "folder-main-content"
+private const val MAIN_CONTENT = "folder-main-content"
 
-private fun route(action: NodeAction): String {
-    return "${action.id}/{${AppKeys.STATE_ID}}"
-}
+//private fun actionRouteTemplate(action: NodeAction): String {
+//    return "${action.id}/{${AppKeys.STATE_ID}}"
+//}
 
 private fun routeMulti(action: NodeAction): String {
     return "${action.id}/{${AppKeys.STATE_IDS}}"
@@ -61,35 +63,6 @@ private fun routeMulti(action: NodeAction): String {
 fun WrapWithActions(
     actionDone: (Boolean, Boolean) -> Unit,
     isExpandedScreen: Boolean = false,
-    connectionState: ConnectionState,
-    type: NodeMoreMenuType,
-    subjectIDs: Set<StateID>,
-    sheetState: ModalBottomSheetState,
-    snackBarHostState: SnackbarHostState,
-    content: @Composable () -> Unit,
-) {
-    LaunchedEffect(key1 = subjectIDs.toString()) {
-        Log.d(LOG_TAG, "## Recomposing Wrap with actions for $subjectIDs")
-    }
-
-    FolderWithDialogs(
-        actionDone = actionDone,
-        isExpandedScreen = isExpandedScreen,
-        connectionState = connectionState,
-        type = type,
-        subjectIDs = subjectIDs,
-        sheetState = sheetState,
-        snackBarHostState = snackBarHostState,
-        content = content
-    )
-}
-
-/** Add the more menu **/
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FolderWithDialogs(
-    actionDone: (Boolean, Boolean) -> Unit,
-    isExpandedScreen: Boolean,
     connectionState: ConnectionState,
     type: NodeMoreMenuType,
     subjectIDs: Set<StateID>,
@@ -132,7 +105,7 @@ private fun FolderWithDialogs(
 
     // This introduce a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
     val delayedDone: (Boolean) -> Unit = { done ->
-        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        navController.popBackStack(MAIN_CONTENT, false)
         scope.launch {
             delay(400)
             actionDone(done, true)
@@ -140,7 +113,7 @@ private fun FolderWithDialogs(
     }
 
     val closeDialog: (Boolean, Boolean) -> Unit = { done, doRefresh ->
-        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        navController.popBackStack(MAIN_CONTENT, false)
         if (done) {
             actionDone(true, doRefresh)
         }
@@ -278,7 +251,13 @@ private fun FolderWithDialogs(
                 actionDone(true, false)
             }
 
-            else -> navController.navigate("${action.id}/${encodeStateForRoute(passedStateID)}")
+            else -> {
+                Log.e(
+                    LOG_TAG, "... Un-explicit action, " +
+                            "about to navigate to: [${actionRoute(action, passedStateID)}]"
+                )
+                navController.navigate(actionRoute(action, passedStateID))
+            }
         }
     }
 
@@ -309,9 +288,9 @@ private fun FolderWithDialogs(
         }
     }
 
-    NavHost(navController, FOLDER_MAIN_CONTENT) {
+    NavHost(navController, MAIN_CONTENT) {
 
-        composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
+        composable(MAIN_CONTENT) {  // Fills the area provided to the NavHost
             CellsModalBottomSheetLayout(
                 isExpandedScreen = isExpandedScreen,
 
@@ -339,7 +318,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
+        composable(actionRouteTemplate(NodeAction.SelectTargetFolder)) { nbsEntry ->
             val stateID = lazyStateID(nbsEntry)
             if (stateID == StateID.NONE) {
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
@@ -391,7 +370,7 @@ private fun FolderWithDialogs(
             }
         }
 
-        dialog(route(NodeAction.Rename)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.Rename)) { entry ->
             val stateID = lazyStateID(entry)
             if (stateID == StateID.NONE) {
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
@@ -404,7 +383,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.ShowQRCode)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.ShowQRCode)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... ShowQRCode with no ID - Abort")
@@ -417,7 +396,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.Delete)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.Delete)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... Delete with no ID - Abort")
@@ -429,7 +408,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.PermanentlyRemove)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.PermanentlyRemove)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... PermanentlyRemove with no ID")
@@ -441,7 +420,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.EmptyRecycle)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.EmptyRecycle)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... EmptyRecycle with no ID")
@@ -453,7 +432,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.CreateFolder)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.CreateFolder)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... CreateFolder with no ID")
@@ -466,10 +445,29 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.DownloadToDevice)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.ConfirmDownloadOnMetered)) { entry ->
             val stateID = lazyStateID(entry)
             if (stateID == StateID.NONE) {
-                Log.w(LOG_TAG, "... CreateFolder with no ID")
+                Log.w(LOG_TAG, "... ConfirmDownloadOnMetered with no ID")
+                return@dialog
+            }
+            ConfirmDownloadOnLimitedConnection(
+                nodeActionsVM,
+                stateID = stateID,
+                dismiss = {
+                    if (it) {
+                        launchMono(NodeAction.DownloadToDevice, stateID)
+                    } else {
+                        closeDialog(false, false)
+                    }
+                }
+            )
+        }
+
+        dialog(actionRouteTemplate(NodeAction.DownloadToDevice)) { entry ->
+            val stateID = lazyStateID(entry)
+            if (stateID == StateID.NONE) {
+                Log.w(LOG_TAG, "... DownloadToDevice with no ID")
                 return@dialog
             }
             ChooseDestination(
@@ -492,7 +490,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.ImportFile)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.ImportFile)) { entry ->
             val stateID = lazyStateID(entry)
             ImportFile(
                 nodeActionsVM,
@@ -501,7 +499,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.TakePicture)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.TakePicture)) { entry ->
             val stateID = lazyStateID(entry)
             TakePicture(
                 nodeActionsVM,

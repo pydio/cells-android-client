@@ -11,6 +11,7 @@ import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.services.AuthService
+import com.pydio.android.cells.ui.browse.composables.NodeAction
 import com.pydio.cells.transport.StateID
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -33,6 +34,16 @@ fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     val outValue = TypedValue()
     context.resources.getValue(id, outValue, true)
     return outValue.float
+}
+
+/* Helpers for navigation */
+
+fun actionRoute(action: NodeAction, stateID: StateID): String {
+    return "${action.id}/${encodeStateForRoute(stateID)}"
+}
+
+fun actionRouteTemplate(action: NodeAction): String {
+    return "${action.id}/{${AppKeys.STATE_ID}}"
 }
 
 fun encodeStateForRoute(stateID: StateID): String {
