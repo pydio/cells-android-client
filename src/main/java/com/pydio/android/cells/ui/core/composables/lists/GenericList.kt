@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.pydio.android.cells.ListContext
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.R
+import com.pydio.android.cells.ServerConnection
 import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.CellsListTypography
@@ -42,7 +43,9 @@ fun WithLoadingListBackground(
     Box(modifier = modifier) {
         if (isEmpty) {
             Box(modifier = Modifier.fillMaxSize()) {
-                if (connectionState.loading == LoadingState.STARTING) {
+                if (connectionState.loading == LoadingState.STARTING
+                    && connectionState.serverConnection != ServerConnection.UNREACHABLE
+                ) {
                     StartingBackground(
                         desc = startingDesc,
                         showProgressAtStartup = showProgressAtStartup,
