@@ -33,6 +33,7 @@ import com.pydio.android.cells.ui.core.lazyStateID
 import com.pydio.android.cells.ui.core.nav.AppDrawer
 import com.pydio.android.cells.ui.core.nav.AppPermanentDrawer
 import com.pydio.android.cells.ui.core.nav.CellsNavigationActions
+import com.pydio.android.cells.ui.models.AppState
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
@@ -51,8 +52,8 @@ fun NavHostWithDrawer(
     connectionService: ConnectionService = koinInject(),
 ) {
     val coroutineScope = rememberCoroutineScope()
-
     val mainNavController = rememberNavController()
+
     val cellsNavActions = remember(mainNavController) {
         CellsNavigationActions(mainNavController)
     }
@@ -120,7 +121,7 @@ fun NavHostWithDrawer(
             drawerContent = {
                 AppDrawer(
                     currRoute = navBackStackEntry?.destination?.route,
-                    currSelectedID = lazyStateID(navBackStackEntry),
+                    currSelectedID = lazyStateID(navBackStackEntry, verbose = false),
                     closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
                     connectionService = connectionService,
                     cellsNavActions = cellsNavActions,
@@ -136,7 +137,7 @@ fun NavHostWithDrawer(
                 if (isExpandedScreen) { // When we are on a tablet
                     AppPermanentDrawer(
                         currRoute = navBackStackEntry?.destination?.route,
-                        currSelectedID = lazyStateID(navBackStackEntry),
+                        currSelectedID = lazyStateID(navBackStackEntry, verbose = false),
                         connectionService = connectionService,
                         cellsNavActions = cellsNavActions,
                         systemNavActions = systemNavActions,

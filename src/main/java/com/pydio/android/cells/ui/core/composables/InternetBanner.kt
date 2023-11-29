@@ -36,18 +36,17 @@ private const val LOG_TAG = "InternetBanner.kt"
 
 @Composable
 fun WithInternetBanner(
-    contentPadding: PaddingValues,
     connectionService: ConnectionService,
-    navigateTo: (String) -> Unit,
     errorService: ErrorService = koinInject(),
+    navigateTo: (String) -> Unit,
+    contentPadding: PaddingValues,
     content: @Composable () -> Unit
 ) {
-
-    val localNavigateTo: (String) -> Unit =
-        {    // clean error stack before launching the re-log process
-            errorService.clearStack()
-            navigateTo(it)
-        }
+    val localNavigateTo: (String) -> Unit = {
+        // clean error stack before launching the re-log process
+        errorService.clearStack()
+        navigateTo(it)
+    }
 
     // TODO add bottom sheet
     Column(
@@ -62,15 +61,12 @@ fun WithInternetBanner(
 
 @Composable
 private fun InternetBanner(
-    // accountService: AccountService,
     connectionService: ConnectionService,
     navigateTo: (String) -> Unit,
 ) {
-
     val scope = rememberCoroutineScope()
     val currSession = connectionService.sessionView.collectAsState(initial = null)
     val sessionStatus = connectionService.sessionStateFlow.collectAsState()
-    // val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     currSession.value?.let {
         val currState = sessionStatus.value
@@ -119,8 +115,54 @@ private fun InternetBanner(
     }
 
 
+}
+
+@Composable
+private fun CredExpiredStatus(
+    icon: ImageVector,
+    desc: String,
+    onClick: () -> Unit
+) {
+
+    val tint = CellsColor.warning
+    val bg = CellsColor.warning.copy(alpha = .1f)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bg)
+            .padding(
+                horizontal = dimensionResource(R.dimen.margin_small),
+                vertical = dimensionResource(R.dimen.margin_xxsmall)
+            )
+    ) {
+        Icon(
+            tint = tint,
+            imageVector = icon,
+            contentDescription = desc,
+            modifier = Modifier.size(dimensionResource(id = R.dimen.list_trailing_icon_size))
+        )
+        Spacer(Modifier.size(dimensionResource(R.dimen.list_item_inner_h_padding)))
+        Text(
+            text = desc,
+            color = tint,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onClick) {
+            Text(
+                text = stringResource(R.string.launch_auth).uppercase(),
+                color = tint,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+
 //    if (currSession.value != null) {
-    //  SessionStatus.OK != sessionStatus.value && )
+//  SessionStatus.OK != sessionStatus.value && )
 //        when {
 //            currState.isOK() -> {
 //                // No header
@@ -188,7 +230,7 @@ private fun InternetBanner(
 //                )
 //            }
 //
-//            // TODO also handle preferences on limited networks
+//            // Still to do: also handle preferences on limited networks
 //            currState.networkStatus == NetworkStatus.METERED
 //                    || currState.networkStatus == NetworkStatus.ROAMING
 //            -> ConnectionStatus(
@@ -208,48 +250,3 @@ private fun InternetBanner(
 //            }
 //        }
 //    }
-}
-
-
-@Composable
-private fun CredExpiredStatus(
-    icon: ImageVector,
-    desc: String,
-    onClick: () -> Unit
-) {
-
-    val tint = CellsColor.warning
-    val bg = CellsColor.warning.copy(alpha = .1f)
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(bg)
-            .padding(
-                horizontal = dimensionResource(R.dimen.margin_small),
-                vertical = dimensionResource(R.dimen.margin_xxsmall)
-            )
-    ) {
-        Icon(
-            tint = tint,
-            imageVector = icon,
-            contentDescription = desc,
-            modifier = Modifier.size(dimensionResource(id = R.dimen.list_trailing_icon_size))
-        )
-        Spacer(Modifier.size(dimensionResource(R.dimen.list_item_inner_h_padding)))
-        Text(
-            text = desc,
-            color = tint,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
-        )
-        TextButton(onClick = onClick) {
-            Text(
-                text = stringResource(R.string.launch_auth).uppercase(),
-                color = tint,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-}

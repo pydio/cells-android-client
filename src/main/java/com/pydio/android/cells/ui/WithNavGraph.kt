@@ -30,6 +30,7 @@ import com.pydio.android.cells.ui.login.LoginHelper
 import com.pydio.android.cells.ui.login.LoginNavigation
 import com.pydio.android.cells.ui.login.loginNavGraph
 import com.pydio.android.cells.ui.login.models.LoginVM
+import com.pydio.android.cells.ui.models.AppState
 import com.pydio.android.cells.ui.models.BrowseRemoteVM
 import com.pydio.android.cells.ui.models.DownloadVM
 import com.pydio.android.cells.ui.search.Search

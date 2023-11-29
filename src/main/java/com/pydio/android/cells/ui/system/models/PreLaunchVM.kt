@@ -12,7 +12,7 @@ import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TransferService
-import com.pydio.android.cells.ui.AppState
+import com.pydio.android.cells.ui.models.AppState
 import com.pydio.android.cells.ui.share.ShareDestinations
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
