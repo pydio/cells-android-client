@@ -253,6 +253,8 @@
     <string name="rename_dialog_message">Bitte geben Sie einen neuen Namen für %s ein</string>
     <string name="rename_dialog_confirm_button">Umbenennen</string>
     <string name="download_wait_message">Wird heruntergeladen, bitte warten…</string>
+    <string name="confirm_dl_on_metered_title">Download bestätigen</string>
+    <string name="confirm_dl_on_metered_desc">Die Größe von %1$s beträgt %2$s, und Sie verwenden ein Netzwerk mit Datenbegrenzung.\n\nSind Sie sicher, dass Sie es herunterladen möchten?</string>
     <string name="display_as_qrcode_dialog_title">Direktlink</string>
     <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
     <string name="running_download_title">Wird heruntergeladen…</string>

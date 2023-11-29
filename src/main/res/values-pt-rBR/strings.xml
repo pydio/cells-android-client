@@ -253,6 +253,8 @@
     <string name="rename_dialog_message">Por favor, digite um novo nome para %s</string>
     <string name="rename_dialog_confirm_button">Renomear</string>
     <string name="download_wait_message">Baixando, aguarde…</string>
+    <string name="confirm_dl_on_metered_title">Confirm download</string>
+    <string name="confirm_dl_on_metered_desc">%1$s size is %2$s and you are on a metered network.\n\nAre you sure you want to download it?</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
     <string name="display_as_qrcode_dialog_desc">Digitalize o código para acessar diretamente %s</string>
     <string name="running_download_title">Baixando…</string>
