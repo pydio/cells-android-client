@@ -236,7 +236,7 @@ val serviceModule = module {
 
     // Business services
     single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
-    single { ConnectionService(get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get(), get(), get()) }
 
     single {
         OfflineService(

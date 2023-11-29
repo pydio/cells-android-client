@@ -12,8 +12,10 @@ import com.google.android.material.color.utilities.Scheme
 object CellsColor {
 
     // Custom main colors for the Theme
-    const val MeteredColor = "#FF9800"
-    const val OfflineColor = "#BA1B1B"
+    val test_metered = Color(0xF2FF9C07)
+    val test_offline = Color(0xFFB7B6BB)
+    const val MeteredColor = "#FF9C07"
+    const val OfflineColor = "#B7B6BB"
 
     val defaultMainColor = Color(0xFF134E6C)
 

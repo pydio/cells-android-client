@@ -32,6 +32,7 @@ import java.util.UUID
 class ConnectionService(
     coroutineService: CoroutineService,
     networkService: NetworkService,
+    preferencesService: PreferencesService,
     private val appCredentialService: AppCredentialService,
     private val accountService: AccountService,
     private val pollService: PollService,
@@ -47,28 +48,39 @@ class ConnectionService(
 
     private val networkStatusFlow = networkService.networkStatusFlow
     private val loadingFlag = pollService.loadingFlag
+    private val applyColors =
+        preferencesService.cellsPreferencesFlow.map { prefs -> prefs.meteredNetwork.showWarning }
 
     // Cold session view flow
     val sessionView: Flow<RSessionView?> = accountService.activeSessionView
-    val customColor: Flow<String?> = sessionView.map { currSession ->
-        currSession?.let {
-            if (it.isReachable && !it.isLoggedIn()) {
-                CellsColor.OfflineColor
-            } else {
-                it.customColor()
+
+    private val sessionColor: Flow<String?> =
+        sessionView.combine(networkStatusFlow) { currSession, networkStatus ->
+            if (currSession == null) null else {
+                when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
+                    ServerConnection.UNREACHABLE -> CellsColor.OfflineColor
+                    ServerConnection.LIMITED -> CellsColor.MeteredColor
+                    ServerConnection.OK -> currSession.customColor()
+                }
+            }
+        }
+
+    val customColor: Flow<String?> = sessionView.combine(applyColors) { session, dynamicCols ->
+        session to dynamicCols
+    }.combine(sessionColor) { (session, dynamicCols), sessionColor ->
+        if (dynamicCols) {
+            sessionColor
+        } else {
+            session?.let {
+                if (it.isReachable && !it.isLoggedIn()) {
+                    CellsColor.OfflineColor
+                } else {
+                    it.customColor()
+                }
             }
         }
     }
 
-    // val customColor: Flow<String?> = sessionView.combine(networkStatus) { currSession, networkStatus ->
-    //         if (currSession == null) null else {
-    //             when (serverConnectionState(SessionState.from(currSession, networkStatus))) {
-    //                 ServerConnection.UNREACHABLE -> CellsColor.OfflineColor
-    //                 ServerConnection.LIMITED -> CellsColor.MeteredColor
-    //                 ServerConnection.OK -> currSession.customColor()
-    //             }
-    //         }
-    //     }
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
         accountService.getWsByTypeFlow(

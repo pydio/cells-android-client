@@ -309,8 +309,8 @@
     <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Apply limitations</string>
     <string name="pref_apply_metered_limits_desc">Warning: turning this off will skip all limitations when on a metered network. This might lead to raising costs</string>
-    <string name="pref_metered_show_warning_title">Show warning</string>
-    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
+    <string name="pref_metered_show_warning_title">Custom colors</string>
+    <string name="pref_metered_show_warning_desc">Adapt color themes to network status, like mobile data or roaming.</string>
     <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
     <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Ask before download</string>
@@ -346,8 +346,8 @@
     <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
     <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
     <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_all_accounts_title">Extend to all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the above cleaning strategy to *all* accounts</string>
     <string name="pref_clean_cache_clean_all_title">Erase All</string>
     <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
 
