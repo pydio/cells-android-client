@@ -31,8 +31,7 @@ enum class NetworkStatus {
 }
 
 enum class LoadingState {
-    // TODO we should be able to remove the server unreachable state
-    STARTING, PROCESSING, IDLE, SERVER_UNREACHABLE;
+    STARTING, PROCESSING, IDLE;
 
     fun isRunning(): Boolean {
         return when (this) {
@@ -70,15 +69,6 @@ enum class LoginStatus(val id: String) {
         }
     }
 }
-
-//// TODO Finalize auth state management.
-//String AUTH_STATUS_NEW = "new";
-//String AUTH_STATUS_NO_CREDS = "no-credentials";
-//String AUTH_STATUS_UNAUTHORIZED = "unauthorized";
-//String AUTH_STATUS_EXPIRED = "expired";
-//String AUTH_STATUS_REFRESHING = "refreshing";
-//String AUTH_STATUS_CONNECTED = "connected";
-
 
 enum class ListType {
     DEFAULT, TRANSFER, JOB

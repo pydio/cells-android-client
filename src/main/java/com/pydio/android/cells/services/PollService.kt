@@ -3,8 +3,8 @@ package com.pydio.android.cells.services
 import android.util.Log
 import com.pydio.android.cells.LoadingState
 import com.pydio.android.cells.NetworkStatus
+import com.pydio.android.cells.services.models.CellsCancellation
 import com.pydio.android.cells.utils.BackOffTicker
-import com.pydio.android.cells.utils.CellsCancellation
 import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID

@@ -8,16 +8,6 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
-//
-//fun String.toMD5(): String {
-//    val bytes = MessageDigest.getInstance("MD5").digest(this.toByteArray())
-//    return bytes.toHex()
-//}
-//
-//fun ByteArray.toHex(): String {
-//    return joinToString("") { "%02x".format(it) }
-//}
-
 fun computeFileMd5(file: File): String {
     try {
         FileInputStream(file).use { inputStream ->

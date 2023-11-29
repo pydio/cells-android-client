@@ -1,4 +1,4 @@
-package com.pydio.android.cells.utils
+package com.pydio.android.cells.services.models
 
 import kotlinx.coroutines.CancellationException
 

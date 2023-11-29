@@ -96,14 +96,13 @@ class MainActivity : ComponentActivity() {
         intentID: String,
         readyCallback: () -> Unit,
     ) {
-        Log.e(logTag, "... Recomposing AppBinding: bundle:$sBundle, intent: $intentID")
+        Log.i(logTag, "... Recomposing AppBinding: bundle:$sBundle, intent: $intentID")
 
+        val scope = rememberCoroutineScope()
         val landingVM by viewModel<LandingVM>()
         val preLaunchVM: PreLaunchVM = koinViewModel(parameters = { parametersOf(intentID) })
-        val scope = rememberCoroutineScope()
 
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
-
         val appState by preLaunchVM.appState.collectAsState()
         val processState by preLaunchVM.processState.collectAsState()
 
@@ -131,8 +130,8 @@ class MainActivity : ComponentActivity() {
             Log.e(logTag, msg)
 
             val noMigrationNeeded = landingVM.noMigrationNeeded()
-            if (!noMigrationNeeded) { // forward to migration page
-                Log.e(logTag, "## Forwarding to migration page and closing curr activity")
+            if (!noMigrationNeeded) {
+                Log.w(logTag, "... Forwarding to migration page, stopping default main activity")
                 val intent = Intent(activity, MigrateActivity::class.java)
                 startActivity(intent)
                 activity.finish()
@@ -155,9 +154,7 @@ class MainActivity : ComponentActivity() {
         val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
         Box {
-
             when (processState) {
-
                 PreLaunchState.TERMINATE -> {
                     LaunchedEffect(Unit) {
                         emitActivityResult(Activity.RESULT_OK)
@@ -208,7 +205,7 @@ class MainActivity : ComponentActivity() {
             val msg = "... Processing intent ($intent):\n" +
                     "\t- cmp: ${intent.component}\n\t- action${intent.action}" +
                     "\n\t- categories: ${intent.categories}" //+
-            Log.e(logTag, msg)
+            Log.i(logTag, msg)
             if (sBundle != null) {
                 TODO("Handle non-null saved bundle state")
             }

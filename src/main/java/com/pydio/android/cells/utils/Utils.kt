@@ -7,11 +7,6 @@ import com.pydio.android.cells.ListType
 import com.pydio.cells.api.SDKException
 import java.io.File
 
-//fun Fragment.hideKeyboard() {
-//    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//    imm.hideSoftInputFromWindow(requireView().windowToken, 0)
-//}
-
 /* VARIOUS */
 
 fun childFile(parPath: String, filename: String): File {
@@ -59,9 +54,3 @@ fun parseOrder(encoded: String?, type: ListType): Pair<String, String> {
     }
     return Pair(tokens[0], tokens[1])
 }
-
-//fun decodeSortById(sortId: String): Pair<String, String> {
-//    val prefix = sortId.substring(0, sortId.lastIndexOf("_"))
-//    val suffix = sortId.substring(sortId.lastIndexOf("_") + 1)
-//    return prefix to if (suffix == "desc") "DESC" else "ASC"
-//}
