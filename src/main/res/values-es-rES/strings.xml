@@ -18,7 +18,7 @@
     <string name="button_resync_all">Re-sincronizar</string>
     <string name="button_skip">Saltar</string>
     <string name="button_launch_sync">Iniciar Sincronización</string>
-    <string name="button_empty_cache">Empty Cache</string>
+    <string name="button_empty_cache">Vaciar caché</string>
     <!-- Navigation labels -->
     <string name="action_home">Inicio</string>
     <string name="action_open_after_migration">¡Comienza a usar la aplicación!</string>
@@ -33,8 +33,8 @@
     <string name="action_open_about">Acerca de</string>
     <string name="action_search">Buscar</string>
     <string name="action_settings">Configuración</string>
-    <string name="action_house_keeping">House keeping</string>
-    <string name="action_re_log">Re-log to server</string>
+    <string name="action_house_keeping">Mantenimiento</string>
+    <string name="action_re_log">Reiniciar sesión</string>
     <!-- Main Menu (left drawer) -->
     <string name="open_drawer">Abrir el cajón de menú</string>
     <!-- Section titles -->
@@ -46,10 +46,10 @@
     <!-- Various -->
     <!-- ERRORS -->
     <string name="generic_error_message">¡Error inesperado!</string>
-    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="server_unreachable">El servidor no está accesible</string>
     <string name="empty_cache">No se puede listar el contenido de la carpeta</string>
     <string name="cannot_download_file">No se puede descargar el archivo</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
+    <string name="no_download_on_metered">Las descargas en redes medidas están restringidas,\npuedes cambiar esto en la configuración de la aplicación</string>
     <!-- PAGE SPECIFIC MESSAGES -->
     <!-- Welcome Page -->
     <string name="welcome_title">¡Bienvenido a Pydio!</string>
@@ -100,7 +100,7 @@
     <string name="account_list_title">Mis cuentas</string>
     <string name="account_list_desc">Gestionar los servidores remotos ya registrados</string>
     <string name="account_list_none">Todavía no se ha configurado ninguna cuenta…</string>
-    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="account_confirm_deletion_desc">¿Estás seguro de que quieres olvidar esta cuenta %s?</string>
     <string name="no_account">No hay cuenta. Por favor configure al menos una conexión</string>
     <!-- Browse management -->
     <string name="loading_message">Por favor, espera mientras se carga el contenido…</string>
@@ -115,14 +115,14 @@
     <string name="last_check">Última verificación</string>
     <string name="last_check_never">nunca</string>
     <string name="appears_in_prefix">Dentro %s</string>
-    <string name="no_preview_for">Cannot preview %s</string>
-    <string name="unavailable_preview">Unavailable preview</string>
+    <string name="no_preview_for">No se puede previsualizar %s</string>
+    <string name="unavailable_preview">Vista previa no disponible</string>
     <!-- Search -->
     <string name="search_label">Buscar…</string>
     <string name="search_hint">¡Introduce un término para buscar tus archivos!</string>
     <string name="no_result_for_search">\"Ningún resultado encontrado para \"%s\".\"</string>
     <string name="cannot_search_remote">No se puede realizar la búsqueda</string>
-    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <string name="search_is_local_only">Solo puedes buscar entre nodos ya en caché</string>
     <!--Offline -->
     <string name="sync_in_progress">Sincronizando…</string>
     <string name="sync_downloading">Descargando archivos…</string>
@@ -145,7 +145,7 @@
         <item quantity="other">%d elementos seleccionados</item>
     </plurals>
     <!-- Local modification status -->
-    <string name="in_progress_updating">Updating…</string>
+    <string name="in_progress_updating">Actualizando…</string>
     <string name="in_progress_deleting">Borrando…</string>
     <string name="in_progress_renaming">Renombrando…</string>
     <string name="in_progress_moving">Moviendo…</string>
@@ -186,7 +186,7 @@
     <string name="post_migration_sync_message">Tienes uno o más elementos marcados como fuera de línea, esta migración requiere una re-descarga completa ahora. ¿Quieres continuar? Puedes saltarlo y sincronizarlo más tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Elija una acción para aplicar a los elementos seleccionados</string>
-    <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
+    <string name="more_menu_no_action">No se puede realizar ninguna acción cuando el servidor no es accesible</string>
     <string name="deselect_all">Deseleccionar todo</string>
     <string name="more_button_description">Mostrar más acciones para este elemento</string>
     <string name="open_in_workspaces">Abrir ubicación</string>
@@ -232,8 +232,8 @@
     <string name="confirm_account_logout_title">¿Cerrar sesión en la cuenta\n%s?</string>
     <string name="confirm_account_logout_desc">Se olvidarán tus credenciales para este servidor: debes volver a iniciar sesión para conectarte.</string>
     <string name="confirm_cache_deletion_message">Esta acción liberará espacio pero forzará la redescarga de la vista previa de la imagen y el contenido de la carpeta.</string>
-    <string name="confirm_for_all_accounts_message">Danger: you are about to empty the cache for all accounts.\n\nAre you sure you want to proceed?</string>
-    <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
+    <string name="confirm_for_all_accounts_message">Peligro: estás a punto de vaciar el caché para todas las cuentas.\n\n¿Seguro que quieres continuar?</string>
+    <string name="confirm_reset_all_message">Peligro: estás a punto de borrar todos los datos locales, incluyendo las cuentas configuradas.\n\n¿Estás seguro de que quieres continuar?</string>
     <string name="confirm_cache_deletion_title">Borrar caché</string>
     <string name="create_account">Crear una cuenta</string>
     <string name="content_description_media">Vista previa del contenido</string>
@@ -253,6 +253,8 @@
     <string name="rename_dialog_message">Introduce un nuevo nombre para %s</string>
     <string name="rename_dialog_confirm_button">Renombrar</string>
     <string name="download_wait_message">Descargando, por favor espera…</string>
+    <string name="confirm_dl_on_metered_title">Confirmar descarga</string>
+    <string name="confirm_dl_on_metered_desc">El tamaño de %1$s es %2$s y estás en una red medida.\n\n¿Seguro que quieres descargarlo?</string>
     <string name="display_as_qrcode_dialog_title">Enlace directo</string>
     <string name="display_as_qrcode_dialog_desc">Escanear el código para acceder directamente a %s</string>
     <string name="running_download_title">Descargando…</string>
@@ -298,16 +300,16 @@
     <string name="pref_feedback_send_title">Enviar comentarios</string>
     <string name="pref_feedback_send_desc">Informar de problemas técnicos o sugerir nuevas funciones</string>
     <!-- Cache cleaning-->
-    <string name="pref_clean_cache_params_title">Cleaning parameters</string>
-    <string name="pref_clean_cache_params_desc">Fine tune how what you will erase from your local device:</string>
-    <string name="pref_clean_cache_include_offline_title">Include Offline</string>
-    <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
-    <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
-    <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
-    <string name="pref_clean_cache_clean_all_title">Erase All</string>
-    <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
+    <string name="pref_clean_cache_params_title">Parámetros de limpieza</string>
+    <string name="pref_clean_cache_params_desc">Ajusta con precisión lo que borrarás de tu teléfono:</string>
+    <string name="pref_clean_cache_include_offline_title">Incluir datos de offline</string>
+    <string name="pref_clean_cache_include_offline_desc">Eliminar también archivos que están en partes del árbol marcadas como offline</string>
+    <string name="pref_clean_cache_forget_accounts_title">Olvidar credenciales</string>
+    <string name="pref_clean_cache_forget_accounts_desc">Olvidar también las credenciales almacenadas: tendrás que iniciar sesión de nuevo</string>
+    <string name="pref_clean_cache_all_accounts_title">Limpiar todas las cuentas</string>
+    <string name="pref_clean_cache_all_accounts_desc">Aplicar la estrategia de limpieza a todas las cuentas definidas</string>
+    <string name="pref_clean_cache_clean_all_title">Borrar todo</string>
+    <string name="pref_clean_cache_clean_all_desc">PELIGRO: eliminarás todo del dispositivo local</string>
     <!-- Accessibility various content -->
     <string name="node_add_button_description">Crear o importar</string>
     <string name="exit_description">Salir de la aplicación</string>
