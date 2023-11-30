@@ -128,6 +128,10 @@ class JobService(
         jobDao.clearTerminatedJobs()
     }
 
+    suspend fun clearAllJobs() = withContext(ioDispatcher) {
+        jobDao.clearAllJobs()
+    }
+
     // Logs
     suspend fun clearAllLogs() = withContext(ioDispatcher) {
         logDao.clearLogs()

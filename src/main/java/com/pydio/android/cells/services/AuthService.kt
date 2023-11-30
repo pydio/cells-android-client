@@ -92,6 +92,11 @@ class AuthService(
             return@withContext authStateDao.get(authState) != null
         }
 
+    suspend fun clearOAuthStates() =
+        withContext(ioDispatcher) {
+            authStateDao.deleteAll()
+        }
+
     suspend fun handleOAuthResponse(
         accountService: AccountService,
         sessionFactory: SessionFactory,

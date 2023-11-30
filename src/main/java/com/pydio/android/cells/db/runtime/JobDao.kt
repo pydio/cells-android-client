@@ -39,6 +39,9 @@ interface JobDao {
     @Query("DELETE FROM jobs WHERE done_ts > 0")
     fun clearTerminatedJobs()
 
+    @Query("DELETE FROM jobs")
+    fun clearAllJobs()
+
     @Query("DELETE FROM jobs WHERE job_id = :jobId")
     fun deleteTransfer(jobId: Long)
 

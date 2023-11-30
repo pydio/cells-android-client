@@ -16,4 +16,8 @@ interface OAuthStateDao {
 
     @Query("DELETE FROM oauth_states WHERE oauth_state = :state")
     fun delete(state: String)
+
+    @Query("DELETE FROM oauth_states")
+    fun deleteAll()
+
 }

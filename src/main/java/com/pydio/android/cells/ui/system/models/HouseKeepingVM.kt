@@ -3,8 +3,10 @@ package com.pydio.android.cells.ui.system.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.pydio.android.cells.services.AccountService
+import com.pydio.android.cells.services.AuthService
 import com.pydio.android.cells.services.CoroutineService
 import com.pydio.android.cells.services.ErrorService
+import com.pydio.android.cells.services.JobService
 import com.pydio.android.cells.services.NodeService
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
@@ -17,6 +19,8 @@ import kotlinx.coroutines.launch
 class HouseKeepingVM(
     private val stateID: StateID,
     private val coroutineService: CoroutineService,
+    private val authService: AuthService,
+    private val jobService: JobService,
     private val accountService: AccountService,
     private val nodeService: NodeService,
     private val errorService: ErrorService,
@@ -68,9 +72,7 @@ class HouseKeepingVM(
 
             val allIDs: List<StateID> = if (allAccounts) {
                 val sessions = accountService.listSessionViews(true)
-//                Log.e(logTag, "Retrieving all IDs, found ${sessions.size} session(s)")
                 sessions.map {
-//                    Log.e(logTag, " - ${it.getStateID()}")
                     it.getStateID()
                 }
             } else {
@@ -98,6 +100,9 @@ class HouseKeepingVM(
                         hasFailed = true
                     }
                 }
+                jobService.clearAllJobs()
+                jobService.clearAllLogs()
+                authService.clearOAuthStates()
             }
             try {
                 nodeService.emptyGlideCache()
