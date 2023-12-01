@@ -36,10 +36,7 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
 ) {
     val data = ClientData.getInstance()
-
     val pydioSiteUrl = stringResource(R.string.main_website)
-
-    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -52,7 +49,7 @@ fun AboutScreen(
         modifier = modifier
     ) { innerPadding ->
 
-        val resources = LocalContext.current.resources
+        val context = LocalContext.current
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
@@ -74,7 +71,7 @@ fun AboutScreen(
                 stringResource(R.string.about_page_get_help),
                 stringResource(R.string.help_button_support),
                 onEmailClick = {
-                    val intent = sendSupportEmail(resources)
+                    val intent = sendSupportEmail(context.resources)
                     ContextCompat.startActivity(context, intent, null)
                 },
             )

@@ -118,7 +118,6 @@ class MainActivity : ComponentActivity() {
         val processSelectedTarget: (StateID?) -> Unit = { stateID ->
             scope.launch {
                 stateID?.let {
-                    Log.d(logTag, "... Got a target folder for the share action: $it")
                     preLaunchVM.shareAt(it)
                 }
             }

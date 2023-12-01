@@ -25,7 +25,6 @@ fun LaunchOAuthFlow(
 
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
-
     val context = LocalContext.current
 
     LaunchedEffect(key1 = stateID) {

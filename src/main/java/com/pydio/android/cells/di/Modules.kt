@@ -272,11 +272,6 @@ val serviceModule = module {
 val viewModelModule = module {
 
     viewModelOf(::LandingVM)
-    viewModelOf(::MigrationVM)
-
-    viewModelOf(::SettingsVM)
-    viewModelOf(::PrefReadOnlyVM)
-
     viewModelOf(::PreLaunchVM)
     viewModelOf(::LoginVM)
     viewModelOf(::AccountListVM)
@@ -285,28 +280,29 @@ val viewModelModule = module {
     viewModelOf(::AccountHomeVM)
     viewModelOf(::FolderVM)
     viewModelOf(::CarouselVM)
-
-    viewModelOf(::TreeNodeVM)
-    viewModelOf(::SortByMenuVM)
-
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)
 
     viewModelOf(::NodeActionsVM)
+    viewModelOf(::TreeNodeVM)
+    viewModelOf(::SortByMenuVM)
 
+    viewModelOf(::ShareVM)
+    viewModelOf(::TransfersVM)
     viewModelOf(::DownloadVM)
     viewModelOf(::SingleTransferVM)
+    viewModelOf(::MonitorUploadsVM)
+    viewModelOf(::FilterTransferByMenuVM)
 
     viewModelOf(::SearchVM)
 
-    viewModelOf(::ShareVM)
-    viewModelOf(::MonitorUploadsVM)
-    viewModelOf(::TransfersVM)
-    viewModelOf(::FilterTransferByMenuVM)
+    viewModelOf(::SettingsVM)
+    viewModelOf(::PrefReadOnlyVM)
 
+    viewModelOf(::MigrationVM)
+    viewModelOf(::HouseKeepingVM)
     viewModelOf(::JobListVM)
     viewModelOf(::LogListVM)
-    viewModelOf(::HouseKeepingVM)
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

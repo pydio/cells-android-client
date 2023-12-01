@@ -82,16 +82,4 @@ fun NavGraphBuilder.loginNavGraph(
             helper = helper,
         )
     }
-
-//    composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
-//        val stateID = lazyStateID(nbsEntry)
-//        LaunchedEffect(key1 = stateID) {
-//            Log.i(logTag, "## 1st compo login/process-auth/$stateID")
-//        }
-//        ProcessAuth(
-//            stateID = stateID,
-//            loginVM = loginVM,
-//            helper = helper,
-//        )
-//    }
 }
