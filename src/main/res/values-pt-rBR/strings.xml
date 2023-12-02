@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Welcome Page -->
+    <string name="welcome_title">Bem-vindo ao Pydio!</string>
+    <string name="welcome_subtitle">Um cliente leve do Cells para Android</string>
+    <string name="welcome_text">Todos os dados no seu dispositivo, em todos os lugares, a qualquer momento!</string>
+    <string name="welcome_no_account_instructions">Primeiro, configure sua conexão com seu servidor remoto do Pydio:</string>
+    <string name="welcome_add_account_button">Configurar uma conexão</string>
+    <!-- About Page -->
+    <string name="about_page_version_title">Pydio</string>
+    <string name="about_version_title">Cliente do Pydio para Android</string>
+    <string name="about_help_title">Resolução de problemas</string>
+    <string name="about_page_copyright">Pydio é uma marca comercial de Abstrium SAS.</string>
+    <string name="version_name_display">Nome da Versão: %s</string>
+    <string name="version_code_display">Código da Versão: %s</string>
+    <string name="last_update_time_display">Data da versão: %s</string>
+    <string name="about_page_get_help">Se você não conseguir fazer este aplicativo funcionar corretamente, por favor, envie um e-mail com uma descrição completa do problema que você está enfrentando para que possamos ajudá-lo.</string>
+    <string name="help_button_support">Contatar o Suporte da Pydio</string>
+    <string name="open_website_button">Mais informações em pydio.com</string>
     <!-- GENERIC MESSAGES -->
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
@@ -19,7 +36,14 @@
     <string name="button_skip">Pular</string>
     <string name="button_launch_sync">Iniciar Sincronização</string>
     <string name="button_empty_cache">Empty Cache</string>
+    <!-- Multi select -->
+    <plurals name="selected_count">
+        <item quantity="one">%d item selecionado</item>
+        <item quantity="other">%d itens selecionados</item>
+    </plurals>
     <!-- Navigation labels -->
+    <string name="nav_open">Abrir</string>
+    <string name="nav_close">Fechar</string>
     <string name="action_home">Início</string>
     <string name="action_open_after_migration">Comece a usar o aplicativo!</string>
     <string name="action_choose_account">Selecione uma conta</string>
@@ -41,95 +65,6 @@
     <string name="my_workspaces">Meus Espaços de Trabalho</string>
     <string name="quick_access">Acesso Rápido</string>
     <string name="my_account">Minha Conta</string>
-    <string name="nav_open">Abrir</string>
-    <string name="nav_close">Fechar</string>
-    <!-- Various -->
-    <!-- ERRORS -->
-    <string name="generic_error_message">Erro inesperado...</string>
-    <string name="server_unreachable">Server is un-reachable</string>
-    <string name="empty_cache">Impossível listar o conteúdo da pasta</string>
-    <string name="cannot_download_file">Não é possível baixar o arquivo</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
-    <!-- PAGE SPECIFIC MESSAGES -->
-    <!-- Welcome Page -->
-    <string name="welcome_title">Bem-vindo ao Pydio!</string>
-    <string name="welcome_subtitle">Um cliente leve do Cells para Android</string>
-    <string name="welcome_text">Todos os dados no seu dispositivo, em todos os lugares, a qualquer momento!</string>
-    <string name="welcome_no_account_instructions">Primeiro, configure sua conexão com seu servidor remoto do Pydio:</string>
-    <string name="welcome_add_account_button">Configurar uma conexão</string>
-    <!-- About Page -->
-    <string name="about_page_version_title">Pydio</string>
-    <string name="about_version_title">Cliente do Pydio para Android</string>
-    <string name="about_help_title">Resolução de problemas</string>
-    <string name="about_page_copyright">Pydio é uma marca comercial de Abstrium SAS.</string>
-    <string name="version_name_display">Nome da Versão: %s</string>
-    <string name="version_code_display">Código da Versão: %s</string>
-    <string name="last_update_time_display">Data da versão: %s</string>
-    <string name="about_page_get_help">Se você não conseguir fazer este aplicativo funcionar corretamente, por favor, envie um e-mail com uma descrição completa do problema que você está enfrentando para que possamos ajudá-lo.</string>
-    <string name="help_button_support">Contatar o Suporte da Pydio</string>
-    <string name="open_website_button">Mais informações em pydio.com</string>
-    <!-- Network Management -->
-    <string name="no_internet">Sem conexão à internet</string>
-    <string name="captive_portal">Portal cativo: é necessário fazer login</string>
-    <string name="metered_connection">Conexão limitada</string>
-    <string name="roaming_connection">Usando uma conexão de roaming</string>
-    <!-- Authentication process  -->
-    <string name="ask_url_title">Cadastrar uma nova conta</string>
-    <string name="ask_url_desc">Digite o endereço do seu servidor</string>
-    <string name="ask_url_example">ex.: https://files.example.com</string>
-    <string name="oauth_callback_waiting">O processo de autenticação foi iniciado</string>
-    <string name="oauth_callback_cancel">Cancelar</string>
-    <string name="invalid_tls_certificate">Certificado inválido</string>
-    <string name="confirm_skip_verify_title">Certificado inválido</string>
-    <string name="confirm_skip_verify_desc">Se você sabe o que está fazendo, você pode optar por ignorar a etapa de validação de certificado TLS</string>
-    <string name="confirm_skip_verify_accept">Aceitar os riscos e continuar</string>
-    <string name="confirm_skip_verify_cancel">Voltar (recomendado)</string>
-    <string name="button_i_understand_the_risks">OK, eu compreendo os riscos</string>
-    <string name="p8_credentials_title">Pydio 8</string>
-    <string name="p8_credentials_desc">Digite suas credenciais</string>
-    <string name="oauth_code_flow_title">Processando</string>
-    <string name="oauth_code_flow_desc">Processando, por favor seja paciente.</string>
-    <!-- Manage connection -->
-    <string name="no_connection_title">Sem conexão</string>
-    <string name="no_connection_status">Não é possível conectar-se a %1$s como %2$s: %3$s</string>
-    <string name="launch_auth">Autenticar novamente</string>
-    <string name="auth_ok">Sua conta está conectada</string>
-    <string name="auth_err_expired">Credenciais expiradas</string>
-    <string name="auth_err_no_token">Credenciais inexistentes ou inválidas</string>
-    <!-- Account management -->
-    <string name="account_list_title">Minhas Contas</string>
-    <string name="account_list_desc">Gerenciar servidores remotos já registrados</string>
-    <string name="account_list_none">Nenhuma conta foi configurada ainda…</string>
-    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
-    <string name="no_account">Nenhuma conta, por favor configure pelo menos uma conexão</string>
-    <!-- Browse management -->
-    <string name="loading_message">Aguarde enquanto carrega o conteúdo…</string>
-    <string name="ws_list_subtitle">Escolha um espaço de trabalho para navegar</string>
-    <string name="browse_list_desc">Navegar nos seus servidores remotos</string>
-    <string name="browse_list_none">Vazio</string>
-    <string name="recycle_bin_label">Lixeira</string>
-    <string name="account_server_label">Servidor: %s</string>
-    <string name="account_logged_in_as_label">Logado como %s</string>
-    <string name="category_cells">Células</string>
-    <string name="category_workspaces">Espaços de trabalho</string>
-    <string name="last_check">Última verificação</string>
-    <string name="last_check_never">nunca</string>
-    <string name="appears_in_prefix">Dentro de %s</string>
-    <string name="no_preview_for">Cannot preview %s</string>
-    <string name="unavailable_preview">Unavailable preview</string>
-    <!-- Search -->
-    <string name="search_label">Buscar…</string>
-    <string name="search_hint">Digite um termo para procurar seus arquivos!</string>
-    <string name="no_result_for_search">Nenhum resultado para \"%s\"</string>
-    <string name="cannot_search_remote">Não foi possível realizar a busca</string>
-    <string name="search_is_local_only">You can only search among already cached nodes</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Sincronizando…</string>
-    <string name="sync_downloading">Baixando arquivos…</string>
-    <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças</string>
-    <string name="sync_already_running">Um processo de sincronização já está em execução, por favor aguarde antes de iniciar um novo</string>
-    <string name="confirm_remove_offline_title">Confirme sua escolha</string>
-    <string name="confirm_remove_offline_desc">Remover o status offline deste nó pode levar à perda dos dados baixados. Tem certeza de que deseja prosseguir</string>
     <!-- Empty lists -->
     <string name="account_home_no_ws_title">Sem espaço de trabalho para listar</string>
     <string name="account_home_no_ws_desc">Ou o servidor está inacessível, ou você pode ter perdido suas permissões. Neste último caso, por favor, contate o administrador do site.</string>
@@ -139,51 +74,6 @@
     <string name="no_transfer_for_account">Não há transferência recente para mostrar</string>
     <string name="no_transfer_with_filter">Nenhuma transferência com o status \"%s\"</string>
     <string name="no_offline_root_for_account">Nenhuma pasta foi marcada para ser mantida offline para esta conta…</string>
-    <!-- Multi select -->
-    <plurals name="selected_count">
-        <item quantity="one">%d item selecionado</item>
-        <item quantity="other">%d itens selecionados</item>
-    </plurals>
-    <!-- Local modification status -->
-    <string name="in_progress_updating">Updating…</string>
-    <string name="in_progress_deleting">Excluindo…</string>
-    <string name="in_progress_renaming">Renomeando…</string>
-    <string name="in_progress_moving">Movendo…</string>
-    <string name="in_progress_restoring">Restaurando…</string>
-    <!-- Job Management -->
-    <string name="job_list_title">Tarefas em segundo plano</string>
-    <string name="job_list_empty_message">Não há nenhuma tarefa para mostrar</string>
-    <string name="filter_by_status_title">Filtrar por status</string>
-    <string name="job_sort_by_title">Classificar por</string>
-    <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
-    <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
-    <!-- Log Management -->
-    <string name="log_list_title">Logs do aplicativo</string>
-    <string name="log_list_empty_message">O registro está vazio</string>
-    <!-- Transfer Management -->
-    <string name="upload_screen_pending_title">Enviando…</string>
-    <string name="upload_screen_done_title">Upload concluído</string>
-    <string name="transfer_list_title">Transferências atuais</string>
-    <string name="choose_target_for_share_title">Compartilhar com…</string>
-    <string name="choose_target_for_copy_title">Copiar para…</string>
-    <string name="choose_target_for_move_title">Mover para…</string>
-    <!-- Target choice -->
-    <string name="choose_target_subtitle">Selecione um local</string>
-    <string name="pick_up_session">Escolha uma conta</string>
-    <string name="pick_up_workspace">Escolha um espaço de trabalho alvo</string>
-    <string name="pick_up_folder">Escolha uma pasta de destino</string>
-    <!--Transfers -->
-    <string name="relaunch_transfer">Reiniciar transferência</string>
-    <!-- System -->
-    <!-- Jobs -->
-    <string name="clear_terminated">Apagar finalizadas</string>
-    <string name="delete_record">Apagar registro</string>
-    <!-- Logs -->
-    <string name="clear_all_logs">Limpar logs do aplicativo</string>
-    <!-- Migration-->
-    <string name="migration_message">Migrando dados legados, por favor aguarde…</string>
-    <string name="post_migration_title">Atualizado com sucesso para a nova versão!</string>
-    <string name="post_migration_sync_message">Você tem um ou mais itens marcados como off-line. Essa migração requer uma nova descarga completa agora. Você quer prosseguir? Você pode ignorá-lo e sincronizar mais tarde.</string>
     <!-- More menus -->
     <string name="open_more_menu">Escolha uma ação para aplicar aos itens selecionados</string>
     <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
@@ -262,6 +152,112 @@
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Nome</string>
+    <!-- ERRORS -->
+    <string name="generic_error_message">Erro inesperado...</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Impossível listar o conteúdo da pasta</string>
+    <string name="cannot_download_file">Não é possível baixar o arquivo</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
+    <!-- PAGE SPECIFIC MESSAGES -->
+    <!-- Network Management -->
+    <string name="no_internet">Sem conexão à internet</string>
+    <string name="captive_portal">Portal cativo: é necessário fazer login</string>
+    <string name="metered_connection">Conexão limitada</string>
+    <string name="roaming_connection">Usando uma conexão de roaming</string>
+    <!-- Authentication process  -->
+    <string name="ask_url_title">Cadastrar uma nova conta</string>
+    <string name="ask_url_desc">Digite o endereço do seu servidor</string>
+    <string name="ask_url_example">ex.: https://files.example.com</string>
+    <string name="oauth_callback_waiting">O processo de autenticação foi iniciado</string>
+    <string name="oauth_callback_cancel">Cancelar</string>
+    <string name="invalid_tls_certificate">Certificado inválido</string>
+    <string name="confirm_skip_verify_title">Certificado inválido</string>
+    <string name="confirm_skip_verify_desc">Se você sabe o que está fazendo, você pode optar por ignorar a etapa de validação de certificado TLS</string>
+    <string name="confirm_skip_verify_accept">Aceitar os riscos e continuar</string>
+    <string name="confirm_skip_verify_cancel">Voltar (recomendado)</string>
+    <string name="button_i_understand_the_risks">OK, eu compreendo os riscos</string>
+    <string name="p8_credentials_title">Pydio 8</string>
+    <string name="p8_credentials_desc">Digite suas credenciais</string>
+    <string name="oauth_code_flow_title">Processando</string>
+    <string name="oauth_code_flow_desc">Processando, por favor seja paciente.</string>
+    <!-- Manage connection -->
+    <string name="no_connection_title">Sem conexão</string>
+    <string name="no_connection_status">Não é possível conectar-se a %1$s como %2$s: %3$s</string>
+    <string name="launch_auth">Autenticar novamente</string>
+    <string name="auth_ok">Sua conta está conectada</string>
+    <string name="auth_err_expired">Credenciais expiradas</string>
+    <string name="auth_err_no_token">Credenciais inexistentes ou inválidas</string>
+    <!-- Account management -->
+    <string name="account_list_title">Minhas Contas</string>
+    <string name="account_list_desc">Gerenciar servidores remotos já registrados</string>
+    <string name="account_list_none">Nenhuma conta foi configurada ainda…</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">Nenhuma conta, por favor configure pelo menos uma conexão</string>
+    <!-- Browse management -->
+    <string name="loading_message">Aguarde enquanto carrega o conteúdo…</string>
+    <string name="ws_list_subtitle">Escolha um espaço de trabalho para navegar</string>
+    <string name="browse_list_desc">Navegar nos seus servidores remotos</string>
+    <string name="browse_list_none">Vazio</string>
+    <string name="recycle_bin_label">Lixeira</string>
+    <string name="account_server_label">Servidor: %s</string>
+    <string name="account_logged_in_as_label">Logado como %s</string>
+    <string name="category_cells">Células</string>
+    <string name="category_workspaces">Espaços de trabalho</string>
+    <string name="last_check">Última verificação</string>
+    <string name="last_check_never">nunca</string>
+    <string name="appears_in_prefix">Dentro de %s</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Buscar…</string>
+    <string name="search_hint">Digite um termo para procurar seus arquivos!</string>
+    <string name="no_result_for_search">Nenhum resultado para \"%s\"</string>
+    <string name="cannot_search_remote">Não foi possível realizar a busca</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Sincronizando…</string>
+    <string name="sync_downloading">Baixando arquivos…</string>
+    <string name="sync_tree_walking">Caminhando pela árvore para procurar por mudanças</string>
+    <string name="sync_already_running">Um processo de sincronização já está em execução, por favor aguarde antes de iniciar um novo</string>
+    <string name="confirm_remove_offline_title">Confirme sua escolha</string>
+    <string name="confirm_remove_offline_desc">Remover o status offline deste nó pode levar à perda dos dados baixados. Tem certeza de que deseja prosseguir</string>
+    <!--Transfers -->
+    <string name="relaunch_transfer">Reiniciar transferência</string>
+    <string name="upload_screen_pending_title">Enviando…</string>
+    <string name="upload_screen_done_title">Upload concluído</string>
+    <string name="transfer_list_title">Transferências atuais</string>
+    <string name="choose_target_for_share_title">Compartilhar com…</string>
+    <string name="choose_target_for_copy_title">Copiar para…</string>
+    <string name="choose_target_for_move_title">Mover para…</string>
+    <!-- Target choice -->
+    <string name="choose_target_subtitle">Selecione um local</string>
+    <string name="pick_up_session">Escolha uma conta</string>
+    <string name="pick_up_workspace">Escolha um espaço de trabalho alvo</string>
+    <string name="pick_up_folder">Escolha uma pasta de destino</string>
+    <!-- SYSTEM -->
+    <!-- Local modification status -->
+    <string name="in_progress_updating">Updating…</string>
+    <string name="in_progress_deleting">Excluindo…</string>
+    <string name="in_progress_renaming">Renomeando…</string>
+    <string name="in_progress_moving">Movendo…</string>
+    <string name="in_progress_restoring">Restaurando…</string>
+    <!-- Jobs -->
+    <string name="job_list_title">Tarefas em segundo plano</string>
+    <string name="job_list_empty_message">Não há nenhuma tarefa para mostrar</string>
+    <string name="filter_by_status_title">Filtrar por status</string>
+    <string name="job_sort_by_title">Classificar por</string>
+    <string name="job_sort_by_creation_ts_desc_label">Criação (mais recente primeiro)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Criação (mais antigo primeiro)</string>
+    <string name="clear_terminated">Apagar finalizadas</string>
+    <string name="delete_record">Apagar registro</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Limpar logs do aplicativo</string>
+    <string name="log_list_title">Logs do aplicativo</string>
+    <string name="log_list_empty_message">O registro está vazio</string>
+    <!-- Migration-->
+    <string name="migration_message">Migrando dados legados, por favor aguarde…</string>
+    <string name="post_migration_title">Atualizado com sucesso para a nova versão!</string>
+    <string name="post_migration_sync_message">Você tem um ou mais itens marcados como off-line. Essa migração requer uma nova descarga completa agora. Você quer prosseguir? Você pode ignorá-lo e sincronizar mais tarde.</string>
     <!-- Settings / Preferences -->
     <!-- Lists -->
     <string name="pref_category_title_recycler">Personalizar listas (quando aplicável)</string>
@@ -271,8 +267,8 @@
     <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Aplicar limites</string>
     <string name="pref_apply_metered_limits_desc">Aviso: desativar esta opção pulará todas as limitações quando em uma rede limitada. Isto pode levar a aumento de custos</string>
-    <string name="pref_metered_show_warning_title">Show warning</string>
-    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
+    <string name="pref_metered_show_warning_title">Custom colors</string>
+    <string name="pref_metered_show_warning_desc">Adapt color themes to network status, like mobile data or roaming.</string>
     <string name="pref_metered_dl_thumbs_title">Baixar miniaturas</string>
     <string name="pref_metered_dl_thumbs_desc">Recuperar também miniaturas quando em rede limitada</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Perguntar antes de baixar</string>
@@ -306,8 +302,8 @@
     <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
     <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
     <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_all_accounts_title">Extend to all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the above cleaning strategy to *all* accounts</string>
     <string name="pref_clean_cache_clean_all_title">Erase All</string>
     <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
     <!-- Accessibility various content -->
