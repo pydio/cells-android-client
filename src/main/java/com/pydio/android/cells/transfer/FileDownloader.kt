@@ -89,10 +89,7 @@ class FileDownloader(
         for (msg in queue) { // iterate over incoming messages
             when (msg) {
                 "done" -> {
-                    Log.e(logTag, "######################################################")
-                    Log.e(logTag, "####  DONE message received #######")
-
-                    Log.i(logTag, "Received done msg, finalizing and forwarding to done channel")
+                    Log.i(logTag, "Received done msg: forwarding to done channel")
 //                    finalizeJob()
                     doneChannel.send(true)
                     return

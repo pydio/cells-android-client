@@ -15,11 +15,10 @@ import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import java.net.URL
 
-private const val logTag = "CellsS3Client"
+private const val LOG_TAG = "CellsS3Client"
 
 private const val DEFAULT_GATEWAY_SECRET = "gatewaysecret"
 private const val DEFAULT_S3_REGION_NAME = "us-east-1"
-
 const val DEFAULT_BUCKET_NAME = "data"
 
 /* Main entry point to communicate with a S3 store */
@@ -85,7 +84,7 @@ class CellsS3Client(private val transport: CellsTransport) : S3Client {
             var path = slug + file
             if (path.contains("//")) {
                 // This should not happen anymore
-                Log.w(logTag, "Found a double slash in $path, this is most probably a bug:")
+                Log.w(LOG_TAG, "Found a double slash in $path, this is most probably a bug:")
                 Thread.dumpStack()
                 path = path.replace("//", "/")
             }

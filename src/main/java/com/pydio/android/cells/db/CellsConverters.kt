@@ -15,7 +15,6 @@ class CellsConverters {
     @Keep
     fun toProperties(value: String): Properties {
         val newType = TypeToken.get(Properties::class.javaObjectType)
-        // val propType: Type = object : TypeToken<Properties>() {}.type
         return Gson().fromJson(value, newType)
     }
 
