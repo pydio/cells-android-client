@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Welcome Page -->
+    <string name="welcome_title">Welcome in Pydio!</string>
+    <string name="welcome_subtitle">A light Cells client for Android</string>
+    <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
+    <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
+    <string name="welcome_add_account_button">Configure a connection</string>
+    <!-- About Page -->
+    <string name="about_page_version_title">Pydio</string>
+    <string name="about_version_title">Pydio Client for Android</string>
+    <string name="about_help_title">Troubleshooting</string>
+    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
+    <string name="version_name_display">Version name: %s</string>
+    <string name="version_code_display">Version code: %s</string>
+    <string name="last_update_time_display">Version date: %s</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
+    <string name="help_button_support">Contact Pydio Support</string>
+    <string name="open_website_button">More info on pydio.com</string>
     <!-- GENERIC MESSAGES -->
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
@@ -19,7 +36,13 @@
     <string name="button_skip">Skip</string>
     <string name="button_launch_sync">Launch Sync</string>
     <string name="button_empty_cache">Empty Cache</string>
+    <!-- Multi select -->
+    <plurals name="selected_count">
+        <item quantity="other">%d items selected</item>
+    </plurals>
     <!-- Navigation labels -->
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
     <string name="action_home">Home</string>
     <string name="action_open_after_migration">Start using the app!</string>
     <string name="action_choose_account">Choose an account</string>
@@ -41,95 +64,6 @@
     <string name="my_workspaces">My Workspaces</string>
     <string name="quick_access">Quick Access</string>
     <string name="my_account">My Account</string>
-    <string name="nav_open">Open</string>
-    <string name="nav_close">Close</string>
-    <!-- Various -->
-    <!-- ERRORS -->
-    <string name="generic_error_message">Unexpected error…</string>
-    <string name="server_unreachable">Server is un-reachable</string>
-    <string name="empty_cache">Cannot list folder content</string>
-    <string name="cannot_download_file">Cannot download file</string>
-    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
-    <!-- PAGE SPECIFIC MESSAGES -->
-    <!-- Welcome Page -->
-    <string name="welcome_title">Welcome in Pydio!</string>
-    <string name="welcome_subtitle">A light Cells client for Android</string>
-    <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
-    <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
-    <string name="welcome_add_account_button">Configure a connection</string>
-    <!-- About Page -->
-    <string name="about_page_version_title">Pydio</string>
-    <string name="about_version_title">Pydio Client for Android</string>
-    <string name="about_help_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
-    <string name="version_name_display">Version name: %s</string>
-    <string name="version_code_display">Version code: %s</string>
-    <string name="last_update_time_display">Version date: %s</string>
-    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
-    <string name="help_button_support">Contact Pydio Support</string>
-    <string name="open_website_button">More info on pydio.com</string>
-    <!-- Network Management -->
-    <string name="no_internet">No internet connection</string>
-    <string name="captive_portal">Captive portal: sign in required</string>
-    <string name="metered_connection">On a metered connection</string>
-    <string name="roaming_connection">Using a roaming connection</string>
-    <!-- Authentication process  -->
-    <string name="ask_url_title">Register a new account</string>
-    <string name="ask_url_desc">Please, enter your server address</string>
-    <string name="ask_url_example">e.g: https://files.example.com</string>
-    <string name="oauth_callback_waiting">Authentication process has been launched</string>
-    <string name="oauth_callback_cancel">Cancel</string>
-    <string name="invalid_tls_certificate">Invalid certificate</string>
-    <string name="confirm_skip_verify_title">Invalid certificate</string>
-    <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
-    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
-    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
-    <string name="button_i_understand_the_risks">OK, I understand the risks</string>
-    <string name="p8_credentials_title">Pydio 8</string>
-    <string name="p8_credentials_desc">Please enter your credentials</string>
-    <string name="oauth_code_flow_title">Processing</string>
-    <string name="oauth_code_flow_desc">Processing, please be patient.</string>
-    <!-- Manage connection -->
-    <string name="no_connection_title">Connection Down</string>
-    <string name="no_connection_status">Cannot connect to %1$s as %2$s: %3$s</string>
-    <string name="launch_auth">Re-authenticate</string>
-    <string name="auth_ok">Account is connected</string>
-    <string name="auth_err_expired">Credentials are expired</string>
-    <string name="auth_err_no_token">No or invalid credentials</string>
-    <!-- Account management -->
-    <string name="account_list_title">My Accounts</string>
-    <string name="account_list_desc">Manage already registered remote servers</string>
-    <string name="account_list_none">No account has been configured yet…</string>
-    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
-    <string name="no_account">No account, please configure at least a connection</string>
-    <!-- Browse management -->
-    <string name="loading_message">Please wait while loading content…</string>
-    <string name="ws_list_subtitle">Choose a workspace to browse</string>
-    <string name="browse_list_desc">Browse your remote servers</string>
-    <string name="browse_list_none">Empty</string>
-    <string name="recycle_bin_label">Recycle Bin</string>
-    <string name="account_server_label">Server: %s</string>
-    <string name="account_logged_in_as_label">Logged in as %s</string>
-    <string name="category_cells">Cells</string>
-    <string name="category_workspaces">Workspaces</string>
-    <string name="last_check">Last check</string>
-    <string name="last_check_never">never</string>
-    <string name="appears_in_prefix">Inside %s</string>
-    <string name="no_preview_for">Cannot preview %s</string>
-    <string name="unavailable_preview">Unavailable preview</string>
-    <!-- Search -->
-    <string name="search_label">Search…</string>
-    <string name="search_hint">Enter a term to search your files!</string>
-    <string name="no_result_for_search">No result found for \"%s\"</string>
-    <string name="cannot_search_remote">Cannot perform search</string>
-    <string name="search_is_local_only">You can only search among already cached nodes</string>
-    <!--Offline -->
-    <string name="sync_in_progress">Synchronising…</string>
-    <string name="sync_downloading">Downloading files…</string>
-    <string name="sync_tree_walking">Walking the tree to look for changes</string>
-    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
-    <string name="confirm_remove_offline_title">Confirm your choice</string>
-    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
     <!-- Empty lists -->
     <string name="account_home_no_ws_title">No workspace to list</string>
     <string name="account_home_no_ws_desc">Either the server is unreachable, or you may have lost your permissions. In the latter case, please contact your site administrator.</string>
@@ -139,50 +73,6 @@
     <string name="no_transfer_for_account">There is no recent transfer to show</string>
     <string name="no_transfer_with_filter">No transfer with \"%s\" status</string>
     <string name="no_offline_root_for_account">No folder has been tagged to be kept offline for this account…</string>
-    <!-- Multi select -->
-    <plurals name="selected_count">
-        <item quantity="other">%d items selected</item>
-    </plurals>
-    <!-- Local modification status -->
-    <string name="in_progress_updating">Updating…</string>
-    <string name="in_progress_deleting">Deleting…</string>
-    <string name="in_progress_renaming">Renaming…</string>
-    <string name="in_progress_moving">Moving…</string>
-    <string name="in_progress_restoring">Restoring…</string>
-    <!-- Job Management -->
-    <string name="job_list_title">Background jobs</string>
-    <string name="job_list_empty_message">There is no job to show</string>
-    <string name="filter_by_status_title">Filter by status</string>
-    <string name="job_sort_by_title">Sort by</string>
-    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
-    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
-    <!-- Log Management -->
-    <string name="log_list_title">Application logs</string>
-    <string name="log_list_empty_message">The journal is empty</string>
-    <!-- Transfer Management -->
-    <string name="upload_screen_pending_title">Uploading…</string>
-    <string name="upload_screen_done_title">Upload terminated</string>
-    <string name="transfer_list_title">Current transfers</string>
-    <string name="choose_target_for_share_title">Share to…</string>
-    <string name="choose_target_for_copy_title">Copy to…</string>
-    <string name="choose_target_for_move_title">Move to…</string>
-    <!-- Target choice -->
-    <string name="choose_target_subtitle">Select a location</string>
-    <string name="pick_up_session">Choose an account</string>
-    <string name="pick_up_workspace">Choose a target workspace</string>
-    <string name="pick_up_folder">Choose a target folder</string>
-    <!--Transfers -->
-    <string name="relaunch_transfer">Re-launch transfer</string>
-    <!-- System -->
-    <!-- Jobs -->
-    <string name="clear_terminated">Clear terminated</string>
-    <string name="delete_record">Delete record</string>
-    <!-- Logs -->
-    <string name="clear_all_logs">Clear application logs</string>
-    <!-- Migration-->
-    <string name="migration_message">Migrating legacy data, please wait…</string>
-    <string name="post_migration_title">Successfully Upgraded to New Version!</string>
-    <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
     <!-- More menus -->
     <string name="open_more_menu">Choose an action to apply to the selected items</string>
     <string name="more_menu_no_action">No action can be performed when the server is un-reachable</string>
@@ -260,6 +150,112 @@
     <string name="confirm_download_desc">This file is large (%s) and you are on a metered network. Are you sure you want to proceed?</string>
     <!-- TextFields Labels -->
     <string name="name_label">Name</string>
+    <!-- ERRORS -->
+    <string name="generic_error_message">Unexpected error…</string>
+    <string name="server_unreachable">Server is un-reachable</string>
+    <string name="empty_cache">Cannot list folder content</string>
+    <string name="cannot_download_file">Cannot download file</string>
+    <string name="no_download_on_metered">Downloads on metered networks are restricted,\nyou can change this in the application settings</string>
+    <!-- PAGE SPECIFIC MESSAGES -->
+    <!-- Network Management -->
+    <string name="no_internet">No internet connection</string>
+    <string name="captive_portal">Captive portal: sign in required</string>
+    <string name="metered_connection">On a metered connection</string>
+    <string name="roaming_connection">Using a roaming connection</string>
+    <!-- Authentication process  -->
+    <string name="ask_url_title">Register a new account</string>
+    <string name="ask_url_desc">Please, enter your server address</string>
+    <string name="ask_url_example">e.g: https://files.example.com</string>
+    <string name="oauth_callback_waiting">Authentication process has been launched</string>
+    <string name="oauth_callback_cancel">Cancel</string>
+    <string name="invalid_tls_certificate">Invalid certificate</string>
+    <string name="confirm_skip_verify_title">Invalid certificate</string>
+    <string name="confirm_skip_verify_desc">If you know what you are doing, you can choose to skip TLS certificate validation step</string>
+    <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
+    <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
+    <string name="button_i_understand_the_risks">OK, I understand the risks</string>
+    <string name="p8_credentials_title">Pydio 8</string>
+    <string name="p8_credentials_desc">Please enter your credentials</string>
+    <string name="oauth_code_flow_title">Processing</string>
+    <string name="oauth_code_flow_desc">Processing, please be patient.</string>
+    <!-- Manage connection -->
+    <string name="no_connection_title">Connection Down</string>
+    <string name="no_connection_status">Cannot connect to %1$s as %2$s: %3$s</string>
+    <string name="launch_auth">Re-authenticate</string>
+    <string name="auth_ok">Account is connected</string>
+    <string name="auth_err_expired">Credentials are expired</string>
+    <string name="auth_err_no_token">No or invalid credentials</string>
+    <!-- Account management -->
+    <string name="account_list_title">My Accounts</string>
+    <string name="account_list_desc">Manage already registered remote servers</string>
+    <string name="account_list_none">No account has been configured yet…</string>
+    <string name="account_confirm_deletion_desc">Are you sure you want to forget this account %s?</string>
+    <string name="no_account">No account, please configure at least a connection</string>
+    <!-- Browse management -->
+    <string name="loading_message">Please wait while loading content…</string>
+    <string name="ws_list_subtitle">Choose a workspace to browse</string>
+    <string name="browse_list_desc">Browse your remote servers</string>
+    <string name="browse_list_none">Empty</string>
+    <string name="recycle_bin_label">Recycle Bin</string>
+    <string name="account_server_label">Server: %s</string>
+    <string name="account_logged_in_as_label">Logged in as %s</string>
+    <string name="category_cells">Cells</string>
+    <string name="category_workspaces">Workspaces</string>
+    <string name="last_check">Last check</string>
+    <string name="last_check_never">never</string>
+    <string name="appears_in_prefix">Inside %s</string>
+    <string name="no_preview_for">Cannot preview %s</string>
+    <string name="unavailable_preview">Unavailable preview</string>
+    <!-- Search -->
+    <string name="search_label">Search…</string>
+    <string name="search_hint">Enter a term to search your files!</string>
+    <string name="no_result_for_search">No result found for \"%s\"</string>
+    <string name="cannot_search_remote">Cannot perform search</string>
+    <string name="search_is_local_only">You can only search among already cached nodes</string>
+    <!--Offline -->
+    <string name="sync_in_progress">Synchronising…</string>
+    <string name="sync_downloading">Downloading files…</string>
+    <string name="sync_tree_walking">Walking the tree to look for changes</string>
+    <string name="sync_already_running">A synchronisation process is already running, please wait before launching a new one</string>
+    <string name="confirm_remove_offline_title">Confirm your choice</string>
+    <string name="confirm_remove_offline_desc">Removing the offline status of this node can lead to losing the downloaded data. Are you sure you want to proceed</string>
+    <!--Transfers -->
+    <string name="relaunch_transfer">Re-launch transfer</string>
+    <string name="upload_screen_pending_title">Uploading…</string>
+    <string name="upload_screen_done_title">Upload terminated</string>
+    <string name="transfer_list_title">Current transfers</string>
+    <string name="choose_target_for_share_title">Share to…</string>
+    <string name="choose_target_for_copy_title">Copy to…</string>
+    <string name="choose_target_for_move_title">Move to…</string>
+    <!-- Target choice -->
+    <string name="choose_target_subtitle">Select a location</string>
+    <string name="pick_up_session">Choose an account</string>
+    <string name="pick_up_workspace">Choose a target workspace</string>
+    <string name="pick_up_folder">Choose a target folder</string>
+    <!-- SYSTEM -->
+    <!-- Local modification status -->
+    <string name="in_progress_updating">Updating…</string>
+    <string name="in_progress_deleting">Deleting…</string>
+    <string name="in_progress_renaming">Renaming…</string>
+    <string name="in_progress_moving">Moving…</string>
+    <string name="in_progress_restoring">Restoring…</string>
+    <!-- Jobs -->
+    <string name="job_list_title">Background jobs</string>
+    <string name="job_list_empty_message">There is no job to show</string>
+    <string name="filter_by_status_title">Filter by status</string>
+    <string name="job_sort_by_title">Sort by</string>
+    <string name="job_sort_by_creation_ts_desc_label">Creation (newest first)</string>
+    <string name="job_sort_by_creation_ts_asc_label">Creation (oldest first)</string>
+    <string name="clear_terminated">Clear terminated</string>
+    <string name="delete_record">Delete record</string>
+    <!-- Logs -->
+    <string name="clear_all_logs">Clear application logs</string>
+    <string name="log_list_title">Application logs</string>
+    <string name="log_list_empty_message">The journal is empty</string>
+    <!-- Migration-->
+    <string name="migration_message">Migrating legacy data, please wait…</string>
+    <string name="post_migration_title">Successfully Upgraded to New Version!</string>
+    <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
     <!-- Settings / Preferences -->
     <!-- Lists -->
     <string name="pref_category_title_recycler">Customise lists (when applicable)</string>
@@ -269,8 +265,8 @@
     <!-- Metered networks -->
     <string name="pref_apply_metered_limits_title">Apply limitations</string>
     <string name="pref_apply_metered_limits_desc">Warning: turning this off will skip all limitations when on a metered network. This might lead to raising costs</string>
-    <string name="pref_metered_show_warning_title">Show warning</string>
-    <string name="pref_metered_show_warning_desc">Show an additional warning on the main view when the network is metered</string>
+    <string name="pref_metered_show_warning_title">Custom colors</string>
+    <string name="pref_metered_show_warning_desc">Adapt color themes to network status, like mobile data or roaming.</string>
     <string name="pref_metered_dl_thumbs_title">Download thumbs</string>
     <string name="pref_metered_dl_thumbs_desc">Also retrieve thumbnails when on metered network</string>
     <string name="pref_on_metered_ask_before_dl_files_title">Ask before download</string>
@@ -304,8 +300,8 @@
     <string name="pref_clean_cache_include_offline_desc">Also delete files that are in parts of the tree that have been marked as offline</string>
     <string name="pref_clean_cache_forget_accounts_title">Forget credentials</string>
     <string name="pref_clean_cache_forget_accounts_desc">Also forget stored credentials: you will have to log in again</string>
-    <string name="pref_clean_cache_all_accounts_title">Clean all accounts</string>
-    <string name="pref_clean_cache_all_accounts_desc">Apply the clean strategy to all defined accounts</string>
+    <string name="pref_clean_cache_all_accounts_title">Extend to all accounts</string>
+    <string name="pref_clean_cache_all_accounts_desc">Apply the above cleaning strategy to *all* accounts</string>
     <string name="pref_clean_cache_clean_all_title">Erase All</string>
     <string name="pref_clean_cache_clean_all_desc">DANGER: you will remove everything from the local device</string>
     <!-- Accessibility various content -->
