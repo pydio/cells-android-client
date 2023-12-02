@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.pydio.android.cells.AppKeys
 import com.pydio.android.cells.services.ConnectionService
 import com.pydio.android.cells.ui.browse.BrowseNavigationActions
 import com.pydio.android.cells.ui.core.composables.WithInternetBanner
@@ -37,7 +36,6 @@ import com.pydio.android.cells.ui.models.AppState
 import com.pydio.android.cells.ui.system.SystemNavigationActions
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -83,21 +81,11 @@ fun NavHostWithDrawer(
 
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
-            Log.i(LOG_TAG, "... Got an old route")
-            if (it.endsWith("{${AppKeys.STATE_ID}}")) {
-                Log.i(LOG_TAG, "... with state id suffix ")
-                lazyStateID(mainNavController.previousBackStackEntry)
-            } else {
-                null
-            }
+            lazyStateID(mainNavController.previousBackStackEntry, verbose = false)
         }
         val currRoute = mainNavController.currentBackStackEntry?.destination?.route
         val currState: StateID? = currRoute?.let {
-            if (it.endsWith("{${AppKeys.STATE_ID}}")) {
-                lazyStateID(mainNavController.currentBackStackEntry)
-            } else {
-                null
-            }
+            lazyStateID(mainNavController.currentBackStackEntry, verbose = false)
         }
 
         Log.i(LOG_TAG, "... Navigate to $route")
@@ -105,7 +93,7 @@ fun NavHostWithDrawer(
         Log.d(LOG_TAG, "      - Current Entry route: $currRoute, stateID: $currState")
         Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
         lastRoute.value = route
-        coroutineScope.launch(Main) {
+        coroutineScope.launch {
             mainNavController.navigate(route)
         }
     }
