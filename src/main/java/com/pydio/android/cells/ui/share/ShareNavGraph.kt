@@ -59,11 +59,7 @@ fun NavGraphBuilder.shareNavGraph(
                 },
             )
             DisposableEffect(key1 = stateID) {
-                if (stateID == StateID.NONE) {
-                    browseRemoteVM.pause(StateID.NONE)
-                } else {
-                    browseRemoteVM.watch(stateID, false)
-                }
+                browseRemoteVM.watch(stateID, false)
                 onDispose {
                     browseRemoteVM.pause(stateID)
                 }

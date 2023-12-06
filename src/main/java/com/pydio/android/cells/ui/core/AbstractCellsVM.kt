@@ -55,7 +55,6 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     val connectionState: StateFlow<ConnectionState> =
         _loadingState.combine(connectionService.sessionStateFlow) { currLoadState, connStatus ->
             val cs = connectionService.appliedConnectionState(currLoadState, connStatus)
-            Log.e(logTag, "#####################################################################")
             Log.e(logTag, "### Loading: $cs (State: $currLoadState, status: $connStatus)")
             cs
         }.stateIn(

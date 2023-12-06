@@ -1,8 +1,6 @@
 package com.pydio.android.cells.ui.browse.screens
 
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -156,18 +154,18 @@ fun Bookmarks(
         }
     }
 
-    val destinationPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("*/*"),
-        onResult = { uri ->
-            val currSet = nodeMoreMenuData.value.second
-            if (currSet.size == 1) {
-                uri?.let {
-                    bookmarksVM.download(currSet.first(), uri)
-                }
-            }
-            moreMenuDone(true)
-        }
-    )
+//    val destinationPicker = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.CreateDocument("*/*"),
+//        onResult = { uri ->
+//            val currSet = nodeMoreMenuData.value.second
+//            if (currSet.size == 1) {
+//                uri?.let {
+//                    bookmarksVM.download(currSet.first(), uri)
+//                }
+//            }
+//            moreMenuDone(true)
+//        }
+//    )
 
 //    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
 //        when (action) {

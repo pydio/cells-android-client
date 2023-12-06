@@ -373,7 +373,6 @@ fun ConfirmDownloadOnLimitedConnection(
     }
 }
 
-
 @Composable
 fun ConfirmDeletion(
     nodeActionsVM: NodeActionsVM,
