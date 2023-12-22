@@ -256,7 +256,10 @@ class NodeActionsVM(
         return try {
             nodeService.createShare(stateID)
         } catch (e: SDKException) {
-            localDone("#${e.code}: ${e.message}, cause: ${e.cause?.message}", e.message)
+            localDone(
+                "#${e.code}: ${e.message}, cause: ${e.cause?.message}",
+                e.cause?.message ?: e.message
+            )
             null
         }
     }

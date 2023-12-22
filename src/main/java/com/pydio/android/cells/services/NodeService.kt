@@ -258,9 +258,13 @@ class NodeService(
                     null, true, true
                 )
             } catch (se: SDKException) {
-                throw SDKException(se.code, "could create link for $stateID", se)
+                throw SDKException(se.code, "could not create link for $stateID", se)
             } catch (ioe: IOException) {
-                throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
+                throw SDKException(
+                    ErrorCodes.internal_error,
+                    "could not create link for $stateID",
+                    ioe
+                )
             }
         }.await()
     }
