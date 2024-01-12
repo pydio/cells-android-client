@@ -8,15 +8,12 @@ plugins {
 android {
 
     namespace 'com.pydio.android.cells'
-
     compileSdk ownVersions['android.sdk.compile'] as int
-//     buildToolsVersion ownVersions['android.build.tools']
 
     // Gather overrides in a distinct folder for easier maintenance
     sourceSets.main.res.srcDir 'src/main/res-overrides'
 
     defaultConfig {
-
         // Main legacy App ID
         applicationId "com.pydio.android.Client"
         // Test ID to be able to have the next app along with the production one on a single device
@@ -29,7 +26,6 @@ android {
         targetSdkVersion ownVersions['android.sdk.target'] as int
 
         consumerProguardFiles 'consumer-rules.pro'
-
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
@@ -43,7 +39,6 @@ android {
     }
 
     buildTypes {
-
         release {
             signingConfig signingConfigs.release
             resValue "string", "app_version",
@@ -58,8 +53,8 @@ android {
 
             // See https://developer.android.com/build/shrink-code#android_gradle_plugin_version_41_or_later
             // And you must have this installed in Android Studio https://developer.android.com/studio/projects/install-ndk
-            // to also generate and upload the file that enable understanding stack traces seen in production
-            // The generated mapping.txt file can than be uploaded on the store followin this:
+            // to also generate and upload the file that enables understanding stack traces seen in production
+            // The generated mapping.txt file can than be uploaded on the store following this:
             // https://support.google.com/googleplay/android-developer/answer/9848633#upload_file&zippy=%2Cupload-files-using-play-console
             ndk {
                 debugSymbolLevel 'FULL'
@@ -67,8 +62,6 @@ android {
         }
 
         debug {
-            // versionName ownVersions['sdk-android.version.dev']
-            // versionName = ownVersions['sdk-android.future.name']
             versionNameSuffix = '-dev'
             resValue "string", "app_version",
                     "${defaultConfig.versionName}${versionNameSuffix}"
@@ -92,7 +85,7 @@ android {
     composeOptions {
         // See  https://developer.android.com/jetpack/androidx/releases/compose-kotlin
         // To get the list of matching compiler depending on the Kotlin version
-        kotlinCompilerExtensionVersion = "1.5.7"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     kapt {
@@ -108,7 +101,6 @@ android {
 }
 
 dependencies {
-
     if (useLocalSdkJava) {
         api project(":sdk-java")
         println "[DEBUG] Using local java SDK"
@@ -132,15 +124,11 @@ dependencies {
     // To enable legacy preferences migration
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    // override default platform version
-    // e.G    implementation "androidx.compose.material3:material3:1.2.0-alpha1"
-
     // Enable custom data loader for glide library (display images)
     annotationProcessor processors
 
-
-    testImplementation platform('io.insert-koin:koin-bom:3.5.1')
-    androidTestImplementation platform('io.insert-koin:koin-bom:3.5.1')
+    testImplementation platform('io.insert-koin:koin-bom:3.5.3')
+    androidTestImplementation platform('io.insert-koin:koin-bom:3.5.3')
     testImplementation testLibraries
     androidTestImplementation androidTestLibraries
 }
