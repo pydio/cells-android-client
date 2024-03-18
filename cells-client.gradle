@@ -85,7 +85,7 @@ android {
     composeOptions {
         // See  https://developer.android.com/jetpack/androidx/releases/compose-kotlin
         // To get the list of matching compiler depending on the Kotlin version
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
 
     kapt {
