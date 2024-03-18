@@ -13,7 +13,7 @@ fun asSinceString(timestamp: Long): String {
     val tHour = 60L * tMin
     val tDay: Long = 24L * tHour
 
-    val agoLong = currentTimestamp() - timestamp;
+    val agoLong = currentTimestamp() - timestamp
 
     return when {
         agoLong < tMin -> "since a few seconds"
@@ -40,7 +40,7 @@ fun asAgoString(timestamp: Long): String {
     val tHour = 60L * tMin
     val tDay: Long = 24L * tHour
 
-    val agoLong = currentTimestamp() - timestamp;
+    val agoLong = currentTimestamp() - timestamp
 
     return when {
         agoLong < tMin -> "a few seconds ago"

@@ -33,6 +33,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -194,7 +195,7 @@ public class UrlHttpClient implements HttpClient {
             write(request.getContent(), os, curlBuilder, curlBuffer);
             if (curlBuilder != null && curlBuffer != null && curlBuffer.position() != 0) {
                 // has content
-                curlBuilder.setContent(new String(curlBuffer.array(), "UTF-8"));
+                curlBuilder.setContent(new String(curlBuffer.array(), StandardCharsets.UTF_8));
             }
             os.flush();
             os.close();
@@ -289,8 +290,7 @@ public class UrlHttpClient implements HttpClient {
         }
 
         // configure https connection
-        if (connection instanceof HttpsURLConnection) {
-            final HttpsURLConnection https = (HttpsURLConnection) connection;
+        if (connection instanceof HttpsURLConnection https) {
 
             // disable cert check
             /*
@@ -516,7 +516,7 @@ public class UrlHttpClient implements HttpClient {
                         .append("'");
             }
             return stringBuilder.append(" ")
-                    .append(url.toString())
+                    .append(url)
                     .toString();
         }
     }

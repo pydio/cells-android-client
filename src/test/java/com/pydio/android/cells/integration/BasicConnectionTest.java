@@ -112,8 +112,7 @@ public class BasicConnectionTest {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             client.download(conf.defaultWS, baseDir + name, out, null);
             out.flush();
-            byte[] byteArray = out.toByteArray();
-            String retrievedMsg = new String(byteArray, StandardCharsets.UTF_8);
+            String retrievedMsg = out.toString(StandardCharsets.UTF_8);
             System.out.println("Retrieved: " + retrievedMsg);
             Assert.assertEquals(message, retrievedMsg);
         }
@@ -138,8 +137,7 @@ public class BasicConnectionTest {
                 try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                     client.download(conf.defaultWS, baseDir + name, out, null);
                     out.flush();
-                    byte[] byteArray = out.toByteArray();
-                    retrievedMsg = new String(byteArray, StandardCharsets.UTF_8);
+                    retrievedMsg = out.toString(StandardCharsets.UTF_8);
                     System.out.println("Retrieved: " + retrievedMsg);
 
                     if (message.equals(retrievedMsg)) {

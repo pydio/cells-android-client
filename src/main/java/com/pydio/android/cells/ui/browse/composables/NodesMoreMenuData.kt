@@ -34,7 +34,7 @@ fun NodesMoreMenuData(
     val containsFolders: MutableState<Boolean> = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = subjectIDs.toString()) {
-        Log.d(logTag, "Preparing data for ${subjectIDs.toString()}")
+        Log.d(logTag, "Preparing data for $subjectIDs")
         // Reinitialise values
         val founds = mutableSetOf<RTreeNode>()
         containsFolders.value = false

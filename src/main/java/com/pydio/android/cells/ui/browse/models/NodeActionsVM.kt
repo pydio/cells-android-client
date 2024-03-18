@@ -33,7 +33,7 @@ class NodeActionsVM(
 
     private fun localDone(err: String? = null, userMsg: String? = null) {
         if (!err.isNullOrEmpty()) {
-            Log.e(logTag, "${err ?: userMsg}")
+            Log.e(logTag, "${err}")
             done(fromMessage(userMsg!!))
         } else {
             done()

@@ -41,7 +41,6 @@ public class TestClient {
             skipVerify = p.getProperty("skipVerify", "false");
         } catch (IOException e) {
             Log.e(logTag, "could not retrieve configuration file, cause: " + e.getMessage());
-            return;
         }
     }
 

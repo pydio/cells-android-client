@@ -45,7 +45,7 @@ fun AskServerUrl(
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
 
-    val currAddress = rememberSaveable() {
+    val currAddress = rememberSaveable {
         mutableStateOf("https://")
     }
     val setUrl: (String) -> Unit = {

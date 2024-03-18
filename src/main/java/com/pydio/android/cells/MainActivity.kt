@@ -155,19 +155,26 @@ class MainActivity : ComponentActivity() {
         Box {
             when (processState) {
                 PreLaunchState.TERMINATE -> {
+                    Log.d(logTag, "... At Compose root, about to terminate")
                     LaunchedEffect(Unit) {
                         emitActivityResult(Activity.RESULT_OK)
                     }
                 }
 
                 PreLaunchState.DONE,
-                PreLaunchState.SKIP ->
+                PreLaunchState.SKIP -> {
+                    Log.d(logTag, "... At Compose root, current state: $processState")
+                    Log.d(
+                        logTag,
+                        "...   Details: ${appState.stateID}, ${appState.route}, ${appState.context}"
+                    )
                     MainApp(
                         initialAppState = appState,
                         processSelectedTarget = processSelectedTarget,
                         emitActivityResult = emitActivityResult,
                         widthSizeClass = widthSizeClass,
                     )
+                }
 
                 PreLaunchState.PROCESSING,
                 PreLaunchState.ERROR -> {

@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 value class Strings private constructor(@Suppress("unused") private val value: Int) {
     companion object {
         val NavigationMenu = Strings(0)

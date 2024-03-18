@@ -41,7 +41,7 @@ fun MultipleGridItem(
 }
 
 @Composable
-public fun getAppearsInDesc(item: MultipleItem): String {
+fun getAppearsInDesc(item: MultipleItem): String {
     val suffix = item.appearsIn
         .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug }
     return stringResource(R.string.appears_in_prefix, suffix)

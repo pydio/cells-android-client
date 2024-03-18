@@ -105,7 +105,7 @@ class PreLaunchVM(
      * or null otherwise
      */
     suspend fun handleOAuthCode(state: String, code: String) {
-        Log.i(logTag, "Handling OAuth response")
+        Log.i(logTag, "... Handling OAuth response")
 
         _currIntent = KnownIntent.RE_LOG
         _processState.value = PreLaunchState.PROCESSING
@@ -127,8 +127,10 @@ class PreLaunchVM(
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
 
-                if (lc == AuthService.LOGIN_CONTEXT_BROWSE || lc == AuthService.LOGIN_CONTEXT_SHARE) {
+                if (lc == AuthService.LOGIN_CONTEXT_SHARE) {
                     _processState.value = PreLaunchState.TERMINATE
+//                } else if (lc == AuthService.LOGIN_CONTEXT_BROWSE) {
+//                    _processState.value = PreLaunchState.TERMINATE
                 } else {
                     _appState.value = AppState(
                         stateID = accID,
@@ -251,11 +253,11 @@ class PreLaunchVM(
     }
 
     override fun onCleared() {
-        Log.i(logTag, "Cleared")
+        Log.i(logTag, "... Cleared")
     }
 
     init {
-        Log.i(logTag, "Created")
+        Log.i(logTag, "... Created")
     }
 
     //    suspend fun getStartingState(): StartingState {

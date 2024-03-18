@@ -117,7 +117,7 @@ class AuthService(
                 .getAnonymousTransport(rState.serverURL.id) as CellsTransport
             val token = transport.getTokenFromCode(code, encoder)
             accountID = manageRetrievedToken(accountService, transport, token)
-            Log.e(logTag, "... Token managed. Login context: ${rState.loginContext}")
+            Log.i(logTag, "... Token managed. Login context: ${rState.loginContext}")
 
             // Leave OAuth state cacheDB clean
             authStateDao.delete(oauthState)

@@ -67,9 +67,13 @@ fun CellsNavGraph(
         Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
         initialAppState.context?.let {
             when (it) {
-                AuthService.LOGIN_CONTEXT_BROWSE, AuthService.LOGIN_CONTEXT_SHARE -> {
+                AuthService.LOGIN_CONTEXT_SHARE -> {
                     // This should terminate the current task and fallback to where we were before re-launching the OAuth process
                     emitActivityResult(Activity.RESULT_OK)
+                }
+
+                AuthService.LOGIN_CONTEXT_BROWSE -> {
+                    navController.navigate(BrowseDestinations.Open.createRoute(initialAppState.stateID))
                 }
 
                 AuthService.LOGIN_CONTEXT_CREATE -> {
