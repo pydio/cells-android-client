@@ -58,7 +58,7 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
         return false
     }
 
-    // TODO when miss modifications when the offline flag is set.
+    // TODO we miss modifications when the offline flag is set.
     // isEqual = remote.flags == local.flags
 
     return true
@@ -91,12 +91,17 @@ fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
 }
 
 fun isPreViewable(element: RTreeNode): Boolean {
-    return if (element.mime.startsWith("image/") ||
-        // TODO remove this once the mime has been cleaned
-        element.mime.startsWith("\"image/")
-    ) {
+    var mime = element.mime
+    // TODO remove this once the mime has been cleaned
+    if (mime.startsWith("\"")) {
+        Log.e(LOG_TAG, "Fixing mime: before [$mime]")
+        mime = mime.substring(1, mime.length - 2)
+        Log.e(LOG_TAG, "Fixing mime: after [$mime]")
+    }
+
+    return if (mime.startsWith("image/")) {
         true
-    } else if (element.mime == SdkNames.NODE_MIME_DEFAULT || element.mime == "\"${SdkNames.NODE_MIME_DEFAULT}\"") {
+    } else if (mime == SdkNames.NODE_MIME_DEFAULT || mime == SdkNames.NODE_MIME_DEFAULT2) {
         val name = element.name.lowercase()
         name.endsWith(".jpg")
                 || name.endsWith(".jpeg")
