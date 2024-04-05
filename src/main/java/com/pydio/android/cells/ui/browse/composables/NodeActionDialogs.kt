@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
@@ -435,6 +436,9 @@ fun ShowQRCode(
 ) {
     val context = LocalContext.current
 
+    val linkUrl = remember {
+        mutableStateOf<String?>(null)
+    }
     val bitmap = remember {
         mutableStateOf<ImageBitmap?>(null)
     }
@@ -442,6 +446,7 @@ fun ShowQRCode(
     val writer = QRCodeWriter()
     LaunchedEffect(stateID) {
         nodeActionsVM.getShareLink(stateID)?.let { linkStr ->
+            linkUrl.value = linkStr
             val bitMatrix = writer.encode(
                 linkStr,
                 BarcodeFormat.QR_CODE,
@@ -465,15 +470,24 @@ fun ShowQRCode(
         AlertDialog(
             title = { DialogTitle(text = stringResource(R.string.display_as_qrcode_dialog_title)) },
             text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.display_as_qrcode_dialog_desc, stateID.path))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Image(
+                        bitmap = it,
+                        contentDescription = "A QRCode representation of the link ${linkUrl.value}",
+                        modifier = Modifier.size(200.dp)
+                    )
                     Spacer(
                         modifier = Modifier.size(dimensionResource(id = R.dimen.margin_medium))
                     )
-                    Image(
-                        bitmap = it,
-                        contentDescription = /* TODO */ "",
-                        modifier = Modifier.size(200.dp)
+                    Text(
+                        stringResource(
+                            R.string.display_as_qrcode_dialog_desc,
+                            stateID.fileName ?: "(no name)",
+                            linkUrl.value ?: "NaN"
+                        )
                     )
                 }
             },
