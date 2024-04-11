@@ -146,7 +146,7 @@
     <string name="confirm_dl_on_metered_title">Confirmar descarga</string>
     <string name="confirm_dl_on_metered_desc">El tamaño de %1$s es %2$s y estás en una red medida.\n\n¿Seguro que quieres descargarlo?</string>
     <string name="display_as_qrcode_dialog_title">Enlace directo</string>
-    <string name="display_as_qrcode_dialog_desc">Escanear el código para acceder directamente a %s</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s at:\n%s</string>
     <string name="running_download_title">Descargando…</string>
     <string name="confirm_download_title">Confirmar descarga</string>
     <string name="confirm_download_desc">Este archivo es grande (%s) y está en una red medida. ¿Está seguro que desea continuar?</string>
