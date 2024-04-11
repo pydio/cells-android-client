@@ -146,7 +146,7 @@
     <string name="confirm_dl_on_metered_title">Download bestätigen</string>
     <string name="confirm_dl_on_metered_desc">Die Größe von %1$s beträgt %2$s, und Sie verwenden ein Netzwerk mit Datenbegrenzung.\n\nSind Sie sicher, dass Sie es herunterladen möchten?</string>
     <string name="display_as_qrcode_dialog_title">Direktlink</string>
-    <string name="display_as_qrcode_dialog_desc">Scannen Sie den Code, um direkt auf %s zuzugreifen</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s at:\n%s</string>
     <string name="running_download_title">Wird heruntergeladen…</string>
     <string name="confirm_download_title">Herunterladen bestätigen</string>
     <string name="confirm_download_desc">Diese Datei ist groß (%s) und Sie sind in einem gemessenen Netzwerk. Sind Sie sicher, dass Sie fortfahren möchten?</string>
