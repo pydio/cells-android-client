@@ -146,7 +146,7 @@
     <string name="confirm_dl_on_metered_title">Confirmer le téléchargement</string>
     <string name="confirm_dl_on_metered_desc">Le fichier %1$s a une taille de %2$s et vous êtes sur un réseau à bande passante mesurée.\n\nÊtes-vous sûr de vouloir quand même lancer le téléchargement ?</string>
     <string name="display_as_qrcode_dialog_title">Lien direct</string>
-    <string name="display_as_qrcode_dialog_desc">Scannez le code pour accéder au partage vers %s</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s at:\n%s</string>
     <string name="running_download_title">Téléchargement</string>
     <string name="confirm_download_title">Confirmer le téléchargement</string>
     <string name="confirm_download_desc">Ce fichier est volumineux (%s) et vous êtes sur un réseau limité. Êtes-vous sûr de vouloir continuer ?</string>
