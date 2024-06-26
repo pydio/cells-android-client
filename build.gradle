@@ -1,13 +1,10 @@
 plugins {
-    id 'com.android.application'
-    id "org.jetbrains.kotlin.plugin.compose"
-    // id "com.google.devtools.ksp" version "2.0.0-1.0.22"
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlin.plugin.compose
     alias libs.plugins.ksp.devtools
     alias libs.plugins.androidx.room
-
-    id "org.jetbrains.kotlin.android"
     id 'kotlin-parcelize'
-
 }
 
 android {
@@ -129,10 +126,6 @@ dependencies {
 
     ksp libs.room.compiler
     implementation libs.room.ktx // Optional: For Kotlin Coroutines support
-    // implementation libs.androidx.room.gradle.plugin
-
-    // annotationProcessor libs.room.compiler
-
 
     /* Kotlin and extensions */
     implementation libs.kotlin.stdlib
@@ -147,7 +140,6 @@ dependencies {
     implementation libs.koin.androidx.workmanager
     implementation libs.koin.androidx.navigation
     implementation libs.koin.androidx.compose
-
 
     // Compose libraries
     // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
