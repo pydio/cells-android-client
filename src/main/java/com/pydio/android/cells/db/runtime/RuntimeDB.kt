@@ -12,7 +12,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         RLog::class,
     ],
     version = 2,
-    exportSchema = true
+    // FIXME
+//     exportSchema = true,
+    exportSchema = false,
 )
 
 abstract class RuntimeDB : RoomDatabase() {

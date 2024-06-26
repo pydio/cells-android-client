@@ -20,7 +20,9 @@ import java.util.concurrent.ConcurrentHashMap
         RLiveOfflineRoot::class
     ],
     version = 5,
-    exportSchema = true,
+    // FIXME
+//     exportSchema = true,
+    exportSchema = false,
 )
 abstract class TreeNodeDB : RoomDatabase() {
 
