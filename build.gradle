@@ -1,17 +1,40 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id "org.jetbrains.kotlin.plugin.compose"
+    id "com.google.devtools.ksp" version "2.0.0-1.0.22"
+
+    alias libs.plugins.androidx.room
+    // alias libs.plugins.androidx.room
+
+//    id 'kotlin-android'
+
+    id "org.jetbrains.kotlin.android"
     id 'kotlin-parcelize'
+
+    // id "androidx.room" version "2.6.1"
+    // id "androidx.room"
 }
 
 android {
 
     namespace 'com.pydio.android.cells'
-    compileSdk ownVersions['android.sdk.compile'] as int
+    compileSdk 34
 
     // Gather overrides in a distinct folder for easier maintenance
-    sourceSets.main.res.srcDir 'src/main/res-overrides'
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res', 'src/main/res-overrides']
+        }
+        test {
+            java.srcDirs = ['src/test/java']
+            res.srcDirs = ['src/test/resources']
+        }
+        androidTest {
+            java.srcDirs = ['src/androidTest/java']
+            res.srcDirs = ['src/androidTest/resources']
+        }
+    }
 
     defaultConfig {
         // Main legacy App ID
@@ -82,17 +105,9 @@ android {
         buildConfig true
     }
 
-    composeOptions {
-        // See  https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        // To get the list of matching compiler depending on the Kotlin version
-        kotlinCompilerExtensionVersion = "1.5.13"
-    }
-
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "$projectDir/schemas".toString())
-        }
-    }
+//    room {
+//        schemaDirectory "$projectDir/schemas"
+//    }
 
     // We do not want that the linter makes builds fail. It is quite extremist by default.
     lintOptions {
@@ -101,8 +116,10 @@ android {
 }
 
 dependencies {
+
     if (useLocalSdkJava) {
         api project(":sdk-java")
+        println "##################################"
         println "[DEBUG] Using local java SDK"
     } else {
         println "[WARNING] **Not** using local SDK "
@@ -111,11 +128,23 @@ dependencies {
     }
 
     // Dependencies and versions are defined in the toml catalog in <root>/gradle folder
-    implementation libs.androidx.junit.ktx
 
-    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform(libs.compose.bom)
+    // Ensure you include the KSP API if not already added
+    implementation libs.symbol.processing.api
 
+    ksp libs.room.compiler
+    implementation libs.room.ktx // Optional: For Kotlin Coroutines support
+    // implementation libs.androidx.room.gradle.plugin
+
+    // annotationProcessor libs.room.compiler
+
+
+    /* Kotlin and extensions */
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+
+    /* Koin */
     // Dependency injection with Koin https://insert-koin.io/
     implementation platform(libs.koin.bom)
     implementation libs.koin.core
@@ -124,14 +153,15 @@ dependencies {
     implementation libs.koin.androidx.navigation
     implementation libs.koin.androidx.compose
 
-    // Tmp addition
-    implementation libs.palette.ktx
-    // To enable legacy preferences migration
-    implementation libs.datastore.preferences
-
-    // Enable custom data loader for glide library (display images)
 
     // Compose libraries
+    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
+    implementation platform(libs.compose.bom)
+
+    /* Androidx */
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.core.ktx
     implementation libs.androidx.runtime
     implementation libs.androidx.ui
     implementation libs.androidx.ui.util
@@ -150,41 +180,46 @@ dependencies {
     // Make sure to use R8/Proguard to strip unused icons when including this as a direct dependency.
     // See https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
     implementation libs.androidx.material.icons.extended
-
-    // Include extensions the permits integration of Compose with extra TP libraries
-    implementation libs.androidx.navigation.compose
-    implementation libs.insert.koin.koin.androidx.compose
-
-    // A few specific libraries
-    implementation libs.zxing
-    implementation libs.kotlin.stdlib
-    implementation libs.kotlinx.coroutines.core
-    implementation libs.kotlinx.coroutines.android
-    // Android UI and appcompat
-    implementation libs.androidx.core
-    implementation libs.androidx.appcompat
-    // Navigation UI
-    implementation libs.androidx.navigation.ui.ktx
-    // ViewModel
-    implementation libs.androidx.lifecycle.viewmodel.ktx
     // Extended UI features: prefs and splash screen
     implementation libs.androidx.preference
     implementation libs.androidx.core.splashscreen
     // Material UI => we still need this to build custom palette based on remote server custom primary color
     implementation libs.material
-    // Room for database, work for background
-    implementation libs.androidx.room.ktx
-    implementation libs.androidx.work.runtime.ktx
-    implementation libs.aws.android.sdk.s3
+
+    // ViewModel
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    // Navigation UI
+    implementation libs.androidx.navigation.ui.ktx
+
+    // Include extensions the permits integration of Compose with extra TP libraries
+    implementation libs.androidx.navigation.compose
+    implementation libs.insert.koin.koin.androidx.compose
+
+    // Enable custom data loader for glide library (display images)
     implementation libs.glide
+    implementation libs.glide.compose
+    ksp libs.glide.compiler
+
+    // Work for background jobs
+    implementation libs.androidx.work.runtime.ktx
+    // File transfer
+    implementation libs.aws.android.sdk.s3
+    // A few extra libraries
     implementation libs.commons.codec
     implementation libs.gson
+    implementation libs.zxing // Generate QRCodes
+
+    // Tmp addition
+    implementation libs.palette.ktx
+    // To enable legacy preferences migration
+    implementation libs.datastore.preferences
 
     // Tests
     testImplementation libs.junit
     testImplementation libs.koin.test
     testImplementation libs.koin.test.junit4
     testImplementation libs.kotlinx.coroutines.test
+    implementation libs.androidx.junit.ktx
 
     // Unfortunately, we cannot inherit from "simple" test dependencies.
     androidTestImplementation libs.koin.test
@@ -193,12 +228,6 @@ dependencies {
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.espresso.core
 
-
-    kapt libs.androidx.room.compiler
-    kapt libs.androidx.room.runtime
-    kapt "com.github.bumptech.glide:compiler:5.0.0-rc01"
-
-    implementation libs.glide.compose
-    annotationProcessor libs.glide.compiler
-
+    testImplementation libs.junit
+    testImplementation libs.androidx.test.core
 }
