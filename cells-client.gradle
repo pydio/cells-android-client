@@ -110,25 +110,95 @@ dependencies {
         println "[DEBUG] Retrieve java sdk from maven repo"
     }
 
-    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform('androidx.compose:compose-bom:2024.05.00')
-    implementation platform('io.insert-koin:koin-bom:3.5.5')
+    // Dependencies and versions are defined in the toml catalog in <root>/gradle folder
+    implementation libs.androidx.junit.ktx
 
-    // dependencies are defined in root build.gradle file
-    implementation libraries
-    implementation composeLibraries
-    kapt librariesKapt
+    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
+    implementation platform(libs.compose.bom)
+
+    // Dependency injection with Koin https://insert-koin.io/
+    implementation platform(libs.koin.bom)
+    implementation libs.koin.core
+    implementation libs.koin.android
+    implementation libs.koin.androidx.workmanager
+    implementation libs.koin.androidx.navigation
+    implementation libs.koin.androidx.compose
 
     // Tmp addition
-    implementation "androidx.palette:palette-ktx:1.0.0"
+    implementation libs.palette.ktx
     // To enable legacy preferences migration
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation libs.datastore.preferences
 
     // Enable custom data loader for glide library (display images)
-    annotationProcessor processors
 
-    testImplementation platform('io.insert-koin:koin-bom:3.5.5')
-    androidTestImplementation platform('io.insert-koin:koin-bom:3.5.5')
-    testImplementation testLibraries
-    androidTestImplementation androidTestLibraries
+    // Compose libraries
+    implementation libs.androidx.runtime
+    implementation libs.androidx.ui
+    implementation libs.androidx.ui.util
+    implementation libs.androidx.ui.tooling
+    implementation libs.androidx.foundation
+    implementation libs.androidx.foundation.layout
+    implementation libs.androidx.material3
+    implementation libs.androidx.material3.windowsizeclass
+    // We use material 3, so remove remaining code that depend on this and remove the dep.
+    implementation libs.androidx.material
+    // This library is also provided as an API dependency by androidx.compose.material:material.
+    // We specify it explicitly so that we won't break when we finally remove material lib from
+    // the explicit dependency tree
+    implementation libs.androidx.material.icons.core
+    // this separate library, the full set of Material icons. Due to the very large size of this lib,
+    // Make sure to use R8/Proguard to strip unused icons when including this as a direct dependency.
+    // See https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
+    implementation libs.androidx.material.icons.extended
+
+    // Include extensions the permits integration of Compose with extra TP libraries
+    implementation libs.androidx.navigation.compose
+    implementation libs.insert.koin.koin.androidx.compose
+
+    // A few specific libraries
+    implementation libs.zxing
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    // Android UI and appcompat
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    // Navigation UI
+    implementation libs.androidx.navigation.ui.ktx
+    // ViewModel
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    // Extended UI features: prefs and splash screen
+    implementation libs.androidx.preference
+    implementation libs.androidx.core.splashscreen
+    // Material UI => we still need this to build custom palette based on remote server custom primary color
+    implementation libs.material
+    // Room for database, work for background
+    implementation libs.androidx.room.ktx
+    implementation libs.androidx.work.runtime.ktx
+    implementation libs.aws.android.sdk.s3
+    implementation libs.glide
+    implementation libs.commons.codec
+    implementation libs.gson
+
+    // Tests
+    testImplementation libs.junit
+    testImplementation libs.koin.test
+    testImplementation libs.koin.test.junit4
+    testImplementation libs.kotlinx.coroutines.test
+
+    // Unfortunately, we cannot inherit from "simple" test dependencies.
+    androidTestImplementation libs.koin.test
+    androidTestImplementation libs.koin.test.junit4
+    androidTestImplementation libs.kotlinx.coroutines.test
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.espresso.core
+
+
+    kapt libs.androidx.room.compiler
+    kapt libs.androidx.room.runtime
+    kapt "com.github.bumptech.glide:compiler:5.0.0-rc01"
+
+    implementation libs.glide.compose
+    annotationProcessor libs.glide.compiler
+
 }
