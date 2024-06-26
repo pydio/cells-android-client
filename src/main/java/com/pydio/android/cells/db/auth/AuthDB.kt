@@ -10,9 +10,7 @@ import androidx.room.RoomDatabase
         ROAuthState::class,
     ],
     version = 1,
-    // FIXME
-//     exportSchema = true,
-    exportSchema = false,
+    exportSchema = true,
 )
 
 abstract class AuthDB : RoomDatabase() {
