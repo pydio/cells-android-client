@@ -1,18 +1,13 @@
 plugins {
     id 'com.android.application'
     id "org.jetbrains.kotlin.plugin.compose"
-    id "com.google.devtools.ksp" version "2.0.0-1.0.22"
-
+    // id "com.google.devtools.ksp" version "2.0.0-1.0.22"
+    alias libs.plugins.ksp.devtools
     alias libs.plugins.androidx.room
-    // alias libs.plugins.androidx.room
-
-//    id 'kotlin-android'
 
     id "org.jetbrains.kotlin.android"
     id 'kotlin-parcelize'
 
-    // id "androidx.room" version "2.6.1"
-    // id "androidx.room"
 }
 
 android {
@@ -105,9 +100,9 @@ android {
         buildConfig true
     }
 
-//    room {
-//        schemaDirectory "$projectDir/schemas"
-//    }
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
 
     // We do not want that the linter makes builds fail. It is quite extremist by default.
     lintOptions {
@@ -206,7 +201,7 @@ dependencies {
     implementation libs.aws.android.sdk.s3
     // A few extra libraries
     implementation libs.commons.codec
-    implementation libs.gson
+    implementation libs.google.gson
     implementation libs.zxing // Generate QRCodes
 
     // Tmp addition
