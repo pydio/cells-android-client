@@ -1,6 +1,13 @@
 package com.pydio.android.cells.ui.theme
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.outlined.DriveFileMove
+import androidx.compose.material.icons.automirrored.outlined.ViewList
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
@@ -13,8 +20,6 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FolderDelete
 import androidx.compose.material.icons.filled.FolderShared
 import androidx.compose.material.icons.filled.ImportExport
-import androidx.compose.material.icons.filled.Login
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NetworkCheck
@@ -23,13 +28,11 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.ViewCompact
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -42,7 +45,6 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Deselect
 import androidx.compose.material.icons.outlined.DownloadForOffline
-import androidx.compose.material.icons.outlined.DriveFileMove
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.FiberNew
 import androidx.compose.material.icons.outlined.FileCopy
@@ -61,10 +63,8 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.UploadFile
-import androidx.compose.material.icons.outlined.ViewList
 import androidx.compose.material.icons.outlined.WorkHistory
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.Grid3x3
@@ -86,11 +86,11 @@ object CellsIcons {
     val About = Icons.Outlined.Info
     val AccountCircle = Icons.Outlined.AccountCircle
     val Add = Icons.Rounded.Add
-    val ArrowBack = Icons.Rounded.ArrowBack
+    val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
     val AsGrid = Icons.Outlined.GridView
-    val AsList = Icons.Outlined.ViewList
+    val AsList = Icons.AutoMirrored.Outlined.ViewList
     val AsSmallerGrid = Icons.Default.ViewCompact
     val Bookmark = Icons.Outlined.StarBorder
     val ButtonFavorite = Icons.Outlined.StarBorder
@@ -123,13 +123,13 @@ object CellsIcons {
     val KeepOffline = Icons.Outlined.DownloadForOffline
     val KeepOfflineOld = Icons.Default.FileDownloadDone
     val Link = Icons.Outlined.Link
-    val Login = Icons.Default.Login
-    val Logout = Icons.Default.Logout
+    val Login = Icons.AutoMirrored.Filled.Login
+    val Logout = Icons.AutoMirrored.Filled.Logout
     val Logs = Icons.Outlined.Build
     val Menu = Icons.Default.Menu
     val Metered = Icons.Default.NetworkCheck
     val MoreVert = Icons.Default.MoreVert
-    val MoveTo = Icons.Outlined.DriveFileMove
+    val MoveTo = Icons.AutoMirrored.Outlined.DriveFileMove
     val MyFiles = Icons.Default.FolderShared
     val MyFilesThumb = Icons.Outlined.FolderSpecial
     val New = Icons.Outlined.FiberNew
@@ -145,12 +145,12 @@ object CellsIcons {
     val Relaunch = Icons.Default.Replay
     val Rename = Icons.Outlined.DriveFileRenameOutline
     val RestoreFromTrash = Icons.Outlined.RestoreFromTrash
-    val Resume = Icons.Default.Redo
+    val Resume = Icons.AutoMirrored.Filled.Redo
     val Search = Icons.Default.Search
     val ServerUnreachable = Icons.Default.DomainDisabled
     val Settings = Icons.Outlined.Settings
     val Share = Icons.Default.Share
-    val SortBy = Icons.Default.Sort
+    val SortBy = Icons.AutoMirrored.Filled.Sort
     val SwitchAccount = Icons.Default.SwitchAccount
     val TakePicture = Icons.Outlined.PhotoCamera
     val Transfers = Icons.Default.ImportExport

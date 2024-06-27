@@ -145,7 +145,7 @@ fun MeteredSection(
     )
     //  Re-Enable this when the settings is really used in the app
     InputMegabytes(
-        label = stringResource(R.string.on_metered_ask_before_dl_files_greater_than_title),
+//        label = stringResource(R.string.on_metered_ask_before_dl_files_greater_than_title),
         value = netPref.sizeThreshold.toString(),
         onValueChange = {
             settingsVM.setLongPref(

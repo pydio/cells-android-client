@@ -83,7 +83,7 @@ private fun JobScreen(
             )
         },
     ) { innerPadding ->
-        
+
         Box(modifier = Modifier.padding(innerPadding)) {
             if (jobs.isEmpty()) {
                 EmptyList(
@@ -155,7 +155,7 @@ private fun JobListItem(
                 style = MaterialTheme.typography.bodySmall,
             )
             if (progress > 0 && progress < 1) {
-                LinearProgressIndicator(progress = progress)
+                LinearProgressIndicator(progress = { progress })
             }
         }
     }
