@@ -1,7 +1,5 @@
 package com.pydio.android.cells.ui.share.screens
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.pydio.android.cells.ui.account.AccountListVM
 import com.pydio.android.cells.ui.share.ShareHelper
 import com.pydio.android.cells.ui.share.composables.TargetAccountList
+import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -76,7 +75,7 @@ private fun SelectTargetAccount(
                 navigationIcon = {
                     IconButton(onClick = { cancel() }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = CellsIcons.ArrowBack,
                             contentDescription = "Back"
                         )
                     }

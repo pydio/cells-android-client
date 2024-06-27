@@ -97,7 +97,7 @@ fun MigrateFromV2(
                     modifier = Modifier.padding(vertical = dimensionResource(R.dimen.text_padding_small))
                 )
                 LinearProgressIndicator(
-                    progress = tmpProgress.value,
+                    progress = { tmpProgress.value },
                     Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.margin_medium))

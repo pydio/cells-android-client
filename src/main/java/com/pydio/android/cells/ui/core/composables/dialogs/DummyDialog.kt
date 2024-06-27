@@ -3,7 +3,7 @@ package com.pydio.android.cells.ui.core.composables.dialogs
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -57,7 +57,7 @@ private fun DummyDialogContent(desc: String = "a description") {
     }
     Column {
         Text(desc)
-        Divider()
+        HorizontalDivider()
         TextField(
             value = txtValue.value,
             onValueChange = { txtValue.value = it },
