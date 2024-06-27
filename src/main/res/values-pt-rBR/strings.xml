@@ -146,7 +146,7 @@
     <string name="confirm_dl_on_metered_title">Confirm download</string>
     <string name="confirm_dl_on_metered_desc">%1$s size is %2$s and you are on a metered network.\n\nAre you sure you want to download it?</string>
     <string name="display_as_qrcode_dialog_title">Link direto</string>
-    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %s at:\n%s</string>
+    <string name="display_as_qrcode_dialog_desc">Scan the code to directly access %1$s at:\n%2$s</string>
     <string name="running_download_title">Baixando…</string>
     <string name="confirm_download_title">Confirmar para baixar</string>
     <string name="confirm_download_desc">Este arquivo é grande (%s) e você está em uma rede limitada. Tem certeza de que deseja continuar?</string>
