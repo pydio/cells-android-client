@@ -184,8 +184,10 @@ dependencies {
 
     // Enable custom data loader for glide library (display images)
     implementation libs.glide
+    annotationProcessor libs.glide.compiler
+    ksp libs.glide.ksp
+    //   implementation libs.glide.ktx
     implementation libs.glide.compose
-    ksp libs.glide.compiler
 
     // Work for background jobs
     implementation libs.androidx.work.runtime.ktx

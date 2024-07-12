@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -46,7 +49,6 @@ import com.pydio.android.cells.R
 import com.pydio.android.cells.db.nodes.RTreeNode
 import com.pydio.android.cells.transfer.glide.encodeModel
 import com.pydio.android.cells.ui.browse.models.CarouselVM
-import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Log
 import kotlin.math.PI
@@ -70,51 +72,24 @@ fun Carousel(
             filteredItems.value,
         )
     } else {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LoadingAnimation()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        ) {
+            CircularProgressIndicator(
+                color = Color.Green,
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.spinner_size))
+                    .padding(dimensionResource(R.dimen.margin_medium))
+                // .alpha(.2f)
+            )
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun HorizontalPagerWithOffsetTransition(
-    initialStateID: StateID,
-    carouselVM: CarouselVM,
-    items: List<RTreeNode>,
-    modifier: Modifier = Modifier
-) {
-
-    val index = remember(key1 = items.size) {
-        derivedStateOf {
-            getItemIndex(initialStateID, items)
-        }
-    }
-
-    val pagerState = rememberPagerState(
-        initialPage = index.value,
-        initialPageOffsetFraction = 0f
-    ) {
-        items.size
-    }
-
-    HorizontalPager(
-        state = pagerState,
-        modifier = modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center),
-        key = { currIndex ->
-            if (currIndex >= 0 && currIndex < items.size) {
-                items[currIndex].encodedState
-            } else {
-                Log.w(LOG_TAG, "OutOfBounds: Index $currIndex for length ${items.size}")
-            }
-        }
-    ) { page -> OneImage(carouselVM.isRemoteLegacy, items, page) }
-}
-
-@Composable
 @OptIn(ExperimentalGlideComposeApi::class)
+@Composable
 private fun OneImage(
     isLegacy: Boolean,
     items: List<RTreeNode>,
@@ -182,13 +157,22 @@ private fun OneImage(
             )
         } else {
             val n = items[page]
-            // TODO provide 2 step loading: first preview then full image 
+            // TODO provide 2 step loading: first preview then full image
             GlideSubcomposition(
                 encodeModel(AppNames.LOCAL_FILE_TYPE_PREVIEW, n.getStateID(), n.etag, n.metaHash),
-                Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)), { it },
+                Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center),
+                { it },
             ) {
                 when (state) {
-                    RequestState.Loading -> LoadingAnimation()
+                    RequestState.Loading -> CircularProgressIndicator(
+                        color = Color.Red,
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.spinner_size))
+                            .alpha(.8f)
+                    )
+
                     RequestState.Failure -> {
                         Column(
                             modifier = Modifier.fillMaxSize(),
@@ -231,6 +215,42 @@ private fun OneImage(
             }
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HorizontalPagerWithOffsetTransition(
+    initialStateID: StateID,
+    carouselVM: CarouselVM,
+    items: List<RTreeNode>,
+    modifier: Modifier = Modifier
+) {
+    val index = remember(key1 = items.size) {
+        derivedStateOf {
+            getItemIndex(initialStateID, items)
+        }
+    }
+
+    val pagerState = rememberPagerState(
+        initialPage = index.value,
+        initialPageOffsetFraction = 0f
+    ) {
+        items.size
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center),
+        key = { currIndex ->
+            if (currIndex >= 0 && currIndex < items.size) {
+                items[currIndex].encodedState
+            } else {
+                Log.w(LOG_TAG, "OutOfBounds: Index $currIndex for length ${items.size}")
+            }
+        }
+    ) { page -> OneImage(carouselVM.isRemoteLegacy, items, page) }
 }
 
 private fun fl(offset: Offset, zoom: Float): Float {
