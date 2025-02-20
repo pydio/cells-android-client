@@ -10,7 +10,7 @@ plugins {
 android {
 
     namespace 'com.pydio.android.cells'
-    compileSdk 34
+    compileSdk 35
 
     // Gather overrides in a distinct folder for easier maintenance
     sourceSets {
@@ -99,11 +99,11 @@ android {
     room {
         schemaDirectory "$projectDir/schemas"
     }
+
     lint {
+        // We do not want that the linter makes builds fail. It is quite extremist by default.
         abortOnError false
     }
-
-    // We do not want that the linter makes builds fail. It is quite extremist by default.
 }
 
 dependencies {
@@ -141,7 +141,6 @@ dependencies {
     implementation libs.koin.androidx.compose
 
     // Compose libraries
-    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
     implementation platform(libs.compose.bom)
 
     /* Androidx */
