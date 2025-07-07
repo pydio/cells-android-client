@@ -459,7 +459,12 @@ private fun FolderList(
                                 modifier = getClickableModifier(
                                     loadingState, isSelectionMode, nodeItem,
                                     onTap, alpha
-                                ).animateItemPlacement(),
+                                ).animateItem(),
+
+                                // to further tweak the animation:
+//                                placementSpec = spring(stiffness = Spring.StiffnessLow),
+//                                fadeInSpec    = tween(durationMillis = 150),
+//                                fadeOutSpec   = tween(durationMillis = 100)
                             )
                         }
                     }
@@ -499,7 +504,7 @@ private fun FolderList(
                                     onTap,
                                     alpha
                                 )
-                                    .animateItemPlacement()
+                                    .animateItem()
                             )
                         }
                     }

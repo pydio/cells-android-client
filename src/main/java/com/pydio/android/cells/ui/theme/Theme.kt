@@ -70,7 +70,8 @@ fun CellsTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val currActivity = view.context as Activity
-            currActivity.window.statusBarColor = colorScheme.surfaceVariant.toArgb()
+            // Deprecated
+            // currActivity.window.statusBarColor = colorScheme.surfaceVariant.toArgb()
             WindowCompat.getInsetsController(
                 currActivity.window,
                 view

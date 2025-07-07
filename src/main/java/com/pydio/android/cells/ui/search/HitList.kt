@@ -99,7 +99,7 @@ fun HitsList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { open(node.defaultStateID()) }
-                                .animateItemPlacement(),
+                                .animateItem(),
                         )
                     }
                 }
@@ -117,7 +117,7 @@ fun HitsList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { open(node.defaultStateID()) }
-                                .animateItemPlacement(),
+                                .animateItem(),
                         )
                     }
                 }

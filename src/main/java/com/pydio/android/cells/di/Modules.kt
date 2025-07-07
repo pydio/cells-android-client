@@ -63,9 +63,9 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.androidx.workmanager.dsl.worker
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -112,7 +112,7 @@ val dbModule = module {
             RUNTIME_DB_NAME
         )
             .addMigrations(RuntimeDB.MIGRATION_1_2)
-            .fallbackToDestructiveMigrationOnDowngrade()
+            .fallbackToDestructiveMigrationOnDowngrade(true)
             .build()
     }
 

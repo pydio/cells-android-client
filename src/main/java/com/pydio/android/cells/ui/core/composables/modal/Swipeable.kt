@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.StandardResistanceFactor
 import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.VelocityThreshold
 import com.pydio.android.cells.ui.core.composables.modal.SwipeableDefaults.resistanceConfig
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserInput
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -849,7 +850,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
     get() = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
             val delta = available.toFloat()
-            return if (delta < 0 && source == NestedScrollSource.Drag) {
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
                 performDrag(delta).toOffset()
             } else {
                 Offset.Zero
@@ -861,7 +862,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
             available: Offset,
             source: NestedScrollSource
         ): Offset {
-            return if (source == NestedScrollSource.Drag) {
+            return if (source == NestedScrollSource.UserInput) {
                 performDrag(available.toFloat()).toOffset()
             } else {
                 Offset.Zero

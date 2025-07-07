@@ -439,7 +439,7 @@ private fun OfflineRootsList(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
+                                        .animateItem(),
                                 )
                             } else {
                                 LargeCardWithIcon(
@@ -451,7 +451,7 @@ private fun OfflineRootsList(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable { open(node.getStateID()) }
-                                        .animateItemPlacement(),
+                                        .animateItem(),
                                 )
                             }
                         }
@@ -490,7 +490,7 @@ private fun OfflineRootsList(
                                 more = { openMoreMenu(offlineRoot.getStateID()) },
                                 modifier = Modifier
                                     .clickable { open(offlineRoot.getStateID()) }
-                                    .animateItemPlacement(),
+                                    .animateItem(),
                             )
                         }
                         item {

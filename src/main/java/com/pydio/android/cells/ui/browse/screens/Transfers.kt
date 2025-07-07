@@ -401,7 +401,7 @@ private fun TransferList(
                         more = { doAction(AppNames.ACTION_MORE, transfer.transferId) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateItemPlacement(),
+                            .animateItem(),
                     )
                 }
             }

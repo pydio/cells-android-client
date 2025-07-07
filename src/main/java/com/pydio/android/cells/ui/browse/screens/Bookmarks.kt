@@ -488,7 +488,7 @@ private fun BookmarkList(
                                         onClick = { onTap(node.defaultStateID(), false) },
                                         onLongClick = { onTap(node.defaultStateID(), true) },
                                     )
-                                    .animateItemPlacement(),
+//                                     .animateItemPlacement(),
                             )
                         }
                     }
@@ -512,7 +512,7 @@ private fun BookmarkList(
                                         onClick = { onTap(node.defaultStateID(), false) },
                                         onLongClick = { onTap(node.defaultStateID(), true) },
                                     )
-                                    .animateItemPlacement()
+                                    // .animateItemPlacement()
                             )
                         }
                     }

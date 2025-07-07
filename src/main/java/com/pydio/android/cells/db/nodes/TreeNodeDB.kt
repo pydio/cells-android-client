@@ -50,17 +50,17 @@ abstract class TreeNodeDB : RoomDatabase() {
                     dbName
                 )
                     // Old dev version of the DB that has made to the Play store during RC phase
-                    .fallbackToDestructiveMigrationFrom(1)
+                    .fallbackToDestructiveMigrationFrom(true, 1)
                     // Adding a column in the view necessitates a migration
                     // That we do not play anymore (see below)
                     // .addMigrations(MIGRATION_2_3)
-                    .fallbackToDestructiveMigrationFrom(2)
+                    .fallbackToDestructiveMigrationFrom(true, 2)
                     // Making a column String nullable also necessitates a migration
                     // that is unnecessary to implement at this time.
-                    .fallbackToDestructiveMigrationFrom(3)
+                    .fallbackToDestructiveMigrationFrom(true, 3)
                     // .addMigrations(MIGRATION_3_4)
                     // Ease downgrade for dev purposes, this should not happen in prod
-                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .fallbackToDestructiveMigrationOnDowngrade(true)
                     .addMigrations(MIGRATION_4_5)
                     .build()
                 INSTANCES[accountId] = instance
