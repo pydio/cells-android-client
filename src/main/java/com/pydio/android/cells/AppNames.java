@@ -45,17 +45,15 @@ public interface AppNames {
     String ACTION_DONE = KEY_PREFIX_ + "done";
     String ACTION_RESUME = KEY_PREFIX_ + "resume";
     String ACTION_RESTART = KEY_PREFIX_ + "restart";
-    // String ACTION_CHOOSE_TARGET = KEY_PREFIX_ + "choosetarget";
     String ACTION_COPY = KEY_PREFIX_ + "copy";
     String ACTION_MOVE = KEY_PREFIX_ + "move";
     String ACTION_UPLOAD = KEY_PREFIX_ + "upload";
-    // String ACTION_DOWNLOAD = KEY_PREFIX_ + "download";
     String ACTION_CREATE_FOLDER = KEY_PREFIX_ + "createfolder";
 
     String ACTION_OPEN_PARENT_IN_WORKSPACES = KEY_PREFIX_ + "openparentinworkspaces";
     String ACTION_DELETE_RECORD = KEY_PREFIX_ + "deleterecord";
 
-    String ACTION_LOGIN = "login";
+    // String ACTION_LOGIN = "login";
     // String ACTION_LOGOUT = "logout";
     // String ACTION_FORGET = "forget";
 

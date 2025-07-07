@@ -1,13 +1,12 @@
 package com.pydio.android.cells.ui.core.composables
 
 import android.content.res.Configuration
-import android.util.Log
 import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
@@ -22,7 +21,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -31,7 +29,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
@@ -40,13 +37,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.pydio.android.cells.R
-import com.pydio.android.cells.ui.models.ErrorMessage
-import com.pydio.android.cells.ui.models.toErrorMessage
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.UseCellsTheme
 import com.pydio.cells.transport.StateID
 
-private const val LOG_TAG = "TopBars.kt"
+// private const val LOG_TAG = "TopBars.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -255,7 +250,7 @@ fun TopBarWithActions(
 @Composable
 fun TopBarWithSearch(
     queryStr: String,
-    errorMessage: ErrorMessage?,
+    // errorMessage: ErrorMessage?,
     updateQuery: (String) -> Unit,
     cancel: (() -> Unit),
     isActionMenuShown: Boolean,
@@ -266,7 +261,7 @@ fun TopBarWithSearch(
 
     val focusRequester = remember { FocusRequester() }
 
-    val context = LocalContext.current
+    // val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -309,21 +304,22 @@ fun TopBarWithSearch(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .5f)
                     )
                 },
-                supportingText = {
-                    errorMessage?.let {
-                        Text(
-                            text = toErrorMessage(context, errorMessage),
-                            color = MaterialTheme.colorScheme.error
-                        )
-
-                    }
-                },
+//                supportingText = {
+//                    errorMessage?.let {
+//                        Text(
+//                            text = toErrorMessage(context, errorMessage),
+//                            color = MaterialTheme.colorScheme.error
+//                        )
+//
+//                    }
+//                },
                 enabled = true,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = imeAction),
                 keyboardActions = keyboardActions,
                 onValueChange = { newValue -> updateQuery(newValue) },
-                modifier = modifier
+                modifier = modifier.fillMaxWidth()
+                    .padding(  bottom = dimensionResource(R.dimen.margin_xsmall)),
             )
         },
         navigationIcon = {
@@ -350,8 +346,11 @@ fun TopBarWithSearch(
         },
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .wrapContentHeight(CenterVertically)
-            .padding(vertical = dimensionResource(R.dimen.margin)),
+
+        //     .height(96.dp)
+        //    .wrapContentHeight(CenterVertically)
+        // .wrapContentHeight(Top)
+        //     .padding(top = dimensionResource(R.dimen.margin_xsmall)),
     )
 
     LaunchedEffect(key1 = Unit) {

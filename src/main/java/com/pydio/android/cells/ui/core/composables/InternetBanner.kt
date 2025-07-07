@@ -47,8 +47,6 @@ fun WithInternetBanner(
         errorService.clearStack()
         navigateTo(it)
     }
-
-    // TODO add bottom sheet
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +68,6 @@ private fun InternetBanner(
 
     currSession.value?.let {
         val currState = sessionStatus.value
-
         when {
             currState.isServerReachable && !currState.loginStatus.isConnected()
             -> {
@@ -104,17 +101,14 @@ private fun InternetBanner(
                                 Log.e(LOG_TAG, "... Cannot launch, empty session view")
                             }
                         }
-                    }
+                    },
                 )
             }
-
             else -> {
                 // No header
             }
         }
     }
-
-
 }
 
 @Composable
@@ -133,8 +127,10 @@ private fun CredExpiredStatus(
             .fillMaxWidth()
             .background(bg)
             .padding(
-                horizontal = dimensionResource(R.dimen.margin_small),
-                vertical = dimensionResource(R.dimen.margin_xxsmall)
+                start = dimensionResource(R.dimen.margin_small),
+                end = dimensionResource(R.dimen.margin_small),
+                top = dimensionResource(R.dimen.margin_medium),
+                bottom = dimensionResource(R.dimen.margin_xxsmall)
             )
     ) {
         Icon(

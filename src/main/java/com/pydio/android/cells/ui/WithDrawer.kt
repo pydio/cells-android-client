@@ -71,13 +71,13 @@ fun NavHostWithDrawer(
             Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
         }
 
-        // FIXME remove
-        dumpNavigationStack(
-            LOG_TAG,
-            "Main NavigateTo in WithDrawer",
-            mainNavController.currentBackStack.value,
-            route
-        )
+        // TODO remove
+//        dumpNavigationStack(
+//            LOG_TAG,
+//            "Main NavigateTo in WithDrawer",
+//            mainNavController.currentBackStack.value,
+//            route
+//        )
 
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
@@ -136,7 +136,7 @@ fun NavHostWithDrawer(
                     connectionService = connectionService,
                     navigateTo = navigateTo,
                     contentPadding = rememberContentPaddingForScreen(
-                        // additionalTop = if (!isExpandedScreen) 0.dp else 8.dp,
+                        // additionalTop = if (!isExpandedScreen) 8.dp else 0.dp,
                         excludeTop = !isExpandedScreen
                     )
                 ) {

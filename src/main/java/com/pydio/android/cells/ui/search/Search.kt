@@ -185,7 +185,6 @@ private fun WithScaffold(
     isExpandedScreen: Boolean,
     connectionState: ConnectionState,
     query: String,
-//    errMsg: ErrorMessage?,
     updateQuery: (String) -> Unit,
     listLayout: ListLayout,
     hits: List<MultipleItem>,
@@ -251,7 +250,7 @@ private fun WithScaffold(
         topBar = {
             TopBarWithSearch(
                 queryStr = query,
-                errorMessage = null, // WE do not want the error here. // errMsg,
+                // errorMessage = null, // WE do not want the error here. // errMsg,
                 updateQuery = updateQuery,
                 cancel = cancel,
                 isActionMenuShown = isShown,
@@ -261,7 +260,6 @@ private fun WithScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { padding ->
-
         CellsModalBottomSheetLayout(
             isExpandedScreen = isExpandedScreen,
             sheetContent = {
