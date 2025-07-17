@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.pydio.android.cells.CellsApp
 import com.pydio.android.cells.utils.showMessage
 import com.pydio.cells.api.SdkNames
@@ -103,6 +104,8 @@ class V2MainDB private constructor(context: Context, path: String, version: Int)
 
     fun listLegacyAccountRecords(): List<LegacyAccountRecord> {
         val accountRecords: MutableList<LegacyAccountRecord> = ArrayList()
+        val gsonInstance: Gson = GsonBuilder().create()
+
         synchronized(lock) {
             val db = readDB()
             val cursor = db.rawQuery(ALL_ACCOUNTS, null)
@@ -125,7 +128,7 @@ class V2MainDB private constructor(context: Context, path: String, version: Int)
                         .replace("mLegacy", "legacy")
                         .replace("mProperties", "properties")
                 }
-                val record = Gson().fromJson(json, LegacyAccountRecord::class.java)
+                val record = gsonInstance.fromJson(json, LegacyAccountRecord::class.java)
                 accountRecords.add(record)
             }
             cursor.close()
