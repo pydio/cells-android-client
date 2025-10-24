@@ -32,12 +32,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideSubcomposition
-import com.bumptech.glide.integration.compose.RequestState
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.pydio.android.cells.AppNames
 import com.pydio.android.cells.R
 import com.pydio.android.cells.transfer.glide.encodeModel
-import com.pydio.android.cells.ui.core.composables.animations.LoadingAnimation
 import com.pydio.android.cells.ui.theme.CellsIcons
 import com.pydio.android.cells.ui.theme.getIconAndColorFromType
 import com.pydio.android.cells.ui.theme.getIconTypeFromMime
@@ -145,6 +144,7 @@ fun LargeCardImageThumb(
             .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
     ) {
 
+        /* FIXME this has been removed in the latest glide compose beta
         GlideSubcomposition(
             encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
             Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)), { it },
@@ -169,15 +169,15 @@ fun LargeCardImageThumb(
                 }
             }
         }
-
-//        GlideImage(
-//            model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
-//            contentDescription = "$title thumbnail",
-//            contentScale = ContentScale.FillWidth,
-//            failure = placeholder(R.drawable.image_no_thumb_small),
-//            loading = placeholder(R.drawable.loading),
-//            modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)),
-//        )
+*/
+        GlideImage(
+            model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+            contentDescription = "$title thumbnail",
+            contentScale = ContentScale.FillWidth,
+            failure = placeholder(R.drawable.image_no_thumb_small),
+            loading = placeholder(R.drawable.loading),
+            modifier = Modifier.size(dimensionResource(R.dimen.grid_ws_image_size)),
+        )
         openMoreMenu?.let {
             Box(
                 modifier = Modifier
