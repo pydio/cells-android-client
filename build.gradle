@@ -3,7 +3,6 @@
 
 plugins {
     alias libs.plugins.android.application
-    alias libs.plugins.kotlin.android
     alias libs.plugins.kotlin.plugin.compose
     alias libs.plugins.ksp.devtools
     alias libs.plugins.androidx.room
@@ -12,8 +11,8 @@ plugins {
 
 android {
 
-    namespace 'com.pydio.android.cells'
-    compileSdk 36
+    namespace = 'com.pydio.android.cells'
+    compileSdk 37
 
     // Gather overrides in a distinct folder for easier maintenance
     sourceSets {
@@ -57,7 +56,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             resValue "string", "app_version",
                     "${defaultConfig.versionName}"
 
@@ -65,8 +64,8 @@ android {
             // If you haven't already built your app using minifyEnabled for code shrinking,
             // then try that before enabling shrinkResources, because you might need to edit your proguard-rules.pro file
             // to keep classes or methods that are created or invoked dynamically before you start removing resources.
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             // See https://developer.android.com/build/shrink-code#android_gradle_plugin_version_41_or_later
             // And you must have this installed in Android Studio https://developer.android.com/studio/projects/install-ndk
@@ -74,12 +73,13 @@ android {
             // The generated mapping.txt file can than be uploaded on the store following this:
             // https://support.google.com/googleplay/android-developer/answer/9848633#upload_file&zippy=%2Cupload-files-using-play-console
             ndk {
-                debugSymbolLevel 'FULL'
+                debugSymbolLevel = 'FULL'
             }
         }
 
         debug {
             versionNameSuffix = '-dev'
+            // resValues true
             resValue "string", "app_version",
                     "${defaultConfig.versionName}${versionNameSuffix}"
         }
@@ -90,13 +90,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
+        resValues = true
     }
 
     room {
@@ -105,7 +102,7 @@ android {
 
     lint {
         // We do not want that the linter makes builds fail. It is quite extremist by default.
-        abortOnError false
+        abortOnError = false
     }
 }
 

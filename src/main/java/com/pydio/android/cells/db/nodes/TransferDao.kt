@@ -73,7 +73,7 @@ interface TransferDao {
     fun getLiveByState(encodedState: String): Flow<RTransfer?>
 
     @Query("SELECT * FROM transfers ORDER BY start_ts DESC")
-    fun getActiveTransfers(): Flow<List<RTransfer>?>
+    fun getActiveTransfers(): Flow<List<RTransfer>>
 
     @RawQuery(observedEntities = [RTransfer::class])
     fun transferQuery(query: SupportSQLiteQuery): Flow<List<RTransfer>>
