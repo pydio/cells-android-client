@@ -1,8 +1,10 @@
 package com.pydio.android.cells.ui.core.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,7 +40,7 @@ fun AuthScreen(
     Surface(modifier = Modifier) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(dimensionResource(R.dimen.form_page_padding))
                 .wrapContentWidth(Alignment.Start)
         ) {
@@ -61,16 +63,15 @@ fun AuthScreen(
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
             }
-            if (isProcessing) {
-                CircularProgressIndicator(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .alpha(.8f)
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isProcessing) {
+                    CircularProgressIndicator(modifier = Modifier.alpha(.8f))
+                }
             }
 
             if (!errMsg.isNullOrEmpty()) {

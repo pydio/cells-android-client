@@ -11,6 +11,7 @@ import com.pydio.android.cells.services.models.ConnectionState
 import com.pydio.android.cells.services.models.SessionState
 import com.pydio.android.cells.ui.theme.CellsColor
 import com.pydio.android.cells.utils.currentTimestamp
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -201,6 +202,19 @@ class ConnectionService(
     // Shortcuts
     fun isConnected(): Boolean {
         return liveConnectionState.value.serverConnection != ServerConnection.UNREACHABLE
+    }
+
+    /**
+     * Called when a network operation fails with a connection-level error (e.g. TLS/SSL).
+     * Triggers an immediate reachability check so the UI reflects the server state correctly.
+     */
+    fun notifyConnectionError(stateID: StateID, errorCode: Int) {
+        if (errorCode == ErrorCodes.ssl_error) {
+            serviceScope.launch {
+                Log.w(logTag, "TLS error for $stateID — marking server unreachable")
+                appCredentialService.insureServerIsReachable(stateID)
+            }
+        }
     }
 
     // Delegated to pollService

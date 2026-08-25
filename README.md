@@ -13,9 +13,9 @@ With a limited subset of features, the Android application can yet prove to be u
 been optimized for mobile usage:
 
 - It manages and caches authorization, no need to re-log at each connection.
-- It has a aggressive cache optimisation strategy to avoid downloading the files when not necessary.
+- It has an aggressive cache optimization strategy to avoid downloading the files when not necessary.
 - You can configure what you download depending on your connection status (e.g. only download
-  tumbnails when you are on an un-metered network).
+  thumbnails when you are on an un-metered network).
 - When offline, you can access the sub-parts of the remote server that have been already cached.
 - You can also mark parts of you distant document repository as "offline": corresponding files are
   then downloaded and regularly synchronized when you are online, providing full access to these
@@ -53,14 +53,14 @@ create an account and get started.
 ## Testing
 
 > **Warning**: the procedure described below is not "backward" compatible:  
-> you will have to un-install and fully re-install the application to be able to have the current main released version on your device. Handle with care!
+> you will have to uninstall and fully re-install the application to be able to have the current main released version on your device. Handle with care!
 
 ### Beta testing from the store
 
 You can test beta version by registering as a beta tester in the Play Store. After a few minutes,
 you should be able to update and run the latest beta version.
 
-You can directly opt-in:
+You can directly opt in:
 
 - [from your android device](https://play.google.com/store/apps/details?id=com.pydio.android.Client)
 - [from a web browser](https://play.google.com/apps/testing/com.pydio.android.Client)

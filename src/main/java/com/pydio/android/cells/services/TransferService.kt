@@ -486,9 +486,10 @@ class TransferService(
             }
             val filename = client.getThumbnail(state, node, File(parPath), dim)
             if (filename.isNullOrEmpty()) {
+                Log.w(logTag, "dlThumb: no filename returned for $state ($type) — node has no usable thumbnail metadata")
                 throw SDKException(
                     ErrorCodes.not_found,
-                    "Could not get thumb for $state, it is probably missing in the server"
+                    "No thumbnail available for $state"
                 )
             }
 
@@ -499,13 +500,12 @@ class TransferService(
 
             fileService.registerLocalFile(state, rNode, type, targetFile)
             return filename
+        } catch (se: SDKException) {
+            Log.w(logTag, "dlThumb: SDK error for $state ($type) [${se.code}]: ${se.message}")
+            connectionService.notifyConnectionError(state.account(), se.code)
+            throw SDKException(ErrorCodes.not_found, "Get thumb for $state failed", se)
         } catch (e: Exception) {
-            Log.e(logTag, "could not get thumb for $state: ${e.message}")
-            // TODO improve At this point, if we had an error, the target file is most probably corrupted or missing
-            //   Problem: if we are offline we might reach this point and and remove the record too fast. 
-            // fileService.unregisterLocalFile(state, type)
-            // e.printStackTrace()
-
+            Log.e(logTag, "dlThumb: unexpected error for $state ($type): ${e.javaClass.simpleName}: ${e.message}")
             throw SDKException(ErrorCodes.not_found, "Get thumb for $state failed", e)
         }
     }

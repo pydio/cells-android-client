@@ -122,20 +122,16 @@ class PreLaunchVM(
                     }
             try {
                 updateMessage("Updating account info...")
-//                _accountID.value = accID
-//                _loginContext.value = lc
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
 
                 if (lc == AuthService.LOGIN_CONTEXT_SHARE) {
                     _processState.value = PreLaunchState.TERMINATE
-//                } else if (lc == AuthService.LOGIN_CONTEXT_BROWSE) {
-//                    _processState.value = PreLaunchState.TERMINATE
                 } else {
                     _appState.value = AppState(
                         stateID = accID,
                         intentID = intentID,
-                        // TODO maybe also insure here that we have a first correct destination.
+                        // TODO maybe also ensure here that we have a first correct destination.
                         route = null,
                         context = lc
                     )
