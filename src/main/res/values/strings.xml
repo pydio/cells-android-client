@@ -13,7 +13,7 @@
     <string name="about_page_version_title">Pydio</string>
     <string name="about_version_title">Pydio Client for Android</string>
     <string name="about_help_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
+    <string name="about_page_copyright">Pydio is a trademark of Wire France SAS.</string>
     <string name="version_name_display">Version name: %s</string>
     <string name="version_code_display">Version code: %s</string>
     <string name="last_update_time_display">Last update on: %s</string>
