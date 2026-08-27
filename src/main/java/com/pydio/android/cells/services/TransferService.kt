@@ -270,7 +270,7 @@ class TransferService(
         downloadFile(stateID, rNode, type, parentJob, progressChannel)
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext") // injected dispatcher is not recognised by the linter
+    @Suppress("BlockingMethodInNonBlockingContext") // injected dispatcher is not recognized by the linter
     @Throws(SDKException::class)
     suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) = withContext(ioDispatcher) {
         val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -341,7 +341,7 @@ class TransferService(
             AppNames.LOCAL_FILE_TYPE_FILE -> {
                 val jobId = prepareDownload(stateID, type, parentJob)
                 runDownloadTransfer(stateID, jobId, parentJobProgress)
-                // Note:  we remove the leading slash to comply with childFile method signature, see just below)
+                // Note:  we remove the leading slash to comply with childFile method signature, see just below
                 filename = stateID.path.substring(1)
             }
 
@@ -384,7 +384,7 @@ class TransferService(
 
     /**
      * Performs the real download for the pre-registered transfer record and
-     * wait until it is finished or we reach a 300 seconds timeout.
+     * wait until it is finished, or we reach a 300 seconds timeout.
      */
     @Throws(SDKException::class)
     suspend fun runDownloadAndWait(
@@ -569,12 +569,10 @@ class TransferService(
         if (name.isNullOrEmpty()) {
             return@withContext Pair(-1, "")
         }
-
-        val filename = name!!
-
+        val filename = name
         // Mime Type
         val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
-        Log.e(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
+        Log.i(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
 
         // TODO should we implement a "clean" of the extensions
         //   the code below wasn't good enough and led to files named e.g. "img.JPG.jpg".
@@ -746,7 +744,7 @@ class TransferService(
         return try {
             value.toInt()
             true
-        } catch (ex: java.lang.Exception) {
+        } catch (_: java.lang.Exception) {
             false
         }
     }

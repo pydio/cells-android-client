@@ -103,7 +103,7 @@ fun WrapWithActions(
 //        }
 //    }
 
-    // This introduce a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
+    // This introduces a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
     val delayedDone: (Boolean) -> Unit = { done ->
         navController.popBackStack(MAIN_CONTENT, false)
         scope.launch {
@@ -242,54 +242,42 @@ fun WrapWithActions(
     }
 
     val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-//        if (stateIDs.size < 2) {
-//            Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
-//            Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
-//        } else
         when (action) {
-
             is NodeAction.CopyTo -> {
                 currentAction.value = AppNames.ACTION_COPY
                 val suffix = encodeStateForRoute(stateIDs.first().parent())
                 val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
                 navController.navigate(initialRoute)
             }
-
             is NodeAction.MoveTo -> {
                 currentAction.value = AppNames.ACTION_MOVE
                 val suffix = encodeStateForRoute(stateIDs.first().parent())
                 val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
                 navController.navigate(initialRoute)
             }
-
             // TODO still not working
             is NodeAction.DownloadMultipleToDevice -> {
                 val suffix = encodeStateSetForRoute(stateIDs)
                 val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
                 navController.navigate(initialRoute)
             }
-
             is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
                 nodeActionsVM.delete(stateIDs)
                 delayedDone(true)
             }
-
             is NodeAction.RestoreFromTrash -> {
                 nodeActionsVM.restoreFromTrash(stateIDs)
                 delayedDone(true)
             }
-
             is NodeAction.UnSelectAll -> {
                 delayedDone(true)
             }
-
             is NodeAction.ToggleBookmark -> {
                 for (stateID in stateIDs) {
                     nodeActionsVM.removeBookmark(stateID)
                 }
                 delayedDone(true)
             }
-
             else -> {
                 Log.e(LOG_TAG, "unexpected action: $action")
             }

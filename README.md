@@ -69,7 +69,7 @@ Once you have opt-in to be a beta tester, it might seem difficult to opt out and
 the app as a _normal_ user. To do so:
 
 - Open the [testing link for web browser](https://play.google.com/apps/testing/com.pydio.android.Client),
-- Log in your google account (the same you have used when registering as beta tester),
+- Log in your Google account (the same you have used when registering as beta tester),
 - Click on the `LEAVE THE PROGRAM` button,
 - Uninstall the app,
 - Once you are not a tester anymore (it can take time due to some processing on Google's side),

@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
- * Performs background synchronisation depending on the folder that is currently shown to the end user.
+ * Performs background synchronization depending on the folder that is currently shown to the end user.
  */
 @OptIn(FlowPreview::class)
 class PollService(
@@ -107,14 +107,12 @@ class PollService(
         serviceScope.launch {
             pollJob?.cancelAndJoin()
             pollJob = serviceScope.launch {
-                Log.e(logTag, "####################################################")
-                Log.e(logTag, "### New PollJob: ${this.hashCode()}")
+                Log.i(logTag, "Launching PollJob with coroutine scope ${this.hashCode()}")
                 while (this.isActive) {
                     watchFolder(this)
                     delay(2000L)
                 }
-                Log.e(logTag, "####################################################")
-                Log.e(logTag, "### Done Job ${this.hashCode()} (was active: ${this.isActive}")
+                Log.i(logTag, "PollJob for coroutine scope ${this.hashCode()} has terminated")
             }
             Log.i(logTag, "### Relaunched PollJob, new ID: $pollJob")
         }

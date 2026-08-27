@@ -158,7 +158,7 @@ class LoginVM(
 //                triggerOAuthProcess(serverURL)
 //            }
             // FIXME this is not satisfying: error won't be processed correctly
-            return LoginDestinations.LaunchAuthProcessing.createRoute(
+            LoginDestinations.LaunchAuthProcessing.createRoute(
                 serverID,
                 skipVerify,
                 AuthService.LOGIN_CONTEXT_CREATE
@@ -168,7 +168,7 @@ class LoginVM(
 
     /**
      * Returns a ServerURL if the ping is successful or a route to navigate
-     * to the skip verify step if we got a SSL exception
+     * to the skip verify step if we got an SSL exception
      */
     private suspend fun doPing(
         serverAddress: String,
@@ -313,7 +313,6 @@ class LoginVM(
 
     override fun onCleared() {
         Log.i(logTag, "Cleared")
-        super.onCleared()
     }
 
     init {

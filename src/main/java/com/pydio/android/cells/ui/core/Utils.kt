@@ -166,7 +166,9 @@ fun dumpNavigationStack(
     builder.append("\n")
     var i = 1
     for (bse in bseList) {
-        builder.append("\t #$i: ${bse.destination.route} - ${lazyStateID(bse, verbose = false)}\n")
+        val stateLabel = lazyStateID(bse, verbose = false)
+            .takeIf { it != StateID.NONE }?.toString() ?: "(no state)"
+        builder.append("\t #$i: ${bse.destination.route} - $stateLabel\n")
         i++
     }
     Log.i(logTag, builder.toString())

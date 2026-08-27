@@ -163,7 +163,7 @@ class MainActivity : ComponentActivity() {
                     Log.d(logTag, "... At Compose root, current state: $processState")
                     Log.d(
                         logTag,
-                        "...   Details: ${appState.stateID}, ${appState.route}, ${appState.context}"
+                        "...   Details: ${appState.stateID.takeIf { it != StateID.NONE } ?: "(no state)"}, ${appState.route}, ${appState.context}"
                     )
                     MainApp(
                         initialAppState = appState,

@@ -55,11 +55,11 @@ fun AccountsScreen(
             AccountsScreen(
                 isExpandedScreen = isExpandedScreen,
                 accounts = accounts.value,
-                openAccount = {
+                openAccount = { stateID ->
                     scope.launch {
-                        accountListVM.openSession(it)?.let {
-                            Log.i(LOG_TAG, "About to open session for: $it")
-                            navigateTo(BrowseDestinations.Open.createRoute(it.getStateID()))
+                        accountListVM.openSession(stateID)?.let {
+                            Log.i(LOG_TAG, "About to open session for: $stateID")
+                            navigateTo(BrowseDestinations.Open.createRoute(stateID))
                         }
                     }
                 },
