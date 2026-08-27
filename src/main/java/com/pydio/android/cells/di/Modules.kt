@@ -123,6 +123,7 @@ val dbModule = module {
             AuthDB::class.java,
             AUTH_DB_NAME
         )
+            .addMigrations(AuthDB.MIGRATION_1_2)
             .build()
     }
 

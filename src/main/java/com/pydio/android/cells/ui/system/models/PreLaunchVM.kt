@@ -14,7 +14,6 @@ import com.pydio.android.cells.services.SessionFactory
 import com.pydio.android.cells.services.TransferService
 import com.pydio.android.cells.ui.models.AppState
 import com.pydio.android.cells.ui.share.ShareDestinations
-import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -112,15 +111,15 @@ class PreLaunchVM(
         updateMessage("Retrieving authentication token...")
 
         viewModelScope.launch {
-
-            delay(smoothActionDelay)
-            val (accID, lc) =
-                authService.handleOAuthResponse(accountService, sessionFactory, state, code)
-                    ?: run {// Nothing to do, we simply ignore the call
-                        _processState.value = PreLaunchState.SKIP
-                        return@launch
-                    }
             try {
+                delay(smoothActionDelay)
+                val (accID, lc) =
+                    authService.handleOAuthResponse(accountService, sessionFactory, state, code)
+                        ?: run {// Nothing to do: state was already consumed or unknown
+                            _processState.value = PreLaunchState.SKIP
+                            return@launch
+                        }
+
                 updateMessage("Updating account info...")
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
@@ -131,14 +130,13 @@ class PreLaunchVM(
                     _appState.value = AppState(
                         stateID = accID,
                         intentID = intentID,
-                        // TODO maybe also ensure here that we have a first correct destination.
                         route = null,
                         context = lc
                     )
                     _processState.value = PreLaunchState.DONE
                 }
-            } catch (se: SDKException) {
-                updateErrorMsg("Could not refresh workspaces for $accID: ${se.message}")
+            } catch (e: Exception) {
+                updateErrorMsg(e.message ?: "Authentication failed")
             }
         }
     }

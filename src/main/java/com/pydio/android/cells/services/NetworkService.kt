@@ -125,11 +125,17 @@ private class CellsNetworkCallback(val postValue: (NetworkStatus) -> Unit) :
                 !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
                 -> NetworkStatus.ROAMING
 
-                !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                // Metered only when on cellular data without an explicit "not metered" grant
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        && !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                        && !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
                 -> NetworkStatus.METERED
 
-                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
-                        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                // Wi-Fi and Ethernet are always OK — the emulator virtual NIC lacks NOT_RESTRICTED
+                // but is still fully usable
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                        || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
                         || networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
                 -> NetworkStatus.OK
 

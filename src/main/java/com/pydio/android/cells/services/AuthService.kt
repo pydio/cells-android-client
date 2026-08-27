@@ -1,12 +1,14 @@
 package com.pydio.android.cells.services
 
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import com.pydio.android.cells.db.auth.AuthDB
 import com.pydio.android.cells.db.auth.ROAuthState
 import com.pydio.android.cells.utils.AndroidCustomEncoder
 import com.pydio.android.cells.utils.currentTimestamp
 import com.pydio.cells.api.CustomEncoder
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.CellsTransport
@@ -17,6 +19,8 @@ import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.withContext
+import java.security.MessageDigest
+import java.security.SecureRandom
 import java.util.*
 
 class AuthService(
@@ -63,15 +67,20 @@ class AuthService(
                 }
 
             val oAuthState = generateOAuthState()
-            val uri: Uri = generateUriData(server.oAuthConfig, oAuthState)
+            val codeVerifier = generateCodeVerifier()
+            val codeChallenge = computeCodeChallenge(codeVerifier)
+            Log.d(logTag, "PKCE: verifier[${codeVerifier.length}]=${codeVerifier.take(8)}… challenge[${codeChallenge.length}]=${codeChallenge.take(8)}…")
+            val uri: Uri = generateUriData(server.oAuthConfig, oAuthState, codeVerifier, codeChallenge)
             // Register the state to enable the callback
             val rOAuthState = ROAuthState(
                 state = oAuthState,
                 serverURL = url,
                 loginContext = loginContext,
-                startTimestamp = currentTimestamp()
+                startTimestamp = currentTimestamp(),
+                codeVerifier = codeVerifier,
             )
             authStateDao.insert(rOAuthState)
+            Log.d(logTag, "PKCE: stored verifier in DB for state=$oAuthState, len=${codeVerifier.length}")
             return@withContext uri
         } catch (e: SDKException) {
             Log.e(
@@ -110,30 +119,29 @@ class AuthService(
             Log.w(logTag, "Ignored callback with unknown state: $oauthState")
             return@withContext null
         }
-        try {
-            Log.i(logTag, "... Handling state ${rState.state} for ${rState.serverURL.url}")
+        Log.i(logTag, "... Handling state ${rState.state} for ${rState.serverURL.url}")
+        Log.d(logTag, "PKCE: retrieved verifier from DB len=${rState.codeVerifier.length}, prefix=${rState.codeVerifier.take(8)}")
 
-            val transport = sessionFactory
-                .getAnonymousTransport(rState.serverURL.id) as CellsTransport
-            val token = transport.getTokenFromCode(code, encoder)
-            accountID = manageRetrievedToken(accountService, transport, token)
-            Log.i(logTag, "... Token managed. Login context: ${rState.loginContext}")
-
-            // Leave OAuth state cacheDB clean
-            authStateDao.delete(oauthState)
-            // When creating a new account, we want to put its session on the foreground
-            if (rState.loginContext == LOGIN_CONTEXT_CREATE) {
-                accountService.openSession(accountID)
-            }
+        val transport = sessionFactory
+            .getAnonymousTransport(rState.serverURL.id) as CellsTransport
+        val token = try {
+            transport.getTokenFromCode(code, encoder, rState.codeVerifier)
         } catch (e: Exception) {
-            Log.e(logTag, "Could not finalize credential OAuth flow")
-            e.printStackTrace()
+            Log.e(logTag, "Could not retrieve token from OAuth code for ${rState.serverURL.url}: ${e.message}")
+            throw SDKException(ErrorCodes.con_failed, "Token exchange failed for ${rState.serverURL.url}: ${e.message}", e)
         }
-        if (accountID == null) {
-            return@withContext null
-        } else {
-            return@withContext Pair(accountID, rState.loginContext)
+
+        accountID = manageRetrievedToken(accountService, transport, token)
+        Log.i(logTag, "... Token managed. Login context: ${rState.loginContext}")
+
+        // Leave OAuth state cacheDB clean
+        authStateDao.delete(oauthState)
+        // When creating a new account, we want to put its session on the foreground
+        if (rState.loginContext == LOGIN_CONTEXT_CREATE) {
+            accountService.openSession(accountID)
         }
+
+        return@withContext Pair(accountID, rState.loginContext)
     }
 
     @Throws(SDKException::class)
@@ -173,17 +181,31 @@ class AuthService(
         return accountID
     }
 
-    private fun generateUriData(cfg: OAuthConfig, state: String): Uri {
+    private fun generateUriData(cfg: OAuthConfig, state: String, codeVerifier: String, codeChallenge: String = computeCodeChallenge(codeVerifier)): Uri {
         var uriBuilder = Uri.parse(cfg.authorizeEndpoint).buildUpon()
         uriBuilder = uriBuilder.appendQueryParameter("state", state)
             .appendQueryParameter("scope", cfg.scope)
             .appendQueryParameter("client_id", ClientData.getInstance().clientId)
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", cfg.redirectURI)
+            .appendQueryParameter("code_challenge", codeChallenge)
+            .appendQueryParameter("code_challenge_method", "S256")
         if (cfg.audience != null && "" != cfg.audience) {
             uriBuilder.appendQueryParameter("audience_id", cfg.audience)
         }
         return uriBuilder.build()
+    }
+
+    private fun generateCodeVerifier(): String {
+        val bytes = ByteArray(32)
+        SecureRandom().nextBytes(bytes)
+        return Base64.encodeToString(bytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
+    }
+
+    private fun computeCodeChallenge(codeVerifier: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(codeVerifier.toByteArray(Charsets.US_ASCII))
+        return Base64.encodeToString(hash, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
     }
 
     private fun generateOAuthState(): String {

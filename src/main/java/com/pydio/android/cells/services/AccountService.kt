@@ -268,8 +268,13 @@ class AccountService(
 
             }
         } catch (e: SDKException) {
+            val wasReachable = if (e.isNetworkError) {
+                sessionDao.getSession(currID.accountId)?.isReachable ?: false
+            } else false
             notifyError(currID, "Unexpected error while checking account", e)
-            return true
+            // For repeated network errors where server was already unreachable, don't signal a
+            // change — otherwise backOffTicker resets and polling stays at minimum delay forever.
+            return !e.isNetworkError || wasReachable
         }
         return false
     }

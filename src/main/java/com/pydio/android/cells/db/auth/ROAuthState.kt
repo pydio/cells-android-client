@@ -23,5 +23,7 @@ data class ROAuthState(
     @ColumnInfo(name = "start_ts") val startTimestamp: Long,
 
     @ColumnInfo(name = "next") val loginContext: String?,
+
+    @ColumnInfo(name = "code_verifier") val codeVerifier: String = "",
 )
     

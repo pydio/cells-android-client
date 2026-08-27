@@ -369,10 +369,10 @@ fun WrapWithActions(
                 onDispose {
                     if (subjectIDs.first().parent() == stateID) { // Do nothing
                         // Corner case when we copy move in the same folder: do not stop the polling
-                        Log.e(LOG_TAG, "... On dispose for $stateID, WITHOUT STOPPING THE POLL")
+                        // Log.e(LOG_TAG, "... On dispose for $stateID, WITHOUT STOPPING THE POLL")
                     } else {
                         browseRemoteVM.pause(stateID)
-                        Log.e(LOG_TAG, "... Disposing select folder page for $stateID")
+                        // Log.e(LOG_TAG, "... Disposing select folder page for $stateID")
                     }
                 }
             }
@@ -381,7 +381,7 @@ fun WrapWithActions(
         dialog(actionRouteTemplate(NodeAction.Rename)) { entry ->
             val stateID = lazyStateID(entry)
             if (stateID == StateID.NONE) {
-                Log.e(LOG_TAG, "... cannot navigate with no state ID")
+                Log.w(LOG_TAG, "... cannot navigate with no state ID")
                 return@dialog
             }
             TreeNodeRename(

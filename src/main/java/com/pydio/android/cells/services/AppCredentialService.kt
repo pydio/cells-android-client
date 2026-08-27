@@ -192,10 +192,11 @@ class AppCredentialService(
             }
             return@withContext true
         } catch (e: Exception) {
-            Log.e(logTag, "Could not reach server $stateID. Updating session. cause: ${e.message}")
-            // Update reachable flag in the Session DB
-            session.isReachable = false
-            sessionDao.update(session)
+            Log.e(logTag, "Could not reach server $stateID. cause: ${e.message}")
+            if (session.isReachable) {
+                session.isReachable = false
+                sessionDao.update(session)
+            }
             return@withContext false
         }
     }
