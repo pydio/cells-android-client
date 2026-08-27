@@ -33,7 +33,9 @@ data class TreeNodeItem(
 ) : GenericItem {
 
     init {
-        isInRecycle = stateID.parentPath?.startsWith("/${SdkNames.RECYCLE_BIN_NAME}") == true
+        // stateID.file strips the workspace slug, giving e.g. "/recycle_bin/file.txt"
+        // stateID.parentPath includes the slug ("/my-files/recycle_bin"), so startsWith would never match
+        isInRecycle = stateID.file?.startsWith("/${SdkNames.RECYCLE_BIN_NAME}/") == true
     }
 
     override fun equals(other: Any?): Boolean {
