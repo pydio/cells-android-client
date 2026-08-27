@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -358,6 +359,7 @@ private fun TopBar(
         Row(
             Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .padding(
                     horizontal = dimensionResource(R.dimen.margin_small),
                     vertical = dimensionResource(R.dimen.margin_small),
